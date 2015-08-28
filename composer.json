@@ -1,0 +1,30 @@
+{
+  "name": "thepercival/voetbal",
+  "description": "laravel package and library for competitions, players, rankings, seasons, etc.",
+  "keywords": ["voetbal", "laravel"],
+  "homepage": "",
+  "license": "GPL-2.0",
+  "authors": [
+    {
+      "name": "Coen Dunnink",
+      "email": "coendunnink@gmail.com"
+    }
+  ],
+  "support": {
+	"email": "coendunnink@gmail.com"    
+  },
+  "require": {
+    "php": ">=5.4.0",
+    "illuminate/config": "~5.0",
+    "illuminate/support": "~5.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Voetbal\\": "src/"
+    }
+  },
+  "minimum-stability": "dev"
+}
