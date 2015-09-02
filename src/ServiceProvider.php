@@ -33,6 +33,7 @@ class ServiceProvider extends LaravelServiceProvider {
     public function register() {
 
         // Bind any implementations.
+        $this->app->bindShared("voetbal", function() { return new Test(); } );
 
     }
 
