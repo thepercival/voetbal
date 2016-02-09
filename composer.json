@@ -2,7 +2,7 @@
   "name": "thepercival/voetbal",
   "description": "laravel package and library for competitions, players, rankings, seasons, etc.",
   "keywords": ["voetbal", "laravel"],
-  "homepage": "",
+  "homepage": "https://www.superelf-eredivisie.nl/",
   "license": "GPL-2.0",
   "authors": [
     {
@@ -16,7 +16,11 @@
   "require": {
     "php": ">=5.4.0",
     "illuminate/config": "~5.0",
-    "illuminate/support": "~5.0"
+    "illuminate/support": "~5.0",
+
+    "nesbot/carbon": "~1.21",
+    "league/period": "~3.1",
+    "league/tactician": "~1.0"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.0"
