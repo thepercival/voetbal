@@ -41,6 +41,7 @@ $lockingMiddleware = new LockingMiddleware();
 $commandBus = new \League\Tactician\CommandBus([$lockingMiddleware,$handlerMiddleware]);
 $oYesterday = Carbon::yesterday();
 $oTomorrow = Carbon::tomorrow();
-$command = new Command\AddSeason( "gister tot vandaag", new Period( $oYesterday, $oTomorrow ) );
+$seasonname = new SeasonName("gister tot vandaag");
+$command = new Command\AddSeason( $seasonname, new Period( $oYesterday, $oTomorrow ) );
 $commandBus->handle( $command );
 
