@@ -6,6 +6,8 @@
  * Time: 11:04
  */
 
+namespace Voetbal;
+
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Setup;
 use Doctrine\ORM\EntityManager;
@@ -14,7 +16,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 // replace with mechanism to retrieve EntityManager in your app
 $isDevMode = true;
-$config = Setup::createYAMLMetadataConfiguration(array(__DIR__."\\db.dcm.yml"), $isDevMode);
+$config = Setup::createYAMLMetadataConfiguration(array(realpath( __DIR__ ."/db" )), $isDevMode);
 $dbParams = array(
     'driver'   => 'pdo_mysql',
     'user'     => 'root',

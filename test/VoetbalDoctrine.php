@@ -16,7 +16,7 @@ use Doctrine\ORM\EntityManager;
 $isDevMode = true;
 // $config = Setup::createAnnotationMetadataConfiguration(array(__DIR__."/../src"), $isDevMode);
 //$config = Setup::createXMLMetadataConfiguration(array(__DIR__."/config/xml"), $isDevMode);
-$config = Setup::createYAMLMetadataConfiguration(array(__DIR__."/../config/db.dcm.yml"), $isDevMode);
+$config = Setup::createYAMLMetadataConfiguration(array( realpath( __DIR__."/../config/")."db.dcm.yml"), $isDevMode);
 
 $dbParams = array(
     'driver'   => 'pdo_mysql',

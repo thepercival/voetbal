@@ -1,0 +1,13 @@
+# config/db.dcm.yml
+Voetbal\DAO\Season:
+  type: entity
+  table: seasons
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  embedded:
+    seasonname:
+      class: Voetbal\DAO\SeasonName
+      columnPrefix: false
