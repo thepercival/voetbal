@@ -14,9 +14,9 @@ use Voetbal\DAO\Season as DAOSeason;
 use Voetbal\DAO\SeasonName as DAOSeasonName;
 use Voetbal\DAO\Period as DAOPeriod;
 
-class AddSeason
+class SeasonAdd
 {
-    public function handle( \Voetbal\Command\AddSeason $command)
+    public function handle( \Voetbal\Command\SeasonAdd $command)
     {
         $oSeason = new Season( $command->getName(), $command->getPeriod() );
 

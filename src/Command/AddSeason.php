@@ -10,7 +10,7 @@ namespace Voetbal\Command;
 
 use League\Period\Period;
 
-class AddSeason
+class SeasonAdd
 {
     private $m_name;
     private $m_period;

@@ -50,7 +50,7 @@ class Service
     public static function getBus()
     {
         $arrCommandClassToHandlerMap = array(
-            "Voetbal\\Command\\AddSeason" => new Command\Handler\AddSeason(),
+            "Voetbal\\Command\\SeasonAdd" => new Command\Handler\SeasonAdd(),
         );
 
         $handlerMiddleware = new CommandHandlerMiddleware(
@@ -67,6 +67,6 @@ class Service
 $oYesterday = Carbon::yesterday();
 $oTomorrow = Carbon::tomorrow();
 $seasonname = new SeasonName("gister tot vandaag");
-$command = new Command\AddSeason( $seasonname, new Period( $oYesterday, $oTomorrow ) );
+$command = new Command\SeasonAdd( $seasonname, new Period( $oYesterday, $oTomorrow ) );
 Service::getBus()->handle( $command );
 
