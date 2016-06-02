@@ -51,6 +51,7 @@ class Service
     {
         $arrCommandClassToHandlerMap = array(
             "Voetbal\\Command\\SeasonAdd" => new Command\Handler\SeasonAdd(),
+            "Voetbal\\Command\\LeagueAdd" => new Command\Handler\LeagueAdd(),
         );
 
         $handlerMiddleware = new CommandHandlerMiddleware(

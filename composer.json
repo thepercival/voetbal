@@ -31,5 +31,10 @@
       "Voetbal\\": "src/"
     }
   },
-  "minimum-stability": "dev"
+  "minimum-stability": "dev",
+  "scripts": {
+    "test": [
+      "phpunit test\\SeasonTest.php"
+    ]
+  }
 }
