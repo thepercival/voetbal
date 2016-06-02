@@ -12,6 +12,7 @@ use Voetbal\Season;
 use Voetbal\Service;
 use Voetbal\DAO\Season as DAOSeason;
 use Voetbal\DAO\SeasonName as DAOSeasonName;
+use Voetbal\DAO\Period as DAOPeriod;
 
 class AddSeason
 {
@@ -24,6 +25,10 @@ class AddSeason
         $oDAOSeasonName = new DAOSeasonName();
         $oDAOSeasonName->setName( (string) $oSeason->getName() );
         $oDAOSeason->setSeasonname( $oDAOSeasonName );
+        $oDAOPeriod = new DAOPeriod();
+        $oDAOPeriod->setStartDateTime( new \DateTime( "@" . $oSeason->getStartDate()->getTimestamp() ) );
+        $oDAOPeriod->setEndDateTime( new \DateTime( "@" . $oSeason->getEndDate()->getTimestamp() ) );
+        $oDAOSeason->setPeriod( $oDAOPeriod );
 
         $entityManager = Service::getEntityManager();
         $entityManager->persist( $oDAOSeason );

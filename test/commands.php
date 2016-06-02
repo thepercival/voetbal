@@ -42,14 +42,9 @@ class Service
             return static::$entityManager;
 
         $isDevMode = true;
-        $config = Setup::createYAMLMetadataConfiguration(array(realpath( __DIR__ ."/../config/db" )), $isDevMode);
-        $dbParams = array(
-            'driver'   => 'pdo_mysql',
-            'user'     => 'root',
-            'password' => 'cdk4',
-            'dbname'   => 'voetbal',
-        );
-        return ( static::$entityManager = EntityManager::create($dbParams, $config) );
+        $config = Setup::createYAMLMetadataConfiguration(array(realpath( __DIR__ ."/../db" )), $isDevMode);
+        $arrConfig = parse_ini_file( __DIR__ . "/../config/voetbal.ini", true );
+        return ( static::$entityManager = EntityManager::create( $arrConfig["database"], $config) );
     }
 
     public static function getBus()
@@ -68,8 +63,6 @@ class Service
         return new \League\Tactician\CommandBus([$lockingMiddleware,$handlerMiddleware]);
     }
 }
-
-
 
 $oYesterday = Carbon::yesterday();
 $oTomorrow = Carbon::tomorrow();

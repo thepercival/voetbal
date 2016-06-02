@@ -40,13 +40,7 @@ $config->setProxyNamespace('Voetbal\Proxies');
 // replace with mechanism to retrieve EntityManager in your app
 // $isDevMode = true;
 // $config = Setup::createYAMLMetadataConfiguration(array(realpath( __DIR__ ."/db" )), $isDevMode);
-$dbParams = array(
-    'driver'   => 'pdo_mysql',
-    'user'     => 'root',
-    'password' => 'cdk4',
-    'dbname'   => 'voetbal',
-);
-$entityManager = EntityManager::create($dbParams, $config);
 
+$arrConfig = parse_ini_file( __DIR__ . "/../config/voetbal.ini", true );
 
-
+$entityManager = EntityManager::create( $arrConfig["database"], $config);

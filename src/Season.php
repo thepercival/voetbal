@@ -12,15 +12,14 @@ use League\Period\Period;
  * Time: 11:40
  */
 
-class Season
+class Season extends Period
 {
     private $m_name;
-    private $m_period;
 
     public function __construct( SeasonName $name, Period $period )
     {
+        parent::__construct( $period->getStartDate(), $period->getEndDate() );
         $this->m_name = $name;
-        $this->m_period = $period;
     }
 
     public function getName()

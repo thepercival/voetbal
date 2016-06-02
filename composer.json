@@ -1,6 +1,6 @@
 {
   "name": "thepercival/voetbal",
-  "description": "laravel package and library for competitions, players, rankings, seasons, etc.",
+  "description": "library  for football seasons and more too come",
   "keywords": ["voetbal", "laravel"],
   "homepage": "https://www.superelf-eredivisie.nl/",
   "license": "GPL-2.0",

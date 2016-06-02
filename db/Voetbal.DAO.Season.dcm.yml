@@ -11,3 +11,6 @@ Voetbal\DAO\Season:
     seasonname:
       class: Voetbal\DAO\SeasonName
       columnPrefix: false
+    period:
+      class: Voetbal\DAO\Period
+      columnPrefix: false
