@@ -1,4 +1,4 @@
-# bobliotheek voor voetbal
+# bibliotheek voor voetbal
 
 ## Omschrijving
 
