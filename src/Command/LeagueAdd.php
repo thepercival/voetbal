@@ -8,17 +8,17 @@
 
 namespace Voetbal\Command;
 
-use League\Period\Period;
+use Voetbal\League as League;
 
-class SeasonAdd
+class LeagueAdd
 {
     private $m_name;
-    private $m_period;
+    private $m_abbreviation;
 
-    public function __construct( $name, Period $period )
+    public function __construct( League\Name $name, League\Abbreviation $abbreviation )
     {
         $this->m_name = $name;
-        $this->m_period = $period;
+        $this->m_abbreviation = $abbreviation;
     }
 
     public function getName()
@@ -26,8 +26,8 @@ class SeasonAdd
         return $this->m_name;
     }
 
-    public function getPeriod()
+    public function getAbbreviation()
     {
-        return $this->m_period;
+        return $this->m_abbreviation;
     }
 }

@@ -50,8 +50,8 @@ class Service
     public static function getBus()
     {
         $arrCommandClassToHandlerMap = array(
-            "Voetbal\\Command\\SeasonAdd" => new Command\Handler\SeasonAdd()/*,
-            "Voetbal\\Command\\LeagueAdd" => new Command\Handler\LeagueAdd()*/
+            "Voetbal\\Command\\SeasonAdd" => new Command\Handler\SeasonAdd(),
+            "Voetbal\\Command\\LeagueAdd" => new Command\Handler\LeagueAdd()
         );
 
         $handlerMiddleware = new CommandHandlerMiddleware(
@@ -76,6 +76,8 @@ $command = new Command\LeagueAdd(
     new League\Abbreviation("ere")
 );
 $oLeague = Service::getBus()->handle( $command );
+
+return;
 
 // @TODO competitionadd-command should check if the combination does not exists, entitymanager should be injected in the command
 $command = new Command\CompetitionAdd(

@@ -3,7 +3,6 @@
 namespace Voetbal;
 
 // use Doctrine\ORM\EntityManager;
-use League\Period\Period;
 
 /**
  * Created by PhpStorm.
@@ -12,18 +11,24 @@ use League\Period\Period;
  * Time: 11:40
  */
 
-class Season extends Period
+class League
 {
     private $m_name;
+    private $m_abbreviation;
 
-    public function __construct( Season\Name $name, Period $period )
+    public function __construct( League\Name $name, League\Abbreviation $abbreviation )
     {
-        parent::__construct( $period->getStartDate(), $period->getEndDate() );
         $this->m_name = $name;
+        $this->m_abbreviation = $abbreviation;
     }
 
     public function getName()
     {
         return $this->m_name;
+    }
+
+    public function getAbbreviation()
+    {
+        return $this->m_abbreviation;
     }
 }

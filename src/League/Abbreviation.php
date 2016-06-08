@@ -1,6 +1,6 @@
 <?php
 
-namespace Voetbal;
+namespace Voetbal\League;
 
 /**
  * Created by PhpStorm.
@@ -8,7 +8,7 @@ namespace Voetbal;
  * Date: 8-2-2016
  * Time: 11:40
  */
-class LeagueAbbreviation
+class Abbreviation
 {
 	private $m_abbreviation;
 	const MAX_LENGTH = 5;

@@ -9,13 +9,14 @@
 namespace Voetbal\Command;
 
 use League\Period\Period;
+use Voetbal\Season as Season;
 
 class SeasonAdd
 {
     private $m_name;
     private $m_period;
 
-    public function __construct( $name, Period $period )
+    public function __construct( Season\Name $name, Period $period )
     {
         $this->m_name = $name;
         $this->m_period = $period;

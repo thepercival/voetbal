@@ -11,7 +11,6 @@ namespace Voetbal\Command\Handler;
 use Voetbal\Season;
 use Voetbal\Service;
 use Voetbal\DAO\Season as DAOSeason;
-use Voetbal\DAO\SeasonName as DAOSeasonName;
 use Voetbal\DAO\Period as DAOPeriod;
 
 class SeasonAdd

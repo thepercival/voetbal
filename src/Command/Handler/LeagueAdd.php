@@ -8,34 +8,26 @@
 
 namespace Voetbal\Command\Handler;
 
-use Voetbal\Season;
+use Voetbal\League;
 use Voetbal\Service;
-use Voetbal\DAO\Season as DAOSeason;
-use Voetbal\DAO\SeasonName as DAOSeasonName;
-use Voetbal\DAO\Period as DAOPeriod;
+use Voetbal\DAO\League as DAOLeague;
 
-class SeasonAdd
+class LeagueAdd
 {
-    public function handle( \Voetbal\Command\SeasonAdd $command)
+    public function handle( \Voetbal\Command\LeagueAdd $command)
     {
-        $oSeason = new Season( $command->getName(), $command->getPeriod() );
+        $oLeague = new League( $command->getName(), $command->getAbbreviation() );
 
         // echo "handled command addseason, should be written tot db" . PHP_EOL;
-        $oDAOSeason = new DAOSeason();
-        $oDAOSeasonName = new DAOSeasonName();
-        $oDAOSeasonName->setName( (string) $oSeason->getName() );
-        $oDAOSeason->setSeasonname( $oDAOSeasonName );
-        $oDAOPeriod = new DAOPeriod();
-        $oDAOPeriod->setStartDateTime( new \DateTime( "@" . $oSeason->getStartDate()->getTimestamp() ) );
-        $oDAOPeriod->setEndDateTime( new \DateTime( "@" . $oSeason->getEndDate()->getTimestamp() ) );
-        $oDAOSeason->setPeriod( $oDAOPeriod );
+        $oDAOLeague = new DAOLeague();
+        $oDAOLeague->setName( $oLeague->getName() );
+        $oDAOLeague->setAbbreviation( $oLeague->getAbbreviation() );
 
         $entityManager = Service::getEntityManager();
-        $entityManager->persist( $oDAOSeason );
+        $entityManager->persist( $oDAOLeague );
         $entityManager->flush();
 
-
-        // return SeasonRepository::add( $oSeason );
-        return $oSeason;
+        // return LeagueRepository::add( $oLeague );
+        return $oLeague;
     }
 }

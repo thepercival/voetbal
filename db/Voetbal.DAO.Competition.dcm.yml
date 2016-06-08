@@ -1,0 +1,21 @@
+# config/db.dcm.yml
+Voetbal\DAO\Competition:
+  type: entity
+  table: competitions
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+  ----------------- continue from here -----------------------------
+    name:
+      type: string
+      length : 20
+    abbreviation:
+      type: string
+      length : 5
+  embedded:
+    externid:
+      class: Voetbal\DAO\External
+      columnPrefix: false
