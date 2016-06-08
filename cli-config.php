@@ -22,3 +22,8 @@ $entityManager = EntityManager::create( $arrConfig["database"], $config);
 // $entityManager = GetEntityManager();
 
 return ConsoleRunner::createHelperSet($entityManager);
+
+/*
+    vendor\bin\doctrine orm:generate-entities src/
+    vendor\bin\doctrine orm:schema-tool:update --force
+*/
