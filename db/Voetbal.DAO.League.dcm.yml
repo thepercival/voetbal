@@ -1,18 +1,20 @@
 # config/db.dcm.yml
-Voetbal\DAO\Season:
+Voetbal\DAO\League:
   type: entity
-  table: seasons
+  table: leagues
   id:
     id:
       type: integer
       generator:
         strategy: AUTO
   fields:
-    name: { type: string, length : 9 }
+    name:
+      type: string
+      length : 20
+    abbreviation:
+      type: string
+      length : 5
   embedded:
-    period:
-      class: Voetbal\DAO\Period
-      columnPrefix: false
     externid:
       class: Voetbal\DAO\External
       columnPrefix: false

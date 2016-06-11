@@ -22,9 +22,7 @@ class SeasonAdd
 
         // echo "handled command addseason, should be written tot db" . PHP_EOL;
         $oDAOSeason = new DAOSeason();
-        $oDAOSeasonName = new DAOSeasonName();
-        $oDAOSeasonName->setName( (string) $oSeason->getName() );
-        $oDAOSeason->setSeasonname( $oDAOSeasonName );
+        $oDAOSeason->setName( $oSeason->getName() );
         $oDAOPeriod = new DAOPeriod();
         $oDAOPeriod->setStartDateTime( new \DateTime( "@" . $oSeason->getStartDate()->getTimestamp() ) );
         $oDAOPeriod->setEndDateTime( new \DateTime( "@" . $oSeason->getEndDate()->getTimestamp() ) );

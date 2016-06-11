@@ -66,8 +66,35 @@ class Service
 }
 
 $command = new Command\SeasonAdd(
-    new SeasonName("2016/2017"),
+    new Season\Name("2016/2017"),
     new Period( Carbon::create( 2016, 9, 1, 0 ), Carbon::create( 2017, 7, 1, 0 ) )
 );
-
 $oSeason = Service::getBus()->handle( $command );
+
+$command = new Command\LeagueAdd(
+    new League\Name("eredivisie"),
+    new League\Abbreviation("ere")
+);
+$oLeague = Service::getBus()->handle( $command );
+
+// @TODO competitionadd-command should check if the combination does not exists, entitymanager should be injected in the command
+$command = new Command\CompetitionAdd(
+    $oLeague,
+    $oSeason
+);
+$command->putAssociation();
+$command->putPromotionRule();
+$command->putNrOfMinutesGame();
+$command->putNrOfMinutesExtraTime();
+$command->putWinPointsAfterGame();
+$command->putWinPointsAfterExtraTime();
+$command->putWinPointsAfterExtraTime();
+
+// @TODO $command->putExternId();, should maybe go through an import object to check uniqueness
+
+$oCompetition = Service::getBus()->handle( $command );
+
+/*Public                    deze eigenschapp zou een eigen klasse moeten hebben CompetitionPublish
+
+
+ExternId*/

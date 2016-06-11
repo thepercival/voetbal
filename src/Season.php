@@ -16,7 +16,7 @@ class Season extends Period
 {
     private $m_name;
 
-    public function __construct( SeasonName $name, Period $period )
+    public function __construct( Season\Name $name, Period $period )
     {
         parent::__construct( $period->getStartDate(), $period->getEndDate() );
         $this->m_name = $name;

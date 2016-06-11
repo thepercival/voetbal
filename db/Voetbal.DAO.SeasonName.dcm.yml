@@ -1,5 +1,0 @@
-# config/db.dcm.yml
-Voetbal\DAO\SeasonName:
-  type: embeddable
-  fields:
-    name: { type: string }
