@@ -1,0 +1,23 @@
+# config/db.dcm.yml
+Voetbal\DAO\Association:
+  type: entity
+  repositoryClass: Voetbal\Repository\Association
+  table: associations
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type: string
+      length : 20
+      unique: true
+      nullable: true
+    description:
+      type: string
+      length : 100
+      nullable: true
+  oneToOne:
+    parent:
+      targetEntity: Association

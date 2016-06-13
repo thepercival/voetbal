@@ -18,7 +18,11 @@ class Season extends Period
 
     public function __construct( Season\Name $name, Period $period )
     {
+        if ( $period === null )
+            throw new \InvalidArgumentException( "de periode moet gezet zijn", E_ERROR );
         parent::__construct( $period->getStartDate(), $period->getEndDate() );
+        if ( $name === null )
+            throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
         $this->m_name = $name;
     }
 

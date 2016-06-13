@@ -50,6 +50,7 @@ class Service
     public static function getBus()
     {
         $arrCommandClassToHandlerMap = array(
+            "Voetbal\\Command\\AssociationAdd" => new Command\Handler\AssociationAdd(),
             "Voetbal\\Command\\SeasonAdd" => new Command\Handler\SeasonAdd(),
             "Voetbal\\Command\\LeagueAdd" => new Command\Handler\LeagueAdd()
         );
@@ -65,18 +66,32 @@ class Service
     }
 }
 
-$command = new Command\SeasonAdd(
-    new Season\Name("2016/2017"),
-    new Period( Carbon::create( 2016, 9, 1, 0 ), Carbon::create( 2017, 7, 1, 0 ) )
-);
-$oSeason = Service::getBus()->handle( $command );
+try {
+    $command = new Command\AssociationAdd( new Association\Name( "F.I.F.A." ) );
+    $command->setDescription( new Association\Description( "wereld voetbalbond" ) );
+    $oAssociationWorld = Service::getBus()->handle( $command );
 
-$command = new Command\LeagueAdd(
-    new League\Name("eredivisie"),
-    new League\Abbreviation("ere")
-);
-$oLeague = Service::getBus()->handle( $command );
+    $command = new Command\AssociationAdd( new Association\Name( "U.E.F.A." ) );
+    $command->setDescription( new Association\Description( "europese voetbalbond" ) );
+    $command->setParent( $oAssociationWorld );
+    $oAssociationEurope = Service::getBus()->handle( $command );
 
+    $command = new Command\SeasonAdd(
+        new Season\Name( "2016/2017" ),
+        new Period( Carbon::create( 2016, 9, 1, 0 ), Carbon::create( 2017, 7, 1, 0 ) )
+    );
+    $oSeason = Service::getBus()->handle( $command );
+
+    $command = new Command\LeagueAdd(
+        new League\Name( "eredivisie" ),
+        new League\Abbreviation( "ere" )
+    );
+    $oLeague = Service::getBus()->handle( $command );
+}
+catch( \Exception $e )
+{
+    echo $e->getMessage() . PHP_EOL;
+}
 return;
 
 // @TODO competitionadd-command should check if the combination does not exists, entitymanager should be injected in the command
