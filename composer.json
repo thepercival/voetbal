@@ -14,27 +14,29 @@
 	"email": "coendunnink@gmail.com"    
   },
   "require": {
-    "php": ">=5.4.0",
-    "illuminate/config": "~5.0",
-    "illuminate/support": "~5.0",
-
+    "vlucas/phpdotenv": "^2.4",
     "nesbot/carbon": "~1.21",
     "league/period": "~3.1",
     "league/tactician": "~1.0",
     "doctrine/orm": "^2.5"
   },
   "require-dev": {
-    "phpunit/phpunit": "~4.0"
+    "phpunit/phpunit": "~5.7"
   },
   "autoload": {
     "psr-4": {
       "Voetbal\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Voetbal\\": "src/",
+      "Voetbal\\Tests\\": "tests/" }
+  },
   "minimum-stability": "dev",
   "scripts": {
     "test": [
-      "phpunit test"
+      "phpunit tests"
     ]
   }
 }

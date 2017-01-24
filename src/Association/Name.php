@@ -18,6 +18,12 @@ class Name
 		if ( strlen( $name ) < 1 or strlen( $name ) > static::MAX_LENGTH )
 			throw new \InvalidArgumentException( "de naam moet minimaal 1 karakter bevatten en mag maximaal ".static::MAX_LENGTH." karakters bevatten", E_ERROR );
 
+		// alleen letters spaties en punten en streepjes
+		if(preg_match('/[^a-z .]/i', $name))
+		{
+			throw new \InvalidArgumentException( "de naam mag alleen letters, spaties en punten bevatten", E_ERROR );
+		}
+
 		$this->m_name = $name;
 	}
 

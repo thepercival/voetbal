@@ -6,7 +6,7 @@
  * Time: 09:12
  */
 
-
+/*
 namespace Voetbal;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -45,24 +45,6 @@ class Service
         $config = Setup::createYAMLMetadataConfiguration(array(realpath( __DIR__ ."/../db" )), $isDevMode);
         $arrConfig = parse_ini_file( __DIR__ . "/../config/voetbal.ini", true );
         return ( static::$entityManager = EntityManager::create( $arrConfig["database"], $config) );
-    }
-
-    public static function getBus()
-    {
-        $arrCommandClassToHandlerMap = array(
-            "Voetbal\\Command\\AssociationAdd" => new Command\Handler\AssociationAdd(),
-            "Voetbal\\Command\\SeasonAdd" => new Command\Handler\SeasonAdd(),
-            "Voetbal\\Command\\LeagueAdd" => new Command\Handler\LeagueAdd()
-        );
-
-        $handlerMiddleware = new CommandHandlerMiddleware(
-            new ClassNameExtractor(),
-            new InMemoryLocator( $arrCommandClassToHandlerMap ),
-            new Inflector()
-        );
-        $lockingMiddleware = new LockingMiddleware();
-
-        return new \League\Tactician\CommandBus([$lockingMiddleware,$handlerMiddleware]);
     }
 }
 
@@ -110,7 +92,7 @@ $command->putWinPointsAfterExtraTime();
 // @TODO $command->putExternId();, should maybe go through an import object to check uniqueness
 
 $oCompetition = Service::getBus()->handle( $command );
-
+*/
 /*Public                    deze eigenschapp zou een eigen klasse moeten hebben CompetitionPublish
 
 

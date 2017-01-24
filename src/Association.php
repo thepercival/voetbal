@@ -21,6 +21,7 @@ class Association
     {
         if ( $name === null )
             throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
+
         $this->m_name = $name;
     }
 
