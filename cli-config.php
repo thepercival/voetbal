@@ -1,29 +1,20 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cdunnink
- * Date: 15-2-2016
- * Time: 11:04
- */
-
-namespace Voetbal;
 
 use Doctrine\ORM\Tools\Console\ConsoleRunner;
-use Doctrine\ORM\Tools\Setup;
-use Doctrine\ORM\EntityManager;
 
-require_once __DIR__ . '/vendor/autoload.php';
+require 'vendor/autoload.php';
 
-// replace with mechanism to retrieve EntityManager in your app
-$isDevMode = true;
-$config = Setup::createYAMLMetadataConfiguration(array(realpath( __DIR__ ."/db" )), $isDevMode);
-$arrConfig = parse_ini_file( __DIR__ . "/config/voetbal.ini", true );
-$entityManager = EntityManager::create( $arrConfig["database"], $config);
-// $entityManager = GetEntityManager();
+$settings = include 'app/settings.php';
+$settings = $settings['settings']['doctrine'];
 
-return ConsoleRunner::createHelperSet($entityManager);
+$config = \Doctrine\ORM\Tools\Setup::createAnnotationMetadataConfiguration(
+	$settings['meta']['entity_path'],
+	$settings['meta']['auto_generate_proxies'],
+	$settings['meta']['proxy_dir'],
+	$settings['meta']['cache'],
+	false
+);
 
-/*
-    vendor\bin\doctrine orm:generate-entities src/
-    vendor\bin\doctrine orm:schema-tool:update --force
-*/
+$em = \Doctrine\ORM\EntityManager::create($settings['connection'], $config);
+
+return ConsoleRunner::createHelperSet($em);

@@ -2,4 +2,5 @@
 /vendor/
 /src/DAO/
 /src/Voetbal/
-/config/voetbal.ini
+.env
+*.log
