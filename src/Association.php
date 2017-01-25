@@ -1,9 +1,4 @@
 <?php
-
-namespace Voetbal;
-
-// use Doctrine\ORM\EntityManager;
-
 /**
  * Created by PhpStorm.
  * User: cdunnink
@@ -11,12 +6,30 @@ namespace Voetbal;
  * Time: 11:40
  */
 
+namespace Voetbal;
+
 class Association
 {
-    private $name;
-    private $description;
-    private $parent;
-    private $children;
+	/**
+	 * @var int
+	 */
+	private $id;
+
+	/**
+	 * @var string
+	 */
+	private $name;
+
+	/**
+	 * @var string
+	 */
+	private $description;
+
+	/**
+	 * @var \Voetbal\Association
+	 */
+	private $parent;
+
 
     public function __construct( Association\Name $name )
     {
@@ -26,7 +39,17 @@ class Association
         $this->name = $name;
     }
 
-    public function getName()
+	/**
+	 * Get id
+	 *
+	 * @return int
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
+
+	public function getName()
     {
         return $this->name;
     }
@@ -36,6 +59,9 @@ class Association
         return $this->description;
     }
 
+	/**
+	 * @param Association\Description $description
+	 */
     public function setDescription( Association\Description $description )
     {
         $this->description = $description;

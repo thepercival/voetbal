@@ -1,5 +1,4 @@
-# config/db.dcm.yml
-Voetbal\DAO\Association:
+Voetbal\Association:
   type: entity
   repositoryClass: Voetbal\Repository\Association
   table: associations
@@ -11,12 +10,12 @@ Voetbal\DAO\Association:
   fields:
     name:
       type: string
-      length : 20
+      length : !php/const:Voetbal\Association\Name::MAX_LENGTH
       unique: true
       nullable: true
     description:
       type: string
-      length : 100
+      length : !php/const:Voetbal\Association\Description::MAX_LENGTH
       nullable: true
   oneToOne:
     parent:
