@@ -26,7 +26,7 @@ class Association
 	private $description;
 
 	/**
-	 * @var \Voetbal\Association
+	 * @var Association
 	 */
 	private $parent;
 
@@ -54,6 +54,17 @@ class Association
         return $this->name;
     }
 
+	/**
+	 * @param Association\Name $name
+	 */
+	public function setName( Association\Name $name )
+	{
+		$this->name = $name;
+	}
+
+	/**
+	 * @return string
+	 */
     public function getDescription()
     {
         return $this->description;
@@ -67,16 +78,25 @@ class Association
         $this->description = $description;
     }
 
+	/**
+	 * @return Association
+	 */
     public function getParent()
     {
         return $this->parent;
     }
 
+	/**
+	 * @param Association|null $parent
+	 */
     public function setParent( Association $parent = null )
     {
         $this->parent = $parent;
     }
 
+	/**
+	 * @return mixed
+	 */
     public function getChildren()
     {
         return $this->children;

@@ -2,6 +2,8 @@
 
 namespace Voetbal\Repository;
 
+use Voetbal\Repository;
+
 /**
  * Association
  *
