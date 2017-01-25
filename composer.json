@@ -30,13 +30,16 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Voetbal\\": "src/",
-      "Voetbal\\Tests\\": "tests/" }
+      "Voetbal\\Tests\\": "tests/"
+    },
+    "psr-0": {
+      "": "tests/"
+    }
   },
   "minimum-stability": "dev",
   "scripts": {
     "test": [
-      "phpunit tests"
+      "phpunit -c tests/config.xml"
     ]
   }
 }

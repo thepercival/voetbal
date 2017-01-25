@@ -10,19 +10,19 @@ namespace Voetbal\Association;
  */
 class Description
 {
-	private $m_description;
-	const MAX_LENGTH = 100;
+	private $description;
+	const MAX_LENGTH = 50;
 
 	public function __construct( $description )
 	{
 		if ( strlen( $description ) < 1 or strlen( $description ) > static::MAX_LENGTH )
 			throw new \InvalidArgumentException( "de omschrijving moet minimaal 1 karakter bevatten en mag maximaal ".static::MAX_LENGTH." karakters bevatten", E_ERROR );
 
-		$this->m_description = $description;
+		$this->description = $description;
 	}
 
 	public function __toString()
 	{
-		return $this->m_description;
+		return $this->description;
 	}
 }

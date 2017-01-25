@@ -42,6 +42,18 @@ class AssociationTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals("K.N.V.B.", $associationName );
 	}
 
+    public function testCreateDescriptionMin()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $associationDescription = new Association\Description("");
+    }
+
+    public function testCreateDescriptionMax()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $associationDescription = new Association\Description("123456789012345678901234567890123456789012345678901");
+    }
+
 	public function testCreate()
 	{
 		$associationName = new Association\Name("K.N.V.B.");
