@@ -18,7 +18,7 @@ return [
 		// Doctrine settings
 		'doctrine' => [
 			'meta' => [
-				'entity_path' => ['db/yml'],
+				'entity_path' => ['db/yml-mapping'],
 				'auto_generate_proxies' => ( getenv('ENVIRONMENT') === "development" ),
 				'proxy_dir' =>  __DIR__.'/../cache/proxies',
 				'cache' => null,
