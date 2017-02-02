@@ -9,7 +9,7 @@
 namespace Voetbal\Association;
 
 use Voetbal\Association;
-use VoetbalRepository\Association as AssociationRepository;
+use Voetbal\Repository\Association as AssociationRepository;
 
 class Service implements Association\Service\Contract
 {
@@ -44,6 +44,8 @@ class Service implements Association\Service\Contract
 
 		$this->repos->getEntityManager()->persist($association);
 		$this->repos->getEntityManager()->flush();
+
+		return $association;
 	}
 
 	/**

@@ -6,7 +6,7 @@
  * Time: 19:03
  */
 
-namespace VoetbalRepository;
+namespace Voetbal\Repository;
 
 use Doctrine\ORM\EntityManager;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace VoetbalRepository;
+namespace Voetbal\Repository;
 
-use VoetbalRepository\Main;
+use Voetbal\Repository\Main;
 
 /**
  * Association
