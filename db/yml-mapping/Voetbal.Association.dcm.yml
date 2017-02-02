@@ -1,6 +1,6 @@
 Voetbal\Association:
   type: entity
-  repositoryClass: Voetbal\Repository\Association
+  repositoryClass: VoetbalRepository\Association
   table: associations
   id:
     id:
