@@ -51,15 +51,15 @@ class Association
 
 	public function getName()
     {
-        return $this->name;
+        return (string) $this->name;
     }
 
 	/**
 	 * @param Association\Name $name
 	 */
-	public function setName( Association\Name $name )
+	public function setName( $name )
 	{
-		$this->name = $name;
+		$this->name = new Association\Name( $name );
 	}
 
 	/**
@@ -67,15 +67,15 @@ class Association
 	 */
     public function getDescription()
     {
-        return $this->description;
+        return (string)$this->description;
     }
 
 	/**
 	 * @param Association\Description $description
 	 */
-    public function setDescription( Association\Description $description )
+    public function setDescription( $description )
     {
-        $this->description = $description;
+	    $this->description = new Association\Description( $description );
     }
 
 	/**
