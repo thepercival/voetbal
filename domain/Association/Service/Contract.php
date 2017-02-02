@@ -7,11 +7,13 @@
  */
 namespace Voetbal\Association\Service;
 
+use Voetbal\Association;
+
 interface Contract
 {
-	public function create( \Voetbal\Association\Name $name, \Voetbal\Association\Description $description, \Voetbal\Association $parent );
-	public function changeName( \Voetbal\Association $association, \Voetbal\Association\Name $name );
-	public function changeDescription( \Voetbal\Association $association, \Voetbal\Association\Description $description );
-	public function changeParent( \Voetbal\Association $association, \Voetbal\Association $parent );
-	public function remove( \Voetbal\Association $association );
+	public function create( Association\Name $name, Association\Description $description, Association $parent );
+	public function changeName( Association $association, Association\Name $name );
+	public function changeDescription( Association $association, Association\Description $description );
+	public function changeParent( Association $association, Association $parent );
+	public function remove( Association $association );
 }

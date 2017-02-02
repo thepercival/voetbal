@@ -9,7 +9,7 @@
 namespace Voetbal\Association;
 
 use Voetbal\Association;
-use Voetbal\Repository\Association as AssociationRepository;
+use VoetbalRepository\Association as AssociationRepository;
 
 class Service implements Association\Service\Contract
 {
@@ -29,27 +29,34 @@ class Service implements Association\Service\Contract
 	}
 
 	/**
-	 * @param Name $name
-	 * @param Description $description
-	 * @param Association $parent
+	 * @see Association\Service\Contract::create()
 	 */
 	public function create( Association\Name $name, Association\Description $description, Association $parent )
 	{
-
 		$association = new Association( $name );
 		$association->setDescription($description);
 		$association->setParent($parent);
+
+		$association = $this->repos->findOneBy( array('name' => $name ) );
+		if ( $association !== null ){
+			throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
+		}
 
 		$this->repos->getEntityManager()->persist($association);
 		$this->repos->getEntityManager()->flush();
 	}
 
 	/**
-	 * @param Association $association
-	 * @param Name $name
+	 * @see Association\Service\Contract::changeName()
 	 */
 	public function changeName( Association $association, Association\Name $name )
 	{
+		// @TODO check if name not exists
+		/*$association = $this->repos->findOneBy( array('name' => $name ) );
+		if ( $association !== null ){
+			throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
+		}*/
+
 		$association->setName($name);
 
 		$this->repos->getEntityManager()->persist($association);
@@ -57,8 +64,7 @@ class Service implements Association\Service\Contract
 	}
 
 	/**
-	 * @param Association $association
-	 * @param Description $description
+	 * @see Association\Service\Contract::changeDescription()
 	 */
 	public function changeDescription( Association $association, Association\Description $description )
 	{

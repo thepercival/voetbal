@@ -26,7 +26,8 @@
   },
   "autoload": {
     "psr-4": {
-      "Voetbal\\": "domain/"
+      "Voetbal\\": "domain/",
+      "VoetbalRepository\\": "db/repositories"
     }
   },
   "autoload-dev": {

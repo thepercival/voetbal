@@ -30,6 +30,11 @@ class Association
 	 */
 	private $parent;
 
+	/**
+	 * @var ArrayCollection
+	 */
+	private $children;
+
 
     public function __construct( Association\Name $name )
     {
@@ -51,15 +56,15 @@ class Association
 
 	public function getName()
     {
-        return (string) $this->name;
+        return $this->name;
     }
 
 	/**
 	 * @param Association\Name $name
 	 */
-	public function setName( $name )
+	public function setName( Association\Name $name )
 	{
-		$this->name = new Association\Name( $name );
+		$this->name = $name;
 	}
 
 	/**
@@ -67,15 +72,15 @@ class Association
 	 */
     public function getDescription()
     {
-        return (string)$this->description;
+        return $this->description;
     }
 
 	/**
 	 * @param Association\Description $description
 	 */
-    public function setDescription( $description )
+    public function setDescription( Association\Description $description )
     {
-	    $this->description = new Association\Description( $description );
+        $this->description = $description;
     }
 
 	/**
@@ -91,6 +96,9 @@ class Association
 	 */
     public function setParent( Association $parent = null )
     {
+	    if ( $parent === $this ){
+		    throw new \InvalidArgumentException( "de parent-bond mag niet zichzelf zijn", E_ERROR );
+	    }
         $this->parent = $parent;
     }
 
