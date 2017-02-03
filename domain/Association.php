@@ -8,6 +8,8 @@
 
 namespace Voetbal;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 class Association
 {
 	/**
@@ -42,6 +44,7 @@ class Association
             throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
 
         $this->name = $name;
+        $this->children = new ArrayCollection();
     }
 
 	/**
@@ -100,7 +103,7 @@ class Association
 		    throw new \Exception( "de parent-bond mag niet zichzelf zijn", E_ERROR );
 	    }
 	    if ( $this->parent !== null ){
-            $this->parent->getChildren()->remove($this);
+            $this->parent->getChildren()->removeElement($this);
         }
         $this->parent = $parent;
         if ( $this->parent !== null ){
