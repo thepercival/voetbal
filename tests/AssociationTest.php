@@ -60,4 +60,28 @@ class AssociationTest extends \PHPUnit_Framework_TestCase
 		$association = new Association( $associationName );
 		$this->assertNotEquals(null, $association);
 	}
+
+    public function testParentChildSame()
+    {
+        $this->expectException(\Exception::class);
+        $child = new Association( new Association\Name("child") );
+        $child->setParent($child);
+    }
+
+    public function testParentChildNewParent()
+    {
+        $parent = new Association( new Association\Name("parent") );
+        $child = new Association( new Association\Name("child") );
+        $child->setParent($parent);
+        $this->assertNotEquals(1, $parent->getChildren()->count());
+    }
+
+    /*public function testParentChildReplaceParent()
+    {
+        $oldParent = new Association( new Association\Name("OldParent") );
+        $newParent = new Association( new Association\Name("NewParent") );
+        $child = new Association( new Association\Name("child") );
+        $child->putParent($parent);
+        $this->assertNotEquals(1, $parent->children()->count());
+    }*/
 }

@@ -1,0 +1,23 @@
+<phpunit bootstrap="./tests/bootstrap.php" colors="true">
+    <testsuites>
+        <testsuite name="voetbal">
+            <directory suffix=".php">./tests</directory>
+            <exclude>./tests/commands.php</exclude>
+            <exclude>./tests/bootstrap.php</exclude>
+        </testsuite>
+    </testsuites>
+<!--
+    <filter>
+        <whitelist addUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">domain</directory>
+        </whitelist>
+    </filter>
+
+    <logging>
+        <log type="coverage-html" target="./logs/unit/codecoverage" charset="UTF-8"
+             yui="true" highlight="true"
+             lowUpperBound="50" highLowerBound="80"/>
+        <log type="testdox-html" target="./logs/unit/codecoverage/testdox.html" />
+    </logging>
+    -->
+</phpunit>

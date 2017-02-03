@@ -16,8 +16,8 @@ class AssociationServiceTest extends \PHPUnit_Framework_TestCase
 	public function testCreateNameMin()
 	{
 		$em = null;
-		$associationRepos = new AssociationRepository( $em );
-		$service = new Association\Service( $associationRepos );
+		// $associationRepos = new AssociationRepository( $em );
+		// $service = new Association\Service( $associationRepos );
 		// $this->expectException(\InvalidArgumentException::class);
 		// $associationName = new Association\Name("");
 	}

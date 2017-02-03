@@ -28,8 +28,8 @@
   "autoload": {
     "psr-4": {
       "Voetbal\\": "domain/",
-      "Voetbal\\Repository\\": "db/repositories",
-      "Voetbal\\Action\\": "actions"
+      "Voetbal\\Repository\\": "db/repositories/",
+      "Voetbal\\Action\\": "actions/"
     }
   },
   "autoload-dev": {
@@ -43,7 +43,7 @@
   "minimum-stability": "dev",
   "scripts": {
     "test": [
-      "phpunit -c tests/config.xml"
+      "vendor\\bin\\phpunit -c tests/config.xml"
     ]
   }
 }

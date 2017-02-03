@@ -97,9 +97,15 @@ class Association
     public function setParent( Association $parent = null )
     {
 	    if ( $parent === $this ){
-		    throw new \InvalidArgumentException( "de parent-bond mag niet zichzelf zijn", E_ERROR );
+		    throw new \Exception( "de parent-bond mag niet zichzelf zijn", E_ERROR );
 	    }
+	    if ( $this->parent !== null ){
+            $this->parent->getChildren()->remove($this);
+        }
         $this->parent = $parent;
+        if ( $this->parent !== null ){
+            $this->parent->getChildren()->add($this);
+        }
     }
 
 	/**

@@ -20,3 +20,6 @@ Voetbal\Association:
   oneToOne:
     parent:
       targetEntity: Association
+
+
+      add oneToMany
