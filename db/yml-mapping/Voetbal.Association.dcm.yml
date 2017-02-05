@@ -10,16 +10,21 @@ Voetbal\Association:
   fields:
     name:
       type: string
-      length : !php/const:Voetbal\Association\Name::MAX_LENGTH
+      length : !php/const:Voetbal\Association::MAX_LENGTH_NAME
       unique: true
       nullable: true
     description:
       type: string
-      length : !php/const:Voetbal\Association\Description::MAX_LENGTH
+      length : !php/const:Voetbal\Association::MAX_LENGTH_DESCRIPTION
       nullable: true
-  oneToOne:
+  oneToMany:
+    children:
+      targetEntity: Voetbal\Association
+      mappedBy: parent
+  manyToOne:
     parent:
-      targetEntity: Association
-
-
-      add oneToMany
+      targetEntity: Voetbal\Association
+      inversedBy: children
+      joinColumn:
+        name: parentid
+        referencedColumnName: id

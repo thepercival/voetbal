@@ -31,19 +31,18 @@ class Service implements Association\Service\Contract
 	/**
 	 * @see Association\Service\Contract::create()
 	 */
-	public function create( Association\Name $name, Association\Description $description, Association $parent )
+	public function create( $name, $description = null, Association $parent = null )
 	{
 		$association = new Association( $name );
 		$association->setDescription($description);
 		$association->setParent($parent);
 
-		$association = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $association !== null ){
+		$associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+		if ( $associationWithSameName !== null ){
 			throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
 		}
 
-		$this->repos->getEntityManager()->persist($association);
-		$this->repos->getEntityManager()->flush();
+		$this->repos->save($association);
 
 		return $association;
 	}
@@ -51,7 +50,7 @@ class Service implements Association\Service\Contract
 	/**
 	 * @see Association\Service\Contract::changeName()
 	 */
-	public function changeName( Association $association, Association\Name $name )
+	public function changeName( Association $association, $name )
 	{
 		// @TODO check if name not exists
 		/*$association = $this->repos->findOneBy( array('name' => $name ) );
@@ -61,14 +60,13 @@ class Service implements Association\Service\Contract
 
 		$association->setName($name);
 
-		$this->repos->getEntityManager()->persist($association);
-		$this->repos->getEntityManager()->flush();
+		$this->repos->save($association);
 	}
 
 	/**
 	 * @see Association\Service\Contract::changeDescription()
 	 */
-	public function changeDescription( Association $association, Association\Description $description )
+	public function changeDescription( Association $association, $description )
 	{
 		$association->setDescription($description);
 
@@ -85,8 +83,7 @@ class Service implements Association\Service\Contract
 		// within setparent also change child of
 		$association->setParent($parent);
 
-		$this->repos->getEntityManager()->persist($association);
-		$this->repos->getEntityManager()->flush();
+		$this->repos->save($association);
 	}
 
 	/**
@@ -96,6 +93,6 @@ class Service implements Association\Service\Contract
 	 */
 	public function remove( Association $association )
 	{
-		throw new \Exception("implement", E_ERROR );
+		$this->repos->remove($association);
 	}
 }

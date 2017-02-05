@@ -8,15 +8,20 @@
 
 namespace Voetbal\Repository;
 
-use Doctrine\ORM\EntityManager;
+use \Doctrine\ORM\EntityRepository;
 
-abstract class Main extends \Doctrine\ORM\EntityRepository
+abstract class Main extends EntityRepository
 {
-
 	public function save( $object )
 	{
 		$this->_em->persist($object);
 		$this->_em->flush();
 		return $object;
+	}
+
+	public function remove( $object )
+	{
+		$this->_em->remove($object);
+		$this->_em->flush();
 	}
 }

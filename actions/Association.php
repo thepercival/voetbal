@@ -28,16 +28,17 @@ final class Association
 
 	public function fetch( $request, $response, $args)
 	{
-		$associations = $this->repos->get();
+		$associations = $this->repos->findAll();
 		return $response
 			->withHeader('Content-Type', 'application/json;charset=utf-8')
-			->write($this->serializer->serialize( $associations, 'json'));
+			->write( $this->serializer->serialize( $associations, 'json') );
 		;
+
 	}
 
 	public function fetchOne( $request, $response, $args)
 	{
-		$association = $this->repos->get($args['id']);
+		$association = $this->repos->find($args['id']);
 		if ($association) {
 			return $response
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
@@ -50,13 +51,17 @@ final class Association
 	public function add( $request, $response, $args)
 	{
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-		$description = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
+		$description = null;
+		$descriptionInput = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
+		if ( $descriptionInput === false ) {
+			$description = new Voetbal\Association\Description( $descriptionInput );
+		}
 		$parentid = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT);
 		$sErrorMessage = null;
 		try {
 			$association = $this->service->create(
-				new Voetbal\Association\Name( $name ),
-				new Voetbal\Association\Description( $description ),
+				$name,
+				$description,
 				$this->repos->find( $parentid )
 			);
 
@@ -78,7 +83,7 @@ final class Association
 
 	public function remove( $request, $response, $args)
 	{
-		$association = $this->repos->get($args['id']);
+		$association = $this->repos->find($args['id']);
 		$sErrorMessage = null;
 		try {
 			$this->service->remove($association);
