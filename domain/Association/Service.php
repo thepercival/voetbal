@@ -48,39 +48,17 @@ class Service implements Association\Service\Contract
 	}
 
 	/**
-	 * @see Association\Service\Contract::changeName()
+	 * @see Association\Service\Contract::edit()
 	 */
-	public function changeName( Association $association, $name )
+	public function edit( Association $association, $name, $description, Association $parent )
 	{
-		// @TODO check if name not exists
-		/*$association = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $association !== null ){
+		$associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+		if ( $associationWithSameName !== null and $associationWithSameName !== $association ){
 			throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
-		}*/
+		}
 
 		$association->setName($name);
-
-		$this->repos->save($association);
-	}
-
-	/**
-	 * @see Association\Service\Contract::changeDescription()
-	 */
-	public function changeDescription( Association $association, $description )
-	{
 		$association->setDescription($description);
-
-		$this->repos->getEntityManager()->persist($association);
-		$this->repos->getEntityManager()->flush();
-	}
-
-	/**
-	 * @param Association $association
-	 * @param Association $parent
-	 */
-	public function changeParent( Association $association, Association $parent )
-	{
-		// within setparent also change child of
 		$association->setParent($parent);
 
 		$this->repos->save($association);

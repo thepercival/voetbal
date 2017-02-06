@@ -41,18 +41,7 @@ class Association
 
     public function __construct( $name )
     {
-        if ( $name === null )
-            throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
-
-	    if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-		    throw new \InvalidArgumentException( "de naam moet minimaal 1 karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
-	    }
-
-	    if(preg_match('/[^a-z0-9 ]/i', $name)){
-		    throw new \InvalidArgumentException( "de naam mag alleen cijfers, letters en spaties bevatten", E_ERROR );
-	    }
-
-        $this->name = $name;
+        $this->name = $this->setName( $name );
     }
 
 	/**
@@ -75,6 +64,17 @@ class Association
 	 */
 	public function setName( $name )
 	{
+		if ( $name === null )
+			throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
+
+		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
+			throw new \InvalidArgumentException( "de naam moet minimaal 1 karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+		}
+
+		if(preg_match('/[^a-z0-9 ]/i', $name)){
+			throw new \InvalidArgumentException( "de naam mag alleen cijfers, letters en spaties bevatten", E_ERROR );
+		}
+
 		$this->name = $name;
 	}
 

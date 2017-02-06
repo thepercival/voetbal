@@ -79,6 +79,27 @@ final class Association
 
 	public function edit( $request, $response, $args)
 	{
+		$association = $this->repos->find($args['id']);
+		if ( $association === null ) {
+			throw new \Exception("de aan te passen bond kan niet gevonden worden",E_ERROR);
+		}
+
+		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
+
+		$sErrorMessage = null;
+		try {
+			$association = $this->service->changeName( $association, $name );
+
+			return $response
+				->withStatus(201)
+				->withHeader('Content-Type', 'application/json;charset=utf-8')
+				->write($this->serializer->serialize( $association, 'json'));
+			;
+		}
+		catch( \Exception $e ){
+			$sErrorMessage = $e->getMessage();
+		}
+		return $response->withStatus(404, $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)

@@ -12,8 +12,6 @@ use Voetbal\Association;
 interface Contract
 {
 	public function create( $name, $description = null, Association $parent = null );
-	public function changeName( Association $association,$name );
-	public function changeDescription( Association $association, $description );
-	public function changeParent( Association $association, Association $parent );
+	public function edit( Association $association, $name, $description, Association $parent );
 	public function remove( Association $association );
 }
