@@ -1,0 +1,23 @@
+Voetbal\External\System:
+  type: entity
+  repositoryClass: Voetbal\Repository\External\System
+  table: externalsystems
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type: string
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_NAME
+      unique: true
+      nullable: false
+    website:
+      type: string
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_WEBSITE
+      nullable: true
+  oneToMany:
+    associations:
+      targetEntity: Voetbal\External\Association
+      mappedBy: externalsystem

@@ -1,9 +1,0 @@
-# config/db.dcm.yml
-Voetbal\DAO\External:
-  type: embeddable
-  fields:
-    externid:
-      type: string
-      length : 50
-      unique: true
-      nullable: true

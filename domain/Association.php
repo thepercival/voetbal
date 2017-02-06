@@ -8,6 +8,8 @@
 
 namespace Voetbal;
 
+use \Doctrine\Common\Collections\ArrayCollection;
+
 class Association
 {
 	/**
@@ -35,6 +37,11 @@ class Association
 	 */
 	private $children;
 
+    /**
+     * @var ArrayCollection
+     */
+    private $externals;
+
 	const MIN_LENGTH_NAME = 3;
 	const MAX_LENGTH_NAME = 20;
 	const MAX_LENGTH_DESCRIPTION = 50;
@@ -42,6 +49,8 @@ class Association
     public function __construct( $name )
     {
         $this->name = $this->setName( $name );
+        $this->children = new ArrayCollection();
+        $this->externals = new ArrayCollection();
     }
 
 	/**
@@ -123,10 +132,18 @@ class Association
     }
 
 	/**
-	 * @return mixed
+	 * @return ArrayCollection
 	 */
     public function getChildren()
     {
         return $this->children;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getExternals()
+    {
+        return $this->externals;
     }
 }

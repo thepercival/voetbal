@@ -1,6 +1,6 @@
 Voetbal\Association:
   type: entity
-  repositoryClass: VoetbalRepository\Association
+  repositoryClass: Voetbal\Repository\Association
   table: associations
   id:
     id:
@@ -12,7 +12,7 @@ Voetbal\Association:
       type: string
       length : !php/const:Voetbal\Association::MAX_LENGTH_NAME
       unique: true
-      nullable: true
+      nullable: false
     description:
       type: string
       length : !php/const:Voetbal\Association::MAX_LENGTH_DESCRIPTION
@@ -21,6 +21,9 @@ Voetbal\Association:
     children:
       targetEntity: Voetbal\Association
       mappedBy: parent
+    externals:
+      targetEntity: Voetbal\External\Association
+      mappedBy: association
   manyToOne:
     parent:
       targetEntity: Voetbal\Association

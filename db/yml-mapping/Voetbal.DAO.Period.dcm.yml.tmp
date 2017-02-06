@@ -1,6 +1,0 @@
-# config/db.dcm.yml
-Voetbal\DAO\Period:
-  type: embeddable
-  fields:
-    startdatetime: { type: datetime }
-    enddatetime: { type: datetime }
