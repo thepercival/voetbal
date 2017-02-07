@@ -51,12 +51,9 @@ final class Association
 	public function add( $request, $response, $args)
 	{
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-		$description = null;
-		$descriptionInput = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
-		if ( $descriptionInput === false ) {
-			$description = new Voetbal\Association\Description( $descriptionInput );
-		}
+		$description = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
 		$parentid = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT);
+
 		$sErrorMessage = null;
 		try {
 			$association = $this->service->create(
@@ -83,12 +80,13 @@ final class Association
 		if ( $association === null ) {
 			throw new \Exception("de aan te passen bond kan niet gevonden worden",E_ERROR);
 		}
-
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
+        $description = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
+        $parent = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT);
 
 		$sErrorMessage = null;
 		try {
-			$association = $this->service->changeName( $association, $name );
+			$association = $this->service->edit( $association, $name, $description, $parent );
 
 			return $response
 				->withStatus(201)

@@ -11,26 +11,29 @@ namespace Voetbal\Association;
 use Voetbal\Association;
 use Voetbal\Repository\Association as AssociationRepository;
 
-class Service implements Association\Service\Contract
+class Service
 {
 	/**
 	 * @var AssociationRepository
 	 */
 	protected $repos;
 
-	/**
-	 * Service constructor.
-	 *
-	 * @param AssociationRepository $associationRepos
-	 */
+    /**
+     * Service constructor.
+     * @param AssociationRepository $associationRepos
+     */
 	public function __construct( AssociationRepository $associationRepos )
 	{
 		$this->repos = $associationRepos;
 	}
 
-	/**
-	 * @see Association\Service\Contract::create()
-	 */
+    /**
+     * @param $name
+     * @param null $description
+     * @param Association|null $parent
+     * @return Association
+     * @throws \Exception
+     */
 	public function create( $name, $description = null, Association $parent = null )
 	{
 		$association = new Association( $name );
@@ -47,9 +50,13 @@ class Service implements Association\Service\Contract
 		return $association;
 	}
 
-	/**
-	 * @see Association\Service\Contract::edit()
-	 */
+    /**
+     * @param Association $association
+     * @param $name
+     * @param $description
+     * @param Association $parent
+     * @throws \Exception
+     */
 	public function edit( Association $association, $name, $description, Association $parent )
 	{
 		$associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
