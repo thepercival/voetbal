@@ -35,10 +35,10 @@ class System
     const MAX_LENGTH_NAME = 50;
     const MAX_LENGTH_WEBSITE = 255;
 
-    public function __construct( $name, $website )
+    public function __construct( $name, $website = null )
     {
-        $this->name = $this->setName( $name );
-        $this->website = $this->setWebsite( $website );
+        $this->setName( $name );
+        $this->setWebsite( $website );
         $this->associations = new ArrayCollection();
     }
 
@@ -68,7 +68,6 @@ class System
         if ( strlen( $name ) > static::MAX_LENGTH_NAME ){
             throw new \InvalidArgumentException( "de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
         }
-
         $this->name = $name;
     }
 
