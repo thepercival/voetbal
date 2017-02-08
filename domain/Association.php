@@ -42,6 +42,11 @@ class Association
      */
     private $externals;
 
+    /**
+     * @var ArrayCollection
+     */
+    private $competitionseasons;
+
 	const MIN_LENGTH_NAME = 3;
 	const MAX_LENGTH_NAME = 20;
 	const MAX_LENGTH_DESCRIPTION = 50;
@@ -51,6 +56,7 @@ class Association
         $this->name = $this->setName( $name );
         $this->children = new ArrayCollection();
         $this->externals = new ArrayCollection();
+        $this->competitionseasons = new ArrayCollection();
     }
 
 	/**
@@ -77,7 +83,7 @@ class Association
 			throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
 
 		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-			throw new \InvalidArgumentException( "de naam moet minimaal 1 karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+			throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
 		}
 
 		if(preg_match('/[^a-z0-9 ]/i', $name)){
@@ -145,5 +151,13 @@ class Association
     public function getExternals()
     {
         return $this->externals;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getCompetitionseasons()
+    {
+        return $this->competitionseasons;
     }
 }

@@ -24,6 +24,9 @@ Voetbal\Association:
     externals:
       targetEntity: Voetbal\External\Association
       mappedBy: association
+    competitionseasons:
+      targetEntity: Voetbal\Competitionseason
+      mappedBy: association
   manyToOne:
     parent:
       targetEntity: Voetbal\Association

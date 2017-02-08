@@ -9,26 +9,26 @@
 namespace Voetbal\Action;
 
 use Symfony\Component\Serializer\Serializer;
-use Voetbal\Association\Service as AssociationService;
-use Voetbal\Repository\Association as AssociationRepository;
+use Voetbal\Season\Service as SeasonService;
+use Voetbal\Repository\Season as SeasonRepository;
 use Voetbal;
 
-final class Association
+final class Season
 {
 	protected $service;
 	protected $repos;
 	protected $serializer;
 
-	public function __construct(AssociationRepository $repos, Serializer $serializer)
+	public function __construct(SeasonRepository $repos, Serializer $serializer)
 	{
 		$this->repos = $repos;
-		$this->service = new AssociationService( $repos );
+		$this->service = new SeasonService( $repos );
 		$this->serializer = $serializer;
 	}
 
 	public function fetch( $request, $response, $args)
 	{
-		$objects = $this->repos->findAll();
+        $objects = $this->repos->findAll();
 		return $response
 			->withHeader('Content-Type', 'application/json;charset=utf-8')
 			->write( $this->serializer->serialize( $objects, 'json') );
@@ -45,30 +45,25 @@ final class Association
 				->write($this->serializer->serialize( $object, 'json'));
 			;
 		}
-		return $response->withStatus(404, 'geen bond met het opgegeven id gevonden');
+		return $response->withStatus(404, 'geen seizoen met het opgegeven id gevonden');
 	}
 
 	public function add( $request, $response, $args)
 	{
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-		$description = null;
-		$descriptionInput = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
-		if ( $descriptionInput === false ) {
-			$description = new Voetbal\Association\Description( $descriptionInput );
-		}
-		$parentid = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT);
+        $startdate = $request->getParam('startdate');
+        $enddate = $request->getParam('enddate');
 		$sErrorMessage = null;
 		try {
-			$association = $this->service->create(
+			$season = $this->service->create(
 				$name,
-				$description,
-				$this->repos->find( $parentid )
+				new Period( $startdate, $enddate )
 			);
 
 			return $response
 				->withStatus(201)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $association, 'json'));
+				->write($this->serializer->serialize( $season, 'json'));
 			;
 		}
 		catch( \Exception $e ){
@@ -79,8 +74,8 @@ final class Association
 
 	public function edit( $request, $response, $args)
 	{
-		$association = $this->repos->find($args['id']);
-		if ( $association === null ) {
+		$season = $this->repos->find($args['id']);
+		if ( $season === null ) {
 			throw new \Exception("de aan te passen bond kan niet gevonden worden",E_ERROR);
 		}
 
@@ -88,12 +83,12 @@ final class Association
 
 		$sErrorMessage = null;
 		try {
-			$association = $this->service->changeName( $association, $name );
+			$season = $this->service->changeName( $season, $name );
 
 			return $response
 				->withStatus(201)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $association, 'json'));
+				->write($this->serializer->serialize( $season, 'json'));
 			;
 		}
 		catch( \Exception $e ){
@@ -104,10 +99,10 @@ final class Association
 
 	public function remove( $request, $response, $args)
 	{
-		$association = $this->repos->find($args['id']);
+		$season = $this->repos->find($args['id']);
 		$sErrorMessage = null;
 		try {
-			$this->service->remove($association);
+			$this->service->remove($season);
 
 			return $response
 				->withStatus(200);

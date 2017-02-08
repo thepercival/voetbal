@@ -1,0 +1,45 @@
+Voetbal\Competitionseason:
+    type: entity
+    repositoryClass: Voetbal\Repository\Competitionseason
+    table: competitionseasons
+    id:
+        id:
+            type: integer
+            nullable: false
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+    fields:
+        state:
+            type: smallint
+            default:  !php/const:Voetbal\Competitionseason::STATE_CREATED
+            nullable: false
+            unique: false
+        qualificationrule:
+            type: smallint
+            default:  !php/const:Voetbal\Competitionseason::QUALIFICATION_RULE_WC
+            nullable: false
+            unique: false
+    manyToOne:
+        competition:
+            targetEntity: Voetbal\Competition
+            inversedBy: competitionseasons
+            joinColumn:
+              name: competitionid
+              referencedColumnName: id
+              nullable: false
+        season:
+            targetEntity: Voetbal\Season
+            inversedBy: competitionseasons
+            joinColumn:
+              name: seasonid
+              referencedColumnName: id
+              nullable: false
+        association:
+            targetEntity: Voetbal\Association
+            inversedBy: competitionseasons
+            joinColumn:
+              name: associationid
+              referencedColumnName: id
+              nullable: false

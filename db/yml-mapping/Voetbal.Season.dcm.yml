@@ -1,0 +1,28 @@
+Voetbal\Season:
+    type: entity
+    repositoryClass: Voetbal\Repository\Season
+    table: seasons
+    id:
+      id:
+          type: integer
+          id: true
+          generator:
+            strategy: AUTO
+    fields:
+        name:
+            type: string
+            length: !php/const:Voetbal\Season::MAX_LENGTH_NAME
+            unique: true
+            nullable: false
+        startDate:
+            type: datetime
+            nullable: false
+            column: startdatetime
+        endDate:
+            type: datetime
+            nullable: false
+            column: enddatetime
+    oneToMany:
+        competitionseasons:
+            targetEntity: Voetbal\Competitionseason
+            mappedBy: season
