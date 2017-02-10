@@ -43,7 +43,7 @@ class Competition
 
     public function __construct( $name, $abbreviation = null )
     {
-        $this->name = $this->setName( $name );
+        $this->setName( $name );
         $this->abbreviation = $this->setAbbreviation( $abbreviation );
         $this->competitionseasons = new ArrayCollection();
     }

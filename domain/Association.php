@@ -53,7 +53,7 @@ class Association
 
     public function __construct( $name )
     {
-        $this->name = $this->setName( $name );
+        $this->setName( $name );
         $this->children = new ArrayCollection();
         $this->externals = new ArrayCollection();
         $this->competitionseasons = new ArrayCollection();

@@ -17,6 +17,22 @@ Voetbal\External\System:
       type: string
       length : !php/const:Voetbal\External\System::MAX_LENGTH_WEBSITE
       nullable: true
+    username:
+      type: string
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_USERNAME
+      nullable: true
+    password:
+      type: string
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_PASSWORD
+      nullable: true
+    apiurl:
+      type: string
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_APIURL
+      nullable: true
+    apikey:
+      type: string
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_APIKEY
+      nullable: true
   oneToMany:
     associations:
       targetEntity: Voetbal\External\Association

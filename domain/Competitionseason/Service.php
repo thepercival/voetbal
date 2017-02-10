@@ -6,41 +6,48 @@
  * Time: 19:10
  */
 
-namespace Voetbal\Competition;
+namespace Voetbal\Competitionseason;
 
+use Voetbal;
+use Voetbal\Repository\Competitionseason as CompetitionseasonRepository;
+use Voetbal\Competitionseason;
 use Voetbal\Competition;
-use Voetbal\Repository\Competition as CompetitionRepository;
+use Voetbal\Season;
+use Voetbal\Association;
+
 
 class Service
 {
 	/**
-	 * @var CompetitionRepository
+	 * @var CompetitionseasonRepository
 	 */
 	protected $repos;
 
 	/**
 	 * Service constructor.
 	 *
-	 * @param CompetitionRepository $repos
+	 * @param CompetitionseasonRepository $repos
 	 */
-	public function __construct( CompetitionRepository $repos )
+	public function __construct( CompetitionseasonRepository $repos )
 	{
 		$this->repos = $repos;
 	}
 
     /**
-     * @param $name
-     * @param null $abbreviation
-     * @return Competition
+     * @param Competition $competition
+     * @param Season $season
+     * @param Association $association
+     * @return Competition|Competitionseason
      * @throws \Exception
      */
-	public function create( $name, $abbreviation = null )
+	public function create( Competition $competition, Season $season, Association $association )
 	{
-		$competition = new Competition( $name, $abbreviation );
+		$competition = new Competitionseason( $competition, $season, $association  );
 
-        $competitionWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $competitionWithSameName !== null ){
-			throw new \Exception("de competitie ".$name." bestaat al", E_ERROR );
+		// check if competitionseason with same competition and season exists
+        $sameCompetitionseason = $this->repos->findOneBy( array('competition' => $competition->getId(), 'season' => $season->getId()  ) );
+		if ( $sameCompetitionseason !== null ){
+			throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
 		}
 
 		$this->repos->save($competition);
@@ -49,28 +56,36 @@ class Service
 	}
 
     /**
-     * @param Competition $competition
-     * @param $name
-     * @param null $abbreviation
+     * @param Competitionseason $competitionseason
+     * @param Association $association
+     * @param $qualificationrule
      * @throws \Exception
      */
-	public function edit( Competition $competition, $name, $abbreviation = null )
+	public function edit( Competitionseason $competitionseason, Association $association, $qualificationrule )
 	{
-        $competitionWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $competitionWithSameName !== null and $competitionWithSameName !== $competition ){
-			throw new \Exception("de competitie ".$name." bestaat al", E_ERROR );
-		}
+        if( $competitionseason->getState() === Competitionseason::STATE_PUBLISHED ) {
+            throw new \Exception("het competitieseizoen kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
+        }
 
-        $competition = new Competition( $name, $abbreviation );
+        $competitionseason->setAssociation($association);
+        $competitionseason->setQualificationRule($qualificationrule);
 
-		$this->repos->save($competition);
+		$this->repos->save($competitionseason);
 	}
 
     /**
-     * @param Competition $competition
+     * @param Competitionseason $competitionseason
      */
-	public function remove( Competition $competition )
+    public function publish( Competitionseason $competitionseason )
+    {
+
+    }
+
+    /**
+     * @param Competitionseason $competitionseason
+     */
+	public function remove( Competitionseason $competitionseason )
 	{
-		$this->repos->remove($competition);
+		$this->repos->remove($competitionseason);
 	}
 }

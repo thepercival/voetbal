@@ -14,11 +14,11 @@ Voetbal\Season:
             length: !php/const:Voetbal\Season::MAX_LENGTH_NAME
             unique: true
             nullable: false
-        startDate:
+        startdate:
             type: datetime
             nullable: false
             column: startdatetime
-        endDate:
+        enddate:
             type: datetime
             nullable: false
             column: enddatetime

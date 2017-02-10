@@ -28,12 +28,36 @@ class System
     private $website;
 
     /**
+     * @var string
+     */
+    private $username;
+
+    /**
+     * @var string
+     */
+    private $password;
+
+    /**
+     * @var string
+     */
+    private $apiurl;
+
+    /**
+     * @var string
+     */
+    private $apikey;
+
+    /**
      * @var ArrayCollection
      */
     private $associations;
 
     const MAX_LENGTH_NAME = 50;
     const MAX_LENGTH_WEBSITE = 255;
+    const MAX_LENGTH_USERNAME = 50;
+    const MAX_LENGTH_PASSWORD = 50;
+    const MAX_LENGTH_APIURL = 255;
+    const MAX_LENGTH_APIKEY = 255;
 
     public function __construct( $name, $website = null )
     {
@@ -88,6 +112,70 @@ class System
             throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_DESCRIPTION." karakters bevatten", E_ERROR );
         }
         $this->website = $website;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
+     * @param string $username
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApiurl()
+    {
+        return $this->apiurl;
+    }
+
+    /**
+     * @param string $apiurl
+     */
+    public function setApiurl($apiurl)
+    {
+        $this->apiurl = $apiurl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getApikey()
+    {
+        return $this->apikey;
+    }
+
+    /**
+     * @param string $apikey
+     */
+    public function setApikey($apikey)
+    {
+        $this->apikey = $apikey;
     }
 
     /**

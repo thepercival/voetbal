@@ -58,7 +58,8 @@ class Competitionseason
         $this->competition = $competition;
         $this->season = $season;
         $this->association = $association;
-        $this->state = static::QUALIFICATION_RULE_WC;
+        $this->state = static::STATE_CREATED;
+        $this->qualificationrule = static::QUALIFICATION_RULE_WC;
         $this->rounds = new ArrayCollection();
     }
 

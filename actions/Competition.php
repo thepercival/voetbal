@@ -9,21 +9,20 @@
 namespace Voetbal\Action;
 
 use Symfony\Component\Serializer\Serializer;
-use Voetbal\Season\Service as SeasonService;
-use Voetbal\Repository\Season as SeasonRepository;
+use Voetbal\Competition\Service as CompetitionService;
+use Voetbal\Repository\Competition as CompetitionRepository;
 use Voetbal;
-use League\Period\Period;
 
-final class Season
+final class Competition
 {
 	protected $service;
 	protected $repos;
 	protected $serializer;
 
-	public function __construct(SeasonRepository $repos, Serializer $serializer)
+	public function __construct(CompetitionRepository $repos, Serializer $serializer)
 	{
 		$this->repos = $repos;
-		$this->service = new SeasonService( $repos );
+		$this->service = new CompetitionService( $repos );
 		$this->serializer = $serializer;
 	}
 
@@ -46,25 +45,24 @@ final class Season
 				->write($this->serializer->serialize( $object, 'json'));
 			;
 		}
-		return $response->withStatus(404, 'geen seizoen met het opgegeven id gevonden');
+		return $response->withStatus(404, 'geen competitie met het opgegeven id gevonden');
 	}
 
 	public function add( $request, $response, $args)
 	{
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $startdate = $request->getParam('startdate');
-        $enddate = $request->getParam('enddate');
+        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
 		$sErrorMessage = null;
 		try {
-			$season = $this->service->create(
+			$competition = $this->service->create(
 				$name,
-				new Period( $startdate, $enddate )
+                $abbreviation
 			);
 
 			return $response
 				->withStatus(201)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $season, 'json'));
+				->write($this->serializer->serialize( $competition, 'json'));
 			;
 		}
 		catch( \Exception $e ){
@@ -75,23 +73,22 @@ final class Season
 
 	public function edit( $request, $response, $args)
 	{
-		$season = $this->repos->find($args['id']);
-		if ( $season === null ) {
+		$competition = $this->repos->find($args['id']);
+		if ( $competition === null ) {
 			throw new \Exception("de aan te passen bond kan niet gevonden worden",E_ERROR);
 		}
 
-		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $startdate = $request->getParam('startdate');
-        $enddate = $request->getParam('enddate');
+        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
+        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
 
 		$sErrorMessage = null;
 		try {
-			$season = $this->service->edit( $season, $name, new Period( $startdate, $enddate ) );
+			$competition = $this->service->edit( $competition, $name, $abbreviation );
 
 			return $response
 				->withStatus(201)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $season, 'json'));
+				->write($this->serializer->serialize( $competition, 'json'));
 			;
 		}
 		catch( \Exception $e ){
@@ -102,10 +99,10 @@ final class Season
 
 	public function remove( $request, $response, $args)
 	{
-		$season = $this->repos->find($args['id']);
+		$competition = $this->repos->find($args['id']);
 		$sErrorMessage = null;
 		try {
-			$this->service->remove($season);
+			$this->service->remove($competition);
 
 			return $response
 				->withStatus(200);

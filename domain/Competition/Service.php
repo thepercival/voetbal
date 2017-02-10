@@ -61,7 +61,8 @@ class Service
 			throw new \Exception("de competitie ".$name." bestaat al", E_ERROR );
 		}
 
-        $competition = new Competition( $name, $abbreviation );
+        $competition->setName($name);
+        $competition->setAbbreviation($abbreviation);
 
 		$this->repos->save($competition);
 	}

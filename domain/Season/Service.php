@@ -62,7 +62,8 @@ class Service
 			throw new \Exception("het seizoen ".$name." bestaat al", E_ERROR );
 		}
 
-        $season = new Season( $name, $period );
+        $season->setName( $name );
+        $season->setPeriod( $period );
 
 		$this->repos->save($season);
 	}
