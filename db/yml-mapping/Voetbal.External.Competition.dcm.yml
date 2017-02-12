@@ -1,27 +1,27 @@
-Voetbal\External\Association:
+Voetbal\External\Competition:
   type: entity
-  repositoryClass: Voetbal\Repository\External\Association
-  table: externalassociations
+  repositoryClass: Voetbal\Repository\External\Competition
+  table: externalcompetitions
   id:
     id:
       type: integer
       generator:
         strategy: AUTO
   fields:
-    externalid:
-      type: string
-      length : !php/const:Voetbal\External\Object::MAX_LENGTH_EXTERNALID
-      nullable: false
+      externalid:
+        type: string
+        length : !php/const:Voetbal\External\Object::MAX_LENGTH_EXTERNALID
+        nullable: false
   manyToOne:
     externalsystem:
       targetEntity: Voetbal\External\System
-      inversedBy: associations
+      inversedBy: competitions
       joinColumn:
         name: externalsystemid
         referencedColumnName: id
         nullable: false
     importableobject:
-          targetEntity: Voetbal\Association
+          targetEntity: Voetbal\Competition
           inversedBy: externals
           joinColumn:
             name: importableobjectid

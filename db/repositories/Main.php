@@ -10,7 +10,7 @@ namespace Voetbal\Repository;
 
 use \Doctrine\ORM\EntityRepository;
 
-abstract class Main extends EntityRepository
+class Main extends EntityRepository
 {
 	public function save( $object )
 	{

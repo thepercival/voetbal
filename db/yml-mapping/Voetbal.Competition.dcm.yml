@@ -23,3 +23,6 @@ Voetbal\Competition:
     competitionseasons:
       targetEntity: Voetbal\Competitionseason
       mappedBy: competition
+    externals:
+      targetEntity: Voetbal\External\Competition
+      mappedBy: importableobject

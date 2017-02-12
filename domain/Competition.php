@@ -10,32 +10,32 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Competition
+class Competition extends Importable
 {
 	/**
 	 * @var int
 	 */
-	private $id;
+	protected $id;
 
 	/**
 	 * @var string
 	 */
-	private $name;
+    protected $name;
 
 	/**
 	 * @var string
 	 */
-	private $abbreviation;
+    protected $abbreviation;
 
 	/**
 	 * @var Competition
 	 */
-	private $parent;
+    protected $parent;
 
 	/**
 	 * @var ArrayCollection
 	 */
-	private $competitionseasons;
+    protected $competitionseasons;
 
 	const MIN_LENGTH_NAME = 3;
 	const MAX_LENGTH_NAME = 30;

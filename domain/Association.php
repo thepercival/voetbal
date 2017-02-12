@@ -10,42 +10,37 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Association
+class Association extends Importable
 {
 	/**
 	 * @var int
 	 */
-	private $id;
+	protected $id;
 
 	/**
 	 * @var string
 	 */
-	private $name;
+    protected $name;
 
 	/**
 	 * @var string
 	 */
-	private $description;
+    protected $description;
 
 	/**
 	 * @var Association
 	 */
-	private $parent;
+    protected $parent;
 
 	/**
 	 * @var ArrayCollection
 	 */
-	private $children;
+    protected $children;
 
     /**
      * @var ArrayCollection
      */
-    private $externals;
-
-    /**
-     * @var ArrayCollection
-     */
-    private $competitionseasons;
+    protected $competitionseasons;
 
 	const MIN_LENGTH_NAME = 3;
 	const MAX_LENGTH_NAME = 20;
@@ -143,14 +138,6 @@ class Association
     public function getChildren()
     {
         return $this->children;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getExternals()
-    {
-        return $this->externals;
     }
 
     /**

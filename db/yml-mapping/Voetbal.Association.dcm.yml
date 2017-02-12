@@ -21,12 +21,12 @@ Voetbal\Association:
     children:
       targetEntity: Voetbal\Association
       mappedBy: parent
-    externals:
-      targetEntity: Voetbal\External\Association
-      mappedBy: association
     competitionseasons:
       targetEntity: Voetbal\Competitionseason
       mappedBy: association
+    externals:
+      targetEntity: Voetbal\External\Association
+      mappedBy: importableobject
   manyToOne:
     parent:
       targetEntity: Voetbal\Association
