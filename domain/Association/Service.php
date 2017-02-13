@@ -46,9 +46,7 @@ class Service
 			throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
 		}
 
-		$this->repos->save($association);
-
-		return $association;
+		return $this->repos->save($association);
 	}
 
     /**
@@ -69,7 +67,7 @@ class Service
 		$association->setDescription($description);
 		$association->setParent($parent);
 
-		$this->repos->save($association);
+		return $this->repos->save($association);
 	}
 
     /**

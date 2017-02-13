@@ -89,7 +89,7 @@ final class Season
 			$season = $this->service->edit( $season, $name, new Period( $startdate, $enddate ) );
 
 			return $response
-				->withStatus(201)
+				->withStatus(205)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
 				->write($this->serializer->serialize( $season, 'json'));
 			;
@@ -108,7 +108,7 @@ final class Season
 			$this->service->remove($season);
 
 			return $response
-				->withStatus(200);
+				->withStatus(204);
 			;
 		}
 		catch( \Exception $e ){

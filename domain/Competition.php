@@ -68,7 +68,7 @@ class Competition extends Importable
 	 */
 	public function setName( $name )
 	{
-		if ( $name === null )
+		if ( strlen( $name ) === 0 )
 			throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
 
 		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
@@ -95,6 +95,10 @@ class Competition extends Importable
 	 */
     public function setAbbreviation( $abbreviation = null )
     {
+        if ( strlen($abbreviation) === 0 ){
+            $abbreviation = null;
+        }
+
     	if ( strlen( $abbreviation ) > static::MAX_LENGTH_ABBREVIATION ){
 		    throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
 	    }

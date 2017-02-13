@@ -89,7 +89,7 @@ final class Association
 			$association = $this->service->edit( $association, $name, $description, $parent );
 
 			return $response
-				->withStatus(201)
+				->withStatus(205)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
 				->write($this->serializer->serialize( $association, 'json'));
 			;
@@ -108,7 +108,7 @@ final class Association
 			$this->service->remove($association);
 
 			return $response
-				->withStatus(200);
+				->withStatus(204);
 			;
 		}
 		catch( \Exception $e ){

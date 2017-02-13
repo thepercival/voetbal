@@ -50,9 +50,7 @@ class Service
 			throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
 		}
 
-		$this->repos->save($competition);
-
-		return $competition;
+		return $this->repos->save($competition);
 	}
 
     /**
@@ -70,7 +68,7 @@ class Service
         $competitionseason->setAssociation($association);
         $competitionseason->setQualificationRule($qualificationrule);
 
-		$this->repos->save($competitionseason);
+		return $this->repos->save($competitionseason);
 	}
 
     /**

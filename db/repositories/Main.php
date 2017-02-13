@@ -14,8 +14,16 @@ class Main extends EntityRepository
 {
 	public function save( $object )
 	{
-		$this->_em->persist($object);
-		$this->_em->flush();
+        try{
+            $this->_em->persist($object);
+            $this->_em->flush();
+
+        }
+        catch( \Exception $e ) {
+
+            throw new \Exception($e->getMessage(), E_ERROR );
+        }
+
 		return $object;
 	}
 

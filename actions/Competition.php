@@ -12,6 +12,8 @@ use Symfony\Component\Serializer\Serializer;
 use Voetbal\Competition\Service as CompetitionService;
 use Voetbal\Repository\Competition as CompetitionRepository;
 use Voetbal;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 final class Competition
 {
@@ -71,11 +73,11 @@ final class Competition
 		return $response->withStatus(404, $sErrorMessage );
 	}
 
-	public function edit( $request, $response, $args)
+	public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
 	{
 		$competition = $this->repos->find($args['id']);
 		if ( $competition === null ) {
-			throw new \Exception("de aan te passen bond kan niet gevonden worden",E_ERROR);
+			throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
 		}
 
         $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
@@ -83,6 +85,7 @@ final class Competition
 
 		$sErrorMessage = null;
 		try {
+
 			$competition = $this->service->edit( $competition, $name, $abbreviation );
 
 			return $response
@@ -92,9 +95,10 @@ final class Competition
 			;
 		}
 		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
+
+		    $sErrorMessage = $e->getMessage();
 		}
-		return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(400,$sErrorMessage);
 	}
 
 	public function remove( $request, $response, $args)
@@ -105,7 +109,7 @@ final class Competition
 			$this->service->remove($competition);
 
 			return $response
-				->withStatus(200);
+				->withStatus(201);
 			;
 		}
 		catch( \Exception $e ){

@@ -43,9 +43,7 @@ class Service
             throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR );
         }
 
-        $this->repos->save($system);
-
-        return $system;
+        return $this->repos->save($system);
     }
 
     /**
@@ -65,7 +63,7 @@ class Service
         $system->setName($name);
         $system->setWebsite($website);
 
-        $this->repos->save($system);
+        return $this->repos->save($system);
     }
 
     /**
