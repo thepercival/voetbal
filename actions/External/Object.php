@@ -16,6 +16,7 @@ final class Object
 {
     protected $em;
     protected $serializer;
+    protected $externalsystemRepos;
 
     public function __construct(EntityManager $em, Serializer $serializer)
     {
@@ -41,6 +42,23 @@ final class Object
         return new \Voetbal\Repository\Main($this->em,$this->em->getClassMetaData($classname));
     }
 
+    protected function getImportbleRepos( $resourcetype )
+    {
+        $classname = $this->convertRouteToImportableClass( $resourcetype );
+        if ( $classname === null ){
+            return null;
+        }
+        return new \Voetbal\Repository\Main($this->em,$this->em->getClassMetaData($classname));
+    }
+
+    protected function getExternalsystemRepos()
+    {
+        if ( $this->externalsystemRepos === null ) {
+            return new \Voetbal\Repository\External\System($this->em,$this->em->getClassMetaData(\Voetbal\External\System::class));
+        }
+        return $this->externalsystemRepos;
+    }
+
     protected function convertRouteToClass( $resourcetype )
     {
         if ( $resourcetype === "competitions") {
@@ -49,7 +67,13 @@ final class Object
         return null;
     }
 
-
+    protected function convertRouteToImportableClass( $resourcetype )
+    {
+        if ( $resourcetype === "competitions") {
+            return \Voetbal\Competition::class;
+        }
+        return null;
+    }
 
     public function fetch( $request, $response, $args)
     {
@@ -79,66 +103,56 @@ final class Object
 
     public function add( $request, $response, $args)
     {
-        //$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        //$website = filter_var($request->getParam('website'), FILTER_SANITIZE_STRING);
+        $externalid = filter_var($request->getParam('externalid'), FILTER_SANITIZE_STRING);
+        $externalsystemid = filter_var($request->getParam('externalsystemid'), FILTER_VALIDATE_INT);
+        $importableobejctid = filter_var($request->getParam('importableobjectid'), FILTER_VALIDATE_INT);
 
         $sErrorMessage = null;
-        /*try {
-            $system = $this->service->create(
-                $name,
-                $website
+        // $sErrorMessage = $externalid . " - " . $externalsystemid . " - " . $importableobejctid;
+
+        $importableobject = $this->getImportbleRepos( $args["resourceType"] )->find($importableobejctid);
+        if ( $importableobject === null ) {
+            throw new \Exception("het object waaraan het externe object gekoppeld wordt, kan niet gevonden worden",E_ERROR);
+        }
+        $externalsystem = $this->getExternalsystemRepos()->find($externalsystemid);
+        if ( $externalsystem === null ) {
+            throw new \Exception("het externe systeem kan niet gevonden worden",E_ERROR);
+        }
+
+        try {
+            $externalobject = $this->getService($args["resourceType"])->create(
+                $importableobject,
+                $externalid,
+                $externalsystem
             );
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $system, 'json'));
+                ->write($this->serializer->serialize( $externalobject, 'json'));
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
-        }*/
+            $sErrorMessage = urlencode( $e->getMessage() );
+        }
         return $response->withStatus(404, $sErrorMessage );
-    }
-
-    public function edit( $request, $response, $args)
-    {
-        /*$system = $this->repos->find($args['id']);
-        if ( $system === null ) {
-            throw new \Exception("het aan te passen externe systeem kan niet gevonden worden",E_ERROR);
-        }
-        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $website = filter_var($request->getParam('website'), FILTER_SANITIZE_STRING);
-*/
-        $sErrorMessage = null;
-  /*      try {
-            $system = $this->service->edit( $system, $name, $website );
-
-            return $response
-                ->withStatus(201)
-                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $system, 'json'));
-            ;
-        }
-        catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
-        }
-    */    return $response->withStatus(404, $sErrorMessage );
     }
 
     public function remove( $request, $response, $args)
     {
-        //$system = $this->repos->find($args['id']);
-        $sErrorMessage = null;
-        /*try {
-            $this->service->remove($system);
+        $externalobject = $this->getRepos( $args["resourceType"] )->find($args['id']);
 
+        $sErrorMessage = "hallo";
+        try {
+            $this->getService($args["resourceType"])->remove(
+                $externalobject
+            );
             return $response
-                ->withStatus(200);
+                ->withStatus(204);
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
-        }*/
+            $sErrorMessage = urlencode( $e->getMessage() );
+        }
         return $response->withStatus(404, $sErrorMessage );
     }
 }

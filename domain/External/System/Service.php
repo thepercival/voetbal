@@ -48,13 +48,18 @@ class Service
 
     /**
      * @param System $system
-     * @param $name
-     * @param $description
-     * @param Association $parent
+     * @param $data
      * @throws \Exception
      */
-    public function edit( System $system, $name, $website )
+    public function edit( System $system, $data )
     {
+        $name = $data['name'];
+        $website = $data['website'];
+        $username = $data['username'];
+        $password = $data['password'];
+        $apiurl = $data['apiurl'];
+        $apikey = $data['apikey'];
+
         $systemWithSameName = $this->repos->findOneBy( array('name' => $name ) );
         if ( $systemWithSameName !== null and $systemWithSameName !== $system ){
             throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR );
@@ -62,6 +67,10 @@ class Service
 
         $system->setName($name);
         $system->setWebsite($website);
+        $system->setUsername($username);
+        $system->setPassword($password);
+        $system->setApiurl($apiurl);
+        $system->setApikey($apikey);
 
         return $this->repos->save($system);
     }

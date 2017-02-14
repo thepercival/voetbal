@@ -77,12 +77,17 @@ final class System
         if ( $system === null ) {
             throw new \Exception("het aan te passen externe systeem kan niet gevonden worden",E_ERROR);
         }
-        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $website = filter_var($request->getParam('website'), FILTER_SANITIZE_STRING);
-
+        $data = array(
+            'name' => filter_var($request->getParam('name'), FILTER_SANITIZE_STRING),
+            'website' => filter_var($request->getParam('website'), FILTER_SANITIZE_STRING),
+            'username' => filter_var($request->getParam('username'), FILTER_SANITIZE_STRING),
+            'password' => filter_var($request->getParam('password'), FILTER_SANITIZE_STRING),
+            'apiurl' => filter_var($request->getParam('apiurl'), FILTER_SANITIZE_STRING),
+            'apikey' => filter_var($request->getParam('apikey'), FILTER_SANITIZE_STRING)
+        );
         $sErrorMessage = null;
         try {
-            $system = $this->service->edit( $system, $name, $website );
+            $system = $this->service->edit( $system, $data );
 
             return $response
                 ->withStatus(201)

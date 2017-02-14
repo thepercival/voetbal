@@ -34,9 +34,9 @@ class Object
 
     public function __construct( \Voetbal\Importable $importableobject, System $externalsystem, $externalid)
     {
-        $this->importableobject = $this->setImportableObject( $importableobject );
-        $this->externalsystem = $this->setExternalsystem( $externalsystem );
-        $this->externalid = $this->setExternalid( $externalid );
+        $this->setImportableObject( $importableobject );
+        $this->setExternalsystem( $externalsystem );
+        $this->setExternalid( $externalid );
     }
 
     /**

@@ -44,7 +44,7 @@ class Competition extends Importable
     public function __construct( $name, $abbreviation = null )
     {
         $this->setName( $name );
-        $this->abbreviation = $this->setAbbreviation( $abbreviation );
+        $this->setAbbreviation( $abbreviation );
         $this->competitionseasons = new ArrayCollection();
     }
 
@@ -93,7 +93,7 @@ class Competition extends Importable
 	/**
 	 * @param string $abbreviation
 	 */
-    public function setAbbreviation( $abbreviation = null )
+    public function setAbbreviation( $abbreviation )
     {
         if ( strlen($abbreviation) === 0 ){
             $abbreviation = null;

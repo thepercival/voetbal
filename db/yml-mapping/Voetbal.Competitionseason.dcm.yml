@@ -43,3 +43,6 @@ Voetbal\Competitionseason:
               name: associationid
               referencedColumnName: id
               nullable: false
+    uniqueConstraints:
+        main_idx:
+            columns: [ competitionid, seasonid ]
