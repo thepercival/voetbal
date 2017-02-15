@@ -89,7 +89,7 @@ final class Season
 			$season = $this->service->edit( $season, $name, new Period( $startdate, $enddate ) );
 
 			return $response
-				->withStatus(205)
+				->withStatus(201)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
 				->write($this->serializer->serialize( $season, 'json'));
 			;
@@ -97,7 +97,7 @@ final class Season
 		catch( \Exception $e ){
 			$sErrorMessage = $e->getMessage();
 		}
-		return $response->withStatus(404, $sErrorMessage );
+		return $response->withStatus(400, $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)
@@ -108,7 +108,7 @@ final class Season
 			$this->service->remove($season);
 
 			return $response
-				->withStatus(204);
+				->withStatus(201);
 			;
 		}
 		catch( \Exception $e ){
