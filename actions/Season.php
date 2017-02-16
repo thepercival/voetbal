@@ -97,7 +97,7 @@ final class Season
 		catch( \Exception $e ){
 			$sErrorMessage = $e->getMessage();
 		}
-		return $response->withStatus(400, $sErrorMessage );
+		return $response->withStatus(404, $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)
