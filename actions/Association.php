@@ -82,14 +82,15 @@ final class Association
 		}
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
         $description = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
-        $parent = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT);
+        $parent = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT,array('flags' => FILTER_NULL_ON_FAILURE));
+        if( strlen($parent) === 0 ) { $parent = null; }
 
 		$sErrorMessage = null;
 		try {
 			$association = $this->service->edit( $association, $name, $description, $parent );
 
 			return $response
-				->withStatus(205)
+				->withStatus(201)
 				->withHeader('Content-Type', 'application/json;charset=utf-8')
 				->write($this->serializer->serialize( $association, 'json'));
 			;
@@ -97,7 +98,7 @@ final class Association
 		catch( \Exception $e ){
 			$sErrorMessage = $e->getMessage();
 		}
-		return $response->withStatus(404, $sErrorMessage );
+		return $response->withStatus(400, $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)

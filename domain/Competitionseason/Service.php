@@ -40,7 +40,7 @@ class Service
      * @return Competition|Competitionseason
      * @throws \Exception
      */
-	public function create( Competition $competition, Season $season, Association $association )
+	public function create( Association $association, Competition $competition, Season $season )
 	{
 		$competition = new Competitionseason( $competition, $season, $association  );
 

@@ -56,7 +56,7 @@ class Service
      * @param Association $parent
      * @throws \Exception
      */
-	public function edit( Association $association, $name, $description, Association $parent )
+	public function edit( Association $association, $name, $description, Association $parent = null )
 	{
 		$associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 		if ( $associationWithSameName !== null and $associationWithSameName !== $association ){

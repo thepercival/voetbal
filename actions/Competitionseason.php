@@ -33,9 +33,9 @@ final class Competitionseason
     )
 	{
 		$this->repos = $repos;
+        $this->associationRepos = $associationRepos;
         $this->competitionRepos = $competitionRepos;
         $this->seasonRepos = $seasonRepos;
-        $this->associationRepos = $associationRepos;
 		$this->service = new CompetitionseasonService( $repos );
 		$this->serializer = $serializer;
 	}
@@ -81,13 +81,13 @@ final class Competitionseason
             }
 
 			$competitionseason = $this->service->create(
-				$competition,
-                $season,
-                $association
+                $association,
+                $competition,
+                $season
 			);
             $qualificationrule = filter_var($request->getParam('qualificationrule'), FILTER_VALIDATE_INT);
             if ( $qualificationrule !== false ){
-                $competitionseason->setQualificationrule( $competitionseason );
+                $competitionseason->setQualificationrule( $qualificationrule );
             }
 
 			return $response
