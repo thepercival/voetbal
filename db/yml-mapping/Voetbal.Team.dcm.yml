@@ -1,0 +1,33 @@
+Voetbal\Team:
+  type: entity
+  repositoryClass: Voetbal\Repository\Team
+  table: teams
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type: string
+      nullable: false
+      length: !php/const:Voetbal\Team::MAX_LENGTH_NAME
+      unique: true
+    abbreviation:
+      type: string
+      nullable: false
+      unique: false
+      length: !php/const:Voetbal\Team::MAX_LENGTH_ABBREVIATION
+      column: abbreviation
+  oneToMany:
+    externals:
+      targetEntity: Voetbal\External\Team
+      mappedBy: importableobject
+  manyToOne:
+    association:
+      targetEntity: Voetbal\Association
+      inversedBy: teams
+      joinColumn:
+        name: associationid
+        referencedColumnName: id
+        nullable: false

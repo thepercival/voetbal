@@ -38,11 +38,16 @@ class Association extends Importable
     protected $children;
 
     /**
-     * @var ArrayCollection
+     * @var Competitionseason[] | ArrayCollection
      */
     protected $competitionseasons;
 
-	const MIN_LENGTH_NAME = 3;
+    /**
+     * @var Team[] | ArrayCollection
+     */
+    protected $teams;
+
+    const MIN_LENGTH_NAME = 3;
 	const MAX_LENGTH_NAME = 20;
 	const MAX_LENGTH_DESCRIPTION = 50;
 
@@ -52,6 +57,7 @@ class Association extends Importable
         $this->children = new ArrayCollection();
         $this->externals = new ArrayCollection();
         $this->competitionseasons = new ArrayCollection();
+        $this->teams = new ArrayCollection();
     }
 
 	/**
@@ -115,9 +121,10 @@ class Association extends Importable
         return $this->parent;
     }
 
-	/**
-	 * @param Association|null $parent
-	 */
+    /**
+     * @param Association|null $parent
+     * @throws \Exception
+     */
     public function setParent( Association $parent = null )
     {
 	    if ( $parent === $this ){
@@ -141,10 +148,18 @@ class Association extends Importable
     }
 
     /**
-     * @return ArrayCollection
+     * @return Competitionseason[] | ArrayCollection
      */
     public function getCompetitionseasons()
     {
         return $this->competitionseasons;
+    }
+
+    /**
+     * @return Team[] | ArrayCollection
+     */
+    public function getTeams()
+    {
+        return $this->teams;
     }
 }

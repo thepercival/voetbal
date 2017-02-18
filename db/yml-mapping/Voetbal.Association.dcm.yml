@@ -24,6 +24,9 @@ Voetbal\Association:
     competitionseasons:
       targetEntity: Voetbal\Competitionseason
       mappedBy: association
+    teams:
+      targetEntity: Voetbal\Team
+      mappedBy: association
     externals:
       targetEntity: Voetbal\External\Association
       mappedBy: importableobject
