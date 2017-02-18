@@ -19,10 +19,10 @@ final class Association
 	protected $repos;
 	protected $serializer;
 
-	public function __construct(AssociationRepository $repos, Serializer $serializer)
+	public function __construct(AssociationService $service, AssociationRepository $repos, Serializer $serializer)
 	{
 		$this->repos = $repos;
-		$this->service = new AssociationService( $repos );
+        $this->service = $service;
 		$this->serializer = $serializer;
 	}
 
