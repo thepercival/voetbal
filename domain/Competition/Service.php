@@ -9,7 +9,7 @@
 namespace Voetbal\Competition;
 
 use Voetbal\Competition;
-use Voetbal\Repository\Competition as CompetitionRepository;
+use Voetbal\Competition\Repository as CompetitionRepository;
 
 class Service
 {

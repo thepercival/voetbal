@@ -6,11 +6,11 @@
  * Time: 19:03
  */
 
-namespace Voetbal\Repository;
+namespace Voetbal;
 
 use \Doctrine\ORM\EntityRepository;
 
-class Main extends EntityRepository
+class Repository extends EntityRepository
 {
 	public function save( $object )
 	{

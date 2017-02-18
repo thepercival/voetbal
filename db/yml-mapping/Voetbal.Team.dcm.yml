@@ -1,6 +1,6 @@
 Voetbal\Team:
   type: entity
-  repositoryClass: Voetbal\Repository\Team
+  repositoryClass: Voetbal\Team\Repository
   table: teams
   id:
     id:

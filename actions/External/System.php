@@ -10,7 +10,7 @@ namespace Voetbal\Action\External;
 
 use Symfony\Component\Serializer\Serializer;
 use Voetbal\External\System\Service as SystemService;
-use Voetbal\Repository\External\System as SystemRepository;
+use Voetbal\External\System\Repository as SystemRepository;
 use Voetbal;
 
 final class System

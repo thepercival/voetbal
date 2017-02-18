@@ -9,7 +9,7 @@
 namespace Voetbal\External\System;
 
 use Voetbal\External\System;
-use Voetbal\Repository\External\System as SystemRepository;
+use Voetbal\External\System\Repository as SystemRepository;
 
 class Service
 {

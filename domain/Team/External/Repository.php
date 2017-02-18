@@ -8,13 +8,11 @@
 
 namespace Voetbal\Team\External;
 
-use Voetbal\Repository\Main;
-
 /**
- * Repository
- *
+ * Class Repository
+ * @package Voetbal\Team\External
  */
-class Repository extends Main
+class Repository extends \Voetbal\Repository
 {
 
 }

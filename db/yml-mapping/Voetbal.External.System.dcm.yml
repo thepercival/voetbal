@@ -1,6 +1,6 @@
 Voetbal\External\System:
   type: entity
-  repositoryClass: Voetbal\Repository\External\System
+  repositoryClass: Voetbal\External\System\Repository
   table: externalsystems
   id:
     id:

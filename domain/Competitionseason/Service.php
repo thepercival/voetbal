@@ -9,7 +9,7 @@
 namespace Voetbal\Competitionseason;
 
 use Voetbal;
-use Voetbal\Repository\Competitionseason as CompetitionseasonRepository;
+use Voetbal\Competitionseason\Repository as CompetitionseasonRepository;
 use Voetbal\Competitionseason;
 use Voetbal\Competition;
 use Voetbal\Season;

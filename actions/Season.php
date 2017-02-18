@@ -10,7 +10,7 @@ namespace Voetbal\Action;
 
 use Symfony\Component\Serializer\Serializer;
 use Voetbal\Season\Service as SeasonService;
-use Voetbal\Repository\Season as SeasonRepository;
+use Voetbal\Season\Repository as SeasonRepository;
 use Voetbal;
 use League\Period\Period;
 

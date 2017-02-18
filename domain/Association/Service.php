@@ -9,7 +9,7 @@
 namespace Voetbal\Association;
 
 use Voetbal\Association;
-use Voetbal\Repository\Association as AssociationRepository;
+use Voetbal\Association\Repository as AssociationRepository;
 
 class Service
 {

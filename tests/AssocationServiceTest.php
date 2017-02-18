@@ -9,7 +9,7 @@
 namespace Voetbal\Tests;
 
 use Voetbal\Association as Association;
-use Voetbal\Repository\Association as AssociationRepository;
+use Voetbal\Association\Repository as AssociationRepository;
 
 class AssociationServiceTest extends \PHPUnit_Framework_TestCase
 {

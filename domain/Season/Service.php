@@ -9,7 +9,7 @@
 namespace Voetbal\Season;
 
 use Voetbal\Season;
-use Voetbal\Repository\Season as SeasonRepository;
+use Voetbal\Season\Repository as SeasonRepository;
 use League\Period\Period;
 
 class Service

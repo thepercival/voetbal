@@ -10,7 +10,7 @@ namespace Voetbal\Action;
 
 use Symfony\Component\Serializer\Serializer;
 use Voetbal\Competition\Service as CompetitionService;
-use Voetbal\Repository\Competition as CompetitionRepository;
+use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;

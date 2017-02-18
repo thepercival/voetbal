@@ -1,6 +1,6 @@
 Voetbal\Competitionseason:
     type: entity
-    repositoryClass: Voetbal\Repository\Competitionseason
+    repositoryClass: Voetbal\Competitionseason\Repository
     table: competitionseasons
     id:
         id:

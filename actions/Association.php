@@ -10,7 +10,7 @@ namespace Voetbal\Action;
 
 use Symfony\Component\Serializer\Serializer;
 use Voetbal\Association\Service as AssociationService;
-use Voetbal\Repository\Association as AssociationRepository;
+use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal;
 
 final class Association

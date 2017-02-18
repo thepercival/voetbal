@@ -39,7 +39,7 @@ final class Object
         if ( $classname === null ){
             return null;
         }
-        return new \Voetbal\Repository\Main($this->em,$this->em->getClassMetaData($classname));
+        return new \Voetbal\Repository($this->em,$this->em->getClassMetaData($classname));
     }
 
     protected function getImportbleRepos( $resourcetype )
@@ -48,13 +48,13 @@ final class Object
         if ( $classname === null ){
             return null;
         }
-        return new \Voetbal\Repository\Main($this->em,$this->em->getClassMetaData($classname));
+        return new \Voetbal\Repository($this->em,$this->em->getClassMetaData($classname));
     }
 
     protected function getExternalsystemRepos()
     {
         if ( $this->externalsystemRepos === null ) {
-            return new \Voetbal\Repository\External\System($this->em,$this->em->getClassMetaData(\Voetbal\External\System::class));
+            return new \Voetbal\External\System\Repository($this->em,$this->em->getClassMetaData(\Voetbal\External\System::class));
         }
         return $this->externalsystemRepos;
     }

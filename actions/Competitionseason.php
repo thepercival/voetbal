@@ -10,10 +10,10 @@ namespace Voetbal\Action;
 
 use Symfony\Component\Serializer\Serializer;
 use Voetbal\Competitionseason\Service as CompetitionseasonService;
-use Voetbal\Repository\Competitionseason as CompetitionseasonRepository;
-use Voetbal\Repository\Competition as CompetitionRepository;
-use Voetbal\Repository\Season as SeasonRepository;
-use Voetbal\Repository\Association as AssociationRepository;
+use Voetbal\Competitionseason\Repository as CompetitionseasonRepository;
+use Voetbal\Competition\Repository as CompetitionRepository;
+use Voetbal\Season\Repository as SeasonRepository;
+use Voetbal\Association\Repository as AssociationRepository;
 
 final class Competitionseason
 {
