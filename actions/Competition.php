@@ -21,10 +21,10 @@ final class Competition
 	protected $repos;
 	protected $serializer;
 
-	public function __construct(CompetitionRepository $repos, Serializer $serializer)
+	public function __construct(CompetitionService $service, CompetitionRepository $repos, Serializer $serializer)
 	{
-		$this->repos = $repos;
-		$this->service = new CompetitionService( $repos );
+        $this->repos = $repos;
+		$this->service = $service;
 		$this->serializer = $serializer;
 	}
 

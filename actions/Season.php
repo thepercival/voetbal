@@ -20,10 +20,10 @@ final class Season
 	protected $repos;
 	protected $serializer;
 
-	public function __construct(SeasonRepository $repos, Serializer $serializer)
+	public function __construct(SeasonService $service, SeasonRepository $repos, Serializer $serializer)
 	{
 		$this->repos = $repos;
-		$this->service = new SeasonService( $repos );
+		$this->service = $service;
 		$this->serializer = $serializer;
 	}
 

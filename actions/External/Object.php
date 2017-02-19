@@ -11,78 +11,41 @@ namespace Voetbal\Action\External;
 
 use Symfony\Component\Serializer\Serializer;
 use Doctrine\ORM\EntityManager;
+use Voetbal\External\Object\Service as ExternalObjectService;
+use \Doctrine\ORM\EntityRepository;
+use Voetbal;
 
 final class Object
 {
-    protected $em;
+
+    protected $service;
+    protected $repos;
+    protected $importableRepos;
+    protected $systemRepos;
     protected $serializer;
-    protected $externalsystemRepos;
 
-    public function __construct(EntityManager $em, Serializer $serializer)
+    public function __construct(
+        ExternalObjectService $service,
+        EntityRepository $objectRepository,
+        EntityRepository $importableRepos,
+        Voetbal\External\System\Repository $systemRepos,
+        Serializer $serializer
+    )
     {
-        $this->em = $em;
+        $this->service = $service;
+        $this->repos = $objectRepository;
+        $this->importableRepos = $importableRepos;
+        $this->systemRepos = $systemRepos;
         $this->serializer = $serializer;
-    }
-
-    protected function getService( $resourcetype )
-    {
-        $repos = $this->getRepos( $resourcetype );
-        if ( $repos === null ){
-            return null;
-        }
-        return new \Voetbal\External\Object\Service( $repos );
-    }
-
-    protected function getRepos( $resourcetype )
-    {
-        $classname = $this->convertRouteToClass( $resourcetype );
-        if ( $classname === null ){
-            return null;
-        }
-        return new \Voetbal\Repository($this->em,$this->em->getClassMetaData($classname));
-    }
-
-    protected function getImportbleRepos( $resourcetype )
-    {
-        $classname = $this->convertRouteToImportableClass( $resourcetype );
-        if ( $classname === null ){
-            return null;
-        }
-        return new \Voetbal\Repository($this->em,$this->em->getClassMetaData($classname));
-    }
-
-    protected function getExternalsystemRepos()
-    {
-        if ( $this->externalsystemRepos === null ) {
-            return new \Voetbal\External\System\Repository($this->em,$this->em->getClassMetaData(\Voetbal\External\System::class));
-        }
-        return $this->externalsystemRepos;
-    }
-
-    protected function convertRouteToClass( $resourcetype )
-    {
-        if ( $resourcetype === "competitions") {
-            return \Voetbal\External\Competition::class;
-        }
-        return null;
-    }
-
-    protected function convertRouteToImportableClass( $resourcetype )
-    {
-        if ( $resourcetype === "competitions") {
-            return \Voetbal\Competition::class;
-        }
-        return null;
     }
 
     public function fetch( $request, $response, $args)
     {
-        $repos = $this->getRepos( $args["resourceType"] );
-        if ( $repos === null ){
+        if ( $this->repos === null ){
             return $response->withStatus(404, 'geen klasse gevonden voor route '.$args["resourceType"]);
         }
 
-        $objects = $repos->findAll();
+        $objects = $this->repos->findAll();
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
             ->write( $this->serializer->serialize( $objects, 'json') );
@@ -110,17 +73,17 @@ final class Object
         $sErrorMessage = null;
         // $sErrorMessage = $externalid . " - " . $externalsystemid . " - " . $importableobejctid;
 
-        $importableobject = $this->getImportbleRepos( $args["resourceType"] )->find($importableobejctid);
+        $importableobject = $this->importableRepos->find($importableobejctid);
         if ( $importableobject === null ) {
             throw new \Exception("het object waaraan het externe object gekoppeld wordt, kan niet gevonden worden",E_ERROR);
         }
-        $externalsystem = $this->getExternalsystemRepos()->find($externalsystemid);
+        $externalsystem = $this->systemRepos->find($externalsystemid);
         if ( $externalsystem === null ) {
             throw new \Exception("het externe systeem kan niet gevonden worden",E_ERROR);
         }
 
         try {
-            $externalobject = $this->getService($args["resourceType"])->create(
+            $externalobject = $this->service->create(
                 $importableobject,
                 $externalid,
                 $externalsystem
@@ -139,11 +102,11 @@ final class Object
 
     public function remove( $request, $response, $args)
     {
-        $externalobject = $this->getRepos( $args["resourceType"] )->find($args['id']);
+        $externalobject = $this->repos->find($args['id']);
 
         $sErrorMessage = "hallo";
         try {
-            $this->getService($args["resourceType"])->remove(
+            $this->service->remove(
                 $externalobject
             );
             return $response

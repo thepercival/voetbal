@@ -19,10 +19,10 @@ final class System
     protected $repos;
     protected $serializer;
 
-    public function __construct(SystemRepository $systemRepository, Serializer $serializer)
+    public function __construct(SystemService $service, SystemRepository $repos, Serializer $serializer)
     {
-        $this->repos = $systemRepository;
-        $this->service = new SystemService( $systemRepository );
+        $this->repos = $repos;
+        $this->service = $service;
         $this->serializer = $serializer;
     }
 

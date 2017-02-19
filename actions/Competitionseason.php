@@ -25,6 +25,7 @@ final class Competitionseason
 	protected $serializer;
 
 	public function __construct(
+        CompetitionseasonService $service,
         CompetitionseasonRepository $repos,
         CompetitionRepository $competitionRepos,
         SeasonRepository $seasonRepos,
@@ -32,11 +33,11 @@ final class Competitionseason
         Serializer $serializer
     )
 	{
+        $this->service = $service;
 		$this->repos = $repos;
         $this->associationRepos = $associationRepos;
         $this->competitionRepos = $competitionRepos;
         $this->seasonRepos = $seasonRepos;
-		$this->service = new CompetitionseasonService( $repos );
 		$this->serializer = $serializer;
 	}
 

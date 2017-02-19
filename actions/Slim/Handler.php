@@ -6,7 +6,7 @@
  * Time: 22:48
  */
 
-namespace Voetbal\Action;
+namespace Voetbal\Action\Slim;
 
 use Voetbal;
 
@@ -60,18 +60,45 @@ class Handler
     {
         /** @var Voetbal\Service $voetbalservice */
         $voetbalservice = $this->container->get('voetbal');
+        $serializer = $this->container->get('serializer');
 
         $action = null;
         if ( $resourceType === 'associations' ){
             $repos = $voetbalservice->getRepository(Voetbal\Association::class);
             $service = new Voetbal\Association\Service( $repos );
-            $action = new Association($service, $repos, $this->container->get('serializer'));
+            $action = new Voetbal\Action\Association($service, $repos, $serializer);
         }
         elseif ( $resourceType === 'teams' ){
             $repos = $voetbalservice->getRepository(Voetbal\Team::class);
             $service = new Voetbal\Team\Service($repos);
-            $action = new Team($service, $repos, $this->container->get('serializer'));
+            $action = new Voetbal\Action\Team($service, $repos, $serializer);
         }
+        elseif ( $resourceType === 'seasons' ){
+            $repos = $voetbalservice->getRepository(Voetbal\Season::class);
+            $service = new Voetbal\Season\Service($repos);
+            $action = new Voetbal\Action\Season($service, $repos, $serializer);
+        }
+        elseif ( $resourceType === 'competitions' ){
+            $repos = $voetbalservice->getRepository(Voetbal\Competition::class);
+            $service = new Voetbal\Competition\Service($repos);
+            $action = new Voetbal\Action\Competition($service, $repos, $serializer);
+        }
+        elseif ( $resourceType === 'competitionseasons' ){
+            $repos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+            $service = new Voetbal\Competitionseason\Service($repos);
+            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
+            $seasonRepos = $voetbalservice->getRepository(Voetbal\Season::class);
+            $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
+            $action = new Voetbal\Action\Competitionseason(
+                $service,
+                $repos,
+                $competitionRepos,
+                $seasonRepos,
+                $associationRepos,
+                $serializer
+            );
+        }
+
         return $action;
     }
 }
