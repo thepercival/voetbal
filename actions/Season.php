@@ -52,8 +52,18 @@ final class Season
 	public function add( $request, $response, $args)
 	{
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $startdate = $request->getParam('startdate');
-        $enddate = $request->getParam('enddate');
+        $startdate = trim( $request->getParam('startdate') );
+        if ( strlen( $startdate ) === 0 ) {
+            return $response->withStatus(404, "de startdatum is niet gezet");
+        }
+        $startdate = new \DateTime($startdate);
+        $startdate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
+        $enddate = trim( $request->getParam('enddate') );
+        if ( strlen( $enddate ) === 0 ) {
+            return $response->withStatus(404, "de einddatum is niet gezet");
+        }
+        $enddate = new \DateTime($enddate);
+        $enddate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
 		$sErrorMessage = null;
 		try {
 			$season = $this->service->create(
@@ -77,12 +87,22 @@ final class Season
 	{
 		$season = $this->repos->find($args['id']);
 		if ( $season === null ) {
-			throw new \Exception("de aan te passen bond kan niet gevonden worden",E_ERROR);
+            return $response->withStatus(404, "de aan te passen bond kan niet gevonden worden" );
 		}
 
 		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $startdate = $request->getParam('startdate');
-        $enddate = $request->getParam('enddate');
+		$startdate = trim( $request->getParam('startdate') );
+		if ( strlen( $startdate ) === 0 ) {
+            return $response->withStatus(404, "de startdatum is niet gezet" );
+        }
+        $startdate = new \DateTime($startdate);
+        $startdate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
+        $enddate = trim( $request->getParam('enddate') );
+        if ( strlen( $enddate ) === 0 ) {
+            return $response->withStatus(404, "de einddatum is niet gezet");
+        }
+        $enddate = new \DateTime($enddate);
+        $enddate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
 
 		$sErrorMessage = null;
 		try {

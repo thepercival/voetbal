@@ -24,10 +24,14 @@ class ExternalHandler
         // $this->container->get('logger')->info("default resource route get : " . $resourceType . ( $id ? '/' . $id : null ) );
 
         $resourceType = array_key_exists("resourceType",$args) ? $args["resourceType"] : null;
-        $action = $this->getAction( $resourceType );
-        if ( $action === null ) {
-            return $response->withStatus(404, 'geen actie gevonden voor '.$resourceType);
+        $action = null;
+        try {
+            $action = $this->getAction( $resourceType );
         }
+        catch( \Exception $e ) {
+            return $response->withStatus(404, $e->getMessage());
+        }
+
         return $this->executeAction($action, $request, $response, $args);
     }
 
@@ -68,7 +72,7 @@ class ExternalHandler
             $service = new Voetbal\External\System\Service( $systemRepos );
             $action = new Voetbal\Action\External\System($service, $systemRepos, $serializer);
         }
-        else { // if ( $resourceType === 'teams' ){
+        else {
             $importableclassname = $this->getImportableClassFromResource($resourceType);
             $importableRepos = $voetbalservice->getRepository($importableclassname);
 
@@ -78,7 +82,9 @@ class ExternalHandler
 
             $action = new Voetbal\Action\External\Object($objectService, $objectRepository, $importableRepos, $systemRepos, $serializer);
         }
-
+        if ( $action === null ) {
+            throw new \Exception('geen actie gevonden voor '.$resourceType, E_ERROR);
+        }
         return $action;
     }
 
@@ -94,6 +100,12 @@ class ExternalHandler
         else if ( $resourcetype === "associations") {
             $classname = \Voetbal\Association::class;
         }
+        else if ( $resourcetype === "seasons") {
+            $classname = \Voetbal\Season::class;
+        }
+        else {
+            throw new \Exception("geen importeerbare klasse gevonden voor resource " . $resourcetype, E_ERROR );
+        }
         return $classname;
     }
 
@@ -108,6 +120,12 @@ class ExternalHandler
         }
         else if ( $resourcetype === "associations") {
             $classname = \Voetbal\External\Association::class;
+        }
+        else if ( $resourcetype === "seasons") {
+            $classname = \Voetbal\External\Season::class;
+        }
+        else {
+            throw new \Exception("geen externe klasse gevonden voor resource " . $resourcetype, E_ERROR );
         }
         return $classname;
     }
