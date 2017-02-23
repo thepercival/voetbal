@@ -10,7 +10,7 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Competitionseason
+class Competitionseason extends Importable
 {
 	/**
 	 * @var int

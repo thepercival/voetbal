@@ -1,0 +1,36 @@
+Voetbal\Round:
+  type: entity
+  repositoryClass: Voetbal\Round\Repository
+  table: rounds
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type: string
+      nullable: true
+      length: !php/const:Voetbal\Competition::MAX_LENGTH_NAME
+      unique: false
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+      column: number
+    nrOfHeadtoheadMatches:
+      type: smallint
+      nullable: false
+      unique: false
+      column: nrofheadtoheadmatches
+  manyToOne:
+    competitionseason:
+      targetEntity: Voetbal\Competitionseason
+      inversedBy: rounds
+      joinColumn:
+        name: competitionseasonid
+        referencedColumnName: id
+        nullable: false
+  uniqueConstraints:
+    number_u_idx:
+      columns: [ competitionseasonid, number ]

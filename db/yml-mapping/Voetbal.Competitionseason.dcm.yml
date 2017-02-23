@@ -21,6 +21,13 @@ Voetbal\Competitionseason:
             default:  !php/const:Voetbal\Competitionseason::QUALIFICATION_RULE_WC
             nullable: false
             unique: false
+    oneToMany:
+        rounds:
+          targetEntity: Voetbal\Round
+          mappedBy: competitionseason
+        externals:
+          targetEntity: Voetbal\External\Competitionseason
+          mappedBy: importableobject
     manyToOne:
         competition:
             targetEntity: Voetbal\Competition
@@ -44,5 +51,5 @@ Voetbal\Competitionseason:
               referencedColumnName: id
               nullable: false
     uniqueConstraints:
-        main_idx:
+        main_u_idx:
             columns: [ competitionid, seasonid ]
