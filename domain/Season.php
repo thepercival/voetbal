@@ -12,7 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
  * Time: 11:40
  */
 
-class Season extends Importable
+class Season extends External\Importable
 {
     /**
      * @var int

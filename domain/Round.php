@@ -9,7 +9,7 @@
 namespace Voetbal;
 
 
-class Round extends Importable
+class Round
 {
     /**
      * @var int

@@ -9,7 +9,7 @@
 namespace Voetbal;
 
 
-class Team extends Importable
+class Team extends External\Importable
 {
     /**
      * @var int
