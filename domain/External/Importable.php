@@ -6,7 +6,7 @@
  * Time: 12:06
  */
 
-namespace Voetbal;
+namespace Voetbal\External;
 
 abstract class Importable
 {

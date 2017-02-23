@@ -28,12 +28,12 @@ class Service
 	}
 
     /**
-     * @param $name
-     * @param null $abbreviation
-     * @return Competition
-     * @throws \Exception
+     * @param Importable $importable
+     * @param System $externalsystem
+     * @param $externalid
+     * @return \Voetbal\External\Object
      */
-	public function create( \Voetbal\Importable $importable, System $externalsystem, $externalid )
+	public function create( Importable $importable, System $externalsystem, $externalid )
 	{
 	    // make an external from the importable and save to the repos
 

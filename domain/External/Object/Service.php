@@ -10,6 +10,7 @@ namespace Voetbal\External\Object;
 
 use Voetbal\External\Object as ExternalObject;
 use Voetbal\External\System as ExternalSystem;
+use Voetbal\External\Importable;
 use \Doctrine\ORM\EntityRepository;
 
 class Service
@@ -30,13 +31,13 @@ class Service
 
     /**
      * @param string $externalObjectCLass
-     * @param ExtenalObject $importableobject
+     * @param Importable $importableobject
      * @param $externalid
      * @param ExternaSystem $externalsystem
      * @return mixed
      * @throws \Exception
      */
-    public function create( \Voetbal\Importable $importableobject, $externalid, ExternalSystem $externalsystem )
+    public function create( Importable $importableobject, $externalid, ExternalSystem $externalsystem )
     {
         $sClassName = $this->repos->getClassName();
         $externalobject = new $sClassName(  $importableobject, $externalsystem, $externalid);

@@ -16,7 +16,7 @@ class Object
     protected $id;
 
     /**
-     * @var \Voetbal\Importable
+     * @var Importable
      */
     protected $importableobject;
 
@@ -32,7 +32,7 @@ class Object
 
     const MAX_LENGTH_EXTERNALID = 100;
 
-    public function __construct( \Voetbal\Importable $importableobject, System $externalsystem, $externalid)
+    public function __construct( Importable $importableobject, System $externalsystem, $externalid)
     {
         $this->setImportableObject( $importableobject );
         $this->setExternalsystem( $externalsystem );
@@ -74,9 +74,9 @@ class Object
     }
 
     /**
-     * @param \Voetbal\Importable $importableobject
+     * @param Importable $importableobject
      */
-    public function setImportableObject( \Voetbal\Importable $importableobject )
+    public function setImportableObject( Importable $importableobject )
     {
         $this->importableobject = $importableobject;
     }

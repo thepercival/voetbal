@@ -5,7 +5,7 @@
  * Date: 12-2-17
  * Time: 12:23
  */
-namespace Voetbal\Importable;
+namespace Voetbal\External\Importable;
 
 interface Contract
 {
