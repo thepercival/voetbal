@@ -31,10 +31,10 @@ final class Team
     public function fetch( $request, $response, $args)
     {
         $objects = $this->repos->findAll();
-        return $response->withJson($this->serializer->serialize( $objects, 'json'), 201);
-            //->withHeader('Content-Type', 'application/json;charset=utf-8')
-        //    ->write( $this->serializer->serialize( $objects, 'json') );
-        //;
+        return $response
+            ->withHeader('Content-Type', 'application/json;charset=utf-8')
+            ->write( $this->serializer->serialize( $objects, 'json') );
+        ;
 
     }
 
@@ -44,7 +44,7 @@ final class Team
         if ($object) {
             return $response
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write();
+                ->write($this->serializer->serialize( $object, 'json'));
             ;
         }
         return $response->withStatus(404, 'geen competitie met het opgegeven id gevonden');
