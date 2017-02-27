@@ -11,6 +11,7 @@ namespace Voetbal\Action;
 use Symfony\Component\Serializer\Serializer;
 use Voetbal\Team\Service as TeamService;
 use Voetbal\Team\Repository as TeamRepository;
+use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -19,12 +20,14 @@ final class Team
 {
     protected $service;
     protected $repos;
+    protected $associationRepos;
     protected $serializer;
 
-    public function __construct(TeamService $service, TeamRepository $repos, Serializer $serializer)
+    public function __construct(TeamService $service, TeamRepository $repos, AssociationRepository $associationRepos, Serializer $serializer)
     {
         $this->service = $service;
         $this->repos = $repos;
+        $this->associationRepos = $associationRepos;
         $this->serializer = $serializer;
     }
 
@@ -54,10 +57,16 @@ final class Team
     {
         $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
         $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
+        $association = $this->associationRepos->find($request->getParam('associationid'));
+        if ( $association === null ){
+            throw new \Exception("de bond is niet gevonden", E_ERROR );
+        }
+
         $sErrorMessage = null;
         try {
             $competition = $this->service->create(
                 $name,
+                $association,
                 $abbreviation
             );
 
@@ -75,38 +84,41 @@ final class Team
 
     public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
     {
-        $competition = $this->repos->find($args['id']);
-        if ( $competition === null ) {
-            throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
-        }
-
-        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-
         $sErrorMessage = null;
         try {
+            $team = $this->repos->find($args['id']);
+            if ( $team === null ) {
+                return $response->withStatus(404, "het aan te passen team kan niet gevonden worden" );
+            }
 
-            $competition = $this->service->edit( $competition, $name, $abbreviation );
+            $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
+            $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
+            $association = $this->associationRepos->find($request->getParam('associationid'));
+            if ( $association === null ){
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            }
+
+            $team = $this->service->edit( $team, $name, $association, $abbreviation );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $competition, 'json'));
+                ->write($this->serializer->serialize( $team, 'json'));
             ;
         }
         catch( \Exception $e ){
 
-            $sErrorMessage = $e->getMessage();
+            $sErrorMessage = urlencode( $e->getMessage() );
         }
         return $response->withStatus(400,$sErrorMessage);
     }
 
     public function remove( $request, $response, $args)
     {
-        $competition = $this->repos->find($args['id']);
+        $team = $this->repos->find($args['id']);
         $sErrorMessage = null;
         try {
-            $this->service->remove($competition);
+            $this->service->remove($team);
 
             return $response
                 ->withStatus(201);

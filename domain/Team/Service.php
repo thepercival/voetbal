@@ -10,6 +10,7 @@ namespace Voetbal\Team;
 
 use Voetbal\Team;
 use Voetbal\Team\Repository as TeamRepository;
+use Voetbal\Association;
 
 class Service
 {
@@ -20,8 +21,7 @@ class Service
 
     /**
      * Service constructor.
-     *
-     * @param TeamRepository $teamRepos
+     * @param Repository $repos
      */
     public function __construct( TeamRepository $repos )
     {
@@ -30,51 +30,51 @@ class Service
 
     /**
      * @param $name
-     * @param null $description
-     * @param Association|null $parent
-     * @return Association
+     * @param Association $association
+     * @param null $abbreviation
+     * @return mixed
      * @throws \Exception
      */
-    public function create( $name, $description = null, Association $parent = null )
+    public function create( $name, Association $association, $abbreviation = null )
     {
-        $association = new Association( $name );
-        $association->setDescription($description);
-        $association->setParent($parent);
+        $team = new Team( $name, $association );
+        $team->setAbbreviation($abbreviation);
 
-        $associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $associationWithSameName !== null ){
-            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
+        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+        if ( $teamWithSameName !== null ){
+            throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
         }
 
-        return $this->repos->save($association);
+        return $this->repos->save($team);
     }
 
     /**
-     * @param Association $association
+     * @param Team $team
      * @param $name
-     * @param $description
-     * @param Association $parent
+     * @param Association $association
+     * @param null $abbreviation
+     * @return mixed
      * @throws \Exception
      */
-    public function edit( Association $association, $name, $description, Association $parent = null )
+    public function edit( Team $team, $name, Association $association, $abbreviation = null )
     {
-        $associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $associationWithSameName !== null and $associationWithSameName !== $association ){
+        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
             throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
         }
 
-        $association->setName($name);
-        $association->setDescription($description);
-        $association->setParent($parent);
+        $team->setName($name);
+        $team->setAbbreviation($abbreviation);
+        $team->setAssociation($association);
 
-        return $this->repos->save($association);
+        return $this->repos->save($team);
     }
 
     /**
-     * @param Association $association
+     * @param Team $team
      */
-    public function remove( Association $association )
+    public function remove( Team $team )
     {
-        $this->repos->remove($association);
+        $this->repos->remove($team);
     }
 }

@@ -35,10 +35,9 @@ class Team extends External\Importable
     const MAX_LENGTH_NAME = 30;
     const MAX_LENGTH_ABBREVIATION = 3;
 
-    public function __construct( $name, $abbreviation, Association $association )
+    public function __construct( $name, Association $association )
     {
         $this->setName( $name );
-        $this->setAbbreviation( $abbreviation );
         $this->setAssociation( $association );
     }
 
@@ -110,7 +109,7 @@ class Team extends External\Importable
     /**
      * @param Association $association
      */
-    public function setAssociation( $association )
+    public function setAssociation( Association $association )
     {
         $this->association = $association;
     }

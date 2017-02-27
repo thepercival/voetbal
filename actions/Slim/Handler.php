@@ -70,8 +70,9 @@ class Handler
         }
         elseif ( $resourceType === 'teams' ){
             $repos = $voetbalservice->getRepository(Voetbal\Team::class);
+            $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
             $service = new Voetbal\Team\Service($repos);
-            $action = new Voetbal\Action\Team($service, $repos, $serializer);
+            $action = new Voetbal\Action\Team($service, $repos, $associationRepos, $serializer);
         }
         elseif ( $resourceType === 'seasons' ){
             $repos = $voetbalservice->getRepository(Voetbal\Season::class);
