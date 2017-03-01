@@ -90,43 +90,23 @@ class ExternalHandler
 
     protected function getImportableClassFromResource( $resourcetype )
     {
-        $classname = null;
-        if ( $resourcetype === "competitions") {
-            $classname = \Voetbal\Competition::class;
-        }
-        else if ( $resourcetype === "competitionseasons") {
-            $classname = \Voetbal\Competitionseason::class;
-        }
-        else if ( $resourcetype === "associations") {
-            $classname = \Voetbal\Association::class;
-        }
-        else if ( $resourcetype === "seasons") {
-            $classname = \Voetbal\Season::class;
-        }
-        else {
-            throw new \Exception("geen importeerbare klasse gevonden voor resource " . $resourcetype, E_ERROR );
-        }
-        return $classname;
+        if ( $resourcetype === "competitions") { return \Voetbal\Competition::class; }
+        else if ( $resourcetype === "competitionseasons") { return \Voetbal\Competitionseason::class; }
+        else if ( $resourcetype === "associations") { return \Voetbal\Association::class; }
+        else if ( $resourcetype === "seasons") { return \Voetbal\Season::class; }
+        else if ( $resourcetype === "teams") { return \Voetbal\Team::class; }
+
+        throw new \Exception("geen importeerbare klasse gevonden voor resource " . $resourcetype, E_ERROR );
     }
 
     protected function getClassFromResource( $resourcetype )
     {
-        $classname = null;
-        if ( $resourcetype === "competitions") {
-            $classname = \Voetbal\External\Competition::class;
-        }
-        else if ( $resourcetype === "competitionseasons") {
-            $classname = \Voetbal\External\Competitionseason::class;
-        }
-        else if ( $resourcetype === "associations") {
-            $classname = \Voetbal\External\Association::class;
-        }
-        else if ( $resourcetype === "seasons") {
-            $classname = \Voetbal\External\Season::class;
-        }
-        else {
-            throw new \Exception("geen externe klasse gevonden voor resource " . $resourcetype, E_ERROR );
-        }
-        return $classname;
+        if ( $resourcetype === "competitions") { return \Voetbal\External\Competition::class; }
+        else if ( $resourcetype === "competitionseasons") { return \Voetbal\External\Competitionseason::class; }
+        else if ( $resourcetype === "associations") { return \Voetbal\External\Association::class; }
+        else if ( $resourcetype === "seasons") { return \Voetbal\External\Season::class; }
+        else if ( $resourcetype === "teams") { return \Voetbal\External\Team::class; }
+
+       throw new \Exception("geen externe klasse gevonden voor resource " . $resourcetype, E_ERROR );
     }
 }

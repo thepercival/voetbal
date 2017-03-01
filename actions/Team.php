@@ -57,13 +57,18 @@ final class Team
     {
         $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
         $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-        $association = $this->associationRepos->find($request->getParam('associationid'));
-        if ( $association === null ){
-            throw new \Exception("de bond is niet gevonden", E_ERROR );
-        }
 
         $sErrorMessage = null;
         try {
+            $associationid = $request->getParam('associationid');
+            if ( strlen($associationid) === 0 ){
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            }
+            $association = $this->associationRepos->find($associationid);
+            if ( $association === null ){
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            }
+
             $competition = $this->service->create(
                 $name,
                 $association,
@@ -93,7 +98,11 @@ final class Team
 
             $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
             $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-            $association = $this->associationRepos->find($request->getParam('associationid'));
+            $associationid = $request->getParam('associationid');
+            if ( strlen($associationid) === 0 ){
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            }
+            $association = $this->associationRepos->find($associationid);
             if ( $association === null ){
                 throw new \Exception("de bond is niet gevonden", E_ERROR );
             }
