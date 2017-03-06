@@ -16,8 +16,17 @@ use League\Period\Period;
 
 final class Season
 {
+    /**
+     * @var SeasonService
+     */
 	protected $service;
+    /**
+     * @var SeasonRepository
+     */
 	protected $repos;
+    /**
+     * @var Serializer
+     */
 	protected $serializer;
 
 	public function __construct(SeasonService $service, SeasonRepository $repos, Serializer $serializer)

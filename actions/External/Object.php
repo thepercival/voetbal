@@ -17,11 +17,25 @@ use Voetbal;
 
 final class Object
 {
-
+    /**
+     * @var ExternalObjectService
+     */
     protected $service;
+    /**
+     * @var EntityRepository
+     */
     protected $repos;
+    /**
+     * @var EntityRepository
+     */
     protected $importableRepos;
+    /**
+     * @var oetbal\External\System\Repository
+     */
     protected $systemRepos;
+    /**
+     * @var Serializer
+     */
     protected $serializer;
 
     public function __construct(

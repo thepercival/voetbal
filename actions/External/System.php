@@ -15,8 +15,17 @@ use Voetbal;
 
 final class System
 {
+    /**
+     * @var SystemService
+     */
     protected $service;
+    /**
+     * @var SystemRepository
+     */
     protected $repos;
+    /**
+     * @var Serializer
+     */
     protected $serializer;
 
     public function __construct(SystemService $service, SystemRepository $repos, Serializer $serializer)

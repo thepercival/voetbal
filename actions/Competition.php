@@ -17,8 +17,17 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Competition
 {
+    /**
+     * @var CompetitionService
+     */
 	protected $service;
+    /**
+     * @var CompetitionRepository
+     */
 	protected $repos;
+    /**
+     * @var Serializer
+     */
 	protected $serializer;
 
 	public function __construct(CompetitionService $service, CompetitionRepository $repos, Serializer $serializer)

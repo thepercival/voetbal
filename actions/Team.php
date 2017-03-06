@@ -18,9 +18,21 @@ use Psr\Http\Message\ResponseInterface;
 
 final class Team
 {
+    /**
+     * @var TeamService
+     */
     protected $service;
+    /**
+     * @var TeamRepository
+     */
     protected $repos;
+    /**
+     * @var AssociationRepository
+     */
     protected $associationRepos;
+    /**
+     * @var Serializer
+     */
     protected $serializer;
 
     public function __construct(TeamService $service, TeamRepository $repos, AssociationRepository $associationRepos, Serializer $serializer)

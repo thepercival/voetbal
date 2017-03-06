@@ -17,11 +17,29 @@ use Voetbal\Association\Repository as AssociationRepository;
 
 final class Competitionseason
 {
-	protected $service;
+    /**
+     * @var CompetitionseasonService
+     */
+    protected $service;
+    /**
+     * @var CompetitionseasonRepository
+     */
 	protected $repos;
+    /**
+     * @var CompetitionRepository
+     */
     protected $competitionRepos;
+    /**
+     * @var SeasonRepository
+     */
     protected $seasonRepos;
+    /**
+     * @var AssociationRepository
+     */
     protected $associationRepos;
+    /**
+     * @var Serializer
+     */
 	protected $serializer;
 
 	public function __construct(

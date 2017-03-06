@@ -15,9 +15,18 @@ use Voetbal;
 
 final class Association
 {
+    /**
+     * @var AssociationService
+     */
 	protected $service;
-	protected $repos;
-	protected $serializer;
+    /**
+     * @var AssociationRepository
+     */
+    protected $repos;
+    /**
+     * @var Serializer
+     */
+    protected $serializer;
 
 	public function __construct(AssociationService $service, AssociationRepository $repos, Serializer $serializer)
 	{
