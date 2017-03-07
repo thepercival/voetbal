@@ -1,4 +1,4 @@
-Voetbal\Association:
+Voetbal\Team:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -7,7 +7,15 @@ Voetbal\Association:
     id:
       read_only: true
     name:
-    description:
+    association:
+
+#    externals:
+#      exclude: true
+#    competitionseasons:
+#      exclude: true
+#    teams:
+#      exclude: true
+
 #    ruimtespecificeerbaar:
 #    locaties:
 #  virtual_properties:

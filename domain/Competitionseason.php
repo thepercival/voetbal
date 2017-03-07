@@ -10,7 +10,7 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Competitionseason extends External\Importable
+class Competitionseason
 {
 	/**
 	 * @var int
@@ -52,6 +52,8 @@ class Competitionseason extends External\Importable
 
     const QUALIFICATION_RULE_WC = 1;
     const QUALIFICATION_RULE_EC = 2; // max size
+
+    use External\ImportableTrait;
 
     public function __construct( Competition $competition, Season $season, Association $association )
     {

@@ -1,0 +1,13 @@
+Voetbal\Competitionseason:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      read_only: true
+    state:
+    qualificationrule:
+    competition:
+    season:
+    association:

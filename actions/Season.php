@@ -8,7 +8,7 @@
 
 namespace Voetbal\Action;
 
-use Symfony\Component\Serializer\Serializer;
+use JMS\Serializer\Serializer;
 use Voetbal\Season\Service as SeasonService;
 use Voetbal\Season\Repository as SeasonRepository;
 use Voetbal;
@@ -39,7 +39,7 @@ final class Season
 	public function fetch( $request, $response, $args)
 	{
         $objects = $this->repos->findAll();
-		return $response
+        return $response
 			->withHeader('Content-Type', 'application/json;charset=utf-8')
 			->write( $this->serializer->serialize( $objects, 'json') );
 		;

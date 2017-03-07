@@ -2,13 +2,13 @@
 /**
  * Created by PhpStorm.
  * User: coen
- * Date: 12-2-17
- * Time: 12:06
+ * Date: 7-3-17
+ * Time: 21:29
  */
 
 namespace Voetbal\External;
 
-abstract class Importable
+trait ImportableTrait
 {
     /**
      * @var ArrayCollection

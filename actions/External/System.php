@@ -8,7 +8,7 @@
 
 namespace Voetbal\Action\External;
 
-use Symfony\Component\Serializer\Serializer;
+use JMS\Serializer\Serializer;
 use Voetbal\External\System\Service as SystemService;
 use Voetbal\External\System\Repository as SystemRepository;
 use Voetbal;

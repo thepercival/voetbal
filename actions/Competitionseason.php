@@ -8,7 +8,7 @@
 
 namespace Voetbal\Action;
 
-use Symfony\Component\Serializer\Serializer;
+use JMS\Serializer\Serializer;
 use Voetbal\Competitionseason\Service as CompetitionseasonService;
 use Voetbal\Competitionseason\Repository as CompetitionseasonRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;

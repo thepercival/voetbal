@@ -12,7 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
  * Time: 11:40
  */
 
-class Season extends External\Importable
+class Season
 {
     /**
      * @var int
@@ -41,6 +41,8 @@ class Season extends External\Importable
 
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 9;
+
+    use External\ImportableTrait;
 
     public function __construct( $name, Period $period )
     {

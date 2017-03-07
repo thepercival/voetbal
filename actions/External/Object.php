@@ -9,7 +9,7 @@
 
 namespace Voetbal\Action\External;
 
-use Symfony\Component\Serializer\Serializer;
+use JMS\Serializer\Serializer;
 use Doctrine\ORM\EntityManager;
 use Voetbal\External\Object\Service as ExternalObjectService;
 use \Doctrine\ORM\EntityRepository;

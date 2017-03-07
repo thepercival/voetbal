@@ -151,8 +151,4 @@ class Round
     {
         return $this->poules;
     }
-
-    
-
-   
 }

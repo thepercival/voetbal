@@ -10,7 +10,7 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Competition extends External\Importable
+class Competition
 {
 	/**
 	 * @var int
@@ -40,6 +40,8 @@ class Competition extends External\Importable
 	const MIN_LENGTH_NAME = 3;
 	const MAX_LENGTH_NAME = 30;
 	const MAX_LENGTH_ABBREVIATION = 7;
+
+	use External\ImportableTrait;
 
     public function __construct( $name, $abbreviation = null )
     {

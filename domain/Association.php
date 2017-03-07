@@ -10,9 +10,9 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Association extends External\Importable
+class Association // extends External\Importable
 {
-	/**
+    /**
 	 * @var int
 	 */
 	protected $id;
@@ -51,11 +51,12 @@ class Association extends External\Importable
 	const MAX_LENGTH_NAME = 20;
 	const MAX_LENGTH_DESCRIPTION = 50;
 
+    use External\ImportableTrait;
+
     public function __construct( $name )
     {
         $this->setName( $name );
         $this->children = new ArrayCollection();
-        $this->externals = new ArrayCollection();
         $this->competitionseasons = new ArrayCollection();
         $this->teams = new ArrayCollection();
     }

@@ -9,7 +9,7 @@
 namespace Voetbal;
 
 
-class Team extends External\Importable
+class Team
 {
     /**
      * @var int
@@ -34,6 +34,8 @@ class Team extends External\Importable
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 30;
     const MAX_LENGTH_ABBREVIATION = 3;
+
+    use External\ImportableTrait;
 
     public function __construct( $name, Association $association )
     {
