@@ -67,37 +67,39 @@ final class Round
 
     public function add( $request, $response, $args)
     {
-        $allPostPutVars = $request->getParsedBody();
-        // var_dump($allPostPutVars); die();
-        return $response
-            ->withStatus(201)
-            ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write(json_encode($allPostPutVars));
-        ;
+        $round = $request->getParsedBody();
+        // var_dump($request->getParsedBody());
 
-        // we should deserialize this $allPostPutVars
-
-        $competitionseason = null;
-        $number = 0;
-        $nrOfHeadtoheadMatches = 0;
-        $poules = 0;
-
-
-        //var_dump($request->getParam('competitionseason'));
-       // dit is een array
-
-        return $response->withStatus(404, urlencode($request->getParam('competitionseason')) );
-
-
-//        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-//        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
         $sErrorMessage = null;
         try {
+            if ( array_key_exists("poules", $round) === false or !is_array($round["poules"]) or count( $round["poules"] ) === 0 ) {
+                throw new \Exception("een ronde moet minimaal 1 poule hebben", E_ERROR);
+            }
+            $number = filter_var($request->getParam('number'), FILTER_VALIDATE_INT);
+            if ( $number === false or $number < 1 ) {
+                throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
+            }
+            $nrOfHeadtoheadMatches = filter_var($request->getParam('nrofheadtoheadmatches'), FILTER_VALIDATE_INT);
+            if ( $nrOfHeadtoheadMatches === false or $nrOfHeadtoheadMatches < 1 ) {
+                throw new \Exception("het aantal onderlinge duels moet minimaal 1 zijn", E_ERROR);
+            }
+
+            if ( array_key_exists("competitionseason", $round) === false
+                or array_key_exists("id", $round["competitionseason"]) === false  ) {
+                throw new \Exception("een ronde moet een competitieseizoen hebben", E_ERROR);
+            }
+            $competitionseason = $this->competitionseasonRepos->find($round["competitionseason"]["id"]);
+            if ( !$competitionseason ) {
+                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
+            }
+
+            // deserialze poules to create poule objects
+
             $round = $this->service->create(
                 $competitionseason,
                 $number,
                 $nrOfHeadtoheadMatches,
-                $poules
+                $round["poules"]
             );
 
             return $response
@@ -107,7 +109,7 @@ final class Round
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            $sErrorMessage = urlencode($e->getMessage());
         }
         return $response->withStatus(404, $sErrorMessage );
     }

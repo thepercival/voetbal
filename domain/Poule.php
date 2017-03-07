@@ -2,15 +2,15 @@
 /**
  * Created by PhpStorm.
  * User: coen
- * Date: 23-2-17
- * Time: 10:28
+ * Date: 7-3-17
+ * Time: 15:58
  */
 
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Round
+class Poule
 {
     /**
      * @var int
@@ -28,28 +28,22 @@ class Round
     protected $number;
 
     /**
-     * @var int
+     * @var Round
      */
-    protected $nrOfHeadtoheadMatches;
+    protected $round;
 
     /**
-     * @var Competitionseason
+     * @var PoulePlace[] | ArrayCollection
      */
-    protected $competitionseason;
-
-    /**
-     * @var Poule[] | ArrayCollection
-     */
-    protected $poules;
+    protected $places;
 
     const MIN_LENGTH_NAME = 10;
 
-    public function __construct( Competitionseason $competitionseason, $number, $nrOfHeadtoheadMatches )
+    public function __construct( Round $round, $number )
     {
-        $this->setCompetitionseason( $competitionseason );
+        $this->setRound( $round );
         $this->setNumber( $number );
-        $this->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
-        $this->poules = new ArrayCollection();
+        $this->places = new ArrayCollection();
     }
 
     /**
@@ -63,19 +57,19 @@ class Round
     }
 
     /**
-     * @return Competitionseason
+     * @return Round
      */
-    public function getCompetitionseason()
+    public function getRound()
     {
-        return $this->competitionseason;
+        return $this->round;
     }
 
     /**
-     * @param Competitionseason $Competitionseason
+     * @param Round $round
      */
-    public function setCompetitionseason( Competitionseason $competitionseason )
+    public function setRound( Round $round )
     {
-        $this->competitionseason = $competitionseason;
+        $this->round = $round;
     }
 
     /**
@@ -102,7 +96,7 @@ class Round
      */
     public function getNrOfHeadtoheadMatches()
     {
-        return $this->nrOfHeadtoheadMatches;
+        return $this->NrOfHeadtoheadMatches;
     }
 
     /**
@@ -111,11 +105,11 @@ class Round
     public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
     {
         if ( !is_int( $nrOfHeadtoheadMatches )   ){
-            throw new \InvalidArgumentException( "het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR );
+            throw new \InvalidArgumentException( "het rondeNrOfHeadtoheadMatches heeft een onjuiste waarde", E_ERROR );
         }
         $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
     }
-    
+
 
     /**
      * @return string
@@ -123,7 +117,7 @@ class Round
     public function getName()
     {
         return $this->name;
-    }   
+    }
 
     /**
      * @param string
@@ -145,14 +139,10 @@ class Round
     }
 
     /**
-     * @return Poule[] | ArrayCollection
+     * @return PoulePlace[] | ArrayCollection
      */
-    public function getPoules()
+    public function getPlaces()
     {
-        return $this->poules;
+        return $this->places;
     }
-
-    
-
-   
 }

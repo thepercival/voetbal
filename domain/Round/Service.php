@@ -39,7 +39,7 @@ class Service
     {
         $round = new Round( $competitionseason, $number, $nrOfHeadtoheadMatches );
 
-
+        return $this->repos->save($round);
         // controles
             // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
 
@@ -58,7 +58,7 @@ class Service
             throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
         }*/
 
-        // return $this->repos->save($team);
+        //
     }
 
 //    /**

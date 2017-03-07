@@ -2,15 +2,13 @@
 /**
  * Created by PhpStorm.
  * User: coen
- * Date: 23-2-17
- * Time: 10:28
+ * Date: 7-3-17
+ * Time: 16:04
  */
 
 namespace Voetbal;
 
-use \Doctrine\Common\Collections\ArrayCollection;
-
-class Round
+class PoulePlace
 {
     /**
      * @var int
@@ -28,28 +26,21 @@ class Round
     protected $number;
 
     /**
-     * @var int
+     * @var Poule
      */
-    protected $nrOfHeadtoheadMatches;
+    protected $poule;
 
     /**
-     * @var Competitionseason
+     * @var Team
      */
-    protected $competitionseason;
-
-    /**
-     * @var Poule[] | ArrayCollection
-     */
-    protected $poules;
+    protected $team;
 
     const MIN_LENGTH_NAME = 10;
 
-    public function __construct( Competitionseason $competitionseason, $number, $nrOfHeadtoheadMatches )
+    public function __construct( Poule $poule, $number )
     {
-        $this->setCompetitionseason( $competitionseason );
+        $this->setPoule( $poule );
         $this->setNumber( $number );
-        $this->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
-        $this->poules = new ArrayCollection();
     }
 
     /**
@@ -63,19 +54,19 @@ class Round
     }
 
     /**
-     * @return Competitionseason
+     * @return Poule
      */
-    public function getCompetitionseason()
+    public function getPoule()
     {
-        return $this->competitionseason;
+        return $this->poule;
     }
 
     /**
-     * @param Competitionseason $Competitionseason
+     * @param Poule $poule
      */
-    public function setCompetitionseason( Competitionseason $competitionseason )
+    public function setPoule( Poule $poule )
     {
-        $this->competitionseason = $competitionseason;
+        $this->poule = $poule;
     }
 
     /**
@@ -98,32 +89,12 @@ class Round
     }
 
     /**
-     * @return int
-     */
-    public function getNrOfHeadtoheadMatches()
-    {
-        return $this->nrOfHeadtoheadMatches;
-    }
-
-    /**
-     * @param int $nrOfHeadtoheadMatches
-     */
-    public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
-    {
-        if ( !is_int( $nrOfHeadtoheadMatches )   ){
-            throw new \InvalidArgumentException( "het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
-    }
-    
-
-    /**
      * @return string
      */
     public function getName()
     {
         return $this->name;
-    }   
+    }
 
     /**
      * @param string
@@ -145,14 +116,18 @@ class Round
     }
 
     /**
-     * @return Poule[] | ArrayCollection
+     * @return Team
      */
-    public function getPoules()
+    public function getTeam()
     {
-        return $this->poules;
+        return $this->team;
     }
 
-    
-
-   
+    /**
+     * @param Team $team
+     */
+    public function setTeam( Team $team )
+    {
+        $this->team = $team;
+    }
 }
