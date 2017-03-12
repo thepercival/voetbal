@@ -33,7 +33,3 @@ Voetbal\External\System:
       type: string
       length : !php/const:Voetbal\External\System::MAX_LENGTH_APIKEY
       nullable: true
-  oneToMany:
-    associations:
-      targetEntity: Voetbal\External\Association
-      mappedBy: externalsystem

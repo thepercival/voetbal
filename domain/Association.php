@@ -10,7 +10,7 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Association // extends External\Importable
+class Association implements External\Importable // extends External\Importable
 {
     /**
 	 * @var int

@@ -87,16 +87,18 @@ final class Object
         $sErrorMessage = null;
         // $sErrorMessage = $externalid . " - " . $externalsystemid . " - " . $importableobejctid;
 
-        $importableobject = $this->importableRepos->find($importableobejctid);
-        if ( $importableobject === null ) {
-            throw new \Exception("het object waaraan het externe object gekoppeld wordt, kan niet gevonden worden",E_ERROR);
-        }
-        $externalsystem = $this->systemRepos->find($externalsystemid);
-        if ( $externalsystem === null ) {
-            throw new \Exception("het externe systeem kan niet gevonden worden",E_ERROR);
-        }
+
 
         try {
+            $importableobject = $this->importableRepos->find($importableobejctid);
+            if ( $importableobject === null ) {
+                throw new \Exception("het object waaraan het externe object gekoppeld wordt, kan niet gevonden worden",E_ERROR);
+            }
+            $externalsystem = $this->systemRepos->find($externalsystemid);
+            if ( $externalsystem === null ) {
+                throw new \Exception("het externe systeem kan niet gevonden worden",E_ERROR);
+            }
+
             $externalobject = $this->service->create(
                 $importableobject,
                 $externalid,

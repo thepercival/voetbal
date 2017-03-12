@@ -47,11 +47,6 @@ class System
      */
     private $apikey;
 
-    /**
-     * @var ArrayCollection
-     */
-    private $associations;
-
     const MAX_LENGTH_NAME = 50;
     const MAX_LENGTH_WEBSITE = 255;
     const MAX_LENGTH_USERNAME = 50;
@@ -63,7 +58,6 @@ class System
     {
         $this->setName( $name );
         $this->setWebsite( $website );
-        $this->associations = new ArrayCollection();
     }
 
     /**
@@ -176,13 +170,5 @@ class System
     public function setApikey($apikey)
     {
         $this->apikey = $apikey;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getAssociations()
-    {
-        return $this->associations;
     }
 }
