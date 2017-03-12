@@ -71,6 +71,14 @@ class Association implements External\Importable // extends External\Importable
 		return $this->id;
 	}
 
+    /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
+
 	public function getName()
     {
         return $this->name;

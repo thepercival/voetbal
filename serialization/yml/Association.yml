@@ -4,9 +4,11 @@ Voetbal\Association:
   access_type: public_method
   properties:
     id:
-      read_only: true
+      type: int
     name:
+      type: string
     description:
+      type: string
 #    externals:
 #      read_only: true
 #    competitionseasons:

@@ -72,11 +72,12 @@ final class Team
 
         $sErrorMessage = null;
         try {
-            $associationid = $request->getParam('associationid');
-            if ( strlen($associationid) === 0 ){
+
+            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
+            if ( $association === null ){
                 throw new \Exception("de bond is niet gevonden", E_ERROR );
             }
-            $association = $this->associationRepos->find($associationid);
+            $association = $this->associationRepos->find($association->getId());
             if ( $association === null ){
                 throw new \Exception("de bond is niet gevonden", E_ERROR );
             }
@@ -110,11 +111,11 @@ final class Team
 
             $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
             $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-            $associationid = $request->getParam('associationid');
-            if ( strlen($associationid) === 0 ){
+            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
+            if ( $association === null ){
                 throw new \Exception("de bond is niet gevonden", E_ERROR );
             }
-            $association = $this->associationRepos->find($associationid);
+            $association = $this->associationRepos->find($association->getId());
             if ( $association === null ){
                 throw new \Exception("de bond is niet gevonden", E_ERROR );
             }
