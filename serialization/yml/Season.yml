@@ -5,10 +5,15 @@ Voetbal\Season:
 
   properties:
     id:
-      read_only: true
+      type: int
     name:
+      type: string
     startdate:
+      type: DateTime
+      read_only: true
     enddate:
+      type: DateTime
+      read_only: true
 #    externals:
 #      read_only: true
 #    competitionseasons:

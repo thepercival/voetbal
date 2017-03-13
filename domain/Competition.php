@@ -10,7 +10,7 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Competition
+class Competition implements External\Importable
 {
 	/**
 	 * @var int
@@ -59,6 +59,14 @@ class Competition
 	{
 		return $this->id;
 	}
+
+    /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
 
 	public function getName()
     {

@@ -5,6 +5,8 @@ Voetbal\Competition:
 
   properties:
     id:
-      read_only: true
+      type: int
     name:
+      type: string
     abbreviation:
+      type: string

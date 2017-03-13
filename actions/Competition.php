@@ -84,16 +84,16 @@ final class Competition
 
 	public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
 	{
-		$competition = $this->repos->find($args['id']);
-		if ( $competition === null ) {
-			throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
-		}
-
-        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-
-		$sErrorMessage = null;
+	    $sErrorMessage = null;
 		try {
+
+            $competition = $this->repos->find($args['id']);
+            if ( $competition === null ) {
+                throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
+            }
+
+            $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
+            $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
 
 			$competition = $this->service->edit( $competition, $name, $abbreviation );
 

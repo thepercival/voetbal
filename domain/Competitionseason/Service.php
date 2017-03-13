@@ -50,7 +50,12 @@ class Service
 			throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
 		}
 
-		return $this->repos->save($competition);
+        try {
+            return $this->repos->save($competition);
+        }
+        catch( \Exception $e ){
+            throw new \Exception(urlencode($e->getMessage()), E_ERROR );
+        }
 	}
 
     /**

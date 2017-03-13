@@ -12,7 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
  * Time: 11:40
  */
 
-class Season
+class Season implements External\Importable
 {
     /**
      * @var int
@@ -62,6 +62,14 @@ class Season
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
     }
 
     /**

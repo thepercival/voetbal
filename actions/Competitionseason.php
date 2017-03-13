@@ -83,20 +83,33 @@ final class Competitionseason
 
 	public function add( $request, $response, $args)
 	{
-        $competition = $this->competitionRepos->find($request->getParam('competitionid'));
-        $season = $this->seasonRepos->find($request->getParam('seasonid'));
-        $association = $this->associationRepos->find($request->getParam('associationid'));
-
 		$sErrorMessage = null;
 		try {
+            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
+            if ( $association === null ){
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            }
+            $association = $this->associationRepos->find($association->getId());
+            if ( $association === null ){
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            }
+
+            $competition = $this->serializer->deserialize( json_encode($request->getParam('competition')), 'Voetbal\Competition', 'json');
             if ( $competition === null ){
                 throw new \Exception("de competitie is niet gevonden", E_ERROR );
             }
+            $competition = $this->competitionRepos->find($competition->getId());
+            if ( $competition === null ){
+                throw new \Exception("de competitie is niet gevonden", E_ERROR );
+            }
+
+            $season = $this->serializer->deserialize( json_encode($request->getParam('season')), 'Voetbal\Season', 'json');
             if ( $season === null ){
                 throw new \Exception("het seizoen is niet gevonden", E_ERROR );
             }
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            $season = $this->seasonRepos->find($season->getId());
+            if ( $season === null ){
+                throw new \Exception("het seizoen is niet gevonden", E_ERROR );
             }
 
 			$competitionseason = $this->service->create(
@@ -123,17 +136,21 @@ final class Competitionseason
 
 	public function edit( $request, $response, $args)
 	{
-		$competitionseason = $this->repos->find($args['id']);
-        $association = $this->associationRepos->find($request->getParam('associationid'));
-        $qualificationrule = filter_var($request->getParam('qualificationrule'), FILTER_VALIDATE_INT);
-
         $sErrorMessage = null;
 		try {
+            $qualificationrule = filter_var($request->getParam('qualificationrule'), FILTER_VALIDATE_INT);
+
+            $competitionseason = $this->repos->find($args['id']);
             if ( $competitionseason === null ) {
                 throw new \Exception("het aan te passen competitieseizoen kan niet gevonden worden",E_ERROR);
             }
+            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
             if ( $association === null ){
-                throw new \Exception("de te wijzigen bond is niet gevonden", E_ERROR );
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            }
+            $association = $this->associationRepos->find($association->getId());
+            if ( $association === null ){
+                throw new \Exception("de bond is niet gevonden", E_ERROR );
             }
             if ( $qualificationrule === false ){
                 throw new \Exception("de te wijzigen kwalificatieregel is niet correct", E_ERROR );
