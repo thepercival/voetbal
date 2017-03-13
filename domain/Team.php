@@ -9,7 +9,7 @@
 namespace Voetbal;
 
 
-class Team
+class Team implements External\Importable
 {
     /**
      * @var int
