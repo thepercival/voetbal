@@ -45,7 +45,12 @@ final class Round
 
     public function fetch( $request, $response, $args)
     {
-        $objects = $this->repos->findAll();
+        $competitionseasonid = (int) $request->getParam("competitionseasonid");
+        if( $competitionseasonid === 0 ){
+            return $response->withStatus(404, 'geen competitieseizoen opgegeven');
+        }
+
+        $objects = $this->repos->findBy( array("competitionseason" => $competitionseasonid) );
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
             ->write( $this->serializer->serialize( $objects, 'json') );
@@ -68,7 +73,6 @@ final class Round
     public function add( $request, $response, $args)
     {
         $round = $request->getParsedBody();
-        // var_dump($request->getParsedBody());
 
         $sErrorMessage = null;
         try {
@@ -88,8 +92,12 @@ final class Round
                 or array_key_exists("id", $round["competitionseason"]) === false  ) {
                 throw new \Exception("een ronde moet een competitieseizoen hebben", E_ERROR);
             }
-            $competitionseason = $this->competitionseasonRepos->find($round["competitionseason"]["id"]);
-            if ( !$competitionseason ) {
+            $competitionseason = $this->serializer->deserialize( json_encode($request->getParam('competitionseason')), 'Voetbal\Competitionseason', 'json');
+            if ( $competitionseason === null ) {
+                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
+            }
+            $competitionseason = $this->competitionseasonRepos->find($competitionseason->getId());
+            if ( $competitionseason === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
@@ -144,18 +152,21 @@ final class Round
 
     public function remove( $request, $response, $args)
     {
-//        $competition = $this->repos->find($args['id']);
+        $round = $this->repos->find($args['id']);
+
+        // @TODO check als er geen wedstijden aan de ronde hangen!!!!
+
         $sErrorMessage = null;
-//        try {
-//            $this->service->remove($competition);
-//
-//            return $response
-//                ->withStatus(201);
-//            ;
-//        }
-//        catch( \Exception $e ){
-//            $sErrorMessage = $e->getMessage();
-//        }
+        try {
+            $this->service->remove($round);
+
+            return $response
+                ->withStatus(201);
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
         return $response->withStatus(404, $sErrorMessage );
     }
 }

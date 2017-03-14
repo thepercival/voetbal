@@ -76,6 +76,14 @@ class Competitionseason implements External\Importable
 	}
 
     /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
+
+    /**
      * @return Competition
      */
 	public function getCompetition()
@@ -128,7 +136,7 @@ class Competitionseason implements External\Importable
 	 */
     public function setQualificationrule( $qualificationrule )
     {
-    	if ( is_int( $qualificationrule ) or $qualificationrule < static::QUALIFICATION_RULE_WC or $qualificationrule > static::QUALIFICATION_RULE_EC  ){
+    	if ( !is_int( $qualificationrule ) or $qualificationrule < static::QUALIFICATION_RULE_WC or $qualificationrule > static::QUALIFICATION_RULE_EC  ){
 		    throw new \InvalidArgumentException( "de kwalificatieregel heeft een onjuiste waarde", E_ERROR );
 	    }
         $this->qualificationrule = $qualificationrule;

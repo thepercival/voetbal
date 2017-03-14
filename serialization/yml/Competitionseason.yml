@@ -5,9 +5,15 @@ Voetbal\Competitionseason:
 
   properties:
     id:
-      read_only: true
+      type: integer
     state:
+      read_only: true
+      type: integer
     qualificationrule:
+      type: integer
     competition:
+      type: Voetbal\Competition
     season:
+      type: Voetbal\Season
     association:
+      type: Voetbal\Association

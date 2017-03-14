@@ -83,11 +83,11 @@ class Service
 //        return $this->repos->save($team);
 //    }
 //
-//    /**
-//     * @param Team $team
-//     */
-//    public function remove( Team $team )
-//    {
-//        $this->repos->remove($team);
-//    }
+    /**
+     * @param Round $round
+     */
+    public function remove( Round $round )
+    {
+        return $this->repos->remove($round);
+    }
 }
