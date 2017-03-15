@@ -30,7 +30,7 @@ class Round
     /**
      * @var int
      */
-    protected $nrOfHeadtoheadMatches;
+    protected $nrofheadtoheadmatches;
 
     /**
      * @var Competitionseason
@@ -42,13 +42,13 @@ class Round
      */
     protected $poules;
 
-    const MIN_LENGTH_NAME = 10;
+    const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Competitionseason $competitionseason, $number, $nrOfHeadtoheadMatches )
+    public function __construct( Competitionseason $competitionseason, $number, $nrofheadtoheadmatches )
     {
         $this->setCompetitionseason( $competitionseason );
         $this->setNumber( $number );
-        $this->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
+        $this->setNrofheadtoheadmatches( $nrofheadtoheadmatches );
         $this->poules = new ArrayCollection();
     }
 
@@ -100,22 +100,21 @@ class Round
     /**
      * @return int
      */
-    public function getNrOfHeadtoheadMatches()
+    public function getNrofheadtoheadmatches()
     {
-        return $this->nrOfHeadtoheadMatches;
+        return $this->nrofheadtoheadmatches;
     }
 
     /**
-     * @param int $nrOfHeadtoheadMatches
+     * @param int $nrofheadtoheadmatches
      */
-    public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
+    public function setNrofheadtoheadmatches( $nrofheadtoheadmatches )
     {
-        if ( !is_int( $nrOfHeadtoheadMatches )   ){
+        if ( !is_int( $nrofheadtoheadmatches )   ){
             throw new \InvalidArgumentException( "het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR );
         }
-        $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
+        $this->nrofheadtoheadmatches = $nrofheadtoheadmatches;
     }
-    
 
     /**
      * @return string
@@ -150,5 +149,13 @@ class Round
     public function getPoules()
     {
         return $this->poules;
+    }
+
+    /**
+     * @param $poules
+     */
+    public function setPoules($poules)
+    {
+        $this->poules = $poules;
     }
 }

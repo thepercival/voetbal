@@ -8,7 +8,9 @@ Voetbal\Round:
       read_only: true
     number:
       type: integer
+    nrofheadtoheadmatches:
+      type: integer
     competitionseason:
       type: Voetbal\Competitionseason
-#    poules:
-#      read_only: true
+    poules:
+      type: ArrayCollection<Voetbal\Poule>

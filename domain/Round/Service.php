@@ -34,19 +34,25 @@ class Service
         $this->competitionseasonRepos = $competitionseasonRepos;
     }
 
-
-    public function create( Competitionseason $competitionseason, $number, $nrOfHeadtoheadMatches, $poules )
+    public function create( Competitionseason $competitionseason, $number, $nrofheadtoheadmatches, $poules )
     {
-        $round = new Round( $competitionseason, $number, $nrOfHeadtoheadMatches );
-
-        return $this->repos->save($round);
         // controles
-            // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
-
+        // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
 
         // start transactie
 
         // save round
+        $round = new Round( $competitionseason, $number, $nrofheadtoheadmatches );
+        $this->repos->save($round);
+
+        if ( $poules === null or $poules->count() === 0 ) {
+            throw new \Exception("een ronde moet minimaal 1 poule hebben", E_ERROR);
+        }
+
+        foreach( $poules as $poule ){
+            $round = new Round( $competitionseason, $number, $nrofheadtoheadmatches );
+            $this->pouleService->create($round, $number, $poule->getPlaces());
+        }
 
         // save poules through service
 
@@ -58,7 +64,7 @@ class Service
             throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
         }*/
 
-        //
+        return $round;
     }
 
 //    /**

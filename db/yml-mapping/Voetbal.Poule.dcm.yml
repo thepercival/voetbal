@@ -1,0 +1,31 @@
+Voetbal\Poule:
+  type: entity
+  repositoryClass: Voetbal\Poule\Repository
+  table: poules
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type: string
+      nullable: true
+      length: !php/const:Voetbal\Poule::MAX_LENGTH_NAME
+      unique: false
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+      column: number
+  manyToOne:
+    round:
+      targetEntity: Voetbal\Round
+      inversedBy: poules
+      joinColumn:
+        name: roundid
+        referencedColumnName: id
+        nullable: false
+  uniqueConstraints:
+    number_u_idx:
+      columns: [ roundid, number ]

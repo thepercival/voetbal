@@ -37,7 +37,7 @@ class Poule
      */
     protected $places;
 
-    const MIN_LENGTH_NAME = 10;
+    const MAX_LENGTH_NAME = 10;
 
     public function __construct( Round $round, $number )
     {
@@ -92,26 +92,6 @@ class Poule
     }
 
     /**
-     * @return int
-     */
-    public function getNrOfHeadtoheadMatches()
-    {
-        return $this->NrOfHeadtoheadMatches;
-    }
-
-    /**
-     * @param int $nrOfHeadtoheadMatches
-     */
-    public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
-    {
-        if ( !is_int( $nrOfHeadtoheadMatches )   ){
-            throw new \InvalidArgumentException( "het rondeNrOfHeadtoheadMatches heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
-    }
-
-
-    /**
      * @return string
      */
     public function getName()
@@ -144,5 +124,13 @@ class Poule
     public function getPlaces()
     {
         return $this->places;
+    }
+
+    /**
+     * @param $places
+     */
+    public function setPlaces($places)
+    {
+        $this->places = $places;
     }
 }

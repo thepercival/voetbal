@@ -72,27 +72,23 @@ final class Round
 
     public function add( $request, $response, $args)
     {
-        $round = $request->getParsedBody();
-
         $sErrorMessage = null;
         try {
-            if ( array_key_exists("poules", $round) === false or !is_array($round["poules"]) or count( $round["poules"] ) === 0 ) {
-                throw new \Exception("een ronde moet minimaal 1 poule hebben", E_ERROR);
+            /** @var Voetbal\Round $round */
+            $round = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
+            if ( $round === null ) {
+                throw new \Exception("er kan geen ronde worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
-            $number = filter_var($request->getParam('number'), FILTER_VALIDATE_INT);
-            if ( $number === false or $number < 1 ) {
+            $number = $round->getNumber();
+            if ( !is_int($number) or $number < 1 ) {
                 throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
             }
-            $nrOfHeadtoheadMatches = filter_var($request->getParam('nrofheadtoheadmatches'), FILTER_VALIDATE_INT);
-            if ( $nrOfHeadtoheadMatches === false or $nrOfHeadtoheadMatches < 1 ) {
+            $nrofheadtoheadmatches = $round->getNrofheadtoheadmatches();
+            if ( !is_int($nrofheadtoheadmatches) or $nrofheadtoheadmatches < 1 ) {
                 throw new \Exception("het aantal onderlinge duels moet minimaal 1 zijn", E_ERROR);
             }
 
-            if ( array_key_exists("competitionseason", $round) === false
-                or array_key_exists("id", $round["competitionseason"]) === false  ) {
-                throw new \Exception("een ronde moet een competitieseizoen hebben", E_ERROR);
-            }
-            $competitionseason = $this->serializer->deserialize( json_encode($request->getParam('competitionseason')), 'Voetbal\Competitionseason', 'json');
+            $competitionseason = $round->getCompetitionseason();
             if ( $competitionseason === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
@@ -101,19 +97,17 @@ final class Round
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            // deserialze poules to create poule objects
-
-            $round = $this->service->create(
+            $roundRet = $this->service->create(
                 $competitionseason,
                 $number,
-                $nrOfHeadtoheadMatches,
-                $round["poules"]
+                $nrofheadtoheadmatches,
+                $round->getPoules()
             );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $round, 'json'));
+                ->write($this->serializer->serialize( $roundRet, 'json'));
             ;
         }
         catch( \Exception $e ){

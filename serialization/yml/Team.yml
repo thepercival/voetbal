@@ -7,7 +7,9 @@ Voetbal\Team:
     id:
       read_only: true
     name:
+      type: string
     association:
+      type: Voetbal\Association
 
 #    externals:
 #      exclude: true
