@@ -17,3 +17,7 @@ Voetbal\Competitionseason:
       type: Voetbal\Season
     association:
       type: Voetbal\Association
+  virtual_properties:
+    hasStructure:
+      type: boolean
+      serialized_name: hasstructure

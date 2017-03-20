@@ -21,10 +21,11 @@ Voetbal\Competitionseason:
             default:  !php/const:Voetbal\Competitionseason::QUALIFICATION_RULE_WC
             nullable: false
             unique: false
-#    oneToMany:
-#        rounds:
-#          targetEntity: Voetbal\Round
-#          mappedBy: competitionseason
+    oneToMany:
+        rounds:
+          targetEntity: Voetbal\Round
+          mappedBy: competitionseason
+          fetch: EXTRA_LAZY
 #        externals:
 #          targetEntity: Voetbal\Competitionseason
 #          mappedBy: importableobject
