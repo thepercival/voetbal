@@ -22,6 +22,10 @@ Voetbal\Round:
       type: smallint
       nullable: false
       unique: false
+  oneToMany:
+    poules:
+      targetEntity: Voetbal\Poule
+      mappedBy: round
   manyToOne:
     competitionseason:
       targetEntity: Voetbal\Competitionseason

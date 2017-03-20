@@ -45,7 +45,7 @@ class Competitionseason implements External\Importable
     /**
      * @var ArrayCollection
      */
-    private $rounds;
+   // private $rounds;
 
     const STATE_CREATED = 1;
     const STATE_PUBLISHED = 2;
@@ -62,7 +62,7 @@ class Competitionseason implements External\Importable
         $this->association = $association;
         $this->state = static::STATE_CREATED;
         $this->qualificationrule = static::QUALIFICATION_RULE_WC;
-        $this->rounds = new ArrayCollection();
+        //$this->rounds = new ArrayCollection();
     }
 
 	/**
@@ -158,11 +158,11 @@ class Competitionseason implements External\Importable
         $this->association = $association;
     }
 
-    /**
-     * @return ArrayCollection
-     */
-    public function getRounds()
-    {
-        return $this->rounds;
-    }
+//    /**
+//     * @return ArrayCollection
+//     */
+//    public function getRounds()
+//    {
+//        return $this->rounds;
+//    }
 }

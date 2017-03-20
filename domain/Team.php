@@ -53,6 +53,14 @@ class Team implements External\Importable
         return $this->id;
     }
 
+    /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
+
     public function getName()
     {
         return $this->name;

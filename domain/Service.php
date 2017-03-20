@@ -28,6 +28,11 @@ class Service
 
     public function getRepository( $classname )
     {
-        return $this->entitymanager->getRepository($classname);
+        return $this->getEntityManager()->getRepository($classname);
+    }
+
+    public function getEntityManager()
+    {
+        return $this->entitymanager;
     }
 }

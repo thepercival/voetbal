@@ -146,6 +146,7 @@ final class Round
 
     public function remove( $request, $response, $args)
     {
+        // var_dump($args['id']);
         $round = $this->repos->find($args['id']);
 
         // @TODO check als er geen wedstijden aan de ronde hangen!!!!
@@ -159,7 +160,7 @@ final class Round
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            $sErrorMessage = urlencode($e->getMessage());
         }
         return $response->withStatus(404, $sErrorMessage );
     }

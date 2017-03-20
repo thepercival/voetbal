@@ -75,6 +75,9 @@ class Round
      */
     public function setCompetitionseason( Competitionseason $competitionseason )
     {
+        //if ( $this->competitionseason === null and $competitionseason !== null){
+         //   $competitionseason->getRounds()->add($this) ;
+        //}
         $this->competitionseason = $competitionseason;
     }
 

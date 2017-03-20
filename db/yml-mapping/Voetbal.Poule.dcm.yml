@@ -18,6 +18,10 @@ Voetbal\Poule:
       nullable: false
       unique: false
       column: number
+  oneToMany:
+    places:
+      targetEntity: Voetbal\PoulePlace
+      mappedBy: poule
   manyToOne:
     round:
       targetEntity: Voetbal\Round
@@ -26,6 +30,7 @@ Voetbal\Poule:
         name: roundid
         referencedColumnName: id
         nullable: false
+        onDelete: CASCADE
   uniqueConstraints:
     number_u_idx:
       columns: [ roundid, number ]

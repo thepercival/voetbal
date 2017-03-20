@@ -2,29 +2,30 @@
 /**
  * Created by PhpStorm.
  * User: coen
- * Date: 6-3-17
- * Time: 20:28
+ * Date: 17-3-17
+ * Time: 13:44
  */
 
-namespace Voetbal\Round;
+namespace Voetbal\Poule;
 
 use Voetbal\Round;
-use Voetbal\Round\Repository as RoundRepository;
+use Voetbal\Poule;
+use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Competitionseason;
 use Doctrine\ORM\EntityManager;
-use Voetbal\Poule;
+use Voetbal\PoulePlace;
 
 class Service
 {
     /**
-     * @var RoundRepository
+     * @var PouleRepository
      */
     protected $repos;
 
     /**
-     * @var Competitionseason\Repository
+     * @var PoulePlace\Service
      */
-    protected $competitionseasonRepos;
+    protected $pouleplaceService;
 
     /**
      * @var EntityManager
@@ -32,46 +33,33 @@ class Service
     protected $em;
 
     /**
-     * @var Poule\Service
-     */
-    protected $pouleService;
-
-    /**
      * Service constructor.
      * @param Repository $repos
-     * @param Competitionseason\Repository $competitionseasonRepos
-     * @param $em
-     * @param Poule\Service $pouleService
      */
-    public function __construct( RoundRepository $repos,
-                                 Competitionseason\Repository $competitionseasonRepos,
-                                 $em,
-                                 Poule\Service $pouleService
-    )
+    public function __construct( PouleRepository $repos, PoulePlace\Service $pouleplaceService, $em )
     {
         $this->repos = $repos;
-        $this->competitionseasonRepos = $competitionseasonRepos;
-        $this->pouleService = $pouleService;
+        $this->pouleplaceService = $pouleplaceService;
         $this->em = $em;
     }
 
-    public function create( Competitionseason $competitionseason, $number, $nrofheadtoheadmatches, $poules )
+    public function create( Round $round, $number, $places )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
 
-        $round = null;
+
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         try {
-            $round = new Round( $competitionseason, $number, $nrofheadtoheadmatches );
-            $this->repos->save($round);
+            $poule = new Poule( $round, $number );
+            $this->repos->save($poule);
 
-            if ( $poules === null or $poules->count() === 0 ) {
-                throw new \Exception("een ronde moet minimaal 1 poule hebben", E_ERROR);
+            if ( $places === null or $places->count() === 0 ) {
+                throw new \Exception("een poule moet minimaal 1 pouleplace hebben", E_ERROR);
             }
 
-            foreach( $poules as $pouleIt ){
-                $poule = $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces());
+            foreach( $places as $placeIt ){
+                $this->pouleplaceService->create($poule, $placeIt->getNumber(), $placeIt->getTeam());
             }
 
             $this->em->getConnection()->commit();
@@ -86,7 +74,7 @@ class Service
             throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
         }*/
 
-        return $round;
+        return $poule;
     }
 
 //    /**
@@ -112,10 +100,10 @@ class Service
 //    }
 //
     /**
-     * @param Round $round
+     * @param Poule $poule
      */
-    public function remove( Round $round )
+    public function remove( Poule $poule )
     {
-        return $this->repos->remove($round);
+        return $this->repos->remove($poule);
     }
 }
