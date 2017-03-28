@@ -31,7 +31,7 @@ final class Round
      */
     protected $competitionseasonRepos;
     /**
-     * @var SeasonService
+     * @var Serializer
      */
     protected $serializer;
 

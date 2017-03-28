@@ -95,7 +95,7 @@ class Round
     public function setNumber( $number )
     {
         if ( !is_int( $number )   ){
-            throw new \InvalidArgumentException( "het rondenumber heeft een onjuiste waarde", E_ERROR );
+            throw new \InvalidArgumentException( "het rondenummer heeft een onjuiste waarde", E_ERROR );
         }
         $this->number = $number;
     }

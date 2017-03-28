@@ -1,4 +1,4 @@
-Voetbal\Poule:
+Voetbal\Game:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -8,9 +8,9 @@ Voetbal\Poule:
       read_only: true
     number:
       type: integer
-#    round:
-#      type: Voetbal\Round
-    places:
-      type: ArrayCollection<Voetbal\PoulePlace>
+    homepouleplace:
+      type: Voetbal\PoulePlace
+    awaypouleplace:
+          type: Voetbal\PoulePlace
     games:
       type: ArrayCollection<Voetbal\Game>

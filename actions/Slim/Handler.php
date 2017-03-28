@@ -124,6 +124,11 @@ class Handler
                 $serializer
             );
         }
+        elseif ( $resourceType === 'games' ){
+            $repos = $voetbalservice->getRepository(Voetbal\Game::class);
+            $service = new Voetbal\Game\Service($repos);
+            $action = new Voetbal\Action\Game($service, $repos, $serializer);
+        }
 //        elseif ( $resourceType === 'structures' ){
 //            $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
 //            $roundRepos = $voetbalservice->getRepository(Voetbal\Round::class);

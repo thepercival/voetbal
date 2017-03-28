@@ -1,0 +1,46 @@
+Voetbal\Game:
+  type: entity
+  repositoryClass: Voetbal\Game\Repository
+  table: games
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+      column: number
+    state:
+      type: smallint
+      nullable: false
+      unique: false
+      column: state
+    startdate:
+      type: datetime
+      nullable: false
+      column: startdatetime
+  manyToOne:
+    poule:
+      targetEntity: Voetbal\Poule
+      inversedBy: games
+      joinColumn:
+        name: pouleid
+        referencedColumnName: id
+        nullable: false
+    homePoulePlace:
+      targetEntity: Voetbal\PoulePlace
+      inversedBy: games
+      joinColumn:
+        name: homepouleplaceid
+        referencedColumnName: id
+        nullable: false
+    awayPoulePlace:
+      targetEntity: Voetbal\PoulePlace
+      inversedBy: games
+      joinColumn:
+        name: awaypouleplaceid
+        referencedColumnName: id
+        nullable: false
