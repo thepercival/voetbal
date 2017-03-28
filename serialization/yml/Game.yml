@@ -11,6 +11,6 @@ Voetbal\Game:
     homepouleplace:
       type: Voetbal\PoulePlace
     awaypouleplace:
-          type: Voetbal\PoulePlace
-    games:
-      type: ArrayCollection<Voetbal\Game>
+      type: Voetbal\PoulePlace
+    state:
+      type: integer
