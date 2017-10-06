@@ -40,7 +40,7 @@ class Service
 
         $competitionWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 		if ( $competitionWithSameName !== null ){
-			throw new \Exception("de competitie met de ".$name." bestaat al", E_ERROR );
+			throw new \Exception("de competitie met de naam ".$name." bestaat al", E_ERROR );
 		}
         if ( strlen($abbreviation) > 0 ){
             $competitionWithSameAbbreviation = $this->repos->findOneBy( array('abbreviation' => $abbreviation ) );
@@ -48,8 +48,7 @@ class Service
                 throw new \Exception("de competitie met de afkorting ".$abbreviation." bestaat al", E_ERROR );
             }
         }
-
-		return $this->repos->save($competition);
+        return $this->repos->save($competition);
 	}
 
     /**

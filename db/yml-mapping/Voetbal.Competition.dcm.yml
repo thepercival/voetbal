@@ -15,8 +15,8 @@ Voetbal\Competition:
       unique: true
     abbreviation:
       type: string
-      nullable: false
-      unique: true
+      nullable: true
+      unique: false
       length: !php/const:Voetbal\Competition::MAX_LENGTH_ABBREVIATION
       column: abbreviation
   oneToMany:
