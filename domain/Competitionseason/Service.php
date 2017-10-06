@@ -64,7 +64,7 @@ class Service
      * @param $qualificationrule
      * @throws \Exception
      */
-	public function edit( Competitionseason $competitionseason, Association $association, $qualificationrule )
+	public function edit( Competitionseason $competitionseason, Association $association, $qualificationrule, $sport = null )
 	{
         if( $competitionseason->getState() === Competitionseason::STATE_PUBLISHED ) {
             throw new \Exception("het competitieseizoen kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
@@ -72,6 +72,7 @@ class Service
 
         $competitionseason->setAssociation($association);
         $competitionseason->setQualificationRule($qualificationrule);
+        $competitionseason->setSport($sport);
 
 		return $this->repos->save($competitionseason);
 	}

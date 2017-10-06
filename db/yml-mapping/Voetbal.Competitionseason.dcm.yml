@@ -21,6 +21,11 @@ Voetbal\Competitionseason:
             default:  !php/const:Voetbal\Competitionseason::QUALIFICATION_RULE_WC
             nullable: false
             unique: false
+        sport:
+            type: string
+            nullable: true
+            length: 30
+            unique: false
     oneToMany:
         rounds:
           targetEntity: Voetbal\Round

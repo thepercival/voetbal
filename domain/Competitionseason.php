@@ -43,6 +43,11 @@ class Competitionseason implements External\Importable
     private $association;
 
     /**
+     * @var string
+     */
+    private $sport;
+
+    /**
      * @var ArrayCollection
      */
     private $rounds;
@@ -164,6 +169,22 @@ class Competitionseason implements External\Importable
     public function getRounds()
     {
         return $this->rounds;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSport()
+    {
+        return $this->sport;
+    }
+
+    /**
+     * @param string $sport
+     */
+    public function setSport( $sport )
+    {
+        $this->sport = $sport;
     }
 
     /**
