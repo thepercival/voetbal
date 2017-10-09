@@ -101,22 +101,8 @@ class Handler
         }
         elseif ( $resourceType === 'rounds' ){
             $repos = $voetbalservice->getRepository(Voetbal\Round::class);
-            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
-            $pouleplaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
-            $teamRepos = $voetbalservice->getRepository(Voetbal\Team::class);
             $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
-            $pouleplaceService = new Voetbal\PoulePlace\Service($pouleplaceRepos,$teamRepos);
-            $pouleService = new Voetbal\Poule\Service(
-                $pouleRepos,
-                $pouleplaceService,
-                $voetbalservice->getEntityManager()
-            );
-            $service = new Voetbal\Round\Service(
-                $repos,
-                $competitionseasonRepos,
-                $voetbalservice->getEntityManager(),
-                $pouleService
-            );
+            $service = $voetbalservice->getService(Voetbal\Round::class);
             $action = new Voetbal\Action\Round(
                 $service,
                 $repos,

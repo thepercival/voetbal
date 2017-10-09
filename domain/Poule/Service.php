@@ -43,7 +43,7 @@ class Service
         $this->em = $em;
     }
 
-    public function create( Round $round, $number, $places )
+    public function create( Round $round, $number, $places = null, $nrOfPlaces = null )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
@@ -54,12 +54,19 @@ class Service
             $poule = new Poule( $round, $number );
             $this->repos->save($poule);
 
-            if ( $places === null or $places->count() === 0 ) {
+            if ( ( $places === null or $places->count() === 0 ) and !$nrOfPlaces ) {
                 throw new \Exception("een poule moet minimaal 1 pouleplace hebben", E_ERROR);
             }
 
-            foreach( $places as $placeIt ){
-                $this->pouleplaceService->create($poule, $placeIt->getNumber(), $placeIt->getTeam());
+            if ( $places === null or $places->count() === 0 ) {
+                for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ){
+                        $this->pouleplaceService->create($poule, $placeNr, null );
+                }
+            }
+            else {
+                foreach( $places as $placeIt ){
+                    $this->pouleplaceService->create($poule, $placeIt->getNumber(), $placeIt->getTeam());
+                }
             }
 
             $this->em->getConnection()->commit();
