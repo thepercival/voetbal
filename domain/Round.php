@@ -42,6 +42,10 @@ class Round
      */
     protected $poules;
 
+    CONST TYPE_POULE = 1;
+    CONST TYPE_KNOCKOUT = 2;
+    CONST TYPE_WINNER = 4;
+
     const MAX_LENGTH_NAME = 10;
 
     public function __construct( Competitionseason $competitionseason, $number, $nrofheadtoheadmatches )

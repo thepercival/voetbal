@@ -84,7 +84,7 @@ class Game
     public function setPoule( Poule $poule )
     {
         if ( $this->poule === null and $poule !== null){
-            $poule->getPoules()->add($this) ;
+            $poule->getGames()->add($this) ;
         }
         $this->poule = $poule;
     }

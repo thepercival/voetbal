@@ -37,6 +37,11 @@ class Poule
      */
     protected $places;
 
+    /**
+     * @var Game[] | ArrayCollection
+     */
+    protected $games;
+
     const MAX_LENGTH_NAME = 10;
 
     public function __construct( Round $round, $number )
@@ -44,6 +49,7 @@ class Poule
         $this->setRound( $round );
         $this->setNumber( $number );
         $this->places = new ArrayCollection();
+        $this->games = new ArrayCollection();
     }
 
     /**
@@ -135,5 +141,21 @@ class Poule
     public function setPlaces($places)
     {
         $this->places = $places;
+    }
+
+    /**
+     * @return Game[] | ArrayCollection
+     */
+    public function getGames()
+    {
+        return $this->games;
+    }
+
+    /**
+     * @param $games
+     */
+    public function setGames($games)
+    {
+        $this->games = $games;
     }
 }
