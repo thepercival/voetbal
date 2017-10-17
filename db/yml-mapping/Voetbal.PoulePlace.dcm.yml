@@ -33,6 +33,13 @@ Voetbal\PoulePlace:
         name: teamid
         referencedColumnName: id
         nullable: true
+    toPoulePlace:
+      targetEntity: Voetbal\PoulePlace
+      joinColumn:
+        name: topouleplaceid
+        referencedColumnName: id
+        nullable: true
+        onDelete: RESTRICT
   uniqueConstraints:
     number_u_idx:
       columns: [ pouleid, number ]

@@ -32,7 +32,7 @@ class Service
         $this->teamRepos = $teamRepos;
     }
 
-    public function create( Poule $poule, $number, Team $team = null )
+    public function create( Poule $poule, $number, Team $team = null, PoulePlace $toPoulePlace )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
