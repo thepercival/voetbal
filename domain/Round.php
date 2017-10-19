@@ -33,18 +33,41 @@ class Round
     protected $nrofheadtoheadmatches;
 
     /**
+     * @var int
+     */
+    protected $winnersOrLosers;
+
+    /**
      * @var Competitionseason
      */
     protected $competitionseason;
+
+    /**
+     * @var Round
+     */
+    protected $parentRound;
+
+    /**
+     * @var Round[] | ArrayCollection
+     */
+    protected $childRounds;
 
     /**
      * @var Poule[] | ArrayCollection
      */
     protected $poules;
 
+    /**
+     * @var Poule[] | ArrayCollection
+     */
+    protected $qualifyRules;
+
     CONST TYPE_POULE = 1;
     CONST TYPE_KNOCKOUT = 2;
     CONST TYPE_WINNER = 4;
+
+    CONST WINNERS = 1;
+    CONST LOSERS = 2;
 
     const MAX_LENGTH_NAME = 10;
 
@@ -54,6 +77,8 @@ class Round
         $this->setNumber( $number );
         $this->setNrofheadtoheadmatches( $nrofheadtoheadmatches );
         $this->poules = new ArrayCollection();
+        $this->qualifyRules = new ArrayCollection();
+        $this->childRounds = new ArrayCollection();
     }
 
     /**
@@ -124,6 +149,25 @@ class Round
     }
 
     /**
+     * @return int
+     */
+    public function getWinnersOrlosers()
+    {
+        return $this->winnersOrLosers;
+    }
+
+    /**
+     * @param int $winnersOrLosers
+     */
+    public function setWinnersOrLosers( $winnersOrLosers )
+    {
+        if ( !is_int( $winnersOrLosers )   ){
+            throw new \InvalidArgumentException( "winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR );
+        }
+        $this->winnersOrLosers = $winnersOrLosers;
+    }
+
+    /**
      * @return string
      */
     public function getName()
@@ -165,4 +209,92 @@ class Round
     {
         $this->poules = $poules;
     }
+
+    /**
+     * @return Round
+     */
+    public function getParentRound()
+    {
+        return $this->parentRound;
+    }
+
+    /**
+     * @param Competitionseason $Competitionseason
+     */
+    public function setParentRound( Round $round )
+    {
+        $this->parentRound = $round;
+    }
+
+    /**
+     * @return Round[] | ArrayCollection
+     */
+    public function getChildRounds()
+    {
+        return $this->childRounds;
+    }
+
+    /**
+     * @param Round[] | ArrayCollection $rounds
+     */
+    public function setChildRounds($rounds)
+    {
+        $this->childRounds = $rounds;
+    }
+
+    /**
+     * @return [][PoulePlace[]
+     */
+    public function getPoulePlacesPerNumber()
+    {
+        $poulePlacesPerNumber = [];
+        foreach( $this->getPoules() as $poule ) {
+            foreach( $poule->getPlaces() as $place ) {
+                if( array_key_exists( $place->getNumber(), $poulePlacesPerNumber ) === false ) {
+                    $poulePlacesPerNumber[ $place->getNumber() ] = [];
+                }
+                $poulePlacesPerNumber[ $place->getNumber() ]->add( $place );
+            }
+        }
+        return $poulePlacesPerNumber;
+    }
+
+    /**
+     * rules to qualify for this round
+     *
+     * @return  QualifyRule[] | ArrayCollection
+     */
+//    public function getQualifyRules( )
+//    {
+//        $qualifyRules = new ArrayCollection();
+//        $parentRound = $this->getParentRound();
+//        if( $parentRound === null ) {
+//            return $qualifyRules;
+//        }
+//        $poulePlacesPerNumber = $parentRound->getPoulePlacesPerNumber();
+//        foreach( $poulePlacesPerNumber as $places ) {
+//            foreach( $places as $placeIt ) {
+//                $toPlace = $placeIt->getToPoulePlace();
+//                if( $toPlace === null ) {
+//                    break;
+//                }
+//                $qualifyRule = null;
+//                foreach( $qualifyRules as $qualifyRuleIt ) {
+//                    if ( $qualifyRuleIt->getFromPoulePlaces()->contains( $toPlace ) ) {
+//                        $qualifyRule = $qualifyRuleIt;
+//                        break;
+//                    }
+//                }
+//
+//                if ( $qualifyRule === null ){
+//                    $qualifyRule = new QualifyRule( $parentRound, $this );
+//                    $qualifyRules->add( $qualifyRule );
+//                }
+//                $qualifyRule->getFromPoulePlaces()->add( $placeIt );
+//                $qualifyRule->getToPoulePlaces()->add( $toPlace );
+//            }
+//        }
+//
+//        return $qualifyRules;
+//    }
 }

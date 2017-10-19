@@ -50,7 +50,12 @@ final class Round
             return $response->withStatus(404, 'geen competitieseizoen opgegeven');
         }
 
-        $objects = $this->repos->findBy( array("competitionseason" => $competitionseasonid) );
+        $objects = $this->repos->findBy(
+            array(
+                "competitionseason" => $competitionseasonid,
+                "number" => 1
+            )
+        );
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
             ->write( $this->serializer->serialize( $objects, 'json') );

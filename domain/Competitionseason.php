@@ -195,11 +195,17 @@ class Competitionseason implements External\Importable
         return count($this->getRounds()) > 0;
     }
 
+    /**
+     * @return bool
+     */
     public function hasGames()
     {
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function hasPlayedGames()
     {
         return true;

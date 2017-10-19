@@ -12,5 +12,3 @@ Voetbal\PoulePlace:
 #      type: Voetbal\Poule
     team:
       type: Voetbal\Team
-    toPoulePlace:
-      type: Voetbal\PoulePlace

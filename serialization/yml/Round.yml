@@ -2,6 +2,7 @@ Voetbal\Round:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
+  custom_accessor_order: [id, number, nrofheadtoheadmatches, poules, getQualifyRules]
 
   properties:
     id:
@@ -10,7 +11,18 @@ Voetbal\Round:
       type: integer
     nrofheadtoheadmatches:
       type: integer
-    competitionseason:
-      type: Voetbal\Competitionseason
+    winnersOrLosers:
+      type: integer
+      serialized_name: winnersOrLosers
+    childRounds:
+      type: ArrayCollection<Voetbal\Round>
+      serialized_name: childRounds
+#    competitionseason:
+#      type: Voetbal\Competitionseason
     poules:
       type: ArrayCollection<Voetbal\Poule>
+#  virtual_properties:
+#    getQualifyRules:
+#      read_only: true
+#      type: ArrayCollection<Voetbal\QualifyRule>
+#      serialized_name: qualifyRules
