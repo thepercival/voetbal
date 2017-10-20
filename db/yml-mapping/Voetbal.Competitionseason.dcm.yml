@@ -42,6 +42,7 @@ Voetbal\Competitionseason:
               name: competitionid
               referencedColumnName: id
               nullable: false
+              onDelete: CASCADE
         season:
             targetEntity: Voetbal\Season
             inversedBy: competitionseasons
