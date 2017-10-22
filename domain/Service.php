@@ -70,6 +70,7 @@ class Service
             return new Poule\Service(
                 $repos,
                 $this->getService(PoulePlace::class),
+                $this->getService(Team::class),
                 $this->getEntityManager()
             );
         }

@@ -60,7 +60,7 @@ class Service
         $this->em = $em;
     }
 
-    public function create( Competitionseason $competitionseason, $number, $nrofheadtoheadmatches, $poules = null, $nrOfPlaces = null )
+    public function create( Competitionseason $competitionseason, $number, $nrofheadtoheadmatches, $poules = null, $nrOfPlaces = null, $createTeams = false )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
@@ -72,11 +72,11 @@ class Service
             $this->repos->save($round);
 
             if ( $poules === null or $poules->count() === 0 ) {
-                $poules = $this->createDefaultPoules( $round, $nrOfPlaces );
+                $poules = $this->createDefaultPoules( $round, $nrOfPlaces, $createTeams );
             }
             else{
                 foreach( $poules as $pouleIt ){
-                    $poule = $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces());
+                    $poule = $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces(), null, $createTeams );
                 }
             }
 
@@ -89,7 +89,7 @@ class Service
         return $round;
     }
 
-    public function createDefaultPoules( $round, $nrOfPlaces )
+    public function createDefaultPoules( $round, $nrOfPlaces, $createTeams = false )
     {
         $poules = array();
         $nrOfPoules = $this->getDefaultNrOfPoules( $nrOfPlaces );
@@ -97,7 +97,7 @@ class Service
         $pouleNr = 1;
         while( $nrOfPlaces > 0 ){
             $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
-            $poules[] = $this->pouleService->create( $round, $pouleNr++, null, $nrOfPlacesToAdd);
+            $poules[] = $this->pouleService->create( $round, $pouleNr++, null, $nrOfPlacesToAdd, $createTeams );
             $nrOfPlaces -= $nrOfPlacesPerPoule;
         }
 

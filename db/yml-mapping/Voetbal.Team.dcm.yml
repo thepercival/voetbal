@@ -31,3 +31,4 @@ Voetbal\Team:
         name: associationid
         referencedColumnName: id
         nullable: false
+        onDelete: CASCADE

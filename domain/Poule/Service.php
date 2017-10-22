@@ -11,7 +11,8 @@ namespace Voetbal\Poule;
 use Voetbal\Round;
 use Voetbal\Poule;
 use Voetbal\Poule\Repository as PouleRepository;
-use Voetbal\Competitionseason;
+use Voetbal\Team\Service as TeamService;
+use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Doctrine\ORM\EntityManager;
 use Voetbal\PoulePlace;
 
@@ -23,9 +24,14 @@ class Service
     protected $repos;
 
     /**
-     * @var PoulePlace\Service
+     * @var PoulePlaceService
      */
     protected $pouleplaceService;
+
+    /**
+     * @var TeamService
+     */
+    protected $teamService;
 
     /**
      * @var EntityManager
@@ -36,14 +42,15 @@ class Service
      * Service constructor.
      * @param Repository $repos
      */
-    public function __construct( PouleRepository $repos, PoulePlace\Service $pouleplaceService, $em )
+    public function __construct( PouleRepository $repos, PoulePlaceService $pouleplaceService, TeamService $teamService, $em )
     {
         $this->repos = $repos;
         $this->pouleplaceService = $pouleplaceService;
+        $this->teamService = $teamService;
         $this->em = $em;
     }
 
-    public function create( Round $round, $number, $places = null, $nrOfPlaces = null )
+    public function create( Round $round, $number, $places = null, $nrOfPlaces = null, $createTeams = false )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
@@ -60,7 +67,12 @@ class Service
 
             if ( $places === null or $places->count() === 0 ) {
                 for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ){
-                        $this->pouleplaceService->create($poule, $placeNr, null );
+                    $team = null;
+                    if( $createTeams === true ) {
+                        $name = "team A"/*.$poule->getDisplayName()*/.$placeNr;
+                        $team = $this->teamService->create($name, $round->getCompetitionseason()->getAssociation() );
+                    }
+                    $this->pouleplaceService->create($poule, $placeNr, $team );
                 }
             }
             else {

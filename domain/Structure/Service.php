@@ -22,12 +22,11 @@ class Service
        $this->roundService = $roundService;
     }
 
-    public function create( $competitionseason, $nrOfCompetitors )
+    public function create( $competitionseason, $nrOfCompetitors, $createTeams = false )
     {
         $roundNr = 1;
         $nrofheadtoheadmatches = 1;
-
-        $round = $this->roundService->create( $competitionseason, $roundNr, $nrofheadtoheadmatches, null, $nrOfCompetitors );
+        $round = $this->roundService->create( $competitionseason, $roundNr, $nrofheadtoheadmatches, null, $nrOfCompetitors, $createTeams );
 
         return $round;
     }
