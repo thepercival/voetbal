@@ -9,15 +9,15 @@ Voetbal\Competitionseason:
     state:
       read_only: true
       type: integer
-    qualificationrule:
-      type: integer
+#    qualificationrule:
+#      type: integer
     competition:
       type: Voetbal\Competition
     season:
       type: Voetbal\Season
     association:
       type: Voetbal\Association
-  virtual_properties:
-    hasStructure:
-      type: boolean
-      serialized_name: hasstructure
+#  virtual_properties:
+#    hasStructure:
+#      type: boolean
+#      serialized_name: hasstructure

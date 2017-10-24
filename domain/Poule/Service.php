@@ -50,7 +50,7 @@ class Service
         $this->em = $em;
     }
 
-    public function create( Round $round, $number, $places = null, $nrOfPlaces = null, $createTeams = false )
+    public function create( Round $round, $number, $places = null, $nrOfPlaces = null )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
@@ -67,12 +67,7 @@ class Service
 
             if ( $places === null or $places->count() === 0 ) {
                 for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ){
-                    $team = null;
-                    if( $createTeams === true ) {
-                        $name = "team A"/*.$poule->getDisplayName()*/.$placeNr;
-                        $team = $this->teamService->create($name, $round->getCompetitionseason()->getAssociation() );
-                    }
-                    $this->pouleplaceService->create($poule, $placeNr, $team );
+                    $this->pouleplaceService->create($poule, $placeNr, null );
                 }
             }
             else {

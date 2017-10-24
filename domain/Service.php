@@ -34,7 +34,7 @@ class Service
     public function getService( $classname )
     {
         $repos = null;
-        if ( $classname !== Structure::class ){
+        if ( $classname !== Structure::class and $classname !== Planning::class ){
             $repos = $this->getRepository($classname);
         }
 
@@ -54,7 +54,7 @@ class Service
             return new Competitionseason\Service($repos);
         }
         elseif ( $classname === Structure::class ){
-            return new Structure\Service( $this->getService(Round::class));
+            return new Structure\Service( $this->getService(Round::class) );
         }
         elseif ( $classname === Round::class ){
             $competitionseasonRepos = $this->getRepository(Competitionseason::class);
@@ -83,6 +83,9 @@ class Service
         }
         elseif ( $classname === Game::class ){
             return new Game\Service($repos);
+        }
+        elseif ( $classname === Planning::class ){
+            return new Planning\Service( $this->getService(Game::class), $this->getEntityManager() );
         }
         throw new \Exception("class ".$classname." not supported to create service", E_ERROR );
     }

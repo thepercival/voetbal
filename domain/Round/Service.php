@@ -45,12 +45,12 @@ class Service
      * Service constructor.
      * @param Repository $repos
      * @param Competitionseason\Repository $competitionseasonRepos
-     * @param $em
+     * @param EntityManager $em
      * @param Poule\Service $pouleService
      */
     public function __construct( RoundRepository $repos,
                                  Competitionseason\Repository $competitionseasonRepos,
-                                 $em,
+                                 EntityManager $em,
                                  Poule\Service $pouleService
     )
     {
@@ -60,7 +60,7 @@ class Service
         $this->em = $em;
     }
 
-    public function create( Competitionseason $competitionseason, $number, $nrofheadtoheadmatches, $poules = null, $nrOfPlaces = null, $createTeams = false )
+    public function create( Competitionseason $competitionseason, Round $parentRound = null, $poules = null, $nrOfPlaces = null )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
@@ -68,15 +68,20 @@ class Service
         $round = null;
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         try {
-            $round = new Round( $competitionseason, $number, $nrofheadtoheadmatches );
+            $round = new Round( $competitionseason, $parentRound );
+            $round->setWinnersOrLosers( Round::WINNERS );
             $this->repos->save($round);
 
             if ( $poules === null or $poules->count() === 0 ) {
-                $poules = $this->createDefaultPoules( $round, $nrOfPlaces, $createTeams );
+                $arrRoundStructure = $this->getDefaultRoundStructure( $round->getNumber(), $nrOfPlaces );
+                $poules = $this->createDefaultPoules( $round, $arrRoundStructure['nrofpoules'], $nrOfPlaces );
+                if( $arrRoundStructure['nrofwinners'] > 0 ) {
+                    $this->create( $competitionseason, $round, null, $arrRoundStructure['nrofwinners'] );
+                }
             }
             else{
                 foreach( $poules as $pouleIt ){
-                    $poule = $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces(), null, $createTeams );
+                    $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces(), null );
                 }
             }
 
@@ -89,15 +94,14 @@ class Service
         return $round;
     }
 
-    public function createDefaultPoules( $round, $nrOfPlaces, $createTeams = false )
+    public function createDefaultPoules( $round, $nrOfPoules, $nrOfPlaces )
     {
         $poules = array();
-        $nrOfPoules = $this->getDefaultNrOfPoules( $nrOfPlaces );
         $nrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule( $nrOfPlaces, $nrOfPoules );
         $pouleNr = 1;
         while( $nrOfPlaces > 0 ){
             $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
-            $poules[] = $this->pouleService->create( $round, $pouleNr++, null, $nrOfPlacesToAdd, $createTeams );
+            $poules[] = $this->pouleService->create( $round, $pouleNr++, null, $nrOfPlacesToAdd );
             $nrOfPlaces -= $nrOfPlacesPerPoule;
         }
 
@@ -143,34 +147,60 @@ class Service
 
     /**
      * @param $nrOfTeams
-     * @return mixed
+     * @return []
+     * @throws \Exception
      */
-    public function getDefaultNrOfPoules( $nrOfTeams )
+    public function getDefaultRoundStructure( $roundNr, $nrOfTeams )
     {
+        if( $roundNr > 1 ) {
+            if ( $nrOfTeams === 1 ) {
+                return array( "nrofpoules" => 1, "nrofwinners" => 0 );
+            }
+            else if ( ( $nrOfTeams % 2 ) !== 0 ) {
+                throw new \Exception("het aantal(".$nrOfTeams.") moet een veelvoud van 2 zijn na de eerste ronde", E_ERROR);
+            }
+            return array( "nrofpoules" => $nrOfTeams / 2, "nrofwinners" => $nrOfTeams / 2 );
+        }
+
         if ( static::$defaultNrOfPoules === null ) {
             static::$defaultNrOfPoules = array(
-                2 => array( "nrofpoules" => 1 ), 3 => array( "nrofpoules" => 1 ),
-                4 => array( "nrofpoules" => 1 ), 5 => array( "nrofpoules" => 1 ),
-                6 => array( "nrofpoules" => 2 ), 7 => array( "nrofpoules" => 1 ),
-                8 => array( "nrofpoules" => 2 ), 9 => array( "nrofpoules" => 2 ),
-                10 => array( "nrofpoules" => 2 ), 11 => array( "nrofpoules" => 2 ),
-                12 => array( "nrofpoules" => 3 ), 13 => array( "nrofpoules" => 3 ),
-                14 => array( "nrofpoules" => 3 ), 15 => array( "nrofpoules" => 3 ),
-                16 => array( "nrofpoules" => 4 ), 17 => array( "nrofpoules" => 4 ),
-                18 => array( "nrofpoules" => 4 ), 19 => array( "nrofpoules" => 4 ),
-                20 => array( "nrofpoules" => 4 ), 21 => array( "nrofpoules" => 5 ),
-                22 => array( "nrofpoules" => 5 ), 23 => array( "nrofpoules" => 5 ),
-                24 => array( "nrofpoules" => 5 ), 25 => array( "nrofpoules" => 5 ),
-                26 => array( "nrofpoules" => 6 ), 27 => array( "nrofpoules" => 6 ),
-                28 => array( "nrofpoules" => 7 ), 29 => array( "nrofpoules" => 6 ),
-                30 => array( "nrofpoules" => 6 ), 31 => array( "nrofpoules" => 7 ),
-                32 => array( "nrofpoules" => 8 )
+                2 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
+                3 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
+                4 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
+                5 => array( "nrofpoules" => 1, "nrofwinners" => 2 ),
+                6 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
+                7 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
+                8 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
+                9 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
+                10 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
+                11 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
+                12 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
+                13 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
+                14 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
+                15 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
+                16 => array( "nrofpoules" => 4, "nrofwinners" => 4 ),
+                17 => array( "nrofpoules" => 4, "nrofwinners" => 4 ),
+                18 => array( "nrofpoules" => 4, "nrofwinners" => 8 ),
+                19 => array( "nrofpoules" => 4, "nrofwinners" => 8 ),
+                20 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
+                21 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
+                22 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
+                23 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
+                24 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
+                25 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
+                26 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
+                27 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
+                28 => array( "nrofpoules" => 7, "nrofwinners" => 8 ),
+                29 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
+                30 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
+                31 => array( "nrofpoules" => 7, "nrofwinners" => 8 ),
+                32 => array( "nrofpoules" => 8, "nrofwinners" => 16 )
             );
         }
         if ( array_key_exists($nrOfTeams, static::$defaultNrOfPoules) === false ){
             throw new \Exception("het aantal teams moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
         }
-        return static::$defaultNrOfPoules[$nrOfTeams]["nrofpoules"];
+        return static::$defaultNrOfPoules[$nrOfTeams];
     }
 
     public function handle( Voetbal_Command_RemoveAddCSStructure $command )

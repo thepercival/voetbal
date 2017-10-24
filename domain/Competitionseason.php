@@ -32,11 +32,6 @@ class Competitionseason implements External\Importable
 	 */
 	private $state;
 
-	/**
-	 * @var int
-	 */
-	private $qualificationrule;
-
     /**
      * @var Association
      */
@@ -55,9 +50,6 @@ class Competitionseason implements External\Importable
     const STATE_CREATED = 1;
     const STATE_PUBLISHED = 2;
 
-    const QUALIFICATION_RULE_WC = 1;
-    const QUALIFICATION_RULE_EC = 2; // max size
-
     use External\ImportableTrait;
 
     public function __construct( Competition $competition, Season $season, Association $association )
@@ -66,7 +58,6 @@ class Competitionseason implements External\Importable
         $this->season = $season;
         $this->association = $association;
         $this->state = static::STATE_CREATED;
-        $this->qualificationrule = static::QUALIFICATION_RULE_WC;
         $this->rounds = new ArrayCollection();
     }
 
@@ -129,25 +120,6 @@ class Competitionseason implements External\Importable
     }
 
     /**
-     * @return int
-     */
-    public function getQualificationrule()
-    {
-        return $this->qualificationrule;
-    }
-
-	/**
-	 * @param int $qualificationrule
-	 */
-    public function setQualificationrule( $qualificationrule )
-    {
-    	if ( !is_int( $qualificationrule ) or $qualificationrule < static::QUALIFICATION_RULE_WC or $qualificationrule > static::QUALIFICATION_RULE_EC  ){
-		    throw new \InvalidArgumentException( "de kwalificatieregel heeft een onjuiste waarde", E_ERROR );
-	    }
-        $this->qualificationrule = $qualificationrule;
-    }
-
-    /**
      * @return Association
      */
     public function getAssociation()
@@ -185,14 +157,6 @@ class Competitionseason implements External\Importable
     public function setSport( $sport )
     {
         $this->sport = $sport;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasStructure()
-    {
-        return count($this->getRounds()) > 0;
     }
 
     /**

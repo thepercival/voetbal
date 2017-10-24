@@ -16,11 +16,6 @@ Voetbal\Competitionseason:
             default:  !php/const:Voetbal\Competitionseason::STATE_CREATED
             nullable: false
             unique: false
-        qualificationrule:
-            type: smallint
-            default:  !php/const:Voetbal\Competitionseason::QUALIFICATION_RULE_WC
-            nullable: false
-            unique: false
         sport:
             type: string
             nullable: true

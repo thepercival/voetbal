@@ -36,9 +36,12 @@ class QualifyRule {
      */
     protected $configNr;
 
+    const SOCCERWORLDCUP = 1;
+    const SOCCEREUROPEANCUP = 2;
+
     public function __construct( Round $round, Round $toRound )
     {
-        $this->setFromRound( $fromRound );
+        $this->setFromRound( $round );
         $this->setToRound( $toRound );
         $this->fromPoulePlaces = new ArrayCollection();
         $this->toPoulePlaces = new ArrayCollection();
@@ -118,5 +121,27 @@ class QualifyRule {
             throw new \Exception("kwalificatieregel moet minimaal 1 pouleplek hebben");
         }
         return $firstPoulePlace->getNumber();
+    }
+
+    public static function getDescriptions()
+    {
+        return [
+            static::SOCCERWORLDCUP => [
+                "Meeste aantal punten in alle wedstrijden",
+                "Doelsaldo in alle wedstrijden",
+                "Aantal goals gemaakt in alle wedstrijden",
+                "Meeste aantal punten in onderlinge duels",
+                "Doelsaldo in onderlinge duels",
+                "Aantal goals gemaakt in onderlinge duels"
+            ],
+            static::SOCCEREUROPEANCUP => [
+                "Meeste aantal punten in alle wedstrijden",
+                "Meeste aantal punten in onderlinge duels",
+                "Doelsaldo in onderlinge duels",
+                "Aantal goals gemaakt in onderlinge duels",
+                "Doelsaldo in alle wedstrijden",
+                "Aantal goals gemaakt in alle wedstrijden"
+            ]
+        ];
     }
 }

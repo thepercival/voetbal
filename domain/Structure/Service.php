@@ -9,6 +9,7 @@
 namespace Voetbal\Structure;
 
 use Voetbal\Round\Service as RoundService;
+use Voetbal\Game\Service as GameService;
 
 class Service
 {
@@ -22,12 +23,18 @@ class Service
        $this->roundService = $roundService;
     }
 
-    public function create( $competitionseason, $nrOfCompetitors, $createTeams = false )
+    public function create( $competitionseason, $nrOfCompetitors )
     {
-        $roundNr = 1;
-        $nrofheadtoheadmatches = 1;
-        $round = $this->roundService->create( $competitionseason, $roundNr, $nrofheadtoheadmatches, null, $nrOfCompetitors, $createTeams );
 
-        return $round;
+        // QualifyRule
+        // NrOfMainToWin
+        // NrOfSubToWin
+        //winPointsPerGame:
+        //winPointsExtraTime:
+        //hasExtraTime:
+        //nrOfMinutesPerGame:
+        //nrOfMinutesExtraTime:
+
+        return $this->roundService->create( $competitionseason, null, null, $nrOfCompetitors );
     }
 }
