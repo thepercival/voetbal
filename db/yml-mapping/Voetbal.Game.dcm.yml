@@ -19,7 +19,7 @@ Voetbal\Game:
       unique: false
       column: state
     startDateTime:
-      type: datetime
+      type: datetime_immutable
       nullable: true
       column: startdatetime
   manyToOne:
