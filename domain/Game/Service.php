@@ -30,15 +30,16 @@ class Service
         $this->repos = $repos;
     }
 
-    public function create( Poule $poule, $number, $startDate, $homePoulePlace, $awayPoulePlace )
+    public function create( Poule $poule, $number, $homePoulePlace, $awayPoulePlace, \DateTimeImmutable $startDate = null )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
 
         // $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         try {
-            $game = new Game( $poule, $number, $startDate, $homePoulePlace, $awayPoulePlace );
+            $game = new Game( $poule, $number, $homePoulePlace, $awayPoulePlace );
             $game->setState( Game::STATE_CREATED );
+            $game->setStartDateTime( $startDate );
             $this->repos->save($game);
 
 //            if ( $places === null or $places->count() === 0 ) {

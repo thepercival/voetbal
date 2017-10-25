@@ -144,6 +144,19 @@ class Competitionseason implements External\Importable
     }
 
     /**
+     * @return Round
+     */
+    public function getFirstRound()
+    {
+        foreach( $this->getRounds() as $round ) {
+            if( $round->getNumber() === 1 ) {
+                return $round;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return string
      */
     public function getSport()

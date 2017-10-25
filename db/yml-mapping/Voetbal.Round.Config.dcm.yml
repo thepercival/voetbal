@@ -1,0 +1,58 @@
+Voetbal\Round\Config:
+  type: entity
+  repositoryClass: Voetbal\Round\Config\Repository
+  table: roundconfigs
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    qualifyRule:
+      type: smallint
+      nullable: false
+      default: !php/const:Voetbal\QualifyRule::SOCCERWORLDCUP
+      unique: false
+    nrofheadtoheadmatches:
+      type: smallint
+      nullable: false
+      unique: false
+    winPointsPerGame:
+      type: smallint
+      nullable: false
+      default: !php/const:Voetbal\Round\Config::DEFAULTWINPOINTSPERGAME
+      unique: false
+    winPointsExtraTime:
+      type: smallint
+      nullable: false
+      default: !php/const:Voetbal\Round\Config::DEFAULTWINPOINTSEXTRATIME
+      unique: false
+    hasExtraTime:
+      type: boolean
+      nullable: false
+      default: !php/const:Voetbal\Round\Config::DEFAULTHASEXTRATIME
+      unique: false
+    nrOfMinutesPerGame:
+      type: smallint
+      nullable: true
+      unique: false
+    nrOfMinutesExtraTime:
+      type: smallint
+      nullable: true
+      unique: false
+    nrOfMinutesInBetween:
+      type: smallint
+      nullable: true
+      unique: false
+  oneToOne:
+    round:
+      targetEntity: Voetbal\Round
+      inversedBy: config
+      joinColumn:
+        name: roundid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+  uniqueConstraints:
+    number_u_idx:
+      columns: [ roundid ]

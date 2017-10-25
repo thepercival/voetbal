@@ -21,53 +21,23 @@ Voetbal\Round:
       type: boolean
       nullable: true
       unique: false
-    nrofheadtoheadmatches:
-      type: smallint
-      nullable: false
-      unique: false
-    qualifyRule:
-      type: smallint
-      nullable: false
-      default: !php/const:Voetbal\QualifyRule::SOCCERWORLDCUP
-      unique: false
-    nrOfMainToWin:
-      type: smallint
-      nullable: true
-      unique: false
-    nrOfSubToWin:
-      type: smallint
-      nullable: true
-      unique: false
-    winPointsPerGame:
-      type: smallint
-      nullable: false
-      default: !php/const:Voetbal\Round::DEFAULTWINPOINTSPERGAME
-      unique: false
-    winPointsExtraTime:
-      type: smallint
-      nullable: false
-      default: !php/const:Voetbal\Round::DEFAULTWINPOINTSEXTRATIME
-      unique: false
-    hasExtraTime:
-      type: boolean
-      nullable: false
-      default: !php/const:Voetbal\Round::HASEXTRATIME
-      unique: false
-    nrOfMinutesPerGame:
-      type: smallint
-      nullable: true
-      unique: false
-    nrOfMinutesExtraTime:
-      type: smallint
-      nullable: true
-      unique: false
+  oneToOne:
+    config:
+      targetEntity: Voetbal\Round\Config
+      mappedBy: round
+      cascade: [ persist, remove ]
   oneToMany:
     poules:
       targetEntity: Voetbal\Poule
       mappedBy: round
+    scoreConfigs:
+      targetEntity: Voetbal\Round\ScoreConfig
+      mappedBy: round
+      cascade: [ persist, remove ]
     childRounds:
       targetEntity: Voetbal\Round
       mappedBy: parentRound
+      cascade: [ persist, remove ]
   manyToOne:
     competitionseason:
       targetEntity: Voetbal\Competitionseason

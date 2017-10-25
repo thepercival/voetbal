@@ -14,3 +14,6 @@ Voetbal\Game:
       type: Voetbal\PoulePlace
     state:
       type: integer
+    startDateTime:
+      type: DateTimeImmutable
+      serialized_name: startDateTime

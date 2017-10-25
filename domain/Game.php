@@ -28,9 +28,9 @@ class Game
     protected $number;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeImmutable
      */
-    private $startdate;
+    private $startDateTime;
 
     /**
      * @var PoulePlace
@@ -51,11 +51,10 @@ class Game
     const STATE_INPLAY = 2;
     const STATE_PLAYED = 4;
 
-    public function __construct( Poule $poule, $number, \DateTime $startdate, PoulePlace $homePoulePlace, PoulePlace $awayPoulePlace )
+    public function __construct( Poule $poule, $number, PoulePlace $homePoulePlace, PoulePlace $awayPoulePlace )
     {
         $this->setPoule( $poule );
         $this->setNumber( $number );
-        $this->setStartDate( $startdate );
         $this->setHomePoulePlace( $homePoulePlace );
         $this->setAwayPoulePlace( $awayPoulePlace );
     }
@@ -111,17 +110,17 @@ class Game
     /**
      * @return \DateTime
      */
-    public function getStartdate()
+    public function getStartDateTime()
     {
-        return $this->startdate;
+        return $this->startDateTime;
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function putStartdate(\DateTime $startDate)
+    public function setStartDateTime( \DateTimeImmutable $startDateTime = null )
     {
-        $this->startdate = $startDate;
+        $this->startDateTime = $startDateTime;
     }
 
     /**

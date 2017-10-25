@@ -13,6 +13,19 @@ use Doctrine\ORM\EntityManager;
 class Service
 {
     /**
+     * @var []
+     */
+    protected static $sportConfigs;
+    /**
+     * @var Round\Config
+     */
+    protected static $defaultRoundConfig;
+    /**
+     * @var Round\ScoreConfig
+     */
+    protected static $defaultRoundScoreConfig;
+
+    /**
      * @var
      */
     protected $entitymanager;
@@ -61,6 +74,8 @@ class Service
             $pouleService = $this->getService(Poule::class);
             return new Round\Service(
                 $repos,
+                $this->getRepository( Round\Config::class ),
+                $this->getRepository( Round\ScoreConfig::class ),
                 $competitionseasonRepos,
                 $this->getEntityManager(),
                 $pouleService
@@ -93,5 +108,70 @@ class Service
     public function getEntityManager()
     {
         return $this->entitymanager;
+    }
+
+    public static function getDefaultRoundConfig( Round $round ) {
+        $sportName = $round->getCompetitionseason()->getSport();
+        if ( $sportName === 'darten' ) {
+            return new Round\Config(
+                $round,
+                QualifyRule::SOCCERWORLDCUP,
+                Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
+                2, /* winPointsPerGame */
+                2, /* winPointsExtraTime */
+                Round\Config::DEFAULTHASEXTRATIME
+            );
+        }
+        else if ( $sportName === 'tafeltennis' ) {
+            return new Round\Config(
+                $round,
+                QualifyRule::SOCCERWORLDCUP,
+                Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
+                2, /* winPointsPerGame */
+                2, /* winPointsExtraTime */
+                Round\Config::HASEXTRATIME
+            );
+        }
+        else if ( $sportName === 'voetbal' ) {
+            $roundConfig = new Round\Config(
+                $round,
+                QualifyRule::SOCCERWORLDCUP,
+                Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
+                Round\Config::DEFAULTWINPOINTSPERGAME,
+                Round\Config::DEFAULTWINPOINTSEXTRATIME,
+                $round->getNumber() > 1 ? true : Round\Config::DEFAULTHASEXTRATIME
+            );
+            $roundConfig->setNrOfMinutesPerGame( 20 );
+            $roundConfig->setNrOfMinutesExtraTime( 5 );
+            $roundConfig->setNrOfMinutesInBetween( 5 );
+        }
+        return new Round\Config(
+            $round,
+            QualifyRule::SOCCERWORLDCUP,
+            Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
+            Round\Config::DEFAULTWINPOINTSPERGAME,
+            Round\Config::DEFAULTWINPOINTSEXTRATIME,
+            Round\Config::DEFAULTHASEXTRATIME
+        );
+    }
+
+    public static function getDefaultRoundScoreConfig( Round $round ) {
+        $sportName = $round->getCompetitionseason()->getSport();
+        if ( $sportName === 'darten' ) {
+            return new Round\ScoreConfig( $round, 'punten', 501, 0,
+                new Round\ScoreConfig( $round, 'legs', 0, 2,
+                    new Round\ScoreConfig( $round, 'sets', 0, 0)
+                )
+            );
+        }
+        else if ( $sportName === 'tafeltennis' ) {
+            return new Round\ScoreConfig( $round, 'punten', 0, 21,
+                new Round\ScoreConfig( $round, 'sets', 0, 0)
+            );
+        }
+        else if ( $sportName === 'voetbal' ) {
+            return new Round\ScoreConfig( $round, 'goals', 0, 0 );
+        }
+        return new Round\ScoreConfig( $round, "punten", 0, 0 );
     }
 }

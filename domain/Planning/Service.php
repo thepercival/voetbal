@@ -30,13 +30,17 @@ class Service
         $this->em = $em;
     }
 
-    public function schedule( Round $round, \DateTime $startDateTime )
+    public function schedule( Round $round, \DateTimeImmutable $startDateTime = null )
     {
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
 
         try {
             $this->remove( $round );
-            $this->create( $round, $startDateTime );
+            $startDateTime = $this->create( $round, $startDateTime );
+
+            foreach( $round->getChildRounds() as $childRound ) {
+                $this->schedule( $childRound, $startDateTime );
+            }
 
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -46,10 +50,19 @@ class Service
         return $round;
     }
 
-    protected function create( Round $round, $startDateTime )
+    /**
+     * @param Round $round
+     * @param \DateTimeImmutable $startDateTime
+     * @return \DateTimeImmutable|null|static
+     */
+    protected function create( Round $round, \DateTimeImmutable $startDateTime = null )
     {
-//        $round->getNrofheadtoheadmatches();
-//
+        $roundConfig = $round->getConfig();
+
+        if( $roundConfig->getNrOfMinutesPerGame() === 0 ) {
+            $startDateTime = null;
+        }
+
         $poules = $round->getPoules();
         foreach( $poules as $poule ) {
             $startGameNrReturnGames = $poule->getPlaces()->count() - 1;
@@ -62,11 +75,9 @@ class Service
                     if ( $arrGame[0] === null or $arrGame[1] === null )
                         continue;
                     $homePoulePlace = $arrGame[0];
-                    $awayPoulePlace = $arrGame[0];
+                    $awayPoulePlace = $arrGame[1];
+                    $this->gameService->create( $poule, $gameNumber + 1, $homePoulePlace, $awayPoulePlace, $startDateTime );
 
-                    // def : reate( Poule $poule, $number, $startDate, $homePoulePlace, $awayPoulePlace )
-                    $gameStartDateTime should be determined by round settings!!!
-                    $this->gameService->create( $poule, $gameNumber, $gameStartDateTime,$homePoulePlace, $awayPoulePlace );
                     //create game
 
 //                    var_dump($arrGame[0]);
@@ -78,34 +89,19 @@ class Service
 //                        $oGames->add( $oReturnGame );
 //                    }
                 }
+
+                if( $roundConfig->getNrOfMinutesPerGame() > 0 ) {
+                    $nrOfMinutes = $roundConfig->getNrOfMinutesPerGame();
+                    if ( $roundConfig->getHasExtraTime() ) {
+                        $nrOfMinutes += $roundConfig->getNrOfMinutesExtraTime();
+                    }
+                    $nrOfMinutes += $roundConfig->getNrOfMinutesInBetween();
+                    $startDateTime = $startDateTime->add( new DateInterval('PT' . $nrOfMinutes . 'M') );
+                }
             }
         }
 
-//        $bSemiCompetition = $oRound->getSemiCompetition();
-//        foreach ( $oPoules as $oPoule )
-//        {
-//            $oPoulePlaces = $oPoule->getPlaces();
-//            $nStartGameNrReturnGames = $oPoulePlaces->count() - 1;
-//            $arrPoulePlaces = array(); foreach( $oPoulePlaces as $oPoulePlace ) { $arrPoulePlaces[] = $oPoulePlace; }
-//
-//            $arrSchedule = $this->generateRRSchedule( $arrPoulePlaces );
-//
-//            foreach ( $arrSchedule as $nGameNumber => $arrGames )
-//            {
-//                foreach ( $arrGames as $nViewOrder => $arrGame )
-//                {
-//                    if ( $arrGame[0] === null or $arrGame[1] === null )
-//                        continue;
-//                    $oGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[0], $arrGame[1], null, $nGameNumber + 1, $nViewOrder );
-//                    $oGames->add( $oGame );
-//                    if ( $bSemiCompetition !== true )
-//                    {
-//                        $oReturnGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[1], $arrGame[0], null, $nStartGameNrReturnGames + $nGameNumber + 1, $nViewOrder );
-//                        $oGames->add( $oReturnGame );
-//                    }
-//                }
-//            }
-//        }
+        return $startDateTime;
     }
 
     protected function remove( Round $round )

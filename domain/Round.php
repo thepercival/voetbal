@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Round\ScoreConfig;
 
 class Round
 {
@@ -30,52 +31,17 @@ class Round
     /**
      * @var int
      */
-    protected $nrofheadtoheadmatches;
-
-    /**
-     * @var int
-     */
     protected $winnersOrLosers;
 
     /**
-     * @var int
+     * @var Round\Config`
      */
-    private $qualifyRule;
+    protected $config;
 
     /**
-     * @var int
+     * @var Round\ScoreConfig[] | ArrayCollection
      */
-    private $nrOfMainToWin;
-
-    /**
-     * @var int
-     */
-    private $nrOfSubToWin;
-
-    /**
-     * @var int
-     */
-    private $winPointsPerGame;
-
-    /**
-     * @var int
-     */
-    private $winPointsExtraTime;
-
-    /**
-     * @var boolean
-     */
-    private $hasExtraTime;
-
-    /**
-     * @var int
-     */
-    private $nrOfMinutesPerGame;
-
-    /**
-     * @var int
-     */
-    private $nrOfMinutesExtraTime;
+    protected $scoreConfigs;
 
     /**
      * @var Competitionseason
@@ -109,26 +75,18 @@ class Round
     CONST WINNERS = 1;
     CONST LOSERS = 2;
 
-    CONST DEFAULTWINPOINTSPERGAME = 3;
-    CONST DEFAULTWINPOINTSEXTRATIME = 2;
-    CONST HASEXTRATIME = true;
-
     const MAX_LENGTH_NAME = 10;
 
     public function __construct( Competitionseason $competitionseason, Round $parentRound = null )
     {
         $this->setCompetitionseason( $competitionseason );
+        $this->poules = new ArrayCollection();
+        $this->scoreConfigs = new ArrayCollection();
+        $this->qualifyRules = new ArrayCollection();
+        $this->childRounds = new ArrayCollection();
         $this->setParentRound( $parentRound );
         $number = ( $parentRound === null ) ? 1 : ($parentRound->getNumber() + 1);
         $this->setNumber( $number );
-        $this->setNrofheadtoheadmatches( 1 );
-        $this->qualifyRule = QualifyRule::SOCCERWORLDCUP;
-        $this->winPointsPerGame = Round::DEFAULTWINPOINTSPERGAME;
-        $this->winPointsExtraTime = Round::DEFAULTWINPOINTSEXTRATIME;
-        $this->hasExtraTime = Round::HASEXTRATIME;
-        $this->poules = new ArrayCollection();
-        $this->qualifyRules = new ArrayCollection();
-        $this->childRounds = new ArrayCollection();
     }
 
     /**
@@ -179,180 +137,7 @@ class Round
         $this->number = $number;
     }
 
-    /**
-     * @return int
-     */
-    public function getNrofheadtoheadmatches()
-    {
-        return $this->nrofheadtoheadmatches;
-    }
 
-    /**
-     * @param int $nrofheadtoheadmatches
-     */
-    public function setNrofheadtoheadmatches( $nrofheadtoheadmatches )
-    {
-        if ( !is_int( $nrofheadtoheadmatches )   ){
-            throw new \InvalidArgumentException( "het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->nrofheadtoheadmatches = $nrofheadtoheadmatches;
-    }
-
-    /**
-     * @return int
-     */
-    public function getQualifyRule()
-    {
-        return $this->qualifyRule;
-    }
-
-    /**
-     * @param int $qualifyRule
-     */
-    public function setQualifyRule( $qualifyRule )
-    {
-        if ( !is_int( $qualifyRule ) or $qualifyRule < QualifyRule::SOCCERWORLDCUP or $qualifyRule > QualifyRule::SOCCEREUROPEANCUP ) {
-            throw new \InvalidArgumentException( "de kwalificatieregel heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->qualifyRule = $qualifyRule;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getNrOfMainToWin()
-    {
-        return $this->nrOfMainToWin;
-    }
-
-    /**
-     * @param $nrOfMainToWin
-     */
-    public function setNrOfMainToWin( $nrOfMainToWin )
-    {
-        if ( !is_int( $nrOfMainToWin ) ) {
-            throw new \InvalidArgumentException( "de nrOfMainToWin heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->nrOfMainToWin = $nrOfMainToWin;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNrOfSubToWin()
-    {
-        return $this->nrOfSubToWin;
-    }
-
-    /**
-     * @param $nrOfSubToWin
-     */
-    public function setNrOfSubToWin( $nrOfSubToWin )
-    {
-        if ( !is_int( $nrOfSubToWin ) ) {
-            throw new \InvalidArgumentException( "de nrOfSubToWin heeft een onjuiste waarde", E_ERROR );
-        }
-        if ( !is_int( $this->getNrOfMainToWin() ) ) {
-            throw new \InvalidArgumentException( "de nrOfMainToWin heeft geen waarde", E_ERROR );
-        }
-        $this->nrOfSubToWin = $nrOfSubToWin;
-    }
-
-    /**
-     * @return int
-     */
-    public function getWinPointsPerGame()
-    {
-        return $this->winPointsPerGame;
-    }
-
-    /**
-     * @param $winPointsPerGame
-     */
-    public function setWinPointsPerGame( $winPointsPerGame )
-    {
-        if ( !is_int( $winPointsPerGame ) ) {
-            throw new \InvalidArgumentException( "het aantal-punten-per-wedstrijd heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->winPointsPerGame = $winPointsPerGame;
-    }
-
-    /**
-     * @return int
-     */
-    public function getWinPointsExtraTime()
-    {
-        return $this->winPointsExtraTime;
-    }
-
-    /**
-     * @param $winPointsExtraTime
-     */
-    public function setWinPointsExtraTime( $winPointsExtraTime )
-    {
-        if ( !is_int( $winPointsExtraTime ) ) {
-            throw new \InvalidArgumentException( "het aantal-punten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->winPointsExtraTime = $winPointsExtraTime;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getHasExtraTime()
-    {
-        return $this->hasExtraTime;
-    }
-
-    /**
-     * @param $hasExtraTime
-     */
-    public function setHasExtraTime( $hasExtraTime )
-    {
-        if ( !is_bool( $hasExtraTime ) ) {
-            throw new \InvalidArgumentException( "extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->hasExtraTime = $hasExtraTime;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNrOfMinutesPerGame()
-    {
-        return $this->nrOfMinutesPerGame;
-    }
-
-    /**
-     * @param $nrOfMinutesPerGame
-     */
-    public function setNrOfMinutesPerGame( $nrOfMinutesPerGame )
-    {
-        if ( $nrOfMinutesPerGame !== null and !is_int( $nrOfMinutesPerGame ) ) {
-            throw new \InvalidArgumentException( "het aantal-minuten-per-wedstrijd heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->nrOfMinutesPerGame = $nrOfMinutesPerGame;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNrOfMinutesExtraTime()
-    {
-        return $this->nrOfMinutesExtraTime;
-    }
-
-    /**
-     * @param $nrOfMinutesExtraTime
-     */
-    public function setNrOfMinutesExtraTime( $nrOfMinutesExtraTime )
-    {
-        if ( $nrOfMinutesExtraTime !== null and !is_int( $nrOfMinutesExtraTime ) ) {
-            throw new \InvalidArgumentException( "het aantal-minuten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->nrOfMinutesExtraTime = $nrOfMinutesExtraTime;
-    }
 
     /**
      * @return int
@@ -401,6 +186,38 @@ class Round
     }
 
     /**
+     * @return Round\Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
+     * @param Round\Config $config
+     */
+    public function setConfig( Round\Config $config )
+    {
+        $this->config = $config;
+    }
+
+    /**
+     * @return Round\ScoreConfig[] | ArrayCollection
+     */
+    public function getScoreConfigs()
+    {
+        return $this->scoreConfigs;
+    }
+
+    /**
+     * @param Round\ScoreConfig[] | ArrayCollection
+     */
+    public function setScoreConfigs( ArrayCollection $scoreConfigs )
+    {
+        $this->scoreConfigs = $scoreConfigs;
+    }
+
+    /**
      * @return Poule[] | ArrayCollection
      */
     public function getPoules()
@@ -429,6 +246,9 @@ class Round
      */
     public function setParentRound( Round $round = null )
     {
+        if( $round !== null ) {
+            $round->getChildRounds()->add( $this );
+        }
         $this->parentRound = $round;
     }
 

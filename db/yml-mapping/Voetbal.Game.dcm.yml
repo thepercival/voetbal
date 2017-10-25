@@ -18,9 +18,9 @@ Voetbal\Game:
       nullable: false
       unique: false
       column: state
-    startdate:
+    startDateTime:
       type: datetime
-      nullable: false
+      nullable: true
       column: startdatetime
   manyToOne:
     poule:
@@ -30,6 +30,7 @@ Voetbal\Game:
         name: pouleid
         referencedColumnName: id
         nullable: false
+        onDelete: CASCADE
     homePoulePlace:
       targetEntity: Voetbal\PoulePlace
       inversedBy: games
@@ -37,6 +38,7 @@ Voetbal\Game:
         name: homepouleplaceid
         referencedColumnName: id
         nullable: false
+        onDelete: CASCADE
     awayPoulePlace:
       targetEntity: Voetbal\PoulePlace
       inversedBy: games
@@ -44,3 +46,4 @@ Voetbal\Game:
         name: awaypouleplaceid
         referencedColumnName: id
         nullable: false
+        onDelete: CASCADE
