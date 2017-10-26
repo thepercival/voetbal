@@ -13,6 +13,7 @@ use Voetbal\PoulePlace;
 use Doctrine\ORM\EntityManager;
 use Voetbal\Poule;
 use Voetbal\Game;
+use Voetbal\Referee;
 
 class Service
 {
@@ -65,28 +66,25 @@ class Service
         return $game;
     }
 
-//    /**
-//     * @param Team $team
-//     * @param $name
-//     * @param Association $association
-//     * @param null $abbreviation
-//     * @return mixed
-//     * @throws \Exception
-//     */
-//    public function edit( Team $team, $name, Association $association, $abbreviation = null )
-//    {
+    /**
+     * @param Game $game
+     * @param \DateTimeImmutable|null $startDateTime
+     * @param Referee|null $referee
+     * @return mixed
+     * @throws \Exception
+     */
+    public function edit( Game $game, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
+    {
 //        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 //        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
 //            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
 //        }
-//
-//        $team->setName($name);
-//        $team->setAbbreviation($abbreviation);
-//        $team->setAssociation($association);
-//
-//        return $this->repos->save($team);
-//    }
-//
+
+        $game->setStartDateTime($startDateTime);
+        $game->setReferee($referee);
+        return $this->repos->save($game);
+    }
+
     /**
      * @param Game $game
      */

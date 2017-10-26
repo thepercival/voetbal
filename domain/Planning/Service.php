@@ -32,7 +32,7 @@ class Service
 
     public function schedule( Round $round, \DateTimeImmutable $startDateTime = null )
     {
-        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
+        $this->em->getConnection()->beginTransaction();
 
         try {
             $this->remove( $round );
@@ -63,11 +63,18 @@ class Service
             $startDateTime = null;
         }
 
+        $nrOfFields = $round->getCompetitionseason()->getNrOfFields();
+        $referees = $round->getCompetitionseason()->getReferees();
+
         $poules = $round->getPoules();
         foreach( $poules as $poule ) {
             $startGameNrReturnGames = $poule->getPlaces()->count() - 1;
             $arrPoulePlaces = array(); foreach( $poule->getPlaces() as $place ) { $arrPoulePlaces[] = $place; }
             $arrSchedule = $this->generateRRSchedule( $arrPoulePlaces );
+
+            // als aantal onderlinge duels > 1 dan nog een keer herhalen
+            // maar bij oneven aantal de pouleplaces ophogen!!!!
+
             foreach ( $arrSchedule as $gameNumber => $arrGames )
             {
                 foreach ( $arrGames as $nViewOrder => $arrGame )
@@ -76,9 +83,16 @@ class Service
                         continue;
                     $homePoulePlace = $arrGame[0];
                     $awayPoulePlace = $arrGame[1];
-                    $this->gameService->create( $poule, $gameNumber + 1, $homePoulePlace, $awayPoulePlace, $startDateTime );
+                    $game = $this->gameService->create( $poule, $gameNumber + 1, $homePoulePlace, $awayPoulePlace );
 
-                    //create game
+                    // standaard referee instelling is geen referees!
+                    // kies vervolgens uit referee is een van de teams of een van de referees
+
+                    // als startdatetime !== null en aantal games is voorbij aan het aantal velden
+                    // dan startdatetime verhogen en begin weer bij veld 1
+
+                    $referee = $this->determineReferee();
+                    $this->gameService->edit( $game, $startDateTime, $referee );
 
 //                    var_dump($arrGame[0]);
 //                    $oGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[0], $arrGame[1], null, $nGameNumber + 1, $nViewOrder );
@@ -102,6 +116,11 @@ class Service
         }
 
         return $startDateTime;
+    }
+
+    protected function determineReferee()
+    {
+        return null;
     }
 
     protected function remove( Round $round )

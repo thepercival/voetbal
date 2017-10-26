@@ -9,8 +9,9 @@ Voetbal\Competitionseason:
     state:
       read_only: true
       type: integer
-#    qualificationrule:
-#      type: integer
+    nrOfFields:
+      type: integer
+      serialized_name: nrOfFields
     competition:
       type: Voetbal\Competition
     season:

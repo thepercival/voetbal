@@ -21,9 +21,18 @@ Voetbal\Competitionseason:
             nullable: true
             length: 30
             unique: false
+        nrOfFields:
+            type: smallint
+            default: 1
+            nullable: false
+            unique: false
     oneToMany:
         rounds:
           targetEntity: Voetbal\Round
+          mappedBy: competitionseason
+          fetch: EXTRA_LAZY
+        referees:
+          targetEntity: Voetbal\Referee
           mappedBy: competitionseason
           fetch: EXTRA_LAZY
 #        externals:

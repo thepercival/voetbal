@@ -8,12 +8,15 @@ Voetbal\Game:
       read_only: true
     number:
       type: integer
-    homepouleplace:
-      type: Voetbal\PoulePlace
-    awaypouleplace:
-      type: Voetbal\PoulePlace
     state:
       type: integer
     startDateTime:
       type: DateTimeImmutable
       serialized_name: startDateTime
+  virtual_properties:
+    getHomePoulePlaceNr:
+      type: int
+      serialized_name: homePoulePlaceNr
+    getAwayPoulePlaceNr:
+      type: int
+      serialized_name: awayPoulePlaceNr

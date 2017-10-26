@@ -43,6 +43,11 @@ class Game
     protected $awayPoulePlace;
 
     /**
+     * @var Referee
+     */
+    protected $referee;
+
+    /**
      * @var int
      */
     protected $state;
@@ -140,6 +145,14 @@ class Game
     }
 
     /**
+     * @return int
+     */
+    public function getHomePoulePlaceNr()
+    {
+        return $this->getHomePoulePlace()->getNumber();
+    }
+
+    /**
      * @return PoulePlace
      */
     public function getAwayPoulePlace()
@@ -153,6 +166,14 @@ class Game
     public function setAwayPoulePlace( PoulePlace $awayPoulePlace )
     {
         $this->awayPoulePlace = $awayPoulePlace;
+    }
+
+    /**
+     * @return int
+     */
+    public function getAwayPoulePlaceNr()
+    {
+        return $this->getAwayPoulePlace()->getNumber();
     }
 
     /**
@@ -172,5 +193,24 @@ class Game
             throw new \InvalidArgumentException( "de status heeft een onjuiste waarde", E_ERROR );
         }
         $this->state = $state;
+    }
+
+    /**
+     * @return Referee
+     */
+    public function getReferee()
+    {
+        return $this->referee;
+    }
+
+    /**
+     * @param Referee $referee
+     */
+    public function setReferee( Referee $referee )
+    {
+//        if ( $this->referee === null and $referee !== null){
+//            $referee->getGames()->add($this) ;
+//        }
+        $this->referee = $referee;
     }
 }
