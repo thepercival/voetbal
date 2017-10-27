@@ -52,47 +52,98 @@ class Service
 
     /**
      * @param Round $round
-     * @param \DateTimeImmutable $startDateTime
-     * @return \DateTimeImmutable|null|static
+     * @param \DateTimeImmutable|null $startDateTime
+     * @return \DateTimeImmutable
      */
     protected function create( Round $round, \DateTimeImmutable $startDateTime = null )
     {
         $roundConfig = $round->getConfig();
 
-        if( $roundConfig->getNrOfMinutesPerGame() === 0 ) {
+        if ($roundConfig->getNrOfMinutesPerGame() === 0) {
             $startDateTime = null;
         }
 
-        $nrOfFields = $round->getCompetitionseason()->getNrOfFields();
-        $referees = $round->getCompetitionseason()->getReferees();
-
         $poules = $round->getPoules();
-        foreach( $poules as $poule ) {
+        foreach ($poules as $poule) {
             $startGameNrReturnGames = $poule->getPlaces()->count() - 1;
-            $arrPoulePlaces = array(); foreach( $poule->getPlaces() as $place ) { $arrPoulePlaces[] = $place; }
-            $arrSchedule = $this->generateRRSchedule( $arrPoulePlaces );
+            $arrPoulePlaces = array();
+            foreach ($poule->getPlaces() as $place) {
+                $arrPoulePlaces[] = $place;
+            }
+            $arrSchedule = $this->generateRRSchedule($arrPoulePlaces);
 
             // als aantal onderlinge duels > 1 dan nog een keer herhalen
             // maar bij oneven aantal de pouleplaces ophogen!!!!
 
-            foreach ( $arrSchedule as $gameNumber => $arrGames )
-            {
-                foreach ( $arrGames as $nViewOrder => $arrGame )
-                {
-                    if ( $arrGame[0] === null or $arrGame[1] === null )
+            foreach ($arrSchedule as $roundNumber => $arrGames) {
+                // var_dump("roundNumber:".$roundNumber);
+                $subNumber = 1;
+                foreach ($arrGames as $subNumberAll => $arrGame) {
+                    if ($arrGame[0] === null or $arrGame[1] === null) {
                         continue;
+                    }
+                    // var_dump("subNumber:".$subNumber);
                     $homePoulePlace = $arrGame[0];
                     $awayPoulePlace = $arrGame[1];
-                    $game = $this->gameService->create( $poule, $gameNumber + 1, $homePoulePlace, $awayPoulePlace );
+                    $this->gameService->create($poule, $homePoulePlace, $awayPoulePlace, $roundNumber + 1, $subNumber++ );
+                }
+            }
+        }
 
-                    // standaard referee instelling is geen referees!
-                    // kies vervolgens uit referee is een van de teams of een van de referees
+        $nrOfFields = $round->getCompetitionseason()->getNrOfFields();
+        $referees = $round->getCompetitionseason()->getReferees();
+        $fieldNr = 1;
 
-                    // als startdatetime !== null en aantal games is voorbij aan het aantal velden
-                    // dan startdatetime verhogen en begin weer bij veld 1
+        $games = $this->getGamesByRoundGameNumber( $round );
+        foreach ($games as $roundNumber => $gamesPerGameRound) {
+            foreach ($gamesPerGameRound as $subNumber => $game) {
 
-                    $referee = $this->determineReferee();
-                    $this->gameService->edit( $game, $startDateTime, $referee );
+                // edit game for ref, time and field
+                $referee = $this->determineReferee();
+                $this->gameService->edit( $game, $fieldNr, $startDateTime, $referee );
+
+                if( $roundConfig->getNrOfMinutesPerGame() > 0 ) {
+                    $nrOfMinutes = $roundConfig->getNrOfMinutesPerGame();
+                    if ( $roundConfig->getHasExtraTime() ) {
+                        $nrOfMinutes += $roundConfig->getNrOfMinutesExtraTime();
+                    }
+                    $nrOfMinutes += $roundConfig->getNrOfMinutesInBetween();
+                    $startDateTime = $startDateTime->add( new \DateInterval('PT' . $nrOfMinutes . 'M') );
+                }
+
+                $fieldNr = ( $fieldNr < $nrOfFields ) ? $fieldNr + 1 : 1;
+            }
+        }
+
+        return $startDateTime;
+    }
+
+    protected function getGamesByRoundGameNumber( $round )
+    {
+        $games = [];
+        $poules = $round->getPoules();
+        foreach ($poules as $poule) {
+            foreach ($poule->getGames() as $game) {
+                if (array_key_exists($game->getRoundNumber(), $games) === false) {
+                    $games[$game->getRoundNumber()] = [];
+                }
+                $games[$game->getRoundNumber()][$game->getSubNumber()] = $game;
+            }
+        }
+        return $games;
+    }
+
+        //die();
+
+
+        //$nrOfFields
+
+        // standaard referee instelling is geen referees!
+        // kies vervolgens uit referee is een van de teams of een van de referees
+
+        // als startdatetime !== null en aantal games is voorbij aan het aantal velden
+        // dan startdatetime verhogen en begin weer bij veld 1
+
 
 //                    var_dump($arrGame[0]);
 //                    $oGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[0], $arrGame[1], null, $nGameNumber + 1, $nViewOrder );
@@ -102,21 +153,10 @@ class Service
 //                        $oReturnGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[1], $arrGame[0], null, $nStartGameNrReturnGames + $nGameNumber + 1, $nViewOrder );
 //                        $oGames->add( $oReturnGame );
 //                    }
-                }
+        //$counter++;
 
-                if( $roundConfig->getNrOfMinutesPerGame() > 0 ) {
-                    $nrOfMinutes = $roundConfig->getNrOfMinutesPerGame();
-                    if ( $roundConfig->getHasExtraTime() ) {
-                        $nrOfMinutes += $roundConfig->getNrOfMinutesExtraTime();
-                    }
-                    $nrOfMinutes += $roundConfig->getNrOfMinutesInBetween();
-                    $startDateTime = $startDateTime->add( new DateInterval('PT' . $nrOfMinutes . 'M') );
-                }
-            }
-        }
-
-        return $startDateTime;
-    }
+        // return $startDateTime;
+    // }
 
     protected function determineReferee()
     {

@@ -129,7 +129,7 @@ class Service
                 Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
                 2, /* winPointsPerGame */
                 2, /* winPointsExtraTime */
-                Round\Config::HASEXTRATIME
+                Round\Config::DEFAULTHASEXTRATIME
             );
         }
         else if ( $sportName === 'voetbal' ) {
@@ -144,6 +144,7 @@ class Service
             $roundConfig->setNrOfMinutesPerGame( 20 );
             $roundConfig->setNrOfMinutesExtraTime( 5 );
             $roundConfig->setNrOfMinutesInBetween( 5 );
+            return $roundConfig;
         }
         return new Round\Config(
             $round,

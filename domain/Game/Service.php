@@ -31,16 +31,15 @@ class Service
         $this->repos = $repos;
     }
 
-    public function create( Poule $poule, $number, $homePoulePlace, $awayPoulePlace, \DateTimeImmutable $startDate = null )
+    public function create( Poule $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber )
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
 
         // $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         try {
-            $game = new Game( $poule, $number, $homePoulePlace, $awayPoulePlace );
+            $game = new Game( $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber );
             $game->setState( Game::STATE_CREATED );
-            $game->setStartDateTime( $startDate );
             $this->repos->save($game);
 
 //            if ( $places === null or $places->count() === 0 ) {
@@ -73,13 +72,14 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-    public function edit( Game $game, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
+    public function edit( Game $game, $fieldNumber, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
     {
 //        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 //        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
 //            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
 //        }
 
+        $game->setFieldNumber($fieldNumber);
         $game->setStartDateTime($startDateTime);
         $game->setReferee($referee);
         return $this->repos->save($game);

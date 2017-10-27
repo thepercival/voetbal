@@ -21,11 +21,21 @@ class Game
      * @var Poule
      */
     protected $poule;
-    
+
     /**
      * @var int
      */
-    protected $number;
+    protected $roundNumber;
+
+    /**
+     * @var int
+     */
+    protected $subNumber;
+
+    /**
+     * @var int
+     */
+    protected $fieldNumber;
 
     /**
      * @var \DateTimeImmutable
@@ -56,12 +66,14 @@ class Game
     const STATE_INPLAY = 2;
     const STATE_PLAYED = 4;
 
-    public function __construct( Poule $poule, $number, PoulePlace $homePoulePlace, PoulePlace $awayPoulePlace )
+    public function __construct( Poule $poule, PoulePlace $homePoulePlace, PoulePlace $awayPoulePlace, $roundNumber, $subNumber )
     {
         $this->setPoule( $poule );
-        $this->setNumber( $number );
         $this->setHomePoulePlace( $homePoulePlace );
         $this->setAwayPoulePlace( $awayPoulePlace );
+        $this->setRoundNumber( $roundNumber );
+        $this->setSubNumber( $subNumber );
+
     }
 
     /**
@@ -96,20 +108,58 @@ class Game
     /**
      * @return int
      */
-    public function getNumber()
+    public function getRoundNumber()
     {
-        return $this->number;
+        return $this->roundNumber;
     }
 
     /**
-     * @param int $number
+     * @param int $roundNumber
      */
-    public function setNumber( $number )
+    public function setRoundNumber( $roundNumber )
     {
-        if ( !is_int( $number )   ){
-            throw new \InvalidArgumentException( "het wedstrijdnummer heeft een onjuiste waarde", E_ERROR );
+        if ( !is_int( $roundNumber )   ){
+            throw new \InvalidArgumentException( "het speelrondenummer heeft een onjuiste waarde", E_ERROR );
         }
-        $this->number = $number;
+        $this->roundNumber = $roundNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSubNumber()
+    {
+        return $this->subNumber;
+    }
+
+    /**
+     * @param int $subNumber
+     */
+    public function setSubNumber( $subNumber )
+    {
+        if ( !is_int( $subNumber )   ){
+            throw new \InvalidArgumentException( "het speelrondenummer heeft een onjuiste waarde", E_ERROR );
+        }
+        $this->subNumber = $subNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFieldNumber()
+    {
+        return $this->fieldNumber;
+    }
+
+    /**
+     * @param int $fieldNumber
+     */
+    public function setFieldNumber( $fieldNumber )
+    {
+        if ( !is_int( $fieldNumber )   ){
+            throw new \InvalidArgumentException( "het veldnummer heeft een onjuiste waarde", E_ERROR );
+        }
+        $this->fieldNumber = $fieldNumber;
     }
 
     /**
@@ -206,7 +256,7 @@ class Game
     /**
      * @param Referee $referee
      */
-    public function setReferee( Referee $referee )
+    public function setReferee( Referee $referee = null )
     {
 //        if ( $this->referee === null and $referee !== null){
 //            $referee->getGames()->add($this) ;

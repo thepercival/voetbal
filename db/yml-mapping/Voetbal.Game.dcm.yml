@@ -8,11 +8,21 @@ Voetbal\Game:
       generator:
         strategy: AUTO
   fields:
-    number:
+    roundNumber:
       type: smallint
       nullable: false
       unique: false
-      column: number
+      column: roundnumber
+    subNumber:
+      type: smallint
+      nullable: false
+      unique: false
+      column: subnumber
+    fieldNumber:
+      type: smallint
+      nullable: true
+      unique: false
+      column: fieldnumber
     state:
       type: smallint
       nullable: false
@@ -55,3 +65,6 @@ Voetbal\Game:
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE
+  uniqueConstraints:
+    number_u_idx:
+      columns: [ pouleid, roundnumber, subnumber ]

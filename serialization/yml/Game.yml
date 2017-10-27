@@ -6,6 +6,15 @@ Voetbal\Game:
   properties:
     id:
       read_only: true
+    roundNumber:
+      type: int
+      serialized_name: roundNumber
+    subNumber:
+      type: int
+      serialized_name: roundNumber
+    fieldNumber:
+      type: int
+      serialized_name: fieldNumber
     number:
       type: integer
     state:
