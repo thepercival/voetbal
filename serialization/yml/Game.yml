@@ -11,12 +11,11 @@ Voetbal\Game:
       serialized_name: roundNumber
     subNumber:
       type: int
-      serialized_name: roundNumber
-    fieldNumber:
-      type: int
-      serialized_name: fieldNumber
-    number:
-      type: integer
+      serialized_name: subNumber
+    field:
+      type: Voetbal\Field
+    referee:
+      type: Voetbal\Referee
     state:
       type: integer
     startDateTime:

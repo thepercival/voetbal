@@ -1,0 +1,12 @@
+Voetbal\Field:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      read_only: true
+    number:
+      type: integer
+    name:
+      type: string
