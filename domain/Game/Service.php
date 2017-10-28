@@ -14,6 +14,7 @@ use Doctrine\ORM\EntityManager;
 use Voetbal\Poule;
 use Voetbal\Game;
 use Voetbal\Referee;
+use Voetbal\Field;
 
 class Service
 {
@@ -67,19 +68,19 @@ class Service
 
     /**
      * @param Game $game
+     * @param Field $field
      * @param \DateTimeImmutable|null $startDateTime
      * @param Referee|null $referee
      * @return mixed
-     * @throws \Exception
      */
-    public function edit( Game $game, $fieldNumber, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
+    public function edit( Game $game, Field $field, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
     {
 //        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 //        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
 //            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
 //        }
 
-        $game->setFieldNumber($fieldNumber);
+        $game->setField($field);
         $game->setStartDateTime($startDateTime);
         $game->setReferee($referee);
         return $this->repos->save($game);

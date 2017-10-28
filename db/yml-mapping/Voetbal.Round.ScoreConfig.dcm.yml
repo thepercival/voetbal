@@ -21,16 +21,15 @@ Voetbal\Round\ScoreConfig:
       type: smallint
       nullable: false
       unique: false
-  manyToOne:
+  oneToOne:
     round:
       targetEntity: Voetbal\Round
-      inversedBy: scoreConfigs
+      inversedBy: scoreConfig
       joinColumn:
         name: roundid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-  oneToOne:
     parent:
       targetEntity: Voetbal\Round\ScoreConfig
 #      inversedBy: child

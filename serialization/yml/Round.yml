@@ -9,36 +9,14 @@ Voetbal\Round:
       read_only: true
     number:
       type: integer
-    nrofheadtoheadmatches:
-      type: integer
     winnersOrLosers:
       type: integer
       serialized_name: winnersOrLosers
-    qualifyRule:
-      type: integer
-      serialized_name: qualifyRule
-    nrOfMainToWin:
-      type: integer
-      serialized_name: nrOfMainToWin
-    nrOfSubToWin:
-      type: integer
-      serialized_name: nrOfSubToWin
-    winPointsPerGame:
-      type: integer
-      serialized_name: winPointsPerGame
-    winPointsExtraTime:
-      type: integer
-      serialized_name: winPointsExtraTime
-    hasExtraTime:
-      type: integer
-      serialized_name: hasExtraTime
-    nrOfMinutesPerGame:
-      type: integer
-      serialized_name: nrOfMinutesPerGame
-    nrOfMinutesExtraTime:
-      type: integer
-      serialized_name: nrOfMinutesExtraTime
-
+    config:
+      type: Voetbal\Round\Config
+    scoreConfig:
+      type: Voetbal\Round\ScoreConfig
+      serialized_name: scoreConfig
     childRounds:
       type: ArrayCollection<Voetbal\Round>
       serialized_name: childRounds

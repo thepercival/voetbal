@@ -79,7 +79,7 @@ class ScoreConfig
     /**
      * @param string $name
      */
-    protected function setName( $name )
+    public function setName( $name )
     {
         if ( !is_string( $name ) or strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME  ){
             throw new \InvalidArgumentException( "de naam heeft een onjuiste waarde", E_ERROR );
@@ -182,7 +182,6 @@ class ScoreConfig
      */
     public function setRound( Round $round )
     {
-        $round->getScoreConfigs()->add( $this );
         $this->round = $round;
     }
 }

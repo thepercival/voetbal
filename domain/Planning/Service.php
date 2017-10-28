@@ -10,6 +10,7 @@ namespace Voetbal\Planning;
 
 use Voetbal\Game\Service as GameService;
 use Doctrine\ORM\EntityManager;
+use Doctrine\Common\Collections\Criteria;
 use Voetbal\Round;
 
 class Service
@@ -90,51 +91,54 @@ class Service
             }
         }
 
-        $nrOfFields = $round->getCompetitionseason()->getNrOfFields();
-        $referees = $round->getCompetitionseason()->getReferees();
-        $fieldNr = 1;
+        $criteria = Criteria::create()->orderBy(array("number" => Criteria::ASC));
+        $fields = $round->getCompetitionseason()->getFields()->matching($criteria);
 
-        $games = $this->getGamesByRoundGameNumber( $round );
-        foreach ($games as $roundNumber => $gamesPerGameRound) {
-            foreach ($gamesPerGameRound as $subNumber => $game) {
+        $referees = $round->getCompetitionseason()->getReferees();
+        $currentField = $fields->first();
+
+        $games = $this->getGamesByNumber( $round );
+        foreach ($games as $number => $gamesPerNumber) {
+            foreach ($gamesPerNumber as $game) {
 
                 // edit game for ref, time and field
                 $referee = $this->determineReferee();
-                $this->gameService->edit( $game, $fieldNr, $startDateTime, $referee );
+                $this->gameService->edit( $game, $currentField, $startDateTime, $referee );
 
-                if( $roundConfig->getNrOfMinutesPerGame() > 0 ) {
-                    $nrOfMinutes = $roundConfig->getNrOfMinutesPerGame();
-                    if ( $roundConfig->getHasExtraTime() ) {
-                        $nrOfMinutes += $roundConfig->getNrOfMinutesExtraTime();
+                $currentField = $fields->next();
+                if( $currentField === false ) {
+                    $currentField = $fields->first();
+
+                    if( $roundConfig->getNrOfMinutesPerGame() > 0 ) {
+                        $nrOfMinutes = $roundConfig->getNrOfMinutesPerGame();
+                        if ( $roundConfig->getHasExtraTime() ) {
+                            $nrOfMinutes += $roundConfig->getNrOfMinutesExtraTime();
+                        }
+                        $nrOfMinutes += $roundConfig->getNrOfMinutesInBetween();
+                        $startDateTime = $startDateTime->add( new \DateInterval('PT' . $nrOfMinutes . 'M') );
                     }
-                    $nrOfMinutes += $roundConfig->getNrOfMinutesInBetween();
-                    $startDateTime = $startDateTime->add( new \DateInterval('PT' . $nrOfMinutes . 'M') );
                 }
-
-                $fieldNr = ( $fieldNr < $nrOfFields ) ? $fieldNr + 1 : 1;
             }
         }
 
         return $startDateTime;
     }
 
-    protected function getGamesByRoundGameNumber( $round )
+    protected function getGamesByNumber( $round )
     {
         $games = [];
         $poules = $round->getPoules();
         foreach ($poules as $poule) {
+            $number = 1;
             foreach ($poule->getGames() as $game) {
-                if (array_key_exists($game->getRoundNumber(), $games) === false) {
-                    $games[$game->getRoundNumber()] = [];
+                if (array_key_exists($number, $games) === false) {
+                    $games[$number] = [];
                 }
-                $games[$game->getRoundNumber()][$game->getSubNumber()] = $game;
+                $games[$number++][] = $game;
             }
         }
         return $games;
     }
-
-        //die();
-
 
         //$nrOfFields
 

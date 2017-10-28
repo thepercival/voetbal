@@ -43,11 +43,6 @@ class Competitionseason implements External\Importable
     private $sport;
 
     /**
-     * @var int
-     */
-    private $nrOfFields;
-
-    /**
      * @var ArrayCollection
      */
     private $rounds;
@@ -56,6 +51,11 @@ class Competitionseason implements External\Importable
      * @var ArrayCollection
      */
     private $referees;
+
+    /**
+     * @var ArrayCollection
+     */
+    private $fields;
 
     const STATE_CREATED = 1;
     const STATE_PUBLISHED = 2;
@@ -68,9 +68,9 @@ class Competitionseason implements External\Importable
         $this->season = $season;
         $this->association = $association;
         $this->state = static::STATE_CREATED;
-        $this->nrOfFields = 1;
         $this->rounds = new ArrayCollection();
         $this->referees = new ArrayCollection();
+        $this->fields = new ArrayCollection();
     }
 
 	/**
@@ -164,6 +164,22 @@ class Competitionseason implements External\Importable
     }
 
     /**
+     * @return ArrayCollection
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    /**
+     * @param $fields
+     */
+    public function setFields( $fields )
+    {
+        $this->fields = $fields;
+    }
+
+    /**
      * @return Round
      */
     public function getFirstRound()
@@ -190,22 +206,6 @@ class Competitionseason implements External\Importable
     public function setSport( $sport )
     {
         $this->sport = $sport;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNrOfFields()
-    {
-        return $this->nrOfFields;
-    }
-
-    /**
-     * @param int $nrOfFields
-     */
-    public function setNrOfFields( $nrOfFields )
-    {
-        $this->nrOfFields = $nrOfFields;
     }
 
     /**

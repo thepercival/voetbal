@@ -1,0 +1,17 @@
+Voetbal\Round\ScoreConfig:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      read_only: true
+    name:
+      type: string
+    start:
+      type: integer
+    goal:
+      type: integer
+    parent:
+      read_only: true
+      type: Voetbal\ScoreConfig

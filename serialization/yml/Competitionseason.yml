@@ -9,15 +9,14 @@ Voetbal\Competitionseason:
     state:
       read_only: true
       type: integer
-    nrOfFields:
-      type: integer
-      serialized_name: nrOfFields
     competition:
       type: Voetbal\Competition
     season:
       type: Voetbal\Season
     association:
       type: Voetbal\Association
+    fields:
+      type: ArrayCollection<Voetbal\Field>
 #  virtual_properties:
 #    hasStructure:
 #      type: boolean

@@ -33,11 +33,6 @@ class Game
     protected $subNumber;
 
     /**
-     * @var int
-     */
-    protected $fieldNumber;
-
-    /**
      * @var \DateTimeImmutable
      */
     private $startDateTime;
@@ -56,6 +51,11 @@ class Game
      * @var Referee
      */
     protected $referee;
+
+    /**
+     * @var Field
+     */
+    protected $field;
 
     /**
      * @var int
@@ -262,5 +262,24 @@ class Game
 //            $referee->getGames()->add($this) ;
 //        }
         $this->referee = $referee;
+    }
+
+    /**
+     * @return Field
+     */
+    public function getField()
+    {
+        return $this->field;
+    }
+
+    /**
+     * @param Field $field
+     */
+    public function setField( Field $field = null )
+    {
+//        if ( $this->field === null and $field !== null){
+//            $field->getGames()->add($this) ;
+//        }
+        $this->field = $field;
     }
 }

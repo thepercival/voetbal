@@ -18,11 +18,6 @@ Voetbal\Game:
       nullable: false
       unique: false
       column: subnumber
-    fieldNumber:
-      type: smallint
-      nullable: true
-      unique: false
-      column: fieldnumber
     state:
       type: smallint
       nullable: false
@@ -62,6 +57,14 @@ Voetbal\Game:
 #      inversedBy: games
       joinColumn:
         name: refereeid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
+    field:
+      targetEntity: Voetbal\Field
+#      inversedBy: games
+      joinColumn:
+        name: fieldid
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE

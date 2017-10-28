@@ -1,0 +1,31 @@
+Voetbal\Round\Config:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      read_only: true
+    qualifyRule:
+      type: integer
+      serialized_name: qualifyRule
+    nrofheadtoheadmatches:
+      type: integer
+    winPointsPerGame:
+      type: integer
+      serialized_name: winPointsPerGame
+    winPointsExtraTime:
+      type: integer
+      serialized_name: winPointsExtraTime
+    hasExtraTime:
+      type: integer
+      serialized_name: hasExtraTime
+    nrOfMinutesPerGame:
+      type: integer
+      serialized_name: nrOfMinutesPerGame
+    nrOfMinutesExtraTime:
+      type: integer
+      serialized_name: nrOfMinutesExtraTime
+    nrOfMinutesInBetween:
+      type: integer
+      serialized_name: nrOfMinutesInBetween
