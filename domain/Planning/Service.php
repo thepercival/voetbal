@@ -79,7 +79,7 @@ class Service
             foreach ($arrSchedule as $roundNumber => $arrGames) {
                 // var_dump("roundNumber:".$roundNumber);
                 $subNumber = 1;
-                foreach ($arrGames as $subNumberAll => $arrGame) {
+                foreach ($arrGames as $arrGame) {
                     if ($arrGame[0] === null or $arrGame[1] === null) {
                         continue;
                     }
@@ -96,7 +96,7 @@ class Service
 
         $referees = $round->getCompetitionseason()->getReferees();
         $currentField = $fields->first();
-
+        $nextRoundStartDateTime = null;
         $games = $this->getGamesByNumber( $round );
         foreach ($games as $number => $gamesPerNumber) {
             foreach ($gamesPerNumber as $game) {
@@ -116,12 +116,15 @@ class Service
                         }
                         $nrOfMinutes += $roundConfig->getNrOfMinutesInBetween();
                         $startDateTime = $startDateTime->add( new \DateInterval('PT' . $nrOfMinutes . 'M') );
+                        if ( $nextRoundStartDateTime == null or $startDateTime > $nextRoundStartDateTime ) {
+                            $nextRoundStartDateTime = $startDateTime;
+                        }
                     }
                 }
             }
         }
 
-        return $startDateTime;
+        return $nextRoundStartDateTime;
     }
 
     protected function getGamesByNumber( $round )

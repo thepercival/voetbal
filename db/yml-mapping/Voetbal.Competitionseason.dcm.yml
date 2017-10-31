@@ -21,6 +21,10 @@ Voetbal\Competitionseason:
             nullable: true
             length: 30
             unique: false
+        startDateTime:
+            type: datetime_immutable
+            unique: false
+            nullable: false
     oneToMany:
         rounds:
             targetEntity: Voetbal\Round

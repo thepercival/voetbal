@@ -27,6 +27,11 @@ class Competitionseason implements External\Importable
 	 */
 	private $season;
 
+    /**
+     * @var \DateTimeImmutable
+     */
+    private $startDateTime;
+
 	/**
 	 * @var int
 	 */
@@ -121,6 +126,22 @@ class Competitionseason implements External\Importable
     public function setSeason( Season $season )
     {
         $this->season = $season;
+    }
+
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function getStartDateTime()
+    {
+        return $this->startDateTime;
+    }
+
+    /**
+     * @param \DateTimeImmutable $datetime
+     */
+    public function setStartDateTime( \DateTimeImmutable $datetime )
+    {
+        $this->startDateTime = $datetime;
     }
 
     /**

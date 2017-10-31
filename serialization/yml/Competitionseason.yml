@@ -13,6 +13,9 @@ Voetbal\Competitionseason:
       type: Voetbal\Competition
     season:
       type: Voetbal\Season
+    startDateTime:
+      type: DateTimeImmutable
+      serialized_name: startDateTime
     association:
       type: Voetbal\Association
     fields:
