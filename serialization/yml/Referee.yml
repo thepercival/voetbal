@@ -6,7 +6,7 @@ Voetbal\Referee:
   properties:
     id:
       read_only: true
-    stars:
+    number:
       type: integer
     name:
       type: string

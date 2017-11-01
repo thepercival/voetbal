@@ -88,8 +88,8 @@ final class Round
             if ( !is_int($number) or $number < 1 ) {
                 throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
             }
-            $nrofheadtoheadmatches = $round->getNrofheadtoheadmatches();
-            if ( !is_int($nrofheadtoheadmatches) or $nrofheadtoheadmatches < 1 ) {
+            $nrOfHeadtoheadMatches = $round->getNrOfHeadtoheadMatches();
+            if ( !is_int($rOfHeadtoheadMatches) or $rOfHeadtoheadMatches < 1 ) {
                 throw new \Exception("het aantal onderlinge duels moet minimaal 1 zijn", E_ERROR);
             }
 
@@ -105,7 +105,7 @@ final class Round
             $roundRet = $this->service->create(
                 $competitionseason,
                 $number,
-                $nrofheadtoheadmatches,
+                $nrOfHeadtoheadMatches,
                 $round->getPoules()
             );
 

@@ -9,8 +9,9 @@ Voetbal\Round\Config:
     qualifyRule:
       type: integer
       serialized_name: qualifyRule
-    nrofheadtoheadmatches:
+    nrOfHeadtoheadMatches:
       type: integer
+      serialized_name: nrOfHeadtoheadMatches
     winPointsPerGame:
       type: integer
       serialized_name: winPointsPerGame

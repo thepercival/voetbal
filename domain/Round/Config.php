@@ -24,7 +24,7 @@ class Config
     /**
      * @var int
      */
-    protected $nrofheadtoheadmatches;
+    protected $nrOfHeadtoheadMatches;
 
     /**
      * @var int
@@ -68,11 +68,11 @@ class Config
 
     public function __construct(
         Round $round,
-        $qualifyRule, $nrofheadtoheadmatches, $winPointsPerGame, $winPointsExtraTime, $hasExtraTime
+        $qualifyRule, $nrOfHeadtoheadMatches, $winPointsPerGame, $winPointsExtraTime, $hasExtraTime
     )
     {
         $this->setQualifyRule( $qualifyRule );
-        $this->setNrofheadtoheadmatches( $nrofheadtoheadmatches );
+        $this->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
         $this->setWinPointsPerGame( $winPointsPerGame );
         $this->setWinPointsExtraTime( $winPointsExtraTime );
         $this->setHasExtraTime( $hasExtraTime );
@@ -114,20 +114,20 @@ class Config
     /**
      * @return int
      */
-    public function getNrofheadtoheadmatches()
+    public function getNrOfHeadtoheadMatches()
     {
-        return $this->nrofheadtoheadmatches;
+        return $this->nrOfHeadtoheadMatches;
     }
 
     /**
-     * @param int $nrofheadtoheadmatches
+     * @param int $nrOfHeadtoheadMatches
      */
-    public function setNrofheadtoheadmatches($nrofheadtoheadmatches)
+    public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
     {
-        if (!is_int($nrofheadtoheadmatches)) {
+        if (!is_int($nrOfHeadtoheadMatches)) {
             throw new \InvalidArgumentException("het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR);
         }
-        $this->nrofheadtoheadmatches = $nrofheadtoheadmatches;
+        $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
     }
 
     /**

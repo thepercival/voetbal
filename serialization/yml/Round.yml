@@ -2,7 +2,6 @@ Voetbal\Round:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
-  custom_accessor_order: [id, number, nrofheadtoheadmatches, poules, getQualifyRules]
 
   properties:
     id:

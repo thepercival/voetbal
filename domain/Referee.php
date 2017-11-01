@@ -28,7 +28,7 @@ class Referee
     /**
      * @var int
      */
-    protected $stars;
+    protected $number;
 
     /**
      * @var Comopetitionseason
@@ -92,20 +92,20 @@ class Referee
     /**
      * @return int
      */
-    public function getStarts()
+    public function getNumber()
     {
-        return $this->stars;
+        return $this->number;
     }
 
     /**
-     * @param int $stars
+     * @param int $numbers
      */
-    public function setStars( $stars )
+    public function setNumber( $number )
     {
-        if ( !is_int( $stars ) or $stars < 1 or $stars > 3 ){
-            throw new \InvalidArgumentException( "het aansterren heeft een onjuiste waarde", E_ERROR );
+        if ( !is_int( $number ) or $number < 1 or $number > 3 ){
+            throw new \InvalidArgumentException( "het nummer heeft een onjuiste waarde", E_ERROR );
         }
-        $this->stars = $stars;
+        $this->number = $number;
     }
 
     /**
