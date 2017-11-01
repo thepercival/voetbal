@@ -182,6 +182,9 @@ class ScoreConfig
      */
     public function setRound( Round $round )
     {
+        if ( $this->round === null and $round !== null){
+            $round->getScoreConfigs()->add($this) ;
+        }
         $this->round = $round;
     }
 }

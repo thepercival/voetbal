@@ -40,18 +40,19 @@ class Service
      * @return Competition|Competitionseason
      * @throws \Exception
      */
-	public function create( Association $association, Competition $competition, Season $season )
+	public function create( Association $association, Competition $competition, Season $season, \DateTimeImmutable $startDate )
 	{
-		$competition = new Competitionseason( $competition, $season, $association  );
-
 		// check if competitionseason with same competition and season exists
         $sameCompetitionseason = $this->repos->findOneBy( array('competition' => $competition->getId(), 'season' => $season->getId()  ) );
 		if ( $sameCompetitionseason !== null ){
 			throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
 		}
 
+        $competitionseason = new Competitionseason( $competition, $season, $association  );
+        $competitionseason->setStartDateTime( $startDate );
+
         try {
-            return $this->repos->save($competition);
+            return $this->repos->save($competitionseason);
         }
         catch( \Exception $e ){
             throw new \Exception(urlencode($e->getMessage()), E_ERROR );

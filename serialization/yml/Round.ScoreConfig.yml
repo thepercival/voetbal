@@ -14,4 +14,4 @@ Voetbal\Round\ScoreConfig:
       type: integer
     parent:
       read_only: true
-      type: Voetbal\ScoreConfig
+      type: Voetbal\Round\ScoreConfig

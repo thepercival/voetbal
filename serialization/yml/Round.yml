@@ -13,9 +13,6 @@ Voetbal\Round:
       serialized_name: winnersOrLosers
     config:
       type: Voetbal\Round\Config
-    scoreConfig:
-      type: Voetbal\Round\ScoreConfig
-      serialized_name: scoreConfig
     childRounds:
       type: ArrayCollection<Voetbal\Round>
       serialized_name: childRounds
@@ -23,7 +20,10 @@ Voetbal\Round:
 #      type: Voetbal\Competitionseason
     poules:
       type: ArrayCollection<Voetbal\Poule>
-#  virtual_properties:
+  virtual_properties:
+    getScoreConfig:
+        type: Voetbal\Round\ScoreConfig
+        serialized_name: scoreConfig
 #    getQualifyRules:
 #      read_only: true
 #      type: ArrayCollection<Voetbal\QualifyRule>

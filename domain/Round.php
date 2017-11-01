@@ -39,9 +39,9 @@ class Round
     protected $config;
 
     /**
-     * @var Round\ScoreConfig
+     * @var Round\ScoreConfig[] | ArrayCollection
      */
-    protected $scoreConfig;
+    protected $scoreConfigs;
 
     /**
      * @var Competitionseason
@@ -82,6 +82,7 @@ class Round
         $this->setCompetitionseason( $competitionseason );
         $this->poules = new ArrayCollection();
         $this->qualifyRules = new ArrayCollection();
+        $this->scoreConfigs = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
         $this->setParentRound( $parentRound );
         $number = ( $parentRound === null ) ? 1 : ($parentRound->getNumber() + 1);
@@ -201,19 +202,27 @@ class Round
     }
 
     /**
+     * @return Round\ScoreConfig[] | ArrayCollection
+     */
+    public function getScoreConfigs()
+    {
+        return $this->scoreConfigs;
+    }
+
+    /**
+     * @param Round\ScoreConfig[] | ArrayCollection
+     */
+    public function setScoreConfig( $scoreConfigs )
+    {
+        $this->scoreConfigs = $scoreConfigs;
+    }
+
+    /**
      * @return Round\ScoreConfig
      */
     public function getScoreConfig()
     {
-        return $this->scoreConfig;
-    }
-
-    /**
-     * @param Round\ScoreConfig
-     */
-    public function setScoreConfig( Round\ScoreConfig $scoreConfig )
-    {
-        $this->scoreConfig = $scoreConfig;
+        return $this->scoreConfigs[0];
     }
 
     /**
