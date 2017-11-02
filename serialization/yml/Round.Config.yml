@@ -12,9 +12,12 @@ Voetbal\Round\Config:
     nrOfHeadtoheadMatches:
       type: integer
       serialized_name: nrOfHeadtoheadMatches
-    winPointsPerGame:
+    winPoints:
       type: integer
-      serialized_name: winPointsPerGame
+      serialized_name: winPoints
+    drawPoints:
+      type: integer
+      serialized_name: drawPoints
     winPointsExtraTime:
       type: integer
       serialized_name: winPointsExtraTime

@@ -137,7 +137,8 @@ class Service
                 $round,
                 QualifyRule::SOCCERWORLDCUP,
                 Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
-                Round\Config::DEFAULTWINPOINTSPERGAME,
+                Round\Config::DEFAULTWINPOINTS,
+                Round\Config::DEFAULTDRAWPOINTS,
                 Round\Config::DEFAULTWINPOINTSEXTRATIME,
                 $round->getNumber() > 1 ? true : Round\Config::DEFAULTHASEXTRATIME
             );
@@ -150,7 +151,8 @@ class Service
             $round,
             QualifyRule::SOCCERWORLDCUP,
             Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
-            Round\Config::DEFAULTWINPOINTSPERGAME,
+            Round\Config::DEFAULTWINPOINTS,
+            Round\Config::DEFAULTDRAWPOINTS,
             Round\Config::DEFAULTWINPOINTSEXTRATIME,
             Round\Config::DEFAULTHASEXTRATIME
         );

@@ -29,7 +29,12 @@ class Config
     /**
      * @var int
      */
-    private $winPointsPerGame;
+    private $winPoints;
+
+    /**
+     * @var int
+     */
+    private $drawPoints;
 
     /**
      * @var int
@@ -62,18 +67,20 @@ class Config
     private $nrOfMinutesExtraTime;
 
     CONST DEFAULTNROFHEADTOHEADMATCHES = 1;
-    CONST DEFAULTWINPOINTSPERGAME = 3;
+    CONST DEFAULTWINPOINTS = 3;
+    CONST DEFAULTDRAWPOINTS = 1;
     CONST DEFAULTWINPOINTSEXTRATIME = 2;
     CONST DEFAULTHASEXTRATIME = false;
 
     public function __construct(
         Round $round,
-        $qualifyRule, $nrOfHeadtoheadMatches, $winPointsPerGame, $winPointsExtraTime, $hasExtraTime
+        $qualifyRule, $nrOfHeadtoheadMatches, $winPoints, $drawPoints, $winPointsExtraTime, $hasExtraTime
     )
     {
         $this->setQualifyRule( $qualifyRule );
         $this->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
-        $this->setWinPointsPerGame( $winPointsPerGame );
+        $this->setWinPoints( $winPoints );
+        $this->setDrawPoints( $drawPoints );
         $this->setWinPointsExtraTime( $winPointsExtraTime );
         $this->setHasExtraTime( $hasExtraTime );
         $this->setNrOfMinutesPerGame( 0 );
@@ -133,22 +140,41 @@ class Config
     /**
      * @return int
      */
-    public function getWinPointsPerGame()
+    public function getWinPoints()
     {
-        return $this->winPointsPerGame;
+        return $this->winPoints;
     }
 
     /**
-     * @param $winPointsPerGame
+     * @param $winPoints
      */
-    public function setWinPointsPerGame($winPointsPerGame)
+    public function setWinPoints($winPoints)
     {
-        if (!is_int($winPointsPerGame)) {
-            throw new \InvalidArgumentException("het aantal-punten-per-wedstrijd heeft een onjuiste waarde", E_ERROR);
+        if (!is_int($winPoints)) {
+            throw new \InvalidArgumentException("het aantal-punten-per-overwinning heeft een onjuiste waarde", E_ERROR);
         }
-        $this->winPointsPerGame = $winPointsPerGame;
+        $this->winPoints = $winPoints;
     }
 
+    /**
+     * @return int
+     */
+    public function getDrawPoints()
+    {
+        return $this->drawPoints;
+    }
+
+    /**
+     * @param $drawPoints
+     */
+    public function setDrawPoints($drawPoints)
+    {
+        if (!is_int($drawPoints)) {
+            throw new \InvalidArgumentException("het aantal-punten-per-gelijkspel heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->drawPoints = $drawPoints;
+    }
+    
     /**
      * @return int
      */
