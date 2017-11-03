@@ -20,32 +20,36 @@ Voetbal\Round\Config:
     winPoints:
       type: smallint
       nullable: false
-      default: !php/const:Voetbal\Round\Config::DEFAULTWINPOINTS
       unique: false
     drawPoints:
       type: smallint
       nullable: false
-      default: !php/const:Voetbal\Round\Config::DEFAULTDRAWPOINTS
       unique: false
-    hasExtraTime:
+    hasExtension:
       type: boolean
       nullable: false
-      default: !php/const:Voetbal\Round\Config::DEFAULTHASEXTRATIME
       unique: false
-    winPointsExtraTime:
+    winPointsExt:
       type: smallint
       nullable: false
-      default: !php/const:Voetbal\Round\Config::DEFAULTWINPOINTSEXTRATIME
       unique: false
-    nrOfMinutesPerGame:
+    drawPointsExt:
       type: smallint
-      nullable: true
+      nullable: false
       unique: false
-    nrOfMinutesExtraTime:
+    minutesPerGameExt:
       type: smallint
-      nullable: true
+      nullable: false
       unique: false
-    nrOfMinutesInBetween:
+    enableTime:
+      type: smallint
+      nullable: false
+      unique: false
+    minutesPerGame:
+      type: smallint
+      nullable: false
+      unique: false
+    minutesInBetween:
       type: smallint
       nullable: true
       unique: false

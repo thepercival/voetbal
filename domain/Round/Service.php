@@ -88,11 +88,6 @@ class Service
             $round->setWinnersOrLosers( Round::WINNERS );
             $this->repos->save($round);
 
-            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
-            $this->roundConfigRepos->save( $roundConfig );
-            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
-            $this->roundScoreConfigRepos->save( $roundScoreConfig );
-
             if ( $poules === null or $poules->count() === 0 ) {
                 $arrRoundStructure = $this->getDefaultRoundStructure( $round->getNumber(), $nrOfPlaces );
                 $this->createDefaultPoules( $round, $arrRoundStructure['nrofpoules'], $nrOfPlaces );
@@ -105,6 +100,11 @@ class Service
                     $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces(), null );
                 }
             }
+
+            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
+            $this->roundConfigRepos->save( $roundConfig );
+            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
+            $this->roundScoreConfigRepos->save( $roundScoreConfig );
 
             $this->em->getConnection()->commit();
         } catch ( \Exception $e) {

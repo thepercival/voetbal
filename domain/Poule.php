@@ -158,4 +158,12 @@ class Poule
     {
         $this->games = $games;
     }
+
+    /**
+     * @return bool
+     */
+    public function needsRanking()
+    {
+        return ($this->getPlaces()->count() > 2);
+    }
 }

@@ -30,10 +30,10 @@ class Service
         // NrOfMainToWin
         // NrOfSubToWin
         //winPointsPerGame:
-        //winPointsExtraTime:
-        //hasExtraTime:
-        //nrOfMinutesPerGame:
-        //nrOfMinutesExtraTime:
+        //winPointsExt:
+        //hasExtension:
+        //minutesPerGame:
+        //minutesExt:
 
         return $this->roundService->create( $competitionseason, null, null, $nrOfCompetitors );
     }

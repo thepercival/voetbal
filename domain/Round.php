@@ -293,6 +293,15 @@ class Round
         return $poulePlacesPerNumber;
     }
 
+    public function needsRanking() {
+        foreach( $this->getPoules() as $pouleIt ) {
+            if( $pouleIt->needsRanking() ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * rules to qualify for this round
      *

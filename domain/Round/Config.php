@@ -36,56 +36,71 @@ class Config
      */
     private $drawPoints;
 
+   /**
+     * @var boolean
+     */
+    private $hasExtension;
+
     /**
      * @var int
      */
-    private $winPointsExtraTime;
+    private $winPointsExt;
+
+    /**
+     * @var int
+     */
+    private $drawPointsExt;
+
+    /**
+     * @var int
+     */
+    private $minutesPerGameExt;
 
     /**
      * @var boolean
      */
-    private $hasExtraTime;
+    private $enableTime;
 
     /**
      * @var int
      */
-    private $nrOfMinutesPerGame;
+    private $minutesPerGame;
 
     /**
      * @var int
      */
-    private $nrOfMinutesInBetween;
+    private $minutesInBetween;
 
     /**
      * @var Round
      */
     protected $round;
 
-    /**
-     * @var int
-     */
-    private $nrOfMinutesExtraTime;
-
     CONST DEFAULTNROFHEADTOHEADMATCHES = 1;
     CONST DEFAULTWINPOINTS = 3;
     CONST DEFAULTDRAWPOINTS = 1;
-    CONST DEFAULTWINPOINTSEXTRATIME = 2;
-    CONST DEFAULTHASEXTRATIME = false;
+    CONST DEFAULTHASEXTENSION = false;
+    CONST DEFAULTENABLETIME = false;
 
     public function __construct(
         Round $round,
-        $qualifyRule, $nrOfHeadtoheadMatches, $winPoints, $drawPoints, $winPointsExtraTime, $hasExtraTime
+        $qualifyRule = QualifyRule::SOCCERWORLDCUP,
+        $nrOfHeadtoheadMatches = Config::DEFAULTNROFHEADTOHEADMATCHES,
+        $winPoints = Config::DEFAULTWINPOINTS,
+        $drawPoints = Config::DEFAULTDRAWPOINTS
     )
     {
         $this->setQualifyRule( $qualifyRule );
         $this->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
         $this->setWinPoints( $winPoints );
         $this->setDrawPoints( $drawPoints );
-        $this->setWinPointsExtraTime( $winPointsExtraTime );
-        $this->setHasExtraTime( $hasExtraTime );
-        $this->setNrOfMinutesPerGame( 0 );
-        $this->setNrOfMinutesExtraTime( 0 );
-        $this->setNrOfMinutesInBetween( 0 );
+        $this->setHasExtension( static::DEFAULTHASEXTENSION );
+        $this->setWinPointsExt( $this->getWinPoints() - 1 );
+        $this->setDrawPointsExt( $this->getDrawPoints() );
+        $this->setMinutesPerGameExt( 0 );
+        $this->setEnableTime( static::DEFAULTENABLETIME );
+        $this->setMinutesPerGame( 0 );
+        $this->setMinutesInBetween( 0 );
         $this->setRound( $round );
     }
 
@@ -174,103 +189,140 @@ class Config
         }
         $this->drawPoints = $drawPoints;
     }
+
+    /**
+     * @return boolean
+     */
+    public function getHasExtension()
+    {
+        return $this->hasExtension;
+    }
+
+    /**
+     * @param $hasExtension
+     */
+    public function setHasExtension($hasExtension)
+    {
+        if (!is_bool($hasExtension)) {
+            throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+
+        $this->hasExtension = $hasExtension;
+    }
     
     /**
      * @return int
      */
-    public function getWinPointsExtraTime()
+    public function getWinPointsExt()
     {
-        return $this->winPointsExtraTime;
+        return $this->winPointsExt;
     }
 
     /**
-     * @param $winPointsExtraTime
+     * @param $winPointsExt
      */
-    public function setWinPointsExtraTime($winPointsExtraTime)
+    public function setWinPointsExt($winPointsExt)
     {
-        if (!is_int($winPointsExtraTime)) {
+        if (!is_int($winPointsExt)) {
             throw new \InvalidArgumentException("het aantal-punten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
         }
-        $this->winPointsExtraTime = $winPointsExtraTime;
+        $this->winPointsExt = $winPointsExt;
+    }
+
+    /**
+     * @return int
+     */
+    public function getDrawPointsExt()
+    {
+        return $this->drawPointsExt;
+    }
+
+    /**
+     * @param $drawPointsExt
+     */
+    public function setDrawPointsExt($drawPointsExt)
+    {
+        if (!is_int($drawPointsExt)) {
+            throw new \InvalidArgumentException("het aantal-punten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->drawPointsExt = $drawPointsExt;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinutesPerGameExt()
+    {
+        return $this->minutesPerGameExt;
+    }
+
+    /**
+     * @param $minutesPerGameExt
+     */
+    public function setMinutesPerGameExt($minutesPerGameExt)
+    {
+        if ($minutesPerGameExt !== null and !is_int($minutesPerGameExt)) {
+            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesPerGameExt = $minutesPerGameExt;
     }
 
     /**
      * @return boolean
      */
-    public function getHasExtraTime()
+    public function getEnableTime()
     {
-        return $this->hasExtraTime;
+        return $this->enableTime;
     }
 
     /**
-     * @param $hasExtraTime
+     * @param $enableTime
      */
-    public function setHasExtraTime($hasExtraTime)
+    public function setEnableTime($enableTime)
     {
-        if (!is_bool($hasExtraTime)) {
+        if (!is_bool($enableTime)) {
             throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
         }
-        $this->hasExtraTime = $hasExtraTime;
+        $this->enableTime = $enableTime;
     }
 
     /**
      * @return int
      */
-    public function getNrOfMinutesPerGame()
+    public function getMinutesPerGame()
     {
-        return $this->nrOfMinutesPerGame;
+        return $this->minutesPerGame;
     }
 
     /**
-     * @param $nrOfMinutesPerGame
+     * @param $minutesPerGame
      */
-    public function setNrOfMinutesPerGame($nrOfMinutesPerGame)
+    public function setMinutesPerGame($minutesPerGame)
     {
-        if ($nrOfMinutesPerGame !== null and !is_int($nrOfMinutesPerGame)) {
+        if ($minutesPerGame !== null and !is_int($minutesPerGame)) {
             throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd heeft een onjuiste waarde", E_ERROR);
         }
-        $this->nrOfMinutesPerGame = $nrOfMinutesPerGame;
+        $this->minutesPerGame = $minutesPerGame;
     }
 
     /**
      * @return int
      */
-    public function getNrOfMinutesExtraTime()
+    public function getMinutesInBetween()
     {
-        return $this->nrOfMinutesExtraTime;
+        return $this->minutesInBetween;
     }
 
     /**
-     * @param $nrOfMinutesExtraTime
+     * @param $minutesInBetween
      */
-    public function setNrOfMinutesExtraTime($nrOfMinutesExtraTime)
+    public function setMinutesInBetween($minutesInBetween)
     {
-        if ($nrOfMinutesExtraTime !== null and !is_int($nrOfMinutesExtraTime)) {
-            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
-        }
-        $this->nrOfMinutesExtraTime = $nrOfMinutesExtraTime;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNrOfMinutesInBetween()
-    {
-        return $this->nrOfMinutesInBetween;
-    }
-
-    /**
-     * @param $nrOfMinutesInBetween
-     */
-    public function setNrOfMinutesInBetween($nrOfMinutesInBetween)
-    {
-        if ($nrOfMinutesInBetween !== null and !is_int($nrOfMinutesInBetween)) {
+        if ($minutesInBetween !== null and !is_int($minutesInBetween)) {
             throw new \InvalidArgumentException("het aantal-minuten-tussendoor heeft een onjuiste waarde", E_ERROR);
         }
-        $this->nrOfMinutesInBetween = $nrOfMinutesInBetween;
+        $this->minutesInBetween = $minutesInBetween;
     }
-
-
 
     /**
      * @return Round

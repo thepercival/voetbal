@@ -60,7 +60,7 @@ class Service
     {
         $roundConfig = $round->getConfig();
 
-        if ($roundConfig->getNrOfMinutesPerGame() === 0) {
+        if ($roundConfig->getMinutesPerGame() === 0) {
             $startDateTime = null;
         }
 
@@ -109,12 +109,12 @@ class Service
                 if( $currentField === false ) {
                     $currentField = $fields->first();
 
-                    if( $roundConfig->getNrOfMinutesPerGame() > 0 ) {
-                        $nrOfMinutes = $roundConfig->getNrOfMinutesPerGame();
-                        if ( $roundConfig->getHasExtraTime() ) {
-                            $nrOfMinutes += $roundConfig->getNrOfMinutesExtraTime();
+                    if( $roundConfig->getMinutesPerGame() > 0 ) {
+                        $nrOfMinutes = $roundConfig->getMinutesPerGame();
+                        if ( $roundConfig->getHasExtension() ) {
+                            $nrOfMinutes += $roundConfig->getMinutesExt();
                         }
-                        $nrOfMinutes += $roundConfig->getNrOfMinutesInBetween();
+                        $nrOfMinutes += $roundConfig->getMinutesInBetween();
                         $startDateTime = $startDateTime->add( new \DateInterval('PT' . $nrOfMinutes . 'M') );
                         if ( $nextRoundStartDateTime == null or $startDateTime > $nextRoundStartDateTime ) {
                             $nextRoundStartDateTime = $startDateTime;

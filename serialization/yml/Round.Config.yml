@@ -18,18 +18,24 @@ Voetbal\Round\Config:
     drawPoints:
       type: integer
       serialized_name: drawPoints
-    winPointsExtraTime:
+    hasExtension:
       type: integer
-      serialized_name: winPointsExtraTime
-    hasExtraTime:
+      serialized_name: hasExtension
+    winPointsExt:
       type: integer
-      serialized_name: hasExtraTime
-    nrOfMinutesPerGame:
+      serialized_name: winPointsExt
+    drawPointsExt:
       type: integer
-      serialized_name: nrOfMinutesPerGame
-    nrOfMinutesExtraTime:
+      serialized_name: drawPointsExt
+    minutesPerGameExt:
       type: integer
-      serialized_name: nrOfMinutesExtraTime
-    nrOfMinutesInBetween:
+      serialized_name: minutesPerGameExt
+    minutesPerGame:
       type: integer
-      serialized_name: nrOfMinutesInBetween
+      serialized_name: minutesPerGame
+    enableTime:
+      type: integer
+      serialized_name: enableTime
+    minutesInBetween:
+      type: integer
+      serialized_name: minutesInBetween

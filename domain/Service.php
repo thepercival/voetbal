@@ -112,50 +112,15 @@ class Service
 
     public static function getDefaultRoundConfig( Round $round ) {
         $sportName = $round->getCompetitionseason()->getSport();
-        if ( $sportName === 'darten' ) {
-            return new Round\Config(
-                $round,
-                QualifyRule::SOCCERWORLDCUP,
-                Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
-                2, /* winPointsPerGame */
-                2, /* winPointsExtraTime */
-                Round\Config::DEFAULTHASEXTRATIME
-            );
+        $roundConfig = new Round\Config( $round );
+        if ( $sportName === 'voetbal' ) {
+            $roundConfig->setEnableTime( true );
+            $roundConfig->setMinutesPerGame( 20 );
+            $roundConfig->setHasExtension( !$round->needsRanking() );
+            $roundConfig->setMinutesPerGameExt( 5 );
+            $roundConfig->setMinutesInBetween( 5 );
         }
-        else if ( $sportName === 'tafeltennis' ) {
-            return new Round\Config(
-                $round,
-                QualifyRule::SOCCERWORLDCUP,
-                Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
-                2, /* winPointsPerGame */
-                2, /* winPointsExtraTime */
-                Round\Config::DEFAULTHASEXTRATIME
-            );
-        }
-        else if ( $sportName === 'voetbal' ) {
-            $roundConfig = new Round\Config(
-                $round,
-                QualifyRule::SOCCERWORLDCUP,
-                Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
-                Round\Config::DEFAULTWINPOINTS,
-                Round\Config::DEFAULTDRAWPOINTS,
-                Round\Config::DEFAULTWINPOINTSEXTRATIME,
-                $round->getNumber() > 1 ? true : Round\Config::DEFAULTHASEXTRATIME
-            );
-            $roundConfig->setNrOfMinutesPerGame( 20 );
-            $roundConfig->setNrOfMinutesExtraTime( 5 );
-            $roundConfig->setNrOfMinutesInBetween( 5 );
-            return $roundConfig;
-        }
-        return new Round\Config(
-            $round,
-            QualifyRule::SOCCERWORLDCUP,
-            Round\Config::DEFAULTNROFHEADTOHEADMATCHES,
-            Round\Config::DEFAULTWINPOINTS,
-            Round\Config::DEFAULTDRAWPOINTS,
-            Round\Config::DEFAULTWINPOINTSEXTRATIME,
-            Round\Config::DEFAULTHASEXTRATIME
-        );
+        return $roundConfig;
     }
 
     public static function getDefaultRoundScoreConfig( Round $round ) {
