@@ -8,9 +8,9 @@ Voetbal\Round\ScoreConfig:
       read_only: true
     name:
       type: string
-    start:
+    direction:
       type: integer
-    goal:
+    maximum:
       type: integer
     parent:
       read_only: true

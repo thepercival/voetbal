@@ -13,11 +13,11 @@ Voetbal\Round\ScoreConfig:
       nullable: false
       length: !php/const:Voetbal\Round\ScoreConfig::MAX_LENGTH_NAME
       unique: false
-    start:
+    direction:
       type: smallint
       nullable: false
       unique: false
-    goal:
+    maximum:
       type: smallint
       nullable: false
       unique: false

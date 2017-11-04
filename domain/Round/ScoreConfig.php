@@ -24,12 +24,12 @@ class ScoreConfig
     /**
      * @var int
      */
-    protected $start;
+    protected $direction;
 
     /**
      * @var int
      */
-    protected $goal;
+    protected $maximum;
 
     /**
      * @var ScoreConfig
@@ -49,12 +49,15 @@ class ScoreConfig
     const MIN_LENGTH_NAME = 3;
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Round $round, $name, $start, $goal, ScoreConfig $parent = null )
+    const UPWARDS = 1;
+    const DOWNWARDS = 2;
+
+    public function __construct( Round $round, $name, $direction, $maximum, ScoreConfig $parent = null )
     {
         $this->setRound( $round );
         $this->setName( $name );
-        $this->setStart( $start );
-        $this->setGoal( $goal );
+        $this->setDirection( $direction );
+        $this->setMaximum( $maximum );
         $this->setParent( $parent );
     }
 
@@ -90,39 +93,39 @@ class ScoreConfig
     /**
      * @return int
      */
-    public function getStart()
+    public function getDirection()
     {
-        return $this->start;
+        return $this->direction;
     }
 
     /**
-     * @param int $start
+     * @param int $direction
      */
-    public function setStart( $start )
+    public function setDirection( $direction )
     {
-        if ( $start !== null and !is_int( $start ) ){
-            throw new \InvalidArgumentException( "het start-aantal heeft een onjuiste waarde", E_ERROR );
+        if ( $direction !== ScoreConfig::UPWARDS and $direction !== ScoreConfig::DOWNWARDS ) {
+            throw new \InvalidArgumentException( "de richting heeft een onjuiste waarde", E_ERROR );
         }
-        $this->start = $start;
+        $this->direction = $direction;
     }
 
     /**
      * @return int
      */
-    public function getGoal()
+    public function getMaximum()
     {
-        return $this->goal;
+        return $this->maximum;
     }
 
     /**
-     * @param int $goal
+     * @param int $maximum
      */
-    public function setGoal( $goal )
+    public function setMaximum( $maximum )
     {
-        if ( $goal !== null and !is_int( $goal ) ){
-            throw new \InvalidArgumentException( "het doel-aantal heeft een onjuiste waarde", E_ERROR );
+        if ( $maximum !== null and !is_int( $maximum ) ){
+            throw new \InvalidArgumentException( "het maximum heeft een onjuiste waarde", E_ERROR );
         }
-        $this->goal = $goal;
+        $this->maximum = $maximum;
     }
 
     /**

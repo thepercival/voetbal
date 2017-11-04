@@ -126,20 +126,20 @@ class Service
     public static function getDefaultRoundScoreConfig( Round $round ) {
         $sportName = $round->getCompetitionseason()->getSport();
         if ( $sportName === 'darten' ) {
-            return new Round\ScoreConfig( $round, 'punten', 501, 0,
-                new Round\ScoreConfig( $round, 'legs', 0, 2,
-                    new Round\ScoreConfig( $round, 'sets', 0, 0)
+            return new Round\ScoreConfig( $round, 'punten', Round\ScoreConfig::DOWNWARDS, 501,
+                new Round\ScoreConfig( $round, 'legs', Round\ScoreConfig::UPWARDS, 2,
+                    new Round\ScoreConfig( $round, 'sets', Round\ScoreConfig::UPWARDS, 0)
                 )
             );
         }
         else if ( $sportName === 'tafeltennis' ) {
-            return new Round\ScoreConfig( $round, 'punten', 0, 21,
-                new Round\ScoreConfig( $round, 'sets', 0, 0)
+            return new Round\ScoreConfig( $round, 'punten', Round\ScoreConfig::UPWARDS, 21,
+                new Round\ScoreConfig( $round, 'sets', Round\ScoreConfig::UPWARDS, 0)
             );
         }
         else if ( $sportName === 'voetbal' ) {
-            return new Round\ScoreConfig( $round, 'goals', 0, 0 );
+            return new Round\ScoreConfig( $round, 'goals', Round\ScoreConfig::UPWARDS, 0 );
         }
-        return new Round\ScoreConfig( $round, "punten", 0, 0 );
+        return new Round\ScoreConfig( $round, "punten", Round\ScoreConfig::UPWARDS, 0 );
     }
 }
