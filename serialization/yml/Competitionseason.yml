@@ -13,6 +13,8 @@ Voetbal\Competitionseason:
       type: Voetbal\Competition
     season:
       type: Voetbal\Season
+    sport:
+      type: string
     startDateTime:
       type: DateTimeImmutable
       serialized_name: startDateTime
