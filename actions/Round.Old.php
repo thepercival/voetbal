@@ -16,7 +16,7 @@ use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-final class Round
+final class Old
 {
     /**
      * @var RoundService
@@ -89,7 +89,7 @@ final class Round
                 throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
             }
             $nrOfHeadtoheadMatches = $round->getNrOfHeadtoheadMatches();
-            if ( !is_int($rOfHeadtoheadMatches) or $rOfHeadtoheadMatches < 1 ) {
+            if ( !is_int($nrOfHeadtoheadMatches) or $nrOfHeadtoheadMatches < 1 ) {
                 throw new \Exception("het aantal onderlinge duels moet minimaal 1 zijn", E_ERROR);
             }
 

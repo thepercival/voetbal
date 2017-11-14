@@ -112,7 +112,7 @@ class Service
                     if( $roundConfig->getMinutesPerGame() > 0 ) {
                         $nrOfMinutes = $roundConfig->getMinutesPerGame();
                         if ( $roundConfig->getHasExtension() ) {
-                            $nrOfMinutes += $roundConfig->getMinutesExt();
+                            $nrOfMinutes += $roundConfig->getMinutesPerGameExt();
                         }
                         $nrOfMinutes += $roundConfig->getMinutesInBetween();
                         $startDateTime = $startDateTime->add( new \DateInterval('PT' . $nrOfMinutes . 'M') );

@@ -99,17 +99,17 @@ class Handler
                 $serializer
             );
         }
-        elseif ( $resourceType === 'rounds' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Round::class);
-            $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
-            $service = $voetbalservice->getService(Voetbal\Round::class);
-            $action = new Voetbal\Action\Round(
-                $service,
-                $repos,
-                $competitionseasonRepos,
-                $serializer
-            );
-        }
+//        elseif ( $resourceType === 'rounds' ){
+//            $repos = $voetbalservice->getRepository(Voetbal\Round::class);
+//            $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+//            $service = $voetbalservice->getService(Voetbal\Round::class);
+//            $action = new Voetbal\Action\Old(
+//                $service,
+//                $repos,
+//                $competitionseasonRepos,
+//                $serializer
+//            );
+//        }
         elseif ( $resourceType === 'games' ){
             $repos = $voetbalservice->getRepository(Voetbal\Game::class);
             $service = new Voetbal\Game\Service($repos);
