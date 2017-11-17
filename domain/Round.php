@@ -267,7 +267,7 @@ class Round
      */
     public function setParentRound( Round $round = null )
     {
-        if( $round !== null ) {
+        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
             $round->getChildRounds()->add( $this );
         }
         $this->parentRound = $round;

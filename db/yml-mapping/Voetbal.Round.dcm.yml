@@ -18,7 +18,7 @@ Voetbal\Round:
       nullable: false
       unique: false
     winnersOrLosers:
-      type: boolean
+      type: smallint
       nullable: true
       unique: false
   oneToOne:
