@@ -71,7 +71,7 @@ class PoulePlace
      */
     public function setPoule( Poule $poule )
     {
-        if ( $this->poule === null and $poule !== null){
+        if ( $this->poule === null and $poule !== null and !$poule->getPlaces()->contains( $this ) ){
             $poule->getPlaces()->add($this) ;
         }
         $this->poule = $poule;

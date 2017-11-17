@@ -76,35 +76,39 @@ class Service
         $this->em = $em;
     }
 
-    public function create( Competitionseason $competitionseason, Round $parentRound = null, $poules = null, $nrOfPlaces = null )
+    public function createFromJSON( Round $p_round, Competitionseason $competitionseason, Round $p_parentRound = null )
     {
-        // controles
-        // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
+        $number = $p_round->getNumber();
+        if ( !is_int($number) or $number < 1 ) {
+            throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
+        }
+        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
+        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
+            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
+        }
+
+
+
+        //var_dump( $competitionseason->getId() );
+        $this->repos->onPostSerialize( $p_round, $competitionseason, $p_parentRound );
+        //var_dump($competitionseason->getRounds()->count());
 
         $round = null;
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         try {
-            $round = new Round( $competitionseason, $parentRound );
-            $round->setWinnersOrLosers( Round::WINNERS );
-            $this->repos->save($round);
+            //var_dump( $p_round->getCompetitionseason()->getId() );
+            $round = $this->repos->save( $p_round );
 
-            if ( $poules === null or $poules->count() === 0 ) {
-                $arrRoundStructure = $this->getDefaultRoundStructure( $round->getNumber(), $nrOfPlaces );
-                $this->createDefaultPoules( $round, $arrRoundStructure['nrofpoules'], $nrOfPlaces );
-                if( $arrRoundStructure['nrofwinners'] > 0 ) {
-                    $this->create( $competitionseason, $round, null, $arrRoundStructure['nrofwinners'] );
-                }
-            }
-            else {
-                foreach( $poules as $pouleIt ){
-                    $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces(), null );
-                }
-            }
-
-            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
-            $this->roundConfigRepos->save( $roundConfig );
-            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
-            $this->roundScoreConfigRepos->save( $roundScoreConfig );
+//            foreach( $p_round->getChildRounds() as $childRound ) {
+//                $this->createFromJSON( $childRound, $p_round, $competitionseason );
+//
+//                var_dump( $childRound->getCompetitionseason()->getId() );
+//            }
+            //die();
+//            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
+//            $this->roundConfigRepos->save( $roundConfig );
+//            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
+//            $this->roundScoreConfigRepos->save( $roundScoreConfig );
 
             $this->em->getConnection()->commit();
         } catch ( \Exception $e) {
@@ -115,25 +119,7 @@ class Service
         return ( $round );
     }
 
-//    public function createDefaultPoules( $round, $nrOfPoules, $nrOfPlaces )
-//    {
-//        $poules = array();
-//        $nrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule( $nrOfPlaces, $nrOfPoules );
-//        $pouleNr = 1;
-//        while( $nrOfPlaces > 0 ){
-//            $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
-//            $poules[] = $this->pouleService->create( $round, $pouleNr++, null, $nrOfPlacesToAdd );
-//            $nrOfPlaces -= $nrOfPlacesPerPoule;
-//        }
-//
-//        return $poules;
-//    }
-//
-//    public function getNrOfPlacesPerPoule( $nrOfPlaces, $nrOfPoules )
-//    {
-//        $nrOfPlaceLeft = ( $nrOfPlaces % $nrOfPoules );
-//        return ( $nrOfPlaces + $nrOfPlaceLeft ) / $nrOfPoules;
-//    }
+
 
 
 //    /**

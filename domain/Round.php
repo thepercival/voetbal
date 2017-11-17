@@ -39,6 +39,11 @@ class Round
     protected $config;
 
     /**
+     * @var Round\ScoreConfig
+     */
+    protected $scoreConfig;
+
+    /**
      * @var Round\ScoreConfig[] | ArrayCollection
      */
     protected $scoreConfigs;
@@ -112,9 +117,9 @@ class Round
      */
     public function setCompetitionseason( Competitionseason $competitionseason )
     {
-        //if ( $this->competitionseason === null and $competitionseason !== null){
-         //   $competitionseason->getRounds()->add($this) ;
-        //}
+//        if ( $this->competitionseason === null and $competitionseason !== null and !$competitionseason->getRounds()->contains( $this )){
+//            $competitionseason->getRounds()->add($this) ;
+//        }
         $this->competitionseason = $competitionseason;
     }
 
@@ -206,15 +211,10 @@ class Round
      */
     public function getScoreConfigs()
     {
+        if( $this->scoreConfigs === null ) {
+            $this->scoreConfigs = new ArrayCollection();
+        }
         return $this->scoreConfigs;
-    }
-
-    /**
-     * @param Round\ScoreConfig[] | ArrayCollection
-     */
-    public function setScoreConfig( $scoreConfigs )
-    {
-        $this->scoreConfigs = $scoreConfigs;
     }
 
     /**
@@ -222,7 +222,20 @@ class Round
      */
     public function getScoreConfig()
     {
-        return $this->scoreConfigs[0];
+        return $this->scoreConfigs->first();
+    }
+
+    /**
+     * @param ScoreConfig $scoreConfig
+     */
+    public function setScoreConfig( ScoreConfig $scoreConfig )
+    {
+        $this->getScoreConfigs()->clear();
+        $this->getScoreConfigs()->add( $scoreConfig );
+        while( $scoreConfig->getParent() !== null ) {
+            $this->getScoreConfigs()->add( $scoreConfig->getParent() );
+            $scoreConfig = $scoreConfig->getParent();
+        }
     }
 
     /**
@@ -277,7 +290,21 @@ class Round
     }
 
     /**
-     * @return [][PoulePlace[]
+     * @return PoulePlace[] | ArrayCollection
+     */
+    public function getPoulePlaces()
+    {
+        $poulePlaces = new ArrayCollection();
+        foreach( $this->getPoules() as $poule ) {
+            foreach( $poule->getPlaces() as $place ) {
+                $poulePlaces->add( $place );
+            }
+        }
+        return $poulePlaces;
+    }
+
+    /**
+     * @return []PoulePlace[]
      */
     public function getPoulePlacesPerNumber()
     {

@@ -20,10 +20,14 @@ Voetbal\Round:
 #      type: Voetbal\Competitionseason
     poules:
       type: ArrayCollection<Voetbal\Poule>
-  virtual_properties:
-    getScoreConfig:
+#    scoreConfigs:
+#      type: ArrayCollection<Voetbal\Round\ScoreConfig>
+#      serialized_name: scoreConfigs
+#  virtual_properties:
+    scoreConfig:
         type: Voetbal\Round\ScoreConfig
         serialized_name: scoreConfig
+#        access_type: public_method
 #    getQualifyRules:
 #      read_only: true
 #      type: ArrayCollection<Voetbal\QualifyRule>

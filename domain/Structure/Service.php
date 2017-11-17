@@ -9,7 +9,9 @@
 namespace Voetbal\Structure;
 
 use Voetbal\Round;
+use Voetbal\Competitionseason;
 use Voetbal\Round\Service as RoundService;
+use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Game\Service as GameService;
 
 class Service
@@ -19,39 +21,51 @@ class Service
      */
     protected $roundService;
 
-    public function __construct( /*RoundService $roundService */)
+    /**
+     * @var RoundRepository
+     */
+    protected $roundRepository;
+
+    public function __construct( RoundService $roundService, RoundRepository $roundRepository )
     {
-       //$this->roundService = $roundService;
+        $this->roundService = $roundService;
+        $this->roundRepository = $roundRepository;
     }
 
     public function createFromJSON( Round $p_round, Competitionseason $competitionseason )
     {
-        // controles
-        // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
+        $number = $p_round->getNumber();
+        if ( $number !== 1 ) {
+            throw new \Exception("het eerste rondenummer moet 1 zijn", E_ERROR);
+        }
+
+        if( count( $this->roundRepository->findBy( array( "competitionseason" => $competitionseason ) ) ) > 0 ) {
+            throw new \Exception("er bestaat al een structuur", E_ERROR);
+        };
 
         $round = null;
-        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
-        try {
+        //$this->em->getConnection()->beginTransaction(); // suspend auto-commit
+      //  try {
 //            $round = new Round( $competitionseason, null );
 //            $round->setWinnersOrLosers( Round::WINNERS );
-//            $this->repos->save($round);
+                $round = $this->roundService->createFromJSON( $p_round, $competitionseason );
 //            $poules = $p_round->getPoules();
 //            foreach( $poules as $pouleIt ){
 //                $this->pouleService->create($round, $pouleIt->getNumber(), $pouleIt->getPlaces(), null );
 //            }
-//
-////            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
-////            $this->roundConfigRepos->save( $roundConfig );
-////            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
-////            $this->roundScoreConfigRepos->save( $roundScoreConfig );
 
-            $this->em->getConnection()->commit();
-        } catch ( \Exception $e) {
-            $this->em->getConnection()->rollBack();
-            throw $e;
-        }
+//            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
+//            $this->roundConfigRepos->save( $roundConfig );
+//            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
+//            $this->roundScoreConfigRepos->save( $roundScoreConfig );
 
-        return ( $round );
+            //$this->em->getConnection()->commit();
+       // } catch ( \Exception $e) {
+          //  $this->em->getConnection()->rollBack();
+       //     throw $e;
+      //  }
+
+        return $round;
     }
 
 

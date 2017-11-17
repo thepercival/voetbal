@@ -116,13 +116,13 @@ class Handler
             $action = new Voetbal\Action\Game($service, $repos, $serializer);
         }
         elseif ( $resourceType === 'structures' ){
-             $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
-             $roundRepos = $voetbalservice->getRepository(Voetbal\Round::class);
+            $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+            $roundRepos = $voetbalservice->getRepository(Voetbal\Round::class);
 //            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
 //            $pouleplaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
 //            $teamRepos = $voetbalservice->getRepository(Voetbal\Team::class);
             $service = new Voetbal\Structure\Service(
-                /* $voetbalservice->getService(Voetbal\Round::class); */
+                $voetbalservice->getService(Voetbal\Round::class), $roundRepos
             );
 
             $action = new Voetbal\Action\Structure(

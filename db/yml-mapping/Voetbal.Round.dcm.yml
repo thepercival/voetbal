@@ -30,9 +30,11 @@ Voetbal\Round:
     poules:
       targetEntity: Voetbal\Poule
       mappedBy: round
+      cascade: [ persist, remove ]
     scoreConfigs:
         targetEntity: Voetbal\Round\ScoreConfig
         mappedBy: round
+        cascade: [ persist, remove ]
     childRounds:
       targetEntity: Voetbal\Round
       mappedBy: parentRound

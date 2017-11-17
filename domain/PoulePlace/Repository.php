@@ -8,11 +8,17 @@
 
 namespace Voetbal\PoulePlace;
 
+use Voetbal\PoulePlace;
+use Voetbal\Poule;
+
 /**
  * Round
  *
  */
 class Repository extends \Voetbal\Repository
 {
-
+    public static function onPostSerialize( PoulePlace $place, Poule $poule )
+    {
+        $place->setPoule( $poule );
+    }
 }

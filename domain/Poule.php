@@ -75,7 +75,7 @@ class Poule
      */
     public function setRound( Round $round )
     {
-        if ( $this->round === null and $round !== null){
+        if ( $this->round === null and $round !== null and !$round->getPoules()->contains( $this )){
             $round->getPoules()->add($this) ;
         }
         $this->round = $round;
