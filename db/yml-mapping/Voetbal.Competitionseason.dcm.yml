@@ -38,6 +38,7 @@ Voetbal\Competitionseason:
             targetEntity: Voetbal\Field
             mappedBy: competitionseason
             fetch: EXTRA_LAZY
+            cascade: [ persist, remove ]
 #        externals:
 #          targetEntity: Voetbal\Competitionseason
 #          mappedBy: importableobject
@@ -50,6 +51,7 @@ Voetbal\Competitionseason:
               referencedColumnName: id
               nullable: false
               onDelete: CASCADE
+            cascade: [ persist, remove ]
         season:
             targetEntity: Voetbal\Season
             inversedBy: competitionseasons

@@ -19,7 +19,7 @@ Voetbal\Round\Config:
       type: integer
       serialized_name: drawPoints
     hasExtension:
-      type: integer
+      type: boolean
       serialized_name: hasExtension
     winPointsExt:
       type: integer
@@ -34,7 +34,7 @@ Voetbal\Round\Config:
       type: integer
       serialized_name: minutesPerGame
     enableTime:
-      type: integer
+      type: boolean
       serialized_name: enableTime
     minutesInBetween:
       type: integer

@@ -7,7 +7,6 @@ Voetbal\Competitionseason:
     id:
       type: integer
     state:
-      read_only: true
       type: integer
     competition:
       type: Voetbal\Competition
@@ -16,7 +15,7 @@ Voetbal\Competitionseason:
     sport:
       type: string
     startDateTime:
-      type: DateTimeImmutable
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.000\Z'>
       serialized_name: startDateTime
     association:
       type: Voetbal\Association

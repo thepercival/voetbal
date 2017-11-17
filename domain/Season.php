@@ -93,7 +93,7 @@ class Season implements External\Importable
         }
 
         if(preg_match('/[^0-9\s\/-]/i', $name)){
-            throw new \InvalidArgumentException( "de naam mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
+            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
         }
 
         $this->name = $name;

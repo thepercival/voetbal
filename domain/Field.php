@@ -103,7 +103,7 @@ class Field
         }
 
         if(preg_match('/[^0-9\s\/-]/i', $name)){
-            throw new \InvalidArgumentException( "de naam mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
+            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
         }
 
         $this->name = $name;
@@ -122,7 +122,7 @@ class Field
      */
     public function setCompetitionseason( Competitionseason $competitionseason )
     {
-        if ( $this->competitionseason === null and $competitionseason !== null){
+        if ( $this->competitionseason === null and $competitionseason !== null and !$competitionseason->getFields()->contains( $this ) ) {
             $competitionseason->getFields()->add($this) ;
         }
         $this->competitionseason = $competitionseason;

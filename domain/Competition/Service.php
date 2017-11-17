@@ -74,12 +74,4 @@ class Service
 
 		return $this->repos->save($competition);
 	}
-
-    /**
-     * @param Competition $competition
-     */
-	public function remove( Competition $competition )
-	{
-		$this->repos->remove($competition);
-	}
 }

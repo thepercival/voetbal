@@ -115,7 +115,7 @@ final class Competition
 		$competition = $this->repos->find($args['id']);
 		$sErrorMessage = null;
 		try {
-			$this->service->remove($competition);
+			$this->repos->remove($competition);
 
 			return $response
 				->withStatus(201);

@@ -153,6 +153,14 @@ class Competitionseason implements External\Importable
     }
 
     /**
+     * @param int $state
+     */
+    public function setState( $state )
+    {
+        $this->state = $state;
+    }
+
+    /**
      * @return Association
      */
     public function getAssociation()
