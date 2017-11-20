@@ -19,7 +19,7 @@ use Voetbal\Poule\Repository as PouleRepository;
 class Repository extends \Voetbal\Repository
 {
 
-    public static function onPostSerialize( Round $round, Competitionseason $competitionseason, Round $parentRound = null )
+    public function onPostSerialize( Round $round, Competitionseason $competitionseason, Round $parentRound = null )
     {
         $round->setCompetitionseason( $competitionseason );
         if ( $parentRound !== null ) {
@@ -30,12 +30,13 @@ class Repository extends \Voetbal\Repository
         foreach( $round->getScoreConfigs() as $scoreConfig ) {
             ScoreConfig\Repository::onPostSerialize( $scoreConfig, $round );
         }
+        $pouleRepos = $this->_em->getRepository( \Voetbal\Poule::class );
         foreach( $round->getPoules() as $poule ) {
-            PouleRepository::onPostSerialize( $poule, $round );
+            $pouleRepos->onPostSerialize( $poule, $round );
         }
 
         foreach( $round->getChildRounds() as $childRound ) {
-            static::onPostSerialize( $childRound, $competitionseason, $round );
+            $this->onPostSerialize( $childRound, $competitionseason, $round );
         }
     }
 }

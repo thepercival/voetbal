@@ -87,12 +87,9 @@ class Service
             throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
         }
 
-
-
-        //var_dump( $competitionseason->getId() );
         $this->repos->onPostSerialize( $p_round, $competitionseason, $p_parentRound );
-        //var_dump($competitionseason->getRounds()->count());
-
+     //   var_dump($p_round->getPoulePlaces()->count());
+//die();
         $round = null;
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         try {

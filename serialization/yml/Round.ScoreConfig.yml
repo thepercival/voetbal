@@ -5,7 +5,7 @@ Voetbal\Round\ScoreConfig:
 
   properties:
     id:
-      read_only: true
+      type: integer
     name:
       type: string
     direction:

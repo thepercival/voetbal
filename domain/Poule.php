@@ -63,6 +63,14 @@ class Poule
     }
 
     /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
+
+    /**
      * @return Round
      */
     public function getRound()
@@ -141,6 +149,17 @@ class Poule
     public function setPlaces($places)
     {
         $this->places = $places;
+    }
+
+    /**
+     * @return PoulePlace
+     */
+    public function getPlace( $number )
+    {
+        $places = array_filter( $this->getPlaces()->toArray(), function( $place ) use ( $number ) {
+            return $place->getNumber() === $number;
+        });
+        return array_shift( $places );
     }
 
     /**

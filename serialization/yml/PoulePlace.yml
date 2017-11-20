@@ -5,7 +5,7 @@ Voetbal\PoulePlace:
 
   properties:
     id:
-      read_only: true
+      type: integer
     number:
       type: integer
 #    poule:

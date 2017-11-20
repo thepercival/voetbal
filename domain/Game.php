@@ -87,6 +87,14 @@ class Game
     }
 
     /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
+
+    /**
      * @return Poule
      */
     public function getPoule()
@@ -99,7 +107,7 @@ class Game
      */
     public function setPoule( Poule $poule )
     {
-        if ( $this->poule === null and $poule !== null){
+        if ( $this->poule === null and $poule !== null and !$poule->getGames()->contains( $this )){
             $poule->getGames()->add($this) ;
         }
         $this->poule = $poule;
@@ -144,25 +152,6 @@ class Game
     }
 
     /**
-     * @return int
-     */
-    public function getFieldNumber()
-    {
-        return $this->fieldNumber;
-    }
-
-    /**
-     * @param int $fieldNumber
-     */
-    public function setFieldNumber( $fieldNumber )
-    {
-        if ( !is_int( $fieldNumber )   ){
-            throw new \InvalidArgumentException( "het veldnummer heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->fieldNumber = $fieldNumber;
-    }
-
-    /**
      * @return \DateTime
      */
     public function getStartDateTime()
@@ -195,14 +184,6 @@ class Game
     }
 
     /**
-     * @return int
-     */
-    public function getHomePoulePlaceNr()
-    {
-        return $this->getHomePoulePlace()->getNumber();
-    }
-
-    /**
      * @return PoulePlace
      */
     public function getAwayPoulePlace()
@@ -216,14 +197,6 @@ class Game
     public function setAwayPoulePlace( PoulePlace $awayPoulePlace )
     {
         $this->awayPoulePlace = $awayPoulePlace;
-    }
-
-    /**
-     * @return int
-     */
-    public function getAwayPoulePlaceNr()
-    {
-        return $this->getAwayPoulePlace()->getNumber();
     }
 
     /**

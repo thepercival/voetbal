@@ -105,6 +105,14 @@ class Round
     }
 
     /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
+
+    /**
      * @return Competitionseason
      */
     public function getCompetitionseason()

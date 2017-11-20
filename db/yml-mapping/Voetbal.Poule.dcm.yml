@@ -26,6 +26,7 @@ Voetbal\Poule:
     games:
       targetEntity: Voetbal\Game
       mappedBy: poule
+      cascade: [ persist, remove ]
   manyToOne:
     round:
       targetEntity: Voetbal\Round

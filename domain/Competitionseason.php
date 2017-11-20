@@ -209,6 +209,17 @@ class Competitionseason implements External\Importable
     }
 
     /**
+     * @return Field
+     */
+    public function getField( $number )
+    {
+        $fields = array_filter( $this->getFields()->toArray(), function( $field ) use ( $number ) {
+            return $field->getNumber() === $number;
+        });
+        return array_shift( $fields );
+    }
+
+    /**
      * @return Round
      */
     public function getFirstRound()

@@ -115,6 +115,14 @@ class Config
     }
 
     /**
+     * @param $id
+     */
+    public function setId( $id )
+    {
+        $this->id = $id;
+    }
+
+    /**
      * @return int
      */
     public function getQualifyRule()

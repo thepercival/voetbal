@@ -2,12 +2,25 @@
 
 namespace Voetbal\Competitionseason;
 
+use Voetbal\Field;
+use Voetbal\Competitionseason;
+
 /**
  * Class Repository
  * @package Voetbal\Competitionseason
  */
 class Repository extends \Voetbal\Repository
 {
+
+    public function onPostSerialize( Competitionseason $competitionseason )
+    {
+        $fieldRepos = $this->_em->getRepository( Field::class );
+        foreach( $competitionseason->getFields() as $field ) {
+            $fieldRepos->onPostSerialize( $field, $competitionseason );
+        }
+    }
+
+
 
 //    public function getActieve( Period $period )
 //    {

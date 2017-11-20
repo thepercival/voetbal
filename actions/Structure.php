@@ -120,7 +120,7 @@ final class Structure
         catch( \Exception $e ){
             $sErrorMessage = urlencode($e->getMessage());
         }
-        return $response->withStatus(404, $sErrorMessage )->write();
+        return $response->withStatus(422 )->write( $sErrorMessage );
     }
 
     public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)

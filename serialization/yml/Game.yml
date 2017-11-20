@@ -5,7 +5,7 @@ Voetbal\Game:
 
   properties:
     id:
-      read_only: true
+      type: int
     roundNumber:
       type: int
       serialized_name: roundNumber
@@ -19,12 +19,11 @@ Voetbal\Game:
     state:
       type: integer
     startDateTime:
-      type: DateTimeImmutable
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.000\Z'>
       serialized_name: startDateTime
-  virtual_properties:
-    getHomePoulePlaceNr:
-      type: int
-      serialized_name: homePoulePlaceNr
-    getAwayPoulePlaceNr:
-      type: int
-      serialized_name: awayPoulePlaceNr
+    homePoulePlace:
+      type: Voetbal\PoulePlace
+      serialized_name: homePoulePlace
+    awayPoulePlace:
+      type: Voetbal\PoulePlace
+      serialized_name: awayPoulePlace

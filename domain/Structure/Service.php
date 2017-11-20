@@ -48,6 +48,7 @@ class Service
       //  try {
 //            $round = new Round( $competitionseason, null );
 //            $round->setWinnersOrLosers( Round::WINNERS );
+
                 $round = $this->roundService->createFromJSON( $p_round, $competitionseason );
 //            $poules = $p_round->getPoules();
 //            foreach( $poules as $pouleIt ){
