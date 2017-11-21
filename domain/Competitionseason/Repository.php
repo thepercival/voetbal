@@ -2,6 +2,7 @@
 
 namespace Voetbal\Competitionseason;
 
+use Voetbal\Association;
 use Voetbal\Field;
 use Voetbal\Competitionseason;
 
@@ -12,12 +13,26 @@ use Voetbal\Competitionseason;
 class Repository extends \Voetbal\Repository
 {
 
-    public function onPostSerialize( Competitionseason $competitionseason )
+    public function saveFromJSON( Competitionseason $competitionseason )
     {
         $fieldRepos = $this->_em->getRepository( Field::class );
         foreach( $competitionseason->getFields() as $field ) {
-            $fieldRepos->onPostSerialize( $field, $competitionseason );
+            $fieldRepos->saveFromJSON( $field, $competitionseason );
         }
+
+        // $associationRepos = $this->_em->getRepository( Association::class );
+        $this->_em->persist( $competitionseason->getAssociation() );
+        $this->_em->persist( $competitionseason->getSeason() );
+        $this->_em->persist( $competitionseason->getCompetition() );
+
+        $this->_em->persist($competitionseason);
+
+       $this->_em->flush();
+    }
+
+    public function merge( Competitionseason $competitionseason )
+    {
+        return $this->_em->merge( $competitionseason );
     }
 
 

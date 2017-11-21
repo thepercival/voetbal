@@ -17,8 +17,9 @@ use Voetbal\Round;
  */
 class Repository extends \Voetbal\Repository
 {
-    public static function onPostSerialize( ScoreConfig $scoreConfig, Round $round )
+    public function saveFromJSON( ScoreConfig $scoreConfig, Round $round )
     {
         $scoreConfig->setRound( $round );
+        $this->_em->persist($scoreConfig);
     }
 }

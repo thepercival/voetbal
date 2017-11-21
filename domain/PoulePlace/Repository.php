@@ -17,8 +17,11 @@ use Voetbal\Poule;
  */
 class Repository extends \Voetbal\Repository
 {
-    public static function onPostSerialize( PoulePlace $place, Poule $poule )
+    public function saveFromJSON( PoulePlace $place, Poule $poule )
     {
+        // var_dump($poule->getId()); die();
+        // $place->setPoule( $this->_em->merge( $poule ) );
         $place->setPoule( $poule );
+        $this->_em->persist($place);
     }
 }

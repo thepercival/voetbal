@@ -25,20 +25,20 @@ Voetbal\Round:
     config:
       targetEntity: Voetbal\Round\Config
       mappedBy: round
-      cascade: [ persist, remove ]
+      cascade: [ remove ]
   oneToMany:
     poules:
       targetEntity: Voetbal\Poule
       mappedBy: round
-      cascade: [ persist, remove ]
+      cascade: [ remove ]
     scoreConfigs:
         targetEntity: Voetbal\Round\ScoreConfig
         mappedBy: round
-        cascade: [ persist, remove ]
+        cascade: [ remove ]
     childRounds:
       targetEntity: Voetbal\Round
       mappedBy: parentRound
-      cascade: [ persist, remove ]
+      cascade: [ remove ]
   manyToOne:
     competitionseason:
       targetEntity: Voetbal\Competitionseason

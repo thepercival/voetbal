@@ -19,17 +19,16 @@ use Voetbal\Field;
  */
 class Repository extends \Voetbal\Repository
 {
-    public function onPostSerialize( Poule $poule, Round $round )
+    public function saveFromJSON( Poule $poule, Round $round )
     {
         $poule->setRound( $round );
 
-        $x = new ArrayCollection();
+        $this->_em->persist($poule);
+
         $poulePlaceRepos = $this->_em->getRepository( \Voetbal\PoulePlace::class );
         foreach( $poule->getPlaces() as $place ) {
-            $poulePlaceRepos->onPostSerialize( $place, $poule );
-            $x->add( $this->_em->merge( $place ) );
+            $poulePlaceRepos->saveFromJSON( $place, $poule );
         }
-        $poule->setPlaces($x);
 
         $competitionseason = $round->getCompetitionseason();
 
@@ -43,7 +42,7 @@ class Repository extends \Voetbal\Repository
             $game->setHomePoulePlace( $homePoulePlace );
             $game->setAwayPoulePlace( $awayPoulePlace );
 
-            $gameRepos->onPostSerialize( $game, $poule );
+            $gameRepos->saveFromJSON( $game, $poule );
         }
     }
 }

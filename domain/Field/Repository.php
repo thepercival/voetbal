@@ -11,8 +11,9 @@ use Voetbal\Competitionseason;
  */
 class Repository extends \Voetbal\Repository
 {
-    public function onPostSerialize( Field $field, Competitionseason $competitionseason )
+    public function saveFromJSON( Field $field, Competitionseason $competitionseason )
     {
         $field->setCompetitionseason( $competitionseason );
+        $this->_em->persist( $field );
     }
 }

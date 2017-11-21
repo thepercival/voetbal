@@ -152,7 +152,7 @@ class Game
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
     public function getStartDateTime()
     {

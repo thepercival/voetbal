@@ -25,14 +25,14 @@ class Season implements External\Importable
     private $name;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeImmutable
      */
-    private $startdate;
+    private $startDateTime;
 
     /**
-     * @var \DateTime
+     * @var \DateTimeImmutable
      */
-    private $enddate;
+    private $endDateTime;
 
     /**
      * @var ArrayCollection
@@ -100,19 +100,35 @@ class Season implements External\Importable
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function getStartdate()
+    public function getStartDateTime()
     {
-        return $this->startdate;
+        return $this->startDateTime;
     }
 
     /**
-     * @return \DateTime
+     * @return \DateTimeImmutable
      */
-    public function getEnddate()
+    public function setStartDateTime( \DateTimeImmutable $startDateTime )
     {
-        return $this->enddate;
+        $this->startDateTime = $startDateTime;
+    }
+
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function getEndDateTime()
+    {
+        return $this->endDateTime;
+    }
+
+    /**
+     * @return \DateTimeImmutable
+     */
+    public function setEndDateTime( \DateTimeImmutable $endDateTime )
+    {
+        $this->endDateTime = $endDateTime;
     }
 
     public function getPeriod()

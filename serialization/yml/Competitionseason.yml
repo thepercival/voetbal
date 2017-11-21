@@ -15,7 +15,7 @@ Voetbal\Competitionseason:
     sport:
       type: string
     startDateTime:
-      type: DateTimeImmutable<'Y-m-d\TH:i:s.000\Z'>
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
       serialized_name: startDateTime
     association:
       type: Voetbal\Association

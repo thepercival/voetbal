@@ -8,12 +8,12 @@ Voetbal\Season:
       type: int
     name:
       type: string
-    startdate:
-      type: DateTime
-      read_only: true
-    enddate:
-      type: DateTime
-      read_only: true
+    startDateTime:
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
+      serialized_name: startDateTime
+    endDateTime:
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
+      serialized_name: endDateTime
 #    externals:
 #      read_only: true
 #    competitionseasons:

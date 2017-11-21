@@ -14,12 +14,12 @@ Voetbal\Season:
             length: !php/const:Voetbal\Season::MAX_LENGTH_NAME
             unique: true
             nullable: false
-        startdate:
-            type: datetime
+        startDateTime:
+            type: datetime_immutable
             nullable: false
             column: startdatetime
-        enddate:
-            type: datetime
+        endDateTime:
+            type: datetime_immutable
             nullable: false
             column: enddatetime
     oneToMany:

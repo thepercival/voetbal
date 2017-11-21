@@ -87,14 +87,18 @@ class Service
             throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
         }
 
-        $this->repos->onPostSerialize( $p_round, $competitionseason, $p_parentRound );
-     //   var_dump($p_round->getPoulePlaces()->count());
-//die();
+
         $round = null;
         $this->em->getConnection()->beginTransaction(); // suspend auto-commit
         try {
+
+
+            $round = $this->repos->saveFromJSON( $p_round, $competitionseason, $p_parentRound );
+            //   var_dump($p_round->getPoulePlaces()->count());
+//die();
+
             //var_dump( $p_round->getCompetitionseason()->getId() );
-            $round = $this->repos->save( $p_round );
+
 
 //            foreach( $p_round->getChildRounds() as $childRound ) {
 //                $this->createFromJSON( $childRound, $p_round, $competitionseason );
@@ -117,6 +121,34 @@ class Service
     }
 
 
+    public function editFromJSON( Round $p_round, Competitionseason $competitionseason, Round $p_parentRound = null )
+    {
+        $number = $p_round->getNumber();
+        if ( !is_int($number) or $number < 1 ) {
+            throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
+        }
+        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
+        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
+            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
+        }
+
+
+        $round = null;
+        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
+
+        try {
+            $this->repos->onPostSerialize( $p_round, $competitionseason, $p_parentRound );
+            //var_dump( $p_round->getCompetitionseason()->getId() );
+            // $round = $this->em->merge( $p_round );
+            // $round = $this->repos->save( $round );
+            $this->em->getConnection()->commit();
+        } catch ( \Exception $e) {
+            $this->em->getConnection()->rollBack();
+            throw $e;
+        }
+
+        return ( $round );
+    }
 
 
 //    /**

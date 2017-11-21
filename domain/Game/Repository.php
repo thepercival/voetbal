@@ -18,10 +18,9 @@ use Voetbal\Field;
  */
 class Repository extends \Voetbal\Repository
 {
-    protected static $em = null;
-
-    public function onPostSerialize( Game $game, Poule $poule )
+    public function saveFromJSON( Game $game, Poule $poule )
     {
         $game->setPoule( $poule );
+        $this->_em->persist($game);
     }
 }

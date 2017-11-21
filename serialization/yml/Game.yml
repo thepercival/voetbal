@@ -19,7 +19,7 @@ Voetbal\Game:
     state:
       type: integer
     startDateTime:
-      type: DateTimeImmutable<'Y-m-d\TH:i:s.000\Z'>
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
       serialized_name: startDateTime
     homePoulePlace:
       type: Voetbal\PoulePlace

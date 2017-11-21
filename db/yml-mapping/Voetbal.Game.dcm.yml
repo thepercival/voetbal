@@ -44,7 +44,6 @@ Voetbal\Game:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-      cascade: [ merge ]
     awayPoulePlace:
       targetEntity: Voetbal\PoulePlace
       inversedBy: games
@@ -53,7 +52,6 @@ Voetbal\Game:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-      cascade: [ merge ]
     referee:
       targetEntity: Voetbal\Referee
 #      inversedBy: games
@@ -70,7 +68,6 @@ Voetbal\Game:
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE
-      cascade: [ merge ]
   uniqueConstraints:
     number_u_idx:
       columns: [ pouleid, roundnumber, subnumber ]

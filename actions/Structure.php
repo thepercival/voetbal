@@ -118,37 +118,40 @@ final class Structure
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = urlencode($e->getMessage());
+            $sErrorMessage = $e->getMessage();
         }
         return $response->withStatus(422 )->write( $sErrorMessage );
     }
 
-    public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
+    public function edit( $request, $response, $args)
     {
-//        $competition = $this->repos->find($args['id']);
-//        if ( $competition === null ) {
-//            throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
-//        }
-//
-//        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-//        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-
         $sErrorMessage = null;
-//        try {
-//
-//            $competition = $this->service->edit( $competition, $name, $abbreviation );
-//
-//            return $response
-//                ->withStatus(201)
-//                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-//                ->write($this->serializer->serialize( $competition, 'json'));
-//            ;
-//        }
-//        catch( \Exception $e ){
-//
-//            $sErrorMessage = $e->getMessage();
-//        }
-        return $response->withStatus(400,$sErrorMessage);
+        try {
+            /** @var \Voetbal\Round $round */
+            $round = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
+
+            if ( $round === null ) {
+                throw new \Exception("er kan geen ronde worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $competitionseasonid = (int) $request->getParam("competitionseasonid");
+            $competitionseason = $this->competitionseasonRepos->find($competitionseasonid);
+            if ( $competitionseason === null ) {
+                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
+            }
+
+            $roundRet = $this->service->editFromJSON( $round, $competitionseason );
+
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $roundRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(422, $sErrorMessage )->write( $sErrorMessage );
     }
 
     public function remove( $request, $response, $args)
