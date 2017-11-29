@@ -102,8 +102,8 @@ class Field
             throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
         }
 
-        if(preg_match('/[^0-9\s\/-]/i', $name)){
-            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
+        if( !ctype_alnum($name) ){
+            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers en letters bevatten", E_ERROR );
         }
 
         $this->name = $name;

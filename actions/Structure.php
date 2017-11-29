@@ -131,7 +131,7 @@ final class Structure
             $round = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
 
             if ( $round === null ) {
-                throw new \Exception("er kan geen ronde worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
             $competitionseasonid = (int) $request->getParam("competitionseasonid");
@@ -143,7 +143,7 @@ final class Structure
             $roundRet = $this->service->editFromJSON( $round, $competitionseason );
 
             return $response
-                ->withStatus(201)
+                ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize( $roundRet, 'json'));
             ;
@@ -159,14 +159,14 @@ final class Structure
         $round = $this->roundRepos->find($args['id']);
 
         if( $round === null ) {
-            return $response->withStatus(404, 'de e verwijderen structuur kan niet gevonden worden');
+            return $response->withStatus(404, 'de te verwijderen structuur kan niet gevonden worden');
         }
 
         $sErrorMessage = null;
         try {
             $this->service->remove($round);
 
-            return $response->withStatus(201);
+            return $response->withStatus(204);
         }
         catch( \Exception $e ){
             $sErrorMessage = urlencode($e->getMessage());

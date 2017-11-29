@@ -132,6 +132,15 @@ class Handler
                 $serializer
             );
         }
+        elseif ( $resourceType === 'fields' ) {
+            $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
+            $csRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+            $action = new Voetbal\Action\Field(
+                $fieldRepos,
+                $csRepos,
+                $serializer
+            );
+        }
 
         return $action;
     }

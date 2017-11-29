@@ -30,10 +30,30 @@ class Repository extends \Voetbal\Repository
        $this->_em->flush();
     }
 
-    public function merge( Competitionseason $competitionseason )
+    public function editFromJSON( Competitionseason $competitionseason )
     {
-        return $this->_em->merge( $competitionseason );
+        $this->_em->merge( $competitionseason );
+
+        // do this when editing fields!!!
+        // verwijder velden en voeg weer toe
+//        $fieldRepos = $this->_em->getRepository( Field::class );
+//        foreach( $competitionseason->getFields() as $field ) {
+//            $fieldRepos->saveFromJSON( $field, $competitionseason );
+//        }
+
+        // $this->_em->persist( $competitionseason->getCompetition() );
+
+        $this->_em->merge( $competitionseason->getCompetition() );
+
+        // $this->_em->persist( $competitionseason );
+
+        $this->_em->flush();
     }
+
+//    public function merge( Competitionseason $competitionseason )
+//    {
+//        return $this->_em->merge( $competitionseason );
+//    }
 
 
 
