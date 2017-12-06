@@ -4,6 +4,7 @@ namespace Voetbal\Competitionseason;
 
 use Voetbal\Association;
 use Voetbal\Field;
+use Voetbal\Referee;
 use Voetbal\Competitionseason;
 
 /**
@@ -20,6 +21,11 @@ class Repository extends \Voetbal\Repository
             $fieldRepos->saveFromJSON( $field, $competitionseason );
         }
 
+        $refereeRepos = $this->_em->getRepository( Referee::class );
+        foreach( $competitionseason->getReferees() as $referee ) {
+            $refereeRepos->saveFromJSON( $referee, $competitionseason );
+        }
+
         // $associationRepos = $this->_em->getRepository( Association::class );
         $this->_em->persist( $competitionseason->getAssociation() );
         $this->_em->persist( $competitionseason->getSeason() );
@@ -33,6 +39,9 @@ class Repository extends \Voetbal\Repository
     public function editFromJSON( Competitionseason $competitionseason )
     {
         $this->_em->merge( $competitionseason );
+
+        // if exists than merge
+        // if not exists remove!!
 
         // do this when editing fields!!!
         // verwijder velden en voeg weer toe

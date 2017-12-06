@@ -56,7 +56,7 @@ class Service
 //     * @return mixed
 //     * @throws \Exception
 //     */
-//    public function edit( Team $team, $name, Association $association, $abbreviation = null )
+//    public function edit( Team $poulePlace, $name, Association $association, $abbreviation = null )
 //    {
 //        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 //        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){

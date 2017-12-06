@@ -67,88 +67,58 @@ final class Team
 
     public function add( $request, $response, $args)
     {
-        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-
         $sErrorMessage = null;
         try {
+            /** @var \Voetbal\Team $team */
+            $team = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
 
-            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
-            }
-            $association = $this->associationRepos->find($association->getId());
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
-            }
-
-            $competition = $this->service->create(
-                $name,
-                $association,
-                $abbreviation
-            );
-
-            return $response
-                ->withStatus(201)
-                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $competition, 'json'));
-            ;
-        }
-        catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
-        }
-        return $response->withStatus(404, $sErrorMessage );
-    }
-
-    public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-        $sErrorMessage = null;
-        try {
-            $team = $this->repos->find($args['id']);
             if ( $team === null ) {
-                return $response->withStatus(404, "het aan te passen team kan niet gevonden worden" );
+                throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-            $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
-            }
-            $association = $this->associationRepos->find($association->getId());
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
+            $associationid = (int) $request->getParam("associationid");
+            $association = $this->associationRepos->find($associationid);
+            if ( $association === null ) {
+                throw new \Exception("de bond kan niet gevonden worden", E_ERROR);
             }
 
-            $team = $this->service->edit( $team, $name, $association, $abbreviation );
+            $team->setAssociation( $association );
+            $teamRet = $this->repos->save( $team );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $team, 'json'));
-            ;
-        }
-        catch( \Exception $e ){
-
-            $sErrorMessage = urlencode( $e->getMessage() );
-        }
-        return $response->withStatus(400,$sErrorMessage);
-    }
-
-    public function remove( $request, $response, $args)
-    {
-        $team = $this->repos->find($args['id']);
-        $sErrorMessage = null;
-        try {
-            $this->service->remove($team);
-
-            return $response
-                ->withStatus(201);
+                ->write($this->serializer->serialize( $teamRet, 'json'));
             ;
         }
         catch( \Exception $e ){
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(422)->write( $sErrorMessage );
+    }
+
+    public function edit($request, $response, $args)
+    {
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Team $team */
+            $team = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
+
+            $associationid = (int) $request->getParam("associationid");
+            $association = $this->associationRepos->find($associationid);
+            if ( $association === null ) {
+                throw new \Exception("de bond kan niet gevonden worden", E_ERROR);
+            }
+
+            $teamRet = $this->repos->editFromJSON( $team, $association );
+
+            return $response
+                ->withStatus(200)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize($teamRet, 'json'));
+        } catch (\Exception $e) {
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(422)->write($sErrorMessage);
     }
 }

@@ -78,7 +78,7 @@ final class Structure
 
     public function fetchOne( $request, $response, $args)
     {
-        $cs = $this-$this->competitionseasonRepos->find( (int) $args['id'] );
+        $cs = $this->competitionseasonRepos->find( (int) $request->getParam("competitionseasonid") );
         if( $cs === null ) {
             return $response->withStatus(404, 'geen structuur gevonden voor competitieseizoen');
         }

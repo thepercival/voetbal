@@ -193,6 +193,25 @@ class Competitionseason implements External\Importable
     }
 
     /**
+     * @param $referees
+     */
+    public function setReferees( $referees )
+    {
+        $this->referees = $referees;
+    }
+
+    /**
+     * @return Referee
+     */
+    public function getReferee( $number )
+    {
+        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $number ) {
+            return $referee->getNumber() === $number;
+        });
+        return array_shift( $referees );
+    }
+
+    /**
      * @return ArrayCollection
      */
     public function getFields()

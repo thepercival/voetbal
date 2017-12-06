@@ -9,6 +9,7 @@
 namespace Voetbal\PoulePlace;
 
 use Voetbal\PoulePlace;
+use Voetbal\Team;
 use Voetbal\Poule;
 
 /**
@@ -19,9 +20,15 @@ class Repository extends \Voetbal\Repository
 {
     public function saveFromJSON( PoulePlace $place, Poule $poule )
     {
-        // var_dump($poule->getId()); die();
-        // $place->setPoule( $this->_em->merge( $poule ) );
+        // $association = $poule->getRound()->getCompetitionseason()->getAssociation();
+        $teamRepos = $this->_em->getRepository( \Voetbal\Team::class );
+        $teamEnt = null;
+        if( $place->getTeam() !== null ) {
+            $teamEnt = $teamRepos->find( $place->getTeam()->getId() );
+        }
+
         $place->setPoule( $poule );
+        $place->setTeam( $teamEnt );
         $this->_em->persist($place);
     }
 }

@@ -9,13 +9,13 @@
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
-use Voetbal\Field\Repository as FieldRepository;
+use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal\Competitionseason\Repository as CompetitionseasonRepos;
 
-final class Field
+final class Referee
 {
     /**
-     * @var FieldRepository
+     * @var RefereeRepository
      */
     protected $repos;
     /**
@@ -28,7 +28,7 @@ final class Field
     protected $serializer;
 
     public function __construct(
-        FieldRepository $repos,
+        RefereeRepository $repos,
         CompetitionseasonRepos $csRepos,
         Serializer $serializer
     )
@@ -42,10 +42,10 @@ final class Field
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\Field $field */
-            $field = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Field', 'json');
+            /** @var \Voetbal\Referee $referee */
+            $referee = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json');
 
-            if ( $field === null ) {
+            if ( $referee === null ) {
                 throw new \Exception("er kan geen veld worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -55,13 +55,13 @@ final class Field
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $field->setCompetitionseason( $competitionseason );
-            $fieldRet = $this->repos->save( $field );
+            $referee->setCompetitionseason( $competitionseason );
+            $refereeRet = $this->repos->save( $referee, $competitionseason );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $fieldRet, 'json'));
+                ->write($this->serializer->serialize( $refereeRet, 'json'));
             ;
         }
         catch( \Exception $e ){
@@ -74,7 +74,7 @@ final class Field
     {
         $sErrorMessage = null;
         try {
-            $field = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Field', 'json');
+            $referee = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json');
 
             $competitionseasonid = (int) $request->getParam("competitionseasonid");
             $competitionseason = $this->csRepos->find($competitionseasonid);
@@ -82,12 +82,12 @@ final class Field
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $field = $this->repos->editFromJSON($field, $competitionseason);
+            $referee = $this->repos->editFromJSON($referee, $competitionseason);
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($field, 'json'));
+                ->write($this->serializer->serialize($referee, 'json'));
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
@@ -96,15 +96,15 @@ final class Field
 
     public function remove( $request, $response, $args)
     {
-        $field = $this->repos->find($args['id']);
+        $referee = $this->repos->find($args['id']);
 
-        if( $field === null ) {
+        if( $referee === null ) {
             return $response->withStatus(404, 'het te verwijderen veld kan niet gevonden worden');
         }
 
         $sErrorMessage = null;
         try {
-            $this->repos->remove($field);
+            $this->repos->remove($referee);
 
             return $response->withStatus(204);
         }

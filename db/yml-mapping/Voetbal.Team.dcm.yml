@@ -12,7 +12,7 @@ Voetbal\Team:
       type: string
       nullable: false
       length: !php/const:Voetbal\Team::MAX_LENGTH_NAME
-      unique: true
+      unique: false
     abbreviation:
       type: string
       nullable: true

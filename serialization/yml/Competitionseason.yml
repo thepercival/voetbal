@@ -21,6 +21,8 @@ Voetbal\Competitionseason:
       type: Voetbal\Association
     fields:
       type: ArrayCollection<Voetbal\Field>
+    referees:
+      type: ArrayCollection<Voetbal\Referee>
 #  virtual_properties:
 #    hasStructure:
 #      type: boolean

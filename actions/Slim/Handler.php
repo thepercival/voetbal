@@ -141,6 +141,21 @@ class Handler
                 $serializer
             );
         }
+        elseif ( $resourceType === 'referees' ) {
+            $refereeRepos = $voetbalservice->getRepository(Voetbal\Referee::class);
+            $csRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+            $action = new Voetbal\Action\Referee(
+                $refereeRepos,
+                $csRepos,
+                $serializer
+            );
+        }
+        elseif ( $resourceType === 'pouleplaces' ){
+            $repos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
+            $teamRepos = $voetbalservice->getRepository(Voetbal\Team::class);
+            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
+            $action = new Voetbal\Action\PoulePlace($repos, $teamRepos, $pouleRepos, $serializer);
+        }
 
         return $action;
     }
