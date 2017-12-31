@@ -113,7 +113,8 @@ class Handler
         elseif ( $resourceType === 'games' ){
             $repos = $voetbalservice->getRepository(Voetbal\Game::class);
             $service = new Voetbal\Game\Service($repos);
-            $action = new Voetbal\Action\Game($service, $repos, $serializer);
+            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
+            $action = new Voetbal\Action\Game($service, $repos, $pouleRepos, $serializer);
         }
         elseif ( $resourceType === 'structures' ){
             $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);

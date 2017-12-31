@@ -27,3 +27,5 @@ Voetbal\Game:
     awayPoulePlace:
       type: Voetbal\PoulePlace
       serialized_name: awayPoulePlace
+    scores:
+      type: ArrayCollection<Voetbal\Game\Score>

@@ -1,0 +1,42 @@
+Voetbal\Game\Score:
+  type: entity
+  repositoryClass: Voetbal\Game\Score\Repository
+  table: gamescores
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+    home:
+      type: smallint
+      nullable: false
+      unique: false
+    away:
+      type: smallint
+      nullable: false
+      unique: false
+  manyToOne:
+    game:
+      targetEntity: Voetbal\Game
+      inversedBy: scores
+      joinColumn:
+        name: gameid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+    scoreConfig:
+      targetEntity: Voetbal\Round\ScoreConfig
+      joinColumn:
+        name: scoreconfigid
+        referencedColumnName: id
+        nullable: false
+  uniqueConstraints:
+#    number_u_idx:
+#      columns: [ gameid, scoreconfigid ]
+    number_v_idx:
+      columns: [ gameid, number ]

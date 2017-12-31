@@ -123,7 +123,7 @@ class Config
     }
 
     /**
-     * @return int
+     * @return QualifyRule
      */
     public function getQualifyRule()
     {
