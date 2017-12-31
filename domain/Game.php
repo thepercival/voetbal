@@ -10,6 +10,8 @@ namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 
+use Voetbal\Game\Score;
+
 class Game
 {
     /**
@@ -62,6 +64,11 @@ class Game
      */
     protected $state;
 
+    /**
+     * @var Score[] | ArrayCollection
+     */
+    protected $scores;
+
     const STATE_CREATED = 1;
     const STATE_INPLAY = 2;
     const STATE_PLAYED = 4;
@@ -73,7 +80,7 @@ class Game
         $this->setAwayPoulePlace( $awayPoulePlace );
         $this->setRoundNumber( $roundNumber );
         $this->setSubNumber( $subNumber );
-
+        $this->scores = new ArrayCollection();
     }
 
     /**
@@ -254,5 +261,21 @@ class Game
 //            $field->getGames()->add($this) ;
 //        }
         $this->field = $field;
+    }
+
+    /**
+     * @return Score[] | ArrayCollection
+     */
+    public function getScores()
+    {
+        return $this->scores;
+    }
+
+    /**
+     * @param $scores
+     */
+    public function setScores($scores)
+    {
+        $this->scores = $scores;
     }
 }

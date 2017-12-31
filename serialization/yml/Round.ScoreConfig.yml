@@ -13,5 +13,4 @@ Voetbal\Round\ScoreConfig:
     maximum:
       type: integer
     parent:
-      read_only: true
       type: Voetbal\Round\ScoreConfig

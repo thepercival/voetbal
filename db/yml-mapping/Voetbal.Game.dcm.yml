@@ -68,6 +68,11 @@ Voetbal\Game:
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE
+  oneToMany:
+    scores:
+        targetEntity: Voetbal\Game\Score
+        mappedBy: game
+        cascade: [ remove ]
   uniqueConstraints:
     number_u_idx:
       columns: [ pouleid, roundnumber, subnumber ]

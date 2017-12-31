@@ -147,7 +147,7 @@ class ScoreConfig
     /**
      * @param ScoreConfig $scoreConfig
      */
-    protected function setParent( ScoreConfig $scoreConfig = null )
+    public function setParent( ScoreConfig $scoreConfig = null )
     {
         $this->parent = $scoreConfig;
     }

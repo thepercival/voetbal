@@ -11,7 +11,7 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
-//use Voetbal\Competitionseason\Repository as CompetitionseasonRepository;
+use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -27,14 +27,19 @@ final class Game
      */
     protected $repos;
     /**
+     * @var PouleRepository
+     */
+    protected $pouleRepos;
+    /**
      * @var Serializer
      */
     protected $serializer;
 
-    public function __construct(GameService $service, GameRepository $repos, Serializer $serializer)
+    public function __construct(GameService $service, GameRepository $repos, PouleRepository $pouleRepos, Serializer $serializer)
     {
-        $this->repos = $repos;
         $this->service = $service;
+        $this->repos = $repos;
+        $this->pouleRepos = $pouleRepos;
         $this->serializer = $serializer;
     }
 
@@ -51,24 +56,34 @@ final class Game
 //            ->write( $this->serializer->serialize( $objects, 'json') );
 //        ;
 
+        return $response->withStatus(404)->write( 'niet geimplementeerd');
+
     }
 
     public function fetchOne( $request, $response, $args)
     {
-        $object = $this->repos->find($args['id']);
-        if ($object) {
+        $sErrorMessage = null;
+        try {
+            $game = $this->repos->find($args['id']);
+            if (!$game) {
+                throw new \Exception("geen wedstrijd met het opgegeven id gevonden", E_ERROR);
+            }
             return $response
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $object, 'json'));
+                ->write($this->serializer->serialize( $game, 'json'));
             ;
         }
-        return $response->withStatus(404, 'geen wedstrijd met het opgegeven id gevonden');
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(422)->write( $sErrorMessage);
     }
 
     public function add( $request, $response, $args)
     {
         $sErrorMessage = null;
         try {
+            throw new \Exception("niet geimplementeerd", E_ERROR);
 //            /** @var Voetbal\Round $round */
 //            $round = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
 //            if ( $round === null ) {
@@ -113,6 +128,42 @@ final class Game
 
     public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
     {
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Game $game */
+            $game = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Game', 'json');
+
+            $foundGame = $this->repos->find( $game->getId() );
+            if ( $foundGame === null ){
+                throw new \Exception("de te wijzigen wedstrijd kon niet gevonden worden", E_ERROR );
+            }
+
+            $poule = $this->pouleRepos->find( (int) $request->getParam("pouleid") );
+            if ( $poule === null ) {
+                throw new \Exception("de poule kan niet gevonden worden", E_ERROR);
+            }
+
+//            $user = null;
+//            if( $this->jwt->sub !== null ){
+//                $user = $this->userRepository->find( $this->jwt->sub );
+//            }
+//            if ( $user === null ){
+//                throw new \Exception("gebruiker kan niet gevonden worden", E_ERROR );
+//            }
+
+            $gameRet = $this->repos->editFromJSON( $game, $poule );
+
+            return $response
+                ->withStatus(200)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $gameRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(400, $sErrorMessage )->write( $sErrorMessage );
+
 //        $competition = $this->repos->find($args['id']);
 //        if ( $competition === null ) {
 //            throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
@@ -136,7 +187,6 @@ final class Game
 //
 //            $sErrorMessage = $e->getMessage();
 //        }
-        return $response->withStatus(400,$sErrorMessage);
     }
 
     public function remove( $request, $response, $args)
@@ -157,6 +207,6 @@ final class Game
         catch( \Exception $e ){
             $sErrorMessage = urlencode($e->getMessage());
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 }
