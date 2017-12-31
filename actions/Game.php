@@ -38,21 +38,6 @@ final class Game
         $this->serializer = $serializer;
     }
 
-    public function fetch( $request, $response, $args)
-    {
-//        $competitionseasonid = (int) $request->getParam("competitionseasonid");
-//        if( $competitionseasonid === 0 ){
-//            return $response->withStatus(404, 'geen competitieseizoen opgegeven');
-//        }
-//
-//        $objects = $this->repos->findBy( array("competitionseason" => $competitionseasonid) );
-//        return $response
-//            ->withHeader('Content-Type', 'application/json;charset=utf-8')
-//            ->write( $this->serializer->serialize( $objects, 'json') );
-//        ;
-
-    }
-
     public function fetchOne( $request, $response, $args)
     {
         $object = $this->repos->find($args['id']);
@@ -65,98 +50,41 @@ final class Game
         return $response->withStatus(404, 'geen wedstrijd met het opgegeven id gevonden');
     }
 
-    public function add( $request, $response, $args)
+    public function edit($request, $response, $args)
     {
         $sErrorMessage = null;
         try {
-//            /** @var Voetbal\Round $round */
-//            $round = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
-//            if ( $round === null ) {
-//                throw new \Exception("er kan geen ronde worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
-//            }
-//            $number = $round->getNumber();
-//            if ( !is_int($number) or $number < 1 ) {
-//                throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
-//            }
-//            $nrofheadtoheadmatches = $round->getNrofheadtoheadmatches();
-//            if ( !is_int($nrofheadtoheadmatches) or $nrofheadtoheadmatches < 1 ) {
-//                throw new \Exception("het aantal onderlinge duels moet minimaal 1 zijn", E_ERROR);
-//            }
-//
-//            $competitionseason = $round->getCompetitionseason();
-//            if ( $competitionseason === null ) {
-//                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
-//            }
-//            $competitionseason = $this->competitionseasonRepos->find($competitionseason->getId());
-//            if ( $competitionseason === null ) {
-//                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
-//            }
-//
-//            $roundRet = $this->service->create(
-//                $competitionseason,
-//                $number,
-//                $nrofheadtoheadmatches,
-//                $round->getPoules()
-//            );
-//
-//            return $response
-//                ->withStatus(201)
-//                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-//                ->write($this->serializer->serialize( $roundRet, 'json'));
-//            ;
-        }
-        catch( \Exception $e ){
-            $sErrorMessage = urlencode($e->getMessage());
-        }
-        return $response->withStatus(404, $sErrorMessage );
-    }
+            /** @var \Voetbal\Game $game */
+            $gameSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Game', 'json');
 
-    public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
-    {
-//        $competition = $this->repos->find($args['id']);
-//        if ( $competition === null ) {
-//            throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
-//        }
-//
-//        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-//        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
+            if ( $gameSer === null ) {
+                throw new \Exception("er kan geen wedstrijd worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+            }
 
-        $sErrorMessage = null;
-//        try {
-//
-//            $competition = $this->service->edit( $competition, $name, $abbreviation );
-//
-//            return $response
-//                ->withStatus(201)
-//                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-//                ->write($this->serializer->serialize( $competition, 'json'));
-//            ;
-//        }
-//        catch( \Exception $e ){
-//
-//            $sErrorMessage = $e->getMessage();
-//        }
-        return $response->withStatus(400,$sErrorMessage);
-    }
+            $game = $this->repos->find($gameSer->getId());
+            if ( $game === null ) {
+                throw new \Exception("de wedstrijd kan niet gevonden worden obv id", E_ERROR);
+            }
 
-    public function remove( $request, $response, $args)
-    {
-        // var_dump($args['id']);
-        $game = $this->repos->find($args['id']);
-
-        // @TODO check als er geen wedstijden aan de ronde hangen!!!!
-
-        $sErrorMessage = null;
-        try {
-            $this->service->remove($game);
+//            wat opslaan?
+//                state
+//                startDateTime
+//
+//
+//            $team = $pouleplaceSer->getTeam() ? $this->teamRepos->find($pouleplaceSer->getTeam()->getId()) : null;
+//            $poulePlace->setTeam( $team );
+                $gameRet = null;
+//            $gameRet = $this->repos->save( $poulePlace );
 
             return $response
-                ->withStatus(201);
-            ;
+                ->withStatus(200)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize($gameRet, 'json'));
+        } catch (\Exception $e) {
+            $sErrorMessage = $e->getMessage();
         }
-        catch( \Exception $e ){
-            $sErrorMessage = urlencode($e->getMessage());
-        }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(422)->write($sErrorMessage);
     }
+
+
 }
