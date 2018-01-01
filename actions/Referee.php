@@ -91,7 +91,7 @@ final class Referee
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(400, $sErrorMessage)->write($sErrorMessage);
+        return $response->withStatus(400)->write($sErrorMessage);
     }
 
     public function remove( $request, $response, $args)
@@ -111,7 +111,7 @@ final class Referee
         catch( \Exception $e ){
             $sErrorMessage = urlencode($e->getMessage());
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 
 }

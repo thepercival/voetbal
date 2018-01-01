@@ -121,6 +121,15 @@ class Game
     }
 
     /**
+     * @return Round
+     */
+    public function getRound()
+    {
+        return $this->poule->getRound();
+    }
+
+
+    /**
      * @return int
      */
     public function getRoundNumber()

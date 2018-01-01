@@ -21,6 +21,12 @@ class Repository extends \Voetbal\Repository
     public function saveFromJSON( Game $game, Poule $poule )
     {
         $game->setPoule( $poule );
+
+        foreach( $game->getScores() as $scoreConfig ) {
+            $scoreConfig->setGame( $game );
+            // $poule->getRound()->getInputScoreConfig()
+        }
+
         $this->_em->persist($game);
     }
 
@@ -40,11 +46,11 @@ class Repository extends \Voetbal\Repository
         $referee = $p_game->getReferee() ? $refereeRepos->find( $p_game->getReferee()->getId() ) : null;
         $game->setReferee( $referee );
 
-        // how to save score!!!
-//        leg 1 : 0 - 312
-//        leg 2 : 4 - 0
-//        leg 3 : 16 - 0
-//        score
+        foreach( $game->getScores() as $scoreConfig ) {
+            $scoreConfig->setGame( $game );
+            // $poule->getRound()->getInputScoreConfig()
+        }
+
 
 
         // all entities needs conversion from database!!

@@ -42,13 +42,10 @@ class Score
     private $away;
 
     public function __construct(
-        Game $game,
-        ScoreConfig $scoreConfig
+        Game $game
     )
     {
         $this->setGame( $game );
-        $this->setScoreConfig( $scoreConfig );
-
     }
 
     /**
@@ -120,10 +117,11 @@ class Score
         if ($home === null or !is_int($home)) {
             throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
         }
-        if ( !($this->getScoreConfig()->getDirection() === ScoreConfig::UPWARDS and $this->getScoreConfig()->getMaximum() === 0 ) ) {
-                if ($home < 0 or $home > $this->getScoreConfig()->getMaximum()) {
-                    throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
-                }   
+        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getInputScoreConfig() : null;
+        if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
+            if ($home < 0 or $home > $scoreConfig->getMaximum()) {
+                throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
+            }
         }
         $this->home = $home;
     }
@@ -144,8 +142,9 @@ class Score
         if ($away === null or !is_int($away)) {
             throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
         }
-        if ( !($this->getScoreConfig()->getDirection() === ScoreConfig::UPWARDS and $this->getScoreConfig()->getMaximum() === 0 ) ) {
-            if ($away < 0 or $away > $this->getScoreConfig()->getMaximum()) {
+        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getInputScoreConfig() : null;
+        if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
+            if ($away < 0 or $away > $scoreConfig->getMaximum()) {
                 throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
             }
         }
@@ -165,9 +164,12 @@ class Score
      */
     public function setGame( Game $game )
     {
-//        if ( $this->game === null and $game !== null and !$game->getScores()->contains( $this )){
-//            $game->getScores()->add($this) ;
-//        }
+        if ( $this->game === null and $game !== null and !$game->getScores()->contains( $this )){
+            $game->getScores()->add($this) ;
+        }
+        if( $game !== null ) {
+            $this->setScoreConfig( $game->getRound()->getInputScoreConfig() );
+        }
         $this->game = $game;
     }
 }

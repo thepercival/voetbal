@@ -2,6 +2,9 @@
 
 namespace Voetbal\Referee;
 
+use Voetbal\Competitionseason;
+use Voetbal\Referee;
+
 /**
  * Class Repository
  * @package Voetbal

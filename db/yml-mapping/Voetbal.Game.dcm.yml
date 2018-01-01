@@ -72,7 +72,7 @@ Voetbal\Game:
     scores:
         targetEntity: Voetbal\Game\Score
         mappedBy: game
-        cascade: [ remove ]
+        cascade: [ persist, remove ]
   uniqueConstraints:
     number_u_idx:
       columns: [ pouleid, roundnumber, subnumber ]

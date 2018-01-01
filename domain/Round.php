@@ -247,6 +247,21 @@ class Round
     }
 
     /**
+     * @return mixed
+     */
+    public function getInputScoreConfig()
+    {
+        $scoreConfig = $this->getScoreConfigs()->last();
+        while ($scoreConfig->getChild()) {
+            if ($scoreConfig->getMaximum() !== 0) {
+                break;
+            }
+            $scoreConfig = $scoreConfig->getChild();
+        }
+        return $scoreConfig;
+    }
+
+    /**
      * @return Poule[] | ArrayCollection
      */
     public function getPoules()
