@@ -12,6 +12,9 @@ Voetbal\Game\Score:
       type: integer
     away:
       type: integer
+    extraTime:
+      type: boolean
+      serialized_name: extraTime
 #    scoreConfig:
 #      type: Voetbal\Round\ScoreConfig
 #      serialized_name: scoreConfig

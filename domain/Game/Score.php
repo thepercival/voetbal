@@ -41,6 +41,11 @@ class Score
      */
     private $away;
 
+    /**
+     * @var boolean
+     */
+    private $extraTime;
+
     public function __construct(
         Game $game
     )
@@ -171,5 +176,24 @@ class Score
             $this->setScoreConfig( $game->getRound()->getInputScoreConfig() );
         }
         $this->game = $game;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function getExtraTime()
+    {
+        return $this->extraTime;
+    }
+
+    /**
+     * @param $extraTime
+     */
+    public function setExtraTime($extraTime)
+    {
+        if ($extraTime === null or !is_bool($extraTime)) {
+            throw new \InvalidArgumentException("na-verlenging heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->extraTime = $extraTime;
     }
 }

@@ -50,8 +50,7 @@ class Season implements External\Importable
         $this->competitionseasons = new ArrayCollection();
         if ( $period === null )
             throw new \InvalidArgumentException( "de periode moet gezet zijn", E_ERROR );
-        $this->startdate = $period->getStartDate();
-        $this->enddate = $period->getEndDate();
+        $this->setPeriod( $period );
     }
 
     /**
@@ -133,13 +132,13 @@ class Season implements External\Importable
 
     public function getPeriod()
     {
-       return new Period( $this->startdate, $this->enddate );
+       return new Period( $this->getStartDateTime(), $this->getEndDateTime() );
     }
 
-    public function setPeriod( Period $period)
+    public function setPeriod( Period $period )
     {
-        $this->startdate = $period->getStartDate();
-        $this->enddate = $period->getEndDate();
+        $this->setStartDateTime( $period->getStartDate() );
+        $this->setEndDateTime( $period->getEndDate() );
     }
 
     /**

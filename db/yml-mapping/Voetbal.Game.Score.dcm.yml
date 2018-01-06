@@ -20,6 +20,11 @@ Voetbal\Game\Score:
       type: smallint
       nullable: false
       unique: false
+    extraTime:
+      type: boolean
+      nullable: false
+      unique: false
+      column: extraTime
   manyToOne:
     game:
       targetEntity: Voetbal\Game
