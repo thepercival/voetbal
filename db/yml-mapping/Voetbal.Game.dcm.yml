@@ -38,7 +38,7 @@ Voetbal\Game:
         onDelete: CASCADE
     homePoulePlace:
       targetEntity: Voetbal\PoulePlace
-      inversedBy: games
+      #inversedBy: games
       joinColumn:
         name: homepouleplaceid
         referencedColumnName: id
@@ -46,7 +46,7 @@ Voetbal\Game:
         onDelete: CASCADE
     awayPoulePlace:
       targetEntity: Voetbal\PoulePlace
-      inversedBy: games
+      #inversedBy: games
       joinColumn:
         name: awaypouleplaceid
         referencedColumnName: id

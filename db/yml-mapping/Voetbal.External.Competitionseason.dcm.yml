@@ -15,7 +15,7 @@ Voetbal\External\Competitionseason:
   manyToOne:
     externalsystem:
       targetEntity: Voetbal\External\System
-      inversedBy: competitionseasons
+      #inversedBy: competitionseasons
       joinColumn:
         name: externalsystemid
         referencedColumnName: id
@@ -23,7 +23,7 @@ Voetbal\External\Competitionseason:
         onDelete: CASCADE
     importableobject:
       targetEntity: Voetbal\Competitionseason
-      inversedBy: externals
+      #inversedBy: externals
       joinColumn:
         name: importableobjectid
         referencedColumnName: id
