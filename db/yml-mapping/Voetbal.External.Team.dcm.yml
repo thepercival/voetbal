@@ -15,7 +15,7 @@ Voetbal\External\Team:
   manyToOne:
     externalsystem:
       targetEntity: Voetbal\External\System
-      inversedBy: teams
+      #inversedBy: teams
       joinColumn:
         name: externalsystemid
         referencedColumnName: id

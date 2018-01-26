@@ -3,7 +3,7 @@
   "description": "library  for football seasons, leagues, competitions and more too come",
   "keywords": ["voetbal","football"],
   "homepage": "https://github.com/thepercival/voetbal",
-  "license": "GPL-2.0",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "Coen Dunnink",

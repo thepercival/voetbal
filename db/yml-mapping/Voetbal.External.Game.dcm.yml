@@ -15,7 +15,7 @@ Voetbal\External\Game:
   manyToOne:
     externalsystem:
       targetEntity: Voetbal\External\System
-      inversedBy: associations
+      #inversedBy: games
       joinColumn:
         name: externalsystemid
         referencedColumnName: id
@@ -23,7 +23,7 @@ Voetbal\External\Game:
         onDelete: CASCADE
     importableobject:
       targetEntity: Voetbal\Game
-      inversedBy: externals
+      #inversedBy: externals
       joinColumn:
         name: importableobjectid
         referencedColumnName: id
