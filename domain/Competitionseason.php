@@ -203,10 +203,21 @@ class Competitionseason implements External\Importable
     /**
      * @return Referee
      */
-    public function getReferee( $number )
+    public function getReferee( $initials )
     {
-        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $number ) {
-            return $referee->getNumber() === $number;
+        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $initials ) {
+            return $referee->getInitials() === $initials;
+        });
+        return array_shift( $referees );
+    }
+
+    /**
+     * @return Referee
+     */
+    public function getRefereeById( $id )
+    {
+        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $id ) {
+            return $referee->getId() === $id;
         });
         return array_shift( $referees );
     }

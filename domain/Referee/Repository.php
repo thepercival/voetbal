@@ -19,8 +19,9 @@ class Repository extends \Voetbal\Repository
 
     public function editFromJSON( Referee $p_referee, Competitionseason $competitionseason )
     {
-        $referee = $competitionseason->getReferee( $p_referee->getNumber() );
+        $referee = $competitionseason->getRefereeById( $p_referee->getId() );
         $referee->setName( $p_referee->getName() );
+        $referee->setInfo( $p_referee->getInfo() );
         $this->_em->persist( $referee );
         $this->_em->flush();
         return $referee;
