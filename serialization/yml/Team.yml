@@ -8,6 +8,8 @@ Voetbal\Team:
       type: integer
     name:
       type: string
+    info:
+      type: string
 #    association:
 #      type: Voetbal\Association
 

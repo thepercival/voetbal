@@ -19,6 +19,11 @@ Voetbal\Team:
       unique: false
       length: !php/const:Voetbal\Team::MAX_LENGTH_ABBREVIATION
       column: abbreviation
+    info:
+      type: string
+      nullable: true
+      length: !php/const:Voetbal\Team::MAX_LENGTH_INFO
+      unique: false
   oneToMany:
     externals:
       targetEntity: Voetbal\External\Team
