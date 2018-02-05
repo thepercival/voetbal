@@ -42,7 +42,7 @@ Voetbal\Round\Config:
       nullable: false
       unique: false
     enableTime:
-      type: smallint
+      type: boolean
       nullable: false
       unique: false
     minutesPerGame:

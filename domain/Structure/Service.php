@@ -275,4 +275,14 @@ class Service
         }
         return $nrOfPoules;
     }
+
+    public function canCalculateStartDateTime(Round $round) {
+        if ($round->getConfig()->getEnableTime() === false) {
+            return false;
+        }
+        if ($round->getParentRound() !== null) {
+            return $this->canCalculateStartDateTime($round->getParentRound());
+        }
+        return true;
+    }
 }
