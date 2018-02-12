@@ -27,6 +27,11 @@ class Team implements External\Importable
     protected $abbreviation;
 
     /**
+     * @var string
+     */
+    protected $info;
+
+    /**
      * @var Association
      */
     protected $association;
@@ -34,6 +39,7 @@ class Team implements External\Importable
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 30;
     const MAX_LENGTH_ABBREVIATION = 3;
+    const MAX_LENGTH_INFO = 200;
 
     use External\ImportableTrait;
 
@@ -106,6 +112,29 @@ class Team implements External\Importable
             throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
         }
         $this->abbreviation = $abbreviation;
+    }
+
+    /**
+     * @return string
+     */
+    public function getInfo()
+    {
+        return $this->info;
+    }
+
+    /**
+     * @param string $info
+     */
+    public function setInfo( $info)
+    {
+        if ( strlen($info) === 0 ){
+            $info = null;
+        }
+
+        if ( strlen( $info ) > static::MAX_LENGTH_INFO ){
+            throw new \InvalidArgumentException( "de extra-info mag maximaal ".static::MAX_LENGTH_INFO." karakters bevatten", E_ERROR );
+        }
+        $this->info = $info;
     }
 
     /**

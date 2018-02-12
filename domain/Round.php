@@ -247,11 +247,11 @@ class Round
     }
 
     /**
-     * @return mixed
+     * @return Round\ScoreConfig
      */
     public function getInputScoreConfig()
     {
-        $scoreConfig = $this->getScoreConfigs()->last();
+        $scoreConfig = $this->getRootScoreConfig();
         while ($scoreConfig->getChild()) {
             if ($scoreConfig->getMaximum() !== 0) {
                 break;
@@ -259,6 +259,19 @@ class Round
             $scoreConfig = $scoreConfig->getChild();
         }
         return $scoreConfig;
+    }
+
+    /**
+     * @return Round\ScoreConfig
+     */
+    public function getRootScoreConfig()
+    {
+        foreach( $this->getScoreConfigs() as $scoreConfig ) {
+            if ($scoreConfig->getParent() === null) {
+                return $scoreConfig;
+            }
+        }
+        return null;
     }
 
     /**
@@ -313,6 +326,20 @@ class Round
     }
 
     /**
+     * @param integer $winnersOrLosers
+     * @return Round
+     */
+    public function getChildRound($winnersOrLosers)
+    {
+        foreach( $this->getChildRounds() as $childRound ) {
+            if( $childRound->getWinnersOrLosers() === $winnersOrLosers) {
+                return $childRound;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return PoulePlace[] | ArrayCollection
      */
     public function getPoulePlaces()
@@ -350,6 +377,23 @@ class Round
             }
         }
         return false;
+    }
+
+    public function getGamesWithState($state)
+    {
+        $games = [];
+        foreach( $this->getPoules() as $poule ) {
+            $games = array_merge( $games, $poule->getGamesWithState($state));
+        }
+        return $games;
+    }
+
+    public function getType()
+    {
+        if ($this->getPoules()->count() === 1 && $this->getPoulePlaces()->count() < 2) {
+            return Round::TYPE_WINNER;
+        }
+        return ($this->needsRanking() ? Round::TYPE_POULE : Round::TYPE_KNOCKOUT);
     }
 
     /**

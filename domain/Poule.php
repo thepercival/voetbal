@@ -178,6 +178,13 @@ class Poule
         $this->games = $games;
     }
 
+    public function getGamesWithState($state)
+    {
+        return array_filter( $this->getGames()->toArray(), function($gameIt) use ($state) {
+            return $gameIt->getState() === $state;
+        });
+    }
+
     /**
      * @return bool
      */

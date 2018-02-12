@@ -8,15 +8,20 @@ Voetbal\Referee:
       generator:
         strategy: AUTO
   fields:
-    number:
-      type: smallint
+    initials:
+      type: string
       nullable: false
+      length: !php/const:Voetbal\Referee::MAX_LENGTH_INITIALS
       unique: false
-      column: number
     name:
       type: string
       nullable: true
       length: !php/const:Voetbal\Referee::MAX_LENGTH_NAME
+      unique: false
+    info:
+      type: string
+      nullable: true
+      length: !php/const:Voetbal\Referee::MAX_LENGTH_INFO
       unique: false
   manyToOne:
     competitionseason:

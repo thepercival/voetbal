@@ -67,7 +67,7 @@ class Service
             return new Competitionseason\Service($repos);
         }
         elseif ( $classname === Structure::class ){
-            return new Structure\Service( $this->getService(Round::class) );
+            return new Structure\Service( $this->getService(Round::class), $this->getRepository(Round::class) );
         }
         elseif ( $classname === Round::class ){
             $competitionseasonRepos = $this->getRepository(Competitionseason::class);

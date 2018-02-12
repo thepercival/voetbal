@@ -33,16 +33,16 @@ Voetbal\Round\ScoreConfig:
   oneToOne:
     parent:
       targetEntity: Voetbal\Round\ScoreConfig
-#      inversedBy: child
+      inversedBy: child
       joinColumn:
         name: parentid
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE
-#    child:
-#      targetEntity: Voetbal\Round\ScoreConfig
-#      mappedBy: parent
-#      cascade: [ persist, remove ]
+    child:
+      targetEntity: Voetbal\Round\ScoreConfig
+      mappedBy: parent
+      cascade: [ persist, remove ]
   uniqueConstraints:
     number_u_idx:
       columns: [ parentid ]

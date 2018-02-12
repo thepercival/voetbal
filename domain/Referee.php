@@ -8,7 +8,6 @@
 
 namespace Voetbal;
 
-
 /**
  * Class Referee
  * @package Voetbal
@@ -23,24 +22,32 @@ class Referee
     /**
      * @var string
      */
+    private $initials;
+
+    /**
+     * @var string
+     */
     private $name;
 
     /**
-     * @var int
+     * @var string
      */
-    protected $number;
+    private $info;
 
     /**
      * @var Comopetitionseason
      */
     private $competitionseason;
 
+    const MIN_LENGTH_INITIALS = 1;
+    const MAX_LENGTH_INITIALS = 3;
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 15;
+    const MAX_LENGTH_INFO = 200;
 
-    public function __construct( Comopetitionseason $competitionseason, $name )
+    public function __construct( Comopetitionseason $competitionseason, $initials )
     {
-        $this->setName( $name );
+        $this->setInitials( $initials );
         $this->setCompetitionseason( $competitionseason );
     }
 
@@ -65,6 +72,31 @@ class Referee
     /**
      * @return string
      */
+    public function getInitials()
+    {
+        return $this->initials;
+    }
+
+    /**
+     * @param string
+     */
+    public function setInitials( $initials )
+    {
+        if ( $initials === null ) {
+            throw new \InvalidArgumentException( "de initialen moet gezet zijn", E_ERROR );
+        }
+        if ( strlen( $initials ) < static::MIN_LENGTH_INITIALS or strlen( $initials ) > static::MAX_LENGTH_INITIALS ){
+            throw new \InvalidArgumentException( "de initialen moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+        }
+        if(!ctype_alnum($initials)){
+            throw new \InvalidArgumentException( "de initialen (".$initials.") mag alleen cijfers en letters bevatten", E_ERROR );
+        }
+        $this->initials = $initials;
+    }
+
+    /**
+     * @return string
+     */
     public function getName()
     {
         return $this->name;
@@ -75,37 +107,32 @@ class Referee
      */
     public function setName( $name )
     {
-        if ( $name === null )
-            throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
-
-        if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
+        if ( $name !== null && ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ) ){
             throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
         }
-
-//        if(preg_match('/[^0-9\s\/-]/i', $name)){
-//            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen letters, cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
-//        }
-
+        if( $name !== null && !preg_match('/^[a-z0-9 .\-]+$/i', $name)){
+            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
+        }
         $this->name = $name;
     }
 
     /**
-     * @return int
+     * @return string
      */
-    public function getNumber()
+    public function getInfo()
     {
-        return $this->number;
+        return $this->info;
     }
 
     /**
-     * @param int $numbers
+     * @param string
      */
-    public function setNumber( $number )
+    public function setInfo( $info )
     {
-        if ( !is_int( $number ) or $number < 1 or $number > 3 ){
-            throw new \InvalidArgumentException( "het nummer heeft een onjuiste waarde", E_ERROR );
+        if ( strlen( $info ) > static::MAX_LENGTH_INFO ){
+            $info = substr( $info, 0, static::MAX_LENGTH_INFO );
         }
-        $this->number = $number;
+        $this->info = $info;
     }
 
     /**
