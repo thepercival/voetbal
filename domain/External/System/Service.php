@@ -33,15 +33,19 @@ class Service
      * @return Association
      * @throws \Exception
      */
-    public function create( $name, $website = null )
+    public function create( $name, $website = null, $username = null, $password = null, $apiurl = null, $apikey = null )
     {
-        $system = new System( $name );
-        $system->setWebsite($website);
-
         $systemWithSameName = $this->repos->findOneBy( array('name' => $name ) );
         if ( $systemWithSameName !== null ){
             throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR );
         }
+
+        $system = new System( $name );
+        $system->setWebsite($website);
+        $system->setUsername($username);
+        $system->setPassword($password);
+        $system->setApiurl($apiurl);
+        $system->setApikey($apikey);
 
         return $this->repos->save($system);
     }

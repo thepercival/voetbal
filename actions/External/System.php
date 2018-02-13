@@ -59,55 +59,73 @@ final class System
 
     public function add( $request, $response, $args)
     {
-        $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $website = filter_var($request->getParam('website'), FILTER_SANITIZE_STRING);
-
         $sErrorMessage = null;
         try {
-            $system = $this->service->create(
-                $name,
-                $website
-            );
+            /** @var \Voetbal\External\System $systemSer */
+            $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\System', 'json');
+
+            if ( $systemSer === null ) {
+                throw new \Exception("er kan geen extern systeem worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $systemWithSameName = $this->repos->findOneBy( array('name' => $systemSer->getName() ) );
+            if ( $systemWithSameName !== null ){
+                throw new \Exception("het externe systeem ".$systemSer->getName()." bestaat al", E_ERROR );
+            }
+
+            $systemRet = $this->repos->save( $systemSer );
+
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $system, 'json'));
+                ->write($this->serializer->serialize( $systemRet, 'json'));
             ;
         }
         catch( \Exception $e ){
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 
     public function edit( $request, $response, $args)
     {
-        $system = $this->repos->find($args['id']);
-        if ( $system === null ) {
-            throw new \Exception("het aan te passen externe systeem kan niet gevonden worden",E_ERROR);
-        }
-        $data = array(
-            'name' => filter_var($request->getParam('name'), FILTER_SANITIZE_STRING),
-            'website' => filter_var($request->getParam('website'), FILTER_SANITIZE_STRING),
-            'username' => filter_var($request->getParam('username'), FILTER_SANITIZE_STRING),
-            'password' => filter_var($request->getParam('password'), FILTER_SANITIZE_STRING),
-            'apiurl' => filter_var($request->getParam('apiurl'), FILTER_SANITIZE_STRING),
-            'apikey' => filter_var($request->getParam('apikey'), FILTER_SANITIZE_STRING)
-        );
         $sErrorMessage = null;
         try {
-            $system = $this->service->edit( $system, $data );
+            /** @var \Voetbal\External\System $systemSer */
+            $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\System', 'json');
+
+            if ( $systemSer === null ) {
+                throw new \Exception("er kan geen extern systeem worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $system = $this->repos->find($systemSer->getId());
+            if ( $system === null ) {
+                throw new \Exception("de naam van het externe systeem wordt al gebruikt", E_ERROR);
+            }
+
+            $systemWithSameName = $this->repos->findOneBy( array( 'name' => $systemSer->getName() ) );
+            if ( $systemWithSameName !== null and $system->getId() !== $systemWithSameName->getId() ){
+                throw new \Exception("het externe systeem ".$systemSer->getName()." bestaat al", E_ERROR );
+            }
+
+            $system->setName( $systemSer->getName() );
+            $system->setWebsite( $systemSer->getWebsite() );
+            $system->setUsername( $systemSer->getUsername() );
+            $system->setPassword( $systemSer->getPassword() );
+            $system->setApiurl( $systemSer->getApiurl() );
+            $system->setApikey( $systemSer->getApikey() );
+            $systemRet = $this->repos->save( $system );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $system, 'json'));
+                ->write($this->serializer->serialize( $systemRet, 'json'));
             ;
         }
         catch( \Exception $e ){
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 
     public function remove( $request, $response, $args)
@@ -124,6 +142,6 @@ final class System
         catch( \Exception $e ){
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 }

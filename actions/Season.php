@@ -60,73 +60,70 @@ final class Season
 
 	public function add( $request, $response, $args)
 	{
-		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $startdate = trim( $request->getParam('startdate') );
-        if ( strlen( $startdate ) === 0 ) {
-            return $response->withStatus(404, "de startdatum is niet gezet");
-        }
-        $startdate = new \DateTime($startdate);
-        $startdate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
-        $enddate = trim( $request->getParam('enddate') );
-        if ( strlen( $enddate ) === 0 ) {
-            return $response->withStatus(404, "de einddatum is niet gezet");
-        }
-        $enddate = new \DateTime($enddate);
-        $enddate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
-		$sErrorMessage = null;
-		try {
-			$season = $this->service->create(
-				$name,
-				new Period( $startdate, $enddate )
-			);
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Season $seasonSer */
+            $seasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Season', 'json');
 
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $season, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
-		}
-		return $response->withStatus(404, $sErrorMessage );
+            if ( $seasonSer === null ) {
+                throw new \Exception("er kan geen seizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $seasonWithSameName = $this->repos->findOneBy( array('name' => $seasonSer->getName() ) );
+            if ( $seasonWithSameName !== null ){
+                throw new \Exception("het seizoen ".$seasonSer->getName()." bestaat al", E_ERROR );
+            }
+
+            $seasonRet = $this->repos->save( $seasonSer );
+
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $seasonRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function edit( $request, $response, $args)
 	{
-		$season = $this->repos->find($args['id']);
-		if ( $season === null ) {
-            return $response->withStatus(404, "de aan te passen bond kan niet gevonden worden" );
-		}
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Season $seasonSer */
+            $seasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Season', 'json');
 
-		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-		$startdate = trim( $request->getParam('startdate') );
-		if ( strlen( $startdate ) === 0 ) {
-            return $response->withStatus(404, "de startdatum is niet gezet" );
+            if ( $seasonSer === null ) {
+                throw new \Exception("er kan geen seizoen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $season = $this->repos->find($seasonSer->getId());
+            if ( $season === null ) {
+                throw new \Exception("de naam van het seizoen wordt al gebruikt", E_ERROR);
+            }
+
+            $seasonWithSameName = $this->repos->findOneBy( array( 'name' => $seasonSer->getName() ) );
+            if ( $seasonWithSameName !== null and $season->getId() !== $seasonWithSameName->getId() ){
+                throw new \Exception("het seizoen ".$seasonSer->getName()." bestaat al", E_ERROR );
+            }
+
+            $season->setName( $seasonSer->getName() );
+            $season->setStartDateTime( $seasonSer->getStartDateTime() );
+            $season->setEndDateTime( $seasonSer->getEndDateTime() );
+            $seasonRet = $this->repos->save( $season );
+
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $seasonRet, 'json'));
+            ;
         }
-        $startdate = new \DateTime($startdate);
-        $startdate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
-        $enddate = trim( $request->getParam('enddate') );
-        if ( strlen( $enddate ) === 0 ) {
-            return $response->withStatus(404, "de einddatum is niet gezet");
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
         }
-        $enddate = new \DateTime($enddate);
-        $enddate->setTimeZone(new \DateTimeZone(date_default_timezone_get())); // convert utc to local timezone
-
-		$sErrorMessage = null;
-		try {
-			$season = $this->service->edit( $season, $name, new Period( $startdate, $enddate ) );
-
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $season, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
-		}
-		return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)
