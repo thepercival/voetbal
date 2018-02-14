@@ -37,3 +37,4 @@ Voetbal\Association:
       joinColumn:
         name: parentid
         referencedColumnName: id
+        onDelete: CASCADE

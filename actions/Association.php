@@ -37,8 +37,8 @@ final class Association
 
 	public function fetch( $request, $response, $args)
 	{
-		$objects = $this->repos->findAll();
 
+		$objects = $this->repos->findAll();
 		return $response
 			->withHeader('Content-Type', 'application/json;charset=utf-8')
 			->write( $this->serializer->serialize( $objects, 'json') );
@@ -60,55 +60,77 @@ final class Association
 
 	public function add( $request, $response, $args)
 	{
-		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-		$description = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
-		$parentid = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT);
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Association $associationSer */
+            $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
+            if ( $associationSer === null ) {
+                throw new \Exception("er kan geen bond worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+            }
+            $associationWithSameName = $this->repos->findOneBy( array('name' => $associationSer->getName() ) );
+            if ( $associationWithSameName !== null ){
+                throw new \Exception("de bond ".$associationSer->getName()." bestaat al", E_ERROR );
+            }
+            $parentAssociation = null;
+            if( $associationSer->getParent() !== null ) {
+                $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
+            }
 
-		$sErrorMessage = null;
-		try {
-			$association = $this->service->create(
-				$name,
-				$description,
-				$this->repos->find( $parentid )
-			);
+            $associationSer->setParent($parentAssociation);
 
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $association, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
-		}
-		return $response->withStatus(404, $sErrorMessage );
+            $associationRet = $this->repos->save( $associationSer );
+
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $associationRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function edit( $request, $response, $args)
 	{
-		$association = $this->repos->find($args['id']);
-		if ( $association === null ) {
-			throw new \Exception("de aan te passen bond kan niet gevonden worden",E_ERROR);
-		}
-		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $description = filter_var($request->getParam('description'), FILTER_SANITIZE_STRING);
-        $parent = filter_var($request->getParam('parentid'),FILTER_SANITIZE_NUMBER_INT,array('flags' => FILTER_NULL_ON_FAILURE));
-        if( strlen($parent) === 0 ) { $parent = null; }
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Association $associationSer */
+            $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
+            if ( $associationSer === null ) {
+                throw new \Exception("er kan geen bond worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+            }
 
-		$sErrorMessage = null;
-		try {
-			$association = $this->service->edit( $association, $name, $description, $parent );
+            $association = $this->repos->find($associationSer->getId());
+            if ( $association === null ) {
+                throw new \Exception("de bond kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
+            $parentAssociation = null;
+            if( $associationSer->getParent() !== null ) {
+                $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
+            }
 
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $association, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
-		}
-		return $response->withStatus(400, $sErrorMessage );
+            $associationWithSameName = $this->repos->findOneBy( array( 'name' => $associationSer->getName() ) );
+            if ( $associationWithSameName !== null and $association->getId() !== $associationWithSameName->getId() ){
+                throw new \Exception("de bond ".$associationSer->getName()." bestaat al", E_ERROR );
+            }
+
+            $association->setName( $associationSer->getName() );
+            $association->setDescription( $associationSer->getDescription() );
+            $association->setParent( $parentAssociation );
+            $associationRet = $this->repos->save( $association );
+
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $associationRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)
@@ -125,6 +147,6 @@ final class Association
 		catch( \Exception $e ){
 			$sErrorMessage = $e->getMessage();
 		}
-		return $response->withStatus(404, $sErrorMessage );
+		return $response->withStatus(404)->write( $sErrorMessage );
 	}
 }

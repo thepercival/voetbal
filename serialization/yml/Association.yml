@@ -9,6 +9,8 @@ Voetbal\Association:
       type: string
     description:
       type: string
+    parent:
+      type: Voetbal\Association
 #    externals:
 #      read_only: true
 #    competitionseasons:

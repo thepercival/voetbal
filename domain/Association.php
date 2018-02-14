@@ -139,11 +139,11 @@ class Association implements External\Importable // extends External\Importable
 	    if ( $parent === $this ){
 		    throw new \Exception( "de parent-bond mag niet zichzelf zijn", E_ERROR );
 	    }
-	    if ( $this->parent !== null ){
-            $this->parent->getChildren()->remove($this);
+	    if ( $this->parent !== null && $this->parent->getChildren() !== null ){
+            $this->parent->getChildren()->removeElement($this);
         }
         $this->parent = $parent;
-        if ( $this->parent !== null ){
+        if ( $this->parent !== null && $this->parent->getChildren() !== null ){
             $this->parent->getChildren()->add($this);
         }
     }
