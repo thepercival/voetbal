@@ -19,7 +19,7 @@ Voetbal\Competitionseason:
         sport:
             type: string
             nullable: true
-            length: 30
+            length: !php/const:Voetbal\Competitionseason::MAX_LENGTH_SPORT
             unique: false
         startDateTime:
             type: datetime_immutable

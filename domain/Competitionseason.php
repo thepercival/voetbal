@@ -65,6 +65,8 @@ class Competitionseason implements External\Importable
     const STATE_CREATED = 1;
     const STATE_PUBLISHED = 2;
 
+    const MAX_LENGTH_SPORT = 30;
+
     use External\ImportableTrait;
 
     public function __construct( Competition $competition, Season $season, Association $association )
@@ -275,6 +277,13 @@ class Competitionseason implements External\Importable
      */
     public function setSport( $sport )
     {
+        if ( strlen( $sport ) === 0 )
+            throw new \InvalidArgumentException( "de sport moet gezet zijn", E_ERROR );
+
+        if ( strlen( $sport ) > static::MAX_LENGTH_SPORT ){
+            throw new \InvalidArgumentException( "de sport mag maximaal ".static::MAX_LENGTH_SPORT." karakters bevatten", E_ERROR );
+        }
+
         $this->sport = $sport;
     }
 
