@@ -27,10 +27,10 @@ class Competition implements External\Importable
 	 */
     protected $abbreviation;
 
-	/**
-	 * @var Competition
-	 */
-    protected $parent;
+    /**
+     * @var string
+     */
+    private $sport;
 
 	/**
 	 * @var ArrayCollection
@@ -40,6 +40,7 @@ class Competition implements External\Importable
 	const MIN_LENGTH_NAME = 3;
 	const MAX_LENGTH_NAME = 30;
 	const MAX_LENGTH_ABBREVIATION = 7;
+    const MAX_LENGTH_SPORT = 30;
 
 	use External\ImportableTrait;
 
@@ -113,7 +114,30 @@ class Competition implements External\Importable
 		    throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
 	    }
         $this->abbreviation = $abbreviation;
-    }	
+    }
+
+    /**
+     * @return string
+     */
+    public function getSport()
+    {
+        return $this->sport;
+    }
+
+    /**
+     * @param string $sport
+     */
+    public function setSport( $sport )
+    {
+        if ( strlen( $sport ) === 0 )
+            throw new \InvalidArgumentException( "de sport moet gezet zijn", E_ERROR );
+
+        if ( strlen( $sport ) > static::MAX_LENGTH_SPORT ){
+            throw new \InvalidArgumentException( "de sport mag maximaal ".static::MAX_LENGTH_SPORT." karakters bevatten", E_ERROR );
+        }
+
+        $this->sport = $sport;
+    }
 
     /**
      * @return ArrayCollection

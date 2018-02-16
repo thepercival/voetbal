@@ -14,6 +14,7 @@
 	"email": "coendunnink@gmail.com"    
   },
   "require": {
+    "php": ">=7.1",
     "vlucas/phpdotenv": "^2.4",
     "nesbot/carbon": "~1.21",
     "league/period": "~3.3",

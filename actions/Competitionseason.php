@@ -81,94 +81,73 @@ final class Competitionseason
 		return $response->withStatus(404, 'geen competitieseizoen met het opgegeven id gevonden');
 	}
 
-	public function add( $request, $response, $args)
-	{
-		$sErrorMessage = null;
-		try {
-            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
-            }
-            $association = $this->associationRepos->find($association->getId());
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
-            }
 
-            $competition = $this->serializer->deserialize( json_encode($request->getParam('competition')), 'Voetbal\Competition', 'json');
-            if ( $competition === null ){
-                throw new \Exception("de competitie is niet gevonden", E_ERROR );
-            }
-            $competition = $this->competitionRepos->find($competition->getId());
-            if ( $competition === null ){
-                throw new \Exception("de competitie is niet gevonden", E_ERROR );
-            }
-
-            $season = $this->serializer->deserialize( json_encode($request->getParam('season')), 'Voetbal\Season', 'json');
-            if ( $season === null ){
-                throw new \Exception("het seizoen is niet gevonden", E_ERROR );
-            }
-            $season = $this->seasonRepos->find($season->getId());
-            if ( $season === null ){
-                throw new \Exception("het seizoen is niet gevonden", E_ERROR );
-            }
-
-			$competitionseason = $this->service->create(
-                $association,
-                $competition,
-                $season
-			);
-            $qualificationrule = filter_var($request->getParam('qualificationrule'), FILTER_VALIDATE_INT);
-            if ( $qualificationrule !== false ){
-                $competitionseason->setQualificationrule( $qualificationrule );
-            }
-
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $competitionseason, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
-		}
-		return $response->withStatus(404, $sErrorMessage );
-	}
-
-	public function edit( $request, $response, $args)
-	{
+	public function add($request, $response, $args)
+    {
         $sErrorMessage = null;
-		try {
-            $qualificationrule = filter_var($request->getParam('qualificationrule'), FILTER_VALIDATE_INT);
+        try {
+            /** @var \Voetbal\Competitionseason $competitionseasonSer */
+            $competitionseasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competitionseason', 'json');
+            if ( $competitionseasonSer === null ) {
+                throw new \Exception("er kan competitieseizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+            }
+            $association = $this->associationRepos->find( $competitionseasonSer->getAssociation()->getId() );
+            if ( $association === null ){
+                throw new \Exception("de bond kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
+            }
+            $competition = $this->competitionRepos->find( $competitionseasonSer->getCompetition()->getId() );
+            if ( $competition === null ){
+                throw new \Exception("de competitie kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
+            }
+            $season = $this->seasonRepos->find( $competitionseasonSer->getSeason()->getId() );
+            if ( $season === null ){
+                throw new \Exception("het seizoen kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
+            }
+            $competitionseasonSer->setAssociation($association);
+            $competitionseasonSer->setCompetition($competition);
+            $competitionseasonSer->setSeason($season);
+            $competitionseasonRet = $this->service->create( $competitionseasonSer );
 
-            $competitionseason = $this->repos->find($args['id']);
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $competitionseasonRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
+    }
+
+    public function edit( $request, $response, $args)
+    {
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Competitionseason $competitionseasonSer */
+            $competitionseasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competitionseason', 'json');
+            if ( $competitionseasonSer === null ) {
+                throw new \Exception("er kan competitieseizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $competitionseason = $this->repos->find($competitionseasonSer->getId());
             if ( $competitionseason === null ) {
-                throw new \Exception("het aan te passen competitieseizoen kan niet gevonden worden",E_ERROR);
-            }
-            $association = $this->serializer->deserialize( json_encode($request->getParam('association')), 'Voetbal\Association', 'json');
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
-            }
-            $association = $this->associationRepos->find($association->getId());
-            if ( $association === null ){
-                throw new \Exception("de bond is niet gevonden", E_ERROR );
-            }
-            if ( $qualificationrule === false ){
-                throw new \Exception("de te wijzigen kwalificatieregel is niet correct", E_ERROR );
+                throw new \Exception("het competitieseizoen kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-			$competitionseason = $this->service->edit( $competitionseason, $association, $qualificationrule );
+            $competitionseasonRet = $this->service->changeStartDateTime( $competitionseason, $competitionseasonSer->getStartDateTime() );
 
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $competitionseason, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
-		}
-		return $response->withStatus(404, $sErrorMessage );
-	}
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $competitionseasonRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
+    }
 
 	public function remove( $request, $response, $args)
 	{

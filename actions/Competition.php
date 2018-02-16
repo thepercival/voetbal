@@ -61,53 +61,58 @@ final class Competition
 
 	public function add( $request, $response, $args)
 	{
-		$name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-        $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
-		$sErrorMessage = null;
-		try {
-			$competition = $this->service->create(
-				$name,
-                $abbreviation
-			);
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Competition $competitionSer */
+            $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
+            if ( $competitionSer === null ) {
+                throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+            }
+            $competitionRet = $this->service->create( $competitionSer );
 
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $competition, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
-		}
-		return $response->withStatus(404, $sErrorMessage );
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $competitionRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
 	{
-	    $sErrorMessage = null;
-		try {
-
-            $competition = $this->repos->find($args['id']);
-            if ( $competition === null ) {
-                throw new \Exception("de aan te passen competitie kan niet gevonden worden",E_ERROR);
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\Competition $competitionSer */
+            $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
+            if ( $competitionSer === null ) {
+                throw new \Exception("er kan geen competitie worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $name = filter_var($request->getParam('name'), FILTER_SANITIZE_STRING);
-            $abbreviation = filter_var($request->getParam('abbreviation'), FILTER_SANITIZE_STRING);
+            $competition = $this->repos->find($competitionSer->getId());
+            if ( $competition === null ) {
+                throw new \Exception("de competitie kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
 
-			$competition = $this->service->edit( $competition, $name, $abbreviation );
+            $competitionRet = $this->service->changeBasics(
+                $competition,
+                $competitionSer->getName(),
+                $competitionSer->getAbbreviation()
+            );
 
-			return $response
-				->withStatus(201)
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $competition, 'json'));
-			;
-		}
-		catch( \Exception $e ){
-
-		    $sErrorMessage = $e->getMessage();
-		}
-        return $response->withStatus(400,$sErrorMessage);
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $competitionRet, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)

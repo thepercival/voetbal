@@ -8,10 +8,12 @@ Voetbal\Team:
       type: integer
     name:
       type: string
+    abbreviation:
+      type: string
     info:
       type: string
-#    association:
-#      type: Voetbal\Association
+    association:
+      type: Voetbal\Association
 
 #    externals:
 #      exclude: true

@@ -65,12 +65,9 @@ final class Association
             /** @var \Voetbal\Association $associationSer */
             $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
             if ( $associationSer === null ) {
-                throw new \Exception("er kan geen bond worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
-            $associationWithSameName = $this->repos->findOneBy( array('name' => $associationSer->getName() ) );
-            if ( $associationWithSameName !== null ){
-                throw new \Exception("de bond ".$associationSer->getName()." bestaat al", E_ERROR );
-            }
+
             $parentAssociation = null;
             if( $associationSer->getParent() !== null ) {
                 $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
@@ -78,7 +75,7 @@ final class Association
 
             $associationSer->setParent($parentAssociation);
 
-            $associationRet = $this->repos->save( $associationSer );
+            $associationRet = $this->service->create( $associationSer );
 
             return $response
                 ->withStatus(201)
@@ -116,10 +113,12 @@ final class Association
                 throw new \Exception("de bond ".$associationSer->getName()." bestaat al", E_ERROR );
             }
 
-            $association->setName( $associationSer->getName() );
-            $association->setDescription( $associationSer->getDescription() );
-            $association->setParent( $parentAssociation );
-            $associationRet = $this->repos->save( $association );
+            $associationRet = $this->service->changeBasics(
+                $association,
+                $associationSer->getName(),
+                $associationSer->getDescription()
+            );
+            $associationRet = $this->service->changeParent( $association, $parentAssociation );
 
             return $response
                 ->withStatus(201)

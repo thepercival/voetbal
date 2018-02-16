@@ -34,48 +34,47 @@ class Service
 	}
 
     /**
-     * @param Competition $competition
-     * @param Season $season
-     * @param Association $association
-     * @return Competition|Competitionseason
+     * @param Competitionseason $competitionseasonSer
+     * @return mixed
      * @throws \Exception
      */
-	public function create( Association $association, Competition $competition, Season $season, \DateTimeImmutable $startDate )
+	public function create( CompetitionSeason $competitionseasonSer )
 	{
-		// check if competitionseason with same competition and season exists
-        $sameCompetitionseason = $this->repos->findOneBy( array('competition' => $competition->getId(), 'season' => $season->getId()  ) );
-		if ( $sameCompetitionseason !== null ){
-			throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
-		}
+		$sameCompetitionseason = $this->repos->findOneBy( array(
+            'competition' => $competitionseasonSer->getCompetition(),
+            'season' => $competitionseasonSer->getSeason()
+        ) );
 
-        $competitionseason = new Competitionseason( $competition, $season, $association  );
-        $competitionseason->setStartDateTime( $startDate );
+        if ( $sameCompetitionseason !== null ){
+            throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
+        }
 
-        try {
-            return $this->repos->save($competitionseason);
+        if( !$competitionseasonSer->getSeason()->getPeriod()->contains( $competitionseasonSer->getStartDateTime() ) ) {
+            throw new \Exception("de startdatum van het competiteseizoen valt buiten het seizoen", E_ERROR );
         }
-        catch( \Exception $e ){
-            throw new \Exception(urlencode($e->getMessage()), E_ERROR );
-        }
+
+        return $this->repos->save($competitionseasonSer);
 	}
 
     /**
      * @param Competitionseason $competitionseason
-     * @param Association $association
-     * @param $qualificationrule
+     * @param \DateTimeImmutable $startDateTime
+     * @return mixed
      * @throws \Exception
      */
-	public function edit( Competitionseason $competitionseason, Association $association, $qualificationrule, $sport = null )
+	public function changeStartDateTime( Competitionseason $competitionseason, \DateTimeImmutable $startDateTime )
 	{
         if( $competitionseason->getState() === Competitionseason::STATE_PUBLISHED ) {
             throw new \Exception("het competitieseizoen kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
         }
 
-        $competitionseason->setAssociation($association);
-        $competitionseason->setQualificationRule($qualificationrule);
-        $competitionseason->setSport($sport);
+        if( !$competitionseason->getSeason()->getPeriod()->contains( $startDateTime ) ) {
+            throw new \Exception("de startdatum van het competiteseizoen valt buiten het seizoen", E_ERROR );
+        }
 
-		return $this->repos->save($competitionseason);
+        $competitionseason->setStartDateTime( $startDateTime );
+
+        return $this->repos->save($competitionseason);
 	}
 
     /**

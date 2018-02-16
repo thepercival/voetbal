@@ -13,6 +13,11 @@ Voetbal\Competition:
       nullable: false
       length: !php/const:Voetbal\Competition::MAX_LENGTH_NAME
       unique: true
+    sport:
+      type: string
+      nullable: false
+      length: !php/const:Voetbal\Competition::MAX_LENGTH_SPORT
+      unique: false
     abbreviation:
       type: string
       nullable: true

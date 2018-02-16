@@ -70,20 +70,19 @@ final class Team
         $sErrorMessage = null;
         try {
             /** @var \Voetbal\Team $team */
-            $team = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
+            $teamSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
 
-            if ( $team === null ) {
+            if ( $teamSer === null ) {
                 throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $associationid = (int) $request->getParam("associationid");
-            $association = $this->associationRepos->find($associationid);
+            $association = $this->associationRepos->find($teamSer->getAssociation()->getId());
             if ( $association === null ) {
                 throw new \Exception("de bond kan niet gevonden worden", E_ERROR);
             }
 
-            $team->setAssociation( $association );
-            $teamRet = $this->repos->save( $team );
+            $teamSer->setAssociation( $association );
+            $teamRet = $this->repos->save( $teamSer );
 
             return $response
                 ->withStatus(201)
@@ -104,8 +103,7 @@ final class Team
             /** @var \Voetbal\Team $team */
             $team = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
 
-            $associationid = (int) $request->getParam("associationid");
-            $association = $this->associationRepos->find($associationid);
+            $association = $this->associationRepos->find($team->getAssociation()->getId());
             if ( $association === null ) {
                 throw new \Exception("de bond kan niet gevonden worden", E_ERROR);
             }
@@ -120,5 +118,22 @@ final class Team
             $sErrorMessage = $e->getMessage();
         }
         return $response->withStatus(422)->write($sErrorMessage);
+    }
+
+    public function remove( $request, $response, $args)
+    {
+        $association = $this->repos->find($args['id']);
+        $sErrorMessage = null;
+        try {
+            $this->service->remove($association);
+
+            return $response
+                ->withStatus(204);
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 }

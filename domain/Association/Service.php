@@ -29,46 +29,72 @@ class Service
 	}
 
     /**
-     * @param $name
-     * @param null $description
-     * @param Association|null $parent
-     * @return Association
+     * @param Association $associationSer
+     * @return mixed
      * @throws \Exception
      */
-	public function create( $name, $description = null, Association $parent = null )
-	{
-		$association = new Association( $name );
-		$association->setDescription($description);
-		$association->setParent($parent);
+    public function create( Association $associationSer )
+    {
+        $associationWithSameName = $this->repos->findOneBy( array('name' => $associationSer->getName() ) );
+        if ( $associationWithSameName !== null ){
+            throw new \Exception("de bond met de naam ".$associationSer->getName()." bestaat al", E_ERROR );
+        }
+        return $this->repos->save($associationSer);
+    }
 
-		$associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $associationWithSameName !== null ){
-			throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
-		}
+    public function changeBasics( Association $association, $name, $description )
+    {
+        $associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+        if ( $associationWithSameName !== null and $associationWithSameName !== $association ){
+            throw new \Exception("de bond met de naam ".$name." bestaat al", E_ERROR );
+        }
 
-		return $this->repos->save($association);
-	}
+        $association->setName($name);
+        $association->setDescription($description);
 
-    /**
-     * @param Association $association
-     * @param $name
-     * @param $description
-     * @param Association $parent
-     * @throws \Exception
-     */
-	public function edit( Association $association, $name, $description, Association $parent = null )
-	{
-		$associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $associationWithSameName !== null and $associationWithSameName !== $association ){
-			throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
-		}
+        return $this->repos->save($association);
+    }
 
-		$association->setName($name);
-		$association->setDescription($description);
-		$association->setParent($parent);
+    public function changeParent( Association $association, Association $parentAssociation )
+    {
+        $descendants = $association->getDescendants();
+        $descendants[$association->getId()] = $association;
+        $ancestors = $parentAssociation->getAncestors();
+        $ancestors[$parentAssociation->getId()] = $parentAssociation;
+        foreach( $ancestors as $ancestor ) {
+            if( array_key_exists( $ancestor->getId(), $descendants ) ) {
+                throw new \Exception("er ontstaat een circulaire relatie tussen de bonden", E_ERROR );
+            }
+        }
+        $association->setParent($parentAssociation);
+        return $this->repos->save($association);
+    }
 
-		return $this->repos->save($association);
-	}
+    protected function getDescendants( Association $association) {
+        $descendants = [];
+        $this->getDescendantsHelper( $association, $descendants );
+        return $descendants;
+    }
+
+    protected function getDescendantsHelper( Association $association, &$descendants ) {
+        foreach( $association->getChildren() as $child ) {
+            $descendants[$association->getId()] = $association;
+            $this->getDescendantsHelper( $child, $descendants );
+        }
+    }
+
+    protected function getAncestors( Association $association) {
+        $ancestors = [];
+        $this->getAncestorsHelper( $association, $ancestors );
+        return $ancestors;
+    }
+
+    protected function getAncestorsHelper( Association $association, &$ancestors ) {
+        if( $association->getParent() !== null ) {
+            $ancestors[$association->getParent()->getId()] = $association->getParent();
+            $this->getAncestorsHelper( $association->getParent(), $descendants );
+        }
+    }
 
     /**
      * @param Association $association

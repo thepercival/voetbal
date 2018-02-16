@@ -16,11 +16,6 @@ Voetbal\Competitionseason:
             default:  !php/const:Voetbal\Competitionseason::STATE_CREATED
             nullable: false
             unique: false
-        sport:
-            type: string
-            nullable: true
-            length: !php/const:Voetbal\Competitionseason::MAX_LENGTH_SPORT
-            unique: false
         startDateTime:
             type: datetime_immutable
             unique: false

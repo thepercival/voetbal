@@ -29,49 +29,42 @@ class Service
 	}
 
     /**
-     * @param $name
-     * @param null $abbreviation
-     * @return Competition
+     * @param Competition $competitionSer
+     * @return mixed
      * @throws \Exception
      */
-	public function create( $name, $abbreviation = null )
+	public function create( Competition $competitionSer )
 	{
-		$competition = new Competition( $name, $abbreviation );
-
-        $competitionWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+		$competitionWithSameName = $this->repos->findOneBy( array('name' => $competitionSer->getName() ) );
 		if ( $competitionWithSameName !== null ){
-			throw new \Exception("de competitie met de naam ".$name." bestaat al", E_ERROR );
+			throw new \Exception("de competitie met de naam ".$competitionSer->getName()." bestaat al", E_ERROR );
 		}
-        if ( strlen($abbreviation) > 0 ){
-            $competitionWithSameAbbreviation = $this->repos->findOneBy( array('abbreviation' => $abbreviation ) );
-            if ( $competitionWithSameAbbreviation !== null ){
-                throw new \Exception("de competitie met de afkorting ".$abbreviation." bestaat al", E_ERROR );
-            }
-        }
-        return $this->repos->save($competition);
+//        if ( strlen($abbreviation) > 0 ){
+//            $competitionWithSameAbbreviation = $this->repos->findOneBy( array('abbreviation' => $abbreviation ) );
+//            if ( $competitionWithSameAbbreviation !== null ){
+//                throw new \Exception("de competitie met de afkorting ".$abbreviation." bestaat al", E_ERROR );
+//            }
+//        }
+        return $this->repos->save($competitionSer);
 	}
 
     /**
      * @param Competition $competition
      * @param $name
-     * @param null $abbreviation
+     * @param $abbreviation
+     * @return mixed
      * @throws \Exception
      */
-	public function edit( Competition $competition, $name, $abbreviation = null )
-	{
+    public function changeBasics( Competition $competition, $name, $abbreviation )
+    {
         $competitionWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $competitionWithSameName !== null and $competitionWithSameName !== $competition ){
-			throw new \Exception("de competitie met de naam ".$name." bestaat al", E_ERROR );
-		}
-		if ( strlen($abbreviation) > 0 ){
-            $competitionWithSameAbbreviation = $this->repos->findOneBy( array('abbreviation' => $abbreviation ) );
-            if ( $competitionWithSameAbbreviation !== null and $competitionWithSameAbbreviation !== $competition ){
-                throw new \Exception("de competitie met de afkorting ".$abbreviation." bestaat al", E_ERROR );
-            }
+        if ( $competitionWithSameName !== null and $competitionWithSameName !== $competition ){
+            throw new \Exception("de competitie met de naam ".$name." bestaat al", E_ERROR );
         }
+
         $competition->setName($name);
         $competition->setAbbreviation($abbreviation);
 
-		return $this->repos->save($competition);
-	}
+        return $this->repos->save($competition);
+    }
 }

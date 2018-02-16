@@ -75,6 +75,8 @@ class Service
      */
     public function remove( Team $team )
     {
+        // team can only be removed if it is not in a pouleplace
+        // @TODO TEST
         $this->repos->remove($team);
     }
 }

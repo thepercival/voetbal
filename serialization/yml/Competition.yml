@@ -10,3 +10,5 @@ Voetbal\Competition:
       type: string
     abbreviation:
       type: string
+    sport:
+      type: string
