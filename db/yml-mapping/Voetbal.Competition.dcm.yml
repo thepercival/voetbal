@@ -30,4 +30,4 @@ Voetbal\Competition:
       mappedBy: competition
     externals:
       targetEntity: Voetbal\External\Competition
-      mappedBy: importableobject
+      mappedBy: importableObject

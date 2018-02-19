@@ -29,7 +29,7 @@ Voetbal\Association:
       mappedBy: association
     externals:
       targetEntity: Voetbal\External\Association
-      mappedBy: importableobject
+      mappedBy: importableObject
   manyToOne:
     parent:
       targetEntity: Voetbal\Association

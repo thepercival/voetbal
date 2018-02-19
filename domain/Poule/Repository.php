@@ -34,7 +34,7 @@ class Repository extends \Voetbal\Repository
 
         $gameRepos = $this->_em->getRepository( \Voetbal\Game::class );
         foreach( $poule->getGames() as $game ) {
-            $field = $competitionseason->getField( $game->getField()->getNumber() );
+            $field = $game->getField() ? $competitionseason->getField( $game->getField()->getNumber() ) : null;
             $referee = $game->getReferee() ? $competitionseason->getReferee( $game->getReferee()->getInitials() ) : null;
             $homePoulePlace = $poule->getPlace( $game->getHomePoulePlace()->getNumber() );
             $awayPoulePlace = $poule->getPlace( $game->getAwayPoulePlace()->getNumber() );

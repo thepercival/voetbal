@@ -29,16 +29,16 @@ class Service
 
     /**
      * @param Importable $importable
-     * @param System $externalsystem
-     * @param $externalid
+     * @param System $externalSystem
+     * @param $externalId
      * @return \Voetbal\External\Object
      */
-	public function create( Importable $importable, System $externalsystem, $externalid )
+	public function create( Importable $importable, System $externalSystem, $externalId )
 	{
 	    // make an external from the importable and save to the repos
 
 		$externalobject = new \Voetbal\External\Object(
-            $importable, $externalsystem, $externalid
+            $importable, $externalSystem, $externalId
         );
 
 		// check if not exisys

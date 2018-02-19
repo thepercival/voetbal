@@ -1,6 +1,6 @@
 Voetbal\External\Team:
   type: entity
-  repositoryClass: Voetbal\Team\External\Repository
+  repositoryClass: Voetbal\External\Team\Repository
   table: externalteams
   id:
     id:
@@ -8,27 +8,27 @@ Voetbal\External\Team:
       generator:
         strategy: AUTO
   fields:
-    externalid:
+    externalId:
       type: string
       length : !php/const:Voetbal\External\Object::MAX_LENGTH_EXTERNALID
       nullable: false
   manyToOne:
-    externalsystem:
+    externalSystem:
       targetEntity: Voetbal\External\System
       #inversedBy: teams
       joinColumn:
-        name: externalsystemid
+        name: externalSystemid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    importableobject:
+    importableObject:
       targetEntity: Voetbal\Team
       inversedBy: externals
       joinColumn:
-        name: importableobjectid
+        name: importableObjectid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
   uniqueConstraints:
     main_idx:
-      columns: [ externalsystemid, externalid ]
+      columns: [ externalSystemid, externalId ]

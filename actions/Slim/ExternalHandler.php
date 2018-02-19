@@ -78,7 +78,7 @@ class ExternalHandler
 
             $classname =  $this->getClassFromResource($resourceType);
             $objectRepository = $voetbalservice->getRepository($classname);
-            $objectService = new \Voetbal\External\Object\Service($objectRepository);
+            $objectService = new \Voetbal\External\Object\Service($objectRepository, $systemRepos, $importableRepos);
 
             $action = new Voetbal\Action\External\Object($objectService, $objectRepository, $importableRepos, $systemRepos, $serializer);
         }

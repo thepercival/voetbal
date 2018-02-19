@@ -67,71 +67,94 @@ final class Object
 
     public function fetchOne( $request, $response, $args)
     {
+        $externalSystemId = filter_var($request->getParam('externalSystemId'), FILTER_VALIDATE_INT);
+        $importableObjectId = filter_var($request->getParam('importableObjectId'), FILTER_VALIDATE_INT);
 
-        /*$system = $this->repos->find($args['id']);
-        if ($system) {
+        $externalObject = $this->repos->findOneBy( array(
+            'externalSystem' => $externalSystemId,
+            'importableObject' => $importableObjectId
+        ) );
+
+        if ($externalObject) {
             return $response
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $system, 'json'));
+                ->write($this->serializer->serialize( $this->service->toJSON( $externalObject ), 'json'));
             ;
-        }*/
-        return $response->withStatus(404, 'geen extern systeem met het opgegeven id gevonden');
+        }
+        return $response->withStatus(404)->write('geen extern object met het opgegeven id gevonden');
     }
 
     public function add( $request, $response, $args)
     {
-        $externalid = filter_var($request->getParam('externalid'), FILTER_SANITIZE_STRING);
-        $externalsystemid = filter_var($request->getParam('externalsystemid'), FILTER_VALIDATE_INT);
-        $importableobejctid = filter_var($request->getParam('importableobjectid'), FILTER_VALIDATE_INT);
-
         $sErrorMessage = null;
-        // $sErrorMessage = $externalid . " - " . $externalsystemid . " - " . $importableobejctid;
-
-
-
         try {
-            $importableobject = $this->importableRepos->find($importableobejctid);
-            if ( $importableobject === null ) {
-                throw new \Exception("het object waaraan het externe object gekoppeld wordt, kan niet gevonden worden",E_ERROR);
-            }
-            $externalsystem = $this->systemRepos->find($externalsystemid);
-            if ( $externalsystem === null ) {
-                throw new \Exception("het externe systeem kan niet gevonden worden",E_ERROR);
+            /** @var \Voetbal\External\Object $externalObjectSer */
+            $externalObjectExtSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\ObjectExt', 'json');
+            if ( $externalObjectExtSer === null ) {
+                throw new \Exception("er kan geen extern object worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $externalobject = $this->service->create(
-                $importableobject,
-                $externalid,
-                $externalsystem
-            );
+            $externalObjectSer = $this->service->fromJSON( $externalObjectExtSer );
+            $externalObjectRet = $this->service->create( $externalObjectSer );
+
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $externalobject, 'json'));
+                ->write($this->serializer->serialize( $this->service->toJSON( $externalObjectRet ), 'json'));
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = urlencode( $e->getMessage() );
+            $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
+    }
+
+    public function edit( $request, $response, $args)
+    {
+        $sErrorMessage = null;
+        try {
+            /** @var \Voetbal\External\Object $externalObjectSer */
+            $externalObjectExtSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\ObjectExt', 'json');
+            if ( $externalObjectExtSer === null ) {
+                throw new \Exception("er kan geen extern object worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $externalObject = $this->repos->find($externalObjectExtSer->getId());
+            if ( $externalObject === null ) {
+                throw new \Exception("het externe object kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
+
+            // $externalObjectSer = $this->service->fromJSON( $externalObjectExtSer );
+            $externalObject->setExternalId( $externalObjectExtSer->getExternalId() );
+
+            $externalObjectRet = $this->repos->save( $externalObject );
+
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $this->service->toJSON( $externalObjectRet ), 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 
     public function remove( $request, $response, $args)
     {
-        $externalobject = $this->repos->find($args['id']);
-
-        $sErrorMessage = "hallo";
+        $association = $this->repos->find($args['id']);
+        $sErrorMessage = null;
         try {
-            $this->service->remove(
-                $externalobject
-            );
+            $this->service->remove($association);
+
             return $response
                 ->withStatus(204);
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = urlencode( $e->getMessage() );
+            $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write( $sErrorMessage );
     }
 }

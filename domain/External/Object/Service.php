@@ -9,9 +9,11 @@
 namespace Voetbal\External\Object;
 
 use Voetbal\External\Object as ExternalObject;
-use Voetbal\External\System as ExternalSystem;
+use Voetbal\External\System\Repository as ExternalSystemRepos;
+use Voetbal\External\Importable\Repository as ImportableRepository;
 use Voetbal\External\Importable;
 use \Doctrine\ORM\EntityRepository;
+use Voetbal\External\ObjectExt as ExternalObjectExt;
 
 class Service
 {
@@ -21,26 +23,40 @@ class Service
     protected $repos;
 
     /**
+     * @var ExternalSystemRepos
+     */
+    protected $externalSystemRepos;
+
+    /**
+     * @var ImportableRepository
+     */
+    protected $importableRepos;
+
+    /**
      * Service constructor.
      * @param EntityRepository $repos
      */
-    public function __construct( EntityRepository $repos )
+    public function __construct(
+        EntityRepository $repos,
+        ExternalSystemRepos $externalSystemRepos,
+        ImportableRepository $importableRepos)
     {
         $this->repos = $repos;
+        $this->externalSystemRepos = $externalSystemRepos;
+        $this->importableRepos = $importableRepos;
     }
 
     /**
-     * @param string $externalObjectCLass
-     * @param Importable $importableobject
-     * @param $externalid
-     * @param ExternaSystem $externalsystem
+     * @param ExternalObject $externalObject
      * @return mixed
-     * @throws \Exception
      */
-    public function create( Importable $importableobject, $externalid, ExternalSystem $externalsystem )
+    public function create( ExternalObject $externalObject )
     {
+        // check here if not already present
+
         $sClassName = $this->repos->getClassName();
-        $externalobject = new $sClassName(  $importableobject, $externalsystem, $externalid);
+
+        // $externalobject = new $sClassName(  $importableObject, $externalSystem, $externalId);
 
         //should write to ExternalCOmpetition which extends from ExternalObject
 
@@ -49,7 +65,7 @@ class Service
             throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR );
         }*/
 
-        return $this->repos->save($externalobject);
+        return $this->repos->save($externalObject);
     }
 
     /**
@@ -60,5 +76,33 @@ class Service
     public function remove( ExternalObject $externalobject )
     {
         $this->repos->remove($externalobject);
+    }
+
+    public function fromJSON( ExternalObjectExt $externalObjectExt )
+    {
+        $className = $this->getExternalClass( $this->importableRepos->getClassName() );
+        $z = new $className(
+            $this->importableRepos->find( $externalObjectExt->getImportableObjectId() ),
+            $this->externalSystemRepos->find( $externalObjectExt->getExternalSystemId() ),
+            $externalObjectExt->getExternalId()
+        );
+        $z->setId($externalObjectExt->getId());
+        return $z;
+    }
+
+    public function getExternalClass( $className )
+    {
+        return str_replace( "Voetbal\\", "Voetbal\\External\\", $className );
+    }
+
+    public function toJSON( ExternalObject $externalObject )
+    {
+        $z = new ExternalObjectExt(
+            $externalObject->getImportableObject()->getId(),
+            $externalObject->getExternalSystem()->getId(),
+            $externalObject->getExternalId()
+        );
+        $z->setId($externalObject->getId());
+        return $z;
     }
 }

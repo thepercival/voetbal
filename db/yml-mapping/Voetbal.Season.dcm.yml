@@ -28,4 +28,4 @@ Voetbal\Season:
             mappedBy: season
         externals:
             targetEntity: Voetbal\External\Season
-            mappedBy: importableobject
+            mappedBy: importableObject

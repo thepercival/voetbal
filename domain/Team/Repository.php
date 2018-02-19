@@ -8,6 +8,7 @@
 
 namespace Voetbal\Team;
 
+use Voetbal\External\Importable\Repository as ImportableRepository;
 use Voetbal\Team;
 use Voetbal\Association;
 
@@ -15,7 +16,7 @@ use Voetbal\Association;
  * Team
  *
  */
-class Repository extends \Voetbal\Repository
+class Repository extends \Voetbal\Repository implements ImportableRepository
 {
     public function editFromJSON( Team $team, Association $association )
     {

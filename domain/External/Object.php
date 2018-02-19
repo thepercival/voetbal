@@ -18,25 +18,25 @@ class Object
     /**
      * @var Importable
      */
-    protected $importableobject;
+    protected $importableObject;
 
     /**
      * @var System
      */
-    protected $externalsystem;
+    protected $externalSystem;
 
     /**
      * @var string
      */
-    protected $externalid;
+    protected $externalId;
 
     const MAX_LENGTH_EXTERNALID = 100;
 
-    public function __construct( Importable $importableobject, System $externalsystem, $externalid)
+    public function __construct( Importable $importableObject, System $externalSystem, $externalId)
     {
-        $this->setImportableObject( $importableobject );
-        $this->setExternalsystem( $externalsystem );
-        $this->setExternalid( $externalid );
+        $this->setImportableObject( $importableObject );
+        $this->setExternalSystem( $externalSystem );
+        $this->setExternalId( $externalId );
     }
 
     /**
@@ -49,20 +49,28 @@ class Object
         return $this->id;
     }
 
-    public function getExternalid()
+    /**
+     * @param $id
+     */
+    public function setId( $id )
     {
-        return $this->externalid;
+        $this->id = $id;
+    }
+
+    public function getExternalId()
+    {
+        return $this->externalId;
     }
 
     /**
-     * @param string $externalid
+     * @param string $externalId
      */
-    public function setExternalid( $externalid )
+    public function setExternalId( $externalId )
     {
-        if ( strlen( $externalid ) > static::MAX_LENGTH_EXTERNALID ){
+        if ( strlen( $externalId ) > static::MAX_LENGTH_EXTERNALID ){
             throw new \InvalidArgumentException( "de externe id mag maximaal ".static::MAX_LENGTH_EXTERNALID." karakters bevatten", E_ERROR );
         }
-        $this->externalid = $externalid;
+        $this->externalId = $externalId;
     }
 
     /**
@@ -70,30 +78,30 @@ class Object
      */
     public function getImportableObject()
     {
-        return $this->importableobject;
+        return $this->importableObject;
     }
 
     /**
-     * @param Importable $importableobject
+     * @param Importable $importableObject
      */
-    public function setImportableObject( Importable $importableobject )
+    public function setImportableObject( Importable $importableObject )
     {
-        $this->importableobject = $importableobject;
+        $this->importableObject = $importableObject;
     }
 
     /**
      * @return System
      */
-    public function getExternalsystem()
+    public function getExternalSystem()
     {
-        return $this->externalsystem;
+        return $this->externalSystem;
     }
 
     /**
-     * @param System $externalsystem
+     * @param System $externalSystem
      */
-    public function setExternalsystem( System $externalsystem )
+    public function setExternalSystem( System $externalSystem )
     {
-        $this->externalsystem = $externalsystem;
+        $this->externalSystem = $externalSystem;
     }
 }

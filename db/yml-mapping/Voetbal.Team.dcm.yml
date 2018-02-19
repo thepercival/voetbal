@@ -27,7 +27,7 @@ Voetbal\Team:
   oneToMany:
     externals:
       targetEntity: Voetbal\External\Team
-      mappedBy: importableobject
+      mappedBy: importableObject
   manyToOne:
     association:
       targetEntity: Voetbal\Association

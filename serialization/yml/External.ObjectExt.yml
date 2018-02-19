@@ -1,0 +1,17 @@
+Voetbal\External\ObjectExt:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      type: int
+    importableObjectId:
+      type: int
+      serialized_name: importableObjectId
+    externalSystemId:
+      type: int
+      serialized_name: externalSystemId
+    externalId:
+      type: string
+      serialized_name: externalId

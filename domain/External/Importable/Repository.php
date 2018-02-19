@@ -7,7 +7,7 @@
  */
 namespace Voetbal\External\Importable;
 
-interface Contract
+interface Repository
 {
-    public function getExternals();
+    // public function getExternals();
 }

@@ -38,7 +38,7 @@ Voetbal\Competitionseason:
             cascade: [ remove ]
 #        externals:
 #          targetEntity: Voetbal\Competitionseason
-#          mappedBy: importableobject
+#          mappedBy: importableObject
     manyToOne:
         competition:
             targetEntity: Voetbal\Competition
