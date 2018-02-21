@@ -47,7 +47,7 @@ class Association implements External\Importable // extends External\Importable
      */
     protected $teams;
 
-    const MIN_LENGTH_NAME = 3;
+    const MIN_LENGTH_NAME = 2;
 	const MAX_LENGTH_NAME = 20;
 	const MAX_LENGTH_DESCRIPTION = 50;
 

@@ -57,9 +57,9 @@ class Service
 
     public function changeParent( Association $association, Association $parentAssociation )
     {
-        $descendants = $association->getDescendants();
+        $descendants = $this->getDescendants($association);
         $descendants[$association->getId()] = $association;
-        $ancestors = $parentAssociation->getAncestors();
+        $ancestors = $this->getAncestors($parentAssociation);
         $ancestors[$parentAssociation->getId()] = $parentAssociation;
         foreach( $ancestors as $ancestor ) {
             if( array_key_exists( $ancestor->getId(), $descendants ) ) {
