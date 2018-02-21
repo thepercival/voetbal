@@ -12,7 +12,7 @@ namespace Voetbal\External\Game;
  * Class Repository
  * @package Voetbal\External\Game
  */
-class Repository extends \Voetbal\Repository
+class Repository extends \Voetbal\External\Repository
 {
 
 }

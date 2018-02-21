@@ -12,6 +12,8 @@ use Voetbal\Game;
 use Voetbal\Poule;
 use Voetbal\PoulePlace;
 use Voetbal\Field;
+use Voetbal\Team;
+use Voetbal\Competitionseason;
 
 /**
  * Game
@@ -56,5 +58,40 @@ class Repository extends \Voetbal\Repository
         // all entities needs conversion from database!!
         $this->_em->persist($game);
         return $game;
+    }
+
+    public function findByExt( Team $homeTeam, Team $awayTeam, Competitionseason $competitionSeason, $gameStates)
+    {
+        $query = $this->createQueryBuilder('g')
+            ->join("g.homePoulePlace", "hpp")
+            ->join("g.awayPoulePlace", "app")
+            ->join("g.poule", "p")
+            ->join("p.round", "r")
+            ->where('r.competitionseason = :competitionseason')
+            ->andWhere('hpp.team = :hometeam')
+            ->andWhere('app.team = :awayteam')
+            ;
+            // ->andWhere('g.state | :gamestates');
+
+        $query = $query
+            ->setParameter('competitionseason', $competitionSeason)
+            ->setParameter('hometeam', $homeTeam)
+            ->setParameter('awayteam', $awayTeam)
+        ;   // ->setParameter('gamestates', $gameStates);
+
+
+        $filteredResults = array();
+        foreach ($query->getQuery()->getResult() as $game) {
+            if (($game->getState() & $gameStates) === $game->getState()) {
+                array_unshift($filteredResults, $game);
+            }
+        }
+//        var_dump(count($filteredResults));
+//        die();
+        if ( count( $filteredResults ) === 1 ) {
+            return reset($filteredResults);
+        }
+
+        return null;
     }
 }

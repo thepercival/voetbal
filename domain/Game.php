@@ -69,6 +69,9 @@ class Game
      */
     protected $scores;
 
+    const HOME = true;
+    const AWAY = false;
+
     const STATE_CREATED = 1;
     const STATE_INPLAY = 2;
     const STATE_PLAYED = 4;
@@ -286,5 +289,19 @@ class Game
     public function setScores($scores)
     {
         $this->scores = $scores;
+    }
+
+    /**
+     * @param Team $team
+     * @return mixed|null|PoulePlace
+     */
+    public function getPoulePlaceForTeam( Team $team )
+    {
+        foreach( $this->getPoule()->getPlaces() as $poulePlace ) {
+            if( $poulePlace->getTeam() === $team ) {
+                return $poulePlace;
+            }
+        }
+        return null;
     }
 }

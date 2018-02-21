@@ -12,7 +12,7 @@ namespace Voetbal\External\Round;
  * Class Repository
  * @package Voetbal\External\Round
  */
-class Repository extends \Voetbal\Repository
+class Repository extends \Voetbal\External\Repository
 {
 
 }

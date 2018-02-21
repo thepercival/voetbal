@@ -6,6 +6,7 @@ use Voetbal\Association;
 use Voetbal\Field;
 use Voetbal\Referee;
 use Voetbal\Competitionseason;
+use Voetbal\Competition;
 
 /**
  * Class Repository
@@ -77,30 +78,28 @@ class Repository extends \Voetbal\Repository
 //    niet afgelopen
 //    wel gepland
 
+    public function findOneByCompetitionAndDate( Competition $competition, \DateTimeImmutable $date )
+    {
+        $query = $this->createQueryBuilder('cs')
+            ->join("cs.season","s")
+            ->where('s.startDateTime <= :date')
+            ->andWhere('s.endDateTime >= :date')
+            ->andWhere('cs.competition = :competition');
 
-//    private function getBySeasonStartDateTime( Period $period )
-//    {
-//        $query = $this->createQueryBuilder('cs')
-//            ->join("cs.season","s")
-//            ->where('s.begindatum <= :date')
-//            ->andWhere('s.begindatum is null or lidm.einddatum >= :date');
-//
-//        if ( $studentGroep !== null ){
-//            $query = $query->andWhere('lidm.studentGroep = :groep');
-//        }
-//
+
 //        if ( $studentnummer !== null ){
 //            $query = $query->andWhere('s.studentnummer = :studentnummer');
 //        }
-//
-//        $query = $query->setParameter('date', $date);
-//        if ( $studentGroep !== null ){
-//            $query = $query->setParameter('groep', $studentGroep);
-//        }
-//
+
+        $query = $query->setParameter('date', $date);
+        $query = $query->setParameter('competition', $competition);
+
+
 //        if ( $studentnummer !== null ){
 //            $query = $query->setParameter('studentnummer', $studentnummer);
 //        }
-//        return $query->getQuery();
-//    }
+        $results = $query->getQuery()->getResult();
+        $result = reset( $results );
+        return $result;
+    }
 }
