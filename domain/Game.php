@@ -291,7 +291,6 @@ class Game
         $this->scores = $scores;
     }
 
-
     /**
      * @param Team $team
      * @return mixed|null|PoulePlace

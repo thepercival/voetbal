@@ -55,7 +55,7 @@ final class Association
 				->write($this->serializer->serialize( $object, 'json'));
 			;
 		}
-		return $response->withStatus(404, 'geen bond met het opgegeven id gevonden');
+		return $response->withStatus(404)->write('geen bond met het opgegeven id gevonden');
 	}
 
 	public function add( $request, $response, $args)

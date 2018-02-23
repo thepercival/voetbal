@@ -13,8 +13,6 @@ use Voetbal\Team\Service as TeamService;
 use Voetbal\Team\Repository as TeamRepository;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
 
 final class Team
 {
@@ -45,12 +43,17 @@ final class Team
 
     public function fetch( $request, $response, $args)
     {
-        $objects = $this->repos->findAll();
+        $associationid = (int) $request->getParam("associationid");
+        $association = $this->associationRepos->find($associationid);
+        if ( $association === null ) {
+            throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        $filters = array( "association" => $association );
+        $teams = $this->repos->findBy( $filters );
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write( $this->serializer->serialize( $objects, 'json') );
+            ->write( $this->serializer->serialize( $teams, 'json') );
         ;
-
     }
 
     public function fetchOne( $request, $response, $args)
@@ -62,23 +65,23 @@ final class Team
                 ->write($this->serializer->serialize( $object, 'json'));
             ;
         }
-        return $response->withStatus(404, 'geen competitie met het opgegeven id gevonden');
+        return $response->withStatus(404)->write( 'geen competitie met het opgegeven id gevonden');
     }
 
     public function add( $request, $response, $args)
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\Team $team */
-            $teamSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
-
-            if ( $teamSer === null ) {
-                throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
+            $associationid = (int) $request->getParam("associationid");
+            $association = $this->associationRepos->find($associationid);
+            if ( $association === null ) {
+                throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $association = $this->associationRepos->find($teamSer->getAssociation()->getId());
-            if ( $association === null ) {
-                throw new \Exception("de bond kan niet gevonden worden", E_ERROR);
+            /** @var \Voetbal\Team $team */
+            $teamSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
+            if ( $teamSer === null ) {
+                throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
             $teamSer->setAssociation( $association );
@@ -100,13 +103,14 @@ final class Team
     {
         $sErrorMessage = null;
         try {
+            $associationid = (int) $request->getParam("associationid");
+            $association = $this->associationRepos->find($associationid);
+            if ( $association === null ) {
+                throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+
             /** @var \Voetbal\Team $team */
             $team = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
-
-            $association = $this->associationRepos->find($team->getAssociation()->getId());
-            if ( $association === null ) {
-                throw new \Exception("de bond kan niet gevonden worden", E_ERROR);
-            }
 
             $teamRet = $this->repos->editFromJSON( $team, $association );
 
