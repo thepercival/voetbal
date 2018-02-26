@@ -8,7 +8,5 @@ Voetbal\PoulePlace:
       type: integer
     number:
       type: integer
-#    poule:
-#      type: Voetbal\Poule
     team:
       type: Voetbal\Team

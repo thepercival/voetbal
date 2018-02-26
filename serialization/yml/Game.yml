@@ -12,6 +12,9 @@ Voetbal\Game:
     subNumber:
       type: int
       serialized_name: subNumber
+    resourceBatch:
+      type: int
+      serialized_name: resourceBatch
     field:
       type: Voetbal\Field
     referee:

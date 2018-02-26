@@ -9,8 +9,6 @@ Voetbal\Poule:
       type: integer
     number:
       type: integer
-#    round:
-#      type: Voetbal\Round
     places:
       type: ArrayCollection<Voetbal\PoulePlace>
     games:

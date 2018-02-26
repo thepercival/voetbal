@@ -18,6 +18,11 @@ Voetbal\Game:
       nullable: false
       unique: false
       column: subnumber
+    resourceBatch:
+      type: smallint
+      nullable: false
+      unique: false
+      column: resourcebatch
     state:
       type: smallint
       nullable: false
