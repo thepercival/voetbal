@@ -35,6 +35,11 @@ class Game
     protected $subNumber;
 
     /**
+     * @var int
+     */
+    protected $resourceBatch;
+
+    /**
      * @var \DateTimeImmutable
      */
     private $startDateTime;
@@ -168,6 +173,25 @@ class Game
             throw new \InvalidArgumentException( "het speelrondenummer heeft een onjuiste waarde", E_ERROR );
         }
         $this->subNumber = $subNumber;
+    }
+
+    /**
+     * @return int
+     */
+    public function getResourceBatch()
+    {
+        return $this->resourceBatch;
+    }
+
+    /**
+     * @param int $resourceBatch
+     */
+    public function setResourceBatch( $resourceBatch )
+    {
+        if ( !is_int( $resourceBatch )   ){
+            throw new \InvalidArgumentException( "de resourcebatch heeft een onjuiste waarde", E_ERROR );
+        }
+        $this->resourceBatch = $resourceBatch;
     }
 
     /**

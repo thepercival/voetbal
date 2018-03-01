@@ -34,6 +34,11 @@ class Round
     protected $winnersOrLosers;
 
     /**
+     * @var int
+     */
+    protected $qualifyOrder;
+
+    /**
      * @var Round\Config`
      */
     protected $config;
@@ -79,6 +84,9 @@ class Round
 
     CONST WINNERS = 1;
     CONST LOSERS = 2;
+
+    CONST ORDER_HORIZONTAL = 1;
+    CONST ORDER_VERTICAL = 2;
 
     const MAX_LENGTH_NAME = 10;
 
@@ -150,8 +158,6 @@ class Round
         $this->number = $number;
     }
 
-
-
     /**
      * @return int
      */
@@ -169,6 +175,25 @@ class Round
             throw new \InvalidArgumentException( "winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR );
         }
         $this->winnersOrLosers = $winnersOrLosers;
+    }
+
+    /**
+     * @return int
+     */
+    public function getQualifyOrder()
+    {
+        return $this->qualifyOrder;
+    }
+
+    /**
+     * @param int $qualifyOrder
+     */
+    public function setQualifyOrder( $qualifyOrder )
+    {
+        if ( !is_int( $qualifyOrder )   ){
+            throw new \InvalidArgumentException( "kwalificatie-volgorde heeft een onjuiste waarde", E_ERROR );
+        }
+        $this->qualifyOrder = $qualifyOrder;
     }
 
     /**

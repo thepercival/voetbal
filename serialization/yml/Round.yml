@@ -11,6 +11,9 @@ Voetbal\Round:
     winnersOrLosers:
       type: integer
       serialized_name: winnersOrLosers
+    qualifyOrder:
+      type: integer
+      serialized_name: qualifyOrder
     config:
       type: Voetbal\Round\Config
     childRounds:

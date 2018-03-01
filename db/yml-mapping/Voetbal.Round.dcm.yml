@@ -21,6 +21,10 @@ Voetbal\Round:
       type: smallint
       nullable: true
       unique: false
+    qualifyOrder:
+      type: smallint
+      nullable: false
+      unique: false
   oneToOne:
     config:
       targetEntity: Voetbal\Round\Config
