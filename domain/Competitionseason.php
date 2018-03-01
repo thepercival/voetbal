@@ -124,6 +124,14 @@ class Competitionseason implements External\Importable
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->getCompetition()->getName() . ' ' . $this->getSeason()->getName();
+    }
+
+    /**
      * @return \DateTimeImmutable
      */
     public function getStartDateTime()
