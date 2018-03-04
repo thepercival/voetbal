@@ -57,6 +57,12 @@ class Service
         elseif ( $classname === Team::class ){
             return new Team\Service($repos);
         }
+        elseif ( $classname === Field::class ){
+            return new Field\Service($repos);
+        }
+        elseif ( $classname === Referee::class ){
+            return new Referee\Service($repos);
+        }
         elseif ( $classname === Season::class ){
             return new Season\Service($repos);
         }

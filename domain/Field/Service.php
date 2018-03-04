@@ -31,9 +31,13 @@ class Service
 
     public function create( Field $fieldSer, Competition $competition )
     {
-        $fieldWithSameInitials = $this->repos->findOneBy( array('initials' => $fieldSer->getInitials() ) );
-        if ( $fieldWithSameInitials !== null ){
-            throw new \Exception("de scheidsrechter met de initialen ".$fieldSer->getInitials()." bestaat al", E_ERROR );
+        $fieldWithSameNumber = $this->repos->findOneBy(
+            array(
+                'number' => $fieldSer->getNumber(),
+                'competition' => $competition,
+                ) );
+        if ( $fieldWithSameNumber !== null ){
+            throw new \Exception("het veld met nummer ".$fieldSer->getNumber()." bestaat al", E_ERROR );
         }
         $fieldSer->setCompetition($competition);
         return $this->repos->save($fieldSer);

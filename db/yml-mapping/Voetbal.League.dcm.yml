@@ -38,5 +38,5 @@ Voetbal\League:
       joinColumn:
         name: associationid
         referencedColumnName: id
-        nullable: false
+        nullable: true
         onDelete: CASCADE
