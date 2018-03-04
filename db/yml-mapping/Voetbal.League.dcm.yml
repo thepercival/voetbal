@@ -31,12 +31,12 @@ Voetbal\League:
     externals:
       targetEntity: Voetbal\External\League
       mappedBy: importableObject
-#  manyToOne:
-#    association:
-#      targetEntity: Voetbal\Association
-#      inversedBy: leagues
-#      joinColumn:
-#        name: associationid
-#        referencedColumnName: id
-#        nullable: true
-#        onDelete: CASCADE
+  manyToOne:
+    association:
+      targetEntity: Voetbal\Association
+      inversedBy: leagues
+      joinColumn:
+        name: associationid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
