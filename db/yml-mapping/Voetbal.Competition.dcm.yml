@@ -55,13 +55,6 @@ Voetbal\Competition:
               name: seasonid
               referencedColumnName: id
               nullable: false
-        association:
-            targetEntity: Voetbal\Association
-            inversedBy: competitions
-            joinColumn:
-              name: associationid
-              referencedColumnName: id
-              nullable: false
     uniqueConstraints:
         main_u_idx:
             columns: [ leagueid, seasonid ]

@@ -38,11 +38,6 @@ class Competition implements External\Importable
 	private $state;
 
     /**
-     * @var Association
-     */
-    private $association;
-
-    /**
      * @var ArrayCollection
      */
     private $rounds;
@@ -62,11 +57,10 @@ class Competition implements External\Importable
 
     use External\ImportableTrait;
 
-    public function __construct( League $league, Season $season, Association $association )
+    public function __construct( League $league, Season $season )
     {
         $this->league = $league;
         $this->season = $season;
-        $this->association = $association;
         $this->state = static::STATE_CREATED;
         $this->rounds = new ArrayCollection();
         $this->referees = new ArrayCollection();
@@ -161,22 +155,6 @@ class Competition implements External\Importable
     public function setState( $state )
     {
         $this->state = $state;
-    }
-
-    /**
-     * @return Association
-     */
-    public function getAssociation()
-    {
-        return $this->association;
-    }
-
-    /**
-     * @param Association $association
-     */
-    public function setAssociation( $association )
-    {
-        $this->association = $association;
     }
 
     /**

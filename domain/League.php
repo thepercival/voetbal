@@ -49,8 +49,9 @@ class League implements External\Importable
 
 	use External\ImportableTrait;
 
-    public function __construct( $name, $abbreviation = null )
+    public function __construct( Association $association, $name, $abbreviation = null )
     {
+        $this->setAssociation( $association );
         $this->setName( $name );
         $this->setAbbreviation( $abbreviation );
         $this->competitions = new ArrayCollection();
@@ -155,7 +156,7 @@ class League implements External\Importable
     /**
      * @param Association $association
      */
-    public function setAssociation( Association $association = null )
+    public function setAssociation( Association $association )
     {
         $this->association = $association;
     }

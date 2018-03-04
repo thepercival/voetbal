@@ -17,6 +17,7 @@ class Repository extends \Voetbal\Repository
 
     public function saveFromJSON( Competition $competition )
     {
+        throw new \Exception("DEPRECATED COMPREPOSSAVEFROMJSON", E_ERROR);
         $fieldRepos = $this->_em->getRepository( Field::class );
         foreach( $competition->getFields() as $field ) {
             $fieldRepos->saveFromJSON( $field, $competition );
@@ -28,7 +29,6 @@ class Repository extends \Voetbal\Repository
         }
 
         // $associationRepos = $this->_em->getRepository( Association::class );
-        $this->_em->persist( $competition->getAssociation() );
         $this->_em->persist( $competition->getSeason() );
         $this->_em->persist( $competition->getLeague() );
 
@@ -39,6 +39,7 @@ class Repository extends \Voetbal\Repository
 
     public function editFromJSON( Competition $competition )
     {
+        throw new \Exception("DEPRECATED COMPREPOSEDITFROMJSON", E_ERROR);
         $this->_em->merge( $competition );
 
         // if exists than merge

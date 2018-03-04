@@ -86,24 +86,24 @@ final class Competition
     {
         $sErrorMessage = null;
         try {
+            $leagueid = (int) $request->getParam("leagueid");
+            $league = $this->leagueRepos->find($leagueid);
+            if ( $league === null ) {
+                throw new \Exception("er kan geen league worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $seasonid = (int) $request->getParam("seasonid");
+            $season = $this->associationRepos->find($seasonid);
+            if ( $season === null ) {
+                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+
             /** @var \Voetbal\Competition $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
             if ( $competitionSer === null ) {
-                throw new \Exception("er kan competitieseizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
-            $association = $this->associationRepos->find( $competitionSer->getAssociation()->getId() );
-            if ( $association === null ){
-                throw new \Exception("de bond kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
-            }
-            $league = $this->leagueRepos->find( $competitionSer->getLeague()->getId() );
-            if ( $league === null ){
-                throw new \Exception("de competitie kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
-            }
-            $season = $this->seasonRepos->find( $competitionSer->getSeason()->getId() );
-            if ( $season === null ){
-                throw new \Exception("het seizoen kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
-            }
-            $competitionSer->setAssociation($association);
+
             $competitionSer->setLeague($league);
             $competitionSer->setSeason($season);
             $competitionRet = $this->service->create( $competitionSer );

@@ -118,7 +118,6 @@ final class League
                 throw new \Exception("de competitie kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            $league->setAssociation($association);
             $leagueRet = $this->service->changeBasics(
                 $league,
                 $leagueSer->getName(),

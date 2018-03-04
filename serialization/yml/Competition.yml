@@ -8,15 +8,9 @@ Voetbal\Competition:
       type: integer
     state:
       type: integer
-    league:
-      type: Voetbal\League
-    season:
-      type: Voetbal\Season
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
       serialized_name: startDateTime
-    association:
-      type: Voetbal\Association
     fields:
       type: ArrayCollection<Voetbal\Field>
     referees:
