@@ -12,8 +12,6 @@ Voetbal\Team:
       type: string
     info:
       type: string
-    association:
-      type: Voetbal\Association
 
 #    externals:
 #      exclude: true

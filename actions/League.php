@@ -71,17 +71,17 @@ final class League
 	{
         $sErrorMessage = null;
         try {
-            $associationid = (int) $request->getParam("associationid");
-            $association = $this->associationRepos->find($associationid);
-            if ( $association === null ) {
-                throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-
             /** @var \Voetbal\League $leagueSer */
             $leagueSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\League', 'json');
             if ( $leagueSer === null ) {
                 throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
+
+            $association = $this->associationRepos->find($leagueSer->getAssociation()->getId());
+            if ( $association === null ) {
+                throw new \Exception("de bond kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
+
             $leagueSer->setAssociation( $association );
             $leagueRet = $this->service->create( $leagueSer );
 
@@ -101,12 +101,6 @@ final class League
 	{
         $sErrorMessage = null;
         try {
-            $associationid = (int) $request->getParam("associationid");
-            $association = $this->associationRepos->find($associationid);
-            if ( $association === null ) {
-                throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-
             /** @var \Voetbal\League $leagueSer */
             $leagueSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\League', 'json');
             if ( $leagueSer === null ) {
