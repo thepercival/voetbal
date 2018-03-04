@@ -51,6 +51,7 @@ class Service
      * @param Season $season
      * @param $name
      * @param Period $period
+     * @return mixed
      * @throws \Exception
      */
 	public function edit( Season $season, $name, Period $period )

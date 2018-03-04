@@ -35,7 +35,7 @@ class Referee
     private $info;
 
     /**
-     * @var Comopetitionseason
+     * @var Competition
      */
     private $competition;
 
@@ -45,7 +45,7 @@ class Referee
     const MAX_LENGTH_NAME = 15;
     const MAX_LENGTH_INFO = 200;
 
-    public function __construct( Comopetitionseason $competition, $initials )
+    public function __construct( Competition $competition, $initials )
     {
         $this->setInitials( $initials );
         $this->setCompetition( $competition );
