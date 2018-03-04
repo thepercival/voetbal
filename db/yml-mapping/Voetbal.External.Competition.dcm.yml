@@ -1,7 +1,7 @@
 Voetbal\External\Competition:
   type: entity
   repositoryClass: Voetbal\External\Competition\Repository
-  table: externalcompetitions
+  table: externalcompetitionseasons
   id:
     id:
       type: integer
@@ -23,7 +23,7 @@ Voetbal\External\Competition:
         onDelete: CASCADE
     importableObject:
       targetEntity: Voetbal\Competition
-      inversedBy: externals
+      #inversedBy: externals
       joinColumn:
         name: importableObjectid
         referencedColumnName: id

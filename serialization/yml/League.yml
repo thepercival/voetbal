@@ -1,0 +1,14 @@
+Voetbal\League:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      type: int
+    name:
+      type: string
+    abbreviation:
+      type: string
+    sport:
+      type: string

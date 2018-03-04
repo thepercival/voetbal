@@ -2,7 +2,7 @@
 
 namespace Voetbal\Referee;
 
-use Voetbal\Competitionseason;
+use Voetbal\Competition;
 use Voetbal\Referee;
 
 /**
@@ -11,15 +11,15 @@ use Voetbal\Referee;
  */
 class Repository extends \Voetbal\Repository
 {
-    public function saveFromJSON( Referee $referee, Competitionseason $competitionseason )
+    public function saveFromJSON( Referee $referee, Competition $competition )
     {
-        $referee->setCompetitionseason( $competitionseason );
+        $referee->setCompetition( $competition );
         $this->_em->persist( $referee );
     }
 
-    public function editFromJSON( Referee $p_referee, Competitionseason $competitionseason )
+    public function editFromJSON( Referee $p_referee, Competition $competition )
     {
-        $referee = $competitionseason->getRefereeById( $p_referee->getId() );
+        $referee = $competition->getRefereeById( $p_referee->getId() );
         $referee->setName( $p_referee->getName() );
         $referee->setInfo( $p_referee->getInfo() );
         $this->_em->persist( $referee );

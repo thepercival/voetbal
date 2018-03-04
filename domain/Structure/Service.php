@@ -11,7 +11,7 @@ namespace Voetbal\Structure;
 use Voetbal\Round;
 use Voetbal\Poule;
 use Voetbal\Game;
-use Voetbal\Competitionseason;
+use Voetbal\Competition;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Game\Service as GameService;
@@ -34,34 +34,34 @@ class Service
         $this->roundRepository = $roundRepository;
     }
 
-    public function createFromJSON( Round $p_round, Competitionseason $competitionseason )
+    public function createFromJSON( Round $p_round, Competition $competition )
     {
         $number = $p_round->getNumber();
         if ( $number !== 1 ) {
             throw new \Exception("het eerste rondenummer moet 1 zijn", E_ERROR);
         }
 
-        if( count( $this->roundRepository->findBy( array( "competitionseason" => $competitionseason ) ) ) > 0 ) {
+        if( count( $this->roundRepository->findBy( array( "competition" => $competition ) ) ) > 0 ) {
             throw new \Exception("er bestaat al een structuur", E_ERROR);
         };
 
-        $round = $this->roundService->createFromJSON( $p_round, $competitionseason );
+        $round = $this->roundService->createFromJSON( $p_round, $competition );
 
         return $round;
     }
 
-    public function editFromJSON( Round $p_round, Competitionseason $competitionseason )
+    public function editFromJSON( Round $p_round, Competition $competition )
     {
 //        $number = $p_round->getNumber();
 //        if ( $number !== 1 ) {
 //            throw new \Exception("het eerste rondenummer moet 1 zijn", E_ERROR);
 //        }
 
-        if( count( $this->roundRepository->findBy( array( "competitionseason" => $competitionseason ) ) ) === 0 ) {
+        if( count( $this->roundRepository->findBy( array( "competition" => $competition ) ) ) === 0 ) {
             throw new \Exception("er bestaat nog geen structuur", E_ERROR);
         };
 
-        $round = $this->roundService->editFromJSON( $p_round, $competitionseason );
+        $round = $this->roundService->editFromJSON( $p_round, $competition );
 
 
         return $round;
@@ -72,7 +72,7 @@ class Service
 //// @TODO in service check als er geen gespeelde!! wedstijden aan de ronde hangen!!!!
 //
 
-//public function create( $competitionseason, $nrOfCompetitors )
+//public function create( $competition, $nrOfCompetitors )
 //    {
 //
 //        // QualifyRule
@@ -84,7 +84,7 @@ class Service
 //        //minutesPerGame:
 //        //minutesExt:
 //
-//        return $this->roundService->create( $competitionseason, null, null, $nrOfCompetitors );
+//        return $this->roundService->create( $competition, null, null, $nrOfCompetitors );
 //    }
 
     /**
@@ -214,7 +214,7 @@ class Service
     }
 
     public function getRoundsByNumber(Round $round ) {
-        $params = array( "number" => $round->getNumber(), "competitionseason" => $round->getCompetitionseason() );
+        $params = array( "number" => $round->getNumber(), "competition" => $round->getCompetition() );
         return $this->roundRepository->findBy( $params );
     }
 
@@ -245,7 +245,7 @@ class Service
 
     private function getNrOfPoulesParentRounds(Round $round)
     {
-        return $this->getNrOfPoulesParentRoundsHelper($round->getNumber() - 1, $round->getCompetitionseason()->getFirstRound() );
+        return $this->getNrOfPoulesParentRoundsHelper($round->getNumber() - 1, $round->getCompetition()->getFirstRound() );
     }
 
     private function getNrOfPoulesParentRoundsHelper($maxRoundNumber, Round $round) {

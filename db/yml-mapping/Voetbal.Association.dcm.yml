@@ -21,8 +21,8 @@ Voetbal\Association:
     children:
       targetEntity: Voetbal\Association
       mappedBy: parent
-    competitionseasons:
-      targetEntity: Voetbal\Competitionseason
+    competitions:
+      targetEntity: Voetbal\Competition
       mappedBy: association
     teams:
       targetEntity: Voetbal\Team

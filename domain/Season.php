@@ -37,7 +37,7 @@ class Season implements External\Importable
     /**
      * @var ArrayCollection
      */
-    private $competitionseasons;
+    private $competitions;
 
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 9;
@@ -47,7 +47,7 @@ class Season implements External\Importable
     public function __construct( $name, Period $period )
     {
         $this->setName( $name );
-        $this->competitionseasons = new ArrayCollection();
+        $this->competitions = new ArrayCollection();
         if ( $period === null )
             throw new \InvalidArgumentException( "de periode moet gezet zijn", E_ERROR );
         $this->setPeriod( $period );
@@ -144,8 +144,8 @@ class Season implements External\Importable
     /**
      * @return ArrayCollection
      */
-    public function getCompetitionseasons()
+    public function getCompetitions()
     {
-        return $this->competitionseasons;
+        return $this->competitions;
     }
 }

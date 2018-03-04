@@ -24,11 +24,11 @@ Voetbal\Referee:
       length: !php/const:Voetbal\Referee::MAX_LENGTH_INFO
       unique: false
   manyToOne:
-    competitionseason:
-      targetEntity: Voetbal\Competitionseason
+    competition:
+      targetEntity: Voetbal\Competition
       inversedBy: referees
       joinColumn:
-        name: competitionseasonid
+        name: competitionid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE

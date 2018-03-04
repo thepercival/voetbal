@@ -8,7 +8,6 @@
 
 namespace Voetbal;
 
-
 class Team implements External\Importable
 {
     /**

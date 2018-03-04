@@ -33,14 +33,14 @@ class Field
     /**
      * @var Comopetitionseason
      */
-    private $competitionseason;
+    private $competition;
 
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 2;
 
-    public function __construct( Competitionseason $competitionseason, $number, $name )
+    public function __construct( Competition $competition, $number, $name )
     {
-        $this->setCompetitionseason( $competitionseason );
+        $this->setCompetition( $competition );
         $this->setNumber( $number );
         $this->setName( $name );
     }
@@ -110,21 +110,21 @@ class Field
     }
 
     /**
-     * @return Competitionseason
+     * @return Competition
      */
-    public function getCompetitionseason()
+    public function getCompetition()
     {
-        return $this->competitionseason;
+        return $this->competition;
     }
 
     /**
-     * @param Competitionseason $Competitionseason
+     * @param Competition $Competition
      */
-    public function setCompetitionseason( Competitionseason $competitionseason )
+    public function setCompetition( Competition $competition )
     {
-        if ( $this->competitionseason === null and $competitionseason !== null and !$competitionseason->getFields()->contains( $this ) ) {
-            $competitionseason->getFields()->add($this) ;
+        if ( $this->competition === null and $competition !== null and !$competition->getFields()->contains( $this ) ) {
+            $competition->getFields()->add($this) ;
         }
-        $this->competitionseason = $competitionseason;
+        $this->competition = $competition;
     }
 }

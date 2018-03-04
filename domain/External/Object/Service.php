@@ -58,7 +58,7 @@ class Service
 
         // $externalobject = new $sClassName(  $importableObject, $externalSystem, $externalId);
 
-        //should write to ExternalCOmpetition which extends from ExternalObject
+        //should write to ExternalLeague which extends from ExternalObject
 
         /*$systemWithSameName = $this->repos->findOneBy( array('name' => $name ) );
         if ( $systemWithSameName !== null ){

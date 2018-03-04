@@ -11,29 +11,51 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\Competition\Service as CompetitionService;
 use Voetbal\Competition\Repository as CompetitionRepository;
-use Voetbal;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Voetbal\League\Repository as LeagueRepository;
+use Voetbal\Season\Repository as SeasonRepository;
+use Voetbal\Association\Repository as AssociationRepository;
 
 final class Competition
 {
     /**
      * @var CompetitionService
      */
-	protected $service;
+    protected $service;
     /**
      * @var CompetitionRepository
      */
 	protected $repos;
     /**
+     * @var LeagueRepository
+     */
+    protected $leagueRepos;
+    /**
+     * @var SeasonRepository
+     */
+    protected $seasonRepos;
+    /**
+     * @var AssociationRepository
+     */
+    protected $associationRepos;
+    /**
      * @var Serializer
      */
 	protected $serializer;
 
-	public function __construct(CompetitionService $service, CompetitionRepository $repos, Serializer $serializer)
+	public function __construct(
+        CompetitionService $service,
+        CompetitionRepository $repos,
+        LeagueRepository $leagueRepos,
+        SeasonRepository $seasonRepos,
+        AssociationRepository $associationRepos,
+        Serializer $serializer
+    )
 	{
-        $this->repos = $repos;
-		$this->service = $service;
+        $this->service = $service;
+		$this->repos = $repos;
+        $this->associationRepos = $associationRepos;
+        $this->leagueRepos = $leagueRepos;
+        $this->seasonRepos = $seasonRepos;
 		$this->serializer = $serializer;
 	}
 
@@ -56,18 +78,34 @@ final class Competition
 				->write($this->serializer->serialize( $object, 'json'));
 			;
 		}
-		return $response->withStatus(404, 'geen competitie met het opgegeven id gevonden');
+		return $response->withStatus(404, 'geen competitieseizoen met het opgegeven id gevonden');
 	}
 
-	public function add( $request, $response, $args)
-	{
+
+	public function add($request, $response, $args)
+    {
         $sErrorMessage = null;
         try {
             /** @var \Voetbal\Competition $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
             if ( $competitionSer === null ) {
-                throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan competitieseizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
+            $association = $this->associationRepos->find( $competitionSer->getAssociation()->getId() );
+            if ( $association === null ){
+                throw new \Exception("de bond kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
+            }
+            $league = $this->leagueRepos->find( $competitionSer->getLeague()->getId() );
+            if ( $league === null ){
+                throw new \Exception("de competitie kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
+            }
+            $season = $this->seasonRepos->find( $competitionSer->getSeason()->getId() );
+            if ( $season === null ){
+                throw new \Exception("het seizoen kan niet gevonden worden o.b.v. de invoergegevens", E_ERROR );
+            }
+            $competitionSer->setAssociation($association);
+            $competitionSer->setLeague($league);
+            $competitionSer->setSeason($season);
             $competitionRet = $this->service->create( $competitionSer );
 
             return $response
@@ -80,28 +118,24 @@ final class Competition
             $sErrorMessage = $e->getMessage();
         }
         return $response->withStatus(404)->write( $sErrorMessage );
-	}
+    }
 
-	public function edit( ServerRequestInterface $request, ResponseInterface $response, $args)
-	{
+    public function edit( $request, $response, $args)
+    {
         $sErrorMessage = null;
         try {
             /** @var \Voetbal\Competition $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
             if ( $competitionSer === null ) {
-                throw new \Exception("er kan geen competitie worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan competitieseizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
             $competition = $this->repos->find($competitionSer->getId());
             if ( $competition === null ) {
-                throw new \Exception("de competitie kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+                throw new \Exception("het competitieseizoen kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            $competitionRet = $this->service->changeBasics(
-                $competition,
-                $competitionSer->getName(),
-                $competitionSer->getAbbreviation()
-            );
+            $competitionRet = $this->service->changeStartDateTime( $competition, $competitionSer->getStartDateTime() );
 
             return $response
                 ->withStatus(201)
@@ -113,17 +147,17 @@ final class Competition
             $sErrorMessage = $e->getMessage();
         }
         return $response->withStatus(404)->write( $sErrorMessage );
-	}
+    }
 
 	public function remove( $request, $response, $args)
 	{
 		$competition = $this->repos->find($args['id']);
 		$sErrorMessage = null;
 		try {
-			$this->repos->remove($competition);
+			$this->service->remove($competition);
 
 			return $response
-				->withStatus(201);
+				->withStatus(200);
 			;
 		}
 		catch( \Exception $e ){

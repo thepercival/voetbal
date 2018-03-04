@@ -23,8 +23,8 @@ Voetbal\Season:
             nullable: false
             column: enddatetime
     oneToMany:
-        competitionseasons:
-            targetEntity: Voetbal\Competitionseason
+        competitions:
+            targetEntity: Voetbal\Competition
             mappedBy: season
         externals:
             targetEntity: Voetbal\External\Season

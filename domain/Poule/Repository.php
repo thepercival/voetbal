@@ -30,12 +30,12 @@ class Repository extends \Voetbal\Repository
             $poulePlaceRepos->saveFromJSON( $place, $poule );
         }
 
-        $competitionseason = $round->getCompetitionseason();
+        $competition = $round->getCompetition();
 
         $gameRepos = $this->_em->getRepository( \Voetbal\Game::class );
         foreach( $poule->getGames() as $game ) {
-            $field = $game->getField() ? $competitionseason->getField( $game->getField()->getNumber() ) : null;
-            $referee = $game->getReferee() ? $competitionseason->getReferee( $game->getReferee()->getInitials() ) : null;
+            $field = $game->getField() ? $competition->getField( $game->getField()->getNumber() ) : null;
+            $referee = $game->getReferee() ? $competition->getReferee( $game->getReferee()->getInitials() ) : null;
             $homePoulePlace = $poule->getPlace( $game->getHomePoulePlace()->getNumber() );
             $awayPoulePlace = $poule->getPlace( $game->getAwayPoulePlace()->getNumber() );
 

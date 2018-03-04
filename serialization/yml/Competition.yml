@@ -5,10 +5,23 @@ Voetbal\Competition:
 
   properties:
     id:
-      type: int
-    name:
-      type: string
-    abbreviation:
-      type: string
-    sport:
-      type: string
+      type: integer
+    state:
+      type: integer
+    league:
+      type: Voetbal\League
+    season:
+      type: Voetbal\Season
+    startDateTime:
+      type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
+      serialized_name: startDateTime
+    association:
+      type: Voetbal\Association
+    fields:
+      type: ArrayCollection<Voetbal\Field>
+    referees:
+      type: ArrayCollection<Voetbal\Referee>
+#  virtual_properties:
+#    hasStructure:
+#      type: boolean
+#      serialized_name: hasstructure

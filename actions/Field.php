@@ -10,7 +10,7 @@ namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Field\Repository as FieldRepository;
-use Voetbal\Competitionseason\Repository as CompetitionseasonRepos;
+use Voetbal\Competition\Repository as CompetitionRepos;
 
 final class Field
 {
@@ -19,7 +19,7 @@ final class Field
      */
     protected $repos;
     /**
-     * @var CompetitionseasonRepos
+     * @var CompetitionRepos
      */
     protected $csRepos;
     /**
@@ -29,7 +29,7 @@ final class Field
 
     public function __construct(
         FieldRepository $repos,
-        CompetitionseasonRepos $csRepos,
+        CompetitionRepos $csRepos,
         Serializer $serializer
     )
     {
@@ -49,13 +49,13 @@ final class Field
                 throw new \Exception("er kan geen veld worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitionseasonid = (int) $request->getParam("competitionseasonid");
-            $competitionseason = $this->csRepos->find($competitionseasonid);
-            if ( $competitionseason === null ) {
+            $competitionid = (int) $request->getParam("competitionid");
+            $competition = $this->csRepos->find($competitionid);
+            if ( $competition === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $field->setCompetitionseason( $competitionseason );
+            $field->setCompetition( $competition );
             $fieldRet = $this->repos->save( $field );
 
             return $response
@@ -76,13 +76,13 @@ final class Field
         try {
             $field = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Field', 'json');
 
-            $competitionseasonid = (int) $request->getParam("competitionseasonid");
-            $competitionseason = $this->csRepos->find($competitionseasonid);
-            if ( $competitionseason === null ) {
+            $competitionid = (int) $request->getParam("competitionid");
+            $competition = $this->csRepos->find($competitionid);
+            if ( $competition === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $field = $this->repos->editFromJSON($field, $competitionseason);
+            $field = $this->repos->editFromJSON($field, $competition);
 
             return $response
                 ->withStatus(200)

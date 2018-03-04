@@ -8,8 +8,13 @@
 
 namespace Voetbal\Competition;
 
-use Voetbal\Competition;
+use Voetbal;
 use Voetbal\Competition\Repository as CompetitionRepository;
+use Voetbal\Competition;
+use Voetbal\League;
+use Voetbal\Season;
+use Voetbal\Association;
+
 
 class Service
 {
@@ -35,36 +40,56 @@ class Service
      */
 	public function create( Competition $competitionSer )
 	{
-		$competitionWithSameName = $this->repos->findOneBy( array('name' => $competitionSer->getName() ) );
-		if ( $competitionWithSameName !== null ){
-			throw new \Exception("de competitie met de naam ".$competitionSer->getName()." bestaat al", E_ERROR );
-		}
-//        if ( strlen($abbreviation) > 0 ){
-//            $competitionWithSameAbbreviation = $this->repos->findOneBy( array('abbreviation' => $abbreviation ) );
-//            if ( $competitionWithSameAbbreviation !== null ){
-//                throw new \Exception("de competitie met de afkorting ".$abbreviation." bestaat al", E_ERROR );
-//            }
-//        }
+		$sameCompetition = $this->repos->findOneBy( array(
+            'league' => $competitionSer->getLeague(),
+            'season' => $competitionSer->getSeason()
+        ) );
+
+        if ( $sameCompetition !== null ){
+            throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
+        }
+
+        if( !$competitionSer->getSeason()->getPeriod()->contains( $competitionSer->getStartDateTime() ) ) {
+            throw new \Exception("de startdatum van het competiteseizoen valt buiten het seizoen", E_ERROR );
+        }
+
         return $this->repos->save($competitionSer);
 	}
 
     /**
      * @param Competition $competition
-     * @param $name
-     * @param $abbreviation
+     * @param \DateTimeImmutable $startDateTime
      * @return mixed
      * @throws \Exception
      */
-    public function changeBasics( Competition $competition, $name, $abbreviation )
-    {
-        $competitionWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $competitionWithSameName !== null and $competitionWithSameName !== $competition ){
-            throw new \Exception("de competitie met de naam ".$name." bestaat al", E_ERROR );
+	public function changeStartDateTime( Competition $competition, \DateTimeImmutable $startDateTime )
+	{
+        if( $competition->getState() === Competition::STATE_PUBLISHED ) {
+            throw new \Exception("het competitieseizoen kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
         }
 
-        $competition->setName($name);
-        $competition->setAbbreviation($abbreviation);
+        if( !$competition->getSeason()->getPeriod()->contains( $startDateTime ) ) {
+            throw new \Exception("de startdatum van het competiteseizoen valt buiten het seizoen", E_ERROR );
+        }
+
+        $competition->setStartDateTime( $startDateTime );
 
         return $this->repos->save($competition);
+	}
+
+    /**
+     * @param Competition $competition
+     */
+    public function publish( Competition $competition )
+    {
+
     }
+
+    /**
+     * @param Competition $competition
+     */
+	public function remove( Competition $competition )
+	{
+		$this->repos->remove($competition);
+	}
 }

@@ -15,40 +15,62 @@ class Competition implements External\Importable
 	/**
 	 * @var int
 	 */
-	protected $id;
+	private $id;
 
 	/**
-	 * @var string
+	 * @var League
 	 */
-    protected $name;
+	private $league;
 
 	/**
-	 * @var string
+	 * @var Season
 	 */
-    protected $abbreviation;
+	private $season;
 
     /**
-     * @var string
+     * @var \DateTimeImmutable
      */
-    private $sport;
+    private $startDateTime;
 
 	/**
-	 * @var ArrayCollection
+	 * @var int
 	 */
-    protected $competitionseasons;
+	private $state;
 
-	const MIN_LENGTH_NAME = 3;
-	const MAX_LENGTH_NAME = 30;
-	const MAX_LENGTH_ABBREVIATION = 7;
-    const MAX_LENGTH_SPORT = 30;
+    /**
+     * @var Association
+     */
+    private $association;
 
-	use External\ImportableTrait;
+    /**
+     * @var ArrayCollection
+     */
+    private $rounds;
 
-    public function __construct( $name, $abbreviation = null )
+    /**
+     * @var ArrayCollection
+     */
+    private $referees;
+
+    /**
+     * @var ArrayCollection
+     */
+    private $fields;
+
+    const STATE_CREATED = 1;
+    const STATE_PUBLISHED = 2;
+
+    use External\ImportableTrait;
+
+    public function __construct( League $league, Season $season, Association $association )
     {
-        $this->setName( $name );
-        $this->setAbbreviation( $abbreviation );
-        $this->competitionseasons = new ArrayCollection();
+        $this->league = $league;
+        $this->season = $season;
+        $this->association = $association;
+        $this->state = static::STATE_CREATED;
+        $this->rounds = new ArrayCollection();
+        $this->referees = new ArrayCollection();
+        $this->fields = new ArrayCollection();
     }
 
 	/**
@@ -69,81 +91,193 @@ class Competition implements External\Importable
         $this->id = $id;
     }
 
-	public function getName()
+    /**
+     * @return League
+     */
+	public function getLeague()
     {
-        return $this->name;
+        return $this->league;
     }
 
-	/**
-	 * @param string
-	 */
-	public function setName( $name )
+    /**
+     * @param League $league
+     */
+	public function setLeague( League $league )
 	{
-		if ( strlen( $name ) === 0 )
-			throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
-
-		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-			throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
-		}
-
-		if(preg_match('/[^a-z0-9 ]/iu', utf8_decode($name))){
-			throw new \InvalidArgumentException( "de naam(".utf8_decode($name).") mag alleen cijfers, letters en spaties bevatten", E_ERROR );
-		}
-
-		$this->name = $name;
+		$this->league = $league;
 	}
 
-	/**
-	 * @return string
-	 */
-    public function getAbbreviation()
+    /**
+     * @return Season
+     */
+    public function getSeason()
     {
-        return $this->abbreviation;
+        return $this->season;
     }
 
-	/**
-	 * @param string $abbreviation
-	 */
-    public function setAbbreviation( $abbreviation )
+    /**
+     * @param Season $season
+     */
+    public function setSeason( Season $season )
     {
-        if ( strlen($abbreviation) === 0 ){
-            $abbreviation = null;
-        }
-
-    	if ( strlen( $abbreviation ) > static::MAX_LENGTH_ABBREVIATION ){
-		    throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
-	    }
-        $this->abbreviation = $abbreviation;
+        $this->season = $season;
     }
 
     /**
      * @return string
      */
-    public function getSport()
+    public function getName()
     {
-        return $this->sport;
+        return $this->getLeague()->getName() . ' ' . $this->getSeason()->getName();
     }
 
     /**
-     * @param string $sport
+     * @return \DateTimeImmutable
      */
-    public function setSport( $sport )
+    public function getStartDateTime()
     {
-        if ( strlen( $sport ) === 0 )
-            throw new \InvalidArgumentException( "de sport moet gezet zijn", E_ERROR );
+        return $this->startDateTime;
+    }
 
-        if ( strlen( $sport ) > static::MAX_LENGTH_SPORT ){
-            throw new \InvalidArgumentException( "de sport mag maximaal ".static::MAX_LENGTH_SPORT." karakters bevatten", E_ERROR );
-        }
+    /**
+     * @param \DateTimeImmutable $datetime
+     */
+    public function setStartDateTime( \DateTimeImmutable $datetime )
+    {
+        $this->startDateTime = $datetime;
+    }
 
-        $this->sport = $sport;
+    /**
+     * @return int
+     */
+    public function getState()
+    {
+        return $this->state;
+    }
+
+    /**
+     * @param int $state
+     */
+    public function setState( $state )
+    {
+        $this->state = $state;
+    }
+
+    /**
+     * @return Association
+     */
+    public function getAssociation()
+    {
+        return $this->association;
+    }
+
+    /**
+     * @param Association $association
+     */
+    public function setAssociation( $association )
+    {
+        $this->association = $association;
     }
 
     /**
      * @return ArrayCollection
      */
-    public function getCompetitionseasons()
+    public function getRounds()
     {
-        return $this->competitionseasons;
+        return $this->rounds;
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getReferees()
+    {
+        return $this->referees;
+    }
+
+    /**
+     * @param $referees
+     */
+    public function setReferees( $referees )
+    {
+        $this->referees = $referees;
+    }
+
+    /**
+     * @return Referee
+     */
+    public function getReferee( $initials )
+    {
+        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $initials ) {
+            return $referee->getInitials() === $initials;
+        });
+        return array_shift( $referees );
+    }
+
+    /**
+     * @return Referee
+     */
+    public function getRefereeById( $id )
+    {
+        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $id ) {
+            return $referee->getId() === $id;
+        });
+        return array_shift( $referees );
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getFields()
+    {
+        return $this->fields;
+    }
+
+    /**
+     * @param $fields
+     */
+    public function setFields( $fields )
+    {
+        $this->fields = $fields;
+    }
+
+    /**
+     * @return Field
+     */
+    public function getField( $number )
+    {
+        $fields = array_filter( $this->getFields()->toArray(), function( $field ) use ( $number ) {
+            return $field->getNumber() === $number;
+        });
+        return array_shift( $fields );
+    }
+
+    /**
+     * @return Round
+     */
+    public function getFirstRound()
+    {
+        foreach( $this->getRounds() as $round ) {
+            if( $round->getNumber() === 1 ) {
+                return $round;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasGames()
+    {
+        return true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasPlayedGames()
+    {
+        return true;
     }
 }

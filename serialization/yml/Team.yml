@@ -17,7 +17,7 @@ Voetbal\Team:
 
 #    externals:
 #      exclude: true
-#    competitionseasons:
+#    competitions:
 #      exclude: true
 #    teams:
 #      exclude: true

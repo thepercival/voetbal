@@ -10,7 +10,7 @@ namespace Voetbal\Round;
 
 use Voetbal\Round;
 use Voetbal\Round\Repository as RoundRepository;
-use Voetbal\Competitionseason;
+use Voetbal\Competition;
 use Doctrine\ORM\EntityManager;
 use Voetbal\Poule;
 
@@ -32,9 +32,9 @@ class Service
     protected $roundScoreConfigRepos;
 
     /**
-     * @var Competitionseason\Repository
+     * @var Competition\Repository
      */
-    protected $competitionseasonRepos;
+    protected $competitionRepos;
 
     /**
      * @var EntityManager
@@ -56,14 +56,14 @@ class Service
      * @param Repository $repos
      * @param Config\Repository $roundConfigRepos
      * @param ScoreConfig\Repository $roundScoreConfigRepos
-     * @param Competitionseason\Repository $competitionseasonRepos
+     * @param Competition\Repository $competitionRepos
      * @param EntityManager $em
      * @param Poule\Service $pouleService
      */
     public function __construct( RoundRepository $repos,
                                  Config\Repository $roundConfigRepos,
                                  ScoreConfig\Repository $roundScoreConfigRepos,
-                                 Competitionseason\Repository $competitionseasonRepos,
+                                 Competition\Repository $competitionRepos,
                                  EntityManager $em,
                                  Poule\Service $pouleService
     )
@@ -71,12 +71,12 @@ class Service
         $this->repos = $repos;
         $this->roundConfigRepos = $roundConfigRepos;
         $this->roundScoreConfigRepos = $roundScoreConfigRepos;
-        $this->competitionseasonRepos = $competitionseasonRepos;
+        $this->competitionRepos = $competitionRepos;
         $this->pouleService = $pouleService;
         $this->em = $em;
     }
 
-    public function createFromJSON( Round $p_round, Competitionseason $competitionseason, Round $p_parentRound = null )
+    public function createFromJSON( Round $p_round, Competition $competition, Round $p_parentRound = null )
     {
         $number = $p_round->getNumber();
         if ( !is_int($number) or $number < 1 ) {
@@ -93,17 +93,17 @@ class Service
         try {
 
 
-            $round = $this->repos->saveFromJSON( $p_round, $competitionseason, $p_parentRound );
+            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parentRound );
             //   var_dump($p_round->getPoulePlaces()->count());
 //die();
 
-            //var_dump( $p_round->getCompetitionseason()->getId() );
+            //var_dump( $p_round->getCompetition()->getId() );
 
 
 //            foreach( $p_round->getChildRounds() as $childRound ) {
-//                $this->createFromJSON( $childRound, $p_round, $competitionseason );
+//                $this->createFromJSON( $childRound, $p_round, $competition );
 //
-//                var_dump( $childRound->getCompetitionseason()->getId() );
+//                var_dump( $childRound->getCompetition()->getId() );
 //            }
             //die();
 //            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
@@ -121,7 +121,7 @@ class Service
     }
 
 
-    public function editFromJSON( Round $p_round, Competitionseason $competitionseason, Round $p_parentRound = null )
+    public function editFromJSON( Round $p_round, Competition $competition, Round $p_parentRound = null )
     {
         $number = $p_round->getNumber();
 //        if ( !is_int($number) or $number < 1 ) {
@@ -144,8 +144,8 @@ class Service
             }
             $this->remove($realRound);
 
-            $round = $this->repos->saveFromJSON( $p_round, $competitionseason, $p_parentRound );
-            //var_dump( $p_round->getCompetitionseason()->getId() );
+            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parentRound );
+            //var_dump( $p_round->getCompetition()->getId() );
             // $round = $this->em->merge( $p_round );
             // $round = $this->repos->save( $round );
             $this->em->getConnection()->commit();
@@ -254,9 +254,9 @@ class Service
 //        $oQualifyRuleDbWriter = Voetbal_QualifyRule_Factory::createDbWriter();
 //        $oPPQualifyRuleDbWriter = Voetbal_QualifyRule_PoulePlace_Factory::createDbWriter();
 //
-//        $oRounds = $command->getCompetitionSeason()->getRounds();
+//        $oRounds = $command->getCompetition()->getRounds();
 //        $arrTeamsOldFirstRound = null;
-//        if ($command->getCompetitionSeason()->getAssociation() === null and $oRounds->first() !== null) {
+//        if ($command->getCompetition()->getAssociation() === null and $oRounds->first() !== null) {
 //            $arrTeamsOldFirstRound = $oRounds->first()->getTeamsByPlace();
 //        }
 //
@@ -276,7 +276,7 @@ class Service
 //        $oPPQualifyRules->addObserver($oPPQualifyRuleDbWriter);
 //
 //        $nIdIt = 0;
-//        // var_dump( $arrCompetitionSeason );
+//        // var_dump( $arrCompetition );
 //        $oPreviousRound = null;
 //        $arrStructure = $command->getCSStructure();
 //        $arrRounds = $arrStructure["rounds"];
@@ -284,10 +284,10 @@ class Service
 //            $oRound = Voetbal_Round_Factory::createObject();
 //            $sId = array_key_exists('$$hashKey', $arrRound) ? $arrRound['$$hashKey'] : "__NEW__" . $nIdIt++;
 //            $oRound->putId($sId);
-//            $oRound->putCompetitionSeason($command->getCompetitionSeason());
+//            $oRound->putCompetition($command->getCompetition());
 //            // $oRound->putName( "tmp".$arrRound['$$hashKey'] );
 //            $oRound->putNumber($arrRound["number"]);
-//            $oRound->putSemiCompetition($arrRound["semicompetition"]);
+//            $oRound->putSemiLeague($arrRound["semileague"]);
 //            $oRounds->add($oRound);
 //
 //            $arrPoules = $arrRound["poules"];

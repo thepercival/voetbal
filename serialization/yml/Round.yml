@@ -19,8 +19,8 @@ Voetbal\Round:
     childRounds:
       type: ArrayCollection<Voetbal\Round>
       serialized_name: childRounds
-#    competitionseason:
-#      type: Voetbal\Competitionseason
+#    competition:
+#      type: Voetbal\Competition
     poules:
       type: ArrayCollection<Voetbal\Poule>
 #    scoreConfigs:

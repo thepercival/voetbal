@@ -10,7 +10,7 @@ namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Referee\Repository as RefereeRepository;
-use Voetbal\Competitionseason\Repository as CompetitionseasonRepos;
+use Voetbal\Competition\Repository as CompetitionRepos;
 
 final class Referee
 {
@@ -19,7 +19,7 @@ final class Referee
      */
     protected $repos;
     /**
-     * @var CompetitionseasonRepos
+     * @var CompetitionRepos
      */
     protected $csRepos;
     /**
@@ -29,7 +29,7 @@ final class Referee
 
     public function __construct(
         RefereeRepository $repos,
-        CompetitionseasonRepos $csRepos,
+        CompetitionRepos $csRepos,
         Serializer $serializer
     )
     {
@@ -49,14 +49,14 @@ final class Referee
                 throw new \Exception("er kan geen veld worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitionseasonid = (int) $request->getParam("competitionseasonid");
-            $competitionseason = $this->csRepos->find($competitionseasonid);
-            if ( $competitionseason === null ) {
+            $competitionid = (int) $request->getParam("competitionid");
+            $competition = $this->csRepos->find($competitionid);
+            if ( $competition === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $referee->setCompetitionseason( $competitionseason );
-            $refereeRet = $this->repos->save( $referee, $competitionseason );
+            $referee->setCompetition( $competition );
+            $refereeRet = $this->repos->save( $referee, $competition );
 
             return $response
                 ->withStatus(201)
@@ -76,13 +76,13 @@ final class Referee
         try {
             $referee = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json');
 
-            $competitionseasonid = (int) $request->getParam("competitionseasonid");
-            $competitionseason = $this->csRepos->find($competitionseasonid);
-            if ( $competitionseason === null ) {
+            $competitionid = (int) $request->getParam("competitionid");
+            $competition = $this->csRepos->find($competitionid);
+            if ( $competition === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $referee = $this->repos->editFromJSON($referee, $competitionseason);
+            $referee = $this->repos->editFromJSON($referee, $competition);
 
             return $response
                 ->withStatus(200)

@@ -60,23 +60,23 @@ class Service
         elseif ( $classname === Season::class ){
             return new Season\Service($repos);
         }
+        elseif ( $classname === League::class ){
+            return new League\Service($repos);
+        }
         elseif ( $classname === Competition::class ){
             return new Competition\Service($repos);
-        }
-        elseif ( $classname === Competitionseason::class ){
-            return new Competitionseason\Service($repos);
         }
         elseif ( $classname === Structure::class ){
             return new Structure\Service( $this->getService(Round::class), $this->getRepository(Round::class) );
         }
         elseif ( $classname === Round::class ){
-            $competitionseasonRepos = $this->getRepository(Competitionseason::class);
+            $competitionRepos = $this->getRepository(Competition::class);
             $pouleService = $this->getService(Poule::class);
             return new Round\Service(
                 $repos,
                 $this->getRepository( Round\Config::class ),
                 $this->getRepository( Round\ScoreConfig::class ),
-                $competitionseasonRepos,
+                $competitionRepos,
                 $this->getEntityManager(),
                 $pouleService
             );
@@ -111,7 +111,7 @@ class Service
     }
 
     public static function getDefaultRoundConfig( Round $round ) {
-        $sportName = $round->getCompetitionseason()->getSport();
+        $sportName = $round->getCompetition()->getSport();
         $roundConfig = new Round\Config( $round );
         if ( $sportName === 'voetbal' ) {
             $roundConfig->setEnableTime( true );
@@ -124,7 +124,7 @@ class Service
     }
 
     public static function getDefaultRoundScoreConfig( Round $round ) {
-        $sportName = $round->getCompetitionseason()->getSport();
+        $sportName = $round->getCompetition()->getSport();
         if ( $sportName === 'darten' ) {
             return new Round\ScoreConfig( $round, 'punten', Round\ScoreConfig::DOWNWARDS, 501,
                 new Round\ScoreConfig( $round, 'legs', Round\ScoreConfig::UPWARDS, 2,

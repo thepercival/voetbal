@@ -1,10 +1,10 @@
 <?php
 
-namespace Voetbal\External\Competitionseason;
+namespace Voetbal\External\League;
 
 /**
  * Class Repository
- * @package Voetbal\External\Competitionseason
+ * @package Voetbal\External\League
  */
 class Repository extends \Voetbal\External\Repository
 {

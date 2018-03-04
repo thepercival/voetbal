@@ -13,7 +13,7 @@ use Voetbal\Poule;
 use Voetbal\PoulePlace;
 use Voetbal\Field;
 use Voetbal\Team;
-use Voetbal\Competitionseason;
+use Voetbal\Competition;
 
 /**
  * Game
@@ -60,21 +60,21 @@ class Repository extends \Voetbal\Repository
         return $game;
     }
 
-    public function findByExt( Team $homeTeam, Team $awayTeam, Competitionseason $competitionSeason, $gameStates)
+    public function findByExt( Team $homeTeam, Team $awayTeam, Competition $competition, $gameStates)
     {
         $query = $this->createQueryBuilder('g')
             ->join("g.homePoulePlace", "hpp")
             ->join("g.awayPoulePlace", "app")
             ->join("g.poule", "p")
             ->join("p.round", "r")
-            ->where('r.competitionseason = :competitionseason')
+            ->where('r.competition = :competition')
             ->andWhere('hpp.team = :hometeam')
             ->andWhere('app.team = :awayteam')
             ;
             // ->andWhere('g.state | :gamestates');
 
         $query = $query
-            ->setParameter('competitionseason', $competitionSeason)
+            ->setParameter('competition', $competition)
             ->setParameter('hometeam', $homeTeam)
             ->setParameter('awayteam', $awayTeam)
         ;   // ->setParameter('gamestates', $gameStates);

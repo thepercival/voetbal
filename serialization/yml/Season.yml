@@ -16,7 +16,7 @@ Voetbal\Season:
       serialized_name: endDateTime
 #    externals:
 #      read_only: true
-#    competitionseasons:
+#    competitions:
 #      read_only: true
 #    teams:
 #      read_only: true

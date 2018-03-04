@@ -76,8 +76,8 @@ catch( \Exception $e )
 }
 return;
 
-// @TODO competitionadd-command should check if the combination does not exists, entitymanager should be injected in the command
-$command = new Command\CompetitionAdd(
+// @TODO leagueadd-command should check if the combination does not exists, entitymanager should be injected in the command
+$command = new Command\LeagueAdd(
     $oLeague,
     $oSeason
 );
@@ -91,9 +91,9 @@ $command->putWinPointsAfterExtraTime();
 
 // @TODO $command->putExternId();, should maybe go through an import object to check uniqueness
 
-$oCompetition = Service::getBus()->handle( $command );
+$oLeague = Service::getBus()->handle( $command );
 */
-/*Public                    deze eigenschapp zou een eigen klasse moeten hebben CompetitionPublish
+/*Public                    deze eigenschapp zou een eigen klasse moeten hebben LeaguePublish
 
 
 ExternId*/

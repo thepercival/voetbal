@@ -33,7 +33,11 @@ final class Team
      */
     protected $serializer;
 
-    public function __construct(TeamService $service, TeamRepository $repos, AssociationRepository $associationRepos, Serializer $serializer)
+    public function __construct(
+        TeamService $service,
+        TeamRepository $repos,
+        AssociationRepository $associationRepos,
+        Serializer $serializer)
     {
         $this->service = $service;
         $this->repos = $repos;

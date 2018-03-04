@@ -8,7 +8,7 @@
 
 namespace Voetbal\External;
 
-class Competitionseason extends Object
+class League extends Object
 {
 
 }

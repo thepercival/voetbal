@@ -1,7 +1,7 @@
-Voetbal\External\Competitionseason:
+Voetbal\External\League:
   type: entity
-  repositoryClass: Voetbal\External\Competitionseason\Repository
-  table: externalcompetitionseasons
+  repositoryClass: Voetbal\External\League\Repository
+  table: externalcompetitons
   id:
     id:
       type: integer
@@ -15,15 +15,15 @@ Voetbal\External\Competitionseason:
   manyToOne:
     externalSystem:
       targetEntity: Voetbal\External\System
-      #inversedBy: competitionseasons
+      #inversedBy: leagues
       joinColumn:
         name: externalSystemid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
     importableObject:
-      targetEntity: Voetbal\Competitionseason
-      #inversedBy: externals
+      targetEntity: Voetbal\League
+      inversedBy: externals
       joinColumn:
         name: importableObjectid
         referencedColumnName: id

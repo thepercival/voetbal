@@ -1,33 +1,67 @@
 Voetbal\Competition:
-  type: entity
-  repositoryClass: Voetbal\Competition\Repository
-  table: competitions
-  id:
+    type: entity
+    repositoryClass: Voetbal\Competition\Repository
+    table: competitionseasons
     id:
-      type: integer
-      generator:
-        strategy: AUTO
-  fields:
-    name:
-      type: string
-      nullable: false
-      length: !php/const:Voetbal\Competition::MAX_LENGTH_NAME
-      unique: true
-    sport:
-      type: string
-      nullable: false
-      length: !php/const:Voetbal\Competition::MAX_LENGTH_SPORT
-      unique: false
-    abbreviation:
-      type: string
-      nullable: true
-      unique: false
-      length: !php/const:Voetbal\Competition::MAX_LENGTH_ABBREVIATION
-      column: abbreviation
-  oneToMany:
-    competitionseasons:
-      targetEntity: Voetbal\Competitionseason
-      mappedBy: competition
-    externals:
-      targetEntity: Voetbal\External\Competition
-      mappedBy: importableObject
+        id:
+            type: integer
+            nullable: false
+            id: true
+            column: id
+            generator:
+                strategy: AUTO
+    fields:
+        state:
+            type: smallint
+            default:  !php/const:Voetbal\Competition::STATE_CREATED
+            nullable: false
+            unique: false
+        startDateTime:
+            type: datetime_immutable
+            unique: false
+            nullable: false
+    oneToMany:
+        rounds:
+            targetEntity: Voetbal\Round
+            mappedBy: competition
+            fetch: EXTRA_LAZY
+            cascade: [ remove ]
+        referees:
+            targetEntity: Voetbal\Referee
+            mappedBy: competition
+            fetch: EXTRA_LAZY
+            cascade: [ remove ]
+        fields:
+            targetEntity: Voetbal\Field
+            mappedBy: competition
+            fetch: EXTRA_LAZY
+            cascade: [ remove ]
+#        externals:
+#          targetEntity: Voetbal\Competition
+#          mappedBy: importableObject
+    manyToOne:
+        league:
+            targetEntity: Voetbal\League
+            inversedBy: competitions
+            joinColumn:
+              name: leagueid
+              referencedColumnName: id
+              nullable: false
+              onDelete: CASCADE
+        season:
+            targetEntity: Voetbal\Season
+            inversedBy: competitions
+            joinColumn:
+              name: seasonid
+              referencedColumnName: id
+              nullable: false
+        association:
+            targetEntity: Voetbal\Association
+            inversedBy: competitions
+            joinColumn:
+              name: associationid
+              referencedColumnName: id
+              nullable: false
+    uniqueConstraints:
+        main_u_idx:
+            columns: [ leagueid, seasonid ]

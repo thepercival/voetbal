@@ -37,7 +37,7 @@ class Referee
     /**
      * @var Comopetitionseason
      */
-    private $competitionseason;
+    private $competition;
 
     const MIN_LENGTH_INITIALS = 1;
     const MAX_LENGTH_INITIALS = 3;
@@ -45,10 +45,10 @@ class Referee
     const MAX_LENGTH_NAME = 15;
     const MAX_LENGTH_INFO = 200;
 
-    public function __construct( Comopetitionseason $competitionseason, $initials )
+    public function __construct( Comopetitionseason $competition, $initials )
     {
         $this->setInitials( $initials );
-        $this->setCompetitionseason( $competitionseason );
+        $this->setCompetition( $competition );
     }
 
     /**
@@ -136,18 +136,18 @@ class Referee
     }
 
     /**
-     * @return Competitionseason
+     * @return Competition
      */
-    public function getCompetitionseason()
+    public function getCompetition()
     {
-        return $this->competitionseason;
+        return $this->competition;
     }
 
     /**
-     * @param Competitionseason $Competitionseason
+     * @param Competition $Competition
      */
-    public function setCompetitionseason( Competitionseason $competitionseason )
+    public function setCompetition( Competition $competition )
     {
-        $this->competitionseason = $competitionseason;
+        $this->competition = $competition;
     }
 }

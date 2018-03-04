@@ -13,16 +13,16 @@ use Voetbal\External\Object;
 class Service
 {
 	/**
-	 * @var CompetitionRepository
+	 * @var LeagueRepository
 	 */
 	protected $repos;
 
 	/**
 	 * Service constructor.
 	 *
-	 * @param CompetitionRepository $repos
+	 * @param LeagueRepository $repos
 	 */
-	public function __construct( CompetitionRepository $repos )
+	public function __construct( LeagueRepository $repos )
 	{
 		$this->repos = $repos;
 	}
@@ -42,8 +42,8 @@ class Service
         );
 
 		// check if not exisys
-        /*$competitionWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-		if ( $competitionWithSameName !== null ){
+        /*$leagueWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+		if ( $leagueWithSameName !== null ){
 			throw new \Exception("de competitie ".$name." bestaat al", E_ERROR );
 		}*/
 
@@ -53,7 +53,7 @@ class Service
 	}
 
     /**
-     * @param Competition $competition
+     * @param League $league
      */
 	public function remove( \Voetbal\External\Object $externalobject )
 	{

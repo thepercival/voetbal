@@ -19,11 +19,11 @@ Voetbal\Field:
       length: !php/const:Voetbal\Field::MAX_LENGTH_NAME
       unique: false
   manyToOne:
-    competitionseason:
-      targetEntity: Voetbal\Competitionseason
+    competition:
+      targetEntity: Voetbal\Competition
       inversedBy: fields
       joinColumn:
-        name: competitionseasonid
+        name: competitionid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE

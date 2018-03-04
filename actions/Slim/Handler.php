@@ -79,21 +79,22 @@ class Handler
             $service = new Voetbal\Season\Service($repos);
             $action = new Voetbal\Action\Season($service, $repos, $serializer);
         }
+        elseif ( $resourceType === 'leagues' ){
+            $repos = $voetbalservice->getRepository(Voetbal\League::class);
+            $service = new Voetbal\League\Service($repos);
+            $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
+            $action = new Voetbal\Action\League($service, $repos, $associationRepos, $serializer);
+        }
         elseif ( $resourceType === 'competitions' ){
             $repos = $voetbalservice->getRepository(Voetbal\Competition::class);
             $service = new Voetbal\Competition\Service($repos);
-            $action = new Voetbal\Action\Competition($service, $repos, $serializer);
-        }
-        elseif ( $resourceType === 'competitionseasons' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
-            $service = new Voetbal\Competitionseason\Service($repos);
-            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
+            $leagueRepos = $voetbalservice->getRepository(Voetbal\League::class);
             $seasonRepos = $voetbalservice->getRepository(Voetbal\Season::class);
             $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
-            $action = new Voetbal\Action\Competitionseason(
+            $action = new Voetbal\Action\Competition(
                 $service,
                 $repos,
-                $competitionRepos,
+                $leagueRepos,
                 $seasonRepos,
                 $associationRepos,
                 $serializer
@@ -101,12 +102,12 @@ class Handler
         }
 //        elseif ( $resourceType === 'rounds' ){
 //            $repos = $voetbalservice->getRepository(Voetbal\Round::class);
-//            $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+//            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
 //            $service = $voetbalservice->getService(Voetbal\Round::class);
 //            $action = new Voetbal\Action\Old(
 //                $service,
 //                $repos,
-//                $competitionseasonRepos,
+//                $competitionRepos,
 //                $serializer
 //            );
 //        }
@@ -118,7 +119,7 @@ class Handler
             $action = new Voetbal\Action\Game($service, $repos, $scoreRepos, $pouleRepos, $serializer);
         }
         elseif ( $resourceType === 'structures' ){
-            $competitionseasonRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
             $roundRepos = $voetbalservice->getRepository(Voetbal\Round::class);
 //            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
 //            $pouleplaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
@@ -130,13 +131,13 @@ class Handler
             $action = new Voetbal\Action\Structure(
                 $service,
                 $roundRepos,
-                $competitionseasonRepos,
+                $competitionRepos,
                 $serializer
             );
         }
         elseif ( $resourceType === 'fields' ) {
             $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
-            $csRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+            $csRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
             $action = new Voetbal\Action\Field(
                 $fieldRepos,
                 $csRepos,
@@ -145,7 +146,7 @@ class Handler
         }
         elseif ( $resourceType === 'referees' ) {
             $refereeRepos = $voetbalservice->getRepository(Voetbal\Referee::class);
-            $csRepos = $voetbalservice->getRepository(Voetbal\Competitionseason::class);
+            $csRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
             $action = new Voetbal\Action\Referee(
                 $refereeRepos,
                 $csRepos,

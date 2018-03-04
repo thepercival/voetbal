@@ -92,9 +92,9 @@ class Service
         }
 
         $criteria = Criteria::create()->orderBy(array("number" => Criteria::ASC));
-        $fields = $round->getCompetitionseason()->getFields()->matching($criteria);
+        $fields = $round->getCompetition()->getFields()->matching($criteria);
 
-        $referees = $round->getCompetitionseason()->getReferees();
+        $referees = $round->getCompetition()->getReferees();
         $currentField = $fields->first();
         $nextRoundStartDateTime = null;
         $games = $this->getGamesByNumber( $round );
@@ -155,7 +155,7 @@ class Service
 //                    var_dump($arrGame[0]);
 //                    $oGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[0], $arrGame[1], null, $nGameNumber + 1, $nViewOrder );
 //                    $oGames->add( $oGame );
-//                    if ( $bSemiCompetition !== true )
+//                    if ( $bSemiLeague !== true )
 //                    {
 //                        $oReturnGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[1], $arrGame[0], null, $nStartGameNrReturnGames + $nGameNumber + 1, $nViewOrder );
 //                        $oGames->add( $oReturnGame );

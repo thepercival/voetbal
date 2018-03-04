@@ -90,8 +90,8 @@ class ExternalHandler
 
     protected function getImportableClassFromResource( $resourcetype )
     {
-        if ( $resourcetype === "competitions") { return \Voetbal\Competition::class; }
-        else if ( $resourcetype === "competitionseasons") { return \Voetbal\Competitionseason::class; }
+        if ( $resourcetype === "leagues") { return \Voetbal\League::class; }
+        else if ( $resourcetype === "competitions") { return \Voetbal\Competition::class; }
         else if ( $resourcetype === "associations") { return \Voetbal\Association::class; }
         else if ( $resourcetype === "seasons") { return \Voetbal\Season::class; }
         else if ( $resourcetype === "teams") { return \Voetbal\Team::class; }
@@ -102,8 +102,8 @@ class ExternalHandler
 
     protected function getClassFromResource( $resourcetype )
     {
-        if ( $resourcetype === "competitions") { return \Voetbal\External\Competition::class; }
-        else if ( $resourcetype === "competitionseasons") { return \Voetbal\External\Competitionseason::class; }
+        if ( $resourcetype === "leagues") { return \Voetbal\External\League::class; }
+        else if ( $resourcetype === "competitions") { return \Voetbal\External\Competition::class; }
         else if ( $resourcetype === "associations") { return \Voetbal\External\Association::class; }
         else if ( $resourcetype === "seasons") { return \Voetbal\External\Season::class; }
         else if ( $resourcetype === "teams") { return \Voetbal\External\Team::class; }

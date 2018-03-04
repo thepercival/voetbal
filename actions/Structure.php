@@ -24,7 +24,7 @@ use JMS\Serializer\Serializer;
 //use Voetbal\Round\Service as RoundService;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Round\Repository as RoundRepository;
-use Voetbal\Competitionseason\Repository as CompetitionseasonRepository;
+use Voetbal\Competition\Repository as CompetitionRepository;
 //use Voetbal;
 //use Psr\Http\Message\ServerRequestInterface;
 //use Psr\Http\Message\ResponseInterface;
@@ -40,9 +40,9 @@ final class Structure
      */
     protected $roundRepos;
     /**
-     * @var CompetitionseasonRepository
+     * @var CompetitionRepository
      */
-    protected $competitionseasonRepos;
+    protected $competitionRepos;
     /**
      * @var Serializer
      */
@@ -51,12 +51,12 @@ final class Structure
     public function __construct(
         StructureService $service,
         RoundRepository $repos,
-        CompetitionseasonRepository $competitionseasonRepos,
+        CompetitionRepository $competitionRepos,
         Serializer $serializer
     )
     {
         $this->roundRepos = $repos;
-        $this->competitionseasonRepos = $competitionseasonRepos;
+        $this->competitionRepos = $competitionRepos;
         $this->service = $service;
         $this->serializer = $serializer;
     }
@@ -64,9 +64,9 @@ final class Structure
     public function fetch( $request, $response, $args)
     {
         $params = array( "number" => 1 );
-        $competitionseasonid = (int) $request->getParam("competitionseasonid");
-        if( $competitionseasonid > 0 ){
-            $params["competitionseason"] = $competitionseasonid;
+        $competitionid = (int) $request->getParam("competitionid");
+        if( $competitionid > 0 ){
+            $params["competition"] = $competitionid;
         }
         $objects = $this->roundRepos->findBy( $params );
         return $response
@@ -78,12 +78,12 @@ final class Structure
 
     public function fetchOne( $request, $response, $args)
     {
-        $cs = $this->competitionseasonRepos->find( (int) $request->getParam("competitionseasonid") );
+        $cs = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
         if( $cs === null ) {
             return $response->withStatus(404, 'geen structuur gevonden voor competitieseizoen');
         }
 
-        $params = array( "number" => 1, "competitionseason" => $cs->getId() );
+        $params = array( "number" => 1, "competition" => $cs->getId() );
         $round = $this->roundRepos->findOneBy( $params );
 
         return $response
@@ -103,13 +103,13 @@ final class Structure
                 throw new \Exception("er kan geen ronde worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitionseasonid = (int) $request->getParam("competitionseasonid");
-            $competitionseason = $this->competitionseasonRepos->find($competitionseasonid);
-            if ( $competitionseason === null ) {
+            $competitionid = (int) $request->getParam("competitionid");
+            $competition = $this->competitionRepos->find($competitionid);
+            if ( $competition === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $roundRet = $this->service->createFromJSON( $round, $competitionseason );
+            $roundRet = $this->service->createFromJSON( $round, $competition );
 
             return $response
                 ->withStatus(201)
@@ -134,13 +134,13 @@ final class Structure
                 throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitionseasonid = (int) $request->getParam("competitionseasonid");
-            $competitionseason = $this->competitionseasonRepos->find($competitionseasonid);
-            if ( $competitionseason === null ) {
+            $competitionid = (int) $request->getParam("competitionid");
+            $competition = $this->competitionRepos->find($competitionid);
+            if ( $competition === null ) {
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $roundRet = $this->service->editFromJSON( $round, $competitionseason );
+            $roundRet = $this->service->editFromJSON( $round, $competition );
 
             return $response
                 ->withStatus(200)

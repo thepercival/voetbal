@@ -54,9 +54,9 @@ class Round
     protected $scoreConfigs;
 
     /**
-     * @var Competitionseason
+     * @var Competition
      */
-    protected $competitionseason;
+    protected $competition;
 
     /**
      * @var Round
@@ -90,9 +90,9 @@ class Round
 
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Competitionseason $competitionseason, Round $parentRound = null )
+    public function __construct( Competition $competition, Round $parentRound = null )
     {
-        $this->setCompetitionseason( $competitionseason );
+        $this->setCompetition( $competition );
         $this->poules = new ArrayCollection();
         $this->qualifyRules = new ArrayCollection();
         $this->scoreConfigs = new ArrayCollection();
@@ -121,22 +121,22 @@ class Round
     }
 
     /**
-     * @return Competitionseason
+     * @return Competition
      */
-    public function getCompetitionseason()
+    public function getCompetition()
     {
-        return $this->competitionseason;
+        return $this->competition;
     }
 
     /**
-     * @param Competitionseason $Competitionseason
+     * @param Competition $Competition
      */
-    public function setCompetitionseason( Competitionseason $competitionseason )
+    public function setCompetition( Competition $competition )
     {
-//        if ( $this->competitionseason === null and $competitionseason !== null and !$competitionseason->getRounds()->contains( $this )){
-//            $competitionseason->getRounds()->add($this) ;
+//        if ( $this->competition === null and $competition !== null and !$competition->getRounds()->contains( $this )){
+//            $competition->getRounds()->add($this) ;
 //        }
-        $this->competitionseason = $competitionseason;
+        $this->competition = $competition;
     }
 
     /**

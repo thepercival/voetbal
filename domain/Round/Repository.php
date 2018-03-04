@@ -8,7 +8,7 @@
 
 namespace Voetbal\Round;
 
-use Voetbal\Competitionseason;
+use Voetbal\Competition;
 use Voetbal\Round;
 use Voetbal\Poule\Repository as PouleRepository;
 
@@ -19,12 +19,12 @@ use Voetbal\Poule\Repository as PouleRepository;
 class Repository extends \Voetbal\Repository
 {
 
-    public function saveFromJSON( Round $round, Competitionseason $competitionseason, Round $parentRound = null )
+    public function saveFromJSON( Round $round, Competition $competition, Round $parentRound = null )
     {
-        $round->setCompetitionseason( $competitionseason );
+        $round->setCompetition( $competition );
 
         foreach( $round->getChildRounds() as $childRound ) {
-            $this->saveFromJSON( $childRound, $competitionseason, $round );
+            $this->saveFromJSON( $childRound, $competition, $round );
         }
 
         $configRepos = $this->_em->getRepository( \Voetbal\Round\Config::class );
@@ -53,17 +53,17 @@ class Repository extends \Voetbal\Repository
         return $round;
     }
 
-    public function editFromJSON( Round $round, Competitionseason $competitionseason, Round $parentRound = null )
+    public function editFromJSON( Round $round, Competition $competition, Round $parentRound = null )
     {
         $this->_em->merge($round);
         $this->remove($round);
 
         // remove all round beneath and call saveFromJSON
 //
-//        $round->setCompetitionseason( $competitionseason );
+//        $round->setCompetition( $competition );
 //
 //        foreach( $round->getChildRounds() as $childRound ) {
-//            $this->saveFromJSON( $childRound, $competitionseason, $round );
+//            $this->saveFromJSON( $childRound, $competition, $round );
 //        }
 //
 //        $configRepos = $this->_em->getRepository( \Voetbal\Round\Config::class );
