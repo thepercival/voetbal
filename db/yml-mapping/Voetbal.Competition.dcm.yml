@@ -1,7 +1,7 @@
 Voetbal\Competition:
     type: entity
     repositoryClass: Voetbal\Competition\Repository
-    table: competitionseasons
+    table: competitions
     id:
         id:
             type: integer

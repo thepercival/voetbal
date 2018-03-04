@@ -1,7 +1,7 @@
 Voetbal\External\League:
   type: entity
   repositoryClass: Voetbal\External\League\Repository
-  table: externalcompetitons
+  table: externalleagues
   id:
     id:
       type: integer

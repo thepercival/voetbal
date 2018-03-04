@@ -1,7 +1,7 @@
 Voetbal\League:
   type: entity
   repositoryClass: Voetbal\League\Repository
-  table: competitions
+  table: leagues
   id:
     id:
       type: integer
