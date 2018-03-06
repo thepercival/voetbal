@@ -7,6 +7,7 @@ use Voetbal\Field;
 use Voetbal\Referee;
 use Voetbal\Competition;
 use Voetbal\League;
+use Voetbal\Season;
 
 /**
  * Class Repository
@@ -26,6 +27,18 @@ class Repository extends \Voetbal\Repository
 //        foreach( $competition->getReferees() as $referee ) {
 //            $refereeRepos->saveFromJSON( $referee, $competition );
 //        }
+    }
+
+    public function findExt( League $league, Season $season )
+    {
+        $query = $this->createQueryBuilder('c')
+            ->where('c.season>= :season')
+            ->andWhere('c.league = :league');
+        $query = $query->setParameter('season', $season);
+        $query = $query->setParameter('league', $league);
+        $results = $query->getQuery()->getResult();
+        $result = reset( $results );
+        return $result;
     }
 
     public function findOneByLeagueAndDate( League $league, \DateTimeImmutable $date )

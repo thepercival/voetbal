@@ -78,9 +78,8 @@ class ExternalHandler
 
             $classname =  $this->getClassFromResource($resourceType);
             $objectRepository = $voetbalservice->getRepository($classname);
-            $objectService = new \Voetbal\External\Object\Service($objectRepository, $systemRepos, $importableRepos);
 
-            $action = new Voetbal\Action\External\Object($objectService, $objectRepository, $importableRepos, $systemRepos, $serializer);
+            $action = new Voetbal\Action\External\Object( $objectRepository, $importableRepos, $systemRepos, $serializer);
         }
         if ( $action === null ) {
             throw new \Exception('geen actie gevonden voor '.$resourceType, E_ERROR);

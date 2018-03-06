@@ -46,11 +46,11 @@ class Service
         ) );
 
         if ( $sameCompetition !== null ){
-            throw new \Exception("het competitieseizoen bestaat al", E_ERROR );
+            throw new \Exception("de competitie bestaat al", E_ERROR );
         }
 
         if( !$competitionSer->getSeason()->getPeriod()->contains( $competitionSer->getStartDateTime() ) ) {
-            throw new \Exception("de startdatum van het competiteseizoen valt buiten het seizoen", E_ERROR );
+            throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR );
         }
 
         return $this->repos->save($competitionSer);
@@ -65,11 +65,11 @@ class Service
 	public function changeStartDateTime( Competition $competition, \DateTimeImmutable $startDateTime )
 	{
         if( $competition->getState() === Competition::STATE_PUBLISHED ) {
-            throw new \Exception("het competitieseizoen kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
+            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
         }
 
         if( !$competition->getSeason()->getPeriod()->contains( $startDateTime ) ) {
-            throw new \Exception("de startdatum van het competiteseizoen valt buiten het seizoen", E_ERROR );
+            throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR );
         }
 
         $competition->setStartDateTime( $startDateTime );

@@ -18,10 +18,6 @@ use Voetbal;
 final class Object
 {
     /**
-     * @var ExternalObjectService
-     */
-    protected $service;
-    /**
      * @var EntityRepository
      */
     protected $repos;
@@ -39,15 +35,18 @@ final class Object
     protected $serializer;
 
     public function __construct(
-        ExternalObjectService $service,
-        EntityRepository $objectRepository,
+        EntityRepository $repos,
         EntityRepository $importableRepos,
         Voetbal\External\System\Repository $systemRepos,
         Serializer $serializer
     )
     {
-        $this->service = $service;
-        $this->repos = $objectRepository;
+        $this->service = new ExternalObjectService(
+            $repos,
+            $systemRepos,
+            $importableRepos
+        );
+        $this->repos = $repos;
         $this->importableRepos = $importableRepos;
         $this->systemRepos = $systemRepos;
         $this->serializer = $serializer;
@@ -94,13 +93,16 @@ final class Object
                 throw new \Exception("er kan geen extern object worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $externalObjectSer = $this->service->fromJSON( $externalObjectExtSer );
-            $externalObjectRet = $this->service->create( $externalObjectSer );
+            $externalObject = $this->service->create(
+                $this->importableRepos->find( $externalObjectExtSer->getImportableObjectId() ),
+                $this->externalSystemRepos->find( $externalObjectExtSer->getExternalSystemId() ),
+                $externalObjectExtSer->getExternalId()
+            );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $this->service->toJSON( $externalObjectRet ), 'json'));
+                ->write($this->serializer->serialize( $this->service->toJSON( $externalObject ), 'json'));
             ;
         }
         catch( \Exception $e ){

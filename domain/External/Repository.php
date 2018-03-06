@@ -10,18 +10,38 @@ namespace Voetbal\External;
 
 class Repository extends \Voetbal\Repository
 {
-
-    // algemene func maken die de importableObject geeft bij een externalSystem en externalId
-
-    public function findImportableBy( System $externalSystem, $externalId )
+    public function findOneByExternalId( System $externalSystem, $externalId )
     {
-        $externalObject = $this->findOneBy(array(
+        return $this->findOneBy(array(
             'externalId' => $externalId,
             'externalSystem' => $externalSystem
         ));
+    }
+
+    public function findImportable( System $externalSystem, $externalId )
+    {
+        $externalObject = $this->findOneByExternalId( $externalSystem, $externalId );
         if( $externalObject === null ) {
             return null;
         }
         return $externalObject->getImportableObject();
+    }
+
+    public function findOneByImportable( System $externalSystem, Importable $importable )
+    {
+        return $this->findOneBy(array(
+            'importableObject' => $importable,
+            'externalSystem' => $externalSystem
+        ));
+    }
+
+
+    public function findExternalId( System $externalSystem, Importable $importable )
+    {
+        $externalObject = $this->findOneByImportable( $externalSystem, $importable );
+        if( $externalObject === null ) {
+            return null;
+        }
+        return $externalObject->getExternalId();
     }
 }
