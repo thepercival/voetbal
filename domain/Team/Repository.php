@@ -18,11 +18,5 @@ use Voetbal\Association;
  */
 class Repository extends \Voetbal\Repository implements ImportableRepository
 {
-    public function editFromJSON( Team $team, Association $association )
-    {
-        $team->setAssociation( $association );
-        $teamRet = $this->_em->merge( $team );
-        $this->_em->flush();
-        return $teamRet;
-    }
+
 }

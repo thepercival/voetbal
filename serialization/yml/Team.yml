@@ -12,16 +12,6 @@ Voetbal\Team:
       type: string
     info:
       type: string
-
-#    externals:
-#      exclude: true
-#    competitions:
-#      exclude: true
-#    teams:
-#      exclude: true
-
-#    ruimtespecificeerbaar:
-#    locaties:
-#  virtual_properties:
-#    isInGebruik:
-#      serialized_name: ingebruik
+    imageUrl:
+      type: string
+      serialized_name: imageUrl

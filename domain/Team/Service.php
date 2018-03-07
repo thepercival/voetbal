@@ -35,10 +35,11 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-    public function create( $name, Association $association, $abbreviation = null )
+    public function create( $name, Association $association, $abbreviation = null, $imageUrl = null )
     {
         $team = new Team( $name, $association );
         $team->setAbbreviation($abbreviation);
+        $team->setImageUrl($imageUrl);
 
         $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
         if ( $teamWithSameName !== null ){
@@ -56,7 +57,7 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-    public function edit( Team $team, $name, Association $association, $abbreviation = null )
+    public function edit( Team $team, $name, Association $association, $abbreviation = null, $imageUrl = null )
     {
         $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
         if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
@@ -65,6 +66,7 @@ class Service
 
         $team->setName($name);
         $team->setAbbreviation($abbreviation);
+        $team->setImageUrl($imageUrl);
         $team->setAssociation($association);
 
         return $this->repos->save($team);

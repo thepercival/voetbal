@@ -9,7 +9,6 @@
 namespace Voetbal\External\System\FootballData;
 
 use Voetbal\External\System as ExternalSystemBase;
-use Voetbal\External\Object as ExternalObject;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 use Voetbal\Competition\Service as CompetitionService;
 use Voetbal\Competition\Repository as CompetitionRepos;
@@ -19,7 +18,6 @@ use Voetbal\League;
 use Voetbal\Season;
 use Voetbal\Competition as CompetitionBase;
 use Voetbal\External\Season as ExternalSeason;
-use JMS\Serializer\Serializer;
 
 class Competition implements CompetitionImporter
 {
@@ -53,18 +51,12 @@ class Competition implements CompetitionImporter
      */
     private $externalObjectRepos;
 
-    /**
-     * @var Serializer
-     */
-    protected $serializer;
-
     public function __construct(
         ExternalSystemBase $externalSystemBase,
         ApiHelper $apiHelper,
         CompetitionService $service,
         CompetitionRepos $repos,
-        ExternalCompetitionRepos $externalRepos,
-        Serializer $serializer
+        ExternalCompetitionRepos $externalRepos
     )
     {
         $this->externalSystemBase = $externalSystemBase;
@@ -75,8 +67,6 @@ class Competition implements CompetitionImporter
         $this->externalObjectService = new ExternalObjectService(
             $this->externalObjectRepos
         );
-
-        $this->serializer = $serializer;
     }
 
     public function get( ExternalSeason $externalSeason )
@@ -84,11 +74,15 @@ class Competition implements CompetitionImporter
         return $this->apiHelper->getData("competitions/?season=". $externalSeason->getExternalId());
     }
 
+    public function getOne( $externalId ) {
+        return $this->apiHelper->getData("competitions/".$externalId);
+    }
+
     public function create( League $league, Season $season, $externalSystemObject )
     {
         $competition = $this->repos->findExt( $league, $season );
         if ( $competition === null ) {
-            $competitionSer = $this->getSerialized( $season, $league, $externalSystemObject );
+            $competitionSer = $this->createHelper( $league, $season, $externalSystemObject );
             $competition = $this->service->create( $competitionSer );
         }
         $externalCompetition = $this->createExternal( $competition, $externalSystemObject->id );
@@ -112,17 +106,10 @@ class Competition implements CompetitionImporter
         return $externalCompetition;
     }
 
-    protected function getSerialized( Season $season, League $league, $competitionPreSer )
+    protected function createHelper( League $league, Season $season, $competitionPreSer )
     {
-        $competitionSer = $this->serializer->deserialize( json_encode([
-            "id" => null,
-            "state" => Competition::STATE_CREATED,
-            "startDateTime" => $season->getStartDateTime()->format('Y-m-d\TH:i:s.u\Z'),
-            "fields" => [],
-            "referees" => []
-        ]), 'Voetbal\Competition', 'json');
-        $competitionSer->setLeague( $league );
-        $competitionSer->setSeason($season);
+        $competitionSer = new CompetitionBase($league, $season);
+        $competitionSer->setStartDateTime( $season->getStartDateTime() );
         return $competitionSer;
     }
 }

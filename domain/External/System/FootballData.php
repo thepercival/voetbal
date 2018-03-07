@@ -11,14 +11,22 @@ namespace Voetbal\External\System;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\Competition\Service as CompetitionService;
 use Voetbal\Competition\Repository as CompetitionRepos;
-use Voetbal\External\Object\Service as ExternalObjectService;
 use Voetbal\External\Competition\Repository as ExternalCompetitionRepos;
-use JMS\Serializer\Serializer;
+use Voetbal\Team\Service as TeamService;
+use Voetbal\Team\Repository as TeamRepos;
+use Voetbal\External\Team\Repository as ExternalTeamRepos;
 use Voetbal\External\System\Importable\Competition as CompetitionImportable;
+use Voetbal\External\System\Importable\Team as TeamImportable;
+use Voetbal\External\System\Importable\Structure as StructureImportable;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
+use Voetbal\External\System\Importer\Team as TeamImporter;
+use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\System\FootballData\Competition as FootballDataCompetitionImporter;
+use Voetbal\External\System\FootballData\Team as FootballDataTeamImporter;
+use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
+use Voetbal\External\Object\Repository as ExternalObjectRepos;
 
-class FootballData implements Def, CompetitionImportable
+class FootballData implements Def, CompetitionImportable, TeamImportable, StructureImportable
 {
     /**
      * @var ExternalSystem
@@ -58,16 +66,10 @@ class FootballData implements Def, CompetitionImportable
         $this->externalSystem = $externalSystem;
     }
 
-    public function hasCompetitionImporter(): bool
-    {
-        return true;
-    }
-
     public function getCompetitionImporter(
         CompetitionService $service,
         CompetitionRepos $repos,
-        ExternalCompetitionRepos $externalRepos,
-        Serializer $serializer
+        ExternalCompetitionRepos $externalRepos
     ) : CompetitionImporter
     {
         return new FootballDataCompetitionImporter(
@@ -75,8 +77,35 @@ class FootballData implements Def, CompetitionImportable
             $this->getApiHelper(),
             $service,
             $repos,
-            $externalRepos,
-            $serializer
+            $externalRepos
+        );
+    }
+
+    public function getTeamImporter(
+        TeamService $service,
+        TeamRepos $repos,
+        ExternalTeamRepos $externalRepos
+    ) : TeamImporter
+    {
+        return new FootballDataTeamImporter(
+            $this->getExternalSystem(),
+            $this->getApiHelper(),
+            $service,
+            $repos,
+            $externalRepos
+        );
+    }
+
+    public function getStructureImporter(
+        CompetitionImporter $competitionImporter,
+        TeamImporter $teamImporter,
+        ExternalTeamRepos $externalTeamRepos
+    ) : StructureImporter {
+        return new FootballDataStructureImporter(
+            $this->getExternalSystem(),
+            $competitionImporter,
+            $teamImporter,
+            $externalTeamRepos
         );
     }
 }

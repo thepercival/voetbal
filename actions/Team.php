@@ -88,8 +88,12 @@ final class Team
                 throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $teamSer->setAssociation( $association );
-            $teamRet = $this->repos->save( $teamSer );
+            $teamRet = $this->service->create(
+                $teamSer->getName(),
+                $association,
+                $teamSer->getAbbreviation(),
+                $teamSer->getImageUrl()
+            );
 
             return $response
                 ->withStatus(201)
@@ -113,10 +117,21 @@ final class Team
                 throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            /** @var \Voetbal\Team $team */
-            $team = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
+            /** @var \Voetbal\Team $teamSer */
+            $teamSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
 
-            $teamRet = $this->repos->editFromJSON( $team, $association );
+            $team = $this->repos->find($teamSer->getId());
+            if ( $team === null ) {
+                throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
+
+            $teamRet = $this->service->edit(
+                $team,
+                $teamSer->getName(),
+                $association,
+                $teamSer->getAbbreviation(),
+                $teamSer->getImageUrl()
+            );
 
             return $response
                 ->withStatus(200)

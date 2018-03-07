@@ -31,6 +31,11 @@ class Team implements External\Importable
     protected $info;
 
     /**
+     * @var string
+     */
+    protected $imageUrl;
+
+    /**
      * @var Association
      */
     protected $association;
@@ -39,6 +44,7 @@ class Team implements External\Importable
     const MAX_LENGTH_NAME = 30;
     const MAX_LENGTH_ABBREVIATION = 3;
     const MAX_LENGTH_INFO = 200;
+    const MAX_LENGTH_IMAGEURL = 150;
 
     use External\ImportableTrait;
 
@@ -134,6 +140,29 @@ class Team implements External\Importable
             throw new \InvalidArgumentException( "de extra-info mag maximaal ".static::MAX_LENGTH_INFO." karakters bevatten", E_ERROR );
         }
         $this->info = $info;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImageUrl()
+    {
+        return $this->imageUrl;
+    }
+
+    /**
+     * @param string $imageUrl
+     */
+    public function setImageUrl( $imageUrl)
+    {
+        if ( strlen($imageUrl) === 0 ){
+            $imageUrl = null;
+        }
+
+        if ( strlen( $imageUrl ) > static::MAX_LENGTH_IMAGEURL ){
+            throw new \InvalidArgumentException( "de imageUrl mag maximaal ".static::MAX_LENGTH_IMAGEURL." karakters bevatten", E_ERROR );
+        }
+        $this->imageUrl = $imageUrl;
     }
 
     /**

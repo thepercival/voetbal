@@ -24,6 +24,11 @@ Voetbal\Team:
       nullable: true
       length: !php/const:Voetbal\Team::MAX_LENGTH_INFO
       unique: false
+    imageUrl:
+      type: string
+      nullable: true
+      length: !php/const:Voetbal\Team::MAX_LENGTH_IMAGEURL
+      unique: false
   oneToMany:
     externals:
       targetEntity: Voetbal\External\Team
