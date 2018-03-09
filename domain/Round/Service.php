@@ -13,6 +13,7 @@ use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Competition;
 use Doctrine\ORM\EntityManager;
 use Voetbal\Poule;
+use Voetbal\Round\Structure as RoundStructure;
 
 class Service
 {
@@ -22,14 +23,14 @@ class Service
     protected $repos;
 
     /**
-     * @var Config\Repository
+     * @var Config\Service
      */
-    protected $roundConfigRepos;
+    protected $roundConfigService;
 
     /**
-     * @var ScoreConfig\Repository
+     * @var ScoreConfig\Servic
      */
-    protected $roundScoreConfigRepos;
+    protected $roundScoreConfigService;
 
     /**
      * @var Competition\Repository
@@ -47,115 +48,182 @@ class Service
     protected $pouleService;
 
     /**
-     * @var array
-     */
-    protected static $defaultNrOfPoules = null;
-
-    /**
      * Service constructor.
      * @param Repository $repos
-     * @param Config\Repository $roundConfigRepos
-     * @param ScoreConfig\Repository $roundScoreConfigRepos
+     * @param Config\Service $roundConfigService
+     * @param ScoreConfig\Servic $roundScoreConfigService
      * @param Competition\Repository $competitionRepos
      * @param EntityManager $em
      * @param Poule\Service $pouleService
      */
-    public function __construct( RoundRepository $repos,
-                                 Config\Repository $roundConfigRepos,
-                                 ScoreConfig\Repository $roundScoreConfigRepos,
-                                 Competition\Repository $competitionRepos,
-                                 EntityManager $em,
-                                 Poule\Service $pouleService
+    public function __construct(
+        RoundRepository $repos,
+        Config\Service $roundConfigService,
+        ScoreConfig\Service $roundScoreConfigService,
+        Competition\Repository $competitionRepos,
+        EntityManager $em,
+        Poule\Service $pouleService
     )
     {
         $this->repos = $repos;
-        $this->roundConfigRepos = $roundConfigRepos;
-        $this->roundScoreConfigRepos = $roundScoreConfigRepos;
+        $this->roundConfigService = $roundConfigService;
+        $this->roundScoreConfigService = $roundScoreConfigService;
         $this->competitionRepos = $competitionRepos;
         $this->pouleService = $pouleService;
         $this->em = $em;
     }
 
-    public function createFromJSON( Round $p_round, Competition $competition, Round $p_parentRound = null )
+    public function create( Competition $competition, int $winnersOrLosers, RoundStructure $roundStructure, Round $parent = null ): Round
     {
-        $number = $p_round->getNumber();
-        if ( !is_int($number) or $number < 1 ) {
-            throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
+        $opposingChildRound = $parent ? $parent->getChildRound( Round::getOpposing($winnersOrLosers)) : null;
+        $opposing = $opposingChildRound !== null ? $opposingChildRound->getWinnersOrLosers() : 0;
+        return $this->createHelper( $competition, $winnersOrLosers, $roundStructure, $opposing, $parent);
+    }
+
+    private function createHelper( Competition $competition, int $winnersOrLosers, RoundStructure $roundStructure, int $opposing, Round $parent = null): Round
+    {
+        if ($roundStructure->nrofplaces <= 0) {
+            throw new \Exception("het aantal plekken voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
-        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
-        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
-            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
+        if ($roundStructure->nrofpoules <= 0) {
+            throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
 
-
-        $round = null;
-        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
+        $this->em->getConnection()->beginTransaction();
         try {
+            $round = new Round($competition, $parent);
+            $round->setWinnersOrLosers( $winnersOrLosers );
+            $round = $this->repos->save($round);
 
+            // $roundStructure = $this->getDefault($round->getNumber(), $nrOfPlaces);
 
-            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parentRound );
-            //   var_dump($p_round->getPoulePlaces()->count());
-//die();
+            $nrOfPlacesPerPoule = $roundStructure->getNrOfPlacesPerPoule();
+    //        $nrOfPlacesNextRound = ($winnersOrLosers === Round::LOSERS) ? ($nrOfPlaces - $roundStructure->nrofwinners) : $roundStructure->nrofwinners;
+    //        $nrOfOpposingPlacesNextRound = (Round::getOpposing($winnersOrLosers) === Round::WINNERS) ? $roundStructure->nrofwinners : $nrOfPlaces - $roundStructure->nrofwinners;
 
-            //var_dump( $p_round->getCompetition()->getId() );
+            $pouleNumber = 1;
+            $nrOfPlaces = $roundStructure->nrofplaces;
+            while ($nrOfPlaces > 0) {
+                $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
+                $poule = $this->pouleService->create( $round, $pouleNumber++, null, $nrOfPlacesToAdd );
+                $nrOfPlaces -= $nrOfPlacesPerPoule;
+            }
 
+            $this->roundConfigService->create($round);
+            $this->roundScoreConfigService->create($round);
+            // this.configRepos.createObjectFromParent(round);
+            // $round->setScoreConfig( $this->scoreConfigRepos->createObjectFromParent($round));
 
-//            foreach( $p_round->getChildRounds() as $childRound ) {
-//                $this->createFromJSON( $childRound, $p_round, $competition );
-//
-//                var_dump( $childRound->getCompetition()->getId() );
-//            }
-            //die();
-//            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
-//            $this->roundConfigRepos->save( $roundConfig );
-//            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
-//            $this->roundScoreConfigRepos->save( $roundScoreConfig );
-
+    //        if ($parent !== null) {
+    //            $qualifyService = new QualifyService($round);
+    //            $qualifyService->createObjectsForParent();
+    //        }
+    //
+    //        if ($roundStructure->nrofwinners === 0) {
+    //            return $round;
+    //        }
+    //
+    //        $this->cretaeRoundHelper(
+    //            $round,
+    //            $winnersOrLosers ? $winnersOrLosers : Round::WINNERS,
+    //            $nrOfPlacesNextRound,
+    //            $opposing
+    //        );
+    //        // const hasParentOpposingChild = ( parent.getChildRound( Round.getOpposing( winnersOrLosers ) )!== undefined );
+    //        if ($opposing > 0 || ($round->getPoulePlaces()->count() === 2)) {
+    //            $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
+    //            $this->cretaeRoundHelper($round, $opposing, $nrOfOpposingPlacesNextRound, $winnersOrLosers);
+    //        }
             $this->em->getConnection()->commit();
-        } catch ( \Exception $e) {
+        } catch (\Exception $e) {
             $this->em->getConnection()->rollBack();
             throw $e;
         }
-
-        return ( $round );
+        return $round;
     }
 
 
-    public function editFromJSON( Round $p_round, Competition $competition, Round $p_parentRound = null )
-    {
-        $number = $p_round->getNumber();
+
+//    public function createFromJSON( Round $p_round, Competition $competition, Round $p_parent = null )
+//    {
+//        $number = $p_round->getNumber();
 //        if ( !is_int($number) or $number < 1 ) {
 //            throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
 //        }
-        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
-        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
-            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
-        }
-
-
-        $round = null;
-        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
-
-        try {
-            $realRound = $this->repos->find( $p_round->getId() );
-
-            if ( $realRound === null ){
-                throw new \Exception("de ronde(".$p_round->getId().") kon niet gevonden  worden", E_ERROR );
-            }
-            $this->remove($realRound);
-
-            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parentRound );
-            //var_dump( $p_round->getCompetition()->getId() );
-            // $round = $this->em->merge( $p_round );
-            // $round = $this->repos->save( $round );
-            $this->em->getConnection()->commit();
-        } catch ( \Exception $e) {
-            $this->em->getConnection()->rollBack();
-            throw $e;
-        }
-
-        return ( $round );
-    }
+//        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
+//        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
+//            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
+//        }
+//
+//
+//        $round = null;
+//        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
+//        try {
+//
+//
+//            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parent );
+//            //   var_dump($p_round->getPoulePlaces()->count());
+////die();
+//
+//            //var_dump( $p_round->getCompetition()->getId() );
+//
+//
+////            foreach( $p_round->getChildRounds() as $childRound ) {
+////                $this->createFromJSON( $childRound, $p_round, $competition );
+////
+////                var_dump( $childRound->getCompetition()->getId() );
+////            }
+//            //die();
+////            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
+////            $this->roundConfigRepos->save( $roundConfig );
+////            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
+////            $this->roundScoreConfigRepos->save( $roundScoreConfig );
+//
+//            $this->em->getConnection()->commit();
+//        } catch ( \Exception $e) {
+//            $this->em->getConnection()->rollBack();
+//            throw $e;
+//        }
+//
+//        return ( $round );
+//    }
+//
+//
+//    public function editFromJSON( Round $p_round, Competition $competition, Round $p_parent = null )
+//    {
+//        $number = $p_round->getNumber();
+////        if ( !is_int($number) or $number < 1 ) {
+////            throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
+////        }
+//        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
+//        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
+//            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
+//        }
+//
+//
+//        $round = null;
+//        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
+//
+//        try {
+//            $realRound = $this->repos->find( $p_round->getId() );
+//
+//            if ( $realRound === null ){
+//                throw new \Exception("de ronde(".$p_round->getId().") kon niet gevonden  worden", E_ERROR );
+//            }
+//            $this->remove($realRound);
+//
+//            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parent );
+//            //var_dump( $p_round->getCompetition()->getId() );
+//            // $round = $this->em->merge( $p_round );
+//            // $round = $this->repos->save( $round );
+//            $this->em->getConnection()->commit();
+//        } catch ( \Exception $e) {
+//            $this->em->getConnection()->rollBack();
+//            throw $e;
+//        }
+//
+//        return ( $round );
+//    }
 
 
 //    /**
@@ -193,58 +261,49 @@ class Service
      * @return []
      * @throws \Exception
      */
-//    public function getDefaultRoundStructure( $roundNr, $nrOfTeams )
-//    {
-//        if( $roundNr > 1 ) {
-//            if ( $nrOfTeams === 1 ) {
-//                return array( "nrofpoules" => 1, "nrofwinners" => 0 );
-//            }
-//            else if ( ( $nrOfTeams % 2 ) !== 0 ) {
-//                throw new \Exception("het aantal(".$nrOfTeams.") moet een veelvoud van 2 zijn na de eerste ronde", E_ERROR);
-//            }
-//            return array( "nrofpoules" => $nrOfTeams / 2, "nrofwinners" => $nrOfTeams / 2 );
-//        }
-//
-//        if ( static::$defaultNrOfPoules === null ) {
-//            static::$defaultNrOfPoules = array(
-//                2 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
-//                3 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
-//                4 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
-//                5 => array( "nrofpoules" => 1, "nrofwinners" => 2 ),
-//                6 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
-//                7 => array( "nrofpoules" => 1, "nrofwinners" => 1 ),
-//                8 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
-//                9 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
-//                10 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
-//                11 => array( "nrofpoules" => 2, "nrofwinners" => 2 ),
-//                12 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
-//                13 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
-//                14 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
-//                15 => array( "nrofpoules" => 3, "nrofwinners" => 4 ),
-//                16 => array( "nrofpoules" => 4, "nrofwinners" => 4 ),
-//                17 => array( "nrofpoules" => 4, "nrofwinners" => 4 ),
-//                18 => array( "nrofpoules" => 4, "nrofwinners" => 8 ),
-//                19 => array( "nrofpoules" => 4, "nrofwinners" => 8 ),
-//                20 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
-//                21 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
-//                22 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
-//                23 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
-//                24 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
-//                25 => array( "nrofpoules" => 5, "nrofwinners" => 8 ),
-//                26 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
-//                27 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
-//                28 => array( "nrofpoules" => 7, "nrofwinners" => 8 ),
-//                29 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
-//                30 => array( "nrofpoules" => 6, "nrofwinners" => 8 ),
-//                31 => array( "nrofpoules" => 7, "nrofwinners" => 8 ),
-//                32 => array( "nrofpoules" => 8, "nrofwinners" => 16 )
-//            );
-//        }
-//        if ( array_key_exists($nrOfTeams, static::$defaultNrOfPoules) === false ){
-//            throw new \Exception("het aantal teams moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
-//        }
-//        return static::$defaultNrOfPoules[$nrOfTeams];
-//    }
+    public function getDefault( int $roundNr, int $nrOfPlaces ): RoundStructure
+    {
+        $roundStructure = new RoundStructure( $nrOfPlaces );
+        if( $roundNr > 1 ) {
+            if ( $nrOfPlaces > 1 && ( $nrOfPlaces % 2 ) !== 0 ) {
+                throw new \Exception("het aantal(".$nrOfPlaces.") moet een veelvoud van 2 zijn na de eerste ronde", E_ERROR);
+            }
+            $roundStructure->nrofpoules = $nrOfPlaces / 2;
+            $roundStructure->nrofwinners = $nrOfPlaces / 2;
+            return $roundStructure;
+        }
+        if( $nrOfPlaces ===  5 ) { $roundStructure->nrofpoules = 1; $roundStructure->nrofpoules = 2; }
+        else if( $nrOfPlaces ===  6 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
+        else if( $nrOfPlaces ===  8 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
+        else if( $nrOfPlaces ===  9 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
+        else if( $nrOfPlaces === 10 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
+        else if( $nrOfPlaces === 11 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
+        else if( $nrOfPlaces === 12 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
+        else if( $nrOfPlaces === 13 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
+        else if( $nrOfPlaces === 14 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
+        else if( $nrOfPlaces === 15 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
+        else if( $nrOfPlaces === 16 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 4; }
+        else if( $nrOfPlaces === 17 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 4; }
+        else if( $nrOfPlaces === 18 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 19 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 20 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 21 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 22 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 23 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 24 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 25 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 26 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 27 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 28 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 29 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 30 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 31 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 32 ) { $roundStructure->nrofpoules = 8; $roundStructure->nrofpoules =16; }
+        else {
+            throw new \Exception("het aantal teams moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
+        }
+        return $roundStructure;
+    }
 
 //    public function handle( Voetbal_Command_RemoveAddCSStructure $command )
 //    {

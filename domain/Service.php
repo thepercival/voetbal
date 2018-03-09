@@ -80,12 +80,20 @@ class Service
             $pouleService = $this->getService(Poule::class);
             return new Round\Service(
                 $repos,
-                $this->getRepository( Round\Config::class ),
-                $this->getRepository( Round\ScoreConfig::class ),
+                $this->getService( Round\Config::class ),
+                $this->getService( Round\ScoreConfig::class ),
                 $competitionRepos,
                 $this->getEntityManager(),
                 $pouleService
             );
+        }
+        elseif ( $classname === Round\Config::class ){
+            $repos = $this->getRepository(Round\Config::class);
+            return new Round\Config\Service($repos);
+        }
+        elseif ( $classname === Round\ScoreConfig::class ){
+            $repos = $this->getRepository(Round\ScoreConfig::class);
+            return new Round\ScoreConfig\Service($repos);
         }
         elseif ( $classname === Poule::class ){
             return new Poule\Service(
@@ -106,7 +114,11 @@ class Service
             return new Game\Service($repos);
         }
         elseif ( $classname === Planning::class ){
-            return new Planning\Service( $this->getService(Game::class), $this->getEntityManager() );
+            return new Planning\Service(
+                $this->getService(Game::class),
+                $this->getRepository(Game::class),
+                $this->getService(Structure::class),
+                $this->getEntityManager() );
         }
         throw new \Exception("class ".$classname." not supported to create service", E_ERROR );
     }

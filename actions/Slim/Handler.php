@@ -90,13 +90,11 @@ class Handler
             $service = new Voetbal\Competition\Service($repos);
             $leagueRepos = $voetbalservice->getRepository(Voetbal\League::class);
             $seasonRepos = $voetbalservice->getRepository(Voetbal\Season::class);
-            $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
             $action = new Voetbal\Action\Competition(
                 $service,
                 $repos,
                 $leagueRepos,
                 $seasonRepos,
-                $associationRepos,
                 $serializer
             );
         }

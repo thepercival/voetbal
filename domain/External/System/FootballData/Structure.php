@@ -15,6 +15,10 @@ use Voetbal\External\System\Importer\Team as TeamImporter;
 use Voetbal\Competition as Competition;
 use Voetbal\External\Competition as ExternalCompetition;
 use Voetbal\External\Team\Repository as ExternalTeamRepos;
+use Voetbal\Structure\Service as StructureService;
+use Voetbal\PoulePlace\Service as PoulePlaceService;
+use Voetbal\Poule;
+use Voetbal\Round\Structure as RoundStructure;
 
 class Structure implements StructureImporter
 {
@@ -38,18 +42,32 @@ class Structure implements StructureImporter
      */
     private $externalTeamRepos;
 
+    /**
+     * @var StructureService
+     */
+    private $structureService;
+
+    /**
+     * @var PoulePlaceService
+     */
+    private $poulePlaceService;
+
 
     public function __construct(
         ExternalSystemBase $externalSystemBase,
         CompetitionImporter $competitionImporter,
         TeamImporter $teamImporter,
-        ExternalTeamRepos $externalTeamRepos
+        ExternalTeamRepos $externalTeamRepos,
+        StructureService $structureService,
+        PoulePlaceService $poulePlaceService
     )
     {
         $this->externalSystemBase = $externalSystemBase;
         $this->competitionImporter = $competitionImporter;
         $this->teamImporter = $teamImporter;
         $this->externalTeamRepos = $externalTeamRepos;
+        $this->structureService = $structureService;
+        $this->poulePlaceService = $poulePlaceService;
     }
 
     public function create( Competition $competition, ExternalCompetition $externalCompetition )
@@ -62,38 +80,16 @@ class Structure implements StructureImporter
             throw new \Exception("for ".$this->externalSystemBase->getName()." the competition ".$competition->getName()." is not suitable for one poule", E_ERROR);
         }
 
-        $nrOfTeams = $footballDataCompetition->numberOfTeams;
+        $nrOfPlaces = $footballDataCompetition->numberOfTeams;
         $externalTeams = $this->externalTeamRepos->findBy(array(
             'externalSystem' => $this->externalSystemBase
         ));
-        if( $externalTeams->count() < $nrOfTeams ) {
+        if( count($externalTeams) < $nrOfPlaces ) {
             throw new \Exception("for ".$this->externalSystemBase->getName()." there are not enough teams to create a structure", E_ERROR);
         }
-
-        // begin creation for structure!!!!
-
-        // need to adapt service, not serializer as param, but actual functional params!!
-
-        $nrOfMatchdays = $footballDataCompetition->numberOfMatchdays;
-
-
-
-        //create structure // round, poule, places and teams
-
-        // als geen structuur en wel $externalSystemCompetition
-//                "numberOfMatchdays": 38,
-//                "numberOfTeams": 20,
-//                "numberOfGames": 380
-
-        // only add
-//        $competition = $this->repos->findExt( $league, $season );
-//        if ( $competition === null ) {
-//            $competitionSer = $this->createHelper( $league, $season, $externalSystemObject );
-//            $competition = $this->service->create( $competitionSer );
-//        }
-//        $externalCompetition = $this->createExternal( $competition, $externalSystemObject->id );
-//        return $competition;
-
+        $poule = $this->createStructure($competition, $nrOfPlaces);
+        $this->assignTeams( $poule, $externalCompetition);
+        return $poule->getRound();
     }
 
     protected function isCompetitionForOnePoule( $footballDataCompetition ) {
@@ -108,5 +104,29 @@ class Structure implements StructureImporter
         }
 
         return ( $nrOfMatchesPerMatchday * $nrOfMatchdays === $nrOfMatches );
+    }
+
+    protected function createStructure( Competition $competition, int $nrOfPlaces ): Poule {
+        $roundStructure = new RoundStructure( $nrOfPlaces );
+        $round = $this->structureService->create( $competition, $roundStructure );
+        return $round->getPoules()[0];
+    }
+
+    protected function assignTeams( Poule $poule, ExternalCompetition $externalCompetition ) {
+        $externalSystemTeams = $this->teamImporter->get( $externalCompetition );
+        if( count( $externalSystemTeams ) !== $poule->getPlaces()->count() ) {
+            throw new \Exception("cannot assign teams: number of places does not match number of teams");
+        }
+
+        $counter = 0;
+        foreach( $poule->getPlaces() as $place ) {
+            $externalSystemTeam = $externalSystemTeams[$counter++];
+            $teamExternalId = $this->teamImporter->getId($externalSystemTeam);
+            $team = $this->externalTeamRepos->findImportable( $this->externalSystemBase, $teamExternalId );
+            if( $team === null ) {
+                throw new \Exception("cannot assign teams: team ".$externalSystemTeam->name." for ".$this->externalSystemBase->getName()." could not be found");
+            }
+            $this->poulePlaceService->assignTeam($place, $team );
+        }
     }
 }

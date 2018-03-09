@@ -50,7 +50,7 @@ class Service
         $this->em = $em;
     }
 
-    public function create( Round $round, $number, $places = null, $nrOfPlaces = null )
+    public function create( Round $round, $number, $places = null, $nrOfPlaces = null ): Poule
     {
         // controles
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan

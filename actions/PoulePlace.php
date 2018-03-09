@@ -59,8 +59,7 @@ final class PoulePlace
                 throw new \Exception("de pouleplek kan niet gevonden worden obv id", E_ERROR);
             }
             $team = $pouleplaceSer->getTeam() ? $this->teamRepos->find($pouleplaceSer->getTeam()->getId()) : null;
-            $poulePlace->setTeam( $team );
-            $poulePlaceRet = $this->repos->save( $poulePlace );
+            $poulePlaceRet = $this->service->assignTeam( $poulePlace, $team );
 
             return $response
                 ->withStatus(200)

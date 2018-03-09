@@ -82,6 +82,7 @@ final class Referee
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
+            // @TODO FROMJSON
             $referee = $this->repos->editFromJSON($referee, $competition);
 
             return $response

@@ -31,11 +31,6 @@ class PoulePlace
     protected $poule;
 
     /**
-     * @var PoulePlace
-     */
-    protected $toPoulePlace;
-
-    /**
      * @var Team
      */
     protected $team;
@@ -145,24 +140,5 @@ class PoulePlace
     public function setTeam( Team $team = null )
     {
         $this->team = $team;
-    }
-
-    /**
-     * @return PoulePlace
-     */
-    public function getToPoulePlace()
-    {
-        return $this->toPoulePlace;
-    }
-
-    /**
-     * @param PoulePlace $toPoulePlace
-     */
-    public function setToPoulePlace( PoulePlace $toPoulePlace )
-    {
-        if( $this->toPoulePlace !== null and $this->toPoulePlace !== $toPoulePlace ) {
-            // remove this from $this->toPoulePlace->getFromPoulePlaces()
-        }
-        $this->toPoulePlace = $toPoulePlace;
     }
 }

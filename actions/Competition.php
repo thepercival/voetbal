@@ -34,10 +34,6 @@ final class Competition
      */
     protected $seasonRepos;
     /**
-     * @var AssociationRepository
-     */
-    protected $associationRepos;
-    /**
      * @var Serializer
      */
 	protected $serializer;
@@ -47,13 +43,11 @@ final class Competition
         CompetitionRepository $repos,
         LeagueRepository $leagueRepos,
         SeasonRepository $seasonRepos,
-        AssociationRepository $associationRepos,
         Serializer $serializer
     )
 	{
         $this->service = $service;
 		$this->repos = $repos;
-        $this->associationRepos = $associationRepos;
         $this->leagueRepos = $leagueRepos;
         $this->seasonRepos = $seasonRepos;
 		$this->serializer = $serializer;
@@ -93,7 +87,7 @@ final class Competition
             }
 
             $seasonid = (int) $request->getParam("seasonid");
-            $season = $this->associationRepos->find($seasonid);
+            $season = $this->seasonRepos->find($seasonid);
             if ( $season === null ) {
                 throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
@@ -104,9 +98,7 @@ final class Competition
                 throw new \Exception("er kan competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitionSer->setLeague($league);
-            $competitionSer->setSeason($season);
-            $competitionRet = $this->service->create( $competitionSer );
+            $competitionRet = $this->service->create( $league, $season,$competitionSer->getStartDateTime() );
 
             return $response
                 ->withStatus(201)

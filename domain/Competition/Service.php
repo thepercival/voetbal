@@ -38,22 +38,25 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-	public function create( Competition $competitionSer )
+	public function create( League $league, Season $season, \DateTimeImmutable $startDateTime ): Competition
 	{
 		$sameCompetition = $this->repos->findOneBy( array(
-            'league' => $competitionSer->getLeague(),
-            'season' => $competitionSer->getSeason()
+            'league' => $league,
+            'season' => $season
         ) );
 
         if ( $sameCompetition !== null ){
             throw new \Exception("de competitie bestaat al", E_ERROR );
         }
 
-        if( !$competitionSer->getSeason()->getPeriod()->contains( $competitionSer->getStartDateTime() ) ) {
+        if( !$season->getPeriod()->contains( $startDateTime ) ) {
             throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR );
         }
 
-        return $this->repos->save($competitionSer);
+        $competition = new Competition( $league, $season );
+        $competition->setStartDateTime( $startDateTime );
+
+        return $this->repos->save($competition);
 	}
 
     /**

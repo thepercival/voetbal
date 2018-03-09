@@ -20,7 +20,7 @@ Voetbal\Game:
       column: subnumber
     resourceBatch:
       type: smallint
-      nullable: false
+      nullable: true
       unique: false
       column: resourcebatch
     state:

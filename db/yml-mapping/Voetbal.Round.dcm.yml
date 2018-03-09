@@ -41,7 +41,7 @@ Voetbal\Round:
         cascade: [ remove ]
     childRounds:
       targetEntity: Voetbal\Round
-      mappedBy: parentRound
+      mappedBy: parent
       cascade: [ remove ]
   manyToOne:
     competition:
@@ -52,11 +52,11 @@ Voetbal\Round:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    parentRound:
+    parent:
       targetEntity: Voetbal\Round
       inversedBy: childRounds
       joinColumn:
-        name: parentroundid
+        name: parentid
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE

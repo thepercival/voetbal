@@ -61,7 +61,7 @@ class Round
     /**
      * @var Round
      */
-    protected $parentRound;
+    protected $parent;
 
     /**
      * @var Round[] | ArrayCollection
@@ -90,16 +90,17 @@ class Round
 
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Competition $competition, Round $parentRound = null )
+    public function __construct( Competition $competition, Round $parent = null )
     {
         $this->setCompetition( $competition );
         $this->poules = new ArrayCollection();
         $this->qualifyRules = new ArrayCollection();
         $this->scoreConfigs = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
-        $this->setParentRound( $parentRound );
-        $number = ( $parentRound === null ) ? 1 : ($parentRound->getNumber() + 1);
+        $this->setParent( $parent );
+        $number = ( $parent === null ) ? 1 : ($parent->getNumber() + 1);
         $this->setNumber( $number );
+        $this->setQualifyOrder(static::ORDER_HORIZONTAL);
     }
 
     /**
@@ -318,20 +319,20 @@ class Round
     /**
      * @return Round
      */
-    public function getParentRound()
+    public function getParent()
     {
-        return $this->parentRound;
+        return $this->parent;
     }
 
     /**
      * @param Round $round
      */
-    public function setParentRound( Round $round = null )
+    public function setParent( Round $round = null )
     {
         if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
             $round->getChildRounds()->add( $this );
         }
-        $this->parentRound = $round;
+        $this->parent = $round;
     }
 
     /**
@@ -421,6 +422,11 @@ class Round
         return ($this->needsRanking() ? Round::TYPE_POULE : Round::TYPE_KNOCKOUT);
     }
 
+    public static function getOpposing( int $winnersOrLosers): int
+    {
+        return $winnersOrLosers === Round::WINNERS ? Round::LOSERS : Round::WINNERS;
+    }
+
     /**
      * rules to qualify for this round
      *
@@ -429,11 +435,11 @@ class Round
 //    public function getQualifyRules( )
 //    {
 //        $qualifyRules = new ArrayCollection();
-//        $parentRound = $this->getParentRound();
-//        if( $parentRound === null ) {
+//        $parent = $this->getParent();
+//        if( $parent === null ) {
 //            return $qualifyRules;
 //        }
-//        $poulePlacesPerNumber = $parentRound->getPoulePlacesPerNumber();
+//        $poulePlacesPerNumber = $parent->getPoulePlacesPerNumber();
 //        foreach( $poulePlacesPerNumber as $places ) {
 //            foreach( $places as $placeIt ) {
 //                $toPlace = $placeIt->getToPoulePlace();
@@ -449,7 +455,7 @@ class Round
 //                }
 //
 //                if ( $qualifyRule === null ){
-//                    $qualifyRule = new QualifyRule( $parentRound, $this );
+//                    $qualifyRule = new QualifyRule( $parent, $this );
 //                    $qualifyRules->add( $qualifyRule );
 //                }
 //                $qualifyRule->getFromPoulePlaces()->add( $placeIt );

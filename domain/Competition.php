@@ -242,20 +242,4 @@ class Competition implements External\Importable
         }
         return null;
     }
-
-    /**
-     * @return bool
-     */
-    public function hasGames()
-    {
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasPlayedGames()
-    {
-        return true;
-    }
 }

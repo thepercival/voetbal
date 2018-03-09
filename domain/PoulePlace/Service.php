@@ -23,6 +23,11 @@ class Service
     protected $repos;
 
     /**
+     * @var TeamRepository
+     */
+    protected $teamRepos;
+
+    /**
      * Service constructor.
      * @param Repository $repos
      */
@@ -48,28 +53,11 @@ class Service
         return $pouleplace;
     }
 
-//    /**
-//     * @param Team $team
-//     * @param $name
-//     * @param Association $association
-//     * @param null $abbreviation
-//     * @return mixed
-//     * @throws \Exception
-//     */
-//    public function edit( Team $poulePlace, $name, Association $association, $abbreviation = null )
-//    {
-//        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-//        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
-//            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
-//        }
-//
-//        $team->setName($name);
-//        $team->setAbbreviation($abbreviation);
-//        $team->setAssociation($association);
-//
-//        return $this->repos->save($team);
-//    }
-//
+    public function assignTeam( PoulePlace $poulePlace, Team $team ): PoulePlace {
+        // @TODO check if team is not assigned two times?
+        $poulePlace->setTeam($team);
+        return $this->repos->save($poulePlace);
+    }
     /**
      * @param PoulePlace $pouleplace
      */

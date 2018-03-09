@@ -82,6 +82,7 @@ final class Field
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
+            // @TODO FROMJSON
             $field = $this->repos->editFromJSON($field, $competition);
 
             return $response

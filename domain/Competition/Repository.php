@@ -15,19 +15,18 @@ use Voetbal\Season;
  */
 class Repository extends \Voetbal\Repository
 {
-    public function saveFromJSON( Competition $competition )
-    {
-        throw new \Exception("DEPRECATED COMPREPOSSAVEFROMJSON", E_ERROR);
-//        $fieldRepos = $this->_em->getRepository( Field::class );
-//        foreach( $competition->getFields() as $field ) {
-//            $fieldRepos->saveFromJSON( $field, $competition );
-//        }
-//
-//        $refereeRepos = $this->_em->getRepository( Referee::class );
-//        foreach( $competition->getReferees() as $referee ) {
-//            $refereeRepos->saveFromJSON( $referee, $competition );
-//        }
-    }
+//    public function saveFromJSON( Competition $competition )
+//    {
+////        $fieldRepos = $this->_em->getRepository( Field::class );
+////        foreach( $competition->getFields() as $field ) {
+////            $fieldRepos->saveFromJSON( $field, $competition );
+////        }
+////
+////        $refereeRepos = $this->_em->getRepository( Referee::class );
+////        foreach( $competition->getReferees() as $referee ) {
+////            $refereeRepos->saveFromJSON( $referee, $competition );
+////        }
+//    }
 
     public function findExt( League $league, Season $season )
     {

@@ -73,7 +73,7 @@ class Service
      * @param Referee|null $referee
      * @return mixed
      */
-    public function edit( Game $game, Field $field, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
+    public function editResource( Game $game, Field $field, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
     {
 //        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 //        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){

@@ -81,9 +81,8 @@ class Competition implements CompetitionImporter
     public function create( League $league, Season $season, $externalSystemObject )
     {
         $competition = $this->repos->findExt( $league, $season );
-        if ( $competition === null ) {
-            $competitionSer = $this->createHelper( $league, $season, $externalSystemObject );
-            $competition = $this->service->create( $competitionSer );
+        if ( $competition === false ) {
+            $competition = $this->service->create( $league, $season, $season->getStartDateTime() );
         }
         $externalCompetition = $this->createExternal( $competition, $externalSystemObject->id );
         return $competition;
@@ -104,12 +103,5 @@ class Competition implements CompetitionImporter
             );
         }
         return $externalCompetition;
-    }
-
-    protected function createHelper( League $league, Season $season, $competitionPreSer )
-    {
-        $competitionSer = new CompetitionBase($league, $season);
-        $competitionSer->setStartDateTime( $season->getStartDateTime() );
-        return $competitionSer;
     }
 }

@@ -95,7 +95,7 @@ final class Object
 
             $externalObject = $this->service->create(
                 $this->importableRepos->find( $externalObjectExtSer->getImportableObjectId() ),
-                $this->externalSystemRepos->find( $externalObjectExtSer->getExternalSystemId() ),
+                $this->systemRepos->find( $externalObjectExtSer->getExternalSystemId() ),
                 $externalObjectExtSer->getExternalId()
             );
 

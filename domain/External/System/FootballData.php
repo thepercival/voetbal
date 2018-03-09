@@ -17,16 +17,20 @@ use Voetbal\Team\Repository as TeamRepos;
 use Voetbal\External\Team\Repository as ExternalTeamRepos;
 use Voetbal\External\System\Importable\Competition as CompetitionImportable;
 use Voetbal\External\System\Importable\Team as TeamImportable;
+use Voetbal\External\System\Importable\Game as GameImportable;
 use Voetbal\External\System\Importable\Structure as StructureImportable;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
+use Voetbal\External\System\Importer\Game as GameImporter;
 use Voetbal\External\System\Importer\Team as TeamImporter;
 use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\System\FootballData\Competition as FootballDataCompetitionImporter;
 use Voetbal\External\System\FootballData\Team as FootballDataTeamImporter;
 use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
-use Voetbal\External\Object\Repository as ExternalObjectRepos;
+use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
+use Voetbal\Structure\Service as StructureService;
+use Voetbal\PoulePlace\Service as PoulePlaceService;
 
-class FootballData implements Def, CompetitionImportable, TeamImportable, StructureImportable
+class FootballData implements Def, CompetitionImportable, TeamImportable, StructureImportable, GameImportable
 {
     /**
      * @var ExternalSystem
@@ -99,13 +103,30 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
     public function getStructureImporter(
         CompetitionImporter $competitionImporter,
         TeamImporter $teamImporter,
-        ExternalTeamRepos $externalTeamRepos
+        ExternalTeamRepos $externalTeamRepos,
+        StructureService $structureService,
+        PoulePlaceService $poulePlaceService
     ) : StructureImporter {
         return new FootballDataStructureImporter(
             $this->getExternalSystem(),
             $competitionImporter,
             $teamImporter,
-            $externalTeamRepos
+            $externalTeamRepos,
+            $structureService,
+            $poulePlaceService
+        );
+    }
+
+    public function getGameImporter(
+//        CompetitionImporter $competitionImporter,
+//        TeamImporter $teamImporter,
+//        ExternalTeamRepos $externalTeamRepos,
+//        StructureService $structureService,
+//        PoulePlaceService $poulePlaceService
+    ) : GameImporter {
+        return new FootballDataGameImporter(
+            $this->getExternalSystem(),
+            $this->getApiHelper()
         );
     }
 }

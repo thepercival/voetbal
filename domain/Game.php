@@ -81,6 +81,9 @@ class Game
     const STATE_INPLAY = 2;
     const STATE_PLAYED = 4;
 
+    const ORDER_BYNUMBER = 1;
+    const ORDER_RESOURCEBATCH = 2;
+
     public function __construct( Poule $poule, PoulePlace $homePoulePlace, PoulePlace $awayPoulePlace, $roundNumber, $subNumber )
     {
         $this->setPoule( $poule );

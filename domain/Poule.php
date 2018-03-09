@@ -43,6 +43,8 @@ class Poule
     protected $games;
 
     const MAX_LENGTH_NAME = 10;
+    const SOCCERWORLDCUP = 1;
+    const SOCCEREUROPEANCUP = 2;
 
     public function __construct( Round $round, $number )
     {
@@ -191,5 +193,14 @@ class Poule
     public function needsRanking()
     {
         return ($this->getPlaces()->count() > 2);
+    }
+
+    public function getNrOfGamesPerRound()
+    {
+        $nrOfPlaces = $this->getPlaces()->count();
+        if( ( $nrOfPlaces % 2 ) !== 0 ) {
+            return ( ( $nrOfPlaces - 1) / 2 );
+        }
+        return ( $nrOfPlaces / 2 );
     }
 }

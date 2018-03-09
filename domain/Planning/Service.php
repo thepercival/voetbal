@@ -8,10 +8,14 @@
 
 namespace Voetbal\Planning;
 
+use Voetbal\Competition;
 use Voetbal\Game\Service as GameService;
+use Voetbal\Game\Repository as GameRepos;
+use Voetbal\Structure\Service as StructureService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Criteria;
 use Voetbal\Round;
+use Voetbal\Game;
 
 class Service
 {
@@ -21,110 +25,188 @@ class Service
     protected $gameService;
 
     /**
+     * @var GameRepos
+     */
+    protected $gameRepos;
+
+    /**
+     * @var StructureService
+     */
+    protected $structureService;
+
+    /**
+     * @var Round[]
+     */
+    protected $allRoundsByNumber;
+
+    /**
      * @var EntityManager
      */
     protected $em;
 
-    public function __construct( GameService $gameService, EntityManager $em )
+    public function __construct(
+        GameService $gameService,
+        GameRepos $gameRepos,
+        StructureService $structureService,
+        EntityManager $em )
     {
         $this->gameService = $gameService;
+        $this->gameRepos = $gameRepos;
+        $this->structureService = $structureService;
         $this->em = $em;
+        $this->allRoundsByNumber;
     }
 
-    public function schedule( Round $round, \DateTimeImmutable $startDateTime = null )
-    {
+    public function create( Competition $competition, int $roundNumber = 1, \DateTimeImmutable $startDateTime = null ) {
+        if ( $this->gameRepos->hasRoundNumberGames( $competition, $roundNumber ) ) {
+            throw new \Exception("cannot create games, games already exist", E_ERROR );
+        }
+        if ($startDateTime === null) {
+            $startDateTime = $this->calculateStartDateTime($competition, $roundNumber);
+        }
+
         $this->em->getConnection()->beginTransaction();
-
         try {
-            $this->remove( $round );
-            $startDateTime = $this->create( $round, $startDateTime );
-
-            foreach( $round->getChildRounds() as $childRound ) {
-                $this->schedule( $childRound, $startDateTime );
+            $this->createHelper($competition, $roundNumber, $startDateTime);
+            $startNextRound = $this->rescheduleHelper($competition, $roundNumber, $startDateTime);
+            $nextRounds = $this->getRoundsByNumber( $competition, $roundNumber + 1 );
+            if ($nextRounds !== null) {
+                $this->create($roundNumber + 1, $startNextRound);
             }
-
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
             $this->em->getConnection()->rollBack();
             throw $e;
         }
-        return $round;
+    }
+
+    public function canCalculateStartDateTime(Competition $competition, int $roundNumber): bool {
+        $aRound = $this->getRoundsByNumber($competition, $roundNumber)->reset();
+        if ($aRound->getConfig()->getEnableTime() === false) {
+            return false;
+        }
+        if ($this->getRoundsByNumber($competition, $roundNumber - 1) !== null) {
+            return $this->canCalculateStartDateTime($roundNumber - 1);
+        }
+        return true;
+    }
+
+
+    public function reschedule( Competition $competition, int $roundNumber, \DateTimeImmutable $startDateTime = null )
+    {
+        if ($startDateTime === null && $this->canCalculateStartDateTime($competition, $roundNumber)) {
+            $startDateTime = $this->calculateStartDateTime($competition, $roundNumber);
+        }
+
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $startNextRound = $this->rescheduleHelper($competition, $roundNumber, $startDateTime);
+            if ($this->getRoundsByNumber($roundNumber+1) !== null) {
+                $this->reschedule( $competition, $roundNumber + 1, $startNextRound );
+            }
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollBack();
+            throw $e;
+        }
+        return;
+    }
+
+    protected function rescheduleHelper(Competition $competition, int $roundNumber, \DateTimeImmutable $startDateTime){
+        $scheduleHelper = new ScheduleHelper($competition, $this, $this->gameRepos);
+        return $scheduleHelper->reschedule( $roundNumber, $startDateTime );
+    }
+
+    protected function calculateStartDateTime(Competition $competition, int $roundNumber) {
+        $roundsForNumber = $this->getRoundsByNumber($competition, $roundNumber);
+        $aRound = reset($roundsForNumber);
+        if ($aRound->getConfig()->getEnableTime() === false) {
+            return null;
+        }
+        if ($roundNumber === 1) {
+            return $competition->getStartDateTime();
+        }
+        return $this->calculateEndDateTime($roundNumber - 1);
+    }
+
+    public function getRoundsByNumber( Competition $competition, int $roundNumber ) {
+        if ( $this->allRoundsByNumber === null ) {
+            $this->allRoundsByNumber = $this->structureService->getAllRoundsByNumber($competition);
+        }
+        if( array_key_exists( $roundNumber, $this->allRoundsByNumber ) === false ) {
+            return null;
+        }
+        return $this->allRoundsByNumber[$roundNumber];
     }
 
     /**
-     * @param Round $round
-     * @param \DateTimeImmutable|null $startDateTime
-     * @return \DateTimeImmutable
+     * @param Competition $competition
+     * @param int $roundNumber
      */
-    protected function create( Round $round, \DateTimeImmutable $startDateTime = null )
+    protected function createHelper( Competition $competition, int $roundNumber )
     {
-        $roundConfig = $round->getConfig();
-
-        if ($roundConfig->getMinutesPerGame() === 0) {
-            $startDateTime = null;
-        }
-
-        $poules = $round->getPoules();
-        foreach ($poules as $poule) {
-            $startGameNrReturnGames = $poule->getPlaces()->count() - 1;
-            $arrPoulePlaces = array();
-            foreach ($poule->getPlaces() as $place) {
-                $arrPoulePlaces[] = $place;
+        $rounds = $this->getRoundsByNumber( $competition, $roundNumber );
+        foreach ($rounds as $round) {
+            $roundConfig = $round->getConfig();
+            if ($roundConfig->getMinutesPerGame() === 0) {
+                $startDateTime = null;
             }
-            $arrSchedule = $this->generateRRSchedule($arrPoulePlaces);
-
-            // als aantal onderlinge duels > 1 dan nog een keer herhalen
-            // maar bij oneven aantal de pouleplaces ophogen!!!!
-
-            foreach ($arrSchedule as $roundNumber => $arrGames) {
-                // var_dump("roundNumber:".$roundNumber);
-                $subNumber = 1;
-                foreach ($arrGames as $arrGame) {
-                    if ($arrGame[0] === null or $arrGame[1] === null) {
-                        continue;
-                    }
-                    // var_dump("subNumber:".$subNumber);
-                    $homePoulePlace = $arrGame[0];
-                    $awayPoulePlace = $arrGame[1];
-                    $this->gameService->create($poule, $homePoulePlace, $awayPoulePlace, $roundNumber + 1, $subNumber++ );
-                }
-            }
-        }
-
-        $criteria = Criteria::create()->orderBy(array("number" => Criteria::ASC));
-        $fields = $round->getCompetition()->getFields()->matching($criteria);
-
-        $referees = $round->getCompetition()->getReferees();
-        $currentField = $fields->first();
-        $nextRoundStartDateTime = null;
-        $games = $this->getGamesByNumber( $round );
-        foreach ($games as $number => $gamesPerNumber) {
-            foreach ($gamesPerNumber as $game) {
-
-                // edit game for ref, time and field
-                $referee = $this->determineReferee();
-                $this->gameService->edit( $game, $currentField, $startDateTime, $referee );
-
-                $currentField = $fields->next();
-                if( $currentField === false ) {
-                    $currentField = $fields->first();
-
-                    if( $roundConfig->getMinutesPerGame() > 0 ) {
-                        $nrOfMinutes = $roundConfig->getMinutesPerGame();
-                        if ( $roundConfig->getHasExtension() ) {
-                            $nrOfMinutes += $roundConfig->getMinutesPerGameExt();
-                        }
-                        $nrOfMinutes += $roundConfig->getMinutesInBetween();
-                        $startDateTime = $startDateTime->add( new \DateInterval('PT' . $nrOfMinutes . 'M') );
-                        if ( $nextRoundStartDateTime == null or $startDateTime > $nextRoundStartDateTime ) {
-                            $nextRoundStartDateTime = $startDateTime;
+            $poules = $round->getPoules();
+            foreach ($poules as $poule) {
+                $arrScheduledGames = $this->generateRRSchedule($poule->getPlaces()->toArray());
+                for ($headToHead = 1; $headToHead <= $roundConfig->getNrOfHeadtoheadMatches(); $headToHead++) {
+                    $headToHeadNumber = (($headToHead - 1) * count($arrScheduledGames));
+                    for ($gameRoundNumber = 0; $gameRoundNumber < count($arrScheduledGames); $gameRoundNumber++) {
+                        $schedRoundGames = $arrScheduledGames[$gameRoundNumber];
+                        $subNumber = 1;
+                        foreach( $schedRoundGames as $schedGame ) {
+                            if ($schedGame[0] === null || $schedGame[1] === null) {
+                                continue;
+                            }
+                            $homePoulePlace = (($headToHead % 2) === 0) ? $schedGame[1] : $schedGame[0];
+                            $awayPoulePlace = (($headToHead % 2) === 0) ? $schedGame[0] : $schedGame[1];
+                            $gameTmp = $this->gameService->create(
+                                $poule, $homePoulePlace, $awayPoulePlace,
+                                $headToHeadNumber + $gameRoundNumber + 1, $subNumber++
+                            );
                         }
                     }
                 }
             }
-        }
 
-        return $nextRoundStartDateTime;
+//            $criteria = Criteria::create()->orderBy(array("number" => Criteria::ASC));
+//            $fields = $round->getCompetition()->getFields()->matching($criteria);
+//
+//            $referees = $round->getCompetition()->getReferees();
+//            $currentField = $fields->first();
+//            $nextRoundStartDateTime = null;
+//            $games = $this->getGamesByNumber($round);
+//            foreach ($games as $number => $gamesPerNumber) {
+//                foreach ($gamesPerNumber as $game) {
+//
+//                    // edit game for ref, time and field
+//                    $referee = $this->determineReferee();
+//                    $this->gameService->edit($game, $currentField, $startDateTime, $referee);
+//
+//                    $currentField = $fields->next();
+//                    if ($currentField === false) {
+//                        $currentField = $fields->first();
+//
+//                        if ($roundConfig->getMinutesPerGame() > 0) {
+//                            $nrOfMinutes = $roundConfig->getMinutesPerGame();
+//                            if ($roundConfig->getHasExtension()) {
+//                                $nrOfMinutes += $roundConfig->getMinutesPerGameExt();
+//                            }
+//                            $nrOfMinutes += $roundConfig->getMinutesInBetween();
+//                            $startDateTime = $startDateTime->add(new \DateInterval('PT' . $nrOfMinutes . 'M'));
+//                            if ($nextRoundStartDateTime == null or $startDateTime > $nextRoundStartDateTime) {
+//                                $nextRoundStartDateTime = $startDateTime;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+        }
     }
 
     protected function getGamesByNumber( $round )
@@ -190,7 +272,7 @@ class Service
      * @param <bool> $rand		Set TRUE to randomize the results
      * @return <array>			Array of matchups separated by sets
      */
-    function generateRRSchedule(array $players, $rand = false) {
+    protected function generateRRSchedule(array $players, $rand = false) {
         $numPlayers = count($players);
 
         // add a placeholder if the count is odd

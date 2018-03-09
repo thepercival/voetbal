@@ -348,4 +348,16 @@ class Config
         $round->setConfig( $this );
         $this->round = $round;
     }
+
+    public function getMaximalNrOfMinutesPerGame(bool $withMinutesInBetween = false): int
+    {
+        $nrOfMinutes = $this->getMinutesPerGame();
+        if ($this->getHasExtension()) {
+            $nrOfMinutes += $this->getMinutesPerGameExt();
+        }
+        if ($withMinutesInBetween === true) {
+            $nrOfMinutes += $this->getMinutesInBetween();
+        }
+        return $nrOfMinutes;
+    }
 }

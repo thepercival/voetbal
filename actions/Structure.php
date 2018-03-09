@@ -109,6 +109,7 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
+            // @TODO FROMJSON
             $roundRet = $this->service->createFromJSON( $round, $competition );
 
             return $response
@@ -140,6 +141,7 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
+            // @TODO FROMJSON
             $roundRet = $this->service->editFromJSON( $round, $competition );
 
             return $response
