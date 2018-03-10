@@ -12,7 +12,7 @@ use Voetbal\Round;
 use Voetbal\Competition;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
-use Voetbal\Round\Structure as RoundStructure;
+use Voetbal\Structure\Options as StructureOptions;
 
 class Service
 {
@@ -32,9 +32,9 @@ class Service
         $this->roundRepository = $roundRepository;
     }
 
-    public function create(Competition $competition, RoundStructure $roundStructure): Round
+    public function create(Competition $competition, StructureOptions $structureOptions): Round
     {
-        return $this->roundService->create($competition, 0, $roundStructure);
+        return $this->roundService->create($competition, 0, $structureOptions);
     }
 
 //    public function createFromJSON( Round $p_round, Competition $competition )

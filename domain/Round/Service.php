@@ -14,6 +14,7 @@ use Voetbal\Competition;
 use Doctrine\ORM\EntityManager;
 use Voetbal\Poule;
 use Voetbal\Round\Structure as RoundStructure;
+use Voetbal\Structure\Options as StructureOptions;
 
 class Service
 {
@@ -73,19 +74,25 @@ class Service
         $this->em = $em;
     }
 
-    public function create( Competition $competition, int $winnersOrLosers, RoundStructure $roundStructure, Round $parent = null ): Round
+    public function create( Competition $competition, int $winnersOrLosers, StructureOptions $structureOptions, Round $parent = null ): Round
     {
         $opposingChildRound = $parent ? $parent->getChildRound( Round::getOpposing($winnersOrLosers)) : null;
         $opposing = $opposingChildRound !== null ? $opposingChildRound->getWinnersOrLosers() : 0;
-        return $this->createHelper( $competition, $winnersOrLosers, $roundStructure, $opposing, $parent);
+        return $this->createHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
     }
 
-    private function createHelper( Competition $competition, int $winnersOrLosers, RoundStructure $roundStructure, int $opposing, Round $parent = null): Round
+    private function createHelper(
+        Competition $competition,
+        int $winnersOrLosers,
+        StructureOptions $structureOptions,
+        int $opposing,
+        Round $parent = null
+    ): Round
     {
-        if ($roundStructure->nrofplaces <= 0) {
+        if ($structureOptions->round->nrofplaces <= 0) {
             throw new \Exception("het aantal plekken voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
-        if ($roundStructure->nrofpoules <= 0) {
+        if ($structureOptions->round->nrofpoules <= 0) {
             throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
 
@@ -95,21 +102,28 @@ class Service
             $round->setWinnersOrLosers( $winnersOrLosers );
             $round = $this->repos->save($round);
 
-            // $roundStructure = $this->getDefault($round->getNumber(), $nrOfPlaces);
+            $nrOfPlaces = $structureOptions->round->nrofplaces;
 
-            $nrOfPlacesPerPoule = $roundStructure->getNrOfPlacesPerPoule();
+            $nrOfPlacesPerPoule = $structureOptions->round->getNrOfPlacesPerPoule();
     //        $nrOfPlacesNextRound = ($winnersOrLosers === Round::LOSERS) ? ($nrOfPlaces - $roundStructure->nrofwinners) : $roundStructure->nrofwinners;
-    //        $nrOfOpposingPlacesNextRound = (Round::getOpposing($winnersOrLosers) === Round::WINNERS) ? $roundStructure->nrofwinners : $nrOfPlaces - $roundStructure->nrofwinners;
+            $nrOfOpposingPlacesNextRound = (Round::getOpposing($winnersOrLosers) === Round::WINNERS) ? $structureOptions->round->nrofwinners : $nrOfPlaces - $structureOptions->round->nrofwinners;
 
             $pouleNumber = 1;
-            $nrOfPlaces = $roundStructure->nrofplaces;
+
             while ($nrOfPlaces > 0) {
                 $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
                 $poule = $this->pouleService->create( $round, $pouleNumber++, null, $nrOfPlacesToAdd );
                 $nrOfPlaces -= $nrOfPlacesPerPoule;
             }
 
-            $this->roundConfigService->create($round);
+            $roundConfigOptions = $structureOptions->roundConfig;
+//            if ($round->getParent() !== null) {
+//                $roundConfigOptionsTmp = $round->getParent()->getConfig()->getOptions();
+//            }
+            $roundConfigOptions->setHasExtension(!$round->needsRanking());
+
+
+            $this->roundConfigService->create($round, $roundConfigOptions);
             $this->roundScoreConfigService->create($round);
             // this.configRepos.createObjectFromParent(round);
             // $round->setScoreConfig( $this->scoreConfigRepos->createObjectFromParent($round));
@@ -119,21 +133,31 @@ class Service
     //            $qualifyService->createObjectsForParent();
     //        }
     //
-    //        if ($roundStructure->nrofwinners === 0) {
-    //            return $round;
-    //        }
-    //
-    //        $this->cretaeRoundHelper(
-    //            $round,
-    //            $winnersOrLosers ? $winnersOrLosers : Round::WINNERS,
-    //            $nrOfPlacesNextRound,
-    //            $opposing
-    //        );
-    //        // const hasParentOpposingChild = ( parent.getChildRound( Round.getOpposing( winnersOrLosers ) )!== undefined );
-    //        if ($opposing > 0 || ($round->getPoulePlaces()->count() === 2)) {
-    //            $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
-    //            $this->cretaeRoundHelper($round, $opposing, $nrOfOpposingPlacesNextRound, $winnersOrLosers);
-    //        }
+            if ($structureOptions->roundConfig === 0) {
+                return $round;
+            }
+
+            $structureOptions->round->nrofplaces = $nrOfPlacesNextRound;
+            $this->cretaeRoundHelper(
+                $competition,
+                $winnersOrLosers ? $winnersOrLosers : Round::WINNERS,
+                $structureOptions,
+                $opposing,
+                $round
+            );
+
+            // $hasParentOpposingChild = ( $parent->getChild( Round::getOpposing( $winnersOrLosers ) )!== null );
+            if ($opposing > 0 || ($round->getPoulePlaces()->count() === 2)) {
+                $structureOptions->round->nrofplaces = $nrOfPlacesNextRound;
+                $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
+                $this->cretaeRoundHelper(
+                    $competition,
+                    $winnersOrLosers,
+                    $structureOptions,
+                    $opposing,
+                    $round
+                );
+            }
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
             $this->em->getConnection()->rollBack();

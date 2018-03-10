@@ -19,6 +19,9 @@ use Voetbal\Structure\Service as StructureService;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Voetbal\Poule;
 use Voetbal\Round\Structure as RoundStructure;
+use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\Round\Config\Options as RoundConfigOptions;
+
 
 class Structure implements StructureImporter
 {
@@ -87,9 +90,17 @@ class Structure implements StructureImporter
         if( count($externalTeams) < $nrOfPlaces ) {
             throw new \Exception("for ".$this->externalSystemBase->getName()." there are not enough teams to create a structure", E_ERROR);
         }
-        $poule = $this->createStructure($competition, $nrOfPlaces);
+        $nrOfHeadtotheadMatches = $this->getNrOfHeadtotheadMatches($footballDataCompetition);
+        $poule = $this->createStructure($competition, $nrOfPlaces, $nrOfHeadtotheadMatches);
         $this->assignTeams( $poule, $externalCompetition);
         return $poule->getRound();
+    }
+
+    protected function getNrOfHeadtotheadMatches($footballDataCompetition)
+    {
+        $nrOfMatchdays = $footballDataCompetition->numberOfMatchdays;
+        $nrOfTeams = $footballDataCompetition->numberOfTeams;
+        return ( $nrOfMatchdays / ($nrOfTeams - 1) );
     }
 
     protected function isCompetitionForOnePoule( $footballDataCompetition ) {
@@ -106,9 +117,12 @@ class Structure implements StructureImporter
         return ( $nrOfMatchesPerMatchday * $nrOfMatchdays === $nrOfMatches );
     }
 
-    protected function createStructure( Competition $competition, int $nrOfPlaces ): Poule {
-        $roundStructure = new RoundStructure( $nrOfPlaces );
-        $round = $this->structureService->create( $competition, $roundStructure );
+    protected function createStructure( Competition $competition, int $nrOfPlaces, int $nrOfHeadtotheadMatches ): Poule {
+        $roundConfigOptions = $this->roundConfigService->createDefault( $competition->getLeague()->getSport() );
+        $roundConfigOptions->setMinutesPerGame( 90 );
+        $roundConfigOptions->setNrOfHeadtoheadMatches( $nrOfHeadtotheadMatches );
+        $structureOptions = new StructureOptions( new RoundStructure( $nrOfPlaces ), $roundConfigOptions );
+        $round = $this->structureService->create( $competition, $structureOptions );
         return $round->getPoules()[0];
     }
 
