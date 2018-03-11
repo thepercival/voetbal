@@ -14,6 +14,7 @@ use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\Team\Repository as ExternalTeamRepos;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
+use Voetbal\Round\Config\Service as RoundConfigService;
 
 interface Structure
 {
@@ -22,6 +23,7 @@ interface Structure
         TeamImporter $teamImporter,
         ExternalTeamRepos $externalTeamRepos,
         StructureService $structureService,
-        PoulePlaceService $poulePlaceService
+        PoulePlaceService $poulePlaceService,
+        RoundConfigService $roundConfigService
     ) : StructureImporter;
 }

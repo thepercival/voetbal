@@ -78,7 +78,17 @@ class Service
     {
         $opposingChildRound = $parent ? $parent->getChildRound( Round::getOpposing($winnersOrLosers)) : null;
         $opposing = $opposingChildRound !== null ? $opposingChildRound->getWinnersOrLosers() : 0;
-        return $this->createHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
+
+        $round = null;
+        $this->em->getConnection()->beginTransaction();
+        try {
+            $round = $this->createHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
+            $this->em->getConnection()->commit();
+        } catch (\Exception $e) {
+            $this->em->getConnection()->rollBack();
+            throw $e;
+        }
+        return $round;
     }
 
     private function createHelper(
@@ -96,72 +106,66 @@ class Service
             throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
 
-        $this->em->getConnection()->beginTransaction();
-        try {
-            $round = new Round($competition, $parent);
-            $round->setWinnersOrLosers( $winnersOrLosers );
-            $round = $this->repos->save($round);
 
-            $nrOfPlaces = $structureOptions->round->nrofplaces;
+        $round = new Round($competition, $parent);
+        $round->setWinnersOrLosers( $winnersOrLosers );
+        $round = $this->repos->save($round);
 
-            $nrOfPlacesPerPoule = $structureOptions->round->getNrOfPlacesPerPoule();
-    //        $nrOfPlacesNextRound = ($winnersOrLosers === Round::LOSERS) ? ($nrOfPlaces - $roundStructure->nrofwinners) : $roundStructure->nrofwinners;
-            $nrOfOpposingPlacesNextRound = (Round::getOpposing($winnersOrLosers) === Round::WINNERS) ? $structureOptions->round->nrofwinners : $nrOfPlaces - $structureOptions->round->nrofwinners;
+        $nrOfPlaces = $structureOptions->round->nrofplaces;
 
-            $pouleNumber = 1;
+        $nrOfPlacesPerPoule = $structureOptions->round->getNrOfPlacesPerPoule();
+        $nrOfPlacesNextRound = ($winnersOrLosers === Round::LOSERS) ? ($nrOfPlaces - $structureOptions->round->nrofwinners) : $structureOptions->round->nrofwinners;
+        $nrOfOpposingPlacesNextRound = (Round::getOpposing($winnersOrLosers) === Round::WINNERS) ? $structureOptions->round->nrofwinners : $nrOfPlaces - $structureOptions->round->nrofwinners;
 
-            while ($nrOfPlaces > 0) {
-                $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
-                $poule = $this->pouleService->create( $round, $pouleNumber++, null, $nrOfPlacesToAdd );
-                $nrOfPlaces -= $nrOfPlacesPerPoule;
-            }
+        $pouleNumber = 1;
 
-            $roundConfigOptions = $structureOptions->roundConfig;
+        while ($nrOfPlaces > 0) {
+            $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
+            $poule = $this->pouleService->create( $round, $pouleNumber++, null, $nrOfPlacesToAdd );
+            $nrOfPlaces -= $nrOfPlacesPerPoule;
+        }
+
+        $roundConfigOptions = $structureOptions->roundConfig;
 //            if ($round->getParent() !== null) {
 //                $roundConfigOptionsTmp = $round->getParent()->getConfig()->getOptions();
 //            }
-            $roundConfigOptions->setHasExtension(!$round->needsRanking());
+        $roundConfigOptions->setHasExtension(!$round->needsRanking());
 
 
-            $this->roundConfigService->create($round, $roundConfigOptions);
-            $this->roundScoreConfigService->create($round);
-            // this.configRepos.createObjectFromParent(round);
-            // $round->setScoreConfig( $this->scoreConfigRepos->createObjectFromParent($round));
+        $this->roundConfigService->create($round, $roundConfigOptions);
+        $this->roundScoreConfigService->create($round);
+        // this.configRepos.createObjectFromParent(round);
+        // $round->setScoreConfig( $this->scoreConfigRepos->createObjectFromParent($round));
 
-    //        if ($parent !== null) {
-    //            $qualifyService = new QualifyService($round);
-    //            $qualifyService->createObjectsForParent();
-    //        }
-    //
-            if ($structureOptions->roundConfig === 0) {
-                return $round;
-            }
+//        if ($parent !== null) {
+//            $qualifyService = new QualifyService($round);
+//            $qualifyService->createObjectsForParent();
+//        }
+//
+        if ($structureOptions->round->nrofwinners === 0) {
+            return $round;
+        }
 
-            $structureOptions->round->nrofplaces = $nrOfPlacesNextRound;
-            $this->cretaeRoundHelper(
+        $structureOptions->round = new RoundStructure( $nrOfPlacesNextRound );
+        $this->createHelper(
+            $competition,
+            $winnersOrLosers ? $winnersOrLosers : Round::WINNERS,
+            $structureOptions,
+            $opposing,
+            $round
+        );
+
+        // $hasParentOpposingChild = ( $parent->getChild( Round::getOpposing( $winnersOrLosers ) )!== null );
+        if ($opposing > 0 || ($round->getPoulePlaces()->count() === 2)) {
+            $structureOptions->round = new RoundStructure( $nrOfOpposingPlacesNextRound );
+            $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
+            $this->createHelper(
                 $competition,
-                $winnersOrLosers ? $winnersOrLosers : Round::WINNERS,
+                $winnersOrLosers,
                 $structureOptions,
                 $opposing,
                 $round
             );
-
-            // $hasParentOpposingChild = ( $parent->getChild( Round::getOpposing( $winnersOrLosers ) )!== null );
-            if ($opposing > 0 || ($round->getPoulePlaces()->count() === 2)) {
-                $structureOptions->round->nrofplaces = $nrOfPlacesNextRound;
-                $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
-                $this->cretaeRoundHelper(
-                    $competition,
-                    $winnersOrLosers,
-                    $structureOptions,
-                    $opposing,
-                    $round
-                );
-            }
-            $this->em->getConnection()->commit();
-        } catch (\Exception $e) {
-            $this->em->getConnection()->rollBack();
-            throw $e;
         }
         return $round;
     }

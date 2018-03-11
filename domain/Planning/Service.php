@@ -71,7 +71,7 @@ class Service
             $startNextRound = $this->rescheduleHelper($competition, $roundNumber, $startDateTime);
             $nextRounds = $this->getRoundsByNumber( $competition, $roundNumber + 1 );
             if ($nextRounds !== null) {
-                $this->create($roundNumber + 1, $startNextRound);
+                $this->create($competition, $roundNumber + 1, $startNextRound);
             }
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {

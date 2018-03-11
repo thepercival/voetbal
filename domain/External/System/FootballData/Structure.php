@@ -20,8 +20,7 @@ use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Voetbal\Poule;
 use Voetbal\Round\Structure as RoundStructure;
 use Voetbal\Structure\Options as StructureOptions;
-use Voetbal\Round\Config\Options as RoundConfigOptions;
-
+use Voetbal\Round\Config\Service as RoundConfigService;
 
 class Structure implements StructureImporter
 {
@@ -55,6 +54,10 @@ class Structure implements StructureImporter
      */
     private $poulePlaceService;
 
+    /**
+     * @var RoundConfigService
+     */
+
 
     public function __construct(
         ExternalSystemBase $externalSystemBase,
@@ -62,7 +65,8 @@ class Structure implements StructureImporter
         TeamImporter $teamImporter,
         ExternalTeamRepos $externalTeamRepos,
         StructureService $structureService,
-        PoulePlaceService $poulePlaceService
+        PoulePlaceService $poulePlaceService,
+        RoundConfigService $roundConfigService
     )
     {
         $this->externalSystemBase = $externalSystemBase;
@@ -71,6 +75,7 @@ class Structure implements StructureImporter
         $this->externalTeamRepos = $externalTeamRepos;
         $this->structureService = $structureService;
         $this->poulePlaceService = $poulePlaceService;
+        $this->roundConfigService = $roundConfigService;
     }
 
     public function create( Competition $competition, ExternalCompetition $externalCompetition )

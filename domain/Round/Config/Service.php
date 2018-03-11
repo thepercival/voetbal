@@ -37,7 +37,7 @@ class Service
         return $this->repos->save($roundConfig);
     }
 
-    public function createDefault( string $sport): RoundConfig
+    public function createDefault( string $sport): RoundConfigOptions
     {
         $roundConfig = new RoundConfigOptions();
         if ($sport === VoetbalConfig::Football || $sport === VoetbalConfig::Hockey || $sport === VoetbalConfig::Korfball) {

@@ -27,7 +27,7 @@ class Structure
     {
         $this->nrofplaces = $nrOfPlaces;
         $this->nrofpoules = 1;
-        $this->nrofwinners = 1;
+        $this->nrofwinners = ( $nrOfPlaces > 1 ) ? 1 : 0;
     }
 
     /**

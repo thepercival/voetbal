@@ -16,7 +16,7 @@ class Options
     /**
      * @var int
      */
-    private $qualifyRule;
+    protected $qualifyRule;
     /**
      * @var int
      */
@@ -25,47 +25,47 @@ class Options
     /**
      * @var int
      */
-    private $winPoints;
+    protected $winPoints;
 
     /**
      * @var int
      */
-    private $drawPoints;
+    protected $drawPoints;
 
     /**
      * @var boolean
      */
-    private $hasExtension;
+    protected $hasExtension;
 
     /**
      * @var int
      */
-    private $winPointsExt;
+    protected $winPointsExt;
 
     /**
      * @var int
      */
-    private $drawPointsExt;
+    protected $drawPointsExt;
 
     /**
      * @var int
      */
-    private $minutesPerGameExt;
+    protected $minutesPerGameExt;
 
     /**
      * @var boolean
      */
-    private $enableTime;
+    protected $enableTime;
 
     /**
      * @var int
      */
-    private $minutesPerGame;
+    protected $minutesPerGame;
 
     /**
      * @var int
      */
-    private $minutesInBetween;
+    protected $minutesInBetween;
 
     CONST NROFHEADTOHEADMATCHES = 1;
     CONST WINPOINTS = 3;

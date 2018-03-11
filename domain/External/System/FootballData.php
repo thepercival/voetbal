@@ -29,6 +29,7 @@ use Voetbal\External\System\FootballData\Structure as FootballDataStructureImpor
 use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
+use Voetbal\Round\Config\Service as RoundConfigService;
 
 class FootballData implements Def, CompetitionImportable, TeamImportable, StructureImportable, GameImportable
 {
@@ -105,7 +106,8 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
         TeamImporter $teamImporter,
         ExternalTeamRepos $externalTeamRepos,
         StructureService $structureService,
-        PoulePlaceService $poulePlaceService
+        PoulePlaceService $poulePlaceService,
+        RoundConfigService $roundConfigService
     ) : StructureImporter {
         return new FootballDataStructureImporter(
             $this->getExternalSystem(),
@@ -113,7 +115,8 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
             $teamImporter,
             $externalTeamRepos,
             $structureService,
-            $poulePlaceService
+            $poulePlaceService,
+            $roundConfigService
         );
     }
 

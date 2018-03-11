@@ -30,11 +30,11 @@ class Service
     }
 
     public function create(Round $round): ScoreConfig {
-        $scoreConfig = $this->createDefault( $round );
+        $scoreConfig = $this->createHelper( $round );
         return $this->repos->save($scoreConfig);
     }
 
-    public function createDefault(Round $round): ScoreConfig
+    public function createHelper(Round $round): ScoreConfig
     {
         $sport = $round->getCompetition()->getLeague()->getSport();
 
