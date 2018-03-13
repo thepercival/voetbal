@@ -108,7 +108,7 @@ final class Game
             $gamesScore->setNumber( $gameScoreSer->getNumber() );
             $gamesScore->setHome( $gameScoreSer->getHome() );
             $gamesScore->setAway( $gameScoreSer->getAway() );
-            $gamesScore->setExtraTime( $gameScoreSer->getExtraTime() );
+            $gamesScore->setMoment( $gameScoreSer->getMoment() );
             // $gamesScore->setScoreConfig( $game->getRound()->getInputScoreConfig() );
 
             // $this->scoreRepos->save( $gameScore );

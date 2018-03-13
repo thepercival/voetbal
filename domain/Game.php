@@ -81,6 +81,11 @@ class Game implements External\Importable
     const STATE_INPLAY = 2;
     const STATE_PLAYED = 4;
 
+    const MOMENT_HALFTIME = 1;
+    const MOMENT_FULLTIME = 2;
+    const MOMENT_EXTRATIME = 4;
+    const MOMENT_PENALTIES = 8;
+
     const ORDER_BYNUMBER = 1;
     const ORDER_RESOURCEBATCH = 2;
 

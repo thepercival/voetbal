@@ -19,7 +19,7 @@ use Voetbal\External\Team\Repository as ExternalTeamRepos;
 use Voetbal\Game as GameBase;
 use Voetbal\Competition;
 use Voetbal\Team as TeamBase;
-use Voetbal\PoulePlace as PoulePlace;
+use Voetbal\Game\Score as GameScore;
 use Voetbal\External\Competition as ExternalCompetition;
 
 class Game implements GameImporter
@@ -171,12 +171,21 @@ class Game implements GameImporter
         if ( $externalSystemGame->status === "FINISHED" ) { //    OTHER, "IN_PLAY", "FINISHED",
             $game->setState( GameBase::STATE_PLAYED );
 
-            // flush gamescores!!!
+            $gameScoreHalfTime = new GameScore( $game );
+            $gameScoreHalfTime->setScoreConfig( $game->getRound()->getScoreConfig() );
+            $gameScoreHalfTime->setNumber( 1 );
+            $gameScoreHalfTime->setHome(  $externalSystemGame->result->halfTime->goalsHomeTeam );
+            $gameScoreHalfTime->setAway(  $externalSystemGame->result->halfTime->goalsAwayTeam );
+            $gameScoreHalfTime->setMoment( Game::MOMENT_HALFTIME );
 
-            $externalSystemGame->result->goalsHomeTeam
-            $externalSystemGame->result->goalsAwayTeam
-            $externalSystemGame->result->halfTime->goalsHomeTeam
-            $externalSystemGame->result->halfTime->goalsHomeTeam
+            $gameScoreFullTime = new GameScore( $game );
+            $gameScoreFullTime->setScoreConfig( $game->getRound()->getScoreConfig() );
+            $gameScoreFullTime->setNumber( 2 );
+            $gameScoreFullTime->setHome(  $externalSystemGame->result->goalsHomeTeam );
+            $gameScoreFullTime->setAway(  $externalSystemGame->result->goalsAwayTeam );
+            $gameScoreFullTime->setMoment( Game::MOMENT_FULLTIME );
+
+            $this->gameService->setScores( [$gameScoreHalfTime, $gameScoreFullTime] );
         }
         return $this->repos->save($game);
     }

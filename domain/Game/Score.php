@@ -42,9 +42,9 @@ class Score
     private $away;
 
     /**
-     * @var boolean
+     * @var int
      */
-    private $extraTime;
+    private $moment;
 
     public function __construct(
         Game $game
@@ -179,21 +179,21 @@ class Score
     }
 
     /**
-     * @return boolean
+     * @return int
      */
-    public function getExtraTime()
+    public function getMoment()
     {
-        return $this->extraTime;
+        return $this->moment;
     }
 
     /**
-     * @param $extraTime
+     * @param $moment
      */
-    public function setExtraTime($extraTime)
+    public function setMoment($moment)
     {
-        if ($extraTime === null or !is_bool($extraTime)) {
-            throw new \InvalidArgumentException("na-verlenging heeft een onjuiste waarde", E_ERROR);
+        if ($moment === null or !is_int($moment)) {
+            throw new \InvalidArgumentException("het moment heeft een onjuiste waarde", E_ERROR);
         }
-        $this->extraTime = $extraTime;
+        $this->moment = $moment;
     }
 }
