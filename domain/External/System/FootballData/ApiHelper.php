@@ -52,4 +52,11 @@ class ApiHelper
 
         return json_decode($response);
     }
+
+    public function getDate( string $date ) {
+        if( strlen( $date ) === 0 ) {
+            return null;
+        }
+        return \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s\Z', $date);
+    }
 }

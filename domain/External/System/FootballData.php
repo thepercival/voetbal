@@ -15,6 +15,9 @@ use Voetbal\External\Competition\Repository as ExternalCompetitionRepos;
 use Voetbal\Team\Service as TeamService;
 use Voetbal\Team\Repository as TeamRepos;
 use Voetbal\External\Team\Repository as ExternalTeamRepos;
+use Voetbal\Game\Service as GameService;
+use Voetbal\Game\Repository as GameRepos;
+use Voetbal\External\Game\Repository as ExternalGameRepos;
 use Voetbal\External\System\Importable\Competition as CompetitionImportable;
 use Voetbal\External\System\Importable\Team as TeamImportable;
 use Voetbal\External\System\Importable\Game as GameImportable;
@@ -121,15 +124,20 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
     }
 
     public function getGameImporter(
-//        CompetitionImporter $competitionImporter,
-//        TeamImporter $teamImporter,
-//        ExternalTeamRepos $externalTeamRepos,
-//        StructureService $structureService,
-//        PoulePlaceService $poulePlaceService
+        GameService $service,
+        GameRepos $repos,
+        ExternalGameRepos $externalRepos,
+        ExternalTeamRepos $externalTeamRepos,
+        TeamImporter $teamImporter
     ) : GameImporter {
         return new FootballDataGameImporter(
             $this->getExternalSystem(),
-            $this->getApiHelper()
+            $this->getApiHelper(),
+            $service,
+            $repos,
+            $externalRepos,
+            $externalTeamRepos,
+            $teamImporter
         );
     }
 }

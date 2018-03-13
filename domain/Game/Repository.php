@@ -68,7 +68,8 @@ class Repository extends \Voetbal\Repository
             ->where('r.competition = :competition');
         ;
         if( $gameStates !== null ) {
-            $query = $query->andWhere('(g.state & :gamestates) = :gamestates');
+            // $query = $query->andWhere('g.state & :gamestates = g.state');
+            $query = $query->andWhere('BIT_AND(g.state, :gamestates) > 0');
         }
         $query = $query->setParameter('competition', $competition);
         if( $gameStates !== null ) {
@@ -90,7 +91,7 @@ class Repository extends \Voetbal\Repository
             ->andWhere('r.number = :roundNumber');
         ;
         if( $gameStates !== null ) {
-            $query = $query->andWhere('(g.state & :gamestates) = :gamestates');
+            $query = $query->andWhere('(g.state & :gamestates) = g.state');
         }
         $query = $query->setParameter('competition', $competition);
         $query = $query->setParameter('roundNumber', $roundNumber);
@@ -104,7 +105,7 @@ class Repository extends \Voetbal\Repository
         return count($x) === 1;
     }
 
-    public function findByExt( Team $homeTeam, Team $awayTeam, Competition $competition, $gameStates)
+    public function findByExt( Team $homeTeam, Team $awayTeam, Competition $competition, $gameStates = null)
     {
         $query = $this->createQueryBuilder('g')
             ->join("g.homePoulePlace", "hpp")
@@ -115,27 +116,17 @@ class Repository extends \Voetbal\Repository
             ->andWhere('hpp.team = :hometeam')
             ->andWhere('app.team = :awayteam')
             ;
-            // ->andWhere('g.state | :gamestates');
-
+        if( $gameStates !== null ) {
+            $query = $query->andWhere('(g.state & :gamestates) = g.state');
+        }
         $query = $query
             ->setParameter('competition', $competition)
             ->setParameter('hometeam', $homeTeam)
             ->setParameter('awayteam', $awayTeam)
-        ;   // ->setParameter('gamestates', $gameStates);
-
-
-        $filteredResults = array();
-        foreach ($query->getQuery()->getResult() as $game) {
-            if (($game->getState() & $gameStates) === $game->getState()) {
-                array_unshift($filteredResults, $game);
-            }
+        ;
+        if( $gameStates !== null ) {
+            $query = $query->setParameter('gamestates', $gameStates);
         }
-//        var_dump(count($filteredResults));
-//        die();
-        if ( count( $filteredResults ) === 1 ) {
-            return reset($filteredResults);
-        }
-
-        return null;
+        return $query->getQuery()->getResult();
     }
 }

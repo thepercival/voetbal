@@ -9,11 +9,9 @@
 namespace Voetbal\External\System\Importer;
 
 use Voetbal\External\Competition as ExternalCompetition;
-use Voetbal\Association;
 
 interface Game
 {
-//    public function get( ExternalCompetition $externalCompetition );
-//    public function getId( $externalSystemCompetition );
-//    public function create( Association $association, $externalSystemObject );
+    public function update( ExternalCompetition $externalCompetition );
+    public function create( ExternalCompetition $externalCompetition);
 }

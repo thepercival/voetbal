@@ -12,7 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
 
 use Voetbal\Game\Score;
 
-class Game
+class Game implements External\Importable
 {
     /**
      * @var int
