@@ -14,6 +14,6 @@ use Voetbal\Association;
 interface Team
 {
     public function get( ExternalCompetition $externalCompetition );
-    public function getId( $externalSystemCompetition );
+    public function getId( $externalSystemTeam );
     public function create( Association $association, $externalSystemObject );
 }

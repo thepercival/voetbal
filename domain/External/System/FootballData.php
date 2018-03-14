@@ -41,10 +41,7 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
      */
     private $externalSystem;
 
-    public function __construct(
-        ExternalSystemBase $externalSystem
-
-    )
+    public function __construct( ExternalSystemBase $externalSystem )
     {
         $this->setExternalSystem( $externalSystem );
     }
