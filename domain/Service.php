@@ -88,11 +88,9 @@ class Service
             );
         }
         elseif ( $classname === Round\Config::class ){
-            $repos = $this->getRepository(Round\Config::class);
             return new Round\Config\Service($repos);
         }
         elseif ( $classname === Round\ScoreConfig::class ){
-            $repos = $this->getRepository(Round\ScoreConfig::class);
             return new Round\ScoreConfig\Service($repos);
         }
         elseif ( $classname === Poule::class ){
@@ -111,7 +109,8 @@ class Service
             );
         }
         elseif ( $classname === Game::class ){
-            return new Game\Service($repos);
+            $scoreRepos = $this->getRepository(Game\Score::class);
+            return new Game\Service($repos, $scoreRepos);
         }
         elseif ( $classname === Planning::class ){
             return new Planning\Service(

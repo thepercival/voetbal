@@ -171,21 +171,22 @@ class Game implements GameImporter
         if ( $externalSystemGame->status === "FINISHED" ) { //    OTHER, "IN_PLAY", "FINISHED",
             $game->setState( GameBase::STATE_PLAYED );
 
-            $gameScoreHalfTime = new GameScore( $game );
-            $gameScoreHalfTime->setScoreConfig( $game->getRound()->getScoreConfig() );
-            $gameScoreHalfTime->setNumber( 1 );
-            $gameScoreHalfTime->setHome(  $externalSystemGame->result->halfTime->goalsHomeTeam );
-            $gameScoreHalfTime->setAway(  $externalSystemGame->result->halfTime->goalsAwayTeam );
-            $gameScoreHalfTime->setMoment( Game::MOMENT_HALFTIME );
+            $gameScores = [];
+            if( property_exists ( $externalSystemGame->result, "halfTime" ) ) {
+                $gameScoreHalfTime = new \StdClass();
+                $gameScoreHalfTime->home = $externalSystemGame->result->halfTime->goalsHomeTeam;
+                $gameScoreHalfTime->away = $externalSystemGame->result->halfTime->goalsAwayTeam;
+                $gameScoreHalfTime->moment = GameBase::MOMENT_HALFTIME;
+                $gameScores[] = $gameScoreHalfTime;
+            }
 
-            $gameScoreFullTime = new GameScore( $game );
-            $gameScoreFullTime->setScoreConfig( $game->getRound()->getScoreConfig() );
-            $gameScoreFullTime->setNumber( 2 );
-            $gameScoreFullTime->setHome(  $externalSystemGame->result->goalsHomeTeam );
-            $gameScoreFullTime->setAway(  $externalSystemGame->result->goalsAwayTeam );
-            $gameScoreFullTime->setMoment( Game::MOMENT_FULLTIME );
+            $gameScoreFullTime = new \StdClass();
+            $gameScoreFullTime->home = $externalSystemGame->result->goalsHomeTeam;
+            $gameScoreFullTime->away = $externalSystemGame->result->goalsAwayTeam;
+            $gameScoreFullTime->moment = GameBase::MOMENT_FULLTIME;
+            $gameScores[] = $gameScoreFullTime;
 
-            $this->gameService->setScores( [$gameScoreHalfTime, $gameScoreFullTime] );
+            $this->service->setScores( $game, $gameScores );
         }
         return $this->repos->save($game);
     }

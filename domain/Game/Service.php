@@ -9,12 +9,12 @@
 namespace Voetbal\Game;
 
 use Voetbal\Game\Repository as GameRepository;
-use Voetbal\PoulePlace;
-use Doctrine\ORM\EntityManager;
+use Voetbal\Game\Score\Repository as GameScoreRepository;
 use Voetbal\Poule;
 use Voetbal\Game;
 use Voetbal\Referee;
 use Voetbal\Field;
+use Voetbal\Game\Score as GameScore;
 
 class Service
 {
@@ -24,12 +24,18 @@ class Service
     protected $repos;
 
     /**
+     * @var GameScoreRepository
+     */
+    protected $scoreRepos;
+
+    /**
      * Service constructor.
      * @param Repository $repos
      */
-    public function __construct( GameRepository $repos )
+    public function __construct( GameRepository $repos, GameScoreRepository $scoreRepos )
     {
         $this->repos = $repos;
+        $this->scoreRepos = $scoreRepos;
     }
 
     public function create( Poule $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber )
@@ -84,6 +90,25 @@ class Service
         $game->setStartDateTime($startDateTime);
         $game->setReferee($referee);
         return $this->repos->save($game);
+    }
+
+    public function setScores( Game $game, array $newGameScores )
+    {
+        foreach( $game->getScores() as $gameScore ) {
+            $this->scoreRepos->remove($gameScore);
+        }
+        $game->getScores()->clear();
+
+        $count = 1;
+        foreach( $newGameScores as $newGameScore ) {
+            $gameScore = new GameScore( $game );
+            $gameScore->setScoreConfig( $game->getRound()->getScoreConfig() );
+            $gameScore->setNumber( $count++ );
+            $gameScore->setHome(  $newGameScore->home );
+            $gameScore->setAway(  $newGameScore->away );
+            $gameScore->setMoment( $newGameScore->moment );
+            $this->scoreRepos->save($gameScore);
+        }
     }
 
     /**
