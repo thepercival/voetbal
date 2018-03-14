@@ -68,10 +68,10 @@ final class Structure
         if( $competitionid > 0 ){
             $params["competition"] = $competitionid;
         }
-        $objects = $this->roundRepos->findBy( $params );
+        $rounds = $this->roundRepos->findBy( $params );
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write( $this->serializer->serialize( $objects, 'json') );
+            ->write( $this->serializer->serialize( $rounds, 'json') );
         ;
 
     }

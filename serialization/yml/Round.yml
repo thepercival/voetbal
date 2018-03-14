@@ -19,19 +19,8 @@ Voetbal\Round:
     childRounds:
       type: ArrayCollection<Voetbal\Round>
       serialized_name: childRounds
-#    competition:
-#      type: Voetbal\Competition
     poules:
       type: ArrayCollection<Voetbal\Poule>
-#    scoreConfigs:
-#      type: ArrayCollection<Voetbal\Round\ScoreConfig>
-#      serialized_name: scoreConfigs
-#  virtual_properties:
     scoreConfig:
-        type: Voetbal\Round\ScoreConfig
-        serialized_name: scoreConfig
-#        access_type: public_method
-#    getQualifyRules:
-#      read_only: true
-#      type: ArrayCollection<Voetbal\QualifyRule>
-#      serialized_name: qualifyRules
+      type: Voetbal\Round\ScoreConfig
+      serialized_name: scoreConfig

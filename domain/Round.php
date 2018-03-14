@@ -256,7 +256,11 @@ class Round
      */
     public function getScoreConfig()
     {
-        return $this->scoreConfigs->first();
+        $scoreConfig = $this->scoreConfigs->first();
+        if( $scoreConfig === false ) {
+            return null;
+        }
+        return $scoreConfig;
     }
 
     /**
