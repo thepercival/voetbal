@@ -9,9 +9,9 @@
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
-use Voetbal\Team\Repository as TeamRepository;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
-use Voetbal\Poule\Repository as PouleRepository;
+use Voetbal\PoulePlace\Service as PoulePlaceService;
+use Voetbal\Team\Repository as TeamRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -21,6 +21,10 @@ final class PoulePlace
      * @var PoulePlaceRepository
      */
     protected $repos;
+    /**
+     * @var PoulePlaceService
+     */
+    protected $service;
     /**
      * @var TeamRepository
      */
@@ -32,14 +36,14 @@ final class PoulePlace
 
     public function __construct(
         PoulePlaceRepository $repos,
+        PoulePlaceService $service,
         TeamRepository $teamRepos,
-        PouleRepository $pouleRepos,
         Serializer $serializer
     )
     {
         $this->repos = $repos;
+        $this->service = $service;
         $this->teamRepos = $teamRepos;
-        $this->pouleRepos = $pouleRepos;
         $this->serializer = $serializer;
     }
 

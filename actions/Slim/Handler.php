@@ -65,29 +65,29 @@ class Handler
         $action = null;
         if ( $resourceType === 'associations' ){
             $repos = $voetbalservice->getRepository(Voetbal\Association::class);
-            $service = new Voetbal\Association\Service( $repos );
+            $service = $voetbalservice->getService( Voetbal\Association::class);
             $action = new Voetbal\Action\Association($service, $repos, $serializer);
         }
         elseif ( $resourceType === 'teams' ){
             $repos = $voetbalservice->getRepository(Voetbal\Team::class);
             $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
-            $service = new Voetbal\Team\Service($repos);
+            $service = $voetbalservice->getService( Voetbal\Team::class);
             $action = new Voetbal\Action\Team($service, $repos, $associationRepos, $serializer);
         }
         elseif ( $resourceType === 'seasons' ){
             $repos = $voetbalservice->getRepository(Voetbal\Season::class);
-            $service = new Voetbal\Season\Service($repos);
+            $service = $voetbalservice->getService( Voetbal\Season::class);
             $action = new Voetbal\Action\Season($service, $repos, $serializer);
         }
         elseif ( $resourceType === 'leagues' ){
             $repos = $voetbalservice->getRepository(Voetbal\League::class);
-            $service = new Voetbal\League\Service($repos);
+            $service = $voetbalservice->getService( Voetbal\League::class);
             $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
             $action = new Voetbal\Action\League($service, $repos, $associationRepos, $serializer);
         }
         elseif ( $resourceType === 'competitions' ){
             $repos = $voetbalservice->getRepository(Voetbal\Competition::class);
-            $service = new Voetbal\Competition\Service($repos);
+            $service = $voetbalservice->getService( Voetbal\Competition::class);
             $leagueRepos = $voetbalservice->getRepository(Voetbal\League::class);
             $seasonRepos = $voetbalservice->getRepository(Voetbal\Season::class);
             $action = new Voetbal\Action\Competition(
@@ -112,7 +112,7 @@ class Handler
         elseif ( $resourceType === 'games' ){
             $repos = $voetbalservice->getRepository(Voetbal\Game::class);
             $scoreRepos = $voetbalservice->getRepository(Voetbal\Game\Score::class);
-            $service = new Voetbal\Game\Service($repos);
+            $service = $voetbalservice->getService(Voetbal\Game::class);
             $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
             $action = new Voetbal\Action\Game($service, $repos, $scoreRepos, $pouleRepos, $serializer);
         }
@@ -153,9 +153,9 @@ class Handler
         }
         elseif ( $resourceType === 'pouleplaces' ){
             $repos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
+            $service = $voetbalservice->getService(Voetbal\PoulePlace::class);
             $teamRepos = $voetbalservice->getRepository(Voetbal\Team::class);
-            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
-            $action = new Voetbal\Action\PoulePlace($repos, $teamRepos, $pouleRepos, $serializer);
+            $action = new Voetbal\Action\PoulePlace($repos, $service, $teamRepos, $serializer);
         }
 
         return $action;
