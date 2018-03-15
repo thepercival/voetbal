@@ -91,7 +91,8 @@ class Repository extends \Voetbal\Repository
             ->andWhere('r.number = :roundNumber');
         ;
         if( $gameStates !== null ) {
-            $query = $query->andWhere('(g.state & :gamestates) = g.state');
+            $query = $query->andWhere('BIT_AND(g.state, :gamestates) = g.state');
+            // $query = $query->andWhere('(g.state & :gamestates) = g.state');
         }
         $query = $query->setParameter('competition', $competition);
         $query = $query->setParameter('roundNumber', $roundNumber);
@@ -117,7 +118,9 @@ class Repository extends \Voetbal\Repository
             ->andWhere('app.team = :awayteam')
             ;
         if( $gameStates !== null ) {
-            $query = $query->andWhere('(g.state & :gamestates) = g.state');
+
+            $query = $query->andWhere('BIT_AND(g.state, :gamestates) = g.state');
+            // $query = $query->andWhere('(g.state & :gamestates) = g.state');
         }
         $query = $query
             ->setParameter('competition', $competition)
