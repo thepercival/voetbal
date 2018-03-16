@@ -33,13 +33,15 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-    public function create( Association $associationSer )
+    public function create( string $name, string $description = null ): Association
     {
-        $associationWithSameName = $this->repos->findOneBy( array('name' => $associationSer->getName() ) );
+        $associationWithSameName = $this->repos->findOneBy( array('name' => $name ) );
         if ( $associationWithSameName !== null ){
-            throw new \Exception("de bond met de naam ".$associationSer->getName()." bestaat al", E_ERROR );
+            throw new \Exception("de bond met de naam ".$name." bestaat al", E_ERROR );
         }
-        return $this->repos->save($associationSer);
+        $association = new Association($name);
+        $association->setDescription($description);
+        return $this->repos->save($association);
     }
 
     public function changeBasics( Association $association, $name, $description )

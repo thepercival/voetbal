@@ -41,10 +41,13 @@ class Service
         $team->setAbbreviation($abbreviation);
         $team->setImageUrl($imageUrl);
 
-        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $teamWithSameName !== null ){
-            throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
-        }
+        // could be a settings to check this!
+//        $teamWithSameName = $this->repos->findOneBy(
+//            array( 'name' => $name, 'association' => $association )
+//        );
+//        if ( $teamWithSameName !== null ){
+//            throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
+//        }
 
         return $this->repos->save($team);
     }
@@ -59,10 +62,11 @@ class Service
      */
     public function edit( Team $team, $name, Association $association, $abbreviation = null, $imageUrl = null )
     {
-        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
-            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
-        }
+        // could be a setting to check this
+//        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+//        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
+//            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
+//        }
 
         $team->setName($name);
         $team->setAbbreviation($abbreviation);

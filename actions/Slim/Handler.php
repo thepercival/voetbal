@@ -111,21 +111,20 @@ class Handler
 //        }
         elseif ( $resourceType === 'games' ){
             $repos = $voetbalservice->getRepository(Voetbal\Game::class);
-            $scoreRepos = $voetbalservice->getRepository(Voetbal\Game\Score::class);
+            $poulePlaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
             $service = $voetbalservice->getService(Voetbal\Game::class);
             $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
-            $action = new Voetbal\Action\Game($service, $repos, $scoreRepos, $pouleRepos, $serializer);
+            $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
+            $refereeRepos = $voetbalservice->getRepository(Voetbal\Referee::class);
+            $action = new Voetbal\Action\Game($service, $repos,
+                $poulePlaceRepos, $pouleRepos,
+                $fieldRepos, $refereeRepos,
+                $serializer);
         }
         elseif ( $resourceType === 'structures' ){
             $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
             $roundRepos = $voetbalservice->getRepository(Voetbal\Round::class);
-//            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
-//            $pouleplaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
-//            $teamRepos = $voetbalservice->getRepository(Voetbal\Team::class);
-            $service = new Voetbal\Structure\Service(
-                $voetbalservice->getService(Voetbal\Round::class), $roundRepos
-            );
-
+            $service = $voetbalservice->getService(Voetbal\Structure::class);
             $action = new Voetbal\Action\Structure(
                 $service,
                 $roundRepos,

@@ -10,9 +10,12 @@ namespace Voetbal\Round;
 
 use Voetbal\Round;
 use Voetbal\Round\Config\Options as RoundConfigOptions;
+use Voetbal\Round\Config\OptionsTrait;
 
-class Config extends Config\Options
+class Config
 {
+    use OptionsTrait;
+
     /**
      * @var int
      */
@@ -22,11 +25,10 @@ class Config extends Config\Options
      */
     protected $round;
 
-    public function __construct(
-        Round $round
-    ) {
-        parent::__construct();
+    public function __construct( Round $round )
+    {
         $this->setRound($round);
+        $this->setDefaults();
     }
 
     /**

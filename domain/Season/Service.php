@@ -35,7 +35,7 @@ class Service
      * @return Season
      * @throws \Exception
      */
-	public function create( $name, Period $period )
+	public function create( string $name, Period $period ): Season
 	{
 		$season = new Season( $name, $period );
 

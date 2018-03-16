@@ -13,6 +13,7 @@ use Voetbal\Competition;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Structure\Options as StructureOptions;
+use Doctrine\DBAL\Connection;
 
 class Service
 {
@@ -24,17 +25,57 @@ class Service
     /**
      * @var RoundRepository
      */
-    protected $roundRepository;
+    protected $roundRepos;
 
-    public function __construct(RoundService $roundService, RoundRepository $roundRepository)
+    /**
+     * @var Connection
+     */
+    protected $conn;
+
+
+    public function __construct(RoundService $roundService, RoundRepository $roundRepos, Connection $conn )
     {
         $this->roundService = $roundService;
-        $this->roundRepository = $roundRepository;
+        $this->roundRepos = $roundRepos;
+        $this->conn = $conn;
     }
 
-    public function create(Competition $competition, StructureOptions $structureOptions): Round
+    public function generate(Competition $competition, StructureOptions $structureOptions): Round
     {
-        return $this->roundService->create($competition, 0, $structureOptions);
+        return $this->roundService->generate($competition, 0, $structureOptions);
+    }
+
+    public function create( Round $roundSer, Competition $competition, Round $parentRound = null ): Round
+    {
+        if( $parentRound === null ) {
+            if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
+                throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
+            }
+        }
+
+        $round = null;
+        $this->conn->beginTransaction(); // suspend auto-commit
+        try {
+            $round = $this->roundService->create(
+                $roundSer->getNumber(),
+                $roundSer->getWinnersOrLosers(),
+                $roundSer->getQualifyOrder(),
+                $roundSer->getConfig()->getOptions(),
+                $roundSer->getScoreConfig(),
+                $roundSer->getPoules()->toArray(),
+                $competition, $parentRound
+            );
+
+            foreach( $roundSer->getChildRounds() as $childRoundSer ) {
+                $this->create( $childRoundSer, $competition, $round );
+            }
+
+            $this->conn->commit();
+        } catch ( \Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+        return $round;
     }
 
 //    public function createFromJSON( Round $p_round, Competition $competition )
@@ -84,7 +125,7 @@ class Service
 
     public function getFirstRound( Competition $competition )
     {
-        return $this->roundRepository->findOneBy( array(
+        return $this->roundRepos->findOneBy( array(
             "number" => 1,
             "competition" => $competition
         ));

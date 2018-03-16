@@ -73,7 +73,11 @@ class Service
             return new Competition\Service($repos);
         }
         elseif ( $classname === Structure::class ){
-            return new Structure\Service( $this->getService(Round::class), $this->getRepository(Round::class) );
+            return new Structure\Service(
+                $this->getService(Round::class),
+                $this->getRepository(Round::class),
+                $this->getEntityManager()->getConnection()
+            );
         }
         elseif ( $classname === Round::class ){
             $competitionRepos = $this->getRepository(Competition::class);
@@ -83,7 +87,7 @@ class Service
                 $this->getService( Round\Config::class ),
                 $this->getService( Round\ScoreConfig::class ),
                 $competitionRepos,
-                $this->getEntityManager(),
+                $this->getEntityManager()->getConnection(),
                 $pouleService
             );
         }

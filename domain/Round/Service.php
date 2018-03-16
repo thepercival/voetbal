@@ -11,10 +11,12 @@ namespace Voetbal\Round;
 use Voetbal\Round;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Competition;
-use Doctrine\ORM\EntityManager;
+use Doctrine\DBAL\Connection;
 use Voetbal\Poule;
 use Voetbal\Round\Structure as RoundStructure;
 use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\Round\Config\Options as ConfigOptions;
+use Voetbal\Round\ScoreConfig as ScoreConfig;
 
 class Service
 {
@@ -39,9 +41,9 @@ class Service
     protected $competitionRepos;
 
     /**
-     * @var EntityManager
+     * @var Connection
      */
-    protected $em;
+    protected $conn;
 
     /**
      * @var Poule\Service
@@ -51,47 +53,47 @@ class Service
     /**
      * Service constructor.
      * @param Repository $repos
-     * @param Config\Service $roundConfigService
-     * @param ScoreConfig\Servic $roundScoreConfigService
+     * @param Config\Service $configService
+     * @param ScoreConfig\Service $scoreConfigService
      * @param Competition\Repository $competitionRepos
-     * @param EntityManager $em
+     * @param Connection $conn
      * @param Poule\Service $pouleService
      */
     public function __construct(
         RoundRepository $repos,
-        Config\Service $roundConfigService,
-        ScoreConfig\Service $roundScoreConfigService,
+        Config\Service $configService,
+        ScoreConfig\Service $scoreConfigService,
         Competition\Repository $competitionRepos,
-        EntityManager $em,
+        Connection $conn,
         Poule\Service $pouleService
     )
     {
         $this->repos = $repos;
-        $this->roundConfigService = $roundConfigService;
-        $this->roundScoreConfigService = $roundScoreConfigService;
+        $this->configService = $configService;
+        $this->scoreConfigService = $scoreConfigService;
         $this->competitionRepos = $competitionRepos;
         $this->pouleService = $pouleService;
-        $this->em = $em;
+        $this->conn = $conn;
     }
 
-    public function create( Competition $competition, int $winnersOrLosers, StructureOptions $structureOptions, Round $parent = null ): Round
+    public function generate( Competition $competition, int $winnersOrLosers, StructureOptions $structureOptions, Round $parent = null ): Round
     {
         $opposingChildRound = $parent ? $parent->getChildRound( Round::getOpposing($winnersOrLosers)) : null;
         $opposing = $opposingChildRound !== null ? $opposingChildRound->getWinnersOrLosers() : 0;
 
         $round = null;
-        $this->em->getConnection()->beginTransaction();
+        $this->conn->beginTransaction();
         try {
-            $round = $this->createHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
-            $this->em->getConnection()->commit();
+            $round = $this->generateHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
+            $this->conn->commit();
         } catch (\Exception $e) {
-            $this->em->getConnection()->rollBack();
+            $this->conn->rollBack();
             throw $e;
         }
         return $round;
     }
 
-    private function createHelper(
+    private function generateHelper(
         Competition $competition,
         int $winnersOrLosers,
         StructureOptions $structureOptions,
@@ -105,7 +107,6 @@ class Service
         if ($structureOptions->round->nrofpoules <= 0) {
             throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
-
 
         $round = new Round($competition, $parent);
         $round->setWinnersOrLosers( $winnersOrLosers );
@@ -131,9 +132,8 @@ class Service
 //            }
         $roundConfigOptions->setHasExtension(!$round->needsRanking());
 
-
-        $this->roundConfigService->create($round, $roundConfigOptions);
-        $this->roundScoreConfigService->create($round);
+        $this->configService->create($round, $roundConfigOptions);
+        $this->scoreConfigService->create($round);
         // this.configRepos.createObjectFromParent(round);
         // $round->setScoreConfig( $this->scoreConfigRepos->createObjectFromParent($round));
 
@@ -147,7 +147,7 @@ class Service
         }
 
         $structureOptions->round = new RoundStructure( $nrOfPlacesNextRound );
-        $this->createHelper(
+        $this->generateHelper(
             $competition,
             $winnersOrLosers ? $winnersOrLosers : Round::WINNERS,
             $structureOptions,
@@ -159,7 +159,7 @@ class Service
         if ($opposing > 0 || ($round->getPoulePlaces()->count() === 2)) {
             $structureOptions->round = new RoundStructure( $nrOfOpposingPlacesNextRound );
             $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
-            $this->createHelper(
+            $this->generateHelper(
                 $competition,
                 $winnersOrLosers,
                 $structureOptions,
@@ -170,51 +170,52 @@ class Service
         return $round;
     }
 
+    public function create(
+        int $number,
+        int $winnersOrLosers,
+        int $qualifyOrder,
+        ConfigOptions $configOptions,
+        ScoreConfig $scoreConfigSer,
+        array $poules,
+        Competition $competition,
+        Round $p_parent = null ): Round
+    {
+        $round = null;
+        $this->conn->beginTransaction(); // suspend auto-commit
+        try {
 
+            if ( $number < 1 ) {
+                throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
+            }
+            if ( $poules <= 0) {
+                throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
+            }
 
-//    public function createFromJSON( Round $p_round, Competition $competition, Round $p_parent = null )
-//    {
-//        $number = $p_round->getNumber();
-//        if ( !is_int($number) or $number < 1 ) {
-//            throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
-//        }
-//        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
-//        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
-//            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
-//        }
-//
-//
-//        $round = null;
-//        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
-//        try {
-//
-//
-//            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parent );
-//            //   var_dump($p_round->getPoulePlaces()->count());
-////die();
-//
-//            //var_dump( $p_round->getCompetition()->getId() );
-//
-//
-////            foreach( $p_round->getChildRounds() as $childRound ) {
-////                $this->createFromJSON( $childRound, $p_round, $competition );
-////
-////                var_dump( $childRound->getCompetition()->getId() );
-////            }
-//            //die();
-////            $roundConfig = \Voetbal\Service::getDefaultRoundConfig( $round );
-////            $this->roundConfigRepos->save( $roundConfig );
-////            $roundScoreConfig = \Voetbal\Service::getDefaultRoundScoreConfig( $round );
-////            $this->roundScoreConfigRepos->save( $roundScoreConfig );
-//
-//            $this->em->getConnection()->commit();
-//        } catch ( \Exception $e) {
-//            $this->em->getConnection()->rollBack();
-//            throw $e;
-//        }
-//
-//        return ( $round );
-//    }
+            $round = new Round($competition, $p_parent);
+            $round->setWinnersOrLosers( $winnersOrLosers );
+            $round->setQualifyOrder( $qualifyOrder );
+            $round = $this->repos->save($round);
+
+            $pouleNumber = 1;
+            foreach( $poules as $poule ) {
+                $this->pouleService->create( $round, $pouleNumber++, $poule->getPlaces() );
+            }
+
+            $this->configService->create($round, $configOptions);
+
+            $this->scoreConfigService->create( $round,
+                $scoreConfigSer->getName(), $scoreConfigSer->getDirection(), $scoreConfigSer->getMaximum(),
+                $scoreConfigSer->getParent()
+            );
+
+            $this->conn->commit();
+        } catch ( \Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+
+        return $round;
+    }
 //
 //
 //    public function editFromJSON( Round $p_round, Competition $competition, Round $p_parent = null )

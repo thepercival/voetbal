@@ -29,18 +29,18 @@ class Service
         $this->repos = $repos;
     }
 
-    public function create( Field $fieldSer, Competition $competition )
+    public function create( int $number, string $name, Competition $competition ): Field
     {
         $fieldWithSameNumber = $this->repos->findOneBy(
             array(
-                'number' => $fieldSer->getNumber(),
+                'number' => $number,
                 'competition' => $competition,
                 ) );
         if ( $fieldWithSameNumber !== null ){
-            throw new \Exception("het veld met nummer ".$fieldSer->getNumber()." bestaat al", E_ERROR );
+            throw new \Exception("het veld met nummer ".$number." bestaat al", E_ERROR );
         }
-        $fieldSer->setCompetition($competition);
-        return $this->repos->save($fieldSer);
+        $field = new Field( $competition, $number, $name );
+        return $this->repos->save($field);
     }
 
 //    public function edit( Field $field, $name, Period $period )

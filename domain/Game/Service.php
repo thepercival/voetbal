@@ -74,20 +74,19 @@ class Service
 
     /**
      * @param Game $game
-     * @param Field $field
-     * @param \DateTimeImmutable|null $startDateTime
+     * @param Field|null $field
      * @param Referee|null $referee
+     * @param \DateTimeImmutable|null $startDateTime
+     * @param int|null $resourceBatch
      * @return mixed
      */
-    public function editResource( Game $game, Field $field, \DateTimeImmutable $startDateTime = null, Referee $referee = null )
+    public function editResource( Game $game,
+        Field $field = null, Referee $referee = null,
+        \DateTimeImmutable $startDateTime = null, int $resourceBatch = null )
     {
-//        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-//        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
-//            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
-//        }
-
         $game->setField($field);
         $game->setStartDateTime($startDateTime);
+        $game->setResourceBatch($resourceBatch);
         $game->setReferee($referee);
         return $this->repos->save($game);
     }

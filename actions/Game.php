@@ -11,9 +11,10 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
-use Voetbal\Game\Score\Repository as GameScoreRepository;
-use Voetbal\Game\Score as GameScore;
+use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\Poule\Repository as PouleRepository;
+use Voetbal\Field\Repository as FieldRepository;
+use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -29,13 +30,21 @@ final class Game
      */
     protected $repos;
     /**
-     * @var GameScoreRepository
+     * @var PoulePlaceRepository
      */
-    protected $scoreRepos;
+    protected $poulePlaceRepos;
     /**
      * @var PouleRepository
      */
     protected $pouleRepos;
+    /**
+     * @var FieldRepository
+     */
+    protected $fieldRepos;
+    /**
+     * @var RefereeRepository
+     */
+    protected $refereeRepos;
     /**
      * @var Serializer
      */
@@ -44,14 +53,18 @@ final class Game
     public function __construct(
         GameService $service,
         GameRepository $repos,
-        GameScoreRepository $scoreRepos,
+        PoulePlaceRepository $poulePlaceRepos,
         PouleRepository $pouleRepos,
+        FieldRepository $fieldRepos,
+        RefereeRepository $refereeRepos,
         Serializer $serializer)
     {
         $this->service = $service;
         $this->repos = $repos;
-        $this->scoreRepos = $scoreRepos;
+        $this->poulePlaceRepos = $poulePlaceRepos;
         $this->pouleRepos = $pouleRepos;
+        $this->fieldRepos = $fieldRepos;
+        $this->refereeRepos = $refereeRepos;
         $this->serializer = $serializer;
     }
 
@@ -74,6 +87,55 @@ final class Game
         return $response->withStatus(422)->write( $sErrorMessage);
     }
 
+    public function add($request, $response, $args)
+    {
+        $sErrorMessage = null;
+        try {
+            $pouleid = (int) $request->getParam("pouleid");
+            $poule = $this->pouleRepos->find($pouleid);
+            if ( $poule === null ) {
+                throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            /** @var \Voetbal\Game $gameSer */
+            $gameSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Game', 'json');
+
+            if ( $gameSer === null ) {
+                throw new \Exception("er kan geen wedstrijd worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $homePoulePlace = $this->poulePlaceRepos->find($gameSer->getHomePoulePlace()->getId() );
+            if ( $homePoulePlace === null ) {
+                throw new \Exception("er kan thuis-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $awayPoulePlace = $this->poulePlaceRepos->find($gameSer->getAwayPoulePlace()->getId() );
+            if ( $awayPoulePlace === null ) {
+                throw new \Exception("er kan uit-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $game = $this->service->create(
+                $poule,
+                $homePoulePlace, $awayPoulePlace,
+                $gameSer->getRoundNumber(), $gameSer->getSubNumber() );
+
+            $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId() ) : null;
+            $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId() ) : null;
+            $game = $this->service->editResource(
+                $game,
+                $field, $referee,
+                $gameSer->getStartDateTime(), $gameSer->getResourceBatch() );
+
+            return $response
+                ->withStatus(200)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize($game, 'json'));
+        } catch (\Exception $e) {
+            $sErrorMessage = $e->getMessage();
+        }
+        return $response->withStatus(422)->write($sErrorMessage);
+    }
+
     public function edit($request, $response, $args)
     {
         $sErrorMessage = null;
@@ -92,40 +154,26 @@ final class Game
 
             $game->setState( $gameSer->getState() );
             $game->setStartDateTime( $gameSer->getStartDateTime() );
+            $game = $this->repos->save( $game );
 
+            $gameScores = [];
             $gameScoreSer = $gameSer->getScores()->first();
-            if ( $gameScoreSer === null ) {
-                throw new \Exception("de wedstrijd bevat geen scores", E_ERROR);
+            if ( $gameScoreSer !== null ) {
+                $gameScore = new \StdClass();
+                $gameScore->home = $gameScoreSer->getHome();
+                $gameScore->away = $gameScoreSer->getAway();
+                $gameScore->moment = $gameScoreSer->getMoment();
+                $gameScores[] = $gameScore;
             }
-
-            foreach( $game->getScores() as $gameScoreIt ) {
-                $this->scoreRepos->remove( $gameScoreIt );
-            }
-            $game->getScores()->clear();
-
-
-            $gamesScore = new GameScore( $game );
-            $gamesScore->setNumber( $gameScoreSer->getNumber() );
-            $gamesScore->setHome( $gameScoreSer->getHome() );
-            $gamesScore->setAway( $gameScoreSer->getAway() );
-            $gamesScore->setMoment( $gameScoreSer->getMoment() );
-            // $gamesScore->setScoreConfig( $game->getRound()->getInputScoreConfig() );
-
-            // $this->scoreRepos->save( $gameScore );
-            $gameRet = $this->repos->save( $game );
+            $this->service->setScores( $game, $gameScores );
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($gameRet, 'json'));
+                ->write($this->serializer->serialize($game, 'json'));
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
         return $response->withStatus(422)->write($sErrorMessage);
     }
-
-
-
-
-
 }

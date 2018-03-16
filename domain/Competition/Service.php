@@ -13,8 +13,6 @@ use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal\Competition;
 use Voetbal\League;
 use Voetbal\Season;
-use Voetbal\Association;
-
 
 class Service
 {

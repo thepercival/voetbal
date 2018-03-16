@@ -13,11 +13,6 @@
 // ( api via planning action en dan planningservice )
 // alleen de wedstrijden onder de poules moeten kunnen worden opgeslagen
 
-// daarnaast moet ook een enkele game kunnen worden opgeslagen
-
-// als deze drie opslaan actie werken dan kan de backend toegevoegd worden aan de site
-// en kan het genereren van structure en planning uit de php code!!!!
-
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
@@ -97,9 +92,9 @@ final class Structure
         $sErrorMessage = null;
         try {
             /** @var \Voetbal\Round $round */
-            $round = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
+            $roundSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
 
-            if ( $round === null ) {
+            if ( $roundSer === null ) {
                 throw new \Exception("er kan geen ronde worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -109,19 +104,18 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            // @TODO FROMJSON
-            $roundRet = $this->service->createFromJSON( $round, $competition );
+            $round = $this->service->create( $roundSer, $competition );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $roundRet, 'json'));
+                ->write($this->serializer->serialize( $round, 'json'));
             ;
         }
         catch( \Exception $e ){
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(422 )->write( $sErrorMessage );
+        return $response->withStatus( 422 )->write( $sErrorMessage );
     }
 
     public function edit( $request, $response, $args)

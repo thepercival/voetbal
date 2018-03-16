@@ -9,6 +9,7 @@
 namespace Voetbal\League;
 
 use Voetbal\League;
+use Voetbal\Association;
 use Voetbal\League\Repository as LeagueRepository;
 
 class Service
@@ -33,19 +34,21 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-	public function create( League $leagueSer )
+	public function create( string $name, string $sport, Association $association, string $abbreviation = null ): League
 	{
-		$leagueWithSameName = $this->repos->findOneBy( array('name' => $leagueSer->getName() ) );
+		$leagueWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 		if ( $leagueWithSameName !== null ){
-			throw new \Exception("de competitie met de naam ".$leagueSer->getName()." bestaat al", E_ERROR );
+			throw new \Exception("de league met de naam ".$name." bestaat al", E_ERROR );
 		}
-//        if ( strlen($abbreviation) > 0 ){
-//            $leagueWithSameAbbreviation = $this->repos->findOneBy( array('abbreviation' => $abbreviation ) );
-//            if ( $leagueWithSameAbbreviation !== null ){
-//                throw new \Exception("de competitie met de afkorting ".$abbreviation." bestaat al", E_ERROR );
-//            }
-//        }
-        return $this->repos->save($leagueSer);
+        if ( strlen($abbreviation) > 0 ){
+            $leagueWithSameAbbreviation = $this->repos->findOneBy( array('abbreviation' => $abbreviation ) );
+            if ( $leagueWithSameAbbreviation !== null ){
+                throw new \Exception("de league met de afkorting ".$abbreviation." bestaat al", E_ERROR );
+            }
+        }
+        $league = new League( $association, $name );
+        $league->setSport( $sport );
+        return $this->repos->save($league);
 	}
 
     /**

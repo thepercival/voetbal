@@ -29,12 +29,18 @@ class Service
         $this->repos = $repos;
     }
 
-    public function create(Round $round): ScoreConfig {
-        $scoreConfig = $this->createHelper( $round );
+    public function create( Round $round, string $name, int  $direction, int $maximum, ScoreConfig $parent = null): ScoreConfig {
+        if( $parent !== null ) {
+            $parent = $this->create( $round,
+                $parent->getName(), $parent->getDirection(), $parent->getMaximum(),
+                $parent->getParent()
+            );
+        }
+        $scoreConfig = new ScoreConfig( $round, $name, $direction, $maximum, $parent );
         return $this->repos->save($scoreConfig);
     }
 
-    public function createHelper(Round $round): ScoreConfig
+    public function createDefault(Round $round): ScoreConfig
     {
         $sport = $round->getCompetition()->getLeague()->getSport();
 

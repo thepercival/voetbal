@@ -29,14 +29,15 @@ class Service
         $this->repos = $repos;
     }
 
-    public function create( Referee $refereeSer, Competition $competition )
+    public function create( string $initials, string $name, Competition $competition ): Referee
     {
-        $refereeWithSameInitials = $this->repos->findOneBy( array('initials' => $refereeSer->getInitials() ) );
+        $refereeWithSameInitials = $this->repos->findOneBy( array('initials' => $initials ) );
         if ( $refereeWithSameInitials !== null ){
-            throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR );
+            throw new \Exception("de scheidsrechter met de initialen ".$initials." bestaat al", E_ERROR );
         }
-        $refereeSer->setCompetition($competition);
-        return $this->repos->save($refereeSer);
+        $referee = new Referee( $competition, $initials );
+        $referee->setName($name);
+        return $this->repos->save($referee);
     }
 
 //    public function edit( Referee $referee, $name, Period $period )
