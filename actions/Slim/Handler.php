@@ -134,10 +134,19 @@ class Handler
         }
         elseif ( $resourceType === 'fields' ) {
             $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
-            $csRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
+            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
             $action = new Voetbal\Action\Field(
                 $fieldRepos,
-                $csRepos,
+                $competitionRepos,
+                $serializer
+            );
+        }
+        elseif ( $resourceType === 'roundconfigs' ) {
+            $structureService = $voetbalservice->getService(Voetbal\Structure::class);
+            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
+            $action = new Voetbal\Action\Round\Config(
+                $structureService,
+                $competitionRepos,
                 $serializer
             );
         }
