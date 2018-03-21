@@ -132,6 +132,19 @@ class Handler
                 $serializer
             );
         }
+        elseif ( $resourceType === 'planning' ){
+            $repos = $voetbalservice->getRepository(Voetbal\Game::class);
+            $poulePlaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
+            $service = $voetbalservice->getService(Voetbal\Planning::class);
+            $gameService = $voetbalservice->getService(Voetbal\Game::class);
+            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
+            $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
+            $refereeRepos = $voetbalservice->getRepository(Voetbal\Referee::class);
+            $action = new Voetbal\Action\Planning($service, $repos, $gameService,
+                $poulePlaceRepos, $pouleRepos,
+                $fieldRepos, $refereeRepos,
+                $serializer);
+        }
         elseif ( $resourceType === 'fields' ) {
             $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
             $csRepos = $voetbalservice->getRepository(Voetbal\Competition::class);

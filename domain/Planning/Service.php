@@ -15,7 +15,7 @@ use Voetbal\Structure\Service as StructureService;
 use Doctrine\ORM\EntityManager;
 use Doctrine\Common\Collections\Criteria;
 use Voetbal\Round;
-use Voetbal\Game;
+use Voetbal\Poule;
 
 class Service
 {
@@ -252,16 +252,11 @@ class Service
         return null;
     }
 
-    protected function remove( Round $round )
+    public function remove( Poule $poule )
     {
-        foreach( $round->getChildRounds() as $childRound ) {
-            $this->remove( $childRound );
-        }
-        foreach( $round->getPoules() as $poule ) {
-            $games = $poule->getGames();
-            foreach( $games as $game ) {
-                $this->gameService->remove( $game );
-            }
+        $games = $poule->getGames();
+        foreach( $games as $game ) {
+            $this->gameService->remove( $game );
         }
     }
 

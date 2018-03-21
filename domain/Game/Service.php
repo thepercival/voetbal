@@ -115,7 +115,7 @@ class Service
      */
     public function remove( Game $game )
     {
-        // $game->getPoule()->getGames()->removeElement($game);
+        $game->getPoule()->getGames()->removeElement($game);
         return $this->repos->remove($game);
     }
 }

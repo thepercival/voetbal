@@ -258,7 +258,10 @@ class Round
     {
         $scoreConfig = $this->scoreConfigs->first();
         if( $scoreConfig === false ) {
-            return null;
+            $scoreConfig = null;
+        }
+        while( $scoreConfig->getChild() !== null ) {
+            $scoreConfig = $scoreConfig->getChild();
         }
         return $scoreConfig;
     }
