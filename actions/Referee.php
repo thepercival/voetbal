@@ -52,7 +52,7 @@ final class Referee
             $competitionid = (int) $request->getParam("competitionid");
             $competition = $this->csRepos->find($competitionid);
             if ( $competition === null ) {
-                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
+                throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
 
             $referee->setCompetition( $competition );
@@ -79,7 +79,7 @@ final class Referee
             $competitionid = (int) $request->getParam("competitionid");
             $competition = $this->csRepos->find($competitionid);
             if ( $competition === null ) {
-                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
+                throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
 
             // @TODO FROMJSON

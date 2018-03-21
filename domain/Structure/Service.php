@@ -13,6 +13,7 @@ use Voetbal\Competition;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\Round\Config as RoundConfig;
 use Doctrine\DBAL\Connection;
 
 class Service
@@ -121,6 +122,27 @@ class Service
 //            throw new \Exception( 'alleen een structuur zonder parent kan worden verwijderd', E_ERROR );
 //        }
 //        return $this->roundService->remove( $round );
+    }
+
+    public function setConfigs( Competition $competition, int $roundNumber, RoundConfig $configSer )
+    {
+        $rounds = $this->roundRepos->findBy( array(
+            "number" => $roundNumber,
+            "competition" => $competition
+        ));
+        $this->conn->beginTransaction();
+        try {
+            foreach( $rounds as $round ) {
+                $config = $round->getConfig();
+                $config->setOptions( $configSer->getOptions() );
+                $this->repos->save( $config );
+            }
+            $this->conn->commit();
+        }
+        catch( \Exception $e ){
+            $this->conn->rollBack();
+            throw $e;
+        }
     }
 
     public function getFirstRound( Competition $competition )
