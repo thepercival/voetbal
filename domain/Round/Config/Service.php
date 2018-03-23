@@ -33,6 +33,11 @@ class Service
 
     public function create(Round $round, RoundConfigOptions $roundConfigOptions): RoundConfig {
         $roundConfig = new RoundConfig( $round );
+        $roundConfig = $this->repos->save($roundConfig);
+        return $this->update($roundConfig, $roundConfigOptions);
+    }
+
+    public function update(RoundConfig $roundConfig, RoundConfigOptions $roundConfigOptions): RoundConfig {
         $roundConfig->setOptions( $roundConfigOptions );
         return $this->repos->save($roundConfig);
     }

@@ -12,6 +12,7 @@ use Voetbal\Round;
 use Voetbal\Competition;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
+use Voetbal\Round\Config\Repository as RoundConfigRepository;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Round\Config as RoundConfig;
 use Doctrine\DBAL\Connection;
@@ -22,11 +23,14 @@ class Service
      * @var RoundService
      */
     protected $roundService;
-
     /**
      * @var RoundRepository
      */
     protected $roundRepos;
+    /**
+    * @var RoundRepository
+    */
+    protected $roundConfigRepos;
 
     /**
      * @var Connection
@@ -34,10 +38,11 @@ class Service
     protected $conn;
 
 
-    public function __construct(RoundService $roundService, RoundRepository $roundRepos, Connection $conn )
+    public function __construct(RoundService $roundService, RoundRepository $roundRepos, RoundConfigRepository $roundConfigRepos, Connection $conn )
     {
         $this->roundService = $roundService;
         $this->roundRepos = $roundRepos;
+        $this->roundConfigRepos = $roundConfigRepos;
         $this->conn = $conn;
     }
 
@@ -79,22 +84,83 @@ class Service
         return $round;
     }
 
-//    public function createFromJSON( Round $p_round, Competition $competition )
-//    {
-//        $number = $p_round->getNumber();
-//        if ( $number !== 1 ) {
-//            throw new \Exception("het eerste rondenummer moet 1 zijn", E_ERROR);
-//        }
+    public function update( Round $firstRoundSer, Competition $competition )
+    {
+        $roundIds = $this->getNewRoundIds( $firstRoundSer );
+        $firstRound = $this->roundRepos->find($firstRoundSer->getId());
+
+        $this->conn->beginTransaction(); // suspend auto-commit
+        try {
+            $this->removeNonexistingRounds( $firstRound, $roundIds );
+
+            $this->updateHelper( $firstRoundSer, $competition );
+    //            foreach( $firstRound->getPoules() as $poule ) {
+    //                var_dump($poule->getPlaces()->count());
+    //            }
 //
-//        if( count( $this->roundRepository->findBy( array( "competition" => $competition ) ) ) > 0 ) {
-//            throw new \Exception("er bestaat al een structuur", E_ERROR);
-//        };
-//
-//        $round = $this->roundService->createFromJSON( $p_round, $competition );
-//
-//        return $round;
-//    }
-//
+            $this->conn->commit();
+        } catch ( \Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+        return $firstRound;
+    }
+
+    protected function updateHelper( Round $roundSer, Competition $competition, Round $parentRound = null)
+    {
+        $round = null;
+        if( $roundSer->getId() === null ) {
+            $round = $this->roundService->create(
+                $roundSer->getNumber(),
+                $roundSer->getWinnersOrLosers(),
+                $roundSer->getQualifyOrder(),
+                $roundSer->getConfig()->getOptions(),
+                $roundSer->getScoreConfig(),
+                $roundSer->getPoules()->toArray(),
+                $competition, $parentRound
+            );
+        }
+        else {
+            $round = $this->roundRepos->find($roundSer->getId());
+            $qualifyOrder = $roundSer->getQualifyOrder();
+            $configOptionsSer = $roundSer->getConfig()->getOptions();
+            $scoreConfigSer = $roundSer->getScoreConfig();
+            $this->roundService->updateOptions( $round, $qualifyOrder, $configOptionsSer, $scoreConfigSer);
+            $this->roundService->updatePoules( $round, $roundSer->getPoules()->toArray() );
+        }
+        foreach( $roundSer->getChildRounds() as $childRoundSer ) {
+            $this->updateHelper( $childRoundSer, $competition, $round );
+        }
+        return $round;
+    }
+
+    protected function getNewRoundIds( Round $roundSer ): array
+    {
+        $roundIds = [];
+        if( $roundSer->getId() === null ) {
+            return $roundIds;
+        }
+        $roundIds[$roundSer->getId()] = true;
+        foreach( $roundSer->getChildRounds() as $childRoundSer ) {
+            $roundIdsTmp = $this->getNewRoundIds($childRoundSer);
+            foreach( $roundIdsTmp as $roundId => $value ) {
+                $roundIds[$roundId] = true;
+            }
+        }
+        return $roundIds;
+    }
+
+    protected function removeNonexistingRounds( Round $round, array $roundIds )
+    {
+        if( array_key_exists( $round->getId(), $roundIds ) === false ) {
+            $this->roundService->remove($round);
+            return;
+        }
+        foreach( $round->getChildRounds() as $childRound ) {
+            $this->removeNonexistingRounds( $childRound, $roundIds);
+        }
+    }
+
 //    public function editFromJSON( Round $p_round, Competition $competition )
 //    {
 ////        $number = $p_round->getNumber();
@@ -135,7 +201,7 @@ class Service
             foreach( $rounds as $round ) {
                 $config = $round->getConfig();
                 $config->setOptions( $configSer->getOptions() );
-                $this->repos->save( $config );
+                $this->roundConfigRepos->save( $config );
             }
             $this->conn->commit();
         }

@@ -123,9 +123,9 @@ final class Structure
         $sErrorMessage = null;
         try {
             /** @var \Voetbal\Round $round */
-            $round = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
+            $roundSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
 
-            if ( $round === null ) {
+            if ( $roundSer === null ) {
                 throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -136,18 +136,18 @@ final class Structure
             }
 
             // @TODO FROMJSON
-            $roundRet = $this->service->editFromJSON( $round, $competition );
+            $round = $this->service->update( $roundSer, $competition );
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $roundRet, 'json'));
+                ->write($this->serializer->serialize( $round, 'json'));
             ;
         }
         catch( \Exception $e ){
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(422, $sErrorMessage )->write( $sErrorMessage );
+        return $response->withStatus(422 )->write( $sErrorMessage );
     }
 
     public function remove( $request, $response, $args)

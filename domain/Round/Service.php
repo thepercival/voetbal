@@ -10,9 +10,11 @@ namespace Voetbal\Round;
 
 use Voetbal\Round;
 use Voetbal\Round\Repository as RoundRepository;
+use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Competition;
 use Doctrine\DBAL\Connection;
 use Voetbal\Poule;
+use Voetbal\PoulePlace;
 use Voetbal\Round\Structure as RoundStructure;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Round\Config\Options as ConfigOptions;
@@ -24,31 +26,34 @@ class Service
      * @var RoundRepository
      */
     protected $repos;
-
     /**
      * @var Config\Service
      */
     protected $roundConfigService;
-
     /**
      * @var ScoreConfig\Servic
      */
     protected $roundScoreConfigService;
-
     /**
      * @var Competition\Repository
      */
     protected $competitionRepos;
-
-    /**
-     * @var Connection
-     */
-    protected $conn;
-
     /**
      * @var Poule\Service
      */
     protected $pouleService;
+    /**
+     * @var PouleRepository
+     */
+    protected $pouleRepos;
+    /**
+     * @var PoulePlace\Service
+     */
+    protected $poulePlaceService;
+    /**
+     * @var Connection
+     */
+    protected $conn;
 
     /**
      * Service constructor.
@@ -56,16 +61,19 @@ class Service
      * @param Config\Service $configService
      * @param ScoreConfig\Service $scoreConfigService
      * @param Competition\Repository $competitionRepos
-     * @param Connection $conn
      * @param Poule\Service $pouleService
+     * @param PouleRepository $pouleRepos
+     * @param Connection $conn
      */
     public function __construct(
         RoundRepository $repos,
         Config\Service $configService,
         ScoreConfig\Service $scoreConfigService,
         Competition\Repository $competitionRepos,
-        Connection $conn,
-        Poule\Service $pouleService
+        Poule\Service $pouleService,
+        PouleRepository $pouleRepos,
+        PoulePlace\Service $poulePlaceService,
+        Connection $conn
     )
     {
         $this->repos = $repos;
@@ -73,6 +81,8 @@ class Service
         $this->scoreConfigService = $scoreConfigService;
         $this->competitionRepos = $competitionRepos;
         $this->pouleService = $pouleService;
+        $this->pouleRepos = $pouleRepos;
+        $this->poulePlaceService = $poulePlaceService;
         $this->conn = $conn;
     }
 
@@ -176,7 +186,7 @@ class Service
         int $qualifyOrder,
         ConfigOptions $configOptions,
         ScoreConfig $scoreConfigSer,
-        array $poules,
+        array $poulesSer,
         Competition $competition,
         Round $p_parent = null ): Round
     {
@@ -187,7 +197,7 @@ class Service
             if ( $number < 1 ) {
                 throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
             }
-            if ( $poules <= 0) {
+            if ( count($poulesSer) <= 0) {
                 throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
             }
 
@@ -196,10 +206,7 @@ class Service
             $round->setQualifyOrder( $qualifyOrder );
             $round = $this->repos->save($round);
 
-            $pouleNumber = 1;
-            foreach( $poules as $poule ) {
-                $this->pouleService->create( $round, $pouleNumber++, $poule->getPlaces() );
-            }
+            $this->updatePoules( $round, $poulesSer );
 
             $this->configService->create($round, $configOptions);
 
@@ -216,72 +223,115 @@ class Service
 
         return $round;
     }
-//
-//
-//    public function editFromJSON( Round $p_round, Competition $competition, Round $p_parent = null )
-//    {
-//        $number = $p_round->getNumber();
-////        if ( !is_int($number) or $number < 1 ) {
-////            throw new \Exception("een rondenummer moet minimaal 1 zijn", E_ERROR);
-////        }
-//        $nrOfPoulePlaces = $p_round->getPoulePlaces()->count();
-//        if ( $nrOfPoulePlaces < 1 or ( $nrOfPoulePlaces === 1 and $number === 1 ) ) {
-//            throw new \Exception("er zijn te weinig plaatsen voor ronde " . $number, E_ERROR);
-//        }
-//
-//
-//        $round = null;
-//        $this->em->getConnection()->beginTransaction(); // suspend auto-commit
-//
-//        try {
-//            $realRound = $this->repos->find( $p_round->getId() );
-//
-//            if ( $realRound === null ){
-//                throw new \Exception("de ronde(".$p_round->getId().") kon niet gevonden  worden", E_ERROR );
-//            }
-//            $this->remove($realRound);
-//
-//            $round = $this->repos->saveFromJSON( $p_round, $competition, $p_parent );
-//            //var_dump( $p_round->getCompetition()->getId() );
-//            // $round = $this->em->merge( $p_round );
-//            // $round = $this->repos->save( $round );
-//            $this->em->getConnection()->commit();
-//        } catch ( \Exception $e) {
-//            $this->em->getConnection()->rollBack();
-//            throw $e;
-//        }
-//
-//        return ( $round );
-//    }
+
+    public function updateOptions( Round $round, int $qualifyOrder,
+        ConfigOptions $configOptions, ScoreConfig $scoreConfigSer
+        )
+    {
+        $round->setQualifyOrder( $qualifyOrder );
+        $round = $this->repos->save($round);
+
+        $this->configService->update($round->getConfig(), $configOptions);
+
+//        $this->scoreConfigService->create( $round,
+//            $scoreConfigSer->getName(), $scoreConfigSer->getDirection(), $scoreConfigSer->getMaximum(),
+//            $scoreConfigSer->getParent()
+//        );
+    }
+
+    public function updatePoules( Round $round, array $poulesSer ) {
+
+        $pouleIds = $this->getNewPouleIds( $poulesSer );
+        $poulePlacesSer = $this->getPlacesFromPoules( $poulesSer );
+        $placeIds = $this->getNewPlaceIds( $poulePlacesSer );
+
+        $this->conn->beginTransaction(); // suspend auto-commit
+        try {
+            $this->removeNonexistingPoules( $round->getPoules()->toArray(), $pouleIds );
+            $this->removeNonexistingPlaces( $round->getPoulePlaces()->toArray(), $placeIds );
+            foreach( $poulesSer as $pouleSer ) {
+                $this->updatePoulesHelper( $pouleSer, $round );
+            }
+
+            $this->pouleService->updateStructure( $poulesSer, $round);
+
+            $this->conn->commit();
+        } catch ( \Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+    }
+
+    protected function getNewPouleIds( array $poulesSer )
+    {
+        $pouleIds = [];
+        foreach( $poulesSer as $pouleSer ) {
+            $pouleIds[$pouleSer->getId()] = true;
+        }
+        return $pouleIds;
+    }
+
+    protected function removeNonexistingPoules( array $poules, array $pouleIds )
+    {
+        foreach( $poules as $poule ) {
+            if( array_key_exists( $poule->getId(), $pouleIds ) === false ) {
+                // var_dump("poule with id ".$poule->getId()." removed " );
+                $this->pouleService->remove($poule);
+            }
+        }
+    }
+
+    protected function getNewPlaceIds( array $placesSer )
+    {
+        $placeIds = [];
+        foreach( $placesSer as $placeSer ) {
+            $placeIds[$placeSer->getId()] = true;
+        }
+        return $placeIds;
+    }
+
+    protected function getPlacesFromPoules( array $poules )
+    {
+        $places = [];
+        foreach( $poules as $poule ) {
+            foreach( $poule->getPlaces() as $place ) {
+                $places[] = $place;
+            }
+        }
+        return $places;
+    }
 
 
-//    /**
-//     * @param Team $team
-//     * @param $name
-//     * @param Association $association
-//     * @param null $abbreviation
-//     * @return mixed
-//     * @throws \Exception
-//     */
-//    public function edit( Team $team, $name, Association $association, $abbreviation = null )
-//    {
-//        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-//        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
-//            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
-//        }
-//
-//        $team->setName($name);
-//        $team->setAbbreviation($abbreviation);
-//        $team->setAssociation($association);
-//
-//        return $this->repos->save($team);
-//    }
-//
+    protected function removeNonexistingPlaces( array $places, array $placeIds )
+    {
+        foreach( $places as $place ) {
+            if( array_key_exists( $place->getId(), $placeIds ) === false ) {
+                $this->poulePlaceService->remove($place);
+                // var_dump("pouleplace with id ".$place->getId()." removed " );
+            }
+        }
+    }
+
+    protected function updatePoulesHelper( Poule $pouleSer, Round $round): Poule
+    {
+        $poule = null;
+        if( $pouleSer->getId() === null ) {
+            $poule = $this->pouleService->create( $round, $pouleSer->getNumber() );
+        }
+        else {
+            $poule = $this->pouleRepos->find($pouleSer->getId());
+        }
+        return $poule;
+    }
+
     /**
      * @param Round $round
      */
     public function remove( Round $round )
     {
+        if( $round->getParent() !== null ) {
+            $round->getParent()->getChildRounds()->removeElement($round);
+        }
         return $this->repos->remove($round);
     }
 
@@ -333,133 +383,4 @@ class Service
         }
         return $roundStructure;
     }
-
-//    public function handle( Voetbal_Command_RemoveAddCSStructure $command )
-//    {
-//        $oRoundDbWriter = Voetbal_Round_Factory::createDbWriter();
-//        $oPouleDbWriter = Voetbal_Poule_Factory::createDbWriter();
-//        $oPoulePlaceDbWriter = Voetbal_PoulePlace_Factory::createDbWriter();
-//        $oQualifyRuleDbWriter = Voetbal_QualifyRule_Factory::createDbWriter();
-//        $oPPQualifyRuleDbWriter = Voetbal_QualifyRule_PoulePlace_Factory::createDbWriter();
-//
-//        $oRounds = $command->getCompetition()->getRounds();
-//        $arrTeamsOldFirstRound = null;
-//        if ($command->getCompetition()->getAssociation() === null and $oRounds->first() !== null) {
-//            $arrTeamsOldFirstRound = $oRounds->first()->getTeamsByPlace();
-//        }
-//
-//        $oRounds->addObserver($oRoundDbWriter);
-//        $oRounds->flush(); // cascade delete
-//
-//        $oPoules = Voetbal_Poule_Factory::createObjects();
-//        $oPoules->addObserver($oPouleDbWriter);
-//
-//        $oPoulePlaces = Voetbal_PoulePlace_Factory::createObjects();
-//        $oPoulePlaces->addObserver($oPoulePlaceDbWriter);
-//
-//        $oQualifyRules = Voetbal_QualifyRule_Factory::createObjects();
-//        $oQualifyRules->addObserver($oQualifyRuleDbWriter);
-//
-//        $oPPQualifyRules = Voetbal_QualifyRule_PoulePlace_Factory::createObjects();
-//        $oPPQualifyRules->addObserver($oPPQualifyRuleDbWriter);
-//
-//        $nIdIt = 0;
-//        // var_dump( $arrCompetition );
-//        $oPreviousRound = null;
-//        $arrStructure = $command->getCSStructure();
-//        $arrRounds = $arrStructure["rounds"];
-//        foreach ($arrRounds as $arrRound) {
-//            $oRound = Voetbal_Round_Factory::createObject();
-//            $sId = array_key_exists('$$hashKey', $arrRound) ? $arrRound['$$hashKey'] : "__NEW__" . $nIdIt++;
-//            $oRound->putId($sId);
-//            $oRound->putCompetition($command->getCompetition());
-//            // $oRound->putName( "tmp".$arrRound['$$hashKey'] );
-//            $oRound->putNumber($arrRound["number"]);
-//            $oRound->putSemiLeague($arrRound["semileague"]);
-//            $oRounds->add($oRound);
-//
-//            $arrPoules = $arrRound["poules"];
-//            foreach ($arrPoules as $arrPoule) {
-//                // $sHashKey = "WINNER"  // $arrRound["type"]
-//                $sId = array_key_exists('$$hashKey', $arrPoule) ? $arrPoule['$$hashKey'] : "__NEW__" . $nIdIt++;
-//                $oPoule = Voetbal_Poule_Factory::createObject();
-//                $oPoule->putId($sId);
-//                $oPoule->putNumber($arrPoule["number"]);
-//                $oPoule->putRound($oRound);
-//                // $oPoule->putName();
-//                $oPoules->add($oPoule);
-//
-//                // Kopieer pouleplaces
-//                $arrPoulePlaces = $arrPoule["places"];
-//                foreach ($arrPoulePlaces as $arrPoulePlace) {
-//                    $sId = array_key_exists('$$hashKey', $arrPoulePlace) ? $arrPoulePlace['$$hashKey'] : "__NEW__" . (array_key_exists('id', $arrPoulePlace) ? $arrPoulePlace['id'] : $nIdIt++);
-//                    $oPoulePlace = Voetbal_PoulePlace_Factory::createObject();
-//                    $oPoulePlace->putId($sId);
-//                    $oPoulePlace->putPoule($oPoule);
-//                    $oPoulePlace->putNumber($arrPoulePlace["number"]);
-//                    $oPoulePlace->putPenaltyPoints(0);
-//                    $oPoulePlaces->add($oPoulePlace);
-//                }
-//            }
-//
-//            // Kopieer qualifyrules
-//            if (array_key_exists("fromqualifyrules", $arrRound)) {
-//                $arrQualifyRules = $arrRound["fromqualifyrules"];
-//                foreach ($arrQualifyRules as $arrQualifyRule) {
-//                    $oQualifyRule = Voetbal_QualifyRule_Factory::createObject();
-//                    $oQualifyRule->putId($oPreviousRound->getId() . $oRound->getId() . $oQualifyRules->count());
-//                    $oQualifyRule->putFromRound($oPreviousRound);
-//                    $oQualifyRule->putToRound($oRound);
-//                    $oQualifyRule->putConfigNr($arrQualifyRule["confignr"]);
-//                    $oQualifyRules->add($oQualifyRule);
-//
-//                    for ($nI = 0; $nI < count($arrQualifyRule["frompouleplaces"]); $nI++) {
-//                        $arrFromPoulePlace = $arrQualifyRule["frompouleplaces"][$nI];
-//                        $sFromPoulePlaceHashKey = $arrFromPoulePlace['$$hashKey'];
-//                        $oFromPoulePlace = $oPoulePlaces[$sFromPoulePlaceHashKey];
-//                        // var_dump( 'sFromPoulePlaceHashKey:' . $sFromPoulePlaceHashKey );
-//                        if ($oFromPoulePlace === null) {
-//                            $oFromPoulePlace = $oPoulePlaces["__NEW__" . $sFromPoulePlaceHashKey];
-//                        }
-//                        if ($oFromPoulePlace === null) {
-//                            throw new Exception("kan from-pouleplace(" . $sFromPoulePlaceHashKey . ") niet vinden", E_ERROR);
-//                        }
-//
-//                        $oToPoulePlace = null;
-//                        if (array_key_exists($nI, $arrQualifyRule["topouleplaces"])) {
-//                            $arrToPoulePlace = $arrQualifyRule["topouleplaces"][$nI];
-//                            $sToPoulePlaceHashKey = $arrToPoulePlace['$$hashKey'];
-//                            $oToPoulePlace = $oPoulePlaces[$sToPoulePlaceHashKey];
-//                            // var_dump( 'sToPoulePlaceHashKey:' . $sToPoulePlaceHashKey );
-//                        }
-//                        // if ($oToPoulePlace === null) {
-//                        // $oToPoulePlace = $oPoulePlaces["__NEW__" . $sToPoulePlaceHashKey];
-//                        //}
-//                        // $oToPoulePlace can be null
-//
-//                        $oPPQualifyRule = Voetbal_QualifyRule_PoulePlace_Factory::createObject();
-//                        $oPPQualifyRule->putId($oPoulePlace->getId() . "-" . $oFromPoulePlace->getId());
-//                        $oPPQualifyRule->putFromPoulePlace($oFromPoulePlace);
-//                        $oPPQualifyRule->putToPoulePlace($oToPoulePlace);
-//                        $oPPQualifyRule->putQualifyRule($oQualifyRule);
-//                        $oPPQualifyRules->add($oPPQualifyRule);
-//                    }
-//                }
-//            }
-//
-//            $oPreviousRound = $oRound;
-//        }
-//
-//        $oRoundDbWriter->write();
-//        $oPouleDbWriter->write();
-//        $oPoulePlaceDbWriter->write();
-//        $oQualifyRuleDbWriter->write();
-//        $oPPQualifyRuleDbWriter->write();
-//
-//        // check config-item if teams should be created here, (only for fctoernooi )
-//        if (false /* and check config-item */ and $arrTeamsOldFirstRound !== null) {
-//            $supplementTeamsCommand = new Voetbal_Command_SupplementTeams($oRounds->first(), $arrTeamsOldFirstRound);
-//            //  $command->getBus()->handle($supplementTeamsCommand);
-//        }
-//    }
 }

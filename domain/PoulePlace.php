@@ -64,7 +64,7 @@ class PoulePlace
     /**
      * @return Poule
      */
-    public function getPoule()
+    public function getPoule(): Poule
     {
         return $this->poule;
     }
@@ -74,10 +74,21 @@ class PoulePlace
      */
     public function setPoule( Poule $poule )
     {
-        if ( $this->poule === null and $poule !== null and !$poule->getPlaces()->contains( $this ) ){
+        if ( $this->poule !== null && $this->poule->getPlaces()->contains( $this ) ){
+            $this->poule->getPlaces()->removeElement($this) ;
+        }
+        if ( $poule !== null && !$poule->getPlaces()->contains( $this ) ){
             $poule->getPlaces()->add($this) ;
         }
         $this->poule = $poule;
+    }
+
+    /**
+     * @return Round
+     */
+    public function getRound(): Round
+    {
+        return $this->getPoule()->getRound();
     }
 
     /**

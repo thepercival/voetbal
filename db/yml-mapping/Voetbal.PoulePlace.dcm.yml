@@ -33,6 +33,6 @@ Voetbal\PoulePlace:
         name: teamid
         referencedColumnName: id
         nullable: true
-  uniqueConstraints:
-    number_u_idx:
-      columns: [ pouleid, number ]
+#  uniqueConstraints:
+#    number_u_idx:
+#      columns: [ pouleid, number ]

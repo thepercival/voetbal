@@ -324,6 +324,20 @@ class Round
     }
 
     /**
+     * @param int $number
+     * @return Poule
+     */
+    public function getPoule( int $number ): Poule
+    {
+        foreach( $this->getPoules() as $poule ) {
+            if ($poule->getNumber() === $number) {
+                return $poule;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return Round
      */
     public function getParent()

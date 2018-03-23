@@ -76,19 +76,20 @@ class Service
             return new Structure\Service(
                 $this->getService(Round::class),
                 $this->getRepository(Round::class),
+                $this->getRepository(Round\Config::class),
                 $this->getEntityManager()->getConnection()
             );
         }
         elseif ( $classname === Round::class ){
-            $competitionRepos = $this->getRepository(Competition::class);
-            $pouleService = $this->getService(Poule::class);
             return new Round\Service(
                 $repos,
                 $this->getService( Round\Config::class ),
                 $this->getService( Round\ScoreConfig::class ),
-                $competitionRepos,
-                $this->getEntityManager()->getConnection(),
-                $pouleService
+                $this->getRepository(Competition::class),
+                $this->getService(Poule::class),
+                $this->getRepository(Poule::class),
+                $this->getService(PoulePlace::class),
+                $this->getEntityManager()->getConnection()
             );
         }
         elseif ( $classname === Round\Config::class ){
@@ -101,8 +102,10 @@ class Service
             return new Poule\Service(
                 $repos,
                 $this->getService(PoulePlace::class),
+                $this->getRepository(PoulePlace::class),
                 $this->getService(Team::class),
-                $this->getEntityManager()
+                $this->getRepository(Team::class),
+                $this->getEntityManager()->getConnection()
             );
         }
         elseif ( $classname === PoulePlace::class ){
@@ -129,38 +132,5 @@ class Service
     public function getEntityManager()
     {
         return $this->entitymanager;
-    }
-
-    public static function getDefaultRoundConfig( Round $round ) {
-        $sportName = $round->getCompetition()->getSport();
-        $roundConfig = new Round\Config( $round );
-        if ( $sportName === 'voetbal' ) {
-            $roundConfig->setEnableTime( true );
-            $roundConfig->setMinutesPerGame( 20 );
-            $roundConfig->setHasExtension( !$round->needsRanking() );
-            $roundConfig->setMinutesPerGameExt( 5 );
-            $roundConfig->setMinutesInBetween( 5 );
-        }
-        return $roundConfig;
-    }
-
-    public static function getDefaultRoundScoreConfig( Round $round ) {
-        $sportName = $round->getCompetition()->getSport();
-        if ( $sportName === 'darten' ) {
-            return new Round\ScoreConfig( $round, 'punten', Round\ScoreConfig::DOWNWARDS, 501,
-                new Round\ScoreConfig( $round, 'legs', Round\ScoreConfig::UPWARDS, 2,
-                    new Round\ScoreConfig( $round, 'sets', Round\ScoreConfig::UPWARDS, 0)
-                )
-            );
-        }
-        else if ( $sportName === 'tafeltennis' ) {
-            return new Round\ScoreConfig( $round, 'punten', Round\ScoreConfig::UPWARDS, 21,
-                new Round\ScoreConfig( $round, 'sets', Round\ScoreConfig::UPWARDS, 0)
-            );
-        }
-        else if ( $sportName === 'voetbal' ) {
-            return new Round\ScoreConfig( $round, 'goals', Round\ScoreConfig::UPWARDS, 0 );
-        }
-        return new Round\ScoreConfig( $round, "punten", Round\ScoreConfig::UPWARDS, 0 );
     }
 }
