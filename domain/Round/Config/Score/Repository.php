@@ -6,14 +6,12 @@
  * Time: 20:28
  */
 
-namespace Voetbal\Round\ScoreConfig;
+namespace Voetbal\Round\Config\Score;
 
-use Voetbal\Round\ScoreConfig;
-use Voetbal\Round;
 
 /**
  * Class Repository
- * @package Voetbal\Round\ScoreConfig
+ * @package Voetbal\Round\Config\Score
  */
 class Repository extends \Voetbal\Repository
 {

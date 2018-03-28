@@ -11,6 +11,7 @@ namespace Voetbal\Round;
 use Voetbal\Round;
 use Voetbal\Round\Config\Options as RoundConfigOptions;
 use Voetbal\Round\Config\OptionsTrait;
+use \Doctrine\Common\Collections\ArrayCollection;
 
 class Config
 {
@@ -24,11 +25,16 @@ class Config
      * @var Round
      */
     protected $round;
+    /**
+     * @var Score[] | ArrayCollection
+     */
+    protected $scores;
 
     public function __construct( Round $round )
     {
         $this->setRound($round);
         $this->setDefaults();
+        $this->scores = new ArrayCollection();
     }
 
     /**
@@ -66,6 +72,74 @@ class Config
         $this->round = $round;
     }
 
+    /**
+     * @return Config\Score[] | ArrayCollection
+     */
+    public function getScores()
+    {
+        if( $this->scores === null ) {
+            $this->scores = new ArrayCollection();
+        }
+        return $this->scores;
+    }
+
+    /**
+     * @return Config\Score
+     */
+    public function getScore()
+    {
+        $score= $this->scores->first();
+        if( $score === false ) {
+            return null;
+        }
+        while( $score->getChild() !== null ) {
+            $score = $score->getChild();
+        }
+        return $score;
+    }
+
+    /**
+     * @param Config\Score $score
+     */
+    public function setScore( Config\Score $score )
+    {
+        $this->getScores()->clear();
+        $this->getScores()->add( $score );
+        while( $score->getParent() !== null ) {
+            $this->getScores()->add( $score->getParent() );
+            $score = $score->getParent();
+        }
+    }
+
+    /**
+     * @return Config\Score
+     */
+    public function getInputScore()
+    {
+        $score = $this->getRootScore();
+        while ($score->getChild()) {
+            if ($score->getMaximum() !== 0) {
+                break;
+            }
+            $score = $score->getChild();
+        }
+        return $score;
+    }
+
+    /**
+     * @return Config\Score
+     */
+    public function getRootScore()
+    {
+        foreach( $this->getScores() as $score) {
+            if ($score->getParent() === null) {
+                return $score;
+            }
+        }
+        return null;
+    }
+
+
     public function getOptions(): RoundConfigOptions
     {
         $configOptions = new RoundConfigOptions();
@@ -80,6 +154,7 @@ class Config
         $configOptions->setEnableTime($this->getEnableTime());
         $configOptions->setMinutesPerGame($this->getMinutesPerGame());
         $configOptions->setMinutesInBetween($this->getMinutesInBetween());
+        $configOptions->setScore($this->getScore()->getOptions());
         return $configOptions;
     }
 
@@ -96,5 +171,16 @@ class Config
         $this->setEnableTime($configOptions->getEnableTime());
         $this->setMinutesPerGame($configOptions->getMinutesPerGame());
         $this->setMinutesInBetween($configOptions->getMinutesInBetween());
+        $this->setScoreOptions( $this->getScore(), $configOptions->getScore() );
+    }
+
+    protected function setScoreOptions(Config\Score $score, Config\Score\Options $scoreOptions)
+    {
+        $score->setName($scoreOptions->getName());
+        $score->setDirection($scoreOptions->getDirection());
+        $score->setMaximum($scoreOptions->getMaximum());
+        if( $score->getParent() !== null && $scoreOptions->getParent() !== null ) {
+            $this->setScoreOptions($score->getParent(), $scoreOptions->getParent());
+        }
     }
 }

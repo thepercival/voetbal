@@ -35,10 +35,6 @@ Voetbal\Round:
       targetEntity: Voetbal\Poule
       mappedBy: round
       cascade: [ remove ]
-    scoreConfigs:
-        targetEntity: Voetbal\Round\ScoreConfig
-        mappedBy: round
-        cascade: [ remove ]
     childRounds:
       targetEntity: Voetbal\Round
       mappedBy: parent

@@ -9,7 +9,6 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Round\ScoreConfig;
 
 class Round
 {
@@ -44,12 +43,12 @@ class Round
     protected $config;
 
     /**
-     * @var Round\ScoreConfig
+     * @var Round\Score
      */
     protected $scoreConfig;
 
     /**
-     * @var Round\ScoreConfig[] | ArrayCollection
+     * @var Round\Score[] | ArrayCollection
      */
     protected $scoreConfigs;
 
@@ -241,7 +240,7 @@ class Round
     }
 
     /**
-     * @return Round\ScoreConfig[] | ArrayCollection
+     * @return Round\Score[] | ArrayCollection
      */
     public function getScoreConfigs()
     {
@@ -249,62 +248,6 @@ class Round
             $this->scoreConfigs = new ArrayCollection();
         }
         return $this->scoreConfigs;
-    }
-
-    /**
-     * @return Round\ScoreConfig
-     */
-    public function getScoreConfig()
-    {
-        $scoreConfig = $this->scoreConfigs->first();
-        if( $scoreConfig === false ) {
-            $scoreConfig = null;
-        }
-        while( $scoreConfig->getChild() !== null ) {
-            $scoreConfig = $scoreConfig->getChild();
-        }
-        return $scoreConfig;
-    }
-
-    /**
-     * @param ScoreConfig $scoreConfig
-     */
-    public function setScoreConfig( ScoreConfig $scoreConfig )
-    {
-        $this->getScoreConfigs()->clear();
-        $this->getScoreConfigs()->add( $scoreConfig );
-        while( $scoreConfig->getParent() !== null ) {
-            $this->getScoreConfigs()->add( $scoreConfig->getParent() );
-            $scoreConfig = $scoreConfig->getParent();
-        }
-    }
-
-    /**
-     * @return Round\ScoreConfig
-     */
-    public function getInputScoreConfig()
-    {
-        $scoreConfig = $this->getRootScoreConfig();
-        while ($scoreConfig->getChild()) {
-            if ($scoreConfig->getMaximum() !== 0) {
-                break;
-            }
-            $scoreConfig = $scoreConfig->getChild();
-        }
-        return $scoreConfig;
-    }
-
-    /**
-     * @return Round\ScoreConfig
-     */
-    public function getRootScoreConfig()
-    {
-        foreach( $this->getScoreConfigs() as $scoreConfig ) {
-            if ($scoreConfig->getParent() === null) {
-                return $scoreConfig;
-            }
-        }
-        return null;
     }
 
     /**

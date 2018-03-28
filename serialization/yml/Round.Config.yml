@@ -39,3 +39,5 @@ Voetbal\Round\Config:
     minutesInBetween:
       type: integer
       serialized_name: minutesInBetween
+    score:
+      type: Voetbal\Round\Config\Score

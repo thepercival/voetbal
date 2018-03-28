@@ -53,6 +53,11 @@ Voetbal\Round\Config:
       type: smallint
       nullable: true
       unique: false
+  oneToMany:
+    scores:
+      targetEntity: Voetbal\Round\Config\Score
+      mappedBy: config
+      cascade: [ remove ]
   oneToOne:
     round:
       targetEntity: Voetbal\Round

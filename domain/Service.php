@@ -13,19 +13,6 @@ use Doctrine\ORM\EntityManager;
 class Service
 {
     /**
-     * @var []
-     */
-    protected static $sportConfigs;
-    /**
-     * @var Round\Config
-     */
-    protected static $defaultRoundConfig;
-    /**
-     * @var Round\ScoreConfig
-     */
-    protected static $defaultRoundScoreConfig;
-
-    /**
      * @var
      */
     protected $entitymanager;
@@ -76,7 +63,7 @@ class Service
             return new Structure\Service(
                 $this->getService(Round::class),
                 $this->getRepository(Round::class),
-                $this->getRepository(Round\Config::class),
+                $this->getService(Round\Config::class),
                 $this->getEntityManager()->getConnection()
             );
         }
@@ -84,7 +71,6 @@ class Service
             return new Round\Service(
                 $repos,
                 $this->getService( Round\Config::class ),
-                $this->getService( Round\ScoreConfig::class ),
                 $this->getRepository(Competition::class),
                 $this->getService(Poule::class),
                 $this->getRepository(Poule::class),
@@ -93,10 +79,9 @@ class Service
             );
         }
         elseif ( $classname === Round\Config::class ){
-            return new Round\Config\Service($repos);
-        }
-        elseif ( $classname === Round\ScoreConfig::class ){
-            return new Round\ScoreConfig\Service($repos);
+            return new Round\Config\Service(
+                $repos, $this->getRepository(Round\Config\Score::class)
+            );
         }
         elseif ( $classname === Poule::class ){
             return new Poule\Service(

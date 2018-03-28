@@ -12,7 +12,7 @@ use Voetbal\Round;
 use Voetbal\Competition;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
-use Voetbal\Round\Config\Repository as RoundConfigRepository;
+use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Round\Config as RoundConfig;
 use Doctrine\DBAL\Connection;
@@ -28,9 +28,9 @@ class Service
      */
     protected $roundRepos;
     /**
-    * @var RoundRepository
+    * @var RoundConfigService
     */
-    protected $roundConfigRepos;
+    protected $roundConfigService;
 
     /**
      * @var Connection
@@ -38,11 +38,11 @@ class Service
     protected $conn;
 
 
-    public function __construct(RoundService $roundService, RoundRepository $roundRepos, RoundConfigRepository $roundConfigRepos, Connection $conn )
+    public function __construct(RoundService $roundService, RoundRepository $roundRepos, RoundConfigService $roundConfigService, Connection $conn )
     {
         $this->roundService = $roundService;
         $this->roundRepos = $roundRepos;
-        $this->roundConfigRepos = $roundConfigRepos;
+        $this->roundConfigService = $roundConfigService;
         $this->conn = $conn;
     }
 
@@ -67,7 +67,6 @@ class Service
                 $roundSer->getWinnersOrLosers(),
                 $roundSer->getQualifyOrder(),
                 $roundSer->getConfig()->getOptions(),
-                $roundSer->getScoreConfig(),
                 $roundSer->getPoules()->toArray(),
                 $competition, $parentRound
             );
@@ -124,8 +123,7 @@ class Service
             $round = $this->roundRepos->find($roundSer->getId());
             $qualifyOrder = $roundSer->getQualifyOrder();
             $configOptionsSer = $roundSer->getConfig()->getOptions();
-            $scoreConfigSer = $roundSer->getScoreConfig();
-            $this->roundService->updateOptions( $round, $qualifyOrder, $configOptionsSer, $scoreConfigSer);
+            $this->roundService->updateOptions( $round, $qualifyOrder, $configOptionsSer);
             $this->roundService->updatePoules( $round, $roundSer->getPoules()->toArray() );
         }
         foreach( $roundSer->getChildRounds() as $childRoundSer ) {
@@ -196,12 +194,17 @@ class Service
             "number" => $roundNumber,
             "competition" => $competition
         ));
+        if( count( $rounds ) === 0 ) {
+            return;
+        }
         $this->conn->beginTransaction();
         try {
             foreach( $rounds as $round ) {
                 $config = $round->getConfig();
-                $config->setOptions( $configSer->getOptions() );
-                $this->roundConfigRepos->save( $config );
+                // $config->setOptions( $configSer->getOptions() );
+                // $this->roundConfigRepos->save( $config );
+                $this->roundConfigService->update($config, $configSer->getOptions());
+                $this->setConfigs( $competition, $roundNumber + 1, $configSer );
             }
             $this->conn->commit();
         }

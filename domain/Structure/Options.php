@@ -10,7 +10,6 @@ namespace Voetbal\Structure;
 
 use Voetbal\Round\Structure as RoundStructure;
 use Voetbal\Round\Config\Options as RoundConfigOptions;
-use Voetbal\Round\ScoreConfig\Options as RoundScoreConfigOptions;
 
 class Options
 {
@@ -22,15 +21,10 @@ class Options
      * @var RoundConfigOptions;
      */
     public $roundConfig;
-    /**
-     * @var RoundScoreConfigOptions;
-     */
-    public $roundScoreConfig;
 
     public function __construct(
         RoundStructure $round,
-        RoundConfigOptions $roundConfigOptions = null,
-        RoundScoreConfigOptions $roundScoreConfigOptions = null
+        RoundConfigOptions $roundConfigOptions = null
     )
     {
         $this->round = $round;
@@ -38,9 +32,5 @@ class Options
             $roundConfigOptions = new RoundConfigOptions();
         }
         $this->roundConfig = $roundConfigOptions;
-        if( $roundScoreConfigOptions === null) {
-            $roundScoreConfigOptions = new RoundScoreConfigOptions();
-        }
-        $this->roundScoreConfigOptions = $roundScoreConfigOptions;
     }
 }

@@ -67,6 +67,11 @@ trait OptionsTrait
     protected $minutesInBetween;
 
     /**
+     * @var Score\Options
+     */
+    protected $score;
+
+    /**
      * @return int
      */
     public function getQualifyRule()
@@ -274,6 +279,22 @@ trait OptionsTrait
             throw new \InvalidArgumentException("het aantal-minuten-tussendoor heeft een onjuiste waarde", E_ERROR);
         }
         $this->minutesInBetween = $minutesInBetween;
+    }
+
+    /**
+     * @return Score\Options
+     */
+    public function getScore()
+    {
+        return $this->score;
+    }
+
+    /**
+     * @param Score\Options $score
+     */
+    public function setScore( Score\Options $score)
+    {
+        $this->score = $score;
     }
 
     public function getMaximalNrOfMinutesPerGame(bool $withMinutesInBetween = false): int

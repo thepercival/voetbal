@@ -18,7 +18,6 @@ use Voetbal\PoulePlace;
 use Voetbal\Round\Structure as RoundStructure;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Round\Config\Options as ConfigOptions;
-use Voetbal\Round\ScoreConfig as ScoreConfig;
 
 class Service
 {
@@ -30,10 +29,6 @@ class Service
      * @var Config\Service
      */
     protected $roundConfigService;
-    /**
-     * @var ScoreConfig\Servic
-     */
-    protected $roundScoreConfigService;
     /**
      * @var Competition\Repository
      */
@@ -59,7 +54,6 @@ class Service
      * Service constructor.
      * @param Repository $repos
      * @param Config\Service $configService
-     * @param ScoreConfig\Service $scoreConfigService
      * @param Competition\Repository $competitionRepos
      * @param Poule\Service $pouleService
      * @param PouleRepository $pouleRepos
@@ -68,7 +62,6 @@ class Service
     public function __construct(
         RoundRepository $repos,
         Config\Service $configService,
-        ScoreConfig\Service $scoreConfigService,
         Competition\Repository $competitionRepos,
         Poule\Service $pouleService,
         PouleRepository $pouleRepos,
@@ -78,7 +71,6 @@ class Service
     {
         $this->repos = $repos;
         $this->configService = $configService;
-        $this->scoreConfigService = $scoreConfigService;
         $this->competitionRepos = $competitionRepos;
         $this->pouleService = $pouleService;
         $this->pouleRepos = $pouleRepos;
@@ -143,9 +135,7 @@ class Service
         $roundConfigOptions->setHasExtension(!$round->needsRanking());
 
         $this->configService->create($round, $roundConfigOptions);
-        $this->scoreConfigService->create($round);
         // this.configRepos.createObjectFromParent(round);
-        // $round->setScoreConfig( $this->scoreConfigRepos->createObjectFromParent($round));
 
 //        if ($parent !== null) {
 //            $qualifyService = new QualifyService($round);
@@ -185,7 +175,6 @@ class Service
         int $winnersOrLosers,
         int $qualifyOrder,
         ConfigOptions $configOptions,
-        ScoreConfig $scoreConfigSer,
         array $poulesSer,
         Competition $competition,
         Round $p_parent = null ): Round
@@ -210,11 +199,6 @@ class Service
 
             $this->configService->create($round, $configOptions);
 
-            $this->scoreConfigService->create( $round,
-                $scoreConfigSer->getName(), $scoreConfigSer->getDirection(), $scoreConfigSer->getMaximum(),
-                $scoreConfigSer->getParent()
-            );
-
             $this->conn->commit();
         } catch ( \Exception $e) {
             $this->conn->rollBack();
@@ -224,19 +208,12 @@ class Service
         return $round;
     }
 
-    public function updateOptions( Round $round, int $qualifyOrder,
-        ConfigOptions $configOptions, ScoreConfig $scoreConfigSer
-        )
+    public function updateOptions( Round $round, int $qualifyOrder, ConfigOptions $configOptions )
     {
         $round->setQualifyOrder( $qualifyOrder );
         $round = $this->repos->save($round);
 
         $this->configService->update($round->getConfig(), $configOptions);
-
-//        $this->scoreConfigService->create( $round,
-//            $scoreConfigSer->getName(), $scoreConfigSer->getDirection(), $scoreConfigSer->getMaximum(),
-//            $scoreConfigSer->getParent()
-//        );
     }
 
     public function updatePoules( Round $round, array $poulesSer ) {

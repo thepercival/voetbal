@@ -35,7 +35,7 @@ Voetbal\Game\Score:
         nullable: false
         onDelete: CASCADE
     scoreConfig:
-      targetEntity: Voetbal\Round\ScoreConfig
+      targetEntity: Voetbal\Round\Config\Score
       joinColumn:
         name: scoreconfigid
         referencedColumnName: id

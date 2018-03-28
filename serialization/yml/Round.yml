@@ -21,6 +21,3 @@ Voetbal\Round:
       serialized_name: childRounds
     poules:
       type: ArrayCollection<Voetbal\Poule>
-    scoreConfig:
-      type: Voetbal\Round\ScoreConfig
-      serialized_name: scoreConfig

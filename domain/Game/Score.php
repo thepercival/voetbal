@@ -8,7 +8,7 @@
 
 namespace Voetbal\Game;
 
-use Voetbal\Round\ScoreConfig;
+use Voetbal\Round\Config\Score as ScoreConfig;
 use Voetbal\Game;
 
 class Score
@@ -123,7 +123,7 @@ class Score
             throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
         }
         $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getInputScoreConfig() : null;
-        if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
+        if ( $scoreConfig && !($scoreConfig->getDirection() === Score\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($home < 0 or $home > $scoreConfig->getMaximum()) {
                 throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
             }
@@ -148,7 +148,7 @@ class Score
             throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
         }
         $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getInputScoreConfig() : null;
-        if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
+        if ( $scoreConfig && !($scoreConfig->getDirection() === Score\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($away < 0 or $away > $scoreConfig->getMaximum()) {
                 throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
             }

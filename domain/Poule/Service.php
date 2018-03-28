@@ -102,25 +102,6 @@ class Service
         return $poule;
     }
 
-//    public function updateStructure( Poule $poule, int $number, array $placesSer ): Poule
-//    {
-//        if ( ( $placesSer === null or count( $placesSer ) === 0 ) ) {
-//            throw new \Exception("een poule moet minimaal 1 plek hebben", E_ERROR);
-//        }
-//
-//        $this->conn->beginTransaction(); // suspend auto-commit
-//        try {
-//            foreach( $placesSer as $placeSer ) {
-//                $this->updateStructureHelper( $placeSer, $poule );
-//            }
-//            $this->conn->commit();
-//        } catch ( \Exception $e) {
-//            $this->conn->rollBack();
-//            throw $e;
-//        }
-//        return $poule;
-//    }
-
     /**
      * loop door de pouleplacesSer en kijk per pouleplace als deze
      * aangemaakt of geupdate moet worden.
@@ -150,10 +131,6 @@ class Service
                     $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $team);
                 }
                 else {
-//                    if($poulePlace === null) {
-//                        var_dump("ser pouleplaceid = " . $poulePlaceSer->getId() );
-//                        die();
-//                    }
                     $this->poulePlaceService->assignTeam($poulePlace, $team);
                     if ($pouleSer->getNumber() !== $poule->getNumber()
                         || $poulePlaceSer->getNumber() !== $poulePlace->getNumber()
@@ -166,13 +143,6 @@ class Service
         }
         return;
     }
-
-    public function updatePlanning()
-    {
-        // loop door de games
-    }
-
-
 
 //    /**
 //     * @param Team $team
