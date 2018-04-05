@@ -21,10 +21,6 @@ class Score
      */
     protected $id;
     /**
-     * @var Round
-     */
-    protected $round;
-    /**
      * @var Config
      */
     protected $config;
@@ -109,25 +105,6 @@ class Score
             return $parent->getRoot();
         }
         return $this;
-    }
-
-    /**
-     * @return Round
-     */
-    public function getRound()
-    {
-        return $this->round;
-    }
-
-    /**
-     * @param Round $round
-     */
-    public function setRound( Round $round )
-    {
-        if ( $this->round === null and $round !== null and !$round->getScoreConfigs()->contains( $this )){
-            $round->getScoreConfigs()->add($this) ;
-        }
-        $this->round = $round;
     }
 
     /**

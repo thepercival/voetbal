@@ -124,6 +124,9 @@ final class Team
             if ( $team === null ) {
                 throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
+            if ($team->getAssociation() !== $association) {
+                throw new \Exception("de bond van het team komt niet overeen met de verstuurde bond", E_ERROR);
+            }
 
             $teamRet = $this->service->edit(
                 $team,
@@ -145,11 +148,21 @@ final class Team
 
     public function remove( $request, $response, $args)
     {
-        $association = $this->repos->find($args['id']);
+        $team = $this->repos->find($args['id']);
         $sErrorMessage = null;
         try {
-            $this->service->remove($association);
-
+            if( $team === null ) {
+                throw new \Exception('het te verwijderen team kan niet gevonden worden', E_ERROR);
+            }
+            $associationId = (int) $request->getParam("associationid");
+            $association = $this->associationRepos->find($associationId);
+            if ( $association === null ) {
+                throw new \Exception("er kan geen bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+            if ($team->getAssociation() !== $association) {
+                throw new \Exception("de bond van het team komt niet overeen met de verstuurde bond", E_ERROR);
+            }
+            $this->service->remove($team);
             return $response
                 ->withStatus(204);
             ;

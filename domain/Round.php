@@ -43,16 +43,6 @@ class Round
     protected $config;
 
     /**
-     * @var Round\Score
-     */
-    protected $scoreConfig;
-
-    /**
-     * @var Round\Score[] | ArrayCollection
-     */
-    protected $scoreConfigs;
-
-    /**
      * @var Competition
      */
     protected $competition;
@@ -237,17 +227,6 @@ class Round
     public function setConfig( Round\Config $config )
     {
         $this->config = $config;
-    }
-
-    /**
-     * @return Round\Score[] | ArrayCollection
-     */
-    public function getScoreConfigs()
-    {
-        if( $this->scoreConfigs === null ) {
-            $this->scoreConfigs = new ArrayCollection();
-        }
-        return $this->scoreConfigs;
     }
 
     /**

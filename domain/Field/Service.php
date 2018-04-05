@@ -61,6 +61,6 @@ class Service
      */
     public function remove( Field $field )
     {
-        $this->repos->remove($field);
+        return $this->repos->remove($field);
     }
 }

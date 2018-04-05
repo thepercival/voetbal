@@ -23,14 +23,6 @@ Voetbal\Round\Config\Score:
       nullable: false
       unique: false
   manyToOne:
-    round:
-      targetEntity: Voetbal\Round
-      inversedBy: scoreConfigs
-      joinColumn:
-        name: roundid
-        referencedColumnName: id
-        nullable: true
-        onDelete: CASCADE
     config:
       targetEntity: Voetbal\Round\Config
       inversedBy: scores
