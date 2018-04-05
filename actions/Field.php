@@ -10,6 +10,7 @@ namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Field\Repository as FieldRepository;
+use Voetbal\Field\Service as FieldService;
 use Voetbal\Competition\Repository as CompetitionRepos;
 
 final class Field
@@ -18,6 +19,10 @@ final class Field
      * @var FieldRepository
      */
     protected $repos;
+    /**
+     * @var FieldService
+     */
+    protected $service;
     /**
      * @var CompetitionRepos
      */
@@ -29,10 +34,12 @@ final class Field
 
     public function __construct(
         FieldRepository $repos,
+        FieldService $service,
         CompetitionRepos $competitionRepos,
         Serializer $serializer
     ) {
         $this->repos = $repos;
+        $this->service = $service;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
@@ -43,7 +50,6 @@ final class Field
         try {
             /** @var \Voetbal\Field $fieldSer */
             $fieldSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Field', 'json');
-
             if ($fieldSer === null) {
                 throw new \Exception("er kan geen veld worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
@@ -81,7 +87,11 @@ final class Field
 
             /** @var \Voetbal\Field $fieldSer */
             $fieldSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Field', 'json');
-            $field = $this->repos->find($fieldSer->getId());
+            if ($fieldSer === null) {
+                throw new \Exception("het veld kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
+            /** @var \Voetbal\Field $field */
+            $field = $this->repos->find($args["id"]);
             if ($field === null) {
                 throw new \Exception("het veld kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
@@ -90,14 +100,7 @@ final class Field
                     E_ERROR);
             }
 
-            throw new \Exception("editfield not implemented yet", E_ERROR);
-//            $fieldRet = $this->service->edit(
-//                $team,
-//                $teamSer->getName(),
-//                $association,
-//                $teamSer->getAbbreviation(),
-//                $teamSer->getImageUrl()
-//            );
+            $fieldRet = $this->service->rename( $field, $fieldSer->getName() );
 
             return $response
                 ->withStatus(200)
@@ -106,15 +109,14 @@ final class Field
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(400, $sErrorMessage)->write($sErrorMessage);
+        return $response->withStatus(400)->write($sErrorMessage);
     }
 
     public function remove($request, $response, $args)
     {
-        $field = $this->repos->find($args['id']);
-
         $sErrorMessage = null;
         try {
+            $field = $this->repos->find($args['id']);
             if ($field === null) {
                 throw new \Exception('het te verwijderen veld kan niet gevonden worden', E_ERROR);
             }
@@ -130,9 +132,9 @@ final class Field
             $this->service->remove($field);
             return $response->withStatus(204);
         } catch (\Exception $e) {
-            $sErrorMessage = urlencode($e->getMessage());
+            $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404, $sErrorMessage);
+        return $response->withStatus(404)->write($sErrorMessage);
     }
 
 }

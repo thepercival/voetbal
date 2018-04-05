@@ -38,13 +38,13 @@ final class Config
         $this->serializer = $serializer;
     }
 
-    public function add( $request, $response, $args)
+    public function add( $request, $response, $args )
     {
         $sErrorMessage = null;
 
         try {
-            $competitionid = (int) $request->getParam("competitionid");
-            $competition = $this->competitionRepos->find($competitionid);
+            $competitionId = (int) $request->getParam("competitionid");
+            $competition = $this->competitionRepos->find($competitionId);
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }

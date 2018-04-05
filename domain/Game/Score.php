@@ -122,8 +122,8 @@ class Score
         if ($home === null or !is_int($home)) {
             throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
         }
-        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getInputScoreConfig() : null;
-        if ( $scoreConfig && !($scoreConfig->getDirection() === Score\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
+        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getConfig()->getInputScore() : null;
+        if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($home < 0 or $home > $scoreConfig->getMaximum()) {
                 throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
             }
@@ -147,8 +147,8 @@ class Score
         if ($away === null or !is_int($away)) {
             throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
         }
-        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getInputScoreConfig() : null;
-        if ( $scoreConfig && !($scoreConfig->getDirection() === Score\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
+        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getConfig()->getInputScore() : null;
+        if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($away < 0 or $away > $scoreConfig->getMaximum()) {
                 throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
             }
@@ -173,7 +173,7 @@ class Score
             $game->getScores()->add($this) ;
         }
         if( $game !== null ) {
-            $this->setScoreConfig( $game->getRound()->getInputScoreConfig() );
+            $this->setScoreConfig( $game->getRound()->getConfig()->getInputScore() );
         }
         $this->game = $game;
     }

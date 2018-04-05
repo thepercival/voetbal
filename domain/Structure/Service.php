@@ -114,7 +114,6 @@ class Service
                 $roundSer->getWinnersOrLosers(),
                 $roundSer->getQualifyOrder(),
                 $roundSer->getConfig()->getOptions(),
-                $roundSer->getScoreConfig(),
                 $roundSer->getPoules()->toArray(),
                 $competition, $parentRound
             );

@@ -26,64 +26,54 @@ class Service
         $this->entitymanager = $entitymanager;
     }
 
-    public function getRepository( $classname )
+    public function getRepository($classname): Repository
     {
         return $this->getEntityManager()->getRepository($classname);
     }
 
-    public function getService( $classname )
+    public function getService($classname)
     {
         $repos = null;
-        if ( $classname !== Structure::class and $classname !== Planning::class ){
+        if ($classname !== Structure::class and $classname !== Planning::class) {
             $repos = $this->getRepository($classname);
         }
 
-        if ( $classname === Association::class ){
-            return new Association\Service( $repos );
-        }
-        elseif ( $classname === Team::class ){
+        if ($classname === Association::class) {
+            return new Association\Service($repos);
+        } elseif ($classname === Team::class) {
             return new Team\Service($repos);
-        }
-        elseif ( $classname === Field::class ){
+        } elseif ($classname === Field::class) {
             return new Field\Service($repos);
-        }
-        elseif ( $classname === Referee::class ){
+        } elseif ($classname === Referee::class) {
             return new Referee\Service($repos);
-        }
-        elseif ( $classname === Season::class ){
+        } elseif ($classname === Season::class) {
             return new Season\Service($repos);
-        }
-        elseif ( $classname === League::class ){
+        } elseif ($classname === League::class) {
             return new League\Service($repos);
-        }
-        elseif ( $classname === Competition::class ){
+        } elseif ($classname === Competition::class) {
             return new Competition\Service($repos);
-        }
-        elseif ( $classname === Structure::class ){
+        } elseif ($classname === Structure::class) {
             return new Structure\Service(
                 $this->getService(Round::class),
                 $this->getRepository(Round::class),
                 $this->getService(Round\Config::class),
                 $this->getEntityManager()->getConnection()
             );
-        }
-        elseif ( $classname === Round::class ){
+        } elseif ($classname === Round::class) {
             return new Round\Service(
                 $repos,
-                $this->getService( Round\Config::class ),
+                $this->getService(Round\Config::class),
                 $this->getRepository(Competition::class),
                 $this->getService(Poule::class),
                 $this->getRepository(Poule::class),
                 $this->getService(PoulePlace::class),
                 $this->getEntityManager()->getConnection()
             );
-        }
-        elseif ( $classname === Round\Config::class ){
+        } elseif ($classname === Round\Config::class) {
             return new Round\Config\Service(
                 $repos, $this->getRepository(Round\Config\Score::class)
             );
-        }
-        elseif ( $classname === Poule::class ){
+        } elseif ($classname === Poule::class) {
             return new Poule\Service(
                 $repos,
                 $this->getService(PoulePlace::class),
@@ -92,26 +82,24 @@ class Service
                 $this->getRepository(Team::class),
                 $this->getEntityManager()->getConnection()
             );
-        }
-        elseif ( $classname === PoulePlace::class ){
-            $teamRepository = $this->getRepository(Team::class);
+        } elseif ($classname === PoulePlace::class) {
             return new PoulePlace\Service(
                 $repos,
-                $teamRepository
+                $this->getRepository(Team::class)
             );
-        }
-        elseif ( $classname === Game::class ){
-            $scoreRepos = $this->getRepository(Game\Score::class);
-            return new Game\Service($repos, $scoreRepos);
-        }
-        elseif ( $classname === Planning::class ){
+        } elseif ($classname === Game::class) {
+            return new Game\Service(
+                $repos,
+                $this->getRepository(Game\Score::class)
+            );
+        } elseif ($classname === Planning::class) {
             return new Planning\Service(
                 $this->getService(Game::class),
                 $this->getRepository(Game::class),
                 $this->getService(Structure::class),
-                $this->getEntityManager() );
+                $this->getEntityManager());
         }
-        throw new \Exception("class ".$classname." not supported to create service", E_ERROR );
+        throw new \Exception("class " . $classname . " not supported to create service", E_ERROR);
     }
 
     public function getEntityManager()

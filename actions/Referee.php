@@ -10,7 +10,9 @@ namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Referee\Repository as RefereeRepository;
+use Voetbal\Referee\Service as RefereeService;
 use Voetbal\Competition\Repository as CompetitionRepos;
+use Voetbal\Referee as RefereeBase;
 
 final class Referee
 {
@@ -19,9 +21,13 @@ final class Referee
      */
     protected $repos;
     /**
+     * @var RefereeService
+     */
+    protected $service;
+    /**
      * @var CompetitionRepos
      */
-    protected $csRepos;
+    protected $competitionRepos;
     /**
      * @var Serializer
      */
@@ -29,90 +35,112 @@ final class Referee
 
     public function __construct(
         RefereeRepository $repos,
-        CompetitionRepos $csRepos,
+        RefereeService $service,
+        CompetitionRepos $competitionRepos,
         Serializer $serializer
-    )
-    {
+    ) {
         $this->repos = $repos;
-        $this->csRepos = $csRepos;
+        $this->service = $service;
+        $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
 
-    public function add( $request, $response, $args)
+    public function add($request, $response, $args)
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\Referee $referee */
-            $referee = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json');
-
-            if ( $referee === null ) {
-                throw new \Exception("er kan geen veld worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
-            }
-
-            $competitionid = (int) $request->getParam("competitionid");
-            $competition = $this->csRepos->find($competitionid);
-            if ( $competition === null ) {
+            $competitionId = (int)$request->getParam("competitionid");
+            $competition = $this->competitionRepos->find($competitionId);
+            if ($competition === null) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
 
-            $referee->setCompetition( $competition );
-            $refereeRet = $this->repos->save( $referee, $competition );
+            /** @var \Voetbal\Referee $refereeSer */
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee',
+                'json');
+            if ($refereeSer === null) {
+                throw new \Exception("er kan geen scheidsrechter worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $refereeRet = $this->service->create(
+                $competition,
+                $refereeSer->getInitials(),
+                $refereeSer->getName(),
+                $refereeSer->getInfo()
+            );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $refereeRet, 'json'));
-            ;
-        }
-        catch( \Exception $e ){
+                ->write($this->serializer->serialize($refereeRet, 'json'));;
+        } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(422 )->write( $sErrorMessage );
+        return $response->withStatus(422)->write($sErrorMessage);
     }
 
     public function edit($request, $response, $args)
     {
         $sErrorMessage = null;
         try {
-            $referee = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json');
+            $referee = $this->getReferee((int)$args["id"], (int)$request->getParam("competitionid"));
 
-            $competitionid = (int) $request->getParam("competitionid");
-            $competition = $this->csRepos->find($competitionid);
-            if ( $competition === null ) {
-                throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
+            /** @var \Voetbal\Referee $refereeSer */
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee',
+                'json');
+            if ($refereeSer === null) {
+                throw new \Exception("de scheidsrechter kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            // @TODO FROMJSON
-            $referee = $this->repos->editFromJSON($referee, $competition);
+            $refereeRet = $this->service->edit(
+                $referee,
+                $refereeSer->getInitials(),
+                $refereeSer->getName(),
+                $refereeSer->getInfo()
+            );
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($referee, 'json'));
+                ->write($this->serializer->serialize($refereeRet, 'json'));
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
         return $response->withStatus(400)->write($sErrorMessage);
     }
 
-    public function remove( $request, $response, $args)
+    public function remove($request, $response, $args)
     {
-        $referee = $this->repos->find($args['id']);
-
-        if( $referee === null ) {
-            return $response->withStatus(404, 'het te verwijderen veld kan niet gevonden worden');
-        }
-
         $sErrorMessage = null;
         try {
-            $this->repos->remove($referee);
-
+            $referee = $this->getReferee((int)$args["id"], (int)$request->getParam("competitionid"));
+            $this->service->remove($referee);
             return $response->withStatus(204);
+        } catch (\Exception $e) {
+            $sErrorMessage = $e->getMessage();
         }
-        catch( \Exception $e ){
-            $sErrorMessage = urlencode($e->getMessage());
+        return $response->withStatus(404)->write($sErrorMessage);
+    }
+
+    protected function getReferee(int $id, int $competitionId): RefereeBase
+    {
+        if ($competitionId === null) {
+            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
+
+        $referee = $this->repos->find($id);
+        if ($referee === null) {
+            throw new \Exception('de te verwijderen scheidsrechter kan niet gevonden worden', E_ERROR);
+        }
+        $competition = $this->competitionRepos->find($competitionId);
+        if ($competition === null) {
+            throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        if ($referee->getCompetition() !== $competition) {
+            throw new \Exception("de competitie van de scheidsrechter komt niet overeen met de verstuurde competitie",
+                E_ERROR);
+        }
+        return $referee;
     }
 
 }

@@ -34,7 +34,7 @@ class Service
         $fieldWithSameNumber = $this->repos->findOneBy(
             array(
                 'number' => $number,
-                'competition' => $competition,
+                'competition' => $competition
                 ) );
         if ( $fieldWithSameNumber !== null ){
             throw new \Exception("het veld met nummer ".$number." bestaat al", E_ERROR );
@@ -43,18 +43,22 @@ class Service
         return $this->repos->save($field);
     }
 
-//    public function edit( Field $field, $name, Period $period )
-//    {
-//        $fieldWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-//        if ( $fieldWithSameName !== null and $fieldWithSameName !== $field ){
-//            throw new \Exception("het seizoen ".$name." bestaat al", E_ERROR );
-//        }
-//
-//        $field->setName( $name );
-//        $field->setPeriod( $period );
-//
-//        return $this->repos->save($field);
-//    }
+    public function rename( Field $field, $name )
+    {
+        $fieldWithSameName = $this->repos->findOneBy(
+            array(
+                'name' => $name,
+                'competition' => $field->getCompetition()
+            )
+        );
+        if ( $fieldWithSameName !== null and $fieldWithSameName !== $field ){
+            throw new \Exception("het veld ".$name." bestaat al", E_ERROR );
+        }
+
+        $field->setName( $name );
+
+        return $this->repos->save($field);
+    }
 
     /**
      * @param Field $field

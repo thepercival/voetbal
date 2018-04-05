@@ -14,7 +14,8 @@ class Handler
 {
     protected $container;
 
-    public function __construct(\Slim\Container $container) {
+    public function __construct(\Slim\Container $container)
+    {
         $this->container = $container;
     }
 
@@ -23,162 +24,138 @@ class Handler
         // 'logger' should be configured to log
         // $this->container->get('logger')->info("default resource route get : " . $resourceType . ( $id ? '/' . $id : null ) );
 
-        $resourceType = array_key_exists("resourceType",$args) ? $args["resourceType"] : null;
-        $action = $this->getAction( $resourceType );
-        if ( $action === null ) {
-            return $response->withStatus(404, 'geen actie gevonden voor '.$resourceType);
+        $resourceType = array_key_exists("resourceType", $args) ? $args["resourceType"] : null;
+        $action = $this->getAction($resourceType);
+        if ($action === null) {
+            return $response->withStatus(404, 'geen actie gevonden voor ' . $resourceType);
         }
         return $this->executeAction($action, $request, $response, $args);
     }
 
     protected function executeAction($action, $request, $response, $args)
     {
-        $id = array_key_exists("id",$args) ? $args["id"] : null;
+        $id = array_key_exists("id", $args) ? $args["id"] : null;
 
-        if ( $request->isGet() ) {
-            if ( $id ){
-                $response = $action->fetchOne( $request, $response, $args );
+        if ($request->isGet()) {
+            if ($id) {
+                $response = $action->fetchOne($request, $response, $args);
+            } else {
+                $response = $action->fetch($request, $response, $args);
             }
-            else {
-                $response = $action->fetch( $request, $response, $args );
-            }
-        }
-        elseif ( $request->isPost() ) {
-            $response = $action->add( $request, $response, $args );
-        }
-        elseif ( $request->isPut() ) {
-            $response = $action->edit( $request, $response, $args );
-        }
-        elseif ( $request->isDelete() ) {
-            $response = $action->remove( $request, $response, $args );
+        } elseif ($request->isPost()) {
+            $response = $action->add($request, $response, $args);
+        } elseif ($request->isPut()) {
+            $response = $action->edit($request, $response, $args);
+        } elseif ($request->isDelete()) {
+            $response = $action->remove($request, $response, $args);
         }
 
         return $response;
     }
 
-    protected function getAction( $resourceType )
+    protected function getAction($resourceType)
     {
         /** @var Voetbal\Service $voetbalservice */
         $voetbalservice = $this->container->get('voetbal');
         $serializer = $this->container->get('serializer');
 
         $action = null;
-        if ( $resourceType === 'associations' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Association::class);
-            $service = $voetbalservice->getService( Voetbal\Association::class);
-            $action = new Voetbal\Action\Association($service, $repos, $serializer);
-        }
-        elseif ( $resourceType === 'teams' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Team::class);
-            $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
-            $service = $voetbalservice->getService( Voetbal\Team::class);
-            $action = new Voetbal\Action\Team($service, $repos, $associationRepos, $serializer);
-        }
-        elseif ( $resourceType === 'seasons' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Season::class);
-            $service = $voetbalservice->getService( Voetbal\Season::class);
-            $action = new Voetbal\Action\Season($service, $repos, $serializer);
-        }
-        elseif ( $resourceType === 'leagues' ){
-            $repos = $voetbalservice->getRepository(Voetbal\League::class);
-            $service = $voetbalservice->getService( Voetbal\League::class);
-            $associationRepos = $voetbalservice->getRepository(Voetbal\Association::class);
-            $action = new Voetbal\Action\League($service, $repos, $associationRepos, $serializer);
-        }
-        elseif ( $resourceType === 'competitions' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Competition::class);
-            $service = $voetbalservice->getService( Voetbal\Competition::class);
-            $leagueRepos = $voetbalservice->getRepository(Voetbal\League::class);
-            $seasonRepos = $voetbalservice->getRepository(Voetbal\Season::class);
+        if ($resourceType === 'associations') {
+            $action = new Voetbal\Action\Association(
+                $voetbalservice->getService(Voetbal\Association::class),
+                $voetbalservice->getRepository(Voetbal\Association::class),
+                $serializer);
+        } elseif ($resourceType === 'teams') {
+            $action = new Voetbal\Action\Team(
+                $voetbalservice->getService(Voetbal\Team::class),
+                $voetbalservice->getRepository(Voetbal\Team::class),
+                $voetbalservice->getRepository(Voetbal\Association::class),
+                $serializer);
+        } elseif ($resourceType === 'seasons') {
+            $action = new Voetbal\Action\Season(
+                $voetbalservice->getService(Voetbal\Season::class),
+                $voetbalservice->getRepository(Voetbal\Season::class),
+                $serializer);
+        } elseif ($resourceType === 'leagues') {
+            $action = new Voetbal\Action\League(
+                $voetbalservice->getService(Voetbal\League::class),
+                $voetbalservice->getRepository(Voetbal\League::class),
+                $voetbalservice->getRepository(Voetbal\Association::class),
+                $serializer);
+        } elseif ($resourceType === 'competitions') {
             $action = new Voetbal\Action\Competition(
-                $service,
-                $repos,
-                $leagueRepos,
-                $seasonRepos,
+                $voetbalservice->getService(Voetbal\Competition::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $voetbalservice->getRepository(Voetbal\League::class),
+                $voetbalservice->getRepository(Voetbal\Season::class),
                 $serializer
             );
         }
 //        elseif ( $resourceType === 'rounds' ){
-//            $repos = $voetbalservice->getRepository(Voetbal\Round::class);
-//            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
-//            $service = $voetbalservice->getService(Voetbal\Round::class);
-//            $action = new Voetbal\Action\Old(
-//                $service,
-//                $repos,
-//                $competitionRepos,
+//             $action = new Voetbal\Action\Old(
+//                $voetbalservice->getService(Voetbal\Round::class),
+//                $voetbalservice->getRepository(Voetbal\Round::class),
+//                $voetbalservice->getRepository(Voetbal\Competition::class),
 //                $serializer
 //            );
 //        }
-        elseif ( $resourceType === 'games' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Game::class);
-            $poulePlaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
-            $service = $voetbalservice->getService(Voetbal\Game::class);
-            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
-            $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
-            $refereeRepos = $voetbalservice->getRepository(Voetbal\Referee::class);
-            $action = new Voetbal\Action\Game($service, $repos,
-                $poulePlaceRepos, $pouleRepos,
-                $fieldRepos, $refereeRepos,
+        elseif ($resourceType === 'games') {
+            $action = new Voetbal\Action\Game(
+                $voetbalservice->getService(Voetbal\Game::class),
+                $voetbalservice->getRepository(Voetbal\Game::class),
+                $voetbalservice->getRepository(Voetbal\PoulePlace::class),
+                $voetbalservice->getRepository(Voetbal\Poule::class),
+                $voetbalservice->getRepository(Voetbal\Field::class),
+                $voetbalservice->getRepository(Voetbal\Referee::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer);
-        }
-        elseif ( $resourceType === 'structures' ){
-            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
-            $roundRepos = $voetbalservice->getRepository(Voetbal\Round::class);
-            $service = $voetbalservice->getService(Voetbal\Structure::class);
+        } elseif ($resourceType === 'structures') {
             $action = new Voetbal\Action\Structure(
-                $service,
-                $roundRepos,
-                $competitionRepos,
+                $voetbalservice->getService(Voetbal\Structure::class),
+                $voetbalservice->getRepository(Voetbal\Round::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
-        }
-        elseif ( $resourceType === 'planning' ){
-            $repos = $voetbalservice->getRepository(Voetbal\Game::class);
-            $poulePlaceRepos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
-            $service = $voetbalservice->getService(Voetbal\Planning::class);
-            $gameService = $voetbalservice->getService(Voetbal\Game::class);
-            $pouleRepos = $voetbalservice->getRepository(Voetbal\Poule::class);
-            $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
-            $refereeRepos = $voetbalservice->getRepository(Voetbal\Referee::class);
-            $action = new Voetbal\Action\Planning($service, $repos, $gameService,
-                $poulePlaceRepos, $pouleRepos,
-                $fieldRepos, $refereeRepos,
+        } elseif ($resourceType === 'planning') {
+            $action = new Voetbal\Action\Planning(
+                $voetbalservice->getService(Voetbal\Planning::class),
+                $voetbalservice->getRepository(Voetbal\Game::class),
+                $voetbalservice->getService(Voetbal\Game::class),
+                $voetbalservice->getRepository(Voetbal\PoulePlace::class),
+                $voetbalservice->getRepository(Voetbal\Poule::class),
+                $voetbalservice->getRepository(Voetbal\Field::class),
+                $voetbalservice->getRepository(Voetbal\Referee::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $serializer);
+        } elseif ($resourceType === 'fields') {
+            $action = new Voetbal\Action\Field(
+                $voetbalservice->getRepository(Voetbal\Field::class),
+                $voetbalservice->getService(Voetbal\Field::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $serializer
+            );
+        } elseif ($resourceType === 'referees') {
+            $action = new Voetbal\Action\Referee(
+                $voetbalservice->getRepository(Voetbal\Referee::class),
+                $voetbalservice->getService(Voetbal\Referee::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $serializer
+            );
+        } elseif ($resourceType === 'roundconfigs') {
+            $action = new Voetbal\Action\Round\Config(
+                $voetbalservice->getService(Voetbal\Structure::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $serializer
+            );
+        } elseif ($resourceType === 'pouleplaces') {
+            $action = new Voetbal\Action\PoulePlace(
+                $voetbalservice->getRepository(Voetbal\PoulePlace::class),
+                $voetbalservice->getService(Voetbal\PoulePlace::class),
+                $voetbalservice->getRepository(Voetbal\Team::class),
+                $voetbalservice->getRepository(Voetbal\Poule::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer);
         }
-        elseif ( $resourceType === 'fields' ) {
-            $fieldRepos = $voetbalservice->getRepository(Voetbal\Field::class);
-            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
-            $action = new Voetbal\Action\Field(
-                $fieldRepos,
-                $competitionRepos,
-                $serializer
-            );
-        }
-        elseif ( $resourceType === 'roundconfigs' ) {
-            $structureService = $voetbalservice->getService(Voetbal\Structure::class);
-            $competitionRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
-            $action = new Voetbal\Action\Round\Config(
-                $structureService,
-                $competitionRepos,
-                $serializer
-            );
-        }
-        elseif ( $resourceType === 'referees' ) {
-            $refereeRepos = $voetbalservice->getRepository(Voetbal\Referee::class);
-            $csRepos = $voetbalservice->getRepository(Voetbal\Competition::class);
-            $action = new Voetbal\Action\Referee(
-                $refereeRepos,
-                $csRepos,
-                $serializer
-            );
-        }
-        elseif ( $resourceType === 'pouleplaces' ){
-            $repos = $voetbalservice->getRepository(Voetbal\PoulePlace::class);
-            $service = $voetbalservice->getService(Voetbal\PoulePlace::class);
-            $teamRepos = $voetbalservice->getRepository(Voetbal\Team::class);
-            $action = new Voetbal\Action\PoulePlace($repos, $service, $teamRepos, $serializer);
-        }
-
         return $action;
     }
 }

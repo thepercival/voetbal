@@ -12,8 +12,9 @@ use JMS\Serializer\Serializer;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Voetbal\Team\Repository as TeamRepository;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\ResponseInterface;
+use Voetbal\Poule\Repository as PouleRepository;
+use Voetbal\Competition\Repository as CompetitionRepository;
+use Voetbal\Poule;
 
 final class PoulePlace
 {
@@ -30,6 +31,14 @@ final class PoulePlace
      */
     protected $teamRepos;
     /**
+     * @var CompetitionRepository
+     */
+    protected $competitionRepos;
+    /**
+     * @var PouleRepository
+     */
+    protected $pouleRepos;
+    /**
      * @var Serializer
      */
     protected $serializer;
@@ -38,12 +47,16 @@ final class PoulePlace
         PoulePlaceRepository $repos,
         PoulePlaceService $service,
         TeamRepository $teamRepos,
+        PouleRepository $pouleRepos,
+        CompetitionRepository $competitionRepos,
         Serializer $serializer
     )
     {
         $this->repos = $repos;
         $this->service = $service;
         $this->teamRepos = $teamRepos;
+        $this->pouleRepos = $pouleRepos;
+        $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
 
@@ -51,16 +64,19 @@ final class PoulePlace
     {
         $sErrorMessage = null;
         try {
+            $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
+
             /** @var \Voetbal\PoulePlace $pouleplace */
             $pouleplaceSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\PoulePlace', 'json');
-
             if ( $pouleplaceSer === null ) {
                 throw new \Exception("er kan geen pouleplek worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
-
             $poulePlace = $this->repos->find($pouleplaceSer->getId());
             if ( $poulePlace === null ) {
                 throw new \Exception("de pouleplek kan niet gevonden worden obv id", E_ERROR);
+            }
+            if ( $poulePlace->getPoule() !== $poule ) {
+                throw new \Exception("de poule van de pouleplek komt niet overeen met de verstuurde poule", E_ERROR);
             }
             $team = $pouleplaceSer->getTeam() ? $this->teamRepos->find($pouleplaceSer->getTeam()->getId()) : null;
             $poulePlaceRet = $this->service->assignTeam( $poulePlace, $team );
@@ -73,6 +89,30 @@ final class PoulePlace
             $sErrorMessage = $e->getMessage();
         }
         return $response->withStatus(422)->write($sErrorMessage);
+    }
+
+    protected function getPoule( int $pouleId, int $competitionId ): Poule
+    {
+        if ( $pouleId === null ) {
+            throw new \Exception("het poule-id is niet meegegeven", E_ERROR);
+        }
+        if ( $competitionId === null ) {
+            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
+        }
+
+        $poule = $this->pouleRepos->find($pouleId);
+        if ( $poule === null ) {
+            throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        $competition = $this->competitionRepos->find($competitionId);
+        if ($competition === null) {
+            throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        if ($poule->getRound()->getCompetition() !== $competition) {
+            throw new \Exception("de competitie van de poule komt niet overeen met de verstuurde competitie",
+                E_ERROR);
+        }
+        return $poule;
     }
 
 }

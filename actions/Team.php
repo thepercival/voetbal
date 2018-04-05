@@ -13,6 +13,7 @@ use Voetbal\Team\Service as TeamService;
 use Voetbal\Team\Repository as TeamRepository;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal;
+use Voetbal\Team as TeamBase;
 
 final class Team
 {
@@ -82,7 +83,7 @@ final class Team
                 throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            /** @var \Voetbal\Team $team */
+            /** @var \Voetbal\Team $teamSer */
             $teamSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
             if ( $teamSer === null ) {
                 throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
@@ -92,7 +93,8 @@ final class Team
                 $teamSer->getName(),
                 $association,
                 $teamSer->getAbbreviation(),
-                $teamSer->getImageUrl()
+                $teamSer->getImageUrl(),
+                $teamSer->getInfo()
             );
 
             return $response
@@ -111,29 +113,20 @@ final class Team
     {
         $sErrorMessage = null;
         try {
-            $associationid = (int) $request->getParam("associationid");
-            $association = $this->associationRepos->find($associationid);
-            if ( $association === null ) {
-                throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
+            $team = $this->getTeam( $args['id'], (int) $request->getParam("associationid") );
 
             /** @var \Voetbal\Team $teamSer */
             $teamSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
-
-            $team = $this->repos->find($teamSer->getId());
-            if ( $team === null ) {
+            if ( $teamSer === null ) {
                 throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
-            }
-            if ($team->getAssociation() !== $association) {
-                throw new \Exception("de bond van het team komt niet overeen met de verstuurde bond", E_ERROR);
             }
 
             $teamRet = $this->service->edit(
                 $team,
                 $teamSer->getName(),
-                $association,
                 $teamSer->getAbbreviation(),
-                $teamSer->getImageUrl()
+                $teamSer->getImageUrl(),
+                $teamSer->getInfo()
             );
 
             return $response
@@ -148,20 +141,9 @@ final class Team
 
     public function remove( $request, $response, $args)
     {
-        $team = $this->repos->find($args['id']);
         $sErrorMessage = null;
         try {
-            if( $team === null ) {
-                throw new \Exception('het te verwijderen team kan niet gevonden worden', E_ERROR);
-            }
-            $associationId = (int) $request->getParam("associationid");
-            $association = $this->associationRepos->find($associationId);
-            if ( $association === null ) {
-                throw new \Exception("er kan geen bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-            if ($team->getAssociation() !== $association) {
-                throw new \Exception("de bond van het team komt niet overeen met de verstuurde bond", E_ERROR);
-            }
+            $team = $this->getTeam( $args['id'], (int) $request->getParam("associationid") );
             $this->service->remove($team);
             return $response
                 ->withStatus(204);
@@ -170,6 +152,22 @@ final class Team
         catch( \Exception $e ){
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
+        return $response->withStatus(404)->write($sErrorMessage);
+    }
+
+    protected function getTeam( int $teamId, int $associationId ): TeamBase
+    {
+        $association = $this->associationRepos->find($associationId);
+        if ( $association === null ) {
+            throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        $team = $this->repos->find($teamId);
+        if ( $team === null ) {
+            throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+        }
+        if ($team->getAssociation() !== $association) {
+            throw new \Exception("de bond van het team komt niet overeen met de verstuurde bond", E_ERROR);
+        }
+        return $team;
     }
 }

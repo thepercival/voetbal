@@ -64,7 +64,7 @@ Voetbal\Game:
         name: refereeid
         referencedColumnName: id
         nullable: true
-        onDelete: CASCADE
+        onDelete: SET NULL
     field:
       targetEntity: Voetbal\Field
 #      inversedBy: games
@@ -72,7 +72,7 @@ Voetbal\Game:
         name: fieldid
         referencedColumnName: id
         nullable: true
-        onDelete: CASCADE
+        onDelete: SET NULL
   oneToMany:
     scores:
         targetEntity: Voetbal\Game\Score

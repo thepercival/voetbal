@@ -108,7 +108,7 @@ class Service
         // $sport = $config->getRound()->getCompetition()->getLeague()->getSport();
 
 //        if ($config->getRound()->getParent() !== null) {
-//            return $config->getRound()->getParent()->getScoreConfig();
+//            return $config->getRound()->getParent()->getConfig()->getScore();
 //        } else
         if ($sport === VoetbalConfig::Darts) {
             return new Score\Options(

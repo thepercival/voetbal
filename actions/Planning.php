@@ -16,9 +16,11 @@ use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Field\Repository as FieldRepository;
 use Voetbal\Referee\Repository as RefereeRepository;
+use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Voetbal\Poule;
 
 final class Planning
 {
@@ -51,6 +53,10 @@ final class Planning
      */
     protected $refereeRepos;
     /**
+     * @var CompetitionRepository
+     */
+    protected $competitionRepos;
+    /**
      * @var Serializer
      */
     protected $serializer;
@@ -63,8 +69,9 @@ final class Planning
         PouleRepository $pouleRepos,
         FieldRepository $fieldRepos,
         RefereeRepository $refereeRepos,
-        Serializer $serializer)
-    {
+        CompetitionRepository $competitionRepos,
+        Serializer $serializer
+    ) {
         $this->service = $service;
         $this->repos = $repos;
         $this->gameService = $gameService;
@@ -72,6 +79,7 @@ final class Planning
         $this->pouleRepos = $pouleRepos;
         $this->fieldRepos = $fieldRepos;
         $this->refereeRepos = $refereeRepos;
+        $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
 
@@ -83,16 +91,13 @@ final class Planning
      * @param $args
      * @return mixed
      */
-    public function add( $request, $response, $args)
+    public function add($request, $response, $args)
     {
         $sErrorMessage = null;
         try {
-            $pouleid = (int)$request->getParam("pouleid");
-            $poule = $this->pouleRepos->find($pouleid);
-            if ($poule === null) {
-                throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-            $this->service->remove( $poule );
+            $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
+
+            $this->service->remove($poule);
             $games = [];
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
             $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
@@ -124,13 +129,11 @@ final class Planning
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $games, 'json'));
-            ;
-        }
-        catch( \Exception $e ){
+                ->write($this->serializer->serialize($games, 'json'));;
+        } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus( 422 )->write( $sErrorMessage );
+        return $response->withStatus(422)->write($sErrorMessage);
     }
 
     /**
@@ -141,15 +144,12 @@ final class Planning
      * @param $args
      * @return mixed
      */
-    public function edit( $request, $response, $args)
+    public function edit($request, $response, $args)
     {
         $sErrorMessage = null;
         try {
-            $pouleid = (int)$request->getParam("pouleid");
-            $poule = $this->pouleRepos->find($pouleid);
-            if ($poule === null) {
-                throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
+            $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
+
             $games = [];
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
             $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
@@ -158,9 +158,9 @@ final class Planning
                 throw new \Exception("er kunnen geen wedstrijden worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
             foreach ($gamesSer as $gameSer) {
-                $game = $this->repos->find( $gameSer->getId() );
+                $game = $this->repos->find($gameSer->getId());
                 if ($game === null) {
-                    throw new \Exception("er kan geen wedstrijd worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                    throw new \Exception("er kan geen wedstrijd(".$gameSer->getId().") worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
                 $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId()) : null;
                 $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId()) : null;
@@ -172,12 +172,34 @@ final class Planning
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $games, 'json'));
-            ;
-        }
-        catch( \Exception $e ){
+                ->write($this->serializer->serialize($games, 'json'));;
+        } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(422)->write( $sErrorMessage );
+        return $response->withStatus(422)->write($sErrorMessage);
+    }
+
+    protected function getPoule( int $pouleId, int $competitionId ): Poule
+    {
+        if ( $pouleId === null ) {
+            throw new \Exception("het poule-id is niet meegegeven", E_ERROR);
+        }
+        if ( $competitionId === null ) {
+            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
+        }
+
+        $poule = $this->pouleRepos->find($pouleId);
+        if ( $poule === null ) {
+            throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        $competition = $this->competitionRepos->find($competitionId);
+        if ($competition === null) {
+            throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        if ($poule->getRound()->getCompetition() !== $competition) {
+            throw new \Exception("de competitie van de poule komt niet overeen met de verstuurde competitie",
+                E_ERROR);
+        }
+        return $poule;
     }
 }

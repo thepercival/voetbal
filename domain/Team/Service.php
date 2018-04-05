@@ -35,11 +35,13 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-    public function create( $name, Association $association, $abbreviation = null, $imageUrl = null )
+    public function create( string $name, Association $association,
+        string $abbreviation = null, string $imageUrl = null, string $info = null )
     {
         $team = new Team( $name, $association );
         $team->setAbbreviation($abbreviation);
         $team->setImageUrl($imageUrl);
+        $team->setInfo($info);
 
         // could be a settings to check this!
 //        $teamWithSameName = $this->repos->findOneBy(
@@ -54,13 +56,14 @@ class Service
 
     /**
      * @param Team $team
-     * @param $name
-     * @param Association $association
-     * @param null $abbreviation
+     * @param string $name
+     * @param string|null $abbreviation
+     * @param string|null $imageUrl
+     * @param string|null $info
      * @return mixed
-     * @throws \Exception
      */
-    public function edit( Team $team, $name, Association $association, $abbreviation = null, $imageUrl = null )
+    public function edit( Team $team, string $name,
+        string $abbreviation = null, string $imageUrl = null, string $info = null )
     {
         // could be a setting to check this
 //        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
@@ -71,7 +74,7 @@ class Service
         $team->setName($name);
         $team->setAbbreviation($abbreviation);
         $team->setImageUrl($imageUrl);
-        $team->setAssociation($association);
+        $team->setInfo($info);
 
         return $this->repos->save($team);
     }

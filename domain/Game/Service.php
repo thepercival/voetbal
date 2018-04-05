@@ -101,7 +101,7 @@ class Service
         $count = 1;
         foreach( $newGameScores as $newGameScore ) {
             $gameScore = new GameScore( $game );
-            $gameScore->setScoreConfig( $game->getRound()->getScoreConfig() );
+            $gameScore->setScoreConfig( $game->getRound()->getConfig()->getScore() );
             $gameScore->setNumber( $count++ );
             $gameScore->setHome(  $newGameScore->home );
             $gameScore->setAway(  $newGameScore->away );

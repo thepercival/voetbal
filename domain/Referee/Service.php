@@ -29,29 +29,35 @@ class Service
         $this->repos = $repos;
     }
 
-    public function create( string $initials, string $name, Competition $competition ): Referee
+    public function create( Competition $competition, string $initials, string $name = null, string $info = null ): Referee
     {
-        $refereeWithSameInitials = $this->repos->findOneBy( array('initials' => $initials ) );
+        $refereeWithSameInitials = $this->repos->findOneBy(
+            array( 'initials' => $initials, 'competition' => $competition )
+        );
         if ( $refereeWithSameInitials !== null ){
             throw new \Exception("de scheidsrechter met de initialen ".$initials." bestaat al", E_ERROR );
         }
         $referee = new Referee( $competition, $initials );
         $referee->setName($name);
+        $referee->setInfo( $info );
         return $this->repos->save($referee);
     }
 
-//    public function edit( Referee $referee, $name, Period $period )
-//    {
-//        $refereeWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-//        if ( $refereeWithSameName !== null and $refereeWithSameName !== $referee ){
-//            throw new \Exception("het seizoen ".$name." bestaat al", E_ERROR );
-//        }
-//
-//        $referee->setName( $name );
-//        $referee->setPeriod( $period );
-//
-//        return $this->repos->save($referee);
-//    }
+    public function edit( Referee $referee, string $initials, string $name = null, string $info = null ): Referee
+    {
+        $refereeWithSameInitials = $this->repos->findOneBy(
+            array( 'initials' => $initials, 'competition' => $referee->getCompetition() )
+        );
+        if ( $refereeWithSameInitials !== null and $refereeWithSameInitials !== $referee ){
+            throw new \Exception("de scheidsrechter met de initialen ".$initials." bestaat al", E_ERROR );
+        }
+
+        $referee->setInitials( $initials );
+        $referee->setName( $name );
+        $referee->setInfo( $info );
+
+        return $this->repos->save($referee);
+    }
 
     /**
      * @param Referee $referee

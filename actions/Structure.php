@@ -6,13 +6,6 @@
  * Time: 14:02
  */
 
-// ( api via structure action en dan via structureservice en planningservice )
-// structuur moet alleen gewijzigd kunnen worden, dat betekent zooi verwijderen en weer toevoegen
-// hier horen dan ook de wedstrijden onder de poules bij.
-
-// ( api via planning action en dan planningservice )
-// alleen de wedstrijden onder de poules moeten kunnen worden opgeslagen
-
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
@@ -124,7 +117,6 @@ final class Structure
         try {
             /** @var \Voetbal\Round $round */
             $roundSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
-
             if ( $roundSer === null ) {
                 throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
@@ -135,7 +127,6 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            // @TODO FROMJSON
             $round = $this->service->update( $roundSer, $competition );
 
             return $response
@@ -152,21 +143,26 @@ final class Structure
 
     public function remove( $request, $response, $args)
     {
-        $round = $this->roundRepos->find($args['id']);
-
-        if( $round === null ) {
-            return $response->withStatus(404, 'de te verwijderen structuur kan niet gevonden worden');
-        }
-
         $sErrorMessage = null;
         try {
+            $round = $this->roundRepos->find($args['id']);
+            if ($round === null) {
+                throw new \Exception('de te verwijderen structuur kan niet gevonden worden', E_ERROR);
+            }
+            $competitionId = (int)$request->getParam("competitionid");
+            $competition = $this->competitionRepos->find($competitionId);
+            if ($competition === null) {
+                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+            if ($round->getCompetition() !== $competition) {
+                throw new \Exception("de competitie van de ronde komt niet overeen met de verstuurde competitie",
+                    E_ERROR);
+            }
             $this->service->remove($round);
-
             return $response->withStatus(204);
+        } catch (\Exception $e) {
+            $sErrorMessage = $e->getMessage();
         }
-        catch( \Exception $e ){
-            $sErrorMessage = urlencode($e->getMessage());
-        }
-        return $response->withStatus(404, $sErrorMessage );
+        return $response->withStatus(404)->write($sErrorMessage);
     }
 }
