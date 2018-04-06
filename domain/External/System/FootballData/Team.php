@@ -109,13 +109,12 @@ class Team implements TeamImporter
         return $this->service->edit(
             $team,
             $externalSystemObject->name,
-            $team->getAssociation(),
             strtolower( substr( trim( $externalSystemObject->shortName ), 0, TeamBase::MAX_LENGTH_ABBREVIATION ) ),
             $externalSystemObject->crestUrl
         );
     }
 
-    public function createExternal( TeamBase $team, $externalId )
+    protected function createExternal( TeamBase $team, $externalId )
     {
         $externalTeam = $this->externalObjectRepos->findOneByExternalId (
             $this->externalSystemBase,

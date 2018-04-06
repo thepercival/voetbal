@@ -127,7 +127,7 @@ class Structure implements StructureImporter
         $roundConfigOptions->setMinutesPerGame( 90 );
         $roundConfigOptions->setNrOfHeadtoheadMatches( $nrOfHeadtotheadMatches );
         $structureOptions = new StructureOptions( new RoundStructure( $nrOfPlaces ), $roundConfigOptions );
-        $round = $this->structureService->create( $competition, $structureOptions );
+        $round = $this->structureService->generate( $competition, $structureOptions );
         return $round->getPoules()[0];
     }
 

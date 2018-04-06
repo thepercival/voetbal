@@ -124,7 +124,7 @@ class Service
 
         while ($nrOfPlaces > 0) {
             $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
-            $poule = $this->pouleService->create( $round, $pouleNumber++, null, $nrOfPlacesToAdd );
+            $poule = $this->pouleService->create( $round, $pouleNumber++, $nrOfPlacesToAdd );
             $nrOfPlaces -= $nrOfPlacesPerPoule;
         }
 

@@ -80,7 +80,7 @@ class Service
 
     public function createDefault( string $sport): Options
     {
-        $roundConfig = new RoundConfigOptions();
+        $roundConfig = new Options();
         if ($sport === VoetbalConfig::Football || $sport === VoetbalConfig::Hockey || $sport === VoetbalConfig::Korfball) {
            $roundConfig->setMinutesPerGameExt(5);
             $roundConfig->setEnableTime(true);
