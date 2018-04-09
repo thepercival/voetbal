@@ -73,9 +73,8 @@ final class Association
                 $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
             }
 
-            $associationSer->setParent($parentAssociation);
-
-            $associationRet = $this->service->create( $associationSer );
+            $associationRet = $this->service->create( $associationSer->getName(), $associationSer->getDescription() );
+            $associationRet = $this->service->changeParent( $associationRet, $parentAssociation );
 
             return $response
                 ->withStatus(201)
