@@ -82,8 +82,12 @@ final class League
                 throw new \Exception("de bond kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            $leagueSer->setAssociation( $association );
-            $leagueRet = $this->service->create( $leagueSer );
+            $leagueRet = $this->service->create(
+                $leagueSer->getName(),
+                $leagueSer->getSport(),
+                $association,
+                $leagueSer->getAbbreviation()
+            );
 
             return $response
                 ->withStatus(201)
