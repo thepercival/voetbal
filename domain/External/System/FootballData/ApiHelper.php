@@ -39,7 +39,10 @@ class ApiHelper
     {
         $this->externalSystem = $externalSystem;
         $this->headers['http']['method'] = 'GET';
-        $this->headers['http']['header'] = 'X-Auth-Token: ' . $this->externalSystem->getApikey();
+        $header =
+            'X-Auth-Token: ' . $this->externalSystem->getApikey() . PHP_EOL .
+            'Content-type:application/json;charset=utf-8';
+        $this->headers['http']['header'] = $header;
     }
 
     protected function getHeaders() {
