@@ -65,7 +65,7 @@ final class Association
             /** @var \Voetbal\Association $associationSer */
             $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
             if ( $associationSer === null ) {
-                throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen bond worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
             $parentAssociation = null;
@@ -105,11 +105,6 @@ final class Association
             $parentAssociation = null;
             if( $associationSer->getParent() !== null ) {
                 $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
-            }
-
-            $associationWithSameName = $this->repos->findOneBy( array( 'name' => $associationSer->getName() ) );
-            if ( $associationWithSameName !== null and $association->getId() !== $associationWithSameName->getId() ){
-                throw new \Exception("de bond ".$associationSer->getName()." bestaat al", E_ERROR );
             }
 
             $associationRet = $this->service->changeBasics(
