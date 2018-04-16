@@ -114,7 +114,7 @@ class Game implements GameImporter
             $game = $this->getGame(
                 $externalCompetition->getImportableObject(),
                 $externalSystemGame->homeTeamName,
-                $externalSystemGame->awayhomeTeamName,
+                $externalSystemGame->awayTeamName,
                 $externalSystemTeams
             );
 
@@ -142,7 +142,7 @@ class Game implements GameImporter
             $game = $this->getGame(
                 $externalCompetition->getImportableObject(),
                 $externalSystemGame->homeTeamName,
-                $externalSystemGame->awayhomeTeamName,
+                $externalSystemGame->awayTeamName,
                 $externalSystemTeams
             );
             $this->updateGame($game, $externalSystemGame, $externalSystemTeams);
