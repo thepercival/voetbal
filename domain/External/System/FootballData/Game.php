@@ -20,6 +20,7 @@ use Voetbal\Game as GameBase;
 use Voetbal\Competition;
 use Voetbal\Team as TeamBase;
 use Voetbal\Game\Score as GameScore;
+use Voetbal\PoulePlace;
 use Voetbal\External\Competition as ExternalCompetition;
 
 class Game implements GameImporter
@@ -91,21 +92,6 @@ class Game implements GameImporter
         return $retVal->fixtures;
     }
 
-    public function getId($externalSystemGame): int
-    {
-        $url = $externalSystemGame->_links->self->href;
-        $strPos = strrpos($url, '/');
-        if ($strPos === false) {
-            throw new \Exception("could not get id of fd-team", E_ERROR);
-        }
-        $id = substr($url, $strPos + 1);
-        if (strlen($id) == 0 || !is_numeric($id)) {
-            throw new \Exception("could not get id of fd-team", E_ERROR);
-        }
-        return (int)$id;
-    }
-
-
     /**
      * @param ExternalCompetition $externalCompetition
      * @param array $externalSystemTeams
@@ -118,20 +104,25 @@ class Game implements GameImporter
         foreach ($externalSystemGames as $externalSystemGame) {
             $externalGame = $this->externalRepos->findOneByExternalId(
                 $this->externalSystemBase,
-                $this->getId($externalSystemGame)
+                $this->apiHelper->getId($externalSystemGame)
             );
-            if ($externalGame !== null) {
+            if ($externalGame !== null ) {
                 throw new \Exception("for " . $this->externalSystemBase->getName() . "-game there is already an external game",
                     E_ERROR);
             }
 
             $game = $this->getGame(
                 $externalCompetition->getImportableObject(),
-                $externalSystemGame,
+                $externalSystemGame->homeTeamName,
+                $externalSystemGame->awayhomeTeamName,
                 $externalSystemTeams
             );
 
-            $this->externalObjectService->create($game, $this->externalSystemBase, $this->getId($externalSystemGame));
+            $this->externalObjectService->create(
+                $game,
+                $this->externalSystemBase,
+                $this->apiHelper->getId($externalSystemGame)
+            );
             $this->updateGame($game, $externalSystemGame);
         }
     }
@@ -143,21 +134,22 @@ class Game implements GameImporter
         foreach ($externalSystemGames as $externalSystemGame) {
             $externalGame = $this->externalRepos->findOneByExternalId(
                 $this->externalSystemBase,
-                $this->getId($externalSystemGame)
+                $this->apiHelper->getId($externalSystemGame)
             );
-            if ($externalGame === null) {
+            if ($externalGame === null ) {
                 throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found", E_ERROR);
             }
             $game = $this->getGame(
                 $externalCompetition->getImportableObject(),
-                $externalSystemGame,
+                $externalSystemGame->homeTeamName,
+                $externalSystemGame->awayhomeTeamName,
                 $externalSystemTeams
             );
-            $this->updateGame($game, $externalSystemGame);
+            $this->updateGame($game, $externalSystemGame, $externalSystemTeams);
         }
     }
 
-    protected function updateGame(GameBase $game, $externalSystemGame)
+    protected function updateGame(GameBase $game, $externalSystemGame, $externalSystemTeams)
     {
         if( $game->getState() === GameBase::STATE_PLAYED ) {
             return $game;
@@ -187,28 +179,35 @@ class Game implements GameImporter
             $gameScores[] = $gameScoreFullTime;
 
             $this->service->setScores( $game, $gameScores );
+
+            // @TODO CHECK QUALIFYING POULEPLACES NEXT ROUND
         }
         return $this->repos->save($game);
     }
 
-    protected function getGame( Competition $competition, $externalSystemGame, $externalSystemTeams): GameBase
+    protected function getGame( Competition $competition, $externalSystemHomeTeam, $externalSystemAwayTeam, $externalSystemTeams): GameBase
     {
-        $homeTeam = $this->getTeam( $competition, $externalSystemGame->homeTeamName, $externalSystemTeams);
+        $homeTeam = $this->getTeam( $externalSystemHomeTeam, $externalSystemTeams);
         if( $homeTeam === null ) {
-            throw new \Exception("hometeam could not be found for ".$this->externalSystemBase->getName()."-teamid " . $externalSystemGame->homeTeamName, E_ERROR );
+            throw new \Exception("hometeam could not be found for ".$this->externalSystemBase->getName()."-teamid " . $externalSystemHomeTeam, E_ERROR );
         }
-        $awayTeam = $this->getTeam( $competition, $externalSystemGame->awayTeamName, $externalSystemTeams);
+        $awayTeam = $this->getTeam( $externalSystemAwayTeam, $externalSystemTeams);
         if( $awayTeam === null ) {
-            throw new \Exception("awayteam could not be found for ".$this->externalSystemBase->getName()."-teamid " . $externalSystemGame->awayTeamName, E_ERROR );
+            throw new \Exception("awayteam could not be found for ".$this->externalSystemBase->getName()."-teamid " . $externalSystemAwayTeam, E_ERROR );
         }
         $games = $this->repos->findByExt($homeTeam, $awayTeam, $competition );
-        if( count($games) !== 1 ) {
-            throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemGame->homeTeamName . " vs " . $externalSystemGame->awayTeamName, E_ERROR );
+        if( count($games) === 0 ) {
+            throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemHomeTeam . " vs " . $externalSystemAwayTeam, E_ERROR );
+        }
+        if( count($games) > 1 ) {
+            uasort( $games, function( Game $g1, Game $g2) {
+                return $g2->getStartDateTime()->getTimestamp() - $g1->getStartDateTime()->getTimestamp();
+            });
         }
         return reset( $games );
     }
 
-    protected function getTeam( Competition $competition, $externalSystemTeamName, $externalSystemTeams): TeamBase
+    protected function getTeam( $externalSystemTeamName, $externalSystemTeams): TeamBase
     {
         $externalSystemFilteredTeams = array_filter( $externalSystemTeams, function ( $externalSystemTeamIt ) use ($externalSystemTeamName) {
             return  $externalSystemTeamIt->name === $externalSystemTeamName;
@@ -217,7 +216,7 @@ class Game implements GameImporter
         if( $externalSystemTeam === null ) {
             throw new \Exception("team for ".$this->externalSystemBase->getName()."-team " . $externalSystemTeamName . " could not be found", E_ERROR );
         }
-        $externalSystemTeamId = $externalSystemTeam ? $this->teamImporter->getId( $externalSystemTeam ) : null;
+        $externalSystemTeamId = $externalSystemTeam ? $this->apiHelper->getId( $externalSystemTeam ) : null;
         if( $externalSystemTeamId === null ) {
             throw new \Exception("teamid for ".$this->externalSystemBase->getName()."-team " . $externalSystemTeamName . " could not be found", E_ERROR );
         }

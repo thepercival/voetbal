@@ -12,6 +12,6 @@ use Voetbal\External\Competition as ExternalCompetition;
 
 interface Game
 {
-    public function update( ExternalCompetition $externalCompetition );
+    public function update( ExternalCompetition $externalCompetition);
     public function create( ExternalCompetition $externalCompetition);
 }

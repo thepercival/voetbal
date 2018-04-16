@@ -74,20 +74,6 @@ class Team implements TeamImporter
         return $retVal->teams;
     }
 
-    public function getId( $externalSystemTeam ): int
-    {
-        $url = $externalSystemTeam->_links->self->href;
-        $strPos = strrpos ( $url, '/' );
-        if( $strPos === false ) {
-            throw new \Exception("could not get id of fd-team", E_ERROR );
-        }
-        $id = substr( $url, $strPos + 1 );
-        if( strlen( $id) == 0 || !is_numeric( $id )) {
-            throw new \Exception("could not get id of fd-team", E_ERROR );
-        }
-        return (int)$id;
-    }
-
     public function create( Association $association, $externalSystemObject )
     {
         $team = $this->repos->findOneBy(["association" => $association, "name" => $externalSystemObject->name]);
@@ -99,7 +85,7 @@ class Team implements TeamImporter
                 $externalSystemObject->crestUrl
             );
         }
-        $externalTeam = $this->createExternal( $team, $this->getId( $externalSystemObject) );
+        $externalTeam = $this->createExternal( $team, $this->apiHelper->getId( $externalSystemObject) );
         return $team;
 
     }

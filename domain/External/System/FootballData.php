@@ -111,6 +111,7 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
     ) : StructureImporter {
         return new FootballDataStructureImporter(
             $this->getExternalSystem(),
+            $this->getApiHelper(),
             $competitionImporter,
             $teamImporter,
             $externalTeamRepos,

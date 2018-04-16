@@ -62,4 +62,18 @@ class ApiHelper
         }
         return \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s\Z', $date);
     }
+
+    public function getId($externalSystemObject): int
+    {
+        $url = $externalSystemObject->_links->self->href;
+        $strPos = strrpos($url, '/');
+        if ($strPos === false) {
+            throw new \Exception("could not get id of item", E_ERROR);
+        }
+        $id = substr($url, $strPos + 1);
+        if (strlen($id) == 0 || !is_numeric($id)) {
+            throw new \Exception("could not get id of item", E_ERROR);
+        }
+        return (int)$id;
+    }
 }
