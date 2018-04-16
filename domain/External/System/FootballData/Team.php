@@ -115,4 +115,9 @@ class Team implements TeamImporter
         }
         return $externalTeam;
     }
+
+    public function getId($externalSystemObject): int
+    {
+        return $this->apiHelper->getId($externalSystemObject);
+    }
 }
