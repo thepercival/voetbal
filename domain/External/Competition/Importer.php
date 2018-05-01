@@ -100,7 +100,7 @@ class Importer
                             }
                             $this->conn->commit();
                         } catch( \Exception $e ) {
-                            $this->logger->addNotice('for "'.$externalSystemBase->getName().'" league '.($externalSystemCompetition->league). ' could not be created: ' . $e->getMessage() );
+                            $this->logger->addError('for "'.$externalSystemBase->getName().'" league '.($externalSystemCompetition->league). ' could not be created: ' . $e->getMessage() );
                             $this->conn->rollBack();
                             continue;
                         }

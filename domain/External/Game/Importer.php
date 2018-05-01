@@ -105,7 +105,7 @@ class Importer
                         }
                         $this->conn->commit();
                     } catch( \Exception $error ) {
-                        $this->logger->addNotice($externalSystemBase->getName().'"-games could not be created or updated: ' . $error->getMessage() );
+                        $this->logger->addError($externalSystemBase->getName().'"-games could not be created or updated: ' . $error->getMessage() );
                         $this->conn->rollBack();
                     }
                 }
