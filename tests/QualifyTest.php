@@ -24,7 +24,7 @@ use League\Period\Period;
 use Voetbal\Game;
 use Voetbal\Game\Score as GameScore;
 
-class QualiyTest extends \PHPUnit_Framework_TestCase
+class QualiyTest extends \PHPUnit\Framework\TestCase
 {
     private function getRound( int $nrOfPoules, int $nrOfPoulePlaces ): Round {
         $seasonStart = new \DateTimeImmutable("2016-09-01");

@@ -22,7 +22,7 @@ use League\Period\Period;
 use Voetbal\Game;
 use Voetbal\Game\Score as GameScore;
 
-class RankingTest extends \PHPUnit_Framework_TestCase
+class RankingTest extends \PHPUnit\Framework\TestCase
 {
     private function getPoules( int $nrOfPoules, int $nrOfPoulePlaces ) {
         $seasonStart = new \DateTimeImmutable("2016-09-01");
