@@ -64,14 +64,14 @@ class Round
     protected $poules;
 
     /**
-     * @var QualfyRule[] | ArrayCollection
+     * @var QualfyRule[] | array
      */
-    protected $fromQualifyRules;
+    protected $fromQualifyRules = array();
 
     /**
      * @var QualfyRule[] | array
      */
-    protected $toQualifyRules;
+    protected $toQualifyRules = array();
 
     CONST TYPE_POULE = 1;
     CONST TYPE_KNOCKOUT = 2;
@@ -92,8 +92,6 @@ class Round
         $this->poules = new ArrayCollection();
         $this->scoreConfigs = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
-        $this->fromQualifyRules = array();
-        $this->toQualifyRules = array();
         $this->setParent( $parent );
         $number = ( $parent === null ) ? 1 : ($parent->getNumber() + 1);
         $this->setNumber( $number );

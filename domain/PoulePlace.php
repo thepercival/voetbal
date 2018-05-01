@@ -50,7 +50,7 @@ class PoulePlace
     /**
      * @var QualfyRule[] | array
      */
-    protected $toQualifyRules;
+    protected $toQualifyRules = array();
 
     const MIN_LENGTH_NAME = 10;
 
@@ -59,7 +59,6 @@ class PoulePlace
         $this->setPoule( $poule );
         $this->setNumber( $number );
         $this->setPenaltyPoints( 0 );
-        $this->toQualifyRules = array();
     }
 
     /**
