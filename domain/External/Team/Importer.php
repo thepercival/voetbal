@@ -88,11 +88,7 @@ class Importer
                         continue;
                     }
                     $association = $externalCompetition->getImportableObject()->getLeague()->getAssociation();
-                    $externalSystemHelper = $externalSystem->getTeamImporter(
-                        $this->teamService,
-                        $teamRepos,
-                        $externalTeamRepos
-                    );
+                    $externalSystemHelper = $externalSystem->getTeamImporter($this->voetbalService);
                     $teams = $externalSystemHelper->get( $externalCompetition );
                     foreach( $teams as $externalSystemTeam ) {
                         $externalId = $externalSystemHelper->getId( $externalSystemTeam );

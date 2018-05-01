@@ -116,6 +116,9 @@ class Association implements External\Importable // extends External\Importable
 	 */
     public function setDescription( $description = null )
     {
+        if ( strlen( $description ) === 0 && $description !== null ){
+            $description = null;
+        }
     	if ( strlen( $description ) > static::MAX_LENGTH_DESCRIPTION ){
 		    throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_DESCRIPTION." karakters bevatten", E_ERROR );
 	    }

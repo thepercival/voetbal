@@ -12,6 +12,7 @@ use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 use Voetbal\External\System\Importer\Team as TeamImporter;
+use Voetbal\External\System\Importer\Game as GameImporter;
 use Voetbal\Competition as Competition;
 use Voetbal\External\Competition as ExternalCompetition;
 use Voetbal\External\Team\Repository as ExternalTeamRepos;
@@ -46,6 +47,11 @@ class Structure implements StructureImporter
     private $teamImporter;
 
     /**
+     * @var GameImporter
+     */
+    private $gameImporter;
+
+    /**
      * @var ExternalTeamRepos
      */
     private $externalTeamRepos;
@@ -70,6 +76,7 @@ class Structure implements StructureImporter
         ApiHelper $apiHelper,
         CompetitionImporter $competitionImporter,
         TeamImporter $teamImporter,
+        GameImporter $gameImporter,
         ExternalTeamRepos $externalTeamRepos,
         StructureService $structureService,
         PoulePlaceService $poulePlaceService,
@@ -80,6 +87,7 @@ class Structure implements StructureImporter
         $this->apiHelper = $apiHelper;
         $this->competitionImporter = $competitionImporter;
         $this->teamImporter = $teamImporter;
+        $this->gameImporter = $gameImporter;
         $this->externalTeamRepos = $externalTeamRepos;
         $this->structureService = $structureService;
         $this->poulePlaceService = $poulePlaceService;
@@ -92,6 +100,7 @@ class Structure implements StructureImporter
         if( $footballDataCompetition === null ) {
             return;
         }
+        $nrOfPoules = $this->getNrOfPoules($externalCompetition);
         $nrOfPlaces = $footballDataCompetition->numberOfTeams;
         $externalTeams = $this->externalTeamRepos->findBy(array(
             'externalSystem' => $this->externalSystemBase
@@ -99,9 +108,9 @@ class Structure implements StructureImporter
         if( count($externalTeams) < $nrOfPlaces ) {
             throw new \Exception("for ".$this->externalSystemBase->getName()." there are not enough teams to create a structure", E_ERROR);
         }
-        $nrOfHeadtotheadMatches = $this->getNrOfHeadtotheadMatches($footballDataCompetition);
+        $nrOfHeadtotheadMatches = $this->getNrOfHeadtotheadMatches($externalCompetition, $nrOfPlaces, $nrOfPoules);
 
-        $nrOfPoules = $this->getNrOfPoules($externalCompetition);
+
         $roundStructure = new RoundStructure( $nrOfPlaces );
         $roundStructure->nrofpoules = $nrOfPoules;
         $roundStructure->nrofwinners = 0;
@@ -111,11 +120,20 @@ class Structure implements StructureImporter
         return $round;
     }
 
-    protected function getNrOfHeadtotheadMatches($footballDataCompetition)
+    protected function getNrOfHeadtotheadMatches($externalCompetition, $nrOfPlaces, $nrOfPoules)
     {
-        $nrOfMatchdays = $footballDataCompetition->numberOfMatchdays;
-        $nrOfTeams = $footballDataCompetition->numberOfTeams;
-        return ( $nrOfMatchdays / ($nrOfTeams - 1) );
+        $nrOfTeams = $nrOfPlaces;
+        $nrOfTeams = $nrOfTeams - ( $nrOfTeams % $nrOfPoules );
+        $nrOfTeamsPerPoule = $nrOfTeams / $nrOfPoules;
+
+        $nrOfGames = count( $this->gameImporter->get($externalCompetition) );
+        $nrOfGamesPerPoule = $nrOfGames / $nrOfPoules;
+
+        $nrOfGamesPerGameRound = ( $nrOfTeamsPerPoule - ( $nrOfTeamsPerPoule % 2 ) ) / 2;
+
+        $nrOfGameRounds = ( $nrOfGamesPerPoule / $nrOfGamesPerGameRound );
+
+        return $nrOfGameRounds / ( $nrOfTeamsPerPoule - 1 );
     }
 
     protected function getNrOfPoules($externalCompetition)
@@ -128,21 +146,6 @@ class Structure implements StructureImporter
     {
         return $this->apiHelper->getData("competitions/" . $externalCompetition->getExternalId() . "/leagueTable")->standings;
     }
-
-
-//    protected function isCompetitionForOnePoule( $footballDataCompetition ) {
-//        $nrOfMatchdays = $footballDataCompetition->numberOfMatchdays;
-//        $nrOfTeams = $footballDataCompetition->numberOfTeams;
-//        $nrOfMatches = $footballDataCompetition->numberOfGames;
-//        $nrOfMatchesPerMatchday = null;
-//        if( ( $nrOfTeams % 2 ) !== 0 ) {
-//            $nrOfMatchesPerMatchday = ( $nrOfTeams - 1) / 2;
-//        } else {
-//            $nrOfMatchesPerMatchday = $nrOfTeams / 2;
-//        }
-//
-//        return ( $nrOfMatchesPerMatchday * $nrOfMatchdays === $nrOfMatches );
-//    }
 
     protected function createStructure( Competition $competition, RoundStructure $roundStructure, int $nrOfHeadtotheadMatches ): Round {
         $roundConfigOptions = $this->roundConfigService->createDefault( $competition->getLeague()->getSport() );

@@ -86,10 +86,16 @@ class Game implements GameImporter
         $this->teamImporter = $teamImporter;
     }
 
-    public function get(ExternalCompetition $externalCompetition)
+    public function get(ExternalCompetition $externalCompetition, bool $onlyWithTeams = true )
     {
-        $retVal = $this->apiHelper->getData("competitions/" . $externalCompetition->getExternalId() . "/fixtures");
-        return $retVal->fixtures;
+        $externalGames = $this->apiHelper->getData("competitions/" . $externalCompetition->getExternalId() . "/fixtures");
+        $externalGames = $externalGames->fixtures;
+        if( $onlyWithTeams === true ) {
+            $externalGames = array_filter( $externalGames, function( $externalGame ) {
+                return ( strlen( $externalGame->homeTeamName ) > 0 && strlen( $externalGame->awayTeamName ) > 0 );
+            });
+        }
+        return $externalGames;
     }
 
     /**
@@ -110,11 +116,11 @@ class Game implements GameImporter
                 throw new \Exception("for " . $this->externalSystemBase->getName() . "-game there is already an external game",
                     E_ERROR);
             }
-
             $game = $this->getGame(
                 $externalCompetition->getImportableObject(),
                 $externalSystemGame->homeTeamName,
                 $externalSystemGame->awayTeamName,
+                $externalSystemGame->dateTime,
                 $externalSystemTeams
             );
 
@@ -132,24 +138,30 @@ class Game implements GameImporter
         $externalSystemTeams = $this->teamImporter->get( $externalCompetition );
         $externalSystemGames = $this->get($externalCompetition);
         foreach ($externalSystemGames as $externalSystemGame) {
+            $startDateTime = $this->apiHelper->getDate( $externalSystemGame->date );
+            $game = $this->getGame(
+                $externalCompetition->getImportableObject(),
+                $externalSystemGame->homeTeamName,
+                $externalSystemGame->awayTeamName,
+                $startDateTime,
+                $externalSystemTeams
+            );
             $externalGame = $this->externalRepos->findOneByExternalId(
                 $this->externalSystemBase,
                 $this->apiHelper->getId($externalSystemGame)
             );
             if ($externalGame === null ) {
-                throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found", E_ERROR);
+                $this->externalObjectService->create(
+                    $game,
+                    $this->externalSystemBase,
+                    $this->apiHelper->getId($externalSystemGame)
+                );
             }
-            $game = $this->getGame(
-                $externalCompetition->getImportableObject(),
-                $externalSystemGame->homeTeamName,
-                $externalSystemGame->awayTeamName,
-                $externalSystemTeams
-            );
-            $this->updateGame($game, $externalSystemGame, $externalSystemTeams);
+            $this->updateGame($game, $externalSystemGame);
         }
     }
 
-    protected function updateGame(GameBase $game, $externalSystemGame, $externalSystemTeams)
+    protected function updateGame(GameBase $game, $externalSystemGame)
     {
         if( $game->getState() === GameBase::STATE_PLAYED ) {
             return $game;
@@ -180,12 +192,21 @@ class Game implements GameImporter
 
             $this->service->setScores( $game, $gameScores );
 
-            // @TODO CHECK QUALIFYING POULEPLACES NEXT ROUND
+            // set qualifiers for next round
+            foreach( $game->getRound()->getChildRounds() as $childRound ) {
+                $qualifyService = new QualifyService( $childRound );
+                $qualifyService->setQualifyRules();
+                $newQualifiers = $qualifyService->getNewQualifiers( $game->getPoule() );
+                foreach( $newQualifiers as $newQualifier ) {
+                    $this->poulePlaceService->assignTeam( $newQualifier->getPoulePlace(), $newQualifier->getTeam() );
+                }
+            }
         }
         return $this->repos->save($game);
     }
 
-    protected function getGame( Competition $competition, $externalSystemHomeTeam, $externalSystemAwayTeam, $externalSystemTeams): GameBase
+    protected function getGame( Competition $competition,
+        $externalSystemHomeTeam, $externalSystemAwayTeam, $externalSystemTeams): GameBase
     {
         $homeTeam = $this->getTeam( $externalSystemHomeTeam, $externalSystemTeams);
         if( $homeTeam === null ) {
@@ -196,6 +217,9 @@ class Game implements GameImporter
             throw new \Exception("awayteam could not be found for ".$this->externalSystemBase->getName()."-teamid " . $externalSystemAwayTeam, E_ERROR );
         }
         $games = $this->repos->findByExt($homeTeam, $awayTeam, $competition );
+        if( count($games) === 0 ) {
+            $games = $this->repos->findByExt($awayTeam, $homeTeam, $competition );
+        }
         if( count($games) === 0 ) {
             throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemHomeTeam . " vs " . $externalSystemAwayTeam, E_ERROR );
         }

@@ -8,22 +8,10 @@
 
 namespace Voetbal\External\System\Importable;
 
-use Voetbal\External\System\Importer\Competition as CompetitionImporter;
-use Voetbal\External\System\Importer\Team as TeamImporter;
 use Voetbal\External\System\Importer\Structure as StructureImporter;
-use Voetbal\External\Team\Repository as ExternalTeamRepos;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\PoulePlace\Service as PoulePlaceService;
-use Voetbal\Round\Config\Service as RoundConfigService;
+use Voetbal\Service as VoetbalService;
 
 interface Structure
 {
-    public function getStructureImporter(
-        CompetitionImporter $competitionImporter,
-        TeamImporter $teamImporter,
-        ExternalTeamRepos $externalTeamRepos,
-        StructureService $structureService,
-        PoulePlaceService $poulePlaceService,
-        RoundConfigService $roundConfigService
-    ) : StructureImporter;
+    public function getStructureImporter( VoetbalService $voetbalService ) : StructureImporter;
 }

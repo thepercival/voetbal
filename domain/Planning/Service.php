@@ -81,12 +81,13 @@ class Service
     }
 
     public function canCalculateStartDateTime(Competition $competition, int $roundNumber): bool {
-        $aRound = $this->getRoundsByNumber($competition, $roundNumber)->reset();
+        $roundsByNumber = $this->getRoundsByNumber($competition, $roundNumber);
+        $aRound = reset( $roundsByNumber );
         if ($aRound->getConfig()->getEnableTime() === false) {
             return false;
         }
         if ($this->getRoundsByNumber($competition, $roundNumber - 1) !== null) {
-            return $this->canCalculateStartDateTime($roundNumber - 1);
+            return $this->canCalculateStartDateTime($competition, $roundNumber - 1);
         }
         return true;
     }

@@ -8,6 +8,8 @@
 
 namespace Voetbal;
 
+use Voetbal\Qualify\Rule as QualifyRule;
+
 class PoulePlace
 {
     /**
@@ -26,6 +28,11 @@ class PoulePlace
     protected $number;
 
     /**
+     * @var int
+     */
+    protected $penaltyPoints;
+
+    /**
      * @var Poule
      */
     protected $poule;
@@ -35,12 +42,24 @@ class PoulePlace
      */
     protected $team;
 
+    /**
+     * @var QualfyRule
+     */
+    protected $fromQualifyRule;
+
+    /**
+     * @var QualfyRule[] | array
+     */
+    protected $toQualifyRules;
+
     const MIN_LENGTH_NAME = 10;
 
     public function __construct( Poule $poule, $number )
     {
         $this->setPoule( $poule );
         $this->setNumber( $number );
+        $this->setPenaltyPoints( 0 );
+        $this->toQualifyRules = array();
     }
 
     /**
@@ -111,6 +130,22 @@ class PoulePlace
     }
 
     /**
+     * @return int
+     */
+    public function getPenaltyPoints()
+    {
+        return $this->penaltyPoints;
+    }
+
+    /**
+     * @param int $penaltyPoints
+     */
+    public function setPenaltyPoints( int $penaltyPoints )
+    {
+        $this->penaltyPoints = $penaltyPoints;
+    }
+
+    /**
      * @return string
      */
     public function getName()
@@ -151,5 +186,43 @@ class PoulePlace
     public function setTeam( Team $team = null )
     {
         $this->team = $team;
+    }
+
+    public function getFromQualifyRule(): QualifyRule
+    {
+        return $this->fromQualifyRule;
+    }
+
+    public function setFromQualifyRule(QualifyRule $qualifyRule )
+    {
+        $this->fromQualifyRule = $qualifyRule;
+    }
+
+    public function getToQualifyRules(): array /*QualifyRule*/
+    {
+        return $this->toQualifyRules;
+    }
+
+    public function getToQualifyRule(int $winnersOrLosers)
+    {
+        $filtered = array_filter( $this->toQualifyRules, function ($qualifyRule) use ($winnersOrLosers) {
+            return ($qualifyRule->getWinnersOrLosers() === $winnersOrLosers);
+        });
+        $toQualifyRule = reset( $filtered );
+        return $toQualifyRule !== false ? $toQualifyRule : null;
+    }
+
+    public function setToQualifyRule(int $winnersOrLosers, QualifyRule $qualifyRule = null )
+    {
+        $toQualifyRuleOld = $this->getToQualifyRule($winnersOrLosers);
+        if ($toQualifyRuleOld !== null) {
+            // toQualifyRuleOld.removeFromPoulePlace( this );
+            if (($key = array_search($toQualifyRuleOld, $this->toQualifyRules)) !== false) {
+                unset($this->toQualifyRules[$key]);
+            }
+        }
+        if ($qualifyRule) {
+            $this->toQualifyRules[] = $qualifyRule;
+        }
     }
 }

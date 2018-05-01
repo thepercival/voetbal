@@ -15,65 +15,66 @@ class AssociationTest extends \PHPUnit_Framework_TestCase
 	public function testCreateNameMin()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$associationName = new Association\Name("");
+		$association = new Association("");
 	}
 
 	public function testCreateNameMax()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$associationName = new Association\Name("123456789012345678901");
+		$associationName = new Association("123456789012345678901");
 	}
 
 	public function testCreateNameCharactersOne()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$associationName = new Association\Name("-");
+		$association = new Association("-");
 	}
 
 	public function testCreateNameCharactersTwo()
 	{
 		$this->expectException(\InvalidArgumentException::class);
-		$associationName = new Association\Name("1");
+		$association = new Association("K.N.V.B");
 	}
 
 	public function testCreateNameCharactersThree()
 	{
-		$associationName = new Association\Name("K.N.V.B.");
-		$this->assertEquals("K.N.V.B.", $associationName );
+		$association = new Association("KNVB");
+		$this->assertEquals("KNVB", $association->getName() );
 	}
 
     public function testCreateDescriptionMin()
     {
-        $this->expectException(\InvalidArgumentException::class);
-        $associationDescription = new Association\Description("");
+        $association = new Association("KNVB");
+        $association->setDescription("");
+        $this->assertEquals(null, $association->getDescription() );
     }
 
     public function testCreateDescriptionMax()
     {
+        $association = new Association("KNVB");
         $this->expectException(\InvalidArgumentException::class);
-        $associationDescription = new Association\Description("123456789012345678901234567890123456789012345678901");
+        $association->setDescription("123456789012345678901234567890123456789012345678901");
     }
 
 	public function testCreate()
 	{
-		$associationName = new Association\Name("K.N.V.B.");
-		$association = new Association( $associationName );
+		$association = new Association( "KNVB" );
 		$this->assertNotEquals(null, $association);
 	}
 
     public function testParentChildSame()
     {
         $this->expectException(\Exception::class);
-        $child = new Association( new Association\Name("child") );
-        $child->setParent($child);
+        $association = new Association( "KNVB" );
+        $association->setParent($association);
     }
 
     public function testParentChildNewParent()
     {
-        $parent = new Association( new Association\Name("parent") );
-        $child = new Association( new Association\Name("child") );
+        $parent = new Association( "parent" );
+        $child = new Association( "child" );
         $child->setParent($parent);
-        $this->assertNotEquals(1, $parent->getChildren()->count());
+        $this->assertEquals(1, $parent->getChildren()->count());
     }
 
     /*public function testParentChildReplaceParent()

@@ -12,6 +12,7 @@ use Voetbal\Game\Service as GameService;
 use Voetbal\Service as VoetbalService;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
+use Voetbal\Game;
 use Voetbal\External\System\Factory as ExternalSystemFactory;
 
 use Voetbal\External\System\Importable\Game as GameImportable;
@@ -83,17 +84,7 @@ class Importer
                     continue;
                 }
                 $externalSystem->init();
-                $externalSystemHelper = $externalSystem->getGameImporter(
-                    $this->gameService,
-                    $gameRepos,
-                    $externalGameRepos,
-                    $externalTeamRepos,
-                    $externalSystem->getTeamImporter(
-                        $teamService,
-                        $teamRepos,
-                        $externalTeamRepos
-                    )
-                );
+                $externalSystemHelper = $externalSystem->getGameImporter($this->voetbalService);
                 foreach( $competitions as $competition ) {
                     $externalCompetition = $externalCompetitionRepos->findOneByImportable( $externalSystemBase, $competition );
                     if( $externalCompetition === null or strlen($externalCompetition->getExternalId()) === null ) {
@@ -111,7 +102,7 @@ class Importer
                         $hasUnfinishedGames = $gameRepos->hasCompetitionGames( $competition, Game::STATE_CREATED + Game::STATE_INPLAY );
                         if( $hasUnfinishedGames === true ) {
                             $externalSystemHelper->update($externalCompetition);
-                   }
+                        }
                         $this->conn->commit();
                     } catch( \Exception $error ) {
                         $this->logger->addNotice($externalSystemBase->getName().'"-games could not be created or updated: ' . $error->getMessage() );

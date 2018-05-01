@@ -80,11 +80,7 @@ class Importer
                         $this->logger->addNotice('for season '.$season->getName().' there is no "'.$externalSystemBase->getName().'"-season available' );
                         continue;
                     }
-                    $externalSystemHelper = $externalSystem->getCompetitionImporter(
-                        $this->competitionService,
-                        $competitionRepos,
-                        $externalCompetitionRepos
-                    );
+                    $externalSystemHelper = $externalSystem->getCompetitionImporter($this->voetbalService);
                     $competitions = $externalSystemHelper->get( $externalSeason );
                     foreach( $competitions as $externalSystemCompetition ) {
                         $externalLeague = $externalLeagueRepos->findOneByExternalId( $externalSystemBase, $externalSystemCompetition->league );

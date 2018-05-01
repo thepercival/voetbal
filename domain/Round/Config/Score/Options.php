@@ -8,9 +8,6 @@
 
 namespace Voetbal\Round\Config\Score;
 
-use Voetbal\Round;
-use Voetbal\QualifyRule;
-
 class Options
 {
     use OptionsTrait;

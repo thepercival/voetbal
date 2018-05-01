@@ -31,7 +31,7 @@ class NameService
         if ($nrOfRoundsToGo >= 2 && $nrOfRoundsToGo <= 5) {
             return $this->getHtmlFractalNumber(pow(2, $nrOfRoundsToGo - 1)) . ' finale';
         } else if ($nrOfRoundsToGo === 1) {
-            if ($round->getPoulePlaces()->count() === 2 && $sameName === false) {
+            if (count($round->getPoulePlaces()) === 2 && $sameName === false) {
                 $rankedPlace = $this->getRankedPlace($round);
                 return $this->getHtmlNumber($rankedPlace) . '/' . $this->getHtmlNumber($rankedPlace + 1) . ' plaats';
             }
@@ -135,7 +135,7 @@ class NameService
             return $rankedPlace;
         }
         if ($round->getWinnersOrLosers() === Round::LOSERS) {
-            $rankedPlace += $parent->getPoulePlaces()->count() - $round->getPoulePlaces()->count();
+            $rankedPlace += count($parent->getPoulePlaces()) - $round->getPoulePlaces()->count();
         }
         return $this->getRankedPlace($parent, $rankedPlace);
     }

@@ -43,8 +43,6 @@ class Poule
     protected $games;
 
     const MAX_LENGTH_NAME = 10;
-    const SOCCERWORLDCUP = 1;
-    const SOCCEREUROPEANCUP = 2;
 
     public function __construct( Round $round, $number )
     {
@@ -202,5 +200,37 @@ class Poule
             return ( ( $nrOfPlaces - 1) / 2 );
         }
         return ( $nrOfPlaces / 2 );
+    }
+
+    public function getState(): int
+    {
+        $allPlayed = true;
+        foreach( $this->getGames() as $game ) {
+            if( $game->getState() !== Game::STATE_PLAYED ) {
+                $allPlayed = false;
+                break;
+            }
+        }
+        if ($this->getGames()->count() > 0 && $allPlayed ) {
+            return Game::STATE_PLAYED;
+        }
+        foreach( $this->getGames() as $game ) {
+            if( $game->getState() !== Game::STATE_CREATED ) {
+                return Game::STATE_INPLAY;
+            }
+        }
+        return Game::STATE_CREATED;
+    }
+
+    public function getTeams(): ArrayCollection // <Team>
+    {
+        $teams = new ArrayCollection();
+        foreach ( $this->getPlaces() as $place ) {
+            $team = $place->getTeam();
+            if ($team !== null) {
+                $teams->add($team);
+            }
+        }
+        return $teams;
     }
 }

@@ -8,7 +8,7 @@
 
 namespace Voetbal\Round\Config;
 
-use Voetbal\QualifyRule;
+use Voetbal\Qualify\Rule as QualifyRule;
 
 trait OptionsTrait
 {

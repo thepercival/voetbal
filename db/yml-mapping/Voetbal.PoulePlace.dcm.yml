@@ -18,6 +18,12 @@ Voetbal\PoulePlace:
       nullable: false
       unique: false
       column: number
+    penaltyPoints:
+      type: smallint
+      nullable: false
+      default: 0
+      unique: false
+      column: penaltyPoints
   manyToOne:
     poule:
       targetEntity: Voetbal\Poule

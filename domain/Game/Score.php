@@ -156,6 +156,11 @@ class Score
         $this->away = $away;
     }
 
+    public function get(bool $homeAway): int
+    {
+        return $homeAway === Game::HOME ? $this->getHome() : $this->getAway();
+    }
+
     /**
      * @return Game
      */

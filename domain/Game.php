@@ -336,4 +336,30 @@ class Game implements External\Importable
         }
         return null;
     }
+
+    public function getPoulePlace(bool $homeAway): PoulePlace
+    {
+        return $homeAway === Game::HOME ? $this->getHomePoulePlace() : ($homeAway === Game::AWAY ? $this->getAwayPoulePlace() : null);
+    }
+
+    public function getHomeAway(PoulePlace $poulePlace)
+    {
+        if ($poulePlace === $this->getHomePoulePlace()) {
+            return Game::HOME;
+        } else if ($poulePlace === $this->getAwayPoulePlace()) {
+            return Game::AWAY;
+        }
+        return null;
+    }
+
+    public function getFinalScore(): Score
+    {
+        $finalScore = null;
+        foreach( $this->getScores() as $score ) {
+            if( $finalScore === null || $score->getMoment() > $finalScore->getMomemt() ) {
+                $finalScore = $score;
+            }
+        }
+        return $finalScore;
+    }
 }

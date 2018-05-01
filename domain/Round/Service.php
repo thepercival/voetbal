@@ -156,7 +156,7 @@ class Service
         );
 
         // $hasParentOpposingChild = ( $parent->getChild( Round::getOpposing( $winnersOrLosers ) )!== null );
-        if ($opposing > 0 || ($round->getPoulePlaces()->count() === 2)) {
+        if ($opposing > 0 || (count($round->getPoulePlaces()) === 2)) {
             $structureOptions->round = new RoundStructure( $nrOfOpposingPlacesNextRound );
             $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
             $this->generateHelper(
@@ -225,7 +225,7 @@ class Service
         $this->conn->beginTransaction(); // suspend auto-commit
         try {
             $this->removeNonexistingPoules( $round->getPoules()->toArray(), $pouleIds );
-            $this->removeNonexistingPlaces( $round->getPoulePlaces()->toArray(), $placeIds );
+            $this->removeNonexistingPlaces( $round->getPoulePlaces(), $placeIds );
             foreach( $poulesSer as $pouleSer ) {
                 $this->updatePoulesHelper( $pouleSer, $round );
             }

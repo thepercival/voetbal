@@ -2,15 +2,18 @@
 /**
  * Created by PhpStorm.
  * User: coen
- * Date: 17-10-17
- * Time: 12:42
+ * Date: 20-4-18
+ * Time: 10:40
  */
 
-namespace Voetbal;
+namespace Voetbal\Qualify;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Round;
+use Voetbal\PoulePlace;
 
-class QualifyRule {
+class Rule
+{
     /**
      * @var Round
      */
@@ -39,9 +42,9 @@ class QualifyRule {
     const SOCCERWORLDCUP = 1;
     const SOCCEREUROPEANCUP = 2;
 
-    public function __construct( Round $round, Round $toRound )
+    public function __construct( Round $fromRound, Round $toRound )
     {
-        $this->setFromRound( $round );
+        $this->setFromRound( $fromRound );
         $this->setToRound( $toRound );
         $this->fromPoulePlaces = new ArrayCollection();
         $this->toPoulePlaces = new ArrayCollection();
@@ -60,6 +63,15 @@ class QualifyRule {
      */
     public function setFromRound( Round $round )
     {
+        if ($this->fromRound !== null && $this->fromRound !== $round) {
+            $fromRoundToQualifyRules = $this->fromRound->getToQualifyRules();
+            if (($key = array_search($this, $fromRoundToQualifyRules)) !== false) {
+                unset($fromRoundToQualifyRules[$key]);
+            }
+        }
+        if ($round !== null) {
+            $round->getToQualifyRules()[] = $this;
+        }
         $this->fromRound = $round;
     }
 
@@ -71,11 +83,17 @@ class QualifyRule {
         return $this->toRound;
     }
 
-    /**
-     * @param Round $round
-     */
-    public function setToRound( Round $round )
+    public function setToRound(Round $round)
     {
+        if ($this->toRound !== null && $this->toRound !== $round) {
+            $toRoundFromQualifyRules = $this->toRound->getFromQualifyRules();
+            if (($key = array_search($this, $toRoundFromQualifyRules)) !== false) {
+                unset($toRoundFromQualifyRules[$key]);
+            }
+        }
+        if ($round !== null) {
+            $round->getFromQualifyRules()[] = $this;
+        }
         $this->toRound = $round;
     }
 
@@ -143,5 +161,49 @@ class QualifyRule {
                 "Aantal goals gemaakt in alle wedstrijden"
             ]
         ];
+    }
+
+    public function addFromPoulePlace(PoulePlace $poulePlace)
+    {
+        $poulePlace->setToQualifyRule($this->getWinnersOrLosers(), $this);
+        $this->fromPoulePlaces[] = $poulePlace;
+    }
+
+    public function removeFromPoulePlace(PoulePlace $poulePlace = null )
+    {
+        $fromPoulePlaces = $this->getFromPoulePlaces();
+        if ($poulePlace === null) {
+            $poulePlace = $fromPoulePlaces[count($fromPoulePlaces) - 1];
+        }
+        if (($key = array_search($poulePlace, $fromPoulePlaces)) !== false) {
+            unset($fromPoulePlaces[$key]);
+            $poulePlace->setToQualifyRule($this->getWinnersOrLosers(), null);
+        }
+    }
+
+    public function getWinnersOrLosers() {
+        return $this->getToRound()->getWinnersOrLosers();
+    }
+
+    public function addToPoulePlace(PoulePlace $poulePlace )
+    {
+        $poulePlace->setFromQualifyRule($this);
+        $this->toPoulePlaces[] = $poulePlace;
+    }
+
+    public function removeToPoulePlace(PoulePlace $poulePlace = null )
+    {
+        $toPoulePlaces = $this->getToPoulePlaces();
+        if ($poulePlace === null) {
+            $poulePlace = $toPoulePlaces[count($toPoulePlaces) - 1];
+        }
+        if (($key = array_search($poulePlace, $toPoulePlaces)) !== false) {
+            unset($toPoulePlaces[$key]);
+            $poulePlace->setFromQualifyRule(null);
+        }
+    }
+
+    public function isMultiple(): bool {
+        return count( $this->getFromPoulePlaces() ) > count( $this->getToPoulePlaces() );
     }
 }

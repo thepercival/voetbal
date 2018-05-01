@@ -31,7 +31,7 @@ class Service
      * Service constructor.
      * @param Repository $repos
      */
-    public function __construct( RoundConfigRepos $repos, RoundConfigScoreRepos $scoreRepos )
+    public function __construct( RoundConfigRepos $repos = null, RoundConfigScoreRepos $scoreRepos = null )
     {
         $this->repos = $repos;
         $this->scoreRepos = $scoreRepos;
@@ -39,10 +39,15 @@ class Service
 
     public function create(Round $round, Options $configOptions): RoundConfig {
         $config = new RoundConfig( $round );
-        $config = $this->repos->save($config);
+        if( $this->repos !== null ) {
+            $config = $this->repos->save($config);
+        }
         $this->createScore( $config, $configOptions->getScore() );
         $config->setOptions( $configOptions );
-        return $this->repos->save($config);
+        if( $this->repos !== null ) {
+            return $this->repos->save($config);
+        }
+        return $config;
     }
 
     protected function createScore(RoundConfig $config, ScoreOptions $scoreOptions)
@@ -50,8 +55,9 @@ class Service
         $scoreConfig = $this->createScoreHelper($config, $scoreOptions);
         $scoreConfig = $scoreConfig->getRoot();
         while ( $scoreConfig ) {
-            // var_dump($scoreConfig->getName());
-            $this->scoreRepos->save($scoreConfig);
+            if( $this->scoreRepos !== null ) {
+                $this->scoreRepos->save($scoreConfig);
+            }
             $scoreConfig = $scoreConfig->getChild();
         }
     }
@@ -70,12 +76,15 @@ class Service
         $roundConfig->setOptions( $configOptions );
         $scoreConfig = $roundConfig->getScore()->getRoot();
         while ( $scoreConfig ) {
-            // var_dump($scoreConfig->getName());
-            $this->scoreRepos->save($scoreConfig);
+            if( $this->scoreRepos !== null ) {
+                $this->scoreRepos->save($scoreConfig);
+            }
             $scoreConfig = $scoreConfig->getChild();
         }
-        // die();
-        return $this->repos->save($roundConfig);
+        if( $this->repos !== null ) {
+            return $this->repos->save($roundConfig);
+        }
+        return $roundConfig;
     }
 
     public function createDefault( string $sport): Options

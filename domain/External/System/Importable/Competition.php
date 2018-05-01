@@ -8,16 +8,10 @@
 
 namespace Voetbal\External\System\Importable;
 
-use Voetbal\Competition\Service as CompetitionService;
-use Voetbal\Competition\Repository as CompetitionRepos;
-use Voetbal\External\Competition\Repository as ExternalCompetitionRepos;
+use Voetbal\Service as VoetbalService;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 
 interface Competition
 {
-    public function getCompetitionImporter(
-        CompetitionService $competitionService,
-        CompetitionRepos $competitionRepos,
-        ExternalCompetitionRepos $externalRepos
-    ) : CompetitionImporter;
+    public function getCompetitionImporter(VoetbalService $voetbalService) : CompetitionImporter;
 }

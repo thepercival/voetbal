@@ -8,16 +8,10 @@
 
 namespace Voetbal\External\System\Importable;
 
-use Voetbal\Team\Service as TeamService;
-use Voetbal\Team\Repository as TeamRepos;
-use Voetbal\External\Team\Repository as ExternalTeamRepos;
+use Voetbal\Service as VoetbalService;
 use Voetbal\External\System\Importer\Team as TeamImporter;
 
 interface Team
 {
-    public function getTeamImporter(
-        TeamService $service,
-        TeamRepos $teamRepos,
-        ExternalTeamRepos $externalRepos
-    ) : TeamImporter;
+    public function getTeamImporter(VoetbalService $voetbalService) : TeamImporter;
 }
