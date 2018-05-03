@@ -90,7 +90,7 @@ class Importer
 
                         $this->conn->commit();
                     } catch( \Exception $e ) {
-                        $this->logger->addNotice('for "'.$externalSystemBase->getName().'"-competition '.$competition->getName(). ' structure not created: ' . $e->getMessage() );
+                        $this->logger->addError('for "'.$externalSystemBase->getName().'"-competition '.$competition->getName(). ' structure not created: ' . $e->getMessage() );
                         $this->conn->rollBack();
                     }
                 }

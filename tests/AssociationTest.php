@@ -10,7 +10,7 @@ namespace Voetbal\Tests;
 
 use \Voetbal\Association as Association;
 
-class AssociationTest extends \PHPUnit_Framework_TestCase
+class AssociationTest extends \PHPUnit\Framework\TestCase
 {
 	public function testCreateNameMin()
 	{

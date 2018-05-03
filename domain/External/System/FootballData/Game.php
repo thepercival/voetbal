@@ -19,8 +19,7 @@ use Voetbal\External\Team\Repository as ExternalTeamRepos;
 use Voetbal\Game as GameBase;
 use Voetbal\Competition;
 use Voetbal\Team as TeamBase;
-use Voetbal\Game\Score as GameScore;
-use Voetbal\PoulePlace;
+use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\External\Competition as ExternalCompetition;
 
 class Game implements GameImporter
@@ -203,7 +202,7 @@ class Game implements GameImporter
     }
 
     protected function getGame( Competition $competition,
-        $externalSystemHomeTeam, $externalSystemAwayTeam, $externalSystemTeams): GameBase
+        $externalSystemHomeTeam, $externalSystemAwayTeam, array $externalSystemTeams): GameBase
     {
         $homeTeam = $this->getTeam( $externalSystemHomeTeam, $externalSystemTeams);
         if( $homeTeam === null ) {
@@ -228,7 +227,7 @@ class Game implements GameImporter
         return reset( $games );
     }
 
-    protected function getTeam( $externalSystemTeamName, $externalSystemTeams): TeamBase
+    protected function getTeam( $externalSystemTeamName, array $externalSystemTeams): TeamBase
     {
         $externalSystemFilteredTeams = array_filter( $externalSystemTeams, function ( $externalSystemTeamIt ) use ($externalSystemTeamName) {
             return  $externalSystemTeamIt->name === $externalSystemTeamName;
