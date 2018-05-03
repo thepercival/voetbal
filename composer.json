@@ -44,7 +44,7 @@
   "minimum-stability": "dev",
   "scripts": {
     "test": [
-      "vendor\\bin\\phpunit"
+      "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/"
     ]
   }
 }
