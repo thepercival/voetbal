@@ -328,7 +328,7 @@ class Round
                 $poulePlaces[] = $place;
             }
         }
-        if ($order === Round::ORDER_HORIZONTAL || $order > 2) {
+        if ($order === Round::ORDER_HORIZONTAL || $order === 4) {
             uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
                 if ($poulePlaceA->getNumber() > $poulePlaceB->getNumber()) {
                     return 1;
@@ -345,7 +345,7 @@ class Round
                 return 0;
             });
         }
-        else if ($order === Round::ORDER_VERTICAL) {
+        else if ($order === Round::ORDER_VERTICAL || $order === 5) {
             uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
                 if ($poulePlaceA->getPoule()->getNumber() > $poulePlaceB->getPoule()->getNumber()) {
                     return 1;

@@ -73,8 +73,8 @@ class Service
                 $poulePlaces[] = array_shift($poulePlaces);
             }
             $shuffledPoulePlaces = $poulePlaces;
-        } else if ($qualifyOrder === 4) { // shuffle per two on oneven placenumbers
-            if ($poulePlaces[0]->getNumber() % 2 === 0) {
+        } else if ($qualifyOrder === 4) { // shuffle per two on oneven placenumbers, horizontal-children
+            if ( ($poulePlaces[0]->getNumber() % 2 ) === 0) {
                 while (count($poulePlaces) > 0) {
                     $reversedRemovedPlaced = array_reverse( array_splice($poulePlaces, 0, 2) );
                     $shuffledPoulePlaces = array_merge( $shuffledPoulePlaces, $reversedRemovedPlaced);
@@ -82,7 +82,17 @@ class Service
             } else {
                 $shuffledPoulePlaces = $poulePlaces;
             }
-
+        }
+        else if ($qualifyOrder === 5) { // reverse second and third item, vertical-children
+            if ( (count($poulePlaces) % 4 ) === 0) {
+                while ( count($poulePlaces) > 0) {
+                    $removedPlaced = array_splice($poulePlaces, 0, 4);
+                    $removedPlaced = array_splice($removedPlaced, 1, 0, array_splice($removedPlaced, 2, 1 ) );
+                    $shuffledPoulePlaces = array_merge( $shuffledPoulePlaces, $removedPlaced);
+                }
+            } else {
+                $shuffledPoulePlaces = $poulePlaces;
+            }
         }
         return $shuffledPoulePlaces;
     }

@@ -44,7 +44,7 @@
   "minimum-stability": "dev",
   "scripts": {
     "test": [
-      "vendor\\bin\\phpunit -c tests/config.xml"
+      "vendor\\bin\\phpunit"
     ]
   }
 }
