@@ -132,7 +132,7 @@ class Service
                 }
                 else {
                     $this->poulePlaceService->assignTeam($poulePlace, $team);
-                    if ($pouleSer->getNumber() !== $poule->getNumber()
+                    if ($pouleSer->getNumber() !== $poulePlace->getPoule()->getNumber()
                         || $poulePlaceSer->getNumber() !== $poulePlace->getNumber()
                     ) {
                         $this->poulePlaceService->move($poulePlace,
