@@ -55,7 +55,7 @@ final class Season
 				->write($this->serializer->serialize( $object, 'json'));
 			;
 		}
-		return $response->withStatus(404, 'geen seizoen met het opgegeven id gevonden');
+		return $response->withStatus(404)->write('geen seizoen met het opgegeven id gevonden');
 	}
 
 	public function add( $request, $response, $args)

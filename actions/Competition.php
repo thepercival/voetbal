@@ -72,7 +72,7 @@ final class Competition
 				->write($this->serializer->serialize( $object, 'json'));
 			;
 		}
-		return $response->withStatus(404, 'geen competitieseizoen met het opgegeven id gevonden');
+		return $response->withStatus(404)->write('geen competitieseizoen met het opgegeven id gevonden');
 	}
 
 

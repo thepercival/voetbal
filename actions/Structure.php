@@ -68,7 +68,7 @@ final class Structure
     {
         $cs = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
         if( $cs === null ) {
-            return $response->withStatus(404, 'geen structuur gevonden voor competitieseizoen');
+            return $response->withStatus(404)->write('geen structuur gevonden voor competitieseizoen');
         }
 
         $params = array( "number" => 1, "competition" => $cs->getId() );

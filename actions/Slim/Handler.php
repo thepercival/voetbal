@@ -27,7 +27,7 @@ class Handler
         $resourceType = array_key_exists("resourceType", $args) ? $args["resourceType"] : null;
         $action = $this->getAction($resourceType);
         if ($action === null) {
-            return $response->withStatus(404, 'geen actie gevonden voor ' . $resourceType);
+            return $response->withStatus(404)->write('geen actie gevonden voor ' . $resourceType);
         }
         return $this->executeAction($action, $request, $response, $args);
     }

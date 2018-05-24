@@ -29,7 +29,7 @@ class ExternalHandler
             $action = $this->getAction( $resourceType );
         }
         catch( \Exception $e ) {
-            return $response->withStatus(404, $e->getMessage());
+            return $response->withStatus(404)->write($e->getMessage());
         }
 
         return $this->executeAction($action, $request, $response, $args);

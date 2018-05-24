@@ -64,7 +64,7 @@ final class League
 				->write($this->serializer->serialize( $object, 'json'));
 			;
 		}
-		return $response->withStatus(404, 'geen competitie met het opgegeven id gevonden');
+		return $response->withStatus(404)->write('geen competitie met het opgegeven id gevonden');
 	}
 
 	public function add( $request, $response, $args)

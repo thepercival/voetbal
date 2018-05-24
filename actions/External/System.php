@@ -54,7 +54,7 @@ final class System
                 ->write($this->serializer->serialize( $system, 'json'));
             ;
         }
-        return $response->withStatus(404, 'geen extern systeem met het opgegeven id gevonden');
+        return $response->withStatus(404)->write('geen extern systeem met het opgegeven id gevonden');
     }
 
     public function add( $request, $response, $args)

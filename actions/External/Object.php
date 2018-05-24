@@ -55,7 +55,7 @@ final class Object
     public function fetch( $request, $response, $args)
     {
         if ( $this->repos === null ){
-            return $response->withStatus(404, 'geen klasse gevonden voor route '.$args["resourceType"]);
+            return $response->withStatus(404)->write('geen klasse gevonden voor route '.$args["resourceType"]);
         }
 
         $objects = $this->repos->findAll();
