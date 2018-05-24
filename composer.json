@@ -16,9 +16,7 @@
   "require": {
     "php": ">=7.1",
     "vlucas/phpdotenv": "^2.4",
-    "nesbot/carbon": "~1.21",
-    "league/period": "~3.3",
-    "league/tactician": "~1.0",
+    "league/period": "^3.4",
     "doctrine/orm": "^2.5",
     "jms/serializer": "^1.5",
     "symfony/yaml": "^3.2",
@@ -41,7 +39,6 @@
       "": "tests/"
     }
   },
-  "minimum-stability": "dev",
   "scripts": {
     "test": [
       "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/"
