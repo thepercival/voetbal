@@ -32,6 +32,11 @@ class Referee
     /**
      * @var string
      */
+    private $emailaddress;
+
+    /**
+     * @var string
+     */
     private $info;
 
     /**
@@ -43,6 +48,8 @@ class Referee
     const MAX_LENGTH_INITIALS = 3;
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 15;
+    const MIN_LENGTH_EMAIL = 6;
+    const MAX_LENGTH_EMAIL = 100;
     const MAX_LENGTH_INFO = 200;
 
     public function __construct( Competition $competition, $initials )
@@ -114,6 +121,31 @@ class Referee
             throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
         }
         $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEmailaddress()
+    {
+        return $this->emailaddress;
+    }
+
+    /**
+     * @param string $emailaddress
+     */
+    public function setEmailaddress( $emailaddress )
+    {
+        if( strlen( $emailaddress ) > 0 ) {
+            if (strlen($emailaddress) < static::MIN_LENGTH_EMAIL or strlen($emailaddress) > static::MAX_LENGTH_EMAIL) {
+                throw new \InvalidArgumentException("het emailadres moet minimaal " . static::MIN_LENGTH_EMAIL . " karakters bevatten en mag maximaal " . static::MAX_LENGTH_EMAIL . " karakters bevatten", E_ERROR);
+            }
+
+            if (!filter_var($emailaddress, FILTER_VALIDATE_EMAIL)) {
+                throw new \InvalidArgumentException("het emailadres " . $emailaddress . " is niet valide", E_ERROR);
+            }
+        }
+        $this->emailaddress = $emailaddress;
     }
 
     /**

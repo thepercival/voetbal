@@ -10,5 +10,12 @@ Voetbal\Referee:
       type: string
     name:
       type: string
+    emailaddress:
+      type: string
+      groups: [privacy]
+    userId:
+      type: number
+      serialized_name: userId
     info:
       type: string
+

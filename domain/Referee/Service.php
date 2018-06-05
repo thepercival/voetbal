@@ -29,7 +29,7 @@ class Service
         $this->repos = $repos;
     }
 
-    public function create( Competition $competition, string $initials, string $name = null, string $info = null ): Referee
+    public function create( Competition $competition, string $initials, string $name = null, string $emailaddress = null, string $info = null ): Referee
     {
         $refereeWithSameInitials = $this->repos->findOneBy(
             array( 'initials' => $initials, 'competition' => $competition )
@@ -39,11 +39,12 @@ class Service
         }
         $referee = new Referee( $competition, $initials );
         $referee->setName($name);
+        $referee->setEmailaddress($emailaddress);
         $referee->setInfo( $info );
         return $this->repos->save($referee);
     }
 
-    public function edit( Referee $referee, string $initials, string $name = null, string $info = null ): Referee
+    public function edit( Referee $referee, string $initials, string $name = null, string $emailaddress = null, string $info = null ): Referee
     {
         $refereeWithSameInitials = $this->repos->findOneBy(
             array( 'initials' => $initials, 'competition' => $referee->getCompetition() )
@@ -54,6 +55,7 @@ class Service
 
         $referee->setInitials( $initials );
         $referee->setName( $name );
+        $referee->setEmailaddress($emailaddress);
         $referee->setInfo( $info );
 
         return $this->repos->save($referee);

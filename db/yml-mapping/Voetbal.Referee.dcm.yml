@@ -18,6 +18,10 @@ Voetbal\Referee:
       nullable: true
       length: !php/const:Voetbal\Referee::MAX_LENGTH_NAME
       unique: false
+    emailaddress:
+      type: string
+      length : !php/const:Voetbal\Referee::MAX_LENGTH_EMAIL
+      nullable: true
     info:
       type: string
       nullable: true

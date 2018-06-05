@@ -9,6 +9,7 @@
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
+use JMS\Serializer\SerializationContext;
 use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal\Referee\Service as RefereeService;
 use Voetbal\Competition\Repository as CompetitionRepos;
@@ -55,9 +56,10 @@ final class Referee
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
 
+
+
             /** @var \Voetbal\Referee $refereeSer */
-            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee',
-                'json');
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json'/*, $contextSer*/);
             if ($refereeSer === null) {
                 throw new \Exception("er kan geen scheidsrechter worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
@@ -66,6 +68,7 @@ final class Referee
                 $competition,
                 $refereeSer->getInitials(),
                 $refereeSer->getName(),
+                $refereeSer->getEmailaddress(),
                 $refereeSer->getInfo()
             );
 
@@ -96,6 +99,7 @@ final class Referee
                 $referee,
                 $refereeSer->getInitials(),
                 $refereeSer->getName(),
+                $refereeSer->getEmailaddress(),
                 $refereeSer->getInfo()
             );
 
