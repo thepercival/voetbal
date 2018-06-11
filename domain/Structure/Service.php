@@ -166,7 +166,7 @@ class Service
 ////        }
 //
 //        if( count( $this->roundRepository->findBy( array( "competition" => $competition ) ) ) === 0 ) {
-//            throw new \Exception("er bestaat nog geen structuur", E_ERROR);
+//            throw new \Exception("er bestaat nog geen indeling", E_ERROR);
 //        };
 //
 //        $round = $this->roundService->editFromJSON( $p_round, $competition );
@@ -182,7 +182,7 @@ class Service
     public function remove(Round $round)
     {
 //        if( $round->getParent() !== null ) {
-//            throw new \Exception( 'alleen een structuur zonder parent kan worden verwijderd', E_ERROR );
+//            throw new \Exception( 'alleen een indeling zonder parent kan worden verwijderd', E_ERROR );
 //        }
 //        return $this->roundService->remove( $round );
     }

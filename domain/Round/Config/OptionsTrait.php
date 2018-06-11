@@ -60,7 +60,12 @@ trait OptionsTrait
      * @var int
      */
     protected $minutesPerGame;
-
+    
+    /**
+     * @var int
+     */
+    protected $minutesBetweenGames;
+    
     /**
      * @var int
      */
@@ -265,6 +270,25 @@ trait OptionsTrait
     /**
      * @return int
      */
+    public function getMinutesBetweenGames()
+    {
+        return $this->minutesBetweenGames;
+    }
+
+    /**
+     * @param $minutesBetweenGames
+     */
+    public function setMinutesBetweenGames($minutesBetweenGames)
+    {
+        if ($minutesBetweenGames !== null and !is_int($minutesBetweenGames)) {
+            throw new \InvalidArgumentException("het aantal-minuten-tussen-wedstrijden heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesBetweenGames = $minutesBetweenGames;
+    }
+    
+    /**
+     * @return int
+     */
     public function getMinutesInBetween()
     {
         return $this->minutesInBetween;
@@ -276,7 +300,7 @@ trait OptionsTrait
     public function setMinutesInBetween($minutesInBetween)
     {
         if ($minutesInBetween !== null and !is_int($minutesInBetween)) {
-            throw new \InvalidArgumentException("het aantal-minuten-tussendoor heeft een onjuiste waarde", E_ERROR);
+            throw new \InvalidArgumentException("het aantal-minuten-tussen-ronden heeft een onjuiste waarde", E_ERROR);
         }
         $this->minutesInBetween = $minutesInBetween;
     }

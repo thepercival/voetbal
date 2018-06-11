@@ -53,6 +53,10 @@ Voetbal\Round\Config:
       type: smallint
       nullable: true
       unique: false
+    minutesBetweenGames:
+      type: smallint
+      nullable: true
+      unique: false
   oneToMany:
     scores:
       targetEntity: Voetbal\Round\Config\Score

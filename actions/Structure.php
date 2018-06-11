@@ -68,7 +68,7 @@ final class Structure
     {
         $cs = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
         if( $cs === null ) {
-            return $response->withStatus(404)->write('geen structuur gevonden voor competitieseizoen');
+            return $response->withStatus(404)->write('geen indeling gevonden voor competitieseizoen');
         }
 
         $params = array( "number" => 1, "competition" => $cs->getId() );
@@ -147,7 +147,7 @@ final class Structure
         try {
             $round = $this->roundRepos->find($args['id']);
             if ($round === null) {
-                throw new \Exception('de te verwijderen structuur kan niet gevonden worden', E_ERROR);
+                throw new \Exception('de te verwijderen indeling kan niet gevonden worden', E_ERROR);
             }
             $competitionId = (int)$request->getParam("competitionid");
             $competition = $this->competitionRepos->find($competitionId);

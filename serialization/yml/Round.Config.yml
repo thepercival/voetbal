@@ -36,6 +36,9 @@ Voetbal\Round\Config:
     enableTime:
       type: boolean
       serialized_name: enableTime
+    minutesBetweenGames:
+      type: integer
+      serialized_name: minutesBetweenGames
     minutesInBetween:
       type: integer
       serialized_name: minutesInBetween

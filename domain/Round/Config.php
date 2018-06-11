@@ -153,6 +153,7 @@ class Config
         $configOptions->setMinutesPerGameExt($this->getMinutesPerGameExt());
         $configOptions->setEnableTime($this->getEnableTime());
         $configOptions->setMinutesPerGame($this->getMinutesPerGame());
+        $configOptions->setMinutesBetweenGames($this->getMinutesBetweenGames());
         $configOptions->setMinutesInBetween($this->getMinutesInBetween());
         $configOptions->setScore($this->getScore()->getOptions());
         return $configOptions;
@@ -170,6 +171,7 @@ class Config
         $this->setMinutesPerGameExt($configOptions->getMinutesPerGameExt());
         $this->setEnableTime($configOptions->getEnableTime());
         $this->setMinutesPerGame($configOptions->getMinutesPerGame());
+        $this->setMinutesBetweenGames($configOptions->getMinutesBetweenGames());
         $this->setMinutesInBetween($configOptions->getMinutesInBetween());
         $this->setScoreOptions( $this->getScore(), $configOptions->getScore() );
     }
