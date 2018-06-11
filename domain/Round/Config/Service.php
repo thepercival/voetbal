@@ -95,7 +95,7 @@ class Service
             $roundConfig->setEnableTime(true);
             $roundConfig->setMinutesPerGame(20);
             $roundConfig->setMinutesBetweenGames(5);
-            $roundConfig->setMinutesInBetween(0);
+            $roundConfig->setMinutesInBetween(5);
         }
         $roundConfig->setScore( $this->createScoreDefault( $sport ) );
         return $roundConfig;
