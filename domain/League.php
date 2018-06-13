@@ -92,10 +92,6 @@ class League implements External\Importable
 			throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
 		}
 
-		if(preg_match('/[^a-z0-9 ]/iu', utf8_decode($name))){
-			throw new \InvalidArgumentException( "de naam(".utf8_decode($name).") mag alleen cijfers, letters en spaties bevatten", E_ERROR );
-		}
-
 		$this->name = $name;
 	}
 
