@@ -493,6 +493,13 @@ class Round
         return $winnersOrLosers === Round::WINNERS ? Round::LOSERS : Round::WINNERS;
     }
 
+    public function getOpposingRound() {
+        if ( $this->getParent() === null ) {
+            return null;
+        }
+        return $this->getParent()->getChildRound(Round::getOpposing($this->getWinnersOrLosers()));
+    }
+
     public function &getFromQualifyRules(): array
     {
         return $this->fromQualifyRules;

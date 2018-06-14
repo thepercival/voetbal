@@ -183,11 +183,26 @@ class NameService
         }
 
         if ($round->getWinnersOrLosers() === Round::LOSERS) {
-            $winningSibling = $round->getOpposing();
+            $winningSibling = $round->getOpposingRound();
             if ($winningSibling !== null) {
                 $nrOfPoules += $this->getNrOfPoulesForChildRounds($winningSibling, $roundNumber);
             }
         }
         return $nrOfPoules;
+    }
+
+    private function getNrOfPoulesForChildRounds(Round $round, int $roundNumber ): int
+    {
+        $nrOfChildPoules = 0;
+        if ($round->getNumber() > $roundNumber) {
+            return $nrOfChildPoules;
+        } else if ($round->getNumber() === $roundNumber) {
+            return $round->getPoules()->count();
+        }
+
+        foreach( $round->getChildRounds as $childRound ) {
+            $nrOfChildPoules += $this->getNrOfPoulesForChildRounds($childRound, $roundNumber);
+        }
+        return $nrOfChildPoules;
     }
 }
