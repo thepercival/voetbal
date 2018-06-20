@@ -193,23 +193,25 @@ class Service
             "number" => $roundNumber,
             "competition" => $competition
         ));
-        if( count( $rounds ) === 0 ) {
-            return;
-        }
         $this->conn->beginTransaction();
         try {
             foreach( $rounds as $round ) {
-                $config = $round->getConfig();
-                // $config->setOptions( $configSer->getOptions() );
-                // $this->roundConfigRepos->save( $config );
-                $this->roundConfigService->update($config, $configSer->getOptions());
-                $this->setConfigs( $competition, $roundNumber + 1, $configSer );
+                $this->setConfigsHelper( $round, $configSer );
             }
             $this->conn->commit();
         }
         catch( \Exception $e ){
             $this->conn->rollBack();
             throw $e;
+        }
+    }
+
+    public function setConfigsHelper( Round $round, RoundConfig $configSer )
+    {
+        $config = $round->getConfig();
+        $this->roundConfigService->update($config, $configSer->getOptions());
+        foreach( $round->getChildRounds() as $childRound ) {
+            $this->setConfigsHelper( $childRound, $configSer );
         }
     }
 
