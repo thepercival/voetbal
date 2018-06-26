@@ -161,18 +161,11 @@ final class Game
 
             $game->setState( $gameSer->getState() );
             $game->setStartDateTime( $gameSer->getStartDateTime() );
+            $game->setScoresMoment( $gameSer->getScoresMoment() );
+
             $game = $this->repos->save( $game );
 
-            $gameScores = [];
-            $gameScoreSer = $gameSer->getScores()->first();
-            if ( $gameScoreSer !== null ) {
-                $gameScore = new \StdClass();
-                $gameScore->home = $gameScoreSer->getHome();
-                $gameScore->away = $gameScoreSer->getAway();
-                $gameScore->moment = $gameScoreSer->getMoment();
-                $gameScores[] = $gameScore;
-            }
-            $this->service->setScores( $game, $gameScores );
+            $this->service->setScores( $game, $gameSer->getScores()->toArray() );
 
             return $response
                 ->withStatus(200)

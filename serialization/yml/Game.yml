@@ -32,3 +32,6 @@ Voetbal\Game:
       serialized_name: awayPoulePlace
     scores:
       type: ArrayCollection<Voetbal\Game\Score>
+    scoresMoment:
+      type: integer
+      serialized_name: scoresMoment

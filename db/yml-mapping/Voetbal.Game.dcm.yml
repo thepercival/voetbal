@@ -32,6 +32,11 @@ Voetbal\Game:
       type: datetime_immutable
       nullable: true
       column: startdatetime
+    scoresMoment:
+      type: smallint
+      nullable: true
+      unique: false
+      column: scoresmoment
   manyToOne:
     poule:
       targetEntity: Voetbal\Poule

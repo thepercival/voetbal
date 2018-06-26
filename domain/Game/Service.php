@@ -101,11 +101,9 @@ class Service
         $count = 1;
         foreach( $newGameScores as $newGameScore ) {
             $gameScore = new GameScore( $game );
-            $gameScore->setScoreConfig( $game->getRound()->getConfig()->getScore() );
             $gameScore->setNumber( $count++ );
-            $gameScore->setHome(  $newGameScore->home );
-            $gameScore->setAway(  $newGameScore->away );
-            $gameScore->setMoment( $newGameScore->moment );
+            $gameScore->setHome( $newGameScore->getHome() );
+            $gameScore->setAway( $newGameScore->getAway() );
             $this->scoreRepos->save($gameScore);
         }
     }

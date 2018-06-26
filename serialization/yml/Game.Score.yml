@@ -12,5 +12,3 @@ Voetbal\Game\Score:
       type: integer
     away:
       type: integer
-    moment:
-      type: integer

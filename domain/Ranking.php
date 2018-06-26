@@ -215,13 +215,13 @@ class Ranking
             }
             $finalScore = $game->getFinalScore();
             if ($finalScore->get($homeAway) > $finalScore->get(!$homeAway)) {
-                if ($finalScore->getMoment() === Game::MOMENT_EXTRATIME) {
+                if ($game->getScoresMoment() === Game::MOMENT_EXTRATIME) {
                     $points += $config->getWinPointsExt();
                 } else {
                     $points += $config->getWinPoints();
                 }
             } else if ($finalScore->get($homeAway) === $finalScore->get(!$homeAway)) {
-                if ($finalScore->getMoment() === Game::MOMENT_EXTRATIME) {
+                if ($game->getScoresMoment() === Game::MOMENT_EXTRATIME) {
                     $points += $config->getDrawPointsExt();
                 } else {
                     $points += $config->getDrawPoints();

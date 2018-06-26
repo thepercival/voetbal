@@ -129,6 +129,18 @@ class Config
     /**
      * @return Config\Score
      */
+    public function getCalculateScore()
+    {
+        $score = $this->getRootScore();
+        while ($score->getMaximum() === 0 && $score->getChild() !== null) {
+            $score = $score->getChild();
+        }
+        return $score;
+    }
+
+    /**
+     * @return Config\Score
+     */
     public function getRootScore()
     {
         foreach( $this->getScores() as $score) {

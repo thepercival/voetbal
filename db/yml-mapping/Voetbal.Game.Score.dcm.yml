@@ -20,11 +20,6 @@ Voetbal\Game\Score:
       type: smallint
       nullable: false
       unique: false
-    moment:
-      type: smallint
-      nullable: true
-      unique: false
-      column: moment
   manyToOne:
     game:
       targetEntity: Voetbal\Game
@@ -34,12 +29,6 @@ Voetbal\Game\Score:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    scoreConfig:
-      targetEntity: Voetbal\Round\Config\Score
-      joinColumn:
-        name: scoreconfigid
-        referencedColumnName: id
-        nullable: false
   uniqueConstraints:
 #    number_u_idx:
 #      columns: [ gameid, scoreconfigid ]

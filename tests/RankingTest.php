@@ -54,11 +54,10 @@ class RankingTest extends \PHPUnit\Framework\TestCase
     {
         $game = new Game( $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber );
         $game->setState( Game::STATE_PLAYED );
+        $game->setScoresMoment( Game::MOMENT_FULLTIME );
         $gameScore = new GameScore( $game );
         $gameScore->setHome( $home );
         $gameScore->setAway( $away );
-        $gameScore->setMoment( Game::MOMENT_FULLTIME );
-        $gameScore->setScoreConfig( $poule->getRound()->getConfig()->getScore() );
     }
 
     public function testTwoTeamsSame()

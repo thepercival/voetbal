@@ -74,6 +74,11 @@ class Game implements External\Importable
      */
     protected $scores;
 
+    /**
+     * @var int
+     */
+    private $scoresMoment;
+
     const HOME = true;
     const AWAY = false;
 
@@ -308,6 +313,25 @@ class Game implements External\Importable
     }
 
     /**
+     * @return int
+     */
+    public function getScoresMoment()
+    {
+        return $this->scoresMoment;
+    }
+
+    /**
+     * @param $moment
+     */
+    public function setScoresMoment($scoresMoment)
+    {
+        if ($scoresMoment === null or !is_int($scoresMoment)) {
+            throw new \InvalidArgumentException("het score-moment heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->scoresMoment = $scoresMoment;
+    }
+
+    /**
      * @return Score[] | ArrayCollection
      */
     public function getScores()
@@ -352,14 +376,23 @@ class Game implements External\Importable
         return null;
     }
 
-    public function getFinalScore(): Score
+    public function getFinalScore(): Score\HomeAway
     {
-        $finalScore = null;
+        if( $this->getScores()->count() === 0 ) {
+            return null;
+        }
+        if( $this->getRound()->getConfig()->getCalculateScore() === $this->getRound()->getConfig()->getInputScore() ) {
+
+            return new Score\HomeAway( $this->getScores()->first()->getHome(), $this->getScores()->first()->getAway());
+        }
+        $home = 0; $away = 0;
         foreach( $this->getScores() as $score ) {
-            if( $finalScore === null || $score->getMoment() > $finalScore->getMomemt() ) {
-                $finalScore = $score;
+            if( $score->getHome() > $score->getAway() ) {
+                $home++;
+            } else if( $score->getHome() < $score->getAway() ) {
+                $away++;
             }
         }
-        return $finalScore;
+        return new Score\HomeAway( $home, $away);
     }
 }

@@ -84,11 +84,10 @@ class QualiyTest extends \PHPUnit\Framework\TestCase
     {
         $game = new Game( $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber );
         $game->setState( $gameState );
+        $game->setScoresMoment( Game::MOMENT_FULLTIME );
         $gameScore = new GameScore( $game );
         $gameScore->setHome( $home );
         $gameScore->setAway( $away );
-        $gameScore->setMoment( Game::MOMENT_FULLTIME );
-        $gameScore->setScoreConfig( $poule->getRound()->getConfig()->getScore() );
     }
 
     public function test3Poules9PlacesTo1Poule3PlacesOnlyPouleOneHasStatePlayed()
