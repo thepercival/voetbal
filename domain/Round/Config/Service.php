@@ -122,22 +122,19 @@ class Service
 //        } else
         if ($sport === VoetbalConfig::Darts) {
             return new Score\Options(
-                'punten', Score\Options::DOWNWARDS, 501,
-                new Score\Options(
                     'legs', Score\Options::UPWARDS, 3,
                     new Score\Options('sets', Score\Options::UPWARDS, 0 )
-                )
             );
         } else if ($sport === VoetbalConfig::Tennis) {
             return new Score\Options(
                 'games', Score\Options::UPWARDS, 0,
                 new Score\Options('sets', Score\Options::UPWARDS, 0 )
             );
-        } else if ($sport === VoetbalConfig::TableTennis || $sport === VoetbalConfig::Volleyball || $sport === VoetbalConfig::Badminton) {
+        } else if ($sport === VoetbalConfig::TableTennis || $sport === VoetbalConfig::Squash || $sport === VoetbalConfig::Volleyball || $sport === VoetbalConfig::Badminton) {
             return new Score\Options(
                 'punten',
                 Score\Options::UPWARDS,
-                $sport === VoetbalConfig::TableTennis ? 21 : (VoetbalConfig::Volleyball ? 25 : 15),
+                $sport === VoetbalConfig::TableTennis ? 21 : ($sport === VoetbalConfig::Volleyball ? 25 : 15),
                 new Score\Options('sets', Score\Options::UPWARDS, 0 )
             );
         } else if ($sport === VoetbalConfig::Football || $sport === VoetbalConfig::Hockey) {

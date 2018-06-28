@@ -18,6 +18,7 @@ class Config
     CONST Badminton = 'badminton';
     CONST Hockey = 'hockey';
     CONST Korfball = 'korfbal';
+    CONST Squash = 'squash';
 
     protected static $useExternal = false;
 
@@ -30,7 +31,8 @@ class Config
             static::Volleyball,
             static::Badminton,
             static::Hockey,
-            static::Korfball
+            static::Korfball,
+            static::Squash
         ];
     }
 }
