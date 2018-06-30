@@ -163,7 +163,7 @@ class ScheduleHelper
         int $amountPerResourceBatch,
         \DateTimeImmutable $dateTime = null
     ) {
-        $maximalNrOfMinutesPerGame = $roundConfig->getMaximalNrOfMinutesPerGame(true);
+        $maximalNrOfMinutesPerGame = $roundConfig->getMaximalNrOfMinutesPerGame();
         $games = $this->getGamesByNumber($roundConfig->getRound()->getNumber(), Game::ORDER_BYNUMBER);
 
         $resourceBatch = 1;

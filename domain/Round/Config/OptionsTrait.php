@@ -69,7 +69,7 @@ trait OptionsTrait
     /**
      * @var int
      */
-    protected $minutesInBetween;
+    protected $minutesAfter;
 
     /**
      * @var Score\Options
@@ -289,20 +289,20 @@ trait OptionsTrait
     /**
      * @return int
      */
-    public function getMinutesInBetween()
+    public function getMinutesAfter()
     {
-        return $this->minutesInBetween;
+        return $this->minutesAfter;
     }
 
     /**
-     * @param $minutesInBetween
+     * @param $minutesAfter
      */
-    public function setMinutesInBetween($minutesInBetween)
+    public function setMinutesAfter($minutesAfter)
     {
-        if ($minutesInBetween !== null and !is_int($minutesInBetween)) {
-            throw new \InvalidArgumentException("het aantal-minuten-tussen-ronden heeft een onjuiste waarde", E_ERROR);
+        if ($minutesAfter !== null and !is_int($minutesAfter)) {
+            throw new \InvalidArgumentException("het aantal minuten pauze na de ronde heeft een onjuiste waarde", E_ERROR);
         }
-        $this->minutesInBetween = $minutesInBetween;
+        $this->minutesAfter = $minutesAfter;
     }
 
     /**
@@ -321,14 +321,11 @@ trait OptionsTrait
         $this->score = $score;
     }
 
-    public function getMaximalNrOfMinutesPerGame(bool $withMinutesInBetween = false): int
+    public function getMaximalNrOfMinutesPerGame(): int
     {
         $nrOfMinutes = $this->getMinutesPerGame();
         if ($this->getHasExtension()) {
             $nrOfMinutes += $this->getMinutesPerGameExt();
-        }
-        if ($withMinutesInBetween === true) {
-            $nrOfMinutes += $this->getMinutesInBetween();
         }
         return $nrOfMinutes;
     }
@@ -345,7 +342,7 @@ trait OptionsTrait
         $this->setMinutesPerGameExt( 0 );
         $this->setEnableTime( Options::ENABLETIME );
         $this->setMinutesPerGame( 0 );
-        $this->setMinutesInBetween( 0 );
+        $this->setMinutesAfter( 0 );
     }
 
 }

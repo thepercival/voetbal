@@ -49,10 +49,11 @@ Voetbal\Round\Config:
       type: smallint
       nullable: false
       unique: false
-    minutesInBetween:
+    minutesAfter:
       type: smallint
       nullable: true
       unique: false
+      column: minutesInBetween
     minutesBetweenGames:
       type: smallint
       nullable: true

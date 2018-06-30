@@ -174,39 +174,6 @@ class Service
                     }
                 }
             }
-
-//            $criteria = Criteria::create()->orderBy(array("number" => Criteria::ASC));
-//            $fields = $round->getCompetition()->getFields()->matching($criteria);
-//
-//            $referees = $round->getCompetition()->getReferees();
-//            $currentField = $fields->first();
-//            $nextRoundStartDateTime = null;
-//            $games = $this->getGamesByNumber($round);
-//            foreach ($games as $number => $gamesPerNumber) {
-//                foreach ($gamesPerNumber as $game) {
-//
-//                    // edit game for ref, time and field
-//                    $referee = $this->determineReferee();
-//                    $this->gameService->edit($game, $currentField, $startDateTime, $referee);
-//
-//                    $currentField = $fields->next();
-//                    if ($currentField === false) {
-//                        $currentField = $fields->first();
-//
-//                        if ($roundConfig->getMinutesPerGame() > 0) {
-//                            $nrOfMinutes = $roundConfig->getMinutesPerGame();
-//                            if ($roundConfig->getHasExtension()) {
-//                                $nrOfMinutes += $roundConfig->getMinutesPerGameExt();
-//                            }
-//                            $nrOfMinutes += $roundConfig->getMinutesInBetween();
-//                            $startDateTime = $startDateTime->add(new \DateInterval('PT' . $nrOfMinutes . 'M'));
-//                            if ($nextRoundStartDateTime == null or $startDateTime > $nextRoundStartDateTime) {
-//                                $nextRoundStartDateTime = $startDateTime;
-//                            }
-//                        }
-//                    }
-//                }
-//            }
         }
     }
 
@@ -225,28 +192,6 @@ class Service
         }
         return $games;
     }
-
-        //$nrOfFields
-
-        // standaard referee instelling is geen referees!
-        // kies vervolgens uit referee is een van de teams of een van de referees
-
-        // als startdatetime !== null en aantal games is voorbij aan het aantal velden
-        // dan startdatetime verhogen en begin weer bij veld 1
-
-
-//                    var_dump($arrGame[0]);
-//                    $oGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[0], $arrGame[1], null, $nGameNumber + 1, $nViewOrder );
-//                    $oGames->add( $oGame );
-//                    if ( $bSemiLeague !== true )
-//                    {
-//                        $oReturnGame = Voetbal_Game_Factory::createObjectExt( $oStartDateTime, $arrGame[1], $arrGame[0], null, $nStartGameNrReturnGames + $nGameNumber + 1, $nViewOrder );
-//                        $oGames->add( $oReturnGame );
-//                    }
-        //$counter++;
-
-        // return $startDateTime;
-    // }
 
     protected function determineReferee()
     {
@@ -268,7 +213,7 @@ class Service
      * @param <bool> $rand		Set TRUE to randomize the results
      * @return <array>			Array of matchups separated by sets
      */
-    protected function generateRRSchedule(array $players, $rand = false) {
+    protected function generateRRSchedule(array $players) {
         $numPlayers = count($players);
 
         // add a placeholder if the count is odd
@@ -301,14 +246,6 @@ class Service
             $players[] = array_shift($players);
             // place the first item back in the first position
             array_unshift($players, $first);
-        }
-
-        // shuffle the results if desired
-        if($rand) {
-            foreach($matchups as &$match) {
-                shuffle($match);
-            }
-            shuffle($matchups);
         }
 
         return $matchups;
