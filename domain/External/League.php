@@ -8,7 +8,7 @@
 
 namespace Voetbal\External;
 
-class League extends Object
+class League extends ObjectX
 {
 
 }

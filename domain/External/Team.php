@@ -8,7 +8,7 @@
 
 namespace Voetbal\External;
 
-class Team extends Object
+class Team extends ObjectX
 {
 
 }

@@ -8,7 +8,7 @@
 
 namespace Voetbal\External;
 
-class Game extends Object
+class Game extends ObjectX
 {
 
 }

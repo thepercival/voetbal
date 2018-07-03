@@ -8,7 +8,7 @@
 
 namespace Voetbal\External\Object;
 
-use Voetbal\External\Object as ExternalObject;
+use Voetbal\External\ObjectX as ExternalObject;
 use Voetbal\External\Importable;
 use \Doctrine\ORM\EntityRepository;
 use Voetbal\External\ObjectExt as ExternalObjectExt;

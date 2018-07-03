@@ -87,7 +87,7 @@ final class Object
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\Object $externalObjectSer */
+            /** @var \Voetbal\External\ObjectX $externalObjectSer */
             $externalObjectExtSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\ObjectExt', 'json');
             if ( $externalObjectExtSer === null ) {
                 throw new \Exception("er kan geen extern object worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
@@ -115,7 +115,7 @@ final class Object
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\Object $externalObjectSer */
+            /** @var \Voetbal\External\ObjectX $externalObjectSer */
             $externalObjectExtSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\ObjectExt', 'json');
             if ( $externalObjectExtSer === null ) {
                 throw new \Exception("er kan geen extern object worden gevonden o.b.v. de invoergegevens", E_ERROR);

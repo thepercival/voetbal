@@ -9,7 +9,7 @@
 namespace Voetbal\External\System\FootballData;
 
 use Voetbal\External\System as ExternalSystem;
-use Voetbal\External\Object as ExternalObject;
+use Voetbal\External\ObjectX as ExternalObject;
 use Voetbal\Competition\Service as CompetitionService;
 use Voetbal\Competition\Repository as CompetitionRepos;
 use Voetbal\League;

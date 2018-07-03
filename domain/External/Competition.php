@@ -8,7 +8,7 @@
 
 namespace Voetbal\External;
 
-class Competition extends Object
+class Competition extends ObjectX
 {
 
 }

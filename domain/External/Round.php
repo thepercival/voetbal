@@ -8,7 +8,7 @@
 
 namespace Voetbal\External;
 
-class Round extends Object
+class Round extends ObjectX
 {
 
 }

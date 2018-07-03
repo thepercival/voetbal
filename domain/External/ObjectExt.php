@@ -65,8 +65,8 @@ class ObjectExt
      */
     public function setExternalId( $externalId )
     {
-        if ( strlen( $externalId ) > Object::MAX_LENGTH_EXTERNALID ){
-            throw new \InvalidArgumentException( "de externe id mag maximaal ".Object::MAX_LENGTH_EXTERNALID." karakters bevatten", E_ERROR );
+        if ( strlen( $externalId ) > ObjectX::MAX_LENGTH_EXTERNALID ){
+            throw new \InvalidArgumentException( "de externe id mag maximaal ".ObjectX::MAX_LENGTH_EXTERNALID." karakters bevatten", E_ERROR );
         }
         $this->externalId = $externalId;
     }

@@ -8,7 +8,7 @@
 
 namespace Voetbal\External;
 
-class Season extends Object
+class Season extends ObjectX
 {
 
 }
