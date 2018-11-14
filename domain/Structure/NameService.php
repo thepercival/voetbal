@@ -8,6 +8,7 @@
 
 namespace Voetbal\Structure;
 
+use Voetbal\PoulePlace;
 use Voetbal\Round;
 use Voetbal\Poule;
 
@@ -29,14 +30,22 @@ class NameService
 
         $nrOfRoundsToGo = $this->getNrOfRoundsToGo($round);
         if ($nrOfRoundsToGo >= 2 && $nrOfRoundsToGo <= 5) {
-            return $this->getHtmlFractalNumber(pow(2, $nrOfRoundsToGo - 1)) . ' finale';
-        } else if ($nrOfRoundsToGo === 1) {
+            return $this->getFractalNumber(pow(2, $nrOfRoundsToGo - 1)) . ' finale';
+        } /*else if ($nrOfRoundsToGo === 1) {
             if (count($round->getPoulePlaces()) === 2 && $sameName === false) {
                 $rankedPlace = $this->getRankedPlace($round);
                 return $this->getHtmlNumber($rankedPlace) . '/' . $this->getHtmlNumber($rankedPlace + 1) . ' plaats';
             }
             return 'finale';
-        } else if ($nrOfRoundsToGo === 0) {
+        } */else if ($nrOfRoundsToGo === 1 && $this->aChildRoundHasMultiplePlacesPerPoule($round)) {
+            return $this->getFractalNumber(pow(2, $nrOfRoundsToGo)) . ' finale';
+        } else if ($nrOfRoundsToGo === 1 || ($nrOfRoundsToGo === 0 && count($round->getPoulePlaces()) > 1)) {
+            if (count($round->getPoulePlaces()) === 2 && $sameName === false) {
+                $rankedPlace = $this->getRankedPlace($round);
+                return $this->getHtmlNumber($rankedPlace) . '/' . $this->getHtmlNumber($rankedPlace + 1) . ' plaats';
+            }
+            return 'finale';
+        }else if ($nrOfRoundsToGo === 0) {
             return $this->getWinnersLosersDescription($round->getWinnersOrLosers());
         }
         return '?';
@@ -59,16 +68,44 @@ class NameService
         return $pouleName;
     }
 
-    protected function getHtmlFractalNumber($number)
+    public function getPoulePlaceName(PoulePlace $pouleplace, bool $teamName = false)
     {
-        if ($number === 1) {
-            return $number . 'ste';
+        if ($teamName === true && $pouleplace->getTeam() !== null) {
+            return $pouleplace->getTeam()->getName();
         }
-        return $number . 'de';
-//        if ($number === 4 || $number === 3 || $number === 2) {
-//            return '&frac1' . $number . ';';
-//        }
-//        return '<span style="font-size: 80%"><sup>1</sup>&frasl;<sub>' . $number . '</sub></span>';
+        $fromQualifyRule = $pouleplace->getFromQualifyRule();
+        if ($fromQualifyRule === null) { // first round
+            return $this->getPoulePlaceNameSimple($pouleplace, false);
+        }
+
+        if ($fromQualifyRule->isMultiple() === false) {
+            $fromPoulePlace = $fromQualifyRule->getFromEquivalent($pouleplace);
+            return $this->getPoulePlaceNameSimple($fromPoulePlace, false);
+        }
+        return '?' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber();
+    }
+
+    public function getPoulePlaceNameSimple(PoulePlace $poulePlace, bool $teamName = false)
+    {
+        if ($teamName === true && $poulePlace->getTeam() !== null) {
+            return $poulePlace->getTeam()->getName();
+        }
+        $pouleplaceName = $this->getPouleName($poulePlace->getPoule(), false);
+        return $pouleplaceName . $poulePlace->getNumber();
+    }
+
+    protected function getFractalNumber($number): string
+    {
+        if ($number === 2) {
+            return 'halve';
+        }
+        else if ($number === 4) {
+            return 'kwart';
+        }
+        else if ($number === 8) {
+            return 'achtste';
+        }
+        return '?';
     }
 
     protected function getHtmlNumber($number)
@@ -107,6 +144,18 @@ class NameService
         return false;
     }
 
+    protected function aChildRoundHasMultiplePlacesPerPoule(Round $round ): bool
+    {
+        foreach( $round->getChildRounds() as $childRound ) {
+            foreach( $childRound->getPoules() as $poule ) {
+                if( $poule->getPlaces()->count() > 1 ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     protected function getNrOfRoundsToGo( Round $round)
     {
         $nrOfRoundsToGoWinners = 0;
@@ -135,20 +184,20 @@ class NameService
             return $rankedPlace;
         }
         if ($round->getWinnersOrLosers() === Round::LOSERS) {
-            $rankedPlace += count($parent->getPoulePlaces()) - $round->getPoulePlaces()->count();
+            $rankedPlace += count($parent->getPoulePlaces()) - count($round->getPoulePlaces());
         }
         return $this->getRankedPlace($parent, $rankedPlace);
     }
 
-    protected function getWinnersLosersDescription($winnersOrLosers)
+    public function getWinnersLosersDescription($winnersOrLosers)
     {
         return $winnersOrLosers === Round::WINNERS ? 'winnaar' : ($winnersOrLosers === Round::LOSERS ? 'verliezer' : '');
     }
 
-    protected function getRoundsByNumber(Round $round ) {
+    /*protected function getRoundsByNumber(Round $round ) {
         $params = array( "number" => $round->getNumber(), "competition" => $round->getCompetition() );
         return $this->roundRepository->findBy( $params );
-    }
+    }*/
 
     private function getNrOfPreviousPoules($roundNumber, Round $round, Poule $poule)
     {
@@ -200,7 +249,7 @@ class NameService
             return $round->getPoules()->count();
         }
 
-        foreach( $round->getChildRounds as $childRound ) {
+        foreach( $round->getChildRounds() as $childRound ) {
             $nrOfChildPoules += $this->getNrOfPoulesForChildRounds($childRound, $roundNumber);
         }
         return $nrOfChildPoules;

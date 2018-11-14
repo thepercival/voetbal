@@ -187,7 +187,7 @@ class PoulePlace
         $this->team = $team;
     }
 
-    public function getFromQualifyRule(): QualifyRule
+    public function getFromQualifyRule(): ?QualifyRule
     {
         return $this->fromQualifyRule;
     }

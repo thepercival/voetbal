@@ -206,4 +206,16 @@ class Rule
     public function isMultiple(): bool {
         return count( $this->getFromPoulePlaces() ) > count( $this->getToPoulePlaces() );
     }
+
+    public function getFromEquivalent(PoulePlace $toPoulePlace ): ?PoulePlace
+    {
+        if ($this->isMultiple()) {
+            return null;
+        }
+        $index = array_search($toPoulePlace, $this->getToPoulePlaces()->toArray());
+        if ($index === false ) {
+            return null;
+        }
+        return $this->getFromPoulePlaces()[$index];
+    }
 }
