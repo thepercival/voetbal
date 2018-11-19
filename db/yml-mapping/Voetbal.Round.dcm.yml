@@ -25,11 +25,6 @@ Voetbal\Round:
       type: smallint
       nullable: false
       unique: false
-  oneToOne:
-    config:
-      targetEntity: Voetbal\Round\Config
-      mappedBy: round
-      cascade: [ remove ]
   oneToMany:
     poules:
       targetEntity: Voetbal\Poule
@@ -40,13 +35,20 @@ Voetbal\Round:
       mappedBy: parent
       cascade: [ remove ]
   manyToOne:
-    competition:
-      targetEntity: Voetbal\Competition
+    numbert:
+      targetEntity: Voetbal\Round\Number
       inversedBy: rounds
+      joinColumn:
+        name: numberid
+        referencedColumnName: id
+        nullable: true # should be false
+        onDelete: CASCADE
+    competition: # should be removed
+      targetEntity: Voetbal\Competition
       joinColumn:
         name: competitionid
         referencedColumnName: id
-        nullable: false
+        nullable: true
         onDelete: CASCADE
     parent:
       targetEntity: Voetbal\Round

@@ -39,12 +39,17 @@ class Round
     protected $qualifyOrder;
 
     /**
-     * @var Round\Config`
+     * @var Round\Config
      */
     protected $config;
 
     /**
-     * @var Competition
+     * @var Round\Number
+     */
+    protected $numbert;
+
+    /**
+     * @var Compoetition
      */
     protected $competition;
 
@@ -118,6 +123,25 @@ class Round
     }
 
     /**
+     * @return Round\Number
+     */
+    public function getNumbert()
+    {
+        return $this->numbert;
+    }
+
+    /**
+     * @param Round\Number $numbert
+     */
+    public function setNumbert( Round\Number $numbert )
+    {
+//        if ( $this->competition === null and $competition !== null and !$competition->getRounds()->contains( $this )){
+//            $competition->getRounds()->add($this) ;
+//        }
+        $this->numbert = $numbert;
+    }
+
+    /**
      * @return Competition
      */
     public function getCompetition()
@@ -126,15 +150,15 @@ class Round
     }
 
     /**
-     * @param Competition $Competition
+     * @param Competition $competition
      */
-    public function setCompetition( Competition $competition )
-    {
+    // public function setCompetition( Competition $competition )
+    // {
 //        if ( $this->competition === null and $competition !== null and !$competition->getRounds()->contains( $this )){
 //            $competition->getRounds()->add($this) ;
 //        }
-        $this->competition = $competition;
-    }
+       //  $this->competition = $competition;
+    // }
 
     /**
      * @return int

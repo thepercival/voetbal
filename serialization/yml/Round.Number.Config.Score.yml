@@ -1,0 +1,16 @@
+Voetbal\Round\Number\Config\Score:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      type: integer
+    name:
+      type: string
+    direction:
+      type: integer
+    maximum:
+      type: integer
+    parent:
+      type: Voetbal\Round\Number\Config\Score

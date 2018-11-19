@@ -21,8 +21,8 @@ Voetbal\Competition:
             unique: false
             nullable: false
     oneToMany:
-        rounds:
-            targetEntity: Voetbal\Round
+        roundNumbers:
+            targetEntity: Voetbal\Round\Number
             mappedBy: competition
             fetch: EXTRA_LAZY
             cascade: [ remove ]

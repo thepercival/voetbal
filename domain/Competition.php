@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Structure;
 
 class Competition implements External\Importable
 {
@@ -40,7 +41,7 @@ class Competition implements External\Importable
     /**
      * @var ArrayCollection
      */
-    private $rounds;
+    private $roundNumbers;
 
     /**
      * @var ArrayCollection
@@ -62,7 +63,7 @@ class Competition implements External\Importable
         $this->league = $league;
         $this->season = $season;
         $this->state = static::STATE_CREATED;
-        $this->rounds = new ArrayCollection();
+        $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();
         $this->fields = new ArrayCollection();
     }
@@ -160,9 +161,9 @@ class Competition implements External\Importable
     /**
      * @return ArrayCollection
      */
-    public function getRounds()
+    public function getRoundNumbers()
     {
-        return $this->rounds;
+        return $this->roundNumbers;
     }
 
     /**
@@ -231,15 +232,16 @@ class Competition implements External\Importable
     }
 
     /**
-     * @return Round
+     * @return Structure
      */
-    public function getFirstRound()
+    public function getStructure(): Structure
     {
-        foreach( $this->getRounds() as $round ) {
-            if( $round->getNumber() === 1 ) {
-                return $round;
+        $firstRoundNumber = null;
+        foreach( $this->getRoundNumbers() as $roundNumber ) {
+            if( $roundNumber->getNumber() === 1 ) {
+                $firstRoundNumber = $roundNumber;
             }
         }
-        return null;
+        return new Structure( $firstRoundNumber, $firstRoundNumber->getRounds()->first() );
     }
 }

@@ -15,6 +15,7 @@ use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 //use Voetbal;
 //use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ServerRequestInterface as Request;
 //use Psr\Http\Message\ResponseInterface;
 
 final class Structure
@@ -51,21 +52,14 @@ final class Structure
 
     public function fetch( $request, $response, $args)
     {
-        $params = array( "number" => 1 );
-        $competitionid = (int) $request->getParam("competitionid");
-        if( $competitionid > 0 ){
-            $params["competition"] = $competitionid;
-        }
-        $rounds = $this->roundRepos->findBy( $params );
-        return $response
-            ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write( $this->serializer->serialize( $rounds, 'json') );
-        ;
+        return $this->fetchOne( $request, $response, $args);
 
     }
 
     public function fetchOne( $request, $response, $args)
     {
+        $apiVersion = $request->getHeaderLine('X-Api-Version');
+        echo $apiVersion; die();
         $cs = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
         if( $cs === null ) {
             return $response->withStatus(404)->write('geen indeling gevonden voor competitieseizoen');
@@ -82,7 +76,6 @@ final class Structure
 
     public function add( $request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             /** @var \Voetbal\Round $round */
             $roundSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
@@ -106,9 +99,8 @@ final class Structure
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus( 422 )->write( $e->getMessage() );
         }
-        return $response->withStatus( 422 )->write( $sErrorMessage );
     }
 
     public function edit( $request, $response, $args)

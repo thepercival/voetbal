@@ -1,0 +1,12 @@
+Voetbal\Round\Number:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    number:
+      type: integer
+    config:
+      type: Voetbal\Round\Number\Config
+    next:
+      type: Voetbal\Round\Number

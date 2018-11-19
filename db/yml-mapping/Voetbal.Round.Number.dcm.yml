@@ -1,0 +1,36 @@
+Voetbal\Round\Number:
+  type: entity
+  repositoryClass: Voetbal\Round\Number\Repository
+  table: roundnumbers
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+  oneToOne:
+    config:
+      targetEntity: Voetbal\Round\Config
+      joinColumn:
+        name: configid
+        referencedColumnName: id
+        nullable: true # should be false
+      cascade: [ remove ]
+  oneToMany:
+    rounds:
+      targetEntity: Voetbal\Round
+      mappedBy: numbert
+      cascade: [ remove ]
+  manyToOne:
+    competition:
+      targetEntity: Voetbal\Competition
+      inversedBy: roundNumbers
+      joinColumn:
+        name: competitionid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
