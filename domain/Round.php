@@ -26,11 +26,6 @@ class Round
     /**
      * @var int
      */
-    protected $number;
-
-    /**
-     * @var int
-     */
     protected $winnersOrLosers;
 
     /**
@@ -46,12 +41,7 @@ class Round
     /**
      * @var Round\Number
      */
-    protected $numbert;
-
-    /**
-     * @var Compoetition
-     */
-    protected $competition;
+    protected $number;
 
     /**
      * @var Round
@@ -91,15 +81,13 @@ class Round
 
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Competition $competition, Round $parent = null )
+    public function __construct( Round\Number $roundNumber, Round $parent = null )
     {
-        $this->setCompetition( $competition );
+        $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
         $this->scoreConfigs = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
         $this->setParent( $parent );
-        $number = ( $parent === null ) ? 1 : ($parent->getNumber() + 1);
-        $this->setNumber( $number );
         $this->setQualifyOrder(static::ORDER_HORIZONTAL);
         $this->setWinnersOrLosers( 0 );
     }
@@ -125,20 +113,20 @@ class Round
     /**
      * @return Round\Number
      */
-    public function getNumbert()
+    public function getNumber()
     {
-        return $this->numbert;
+        return $this->number;
     }
 
     /**
-     * @param Round\Number $numbert
+     * @param Round\Number $number
      */
-    public function setNumbert( Round\Number $numbert )
+    private function setNumber( Round\Number $number )
     {
 //        if ( $this->competition === null and $competition !== null and !$competition->getRounds()->contains( $this )){
 //            $competition->getRounds()->add($this) ;
 //        }
-        $this->numbert = $numbert;
+        $this->number = $number;
     }
 
     /**
@@ -146,37 +134,15 @@ class Round
      */
     public function getCompetition()
     {
-        return $this->competition;
+        return $this->number->getCompetition();
     }
-
-    /**
-     * @param Competition $competition
-     */
-    // public function setCompetition( Competition $competition )
-    // {
-//        if ( $this->competition === null and $competition !== null and !$competition->getRounds()->contains( $this )){
-//            $competition->getRounds()->add($this) ;
-//        }
-       //  $this->competition = $competition;
-    // }
 
     /**
      * @return int
      */
-    public function getNumber()
+    public function getNumberAsValue()
     {
-        return $this->number;
-    }
-
-    /**
-     * @param int $number
-     */
-    public function setNumber( $number )
-    {
-        if ( !is_int( $number )   ){
-            throw new \InvalidArgumentException( "het rondenummer heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->number = $number;
+        return $this->number->getNumber();
     }
 
     /**
@@ -249,7 +215,7 @@ class Round
      */
     public function getConfig()
     {
-        return $this->config;
+        return $this->getNumber()->getConfig();
     }
 
     /**
@@ -257,7 +223,7 @@ class Round
      */
     public function setConfig( Round\Config $config )
     {
-        $this->config = $config;
+        $this->getNumber()->setConfig($config);
     }
 
     /**

@@ -48,7 +48,6 @@ class Service
 
         $pouleplace = new PoulePlace( $poule, $number );
         $pouleplace->setTeam($team);
-        $this->repos->save($pouleplace);
 
         return $pouleplace;
     }
@@ -56,7 +55,7 @@ class Service
     public function assignTeam( PoulePlace $poulePlace, Team $team = null ): PoulePlace {
         // @TODO check if team is not assigned two times?
         $poulePlace->setTeam($team);
-        return $this->repos->save($poulePlace);
+        return $poulePlace;
     }
 
     public function move( PoulePlace $poulePlace, int $newPouleNumber, int $newNumber)
@@ -66,15 +65,14 @@ class Service
         $poulePlace->setPoule($poulePlace->getRound()->getPoule($newPouleNumber));
 
         // @TODO should check if new place is not yet occupied
-        return $this->repos->save($poulePlace);
+        return $poulePlace;
     }
 
     /**
      * @param PoulePlace $pouleplace
      */
-    public function remove( PoulePlace $pouleplace )
+    public function removeDep( PoulePlace $pouleplace )
     {
         $pouleplace->getPoule()->getPlaces()->removeElement($pouleplace);
-        return $this->repos->remove($pouleplace);
     }
 }

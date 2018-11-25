@@ -48,7 +48,7 @@ class Service
         }
         $league = new League( $association, $name );
         $league->setSport( $sport );
-        return $this->repos->save($league);
+        return $league;
 	}
 
     /**
@@ -64,10 +64,8 @@ class Service
         if ( $leagueWithSameName !== null and $leagueWithSameName !== $league ){
             throw new \Exception("de competitie met de naam ".$name." bestaat al", E_ERROR );
         }
-
         $league->setName($name);
         $league->setAbbreviation($abbreviation);
-
-        return $this->repos->save($league);
+        return $league;
     }
 }

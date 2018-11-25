@@ -6,11 +6,11 @@
  * Time: 20:28
  */
 
-namespace Voetbal\Round;
+namespace Voetbal\Round\Number;
 
-use Voetbal\Round;
-use Voetbal\Round\Repository as RoundRepository;
-use Voetbal\Poule\Repository as PouleRepository;
+use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Round\Number\Repository as RoundNumberRepository;
+use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Competition;
 use Doctrine\DBAL\Connection;
 use Voetbal\Poule;
@@ -22,54 +22,38 @@ use Voetbal\Round\Config\Options as ConfigOptions;
 class Service
 {
     /**
-     * @var RoundRepository
-     */
-    protected $repos;
-    /**
-     * @var Config\Service
+     * @var RoundConfigService
      */
     protected $roundConfigService;
-    /**
-     * @var Poule\Service
-     */
-    protected $pouleService;
-    /**
-     * @var PouleRepository
-     */
-    protected $pouleRepos;
-    /**
-     * @var PoulePlace\Service
-     */
-    protected $poulePlaceService;
 
     /**
      * Service constructor.
-     * @param Repository $repos
-     * @param Config\Service $configService
-     * @param Poule\Service $pouleService
-     * @param PouleRepository $pouleRepos
+     * @param RoundNumberRepository $repos
+     * @param RoundConfigService $configService
+     * @param Connection $conn
      */
     public function __construct(
-        RoundRepository $repos,
-        Config\Service $configService,
-        Poule\Service $pouleService,
-        PouleRepository $pouleRepos,
-        PoulePlace\Service $poulePlaceService
+        RoundConfigService $configService
     )
     {
-        $this->repos = $repos;
         $this->configService = $configService;
-        $this->pouleService = $pouleService;
-        $this->pouleRepos = $pouleRepos;
-        $this->poulePlaceService = $poulePlaceService;
     }
-
-    /*public function generate( Competition $competition, int $winnersOrLosers, StructureOptions $structureOptions, Round $parent = null ): Round
+/*
+    public function generate( Competition $competition, int $winnersOrLosers, StructureOptions $structureOptions, Round $parent = null ): Round
     {
         $opposingChildRound = $parent ? $parent->getChildRound( Round::getOpposing($winnersOrLosers)) : null;
         $opposing = $opposingChildRound !== null ? $opposingChildRound->getWinnersOrLosers() : 0;
 
-        return $this->generateHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
+        $round = null;
+        $this->conn->beginTransaction();
+        try {
+            $round = $this->generateHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
+            $this->conn->commit();
+        } catch (\Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
+        }
+        return $round;
     }
 
     private function generateHelper(
@@ -89,6 +73,7 @@ class Service
 
         $round = new Round($competition, $parent);
         $round->setWinnersOrLosers( $winnersOrLosers );
+        $round = $this->repos->save($round);
 
         $nrOfPlaces = $structureOptions->round->nrofplaces;
 
@@ -144,28 +129,29 @@ class Service
             );
         }
         return $round;
-    }*/
-
+    }
+*/
     public function create(
-        Number $roundNumber,
-        int $winnersOrLosers,
-        int $qualifyOrder,
-        array $poulesSer,
-        Round $p_parent = null ): Round
+        Competition $competition,
+        ConfigOptions $configOptions,
+        RoundNumber $previousRoundNumber = null ): RoundNumber
     {
-        if ( count($poulesSer) <= 0) {
-            throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
+        $roundNumber = new RoundNumber($competition);
+        // $number = $previousRoundNumber === null ? 1 : $previousRoundNumber->getNumber() + 1;
+        // $roundNumber->setNumber( $number );
+        $this->configService->create($roundNumber, $configOptions);
+        if( $previousRoundNumber !== null ) {
+            $previousRoundNumber->setNext($roundNumber);
         }
-        $round = new Round($roundNumber, $p_parent);
-        $round->setWinnersOrLosers( $winnersOrLosers );
-        $round->setQualifyOrder( $qualifyOrder );
-        $this->updatePoules( $round, $poulesSer );
-        return $round;
+        return $roundNumber;
     }
 
+/*
     public function updateOptions( Round $round, int $qualifyOrder, ConfigOptions $configOptions )
     {
         $round->setQualifyOrder( $qualifyOrder );
+        $round = $this->repos->save($round);
+
         $this->configService->update($round->getConfig(), $configOptions);
     }
 
@@ -174,12 +160,22 @@ class Service
         $pouleIds = $this->getNewPouleIds( $poulesSer );
         $poulePlacesSer = $this->getPlacesFromPoules( $poulesSer );
         $placeIds = $this->getNewPlaceIds( $poulePlacesSer );
-        $this->removeNonexistingPoules( $round->getPoules()->toArray(), $pouleIds );
-        $this->removeNonexistingPlaces( $round->getPoulePlaces(), $placeIds );
-        foreach( $poulesSer as $pouleSer ) {
-            $this->updatePoulesHelper( $pouleSer, $round );
+
+        $this->conn->beginTransaction(); // suspend auto-commit
+        try {
+            $this->removeNonexistingPoules( $round->getPoules()->toArray(), $pouleIds );
+            $this->removeNonexistingPlaces( $round->getPoulePlaces(), $placeIds );
+            foreach( $poulesSer as $pouleSer ) {
+                $this->updatePoulesHelper( $pouleSer, $round );
+            }
+
+            $this->pouleService->updateStructure( $poulesSer, $round);
+
+            $this->conn->commit();
+        } catch ( \Exception $e) {
+            $this->conn->rollBack();
+            throw $e;
         }
-        $this->pouleService->updateStructure( $poulesSer, $round);
     }
 
     protected function getNewPouleIds( array $poulesSer )
@@ -244,9 +240,7 @@ class Service
         return $poule;
     }
 
-    /**
-     * @param Round $round
-     */
+
     public function remove( Round $round )
     {
         if( $round->getParent() !== null ) {
@@ -255,11 +249,7 @@ class Service
         return $this->repos->remove($round);
     }
 
-    /**
-     * @param $nrOfTeams
-     * @return []
-     * @throws \Exception
-     */
+
     public function getDefault( int $roundNr, int $nrOfPlaces ): RoundStructure
     {
         $roundStructure = new RoundStructure( $nrOfPlaces );
@@ -302,5 +292,5 @@ class Service
             throw new \Exception("het aantal teams moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
         }
         return $roundStructure;
-    }
+    }*/
 }

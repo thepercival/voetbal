@@ -41,7 +41,7 @@ class Service
         $referee->setName($name);
         $referee->setEmailaddress($emailaddress);
         $referee->setInfo( $info );
-        return $this->repos->save($referee);
+        return $referee;
     }
 
     public function edit( Referee $referee, string $initials, string $name = null, string $emailaddress = null, string $info = null ): Referee
@@ -58,14 +58,6 @@ class Service
         $referee->setEmailaddress($emailaddress);
         $referee->setInfo( $info );
 
-        return $this->repos->save($referee);
-    }
-
-    /**
-     * @param Referee $referee
-     */
-    public function remove( Referee $referee )
-    {
-        $this->repos->remove($referee);
+        return $referee;
     }
 }

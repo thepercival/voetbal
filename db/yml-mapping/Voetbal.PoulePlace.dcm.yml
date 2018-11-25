@@ -39,6 +39,7 @@ Voetbal\PoulePlace:
         name: teamid
         referencedColumnName: id
         nullable: true
+        onDelete: RESTRICT
 #  uniqueConstraints:
 #    number_u_idx:
 #      columns: [ pouleid, number ]

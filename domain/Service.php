@@ -40,8 +40,6 @@ class Service
 
         if ($classname === Association::class) {
             return new Association\Service($repos);
-        } elseif ($classname === Team::class) {
-            return new Team\Service($repos);
         } elseif ($classname === Field::class) {
             return new Field\Service($repos);
         } elseif ($classname === Referee::class) {
@@ -54,16 +52,20 @@ class Service
             return new Competition\Service($repos);
         } elseif ($classname === Structure::class) {
             return new Structure\Service(
+                $this->getService(Round\Number::class),
+                $this->getRepository(Round\Number::class),
                 $this->getService(Round::class),
                 $this->getRepository(Round::class),
-                $this->getService(Round\Config::class),
-                $this->getEntityManager()->getConnection()
+                $this->getService(Round\Config::class)
+            );
+        } elseif ($classname === Round\Number::class) {
+            return new Round\Number\Service(
+                $this->getService(Round\Config::class)
             );
         } elseif ($classname === Round::class) {
             return new Round\Service(
                 $repos,
                 $this->getService(Round\Config::class),
-                $this->getRepository(Competition::class),
                 $this->getService(Poule::class),
                 $this->getRepository(Poule::class),
                 $this->getService(PoulePlace::class),
@@ -78,7 +80,6 @@ class Service
                 $repos,
                 $this->getService(PoulePlace::class),
                 $this->getRepository(PoulePlace::class),
-                $this->getService(Team::class),
                 $this->getRepository(Team::class),
                 $this->getEntityManager()->getConnection()
             );

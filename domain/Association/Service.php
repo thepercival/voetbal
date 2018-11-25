@@ -41,7 +41,7 @@ class Service
         }
         $association = new Association($name);
         $association->setDescription($description);
-        return $this->repos->save($association);
+        return $association;
     }
 
     public function changeBasics( Association $association, $name, $description )
@@ -50,11 +50,9 @@ class Service
         if ( $associationWithSameName !== null and $associationWithSameName !== $association ){
             throw new \Exception("de bond met de naam ".$name." bestaat al", E_ERROR );
         }
-
         $association->setName($name);
         $association->setDescription($description);
-
-        return $this->repos->save($association);
+        return $association;
     }
 
     public function changeParent( Association $association, Association $parentAssociation )
@@ -69,7 +67,7 @@ class Service
             }
         }
         $association->setParent($parentAssociation);
-        return $this->repos->save($association);
+        return $association;
     }
 
     protected function getDescendants( Association $association) {
@@ -97,12 +95,4 @@ class Service
             $this->getAncestorsHelper( $association->getParent(), $descendants );
         }
     }
-
-    /**
-     * @param Association $association
-     */
-	public function remove( Association $association )
-	{
-		$this->repos->remove($association);
-	}
 }

@@ -4,9 +4,12 @@ Voetbal\Round\Number:
   access_type: public_method
 
   properties:
+    id:
+      type: integer
     number:
+      access_type: property
       type: integer
     config:
-      type: Voetbal\Round\Number\Config
+      type: Voetbal\Round\Config
     next:
       type: Voetbal\Round\Number

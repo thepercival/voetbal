@@ -58,6 +58,7 @@ class Handler
         /** @var Voetbal\Service $voetbalservice */
         $voetbalservice = $this->container->get('voetbal');
         $serializer = $this->container->get('serializer');
+        $em = $this->container->get('em');
 
         $action = null;
         if ($resourceType === 'associations') {
@@ -114,7 +115,7 @@ class Handler
                 $voetbalservice->getService(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Round::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
-                $serializer
+                $serializer, $em
             );
         } elseif ($resourceType === 'planning') {
             $action = new Voetbal\Action\Planning(

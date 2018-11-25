@@ -112,7 +112,7 @@ class Field
     /**
      * @return Competition
      */
-    public function getCompetition()
+    private function getCompetition()
     {
         return $this->competition;
     }

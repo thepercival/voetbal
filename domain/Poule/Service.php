@@ -11,11 +11,9 @@ namespace Voetbal\Poule;
 use Voetbal\Round;
 use Voetbal\Poule;
 use Voetbal\Poule\Repository as PouleRepository;
-use Voetbal\Team\Service as TeamService;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\Team\Repository as TeamRepository;
-use Doctrine\DBAL\Connection;
 use Voetbal\PoulePlace;
 
 class Service
@@ -33,71 +31,40 @@ class Service
      */
     protected $poulePlaceRepos;
     /**
-     * @var TeamService
-     */
-    protected $teamService;
-    /**
      * @var TeamRepository
      */
     protected $teamRepos;
-    /**
-     * @var Connection
-     */
-    protected $conn;
 
     /**
      * Service constructor.
      * @param Repository $repos
      * @param PoulePlaceService $poulePlaceService
      * @param PoulePlaceRepository $poulePlaceRepos
-     * @param TeamService $teamService
      * @param TeamRepository $teamRepos
-     * @param $conn
      */
     public function __construct( 
         PouleRepository $repos, 
         PoulePlaceService $poulePlaceService,
         PoulePlaceRepository $poulePlaceRepos,
-        TeamService $teamService,
-        TeamRepository $teamRepos,
-        Connection $conn )
+        TeamRepository $teamRepos )
     {
         $this->repos = $repos;
         $this->poulePlaceService = $poulePlaceService;
         $this->poulePlaceRepos = $poulePlaceRepos;
-        $this->teamService = $teamService;
         $this->teamRepos = $teamRepos;
-        $this->conn = $conn;
     }
 
     public function create( Round $round, int $number, int $nrOfPlaces = null ): Poule
     {
-        // controles
-        // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
-
-
-        $this->conn->beginTransaction(); // suspend auto-commit
-        try {
-            $poule = new Poule( $round, $number );
-            $this->repos->save($poule);
-            if( $nrOfPlaces !== null ) {
-                if ( $nrOfPlaces === 0 ) {
-                    throw new \Exception("een poule moet minimaal 1 plek hebben", E_ERROR);
-                }
-                for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ){
-                    $this->poulePlaceService->create($poule, $placeNr, null );
-                }
+        $poule = new Poule( $round, $number );
+        if( $nrOfPlaces !== null ) {
+            if ( $nrOfPlaces === 0 ) {
+                throw new \Exception("een poule moet minimaal 1 plek hebben", E_ERROR);
             }
-            $this->conn->commit();
-        } catch (\Exception $e) {
-            $this->conn->rollBack();
-            throw $e;
+            for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ){
+                $this->poulePlaceService->create($poule, $placeNr, null );
+            }
         }
-
-        /*$teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $teamWithSameName !== null ){
-            throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
-        }*/
 
         return $poule;
     }
@@ -162,16 +129,10 @@ class Service
 //        $team->setName($name);
 //        $team->setAbbreviation($abbreviation);
 //        $team->setAssociation($association);
-//
-//        return $this->repos->save($team);
 //    }
 //
-    /**
-     * @param Poule $poule
-     */
-    public function remove( Poule $poule )
+    public function removeDep( Poule $poule )
     {
         $poule->getRound()->getPoules()->removeElement($poule);
-        return $this->repos->remove($poule);
     }
 }

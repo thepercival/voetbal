@@ -37,14 +37,11 @@ class Service
      */
 	public function create( string $name, Period $period ): Season
 	{
-		$season = new Season( $name, $period );
-
-        $seasonWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+		$seasonWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 		if ( $seasonWithSameName !== null ){
 			throw new \Exception("het seizoen ".$name." bestaat al", E_ERROR );
 		}
-
-		return $this->repos->save($season);
+		return new Season( $name, $period );;
 	}
 
     /**
@@ -60,18 +57,8 @@ class Service
 		if ( $seasonWithSameName !== null and $seasonWithSameName !== $season ){
 			throw new \Exception("het seizoen ".$name." bestaat al", E_ERROR );
 		}
-
         $season->setName( $name );
         $season->setPeriod( $period );
-
-		return $this->repos->save($season);
-	}
-
-    /**
-     * @param Season $season
-     */
-	public function remove( Season $season )
-	{
-		$this->repos->remove($season);
+		return $season;
 	}
 }

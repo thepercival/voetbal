@@ -13,10 +13,6 @@ Voetbal\Round:
       nullable: true
       length: !php/const:Voetbal\Round::MAX_LENGTH_NAME
       unique: false
-    number:
-      type: smallint
-      nullable: false
-      unique: false
     winnersOrLosers:
       type: smallint
       nullable: true
@@ -29,26 +25,19 @@ Voetbal\Round:
     poules:
       targetEntity: Voetbal\Poule
       mappedBy: round
-      cascade: [ remove ]
+      cascade: [ persist, remove ]
     childRounds:
       targetEntity: Voetbal\Round
       mappedBy: parent
       cascade: [ remove ]
   manyToOne:
-    numbert:
+    number:
       targetEntity: Voetbal\Round\Number
       inversedBy: rounds
       joinColumn:
         name: numberid
         referencedColumnName: id
-        nullable: true # should be false
-        onDelete: CASCADE
-    competition: # should be removed
-      targetEntity: Voetbal\Competition
-      joinColumn:
-        name: competitionid
-        referencedColumnName: id
-        nullable: true
+        nullable: true # should be false, do sql by hand
         onDelete: CASCADE
     parent:
       targetEntity: Voetbal\Round

@@ -62,16 +62,4 @@ Voetbal\Round\Config:
     scores:
       targetEntity: Voetbal\Round\Config\Score
       mappedBy: config
-      cascade: [ remove ]
-  oneToOne:
-    round:
-      targetEntity: Voetbal\Round
-      inversedBy: config
-      joinColumn:
-        name: roundid
-        referencedColumnName: id
-        nullable: false
-        onDelete: CASCADE
-  uniqueConstraints:
-    number_u_idx:
-      columns: [ roundid ]
+      cascade: [ persist, remove ]

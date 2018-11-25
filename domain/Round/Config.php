@@ -8,7 +8,6 @@
 
 namespace Voetbal\Round;
 
-use Voetbal\Round;
 use Voetbal\Round\Config\Options as RoundConfigOptions;
 use Voetbal\Round\Config\OptionsTrait;
 use \Doctrine\Common\Collections\ArrayCollection;
@@ -22,17 +21,17 @@ class Config
      */
     protected $id;
     /**
-     * @var Round
+     * @var Number
      */
-    protected $round;
+    protected $roundNumber;
     /**
      * @var Score[] | ArrayCollection
      */
     protected $scores;
 
-    public function __construct( Round $round )
+    public function __construct( Number $roundNumber )
     {
-        $this->setRound($round);
+        $this->setRoundNumber($roundNumber);
         $this->setDefaults();
         $this->scores = new ArrayCollection();
     }
@@ -56,20 +55,20 @@ class Config
     }
 
     /**
-     * @return Round
+     * @return Number
      */
-    public function getRound()
+    public function getRoundNumber()
     {
-        return $this->round;
+        return $this->roundNumber;
     }
 
     /**
-     * @param Round $round
+     * @param Number $roundNumber
      */
-    public function setRound(Round $round)
+    public function setRoundNumber(Number $roundNumber)
     {
-        $round->setConfig($this);
-        $this->round = $round;
+        // $roundNumber->setConfig($this);
+        $this->roundNumber = $roundNumber;
     }
 
     /**

@@ -44,10 +44,10 @@ class Service
         // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
 
         // $this->em->getConnection()->beginTransaction(); // suspend auto-commit
-        try {
-            $game = new Game( $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber );
-            $game->setState( Game::STATE_CREATED );
-            $this->repos->save($game);
+
+        $game = new Game( $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber );
+        $game->setState( Game::STATE_CREATED );
+
 
 //            if ( $places === null or $places->count() === 0 ) {
 //                throw new \Exception("een poule moet minimaal 1 pouleplace hebben", E_ERROR);
@@ -58,10 +58,7 @@ class Service
 //            }
 
            // $this->em->getConnection()->commit();
-        } catch (\Exception $e) {
-            // $this->em->getConnection()->rollBack();
-            throw $e;
-        }
+
 
 
         /*$teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
@@ -88,7 +85,7 @@ class Service
         $game->setStartDateTime($startDateTime);
         $game->setResourceBatch($resourceBatch);
         $game->setReferee($referee);
-        return $this->repos->save($game);
+        return $game;
     }
 
     public function setScores( Game $game, array $newGameScores )
@@ -104,7 +101,6 @@ class Service
             $gameScore->setNumber( $count++ );
             $gameScore->setHome( $newGameScore->getHome() );
             $gameScore->setAway( $newGameScore->getAway() );
-            $this->scoreRepos->save($gameScore);
         }
     }
 

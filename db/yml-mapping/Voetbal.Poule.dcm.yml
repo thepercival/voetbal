@@ -22,7 +22,7 @@ Voetbal\Poule:
     places:
       targetEntity: Voetbal\PoulePlace
       mappedBy: poule
-      cascade: [ remove ]
+      cascade: [ persist, remove ]
     games:
       targetEntity: Voetbal\Game
       mappedBy: poule

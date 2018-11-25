@@ -54,7 +54,7 @@ class Service
         $competition = new Competition( $league, $season );
         $competition->setStartDateTime( $startDateTime );
 
-        return $this->repos->save($competition);
+        return $competition;
 	}
 
     /**
@@ -75,7 +75,7 @@ class Service
 
         $competition->setStartDateTime( $startDateTime );
 
-        return $this->repos->save($competition);
+        return $competition;
 	}
 
     /**
@@ -85,12 +85,4 @@ class Service
     {
 
     }
-
-    /**
-     * @param Competition $competition
-     */
-	public function remove( Competition $competition )
-	{
-		$this->repos->remove($competition);
-	}
 }

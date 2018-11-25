@@ -198,12 +198,9 @@ class Service
         return null;
     }
 
-    public function remove( Poule $poule )
+    public function removeDep( Poule $poule )
     {
-        $games = $poule->getGames();
-        foreach( $games as $game ) {
-            $this->gameService->remove( $game );
-        }
+        $poule->getGames()->flush();
     }
 
     /**

@@ -8,7 +8,7 @@ Voetbal\Round\Number:
       generator:
         strategy: AUTO
   fields:
-    number:
+    number: # should not be used
       type: smallint
       nullable: false
       unique: false
@@ -19,7 +19,14 @@ Voetbal\Round\Number:
         name: configid
         referencedColumnName: id
         nullable: true # should be false
-      cascade: [ remove ]
+      cascade: [ persist, remove ]
+    previous:
+      targetEntity: Voetbal\Round\Number
+      joinColumn:
+        name: previousid
+        referencedColumnName: id
+        nullable: true # should be false, do sql by hand
+        onDelete: CASCADE
   oneToMany:
     rounds:
       targetEntity: Voetbal\Round

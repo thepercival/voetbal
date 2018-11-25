@@ -1,0 +1,12 @@
+Voetbal\Structure:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: property
+
+  properties:
+    rootRound:
+      type: Voetbal\Round
+      serialized_name: rootRound
+    firstRoundNumber:
+      type: Voetbal\Round\Number
+      serialized_name: firstRoundNumber

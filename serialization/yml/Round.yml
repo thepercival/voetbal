@@ -8,6 +8,8 @@ Voetbal\Round:
       type: integer
     number:
       type: integer
+      access_type: property
+      until_version: 1
     winnersOrLosers:
       type: integer
       serialized_name: winnersOrLosers
@@ -16,6 +18,7 @@ Voetbal\Round:
       serialized_name: qualifyOrder
     config:
       type: Voetbal\Round\Config
+      until_version: 1
     childRounds:
       type: ArrayCollection<Voetbal\Round>
       serialized_name: childRounds

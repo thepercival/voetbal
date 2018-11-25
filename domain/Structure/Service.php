@@ -9,7 +9,11 @@
 namespace Voetbal\Structure;
 
 use Voetbal\Round;
+use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Structure;
 use Voetbal\Competition;
+use Voetbal\Round\Number\Service as RoundNumberService;
+use Voetbal\Round\Number\Repository as RoundNumberRepository;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Round\Config\Service as RoundConfigService;
@@ -19,6 +23,14 @@ use Doctrine\DBAL\Connection;
 
 class Service
 {
+    /**
+     * @var RoundNumberService
+     */
+    protected $roundNumberService;
+    /**
+     * @var RoundNumberRepository
+     */
+    protected $roundNumberRepos;
     /**
      * @var RoundService
      */
@@ -32,76 +44,72 @@ class Service
     */
     protected $roundConfigService;
 
-    /**
-     * @var Connection
-     */
-    protected $conn;
-
-
-    public function __construct(RoundService $roundService, RoundRepository $roundRepos, RoundConfigService $roundConfigService, Connection $conn )
+    public function __construct(
+        RoundNumberService $roundNumberService, RoundNumberRepository $roundNumberRepos,
+        RoundService $roundService, RoundRepository $roundRepos,
+        RoundConfigService $roundConfigService )
     {
+        $this->roundNumberService = $roundNumberService;
+        $this->roundNumberRepos = $roundNumberRepos;
         $this->roundService = $roundService;
         $this->roundRepos = $roundRepos;
         $this->roundConfigService = $roundConfigService;
-        $this->conn = $conn;
     }
 
-    public function generate(Competition $competition, StructureOptions $structureOptions): Round
+    public function create(Competition $competition, StructureOptions $structureOptions): Round
     {
-        return $this->roundService->generate($competition, 0, $structureOptions);
+        return $this->roundService->create($competition, 0, $structureOptions);
     }
 
-    public function create( Round $roundSer, Competition $competition, Round $parentRound = null ): Round
+    public function createFromSerialized( Structure $structureSer, Competition $competition ): Structure
     {
-        if( $parentRound === null ) {
-            if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
-                throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
+        if( count( $this->roundNumberRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
+            throw new \Exception("er kan voor deze competitie geen rondenumbers worden aangemaakt, omdat deze al bestaan", E_ERROR);
+        }
+//        if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
+//            throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
+//        }
+
+        $firstRoundNumber = null; $rootRound = null;
+        {
+            $previousRoundNumber = null;
+            foreach( $structureSer->getRoundNumbers() as $roundNumberSer ) {
+                $roundNumber = $this->roundNumberService->create(
+                    $competition,
+                    $roundNumberSer->getConfig()->getOptions(),
+                    $previousRoundNumber
+                );
+                if( $previousRoundNumber === null ) {
+                    $firstRoundNumber = $roundNumber;
+                }
+                $previousRoundNumber = $roundNumber;
             }
         }
+        // line beneath is saved through relationships
+        $rootRound = $this->createRound( $firstRoundNumber, $structureSer->getRootRound() );
+        return new Structure( $firstRoundNumber, $rootRound );
+    }
 
-        $round = null;
-        $this->conn->beginTransaction(); // suspend auto-commit
-        try {
-            $round = $this->roundService->create(
-                $roundSer->getNumber(),
-                $roundSer->getWinnersOrLosers(),
-                $roundSer->getQualifyOrder(),
-                $roundSer->getConfig()->getOptions(),
-                $roundSer->getPoules()->toArray(),
-                $competition, $parentRound
-            );
-
-            foreach( $roundSer->getChildRounds() as $childRoundSer ) {
-                $this->create( $childRoundSer, $competition, $round );
-            }
-
-            $this->conn->commit();
-        } catch ( \Exception $e) {
-            $this->conn->rollBack();
-            throw $e;
+    private function createRound( RoundNumber $roundNumber, Round $roundSerialized ): Round
+    {
+        $rootRound = $this->roundService->create(
+            $roundNumber,
+            $roundSerialized->getWinnersOrLosers(),
+            $roundSerialized->getQualifyOrder(),
+            $roundSerialized->getPoules()->toArray()
+        );
+        foreach( $roundSerialized->getChildRounds() as $childRoundSerialized ) {
+            $this->saveRoundHelper( $roundNumber->getNext(), $childRoundSerialized );
         }
-        return $round;
+        return $rootRound;
     }
 
     public function update( Round $firstRoundSer, Competition $competition )
     {
         $roundIds = $this->getNewRoundIds( $firstRoundSer );
         $firstRound = $this->roundRepos->find($firstRoundSer->getId());
-
-        $this->conn->beginTransaction(); // suspend auto-commit
-        try {
-            $this->removeNonexistingRounds( $firstRound, $roundIds );
-
-            $this->updateHelper( $firstRoundSer, $competition );
-    //            foreach( $firstRound->getPoules() as $poule ) {
-    //                var_dump($poule->getPlaces()->count());
-    //            }
-//
-            $this->conn->commit();
-        } catch ( \Exception $e) {
-            $this->conn->rollBack();
-            throw $e;
-        }
+        $this->removeNonexistingRounds( $firstRound, $roundIds );
+        $this->updateHelper( $firstRoundSer, $competition );
         return $firstRound;
     }
 
@@ -193,16 +201,8 @@ class Service
             "number" => $roundNumber,
             "competition" => $competition
         ));
-        $this->conn->beginTransaction();
-        try {
-            foreach( $rounds as $round ) {
-                $this->setConfigsHelper( $round, $configSer );
-            }
-            $this->conn->commit();
-        }
-        catch( \Exception $e ){
-            $this->conn->rollBack();
-            throw $e;
+        foreach( $rounds as $round ) {
+            $this->setConfigsHelper( $round, $configSer );
         }
     }
 
@@ -215,15 +215,20 @@ class Service
         }
     }
 
-    public function getFirstRound( Competition $competition )
+    public function getStructure( Competition $competition ): Structure
     {
-        return $this->roundRepos->findOneBy( array(
-            "number" => 1,
+        $roundNumbers =
+            $this->roundNumberRepos->findBy( array(
             "competition" => $competition
+        ), array("number" => "asc"));
+
+        $routRound = $this->roundRepos->findOneBy( array(
+            "number" => reset($roundNumbers)
         ));
+        return new Structure( $roundNumbers, $routRound );
     }
 
-    public function getAllRoundsByNumber( Competition $competition )
+    /*public function getAllRoundsByNumber( Competition $competition )
     {
         $allRoundsByNumber = [];
         $this->getAllRoundsByNumberHelper(  $this->getFirstRound( $competition ), $allRoundsByNumber );
@@ -239,7 +244,7 @@ class Service
         foreach( $round->getChildRounds() as $childRound ) {
             $this->getAllRoundsByNumberHelper($childRound, $allRoundsByNumber);
         }
-    }
+    }*/
 
     public function getNameService() {
         return new NameService();

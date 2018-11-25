@@ -9,44 +9,28 @@
 namespace Voetbal\Round\Config;
 
 use Voetbal\Round\Config as RoundConfig;
-use Voetbal\Round\Config\Repository as RoundConfigRepos;
 use Voetbal\Config as VoetbalConfig;
 use Voetbal\Round\Config\Score as ScoreConfig;
 use Voetbal\Round\Config\Score\Options as ScoreOptions;
-use Voetbal\Round;
-use Voetbal\Round\Config\Score\Repository as RoundConfigScoreRepos;
+use Voetbal\Round\Number as RoundNumber;
+
 
 class Service
 {
     /**
-     * @var RoundConfigRepos
-     */
-    protected $repos;
-    /**
-     * @var RoundConfigScoreRepos
-     */
-    protected $scoreRepos;
-
-    /**
      * Service constructor.
      * @param Repository $repos
      */
-    public function __construct( RoundConfigRepos $repos = null, RoundConfigScoreRepos $scoreRepos = null )
+    public function __construct()
     {
-        $this->repos = $repos;
-        $this->scoreRepos = $scoreRepos;
+
     }
 
-    public function create(Round $round, Options $configOptions): RoundConfig {
-        $config = new RoundConfig( $round );
-        if( $this->repos !== null ) {
-            $config = $this->repos->save($config);
-        }
+    public function create(RoundNumber $roundNumber, Options $configOptions): RoundConfig {
+        $config = new RoundConfig( $roundNumber );
+        $roundNumber->setConfig($config);
         $this->createScore( $config, $configOptions->getScore() );
         $config->setOptions( $configOptions );
-        if( $this->repos !== null ) {
-            return $this->repos->save($config);
-        }
         return $config;
     }
 
@@ -55,9 +39,6 @@ class Service
         $scoreConfig = $this->createScoreHelper($config, $scoreOptions);
         $scoreConfig = $scoreConfig->getRoot();
         while ( $scoreConfig ) {
-            if( $this->scoreRepos !== null ) {
-                $this->scoreRepos->save($scoreConfig);
-            }
             $scoreConfig = $scoreConfig->getChild();
         }
     }
@@ -76,13 +57,7 @@ class Service
         $roundConfig->setOptions( $configOptions );
         $scoreConfig = $roundConfig->getScore()->getRoot();
         while ( $scoreConfig ) {
-            if( $this->scoreRepos !== null ) {
-                $this->scoreRepos->save($scoreConfig);
-            }
             $scoreConfig = $scoreConfig->getChild();
-        }
-        if( $this->repos !== null ) {
-            return $this->repos->save($roundConfig);
         }
         return $roundConfig;
     }

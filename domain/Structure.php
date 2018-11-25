@@ -8,7 +8,6 @@
 
 namespace Voetbal;
 
-use Round;
 use Voetbal\Round\Number as RoundNumber;
 
 class Structure
@@ -36,34 +35,24 @@ class Structure
         return $this->rootRound;
     }
 
-    /**
-     * @param RoundNumber|null $roundNumber
-     * @param RoundNumber[]$roundNumbers
-     * @return RoundNumber[]
-     */
-    public function getRoundNumbers(RoundNumber $roundNumber = null, array &$roundNumbers = []): array {
-        if( $roundNumber === null ) {
-            $roundNumber = $this->getFirstRoundNumber();
-        }
-        $roundNumbers[] = $roundNumber;
-        if ($roundNumber->hasNext()) {
-            return $this->getRoundNumbers($roundNumber->getNext(), $roundNumbers);
+    public function getRoundNumbers(): array {
+        $roundNumbers = [];
+        $roundNumber = $this->getFirstRoundNumber();
+        while( $roundNumber !== null ) {
+            $roundNumbers[] = $roundNumber;
+            $roundNumber = $roundNumber->getNext();
         }
         return $roundNumbers;
     }
 
-    public function getRoundNumber(int $roundNumberAsValue): RoundNumber {
-        return $this->getRoundNumberHelper($roundNumberAsValue, $this->rootRound.getNumber());
-    }
-
-    private function getRoundNumberHelper(int $roundNumberAsValue, RoundNumber $roundNumber ): RoundNumber {
-
-        if ($roundNumber === null) {
-            return null;
+    public function getRoundNumber(int $roundNumberAsValue): ?RoundNumber {
+        $roundNumber = $this->getFirstRoundNumber();
+        while( $roundNumber !== null ) {
+            if($roundNumber->getNumber() === $roundNumberAsValue) {
+                return $roundNumber;
+            }
+            $roundNumber = $roundNumber->getNext();
         }
-        if ($roundNumberAsValue === $roundNumber->getNumber()) {
-            return $roundNumber;
-        }
-        return $this->getRoundNumberHelper($roundNumberAsValue, $roundNumber->getNext());
+        return $roundNumber;
     }
 }

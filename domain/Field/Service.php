@@ -39,8 +39,7 @@ class Service
         if ( $fieldWithSameNumber !== null ){
             throw new \Exception("het veld met nummer ".$number." bestaat al", E_ERROR );
         }
-        $field = new Field( $competition, $number, $name );
-        return $this->repos->save($field);
+        return new Field( $competition, $number, $name );
     }
 
     public function rename( Field $field, $name )
@@ -57,14 +56,6 @@ class Service
 
         $field->setName( $name );
 
-        return $this->repos->save($field);
-    }
-
-    /**
-     * @param Field $field
-     */
-    public function remove( Field $field )
-    {
-        return $this->repos->remove($field);
+        return $field;
     }
 }

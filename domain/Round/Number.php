@@ -3,7 +3,7 @@
 namespace Voetbal\Round;
 
 use Voetbal\Competition;
-use Voetbal\Round\Number\Config as RoundNumberConfig;
+use Voetbal\Round\Config as RoundConfig;
 use Voetbal\Round;
 
 class Number
@@ -29,7 +29,7 @@ class Number
      */
     protected $next;
     /**
-     * @var RoundNumberConfig
+     * @var RoundConfig
      */
     protected $config;
     /**
@@ -40,7 +40,11 @@ class Number
     public function __construct( Competition $competition, Number $previous = null )
     {
         $this->competition = $competition;
-        $this->previous = $previous;
+        if( $previous !== null ) {
+            $this->setPrevious( $previous );
+        } else {
+            $this->number = 1;
+        }
     }
 
     /**
@@ -65,29 +69,50 @@ class Number
         return $this->next !== null;
     }
 
-    public function getNext(): Number {
+    public function getNext(): ?Number {
         return $this->next;
     }
 
-    public function removeNext() {
-        $this->next = null;
+    /**
+     * only to setNext from json
+     *
+     * @param Number $next
+     * @return Number
+     */
+    public function setNext(Number $next) {
+        return $this->next = $next;
     }
+
+    /*public function removeNext() {
+        $next->setPrevious($this);
+        $this->next = null;
+    }*/
 
     public function getPrevious(): Number {
         return $this->previous;
     }
 
-    public function createNext(): Number {
-        $this->next = new Number($this->getCompetition(), $this);
-        return $this->getNext();
+    private function setPrevious( Number $previous) {
+        $this->previous = $previous;
+        $this->number = $this->previous->getNumber() + 1;
+        $this->previous->setNext($this);
     }
+
 
     public function getCompetition(): Competition {
         return $this->competition;
     }
 
+    /*public function getCompetition(): Competition {
+        return $this->competition;
+    }*/
+
     public function getNumber(): int {
         return $this->number;
+//        if( $this->getPrevious() === null ) {
+//            return 1;
+//        }
+//        return $this->getPrevious()->getNumber() + 1;
     }
 
     public function getFirst() {
@@ -109,11 +134,11 @@ class Number
         return $this->getRounds()[0];
     }
 
-    public function getConfig(): RoundNumberConfig {
+    public function getConfig(): RoundConfig {
         return $this->config;
     }
 
-    public function setConfig(RoundNumberConfig $config ) {
+    public function setConfig(RoundConfig $config ) {
         $this->config = $config;
     }
 
