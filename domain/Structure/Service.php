@@ -217,15 +217,9 @@ class Service
 
     public function getStructure( Competition $competition ): Structure
     {
-        $roundNumbers =
-            $this->roundNumberRepos->findBy( array(
-            "competition" => $competition
-        ), array("number" => "asc"));
-
-        $routRound = $this->roundRepos->findOneBy( array(
-            "number" => reset($roundNumbers)
-        ));
-        return new Structure( $roundNumbers, $routRound );
+        $firstRoundNumber = $this->roundNumberRepos->findOneBy( array("competition" => $competition, "previous" => null ) );
+        $rootRound = $this->roundRepos->findOneBy( array("number" => $firstRoundNumber));
+        return new Structure( $firstRoundNumber, $rootRound );
     }
 
     /*public function getAllRoundsByNumber( Competition $competition )

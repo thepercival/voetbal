@@ -127,7 +127,7 @@ class Handler
                 $voetbalservice->getRepository(Voetbal\Field::class),
                 $voetbalservice->getRepository(Voetbal\Referee::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
-                $serializer);
+                $serializer, $em);
         } elseif ($resourceType === 'fields') {
             $action = new Voetbal\Action\Field(
                 $voetbalservice->getRepository(Voetbal\Field::class),

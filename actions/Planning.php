@@ -8,6 +8,7 @@
 
 namespace Voetbal\Action;
 
+use Doctrine\ORM\EntityManager;
 use JMS\Serializer\Serializer;
 use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Game\Service as GameService;
@@ -60,6 +61,10 @@ final class Planning
      * @var Serializer
      */
     protected $serializer;
+    /**
+     * @var EntityManager
+     */
+    protected $em;
 
     public function __construct(
         PlanningService $service,
@@ -70,7 +75,8 @@ final class Planning
         FieldRepository $fieldRepos,
         RefereeRepository $refereeRepos,
         CompetitionRepository $competitionRepos,
-        Serializer $serializer
+        Serializer $serializer,
+        EntityManager $em
     ) {
         $this->service = $service;
         $this->repos = $repos;
@@ -81,6 +87,7 @@ final class Planning
         $this->refereeRepos = $refereeRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
+        $this->em = $em;
     }
 
     /**
@@ -97,8 +104,8 @@ final class Planning
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
 
-            $this->service->remove($poule);
-            $games = [];
+            $games = $poule->getGames();
+            $games->clear();
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
             $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
                 'ArrayCollection<Voetbal\Game>', 'json');
@@ -108,11 +115,11 @@ final class Planning
             foreach ($gamesSer as $gameSer) {
                 $homePoulePlace = $this->poulePlaceRepos->find($gameSer->getHomePoulePlace()->getId());
                 if ($homePoulePlace === null) {
-                    throw new \Exception("er kan thuis-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                    throw new \Exception("er kan geen thuis-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
                 $awayPoulePlace = $this->poulePlaceRepos->find($gameSer->getAwayPoulePlace()->getId());
                 if ($awayPoulePlace === null) {
-                    throw new \Exception("er kan uit-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                    throw new \Exception("er kan geen uit-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
                 $game = $this->gameService->create(
                     $poule,
@@ -125,7 +132,9 @@ final class Planning
                     $game,
                     $field, $referee,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
+                $this->em->persist($game);
             }
+            $this->em->flush();
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
