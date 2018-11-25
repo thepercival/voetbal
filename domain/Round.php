@@ -29,6 +29,13 @@ class Round
     protected $winnersOrLosers;
 
     /**
+     * DEPRECATED
+     *
+     * @var int
+     */
+    protected $competition;
+
+    /**
      * @var int
      */
     protected $qualifyOrder;
@@ -306,7 +313,8 @@ class Round
     }
 
     /**
-     * @return PoulePlace[] | ArrayCollection
+     * @param int $order
+     * @return array
      */
     public function getPoulePlaces( int $order = 0): array
     {

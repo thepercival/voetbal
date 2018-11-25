@@ -31,6 +31,13 @@ Voetbal\Round:
       mappedBy: parent
       cascade: [ remove ]
   manyToOne:
+    competition: # DEPRECATED
+      targetEntity: Voetbal\Competition
+      joinColumn:
+        name: competitionid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
     number:
       targetEntity: Voetbal\Round\Number
       inversedBy: rounds
