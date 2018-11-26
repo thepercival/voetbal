@@ -11,7 +11,7 @@ Voetbal\Round\Config:
     qualifyRule:
       type: smallint
       nullable: false
-      default: !php/const:Voetbal\Qualify\Rule::SOCCERWORLDCUP
+      default: php/const:Voetbal\Qualify\Rule::SOCCERWORLDCUP
       unique: false
     nrOfHeadtoheadMatches:
       type: smallint

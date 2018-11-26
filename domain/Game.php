@@ -11,6 +11,7 @@ namespace Voetbal;
 use \Doctrine\Common\Collections\ArrayCollection;
 
 use Voetbal\Game\Score;
+use Voetbal\Round\Config as RoundConfig;
 
 class Game implements External\Importable
 {
@@ -381,7 +382,7 @@ class Game implements External\Importable
         if( $this->getScores()->count() === 0 ) {
             return null;
         }
-        if( $this->getRound()->getConfig()->getCalculateScore() === $this->getRound()->getConfig()->getInputScore() ) {
+        if( $this->getConfig()->getCalculateScore() === $this->getConfig()->getInputScore() ) {
 
             return new Score\HomeAway( $this->getScores()->first()->getHome(), $this->getScores()->first()->getAway());
         }
@@ -394,5 +395,9 @@ class Game implements External\Importable
             }
         }
         return new Score\HomeAway( $home, $away);
+    }
+
+    public function getConfig(): RoundConfig {
+        return $this->getRound()->getNumber()->getConfig();
     }
 }

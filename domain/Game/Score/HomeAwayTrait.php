@@ -39,7 +39,7 @@ trait HomeAwayTrait
         if ($home === null or !is_int($home)) {
             throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
         }
-        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getConfig()->getInputScore() : null;
+        $scoreConfig = $this->getGame() ? $this->getGame()->getConfig()->getInputScore() : null;
         if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($home < 0 ) {
                 throw new \InvalidArgumentException("thuis-score heeft een negatieve waarde", E_ERROR);
@@ -64,7 +64,7 @@ trait HomeAwayTrait
         if ($away === null or !is_int($away)) {
             throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
         }
-        $scoreConfig = $this->getGame() ? $this->getGame()->getRound()->getConfig()->getInputScore() : null;
+        $scoreConfig = $this->getGame() ? $this->getGame()->getConfig()->getInputScore() : null;
         if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig\Options::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($away < 0 ) {
                 throw new \InvalidArgumentException("uit-score heeft een negatieve waarde", E_ERROR);

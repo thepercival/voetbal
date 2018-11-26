@@ -88,6 +88,10 @@ class Number
         $this->next = null;
     }*/
 
+    public function hasPrevious(): bool {
+        return $this->previous !== null;
+    }
+
     public function getPrevious(): Number {
         return $this->previous;
     }

@@ -88,17 +88,12 @@ class Service
         return $game;
     }
 
-    public function setScores( Game $game, array $newGameScores )
+    public function addScores( Game $game, array $newGameScores )
     {
-        foreach( $game->getScores() as $gameScore ) {
-            $this->scoreRepos->remove($gameScore);
-        }
-        $game->getScores()->clear();
-
-        $count = 1;
+        $count = 0;
         foreach( $newGameScores as $newGameScore ) {
             $gameScore = new GameScore( $game );
-            $gameScore->setNumber( $count++ );
+            $gameScore->setNumber( ++$count );
             $gameScore->setHome( $newGameScore->getHome() );
             $gameScore->setAway( $newGameScore->getAway() );
         }
@@ -111,5 +106,17 @@ class Service
     {
         $game->getPoule()->getGames()->removeElement($game);
         return $this->repos->remove($game);
+    }
+
+    /**
+     * @param Game $game
+     */
+    public function removeScores( Game $game )
+    {
+        while( $game->getScores()->count() > 0 ) {
+            $gameScore = $game->getScores()->first();
+            $game->getScores()->removeElement( $gameScore );
+            $this->scoreRepos->remove($gameScore);
+        }
     }
 }

@@ -8,22 +8,14 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Competition;
 use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Game\Repository as GameRepository;
-use Voetbal\Field;
-use Voetbal\Poule;
-use Voetbal\Referee;
 use Voetbal\Game;
-use Voetbal\Round;
+use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Round\Config as RoundConfig;
 
 class ScheduleHelper
 {
-    /**
-     * @var Competition
-     */
-    protected $competition;
     /**
      * @var PlanningService
      */
@@ -33,20 +25,16 @@ class ScheduleHelper
      */
     protected $gameRepository;
 
-    public function __construct( Competition $competition, PlanningService $planningService, GameRepository $gameRepository )
+    public function __construct( PlanningService $planningService, GameRepository $gameRepository )
     {
-        $this->competition = $competition;
         $this->planningService = $planningService;
         $this->gameRepository = $gameRepository;
     }
     
-    public function reschedule(int $roundNumber, \DateTimeImmutable $startDateTime) {
-        $rounds = $this->planningService->getRoundsByNumber( $this->competition, $roundNumber );
-        $aRoundConfig = reset($rounds)->getConfig();
-
+    public function reschedule(RoundNumber $roundNumber,  \DateTimeImmutable $startDateTime) {
         $poules = $this->getPoulesForRoundNumber($roundNumber);
-        $fields = $this->competition->getFields();
-        $referees = $this->competition->getReferees();
+        $fields = $roundNumber->getCompetition()->getFields();
+        $referees = $roundNumber->getCompetition()->getReferees();
         if (count($referees) > 0 && count($referees) < count($fields)) {
             $fields = array_slice($fields, 0, count($referees));
         }
@@ -59,11 +47,11 @@ class ScheduleHelper
             $this->assignRefereesToGames($poulesRefereesIt);
         }
         $amountPerResourceBatch = $this->getAmountPerResourceBatch($roundNumber, $fields, $referees);
-        return $this->assignResourceBatchToGames($aRoundConfig, $amountPerResourceBatch, $startDateTime);
+        return $this->assignResourceBatchToGames($roundNumber->getConfig(), $amountPerResourceBatch, $startDateTime);
     }
 
-    protected function getAmountPerResourceBatch( int $roundNumber, $fields, $referees): int {
-        $amountPerResourceBatch = 0;
+    protected function getAmountPerResourceBatch( RoundNumber $roundNumber, $fields, $referees): int {
+        $amountPerResourceBatch = null;
         if (count($referees) === 0) {
             $amountPerResourceBatch = count($fields);
         } else if (count($fields) === 0) {
@@ -164,7 +152,7 @@ class ScheduleHelper
         \DateTimeImmutable $dateTime = null
     ) {
         $maximalNrOfMinutesPerGame = $roundConfig->getMaximalNrOfMinutesPerGame();
-        $games = $this->getGamesByNumber($roundConfig->getRound()->getNumber(), Game::ORDER_BYNUMBER);
+        $games = $this->getGamesByNumber($roundConfig->getRoundNumber(), Game::ORDER_BYNUMBER);
 
         $resourceBatch = 1;
         foreach( $games as $gamesPerRoundNumber ) {
@@ -206,10 +194,9 @@ class ScheduleHelper
         return $resourceBatch;
     }
 
-    protected function getGamesByNumber(int $roundNumber, int $order): array {
+    protected function getGamesByNumber(RoundNumber $roundNumber, int $order): array {
         $games = [];
-        $rounds = $this->planningService->getRoundsByNumber($this->competition, $roundNumber );
-        foreach( $rounds as $round ) {
+        foreach( $roundNumber->getRounds() as $round ) {
             foreach( $round->getPoules() as $poule ) {
                 foreach( $poule->getGames() as $game ) {
                     if (array_key_exists( $game->getRoundNumber(), $games ) === false) {
@@ -231,7 +218,7 @@ class ScheduleHelper
                     }
                     return $g1->getSubNumber() - $g2->getSubNumber();
                 }
-                if ($g1->getRound()->getConfig()->getEnableTime()) {
+                if ($g1->getConfig()->getEnableTime()) {
                     if ($g1->getStartDateTime()->getTime() !== $g2->getStartDateTime()->getTime()) {
                         return $g1->getStartDateTime()->getTime() - $g2->getStartDateTime()->getTime();
                     }
@@ -246,10 +233,9 @@ class ScheduleHelper
         return $games;
     }
 
-    protected function getPoulesForRoundNumber(int $roundNumber): array {
+    protected function getPoulesForRoundNumber(RoundNumber $roundNumber): array {
         $poules = [];
-        $rounds = $this->planningService->getRoundsByNumber( $this->competition, $roundNumber );
-        foreach( $rounds as $round ) {
+        foreach( $roundNumber->getRounds() as $round ) {
             $poules = array_merge( $poules, $round->getPoules()->toArray());
         }
         return $poules;

@@ -203,7 +203,7 @@ class Ranking
 
     protected function getPoints(PoulePlace $poulePlace, array $games): int
     {
-        $config = $poulePlace->getPoule()->getRound()->getConfig();
+        $config = $poulePlace->getPoule()->getRound()->getNumber()->getConfig();
         $points = 0;
         foreach( $games as $game ) {
             if (($game->getState() & $this->gameStates) === 0) {

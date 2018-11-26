@@ -165,6 +165,7 @@ class Service
 
     public function updateOptions( Round $round, int $qualifyOrder, ConfigOptions $configOptions )
     {
+        throw new \Exception("convert to numberrr", E_ERROR );
         $round->setQualifyOrder( $qualifyOrder );
         $this->configService->update($round->getConfig(), $configOptions);
     }

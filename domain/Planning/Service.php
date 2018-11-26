@@ -13,7 +13,6 @@ use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
 use Voetbal\Structure\Service as StructureService;
 use Doctrine\ORM\EntityManager;
-use Doctrine\Common\Collections\Criteria;
 use Voetbal\Round;
 use Voetbal\Poule;
 
@@ -62,12 +61,14 @@ class Service
             throw new \Exception("cannot create games, games already exist", E_ERROR );
         }
         if ($startDateTime === null) {
-            $startDateTime = $this->calculateStartDateTime($competition, $roundNumber);
+            $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
 
         $this->em->getConnection()->beginTransaction();
         try {
             $this->createHelper($competition, $roundNumber, $startDateTime);
+            $fields = $competition->getFields();
+            $referees = $competition->getReferees();
             $startNextRound = $this->rescheduleHelper($competition, $roundNumber, $startDateTime);
             $nextRounds = $this->getRoundsByNumber( $competition, $roundNumber + 1 );
             if ($nextRounds !== null) {
@@ -80,30 +81,28 @@ class Service
         }
     }
 
-    public function canCalculateStartDateTime(Competition $competition, int $roundNumber): bool {
-        $roundsByNumber = $this->getRoundsByNumber($competition, $roundNumber);
-        $aRound = reset( $roundsByNumber );
-        if ($aRound->getConfig()->getEnableTime() === false) {
+    public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
+        if ($roundNumber->getConfig()->getEnableTime() === false) {
             return false;
         }
-        if ($this->getRoundsByNumber($competition, $roundNumber - 1) !== null) {
-            return $this->canCalculateStartDateTime($competition, $roundNumber - 1);
+        if ($roundNumber->hasPrevious() ) {
+            return $this->canCalculateStartDateTime($roundNumber->getPrevious());
         }
         return true;
     }
 
 
-    public function reschedule( Competition $competition, int $roundNumber, \DateTimeImmutable $startDateTime = null )
+    public function reschedule( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null )
     {
-        if ($startDateTime === null && $this->canCalculateStartDateTime($competition, $roundNumber)) {
-            $startDateTime = $this->calculateStartDateTime($competition, $roundNumber);
+        if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
+            $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
 
         $this->em->getConnection()->beginTransaction();
         try {
-            $startNextRound = $this->rescheduleHelper($competition, $roundNumber, $startDateTime);
-            if ($this->getRoundsByNumber($roundNumber+1) !== null) {
-                $this->reschedule( $competition, $roundNumber + 1, $startNextRound );
+            $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+            if ($roundNumber->hasNext()) {
+                $this->reschedule( $roundNumber->getNext(), $startNextRound );
             }
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -113,50 +112,34 @@ class Service
         return;
     }
 
-    protected function rescheduleHelper(Competition $competition, int $roundNumber, \DateTimeImmutable $startDateTime){
-        $scheduleHelper = new ScheduleHelper($competition, $this, $this->gameRepos);
+    protected function rescheduleHelper(RoundNumber $roundNumber, \DateTimeImmutable $startDateTime){
+        $scheduleHelper = new ScheduleHelper($this, $this->gameRepos);
         return $scheduleHelper->reschedule( $roundNumber, $startDateTime );
     }
 
-    protected function calculateStartDateTime(Competition $competition, int $roundNumber) {
-        $roundsForNumber = $this->getRoundsByNumber($competition, $roundNumber);
-        $aRound = reset($roundsForNumber);
-        if ($aRound->getConfig()->getEnableTime() === false) {
+    protected function calculateStartDateTime(RoundNumber $roundNumber) {
+        if ($roundNumber->getConfig()->getEnableTime() === false) {
             return null;
         }
-        if ($roundNumber === 1) {
-            return $competition->getStartDateTime();
+        if ($roundNumber->isFirst() ) {
+            return $roundNumber->getCompetition()->getStartDateTime();
         }
-        return $this->calculateEndDateTime($roundNumber - 1);
-    }
-
-    public function getRoundsByNumber( Competition $competition, int $roundNumber ) {
-        if ( $this->allRoundsByNumber === null ) {
-            $this->allRoundsByNumber = $this->structureService->getAllRoundsByNumber($competition);
-        }
-        if( array_key_exists( $roundNumber, $this->allRoundsByNumber ) === false ) {
-            return null;
-        }
-        return $this->allRoundsByNumber[$roundNumber];
+        return $this->calculateEndDateTime($roundNumber->getPrevious());
     }
 
     /**
      * @param Competition $competition
      * @param int $roundNumber
      */
-    protected function createHelper( Competition $competition, int $roundNumber )
+    protected function createHelper( RoundNumber $roundNumber )
     {
-        $rounds = $this->getRoundsByNumber( $competition, $roundNumber );
-        foreach ($rounds as $round) {
-            $roundConfig = $round->getConfig();
-            if ($roundConfig->getMinutesPerGame() === 0) {
-                $startDateTime = null;
-            }
+        foreach ($roundNumber->getRounds() as $round) {
             $poules = $round->getPoules();
             foreach ($poules as $poule) {
                 $arrScheduledGames = $this->generateRRSchedule($poule->getPlaces()->toArray());
-                for ($headToHead = 1; $headToHead <= $roundConfig->getNrOfHeadtoheadMatches(); $headToHead++) {
-                    $headToHeadNumber = (($headToHead - 1) * count($arrScheduledGames));
+                $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
+                for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
+                    $headToHeadNumber = (($headtohead - 1) * count($arrScheduledGames));
                     for ($gameRoundNumber = 0; $gameRoundNumber < count($arrScheduledGames); $gameRoundNumber++) {
                         $schedRoundGames = $arrScheduledGames[$gameRoundNumber];
                         $subNumber = 1;
@@ -164,8 +147,8 @@ class Service
                             if ($schedGame[0] === null || $schedGame[1] === null) {
                                 continue;
                             }
-                            $homePoulePlace = (($headToHead % 2) === 0) ? $schedGame[1] : $schedGame[0];
-                            $awayPoulePlace = (($headToHead % 2) === 0) ? $schedGame[0] : $schedGame[1];
+                            $homePoulePlace = (($headtohead % 2) === 0) ? $schedGame[1] : $schedGame[0];
+                            $awayPoulePlace = (($headtohead % 2) === 0) ? $schedGame[0] : $schedGame[1];
                             $gameTmp = $this->gameService->create(
                                 $poule, $homePoulePlace, $awayPoulePlace,
                                 $headToHeadNumber + $gameRoundNumber + 1, $subNumber++

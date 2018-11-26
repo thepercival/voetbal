@@ -16,6 +16,7 @@ use Voetbal\Structure\Service as StructureService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Doctrine\ORM\EntityManager;
+use Voetbal\Structure as StructureT;
 
 //use Voetbal;
 //use Psr\Http\Message\ServerRequestInterface;
@@ -182,10 +183,10 @@ final class Structure
         }
     }
 
-    private function convertRoundToStructure( Round $roundSerialized, Competition $competition ): Structure {
+    private function convertRoundToStructure( Round $roundSerialized, Competition $competition ): StructureT {
 
         $firstRoundNumber = $this->getRoundNumberFromRound( $roundSerialized, $competition );
-        return new Structure( $firstRoundNumber, $roundSerialized );
+        return new StructureT( $firstRoundNumber, $roundSerialized );
     }
 
     private function getRoundNumberFromRound(
@@ -212,32 +213,45 @@ final class Structure
         return $roundNumber;
     }
 
-    private function convertRoundToHelper( Competition $competition, Round $roundSerialized, RoundNumber $roundNumberSerialized = null ): Round
-    {
-        if( $roundNumberSerialized === null ) {
-            $roundNumberSerialized = new RoundNumber($competition);
-        }
-        $number = $previousRoundNumber === null ? 1 : $previousRoundNumber->getNumber() + 1;
-        $roundNumber->setNumber( $number );
-        $this->repos->save($roundNumber);
-        $this->configService->create($roundNumber, $roundSerialized->getConfig()->getOptions() );
-        if( $previousRoundNumber !== null ) {
-            $previousRoundNumber->setNext($roundNumber);
-        }
-
-        $rootRound = $this->roundService->create(
-            $roundNumber,
-            $roundSerialized->getWinnersOrLosers(),
-            $roundSerialized->getQualifyOrder(),
-            $roundSerialized->getPoules()->toArray()
-        );
-
-        return $rootRound;
-    }
-
     public function edit( $request, $response, $args)
     {
-        $sErrorMessage = null;
+        $apiVersion = $request->getHeaderLine('X-Api-Version');
+        if( $apiVersion !== '2') {
+            return $this->editDeprecated( $request, $response, $args);
+        }
+        try {
+            /** @var \Voetbal\Structure $structureSer */
+            $structureSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
+            if ( $structureSer === null ) {
+                throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+            }
+
+            $competitionid = (int) $request->getParam("competitionid");
+            $competition = $this->competitionRepos->find($competitionid);
+            if ( $competition === null ) {
+                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
+            }
+
+            $structure = $this->service->updateFromSerialized( $structureSer, $competition );
+            foreach( $structure->getRoundNumbers() as $roundNumber ) {
+                $this->em->persist($roundNumber);
+            }
+            $this->em->persist($structure->getRootRound());
+            $this->em->flush();
+
+            return $response
+                ->withStatus(200)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $structure, 'json'));
+            ;
+        }
+        catch( \Exception $e ){
+            return $response->withStatus(422 )->write( $e->getMessage() );
+        }
+    }
+
+    public function editDeprecated( $request, $response, $args)
+    {
         try {
             /** @var \Voetbal\Round $round */
             $roundSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Round', 'json');
@@ -251,18 +265,23 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $round = $this->service->update( $roundSer, $competition );
+            $structureSer = $this->convertRoundToStructure( $roundSer, $competition );
+            $structure = $this->service->updateFromSerialized( $structureSer, $competition );
+            foreach( $structure->getRoundNumbers() as $roundNumber ) {
+                $this->em->persist($roundNumber);
+            }
+            $this->em->persist($structure->getRootRound());
+            $this->em->flush();
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $round, 'json'));
+                ->write($this->serializer->serialize( $structure->getRootRound(), 'json'));
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422 )->write( $e->getMessage() );
         }
-        return $response->withStatus(422 )->write( $sErrorMessage );
     }
 
     public function remove( $request, $response, $args)

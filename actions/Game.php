@@ -163,9 +163,10 @@ final class Game
             $game->setStartDateTime( $gameSer->getStartDateTime() );
             $game->setScoresMoment( $gameSer->getScoresMoment() );
 
-            $game = $this->repos->save( $game );
+            $this->service->removeScores( $game );
+            $this->service->addScores( $game, $gameSer->getScores()->toArray() );
 
-            $this->service->setScores( $game, $gameSer->getScores()->toArray() );
+            $this->repos->save( $game );
 
             return $response
                 ->withStatus(200)

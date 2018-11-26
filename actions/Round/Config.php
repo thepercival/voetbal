@@ -58,7 +58,8 @@ final class Config
             if ( $roundNumber === 0 ) {
                 throw new \Exception("geen rondenummer opgegeven", E_ERROR);
             }
-            $this->structureService->setConfigs( $competition, $roundNumber, $configSer );
+            $structure = $this->structureService->getStructure( $competition );
+            $this->structureService->setConfigs( $structure->getFirstRoundNumber(), $configSer );
 
             return $response
                 ->withStatus(201)
