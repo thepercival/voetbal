@@ -234,7 +234,7 @@ class Competition implements External\Importable
     /**
      * @return Structure
      */
-    public function getStructure(): Structure
+    /*public function getStructure(): Structure
     {
         $firstRoundNumber = null;
         foreach( $this->getRoundNumbers() as $roundNumber ) {
@@ -243,5 +243,5 @@ class Competition implements External\Importable
             }
         }
         return new Structure( $firstRoundNumber, $firstRoundNumber->getRounds()->first() );
-    }
+    }*/
 }

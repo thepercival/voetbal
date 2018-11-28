@@ -12,5 +12,6 @@ Voetbal\Round\Number:
     config:
       type: Voetbal\Round\Config
     next:
-      # access_type: property
+      # when serializing first call all next because of
+      #access_type: property
       type: Voetbal\Round\Number

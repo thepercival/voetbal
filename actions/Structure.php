@@ -80,12 +80,12 @@ final class Structure
         if( $apiVersion !== '2') {
             return $this->fetchOneDeprecated( $request, $response, $args);
         }
-        $cs = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
-        if( $cs === null ) {
-            return $response->withStatus(404)->write('geen indeling gevonden voor competitieseizoen');
+        $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
+        if( $competition === null ) {
+            return $response->withStatus(404)->write('geen indeling gevonden voor competitie');
         }
 
-        $structure = $this->service->getStructure( $cs );
+        $structure = $this->service->getStructure( $competition );
         // var_dump($structure); die();
 
         return $response

@@ -109,12 +109,31 @@ class Service
         $rootRound = $this->roundRepos->find($structureSer->getRootRound()->getId());
         $firstRoundNumber = $this->roundNumberRepos->find($structureSer->getFirstRoundNumber()->getId());
         $this->removeNonexistingRoundNumbers( $structureSer->getFirstRoundNumber(), $firstRoundNumber );
+        $this->updateRoundNumbersFromSerialized( $structureSer->getFirstRoundNumber(), $competition );
         $this->removeNonexistingRounds( $structureSer->getRootRound(), $rootRound );
-        $rootRound = $this->updateRoundsFromSerialized( $structureSer->getRootRound(), $firstRoundNumber, $competition );
+        $rootRound = $this->updateRoundsFromSerialized( $structureSer->getRootRound(), $firstRoundNumber );
         return new Structure($firstRoundNumber, $rootRound);
     }
 
-    protected function updateRoundsFromSerialized( Round $roundSer, RoundNumber $roundNumber, Competition $competition, Round $parentRound = null): Round
+    protected function updateRoundNumbersFromSerialized(
+        RoundNumber $roundNumberSer, Competition $competition, RoundNumber $previousRoundNumber = null
+    )
+    {
+        $roundNumber = null;
+        if( $roundNumberSer->getId() === null ) {
+            $configOptions = $roundNumberSer->getConfig()->getOptions();
+            $roundNumber = $this->roundNumberService->create( $competition, $configOptions, $previousRoundNumber );
+        }
+        else {
+            $roundNumber = $this->roundNumberRepos->find($roundNumberSer->getId());
+            // maybe update roundconfig? TODO CDK
+        }
+        if( $roundNumberSer->hasNext() ) {
+            $this->updateRoundNumbersFromSerialized( $roundNumberSer->getNext(), $competition, $roundNumber );
+        }
+    }
+
+    protected function updateRoundsFromSerialized( Round $roundSer, RoundNumber $roundNumber, Round $parentRound = null): Round
     {
         $round = null;
         if( $roundSer->getId() === null ) {
@@ -123,7 +142,7 @@ class Service
                 $roundSer->getWinnersOrLosers(),
                 $roundSer->getQualifyOrder(),
                 $roundSer->getPoules()->toArray(),
-                $competition, $parentRound
+                $parentRound
             );
         }
         else {
@@ -131,7 +150,7 @@ class Service
             $this->roundService->updatePoulesFromSerialized( $round, $roundSer->getPoules()->toArray() );
         }
         foreach( $roundSer->getChildRounds() as $childRoundSer ) {
-            $this->updateRoundsFromSerialized( $childRoundSer, $roundNumber->getNext(), $competition, $round );
+            $this->updateRoundsFromSerialized( $childRoundSer, $roundNumber->getNext(), $round );
         }
         return $round;
     }
@@ -223,9 +242,17 @@ class Service
 
     public function getStructure( Competition $competition ): Structure
     {
-        $firstRoundNumber = $this->roundNumberRepos->findOneBy( array("competition" => $competition, "previous" => null ) );
-        $rootRound = $this->roundRepos->findOneBy( array("number" => $firstRoundNumber));
-        return new Structure( $firstRoundNumber, $rootRound );
+        $firstRoundNumber = null;
+        foreach( $competition->getRoundNumbers() as $roundNumber ) {
+            if( $roundNumber->getNumber() === 1 ) {
+                $firstRoundNumber = $roundNumber;
+            }
+        }
+        return new Structure( $firstRoundNumber, $firstRoundNumber->getRounds()->first() );
+
+        // $firstRoundNumber = $this->roundNumberRepos->findOneBy( array("competition" => $competition, "previous" => null ) );
+        // $rootRound = $this->roundRepos->findOneBy( array("number" => $firstRoundNumber));
+        // return new Structure( $firstRoundNumber, $rootRound );
     }
 
     /*public function getAllRoundsByNumber( Competition $competition )
