@@ -46,6 +46,7 @@ Voetbal\Round:
         referencedColumnName: id
         nullable: true # should be false, do sql by hand
         onDelete: CASCADE
+      cascade: [ persist, remove ]
     parent:
       targetEntity: Voetbal\Round
       inversedBy: childRounds

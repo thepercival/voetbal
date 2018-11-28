@@ -159,7 +159,7 @@ class Service
         $round = new Round($roundNumber, $p_parent);
         $round->setWinnersOrLosers( $winnersOrLosers );
         $round->setQualifyOrder( $qualifyOrder );
-        $this->updatePoules( $round, $poulesSer );
+        $this->updatePoulesFromSerialized( $round, $poulesSer );
         return $round;
     }
 
