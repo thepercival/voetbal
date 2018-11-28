@@ -170,17 +170,14 @@ class Service
         $this->configService->update($round->getConfig(), $configOptions);
     }
 
-    public function updatePoules( Round $round, array $poulesSer ) {
+    public function updatePoulesFromSerialized( Round $round, array $poulesSer ) {
 
         $pouleIds = $this->getNewPouleIds( $poulesSer );
         $poulePlacesSer = $this->getPlacesFromPoules( $poulesSer );
         $placeIds = $this->getNewPlaceIds( $poulePlacesSer );
         $this->removeNonexistingPoules( $round->getPoules()->toArray(), $pouleIds );
         $this->removeNonexistingPlaces( $round->getPoulePlaces(), $placeIds );
-        foreach( $poulesSer as $pouleSer ) {
-            $this->updatePoulesHelper( $pouleSer, $round );
-        }
-        $this->pouleService->updateStructure( $poulesSer, $round);
+        $this->pouleService->updateFromSerialized( $poulesSer, $round);
     }
 
     protected function getNewPouleIds( array $poulesSer )
@@ -231,18 +228,6 @@ class Service
                 // var_dump("pouleplace with id ".$place->getId()." removed " );
             }
         }
-    }
-
-    protected function updatePoulesHelper( Poule $pouleSer, Round $round): Poule
-    {
-        $poule = null;
-        if( $pouleSer->getId() === null ) {
-            $poule = $this->pouleService->create( $round, $pouleSer->getNumber() );
-        }
-        else {
-            $poule = $this->pouleRepos->find($pouleSer->getId());
-        }
-        return $poule;
     }
 
     /**

@@ -79,12 +79,13 @@ final class PoulePlace
                 throw new \Exception("de poule van de pouleplek komt niet overeen met de verstuurde poule", E_ERROR);
             }
             $team = $pouleplaceSer->getTeam() ? $this->teamRepos->find($pouleplaceSer->getTeam()->getId()) : null;
-            $poulePlaceRet = $this->service->assignTeam( $poulePlace, $team );
+            $poulePlace->setTeam($team);
+            $this->repos->save($poulePlace);
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($poulePlaceRet, 'json'));
+                ->write($this->serializer->serialize($poulePlace, 'json'));
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }

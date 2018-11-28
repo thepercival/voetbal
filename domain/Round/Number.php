@@ -33,9 +33,13 @@ class Number
      */
     protected $config;
     /**
-     * @var Round]\
+     * @var Round[]
      */
     protected $rounds;
+    /**
+     * @var bool
+     */
+    protected $callingFromSetPrevious = false;
 
     public function __construct( Competition $competition, Number $previous = null )
     {
@@ -74,12 +78,15 @@ class Number
     }
 
     /**
-     * only to setNext from json
+     * made public to call setNext from within setPrevious
      *
      * @param Number $next
      * @return Number
      */
     public function setNext(Number $next) {
+        if( !$this->callingFromSetPrevious ) {
+            throw new \Exception("cannot call setNext from outside roundnumber", E_ERROR );
+        }
         return $this->next = $next;
     }
 
@@ -99,7 +106,9 @@ class Number
     private function setPrevious( Number $previous) {
         $this->previous = $previous;
         $this->number = $this->previous->getNumber() + 1;
+        $this->callingFromSetPrevious = true;
         $this->previous->setNext($this);
+        $this->callingFromSetPrevious = false;
     }
 
 

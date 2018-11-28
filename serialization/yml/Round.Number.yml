@@ -12,4 +12,5 @@ Voetbal\Round\Number:
     config:
       type: Voetbal\Round\Config
     next:
+      # access_type: property
       type: Voetbal\Round\Number

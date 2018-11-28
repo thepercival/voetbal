@@ -8,7 +8,6 @@
 
 namespace Voetbal;
 
-
 /**
  * Class Field
  * @package Voetbal
@@ -31,7 +30,7 @@ class Field
     protected $number;
 
     /**
-     * @var Comopetitionseason
+     * @var Competition
      */
     private $competition;
 
@@ -112,7 +111,7 @@ class Field
     /**
      * @return Competition
      */
-    private function getCompetition()
+    public function getCompetition()
     {
         return $this->competition;
     }
@@ -120,7 +119,7 @@ class Field
     /**
      * @param Competition $Competition
      */
-    public function setCompetition( Competition $competition )
+    private function setCompetition( Competition $competition )
     {
         if ( $this->competition === null and $competition !== null and !$competition->getFields()->contains( $this ) ) {
             $competition->getFields()->add($this) ;

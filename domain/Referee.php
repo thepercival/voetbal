@@ -178,7 +178,7 @@ class Referee
     /**
      * @param Competition $Competition
      */
-    public function setCompetition( Competition $competition )
+    private function setCompetition( Competition $competition )
     {
         $this->competition = $competition;
     }

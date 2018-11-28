@@ -78,10 +78,16 @@ class Service
      * @param Round $round
      * @throws \Exception
      */
-    public function updateStructure( array $poulesSer, Round $round)
+    public function updateFromSerialized( array $poulesSer, Round $round)
     {
         foreach( $poulesSer as $pouleSer ) {
-            $poule = $round->getPoule($pouleSer->getNumber());
+            $poule = null;
+            if( $pouleSer->getId() === null ) {
+                $poule = $this->create( $round, $pouleSer->getNumber() );
+                $this->poulePlaceRepos->getEM()->persist($poule);
+            } else {
+                $poule = $this->repos->find($pouleSer->getId());
+            }
             if ($poule === null) {
                 throw new \Exception("bij de plek kon geen poule gevonden worden ", E_ERROR);
             }
@@ -95,10 +101,10 @@ class Service
                     $poulePlace = $this->poulePlaceRepos->find($poulePlaceSer->getId());
                 }
                 if ($poulePlace === null) {
-                    $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $team);
+                    $poulePlace = $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $team);
                 }
                 else {
-                    $this->poulePlaceService->assignTeam($poulePlace, $team);
+                    $poulePlace->setTeam($team);
                     if ($pouleSer->getNumber() !== $poulePlace->getPoule()->getNumber()
                         || $poulePlaceSer->getNumber() !== $poulePlace->getNumber()
                     ) {
@@ -106,8 +112,10 @@ class Service
                             $pouleSer->getNumber(), $poulePlaceSer->getNumber());
                     }
                 }
+                $this->poulePlaceRepos->getEM()->persist($poulePlace);
             }
         }
+        $this->poulePlaceRepos->getEM()->flush();
         return;
     }
 
@@ -135,4 +143,14 @@ class Service
     {
         $poule->getRound()->getPoules()->removeElement($poule);
     }
+
+    /*protected function removeGames( Poule $poule )
+    {
+        $games = $poule->getGames();
+        while( $games->count() > 0 ) {
+            $game = $games->first();
+            $games->removeElement( $game );
+            // $this->scoreRepos->remove($game);
+        }
+    }*/
 }

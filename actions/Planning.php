@@ -105,10 +105,15 @@ final class Planning
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
 
             $games = $poule->getGames();
-            $games->clear();
+            while( $games->count() > 0 ) {
+                $game = $games->first();
+                $games->removeElement( $game );
+                $this->em->remove($game);
+            }
+
+            // $games->clear();
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
-            $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
-                'ArrayCollection<Voetbal\Game>', 'json');
+            $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),'ArrayCollection<Voetbal\Game>', 'json');
             if ($gamesSer === null) {
                 throw new \Exception("er kunnen geen wedstrijden worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }

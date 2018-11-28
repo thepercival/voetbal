@@ -39,23 +39,13 @@ class Service
 
     public function create( Poule $poule, $number, Team $team = null/*, PoulePlace $toPoulePlace*/ )
     {
-        // controles
-        // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
-
         if ( $team !== null ){
             $team = $this->teamRepos->find( $team->getId() );
         }
-
         $pouleplace = new PoulePlace( $poule, $number );
         $pouleplace->setTeam($team);
 
         return $pouleplace;
-    }
-
-    public function assignTeam( PoulePlace $poulePlace, Team $team = null ): PoulePlace {
-        // @TODO check if team is not assigned two times?
-        $poulePlace->setTeam($team);
-        return $poulePlace;
     }
 
     public function move( PoulePlace $poulePlace, int $newPouleNumber, int $newNumber)
@@ -71,8 +61,9 @@ class Service
     /**
      * @param PoulePlace $pouleplace
      */
-    public function removeDep( PoulePlace $pouleplace )
+    public function remove( PoulePlace $pouleplace )
     {
         $pouleplace->getPoule()->getPlaces()->removeElement($pouleplace);
+        $this->repos->getEM()->remove($pouleplace);
     }
 }

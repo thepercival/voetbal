@@ -131,10 +131,10 @@ final class Structure
             }
 
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
-
-            foreach( $structure->getRoundNumbers() as $roundNumber ) {
-                $this->em->persist($roundNumber);
-            }
+            $this->em->persist($structure->getFirstRoundNumber());
+//            foreach( $structure->getRoundNumbers() as $roundNumber ) {
+//                $this->em->persist($roundNumber);
+//            }
             $this->em->persist($structure->getRootRound());
             $this->em->flush();
 
@@ -164,7 +164,7 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $structureSer = $this->convertRoundToStructure( $roundSer, $competition );
+            $structureSer = $this->getSerializedStructureFromRound( $roundSer, $competition );
             $structure = $this->service->createFromSerializedDeprecated( $structureSer, $competition );
             foreach( $structure->getRoundNumbers() as $roundNumber ) {
                 $this->em->persist($roundNumber);
@@ -183,13 +183,13 @@ final class Structure
         }
     }
 
-    private function convertRoundToStructure( Round $roundSerialized, Competition $competition ): StructureT {
+    private function getSerializedStructureFromRound( Round $roundSerialized, Competition $competition ): StructureT {
 
-        $firstRoundNumber = $this->getRoundNumberFromRound( $roundSerialized, $competition );
+        $firstRoundNumber = $this->getSerializedRoundNumberFromRound( $roundSerialized, $competition );
         return new StructureT( $firstRoundNumber, $roundSerialized );
     }
 
-    private function getRoundNumberFromRound(
+    private function getSerializedRoundNumberFromRound(
         Round $roundSerialized,
         Competition $competition,
         RoundNumber $previousRoundNumber = null
@@ -225,17 +225,14 @@ final class Structure
             if ( $structureSer === null ) {
                 throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
-
-            $competitionid = (int) $request->getParam("competitionid");
-            $competition = $this->competitionRepos->find($competitionid);
-            if ( $competition === null ) {
-                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
-            }
+            $roundId = $structureSer->getRootRound()->getId();
+            list($round, $competition) = $this->checkInput( $roundId, (int)$request->getParam("competitionid") );
 
             $structure = $this->service->updateFromSerialized( $structureSer, $competition );
-            foreach( $structure->getRoundNumbers() as $roundNumber ) {
-                $this->em->persist($roundNumber);
-            }
+//            foreach( $structure->getRoundNumbers() as $roundNumber ) {
+//                $this->em->persist($roundNumber);
+//            }
+            $this->em->persist($structure->getFirstRoundNumber());
             $this->em->persist($structure->getRootRound());
             $this->em->flush();
 
@@ -258,14 +255,9 @@ final class Structure
             if ( $roundSer === null ) {
                 throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
+            list($round, $competition) = $this->checkInput( $roundSer->getId(), (int)$request->getParam("competitionid") );
 
-            $competitionid = (int) $request->getParam("competitionid");
-            $competition = $this->competitionRepos->find($competitionid);
-            if ( $competition === null ) {
-                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
-            }
-
-            $structureSer = $this->convertRoundToStructure( $roundSer, $competition );
+            $structureSer = $this->getSerializedStructureFromRound( $roundSer, $competition );
             $structure = $this->service->updateFromSerialized( $structureSer, $competition );
             foreach( $structure->getRoundNumbers() as $roundNumber ) {
                 $this->em->persist($roundNumber);
@@ -284,23 +276,28 @@ final class Structure
         }
     }
 
+    protected function checkInput( int $roundId, int $competitionId ): array
+    {
+        $round = $this->roundRepos->find($roundId);
+        if ($round === null) {
+            throw new \Exception('de indeling kan niet gevonden worden', E_ERROR);
+        }
+        $competition = $this->competitionRepos->find($competitionId);
+        if ($competition === null) {
+            throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        if ($round->getCompetition() !== $competition) {
+            throw new \Exception("de competitie van de ronde komt niet overeen met de verstuurde competitie",
+                E_ERROR);
+        }
+        return array( $round, $competition );
+    }
+
     public function remove( $request, $response, $args)
     {
         $sErrorMessage = null;
         try {
-            $round = $this->roundRepos->find($args['id']);
-            if ($round === null) {
-                throw new \Exception('de te verwijderen indeling kan niet gevonden worden', E_ERROR);
-            }
-            $competitionId = (int)$request->getParam("competitionid");
-            $competition = $this->competitionRepos->find($competitionId);
-            if ($competition === null) {
-                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-            if ($round->getCompetition() !== $competition) {
-                throw new \Exception("de competitie van de ronde komt niet overeen met de verstuurde competitie",
-                    E_ERROR);
-            }
+            list($round, $competition) = $this->checkInput( (int) $args['id'], (int)$request->getParam("competitionid") );
             $this->service->remove($round);
             return $response->withStatus(204);
         } catch (\Exception $e) {

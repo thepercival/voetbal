@@ -136,13 +136,9 @@ class Service
         ConfigOptions $configOptions,
         RoundNumber $previousRoundNumber = null ): RoundNumber
     {
-        $roundNumber = new RoundNumber($competition);
-        // $number = $previousRoundNumber === null ? 1 : $previousRoundNumber->getNumber() + 1;
-        // $roundNumber->setNumber( $number );
+        $roundNumber = new RoundNumber($competition, $previousRoundNumber);
         $this->configService->create($roundNumber, $configOptions);
-        if( $previousRoundNumber !== null ) {
-            $previousRoundNumber->setNext($roundNumber);
-        }
+
         return $roundNumber;
     }
 
@@ -240,15 +236,20 @@ class Service
         return $poule;
     }
 
-
-    public function remove( Round $round )
+*/
+    public function remove( RoundNumber $roundNumber )
     {
-        if( $round->getParent() !== null ) {
-            $round->getParent()->getChildRounds()->removeElement($round);
+        if( $roundNumber->hasPrevious() ) {
+            var_dump("pre: next of previous is " . ( $roundNumber->getPrevious() !== null ? '' : 'not' ) . " a value" );
+            // $roundNumber->getPrevious()->setNext(null);
         }
-        return $this->repos->remove($round);
+        $this->repos->remove($roundNumber);
+        if( $roundNumber->hasPrevious() ) {
+            var_dump("post: next of previous is " . ( $roundNumber->getPrevious() !== null ? '' : 'not' ) . " a value" );
+        }
+        die();
     }
-
+/*
 
     public function getDefault( int $roundNr, int $nrOfPlaces ): RoundStructure
     {

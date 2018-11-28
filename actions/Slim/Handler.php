@@ -68,7 +68,6 @@ class Handler
                 $serializer);
         } elseif ($resourceType === 'teams') {
             $action = new Voetbal\Action\Team(
-                $voetbalservice->getService(Voetbal\Team::class),
                 $voetbalservice->getRepository(Voetbal\Team::class),
                 $voetbalservice->getRepository(Voetbal\Association::class),
                 $serializer);

@@ -48,7 +48,6 @@ final class Referee
 
     public function add($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $competitionId = (int)$request->getParam("competitionid");
             $competition = $this->competitionRepos->find($competitionId);
@@ -56,74 +55,65 @@ final class Referee
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
 
-
-
             /** @var \Voetbal\Referee $refereeSer */
             $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json'/*, $contextSer*/);
             if ($refereeSer === null) {
                 throw new \Exception("er kan geen scheidsrechter worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $refereeRet = $this->service->create(
+            $referee = $this->service->create(
                 $competition,
                 $refereeSer->getInitials(),
                 $refereeSer->getName(),
                 $refereeSer->getEmailaddress(),
                 $refereeSer->getInfo()
             );
+            $this->repos->save( $referee );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($refereeRet, 'json'));;
+                ->write($this->serializer->serialize($referee, 'json'));;
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422)->write($e->getMessage());
         }
-        return $response->withStatus(422)->write($sErrorMessage);
     }
 
     public function edit($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $referee = $this->getReferee((int)$args["id"], (int)$request->getParam("competitionid"));
-
             /** @var \Voetbal\Referee $refereeSer */
-            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee',
-                'json');
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json');
             if ($refereeSer === null) {
                 throw new \Exception("de scheidsrechter kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
-
-            $refereeRet = $this->service->edit(
+            $referee = $this->service->edit(
                 $referee,
                 $refereeSer->getInitials(),
                 $refereeSer->getName(),
                 $refereeSer->getEmailaddress(),
                 $refereeSer->getInfo()
             );
-
+            $this->repos->save( $referee );
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($refereeRet, 'json'));
+                ->write($this->serializer->serialize($referee, 'json'));
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(400)->write($e->getMessage());
         }
-        return $response->withStatus(400)->write($sErrorMessage);
     }
 
     public function remove($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $referee = $this->getReferee((int)$args["id"], (int)$request->getParam("competitionid"));
-            $this->service->remove($referee);
+            $this->repos->remove($referee);
             return $response->withStatus(204);
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write($e->getMessage());
         }
-        return $response->withStatus(404)->write($sErrorMessage);
     }
 
     protected function getReferee(int $id, int $competitionId): RefereeBase
@@ -146,5 +136,4 @@ final class Referee
         }
         return $referee;
     }
-
 }

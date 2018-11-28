@@ -12,7 +12,6 @@ use JMS\Serializer\Serializer;
 use Voetbal\Team\Service as TeamService;
 use Voetbal\Team\Repository as TeamRepository;
 use Voetbal\Association\Repository as AssociationRepository;
-use Voetbal;
 use Voetbal\Team as TeamBase;
 
 final class Team
@@ -35,12 +34,10 @@ final class Team
     protected $serializer;
 
     public function __construct(
-        TeamService $service,
         TeamRepository $repos,
         AssociationRepository $associationRepos,
         Serializer $serializer)
     {
-        $this->service = $service;
         $this->repos = $repos;
         $this->associationRepos = $associationRepos;
         $this->serializer = $serializer;
@@ -75,7 +72,6 @@ final class Team
 
     public function add( $request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $associationid = (int) $request->getParam("associationid");
             $association = $this->associationRepos->find($associationid);
@@ -89,29 +85,23 @@ final class Team
                 throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $teamRet = $this->service->create(
-                $teamSer->getName(),
-                $association,
-                $teamSer->getAbbreviation(),
-                $teamSer->getImageUrl(),
-                $teamSer->getInfo()
-            );
+            $team = new TeamBase( $teamSer->getName(), $association );
+            $team->setAbbreviation($teamSer->getAbbreviation());
+            $team->setImageUrl($teamSer->getImageUrl());
+            $team->setInfo($teamSer->getInfo());
+            $this->repos->save($team);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $teamRet, 'json'));
-            ;
+                ->write($this->serializer->serialize( $team, 'json'));
+        } catch( \Exception $e ){
+            return $response->withStatus(422)->write( $e->getMessage() );
         }
-        catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
-        }
-        return $response->withStatus(422)->write( $sErrorMessage );
     }
 
     public function edit($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $team = $this->getTeam( $args['id'], (int) $request->getParam("associationid") );
 
@@ -121,38 +111,30 @@ final class Team
                 throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            $teamRet = $this->service->edit(
-                $team,
-                $teamSer->getName(),
-                $teamSer->getAbbreviation(),
-                $teamSer->getImageUrl(),
-                $teamSer->getInfo()
-            );
+            $team->setName($teamSer->getName());
+            $team->setAbbreviation($teamSer->getAbbreviation());
+            $team->setImageUrl($teamSer->getImageUrl());
+            $team->setInfo($teamSer->getInfo());
+            $this->repos->save($team);
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($teamRet, 'json'));
+                ->write($this->serializer->serialize($team, 'json'));
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            $response->withStatus(422)->write($e->getMessage());
         }
-        return $response->withStatus(422)->write($sErrorMessage);
     }
 
     public function remove( $request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $team = $this->getTeam( $args['id'], (int) $request->getParam("associationid") );
-            $this->service->remove($team);
-            return $response
-                ->withStatus(204);
-            ;
+            $this->repos->remove($team);
+            return $response->withStatus(204);
+        } catch( \Exception $e ){
+            return $response->withStatus(404)->write($e->getMessage());
         }
-        catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
-        }
-        return $response->withStatus(404)->write($sErrorMessage);
     }
 
     protected function getTeam( int $teamId, int $associationId ): TeamBase
