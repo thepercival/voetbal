@@ -146,6 +146,7 @@ class Handler
             $action = new Voetbal\Action\Round\Config(
                 $voetbalservice->getService(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
+                $voetbalservice->getRepository(Voetbal\Round\Number::class),
                 $serializer
             );
         } elseif ($resourceType === 'pouleplaces') {

@@ -32,4 +32,9 @@ class Repository extends EntityRepository
 		$this->_em->remove($object);
 		$this->_em->flush();
 	}
+
+	public function getEM()
+    {
+        return $this->getEntityManager();
+    }
 }

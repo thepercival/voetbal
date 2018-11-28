@@ -203,11 +203,14 @@ class Service
 //        return $this->roundService->remove( $round );
     }
 
-    public function setConfigs( RoundNumber $roundNumber, RoundConfig $configSer )
+    public function setConfigs( RoundNumber $roundNumber, RoundConfig $configSer, bool $recursive /* DEPRECATED */ )
     {
         $this->roundConfigService->update($roundNumber->getConfig(), $configSer->getOptions());
-        if( $roundNumber->hasNext() ) {
-            $this->setConfigs($roundNumber->getNext(), $configSer );
+
+        if( $recursive && $roundNumber->hasNext() ) {
+            $this->setConfigs($roundNumber->getNext(), $configSer, $recursive );
+        } else {
+            $this->roundNumberRepos->getEM()->flush();
         }
     }
 

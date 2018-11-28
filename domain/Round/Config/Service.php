@@ -18,12 +18,17 @@ use Voetbal\Round\Number as RoundNumber;
 class Service
 {
     /**
-     * Service constructor.
-     * @param Repository $repos
+     * @var Repository
      */
-    public function __construct()
-    {
+    protected $repos;
+    /**
+     * @var Score\Repository
+     */
+    protected $scoreRepos;
 
+    public function __construct( Repository $repos, Score\Repository $scoreRepos) {
+        $this->repos = $repos;
+        $this->scoreRepos = $scoreRepos;
     }
 
     public function create(RoundNumber $roundNumber, Options $configOptions): RoundConfig {
@@ -55,12 +60,19 @@ class Service
 
     public function update(RoundConfig $roundConfig, Options $configOptions): RoundConfig {
         $roundConfig->setOptions( $configOptions );
-        $scoreConfig = $roundConfig->getScore()->getRoot();
-        while ( $scoreConfig ) {
-            $scoreConfig = $scoreConfig->getChild();
-        }
+        $this->repos->save($roundConfig);
         return $roundConfig;
     }
+
+    /*protected function removeScores( RoundConfig $roundConfig )
+    {
+        $scoreConfigs = $roundConfig->getScores();
+        while( $scoreConfigs->count() > 0 ) {
+            $scoreConfig = $scoreConfigs->first();
+            $scoreConfigs->removeElement( $scoreConfig );
+            $this->scoreRepos->remove($scoreConfig);
+        }
+    }*/
 
     public function createDefault( string $sport): Options
     {

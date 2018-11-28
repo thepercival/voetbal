@@ -81,6 +81,4 @@ set rounds.numberid = ( select id from roundnumbers rn where rn.competitionid = 
 
 delete from roundconfigs where not exists( select * from roundnumbers where configid = roundconfigs.id );
 
-update rounds set  numberid = ( select id from roundnumbers rn where rn.competitionid = rounds.competitionid and rn.number = rounds.number );
-
 update roundnumbers as rn inner join ( select * from roundnumbers ) as rn2 on rn2.competitionid = rn.competitionid and rn2.number = (rn.number - 1)  set rn.previousid = rn2.id;
