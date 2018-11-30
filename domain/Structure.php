@@ -55,4 +55,15 @@ class Structure
         }
         return $roundNumber;
     }
+
+    public function getRoundNumberById(int $id): ?RoundNumber {
+        $roundNumber = $this->getFirstRoundNumber();
+        while( $roundNumber !== null ) {
+            if($roundNumber->getId() === $id) {
+                return $roundNumber;
+            }
+            $roundNumber = $roundNumber->getNext();
+        }
+        return $roundNumber;
+    }
 }

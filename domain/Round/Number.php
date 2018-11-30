@@ -39,7 +39,6 @@ class Number
     /**
      * @var bool
      */
-    protected static $callingFromSetPrevious = false;
 
     public function __construct( Competition $competition, Number $previous = null )
     {
@@ -77,49 +76,26 @@ class Number
         return $this->next;
     }
 
-    /**
-     * made public to call setNext from within setPrevious
-     *
-     * @param Number $next
-     * @throws \Exception
-     * @return Number
-     */
-    public function setNext(Number $next) {
-        if( !static::$callingFromSetPrevious ) {
-            throw new \Exception("cannot call setNext from outside roundnumber", E_ERROR );
-        }
-        return $this->next = $next;
+    public function setNext(Number $next = null) {
+        $this->next = $next;
     }
-
-    /*public function removeNext() {
-        $next->setPrevious($this);
-        $this->next = null;
-    }*/
 
     public function hasPrevious(): bool {
         return $this->previous !== null;
     }
 
-    public function getPrevious(): Number {
+    public function getPrevious(): ?Number {
         return $this->previous;
     }
 
     public function setPrevious( Number $previous) {
         $this->previous = $previous;
         $this->number = $this->previous->getNumber() + 1;
-        static::$callingFromSetPrevious = true;
-        $this->previous->setNext($this);
-        static::$callingFromSetPrevious = false;
     }
-
 
     public function getCompetition(): Competition {
         return $this->competition;
     }
-
-    /*public function getCompetition(): Competition {
-        return $this->competition;
-    }*/
 
     public function getNumber(): int {
         return $this->number;

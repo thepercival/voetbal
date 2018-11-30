@@ -9,7 +9,6 @@
 namespace Voetbal\Round\Number;
 
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Round\Number\Repository as RoundNumberRepository;
 use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Competition;
 use Doctrine\DBAL\Connection;
@@ -28,13 +27,9 @@ class Service
 
     /**
      * Service constructor.
-     * @param RoundNumberRepository $repos
      * @param RoundConfigService $configService
-     * @param Connection $conn
      */
-    public function __construct(
-        RoundConfigService $configService
-    )
+    public function __construct( RoundConfigService $configService )
     {
         $this->configService = $configService;
     }

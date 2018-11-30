@@ -27,11 +27,12 @@ Voetbal\Round\Number:
         referencedColumnName: id
         nullable: true # should be false, do sql by hand
         onDelete: CASCADE
+      fetch: EAGER
   oneToMany:
     rounds:
       targetEntity: Voetbal\Round
-      mappedBy: numbert
-      cascade: [ remove ]
+      mappedBy: number
+      cascade: [ persist, remove ]
   manyToOne:
     competition:
       targetEntity: Voetbal\Competition

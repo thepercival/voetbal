@@ -11,7 +11,6 @@ namespace Voetbal\Action\Round;
 use JMS\Serializer\Serializer;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Competition\Repository as CompetitionRepository;
-use Voetbal\Round\Number\Repository as RoundNumberRepository;
 
 final class Config
 {
@@ -24,10 +23,6 @@ final class Config
      */
     protected $competitionRepos;
     /**
-     * @var RoundNumberRepository
-     */
-    protected $roundNumberRepos;
-    /**
      * @var Serializer
      */
     protected $serializer;
@@ -35,13 +30,11 @@ final class Config
     public function __construct(
         StructureService $structureService,
         CompetitionRepository $competitionRepos,
-        RoundNumberRepository $roundNumberRepos,
         Serializer $serializer
     )
     {
         $this->structureService = $structureService;
         $this->competitionRepos = $competitionRepos;
-        $this->roundNumberRepos = $roundNumberRepos;
         $this->serializer = $serializer;
     }
 
@@ -95,8 +88,8 @@ final class Config
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            $roundNumberId = (int) $request->getParam("roundnumberid");
-            $roundNumber = $this->roundNumberRepos->find($roundNumberId);
+            $structure = $this->structureService->getStructure( $competition ); // to init next/previous
+            $roundNumber = $structure->getRoundNumberById( (int) $request->getParam("roundnumberid") );
             if ( $roundNumber === null ) {
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
@@ -109,7 +102,7 @@ final class Config
             if ( $configSer === null ) {
                 throw new \Exception("er kunnen geen ronde-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
-            // $structure = $this->structureService->getStructure( $competition ); // to init next/previous
+
             $this->structureService->setConfigs( $roundNumber, $configSer, false );
 
             return $response
