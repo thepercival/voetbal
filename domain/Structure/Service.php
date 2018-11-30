@@ -19,7 +19,6 @@ use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Round\Config as RoundConfig;
-use Doctrine\DBAL\Connection;
 
 class Service
 {
@@ -264,27 +263,5 @@ class Service
         }
         $this->structureRoundNumbers( $roundNumbers, $foundRoundNumber );
         return $foundRoundNumber;
-    }
-
-    /*public function getAllRoundsByNumber( Competition $competition )
-    {
-        $allRoundsByNumber = [];
-        $this->getAllRoundsByNumberHelper(  $this->getFirstRound( $competition ), $allRoundsByNumber );
-        return $allRoundsByNumber;
-    }
-
-    protected function getAllRoundsByNumberHelper(Round $round, array &$allRoundsByNumber)
-    {
-        if (array_key_exists($round->getNumber(), $allRoundsByNumber ) === false ) {
-            $allRoundsByNumber[$round->getNumber()] = [];
-        }
-        $allRoundsByNumber[$round->getNumber()][] = $round;
-        foreach( $round->getChildRounds() as $childRound ) {
-            $this->getAllRoundsByNumberHelper($childRound, $allRoundsByNumber);
-        }
-    }*/
-
-    public function getNameService() {
-        return new NameService();
     }
 }

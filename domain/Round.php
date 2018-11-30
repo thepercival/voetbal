@@ -264,6 +264,13 @@ class Round
     }
 
     /**
+     * @return bool
+     */
+    public function isRoot(): bool {
+        return $this->parent === null;
+    }
+
+    /**
      * @return Round
      */
     public function getParent()
@@ -496,6 +503,21 @@ class Round
             return null;
         }
         return $this->getParent()->getChildRound(Round::getOpposing($this->getWinnersOrLosers()));
+    }
+
+    public function getPath(): int {
+        if( $this->isRoot() ) {
+            throw new \Exception("cannot get path of first round", E_ERROR );
+        }
+        $winnersOrLosers = $this->getWinnersOrlosers() === static::WINNERS ? 1 : 0;
+
+        if ( $this->getParent() !== null && $this->getParent()->isRoot() ) {
+            return $winnersOrLosers;
+        }
+
+        $path = $this->getParent()->getPath();
+        $path = $winnersOrLosers >> $path;
+        return $path;
     }
 
     public function &getFromQualifyRules(): array

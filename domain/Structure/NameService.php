@@ -9,23 +9,25 @@
 namespace Voetbal\Structure;
 
 use Voetbal\PoulePlace;
-use Voetbal\Round;
 use Voetbal\Poule;
+use Voetbal\Round;
+use Voetbal\Round\Number as RoundNumber;
 
 class NameService
 {
-    public function getRoundsName( $roundNumber, array $roundsByNumber )
+    public function getRoundNumberName( RoundNumber $roundNumber )
     {
-        if ($this->roundsHaveSameName($roundsByNumber) === true) {
-            return $this->getRoundName(reset($roundsByNumber), true);
+        $rounds = $roundNumber->getRounds();
+        if ($this->roundsHaveSameName($rounds) === true) {
+            return $this->getRoundName(reset($rounds), true);
         }
-        return $this->getHtmlNumber($roundNumber) . ' ronde';
+        return $this->getHtmlNumber($roundNumber->getNumber()) . ' ronde';
     }
 
     public function getRoundName( Round $round, $sameName = false) {
         if ($this->roundAndParentsNeedsRanking($round) || ($round->getChildRounds()->count() > 1
                 && $this->getNrOfRoundsToGo($round->getChildRound(Round::WINNERS)) !== $this->getNrOfRoundsToGo($round->getChildRound(Round::LOSERS)))) {
-            return $this->getHtmlNumber($round->getNumber()) . ' ronde';
+            return $this->getHtmlNumber($round->getNumber()->getNumber()) . ' ronde';
         }
 
         $nrOfRoundsToGo = $this->getNrOfRoundsToGo($round);
@@ -54,7 +56,7 @@ class NameService
     public function getPouleName(Poule $poule, $withPrefix)
     {
         $round = $poule->getRound();
-        $previousNrOfPoules = $this->getNrOfPreviousPoules($round->getNumber(), $round, $poule);
+        $previousNrOfPoules = $this->getNrOfPreviousPoules($poule);
         $pouleName = '';
         if ($withPrefix === true) {
             $pouleName = $round->getType() === Round::TYPE_KNOCKOUT ? 'wed. ' : 'poule ';
@@ -108,7 +110,7 @@ class NameService
         return '?';
     }
 
-    protected function getHtmlNumber($number)
+    protected function getHtmlNumber(int $number)
     {
         if ($number === 1) {
             return $number . 'ste';
@@ -199,48 +201,45 @@ class NameService
         return $this->roundRepository->findBy( $params );
     }*/
 
-    private function getNrOfPreviousPoules($roundNumber, Round $round, Poule $poule)
+    private function getNrOfPreviousPoules(Poule $poule)
     {
-        $nrOfPoules = $poule->getNumber() - 1;
-        $nrOfPoules += $this->getNrOfPoulesParents($round);
-        $nrOfPoules += $this->getNrOfPoulesSiblingRounds($roundNumber, $round);
-        return $nrOfPoules;
-    }
-
-    private function getNrOfPoulesParents(Round $round)
-    {
-        return $this->getNrOfPoulesParentsHelper($round->getNumber() - 1, $round->getCompetition()->getFirstRound() );
-    }
-
-    private function getNrOfPoulesParentsHelper($maxRoundNumber, Round $round) {
-        if ($round->getNumber() > $maxRoundNumber) {
-            return 0;
+        $nrOfPreviousPoules = $poule->getNumber() - 1;
+        if( $poule->getRound()->isRoot() ) {
+            return $nrOfPreviousPoules;
         }
-        $nrOfPoules = $round->getPoules()->count();
-        foreach( $round->getChildRounds() as $childRound ) {
-            $nrOfPoules += $this->getNrOfPoulesParentsHelper($maxRoundNumber, $childRound);
-        }
-        return $nrOfPoules;
+        $nrOfPreviousPoules += $this->getNrOfPoulesSiblingRounds($poule->getRound());
+        $nrOfPreviousPoules += $this->getNrOfPoulesPreviousRoundNumbers($poule->getRound()->getNumber());
+        return $nrOfPreviousPoules;
     }
 
-    private function getNrOfPoulesSiblingRounds($roundNumber, Round $round) {
+    private function getNrOfPoulesSiblingRounds(Round $round) {
         $nrOfPoules = 0;
-
-        $parent = $round->getParent();
-        if ($parent !== null) {
-            $nrOfPoules += $this->getNrOfPoulesSiblingRounds($roundNumber, $parent/* round */);
-        }
-
-        if ($round->getWinnersOrLosers() === Round::LOSERS) {
-            $winningSibling = $round->getOpposingRound();
-            if ($winningSibling !== null) {
-                $nrOfPoules += $this->getNrOfPoulesForChildRounds($winningSibling, $roundNumber);
+        foreach( $round->getNumber()->getRounds() as $siblingRound ) {
+            if( $siblingRound->getPath() < $round->getPath() ) {
+                $nrOfPoules += $siblingRound->getPoules()->count();
             }
         }
         return $nrOfPoules;
     }
 
-    private function getNrOfPoulesForChildRounds(Round $round, int $roundNumber ): int
+    private function getNrOfPoulesPreviousRoundNumbers(RoundNumber $roundNumber)
+    {
+        $nrOfPoules = 0;
+        $previousRoundNumber = $roundNumber->getPrevious();
+        if( $previousRoundNumber === null ) {
+            return $nrOfPoules;
+        }
+
+        foreach( $previousRoundNumber->getRounds() as $round ) {
+            $nrOfPoules += $round->getPoules()->count();
+        }
+        if( $previousRoundNumber->isFirst() ) {
+            return $nrOfPoules;
+        }
+        return $nrOfPoules + $this->getNrOfPoulesPreviousRoundNumbers($previousRoundNumber);
+    }
+
+    /*private function getNrOfPoulesForChildRounds(Round $round, int $roundNumber ): int
     {
         $nrOfChildPoules = 0;
         if ($round->getNumber() > $roundNumber) {
@@ -253,5 +252,5 @@ class NameService
             $nrOfChildPoules += $this->getNrOfPoulesForChildRounds($childRound, $roundNumber);
         }
         return $nrOfChildPoules;
-    }
+    }*/
 }
