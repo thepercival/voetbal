@@ -100,7 +100,6 @@ final class Planning
      */
     public function add($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
 
@@ -111,7 +110,6 @@ final class Planning
                 $this->em->remove($game);
             }
 
-            // $games->clear();
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
             $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),'ArrayCollection<Voetbal\Game>', 'json');
             if ($gamesSer === null) {
@@ -145,9 +143,8 @@ final class Planning
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($games, 'json'));;
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422)->write($e->getMessage());
         }
-        return $response->withStatus(422)->write($sErrorMessage);
     }
 
     /**
@@ -160,14 +157,12 @@ final class Planning
      */
     public function edit($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
 
             $games = [];
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
-            $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
-                'ArrayCollection<Voetbal\Game>', 'json');
+            $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'ArrayCollection<Voetbal\Game>', 'json');
             if ($gamesSer === null) {
                 throw new \Exception("er kunnen geen wedstrijden worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
@@ -182,15 +177,16 @@ final class Planning
                     $game,
                     $field, $referee,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
+                $this->em->persist($game);
             }
+            $this->em->flush();
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($games, 'json'));;
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422)->write($e->getMessage());
         }
-        return $response->withStatus(422)->write($sErrorMessage);
     }
 
     protected function getPoule( int $pouleId, int $competitionId ): Poule

@@ -156,7 +156,8 @@ class Service
     protected function removeNonexistingRoundNumbers( RoundNumber $firstRoundNumberSerialized, RoundNumber $firstRoundNumber )
     {
         if( $firstRoundNumberSerialized->hasNext() === false and $firstRoundNumber->hasNext() ) {
-            $this->roundNumberService->remove($firstRoundNumber->getNext());
+            $this->roundNumberRepos->remove($firstRoundNumber->getNext());
+            $firstRoundNumber->setNext(null);
         } else if( $firstRoundNumberSerialized->hasNext() and $firstRoundNumber->hasNext() ) {
             $this->removeNonexistingRoundNumbers( $firstRoundNumberSerialized->getNext(), $firstRoundNumber->getNext() );
         }

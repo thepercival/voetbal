@@ -45,6 +45,7 @@ class Number
         $this->competition = $competition;
         if( $previous !== null ) {
             $this->setPrevious( $previous );
+            $previous->setNext( $this );
         } else {
             $this->number = 1;
         }
