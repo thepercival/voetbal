@@ -214,12 +214,23 @@ class NameService
 
     private function getNrOfPoulesSiblingRounds(Round $round) {
         $nrOfPoules = 0;
+        $roundPath = $this->convertPathToInt( $round->getPath() );
         foreach( $round->getNumber()->getRounds() as $siblingRound ) {
-            if( $siblingRound->getPath() < $round->getPath() ) {
+            $siblingPath = $this->convertPathToInt( $siblingRound->getPath() );
+            if( $siblingPath < $roundPath ) {
                 $nrOfPoules += $siblingRound->getPoules()->count();
             }
         }
         return $nrOfPoules;
+    }
+
+    private function convertPathToInt( array $path ): int {
+        $pathAsInt = 0;
+        foreach( $path as $pathItem ) {
+            $pathAsInt = $pathAsInt << 1;
+            $pathAsInt += $pathItem;
+        }
+        return $pathAsInt;
     }
 
     private function getNrOfPoulesPreviousRoundNumbers(RoundNumber $roundNumber)

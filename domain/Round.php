@@ -498,25 +498,21 @@ class Round
         return $winnersOrLosers === Round::WINNERS ? Round::LOSERS : Round::WINNERS;
     }
 
-    public function getOpposingRound() {
+    public function getOpposingRound()
+    {
         if ( $this->getParent() === null ) {
             return null;
         }
         return $this->getParent()->getChildRound(Round::getOpposing($this->getWinnersOrLosers()));
     }
 
-    public function getPath(): int {
-        if( $this->isRoot() ) {
-            throw new \Exception("cannot get path of first round", E_ERROR );
+    public function getPath(): array
+    {
+        if ( $this->isRoot() ) {
+            return [];
         }
-        $winnersOrLosers = $this->getWinnersOrlosers() === static::WINNERS ? 1 : 0;
-
-        if ( $this->getParent() !== null && $this->getParent()->isRoot() ) {
-            return $winnersOrLosers;
-        }
-
         $path = $this->getParent()->getPath();
-        $path = $winnersOrLosers >> $path;
+        $path[] = $this->getWinnersOrLosers();
         return $path;
     }
 
