@@ -26,6 +26,8 @@ Voetbal\Round:
       targetEntity: Voetbal\Poule
       mappedBy: round
       cascade: [ persist, remove ]
+      orderBy:
+        number: asc
     childRounds:
       targetEntity: Voetbal\Round
       mappedBy: parent

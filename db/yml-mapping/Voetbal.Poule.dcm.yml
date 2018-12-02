@@ -23,6 +23,8 @@ Voetbal\Poule:
       targetEntity: Voetbal\PoulePlace
       mappedBy: poule
       cascade: [ persist, remove ]
+      orderBy:
+        number: asc
     games:
       targetEntity: Voetbal\Game
       mappedBy: poule
