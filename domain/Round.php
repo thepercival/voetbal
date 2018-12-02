@@ -369,7 +369,19 @@ class Round
     }
 
     /**
-     * @return []PoulePlace[]
+     * @return PoulePlace[][]
+     */
+    public function getPoulePlacesPerPoule(): array
+    {
+        $poulePlacesPerPoule = [];
+        foreach( $this->getPoules() as $poule ) {
+            $poulePlacesPerPoule[] = $poule->getPlaces();
+        }
+        return $poulePlacesPerPoule;
+    }
+
+    /**
+     * @return PoulePlace[][]
      */
     public function getPoulePlacesPerNumber(int $winnersOrLosers): array
     {
@@ -389,47 +401,47 @@ class Round
         return $poulePlacesPerNumber;
     }
 
-//    public function getPoulePlacesPerNumberDEP(int $winnersOrLosers): array
-//    {
-//        $poulePlacesPerNumber = [];
-//
-//        $poulePlacesOrderedByPlace = $this->getPoulePlaces(Round::ORDER_HORIZONTAL);
-//        if ($winnersOrLosers === Round::LOSERS) {
-//            $poulePlacesOrderedByPlace = array_reverse($poulePlacesOrderedByPlace);
-//        }
-//
-//        foreach( $poulePlacesOrderedByPlace as $orderedPlace ) {
-//            $poulePlacesTmp = array_filter( $poulePlacesPerNumber, function ($poulePlacesIt) use ($orderedPlace, $winnersOrLosers) {
-//                return $this->getPoulePlacesPerNumberHelper( $poulePlacesIt, $orderedPlace, $winnersOrLosers);
-//            });
-//            $poulePlaces = reset( $poulePlacesTmp );
-//
-//            if ($poulePlaces === false) {
-//                $poulePlaces = []; // array($orderedPlace);
-//                $poulePlacesPerNumber[] = $poulePlaces;
-//            }
-//            // $poulePlaces[] = $orderedPlace;
-//        }
-//        return $poulePlacesPerNumber;
-//    }
-//
-//    protected function getPoulePlacesPerNumberHelper( $poulePlaces, $orderedPlace, $winnersOrLosers)
-//    {
-//        foreach( $poulePlaces as $poulePlace) {
-//            $poulePlaceNrIt = $poulePlace->getNumber();
-//            if ($winnersOrLosers === Round::LOSERS) {
-//                $poulePlaceNrIt = ($poulePlace->getPoule()->getPlaces()->count() + 1) - $poulePlaceNrIt;
-//            }
-//            $placeNrIt = $orderedPlace->getNumber();
-//            if ($winnersOrLosers === Round::LOSERS) {
-//                $placeNrIt = ($orderedPlace->getPoule()->getPlaces()->count() + 1) - $placeNrIt;
-//            }
-//            if( $poulePlaceNrIt === $placeNrIt ) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
+    /**
+     * @param int $winnersOrLosers
+     * @param int $qualifyOrder
+     * @param int $poulePlaceOrder
+     * @return PoulePlace[][]
+     */
+    public function getPoulePlacesPer(int $winnersOrLosers, int $qualifyOrder, int $poulePlaceOrder): array {
+        $poulePlacesPerNumber = $this->getPoulePlacesPerNumber($winnersOrLosers);
+        if ($qualifyOrder !== Round::ORDER_VERTICAL || $this->getParent() === null ) {
+            return $poulePlacesPerNumber;
+        }
+        if ($poulePlaceOrder === Round::ORDER_VERTICAL) {
+            return $this->getPoulePlacesPerPoule();
+        }
+        // vertical qualify rule
+        $poulePlacesPerQualifyRule = [];
+        foreach( $this->getFromQualifyRules() as $fromQualifyRule ) {
+            $poulePlaces = $fromQualifyRule->getToPoulePlaces()->toArray();
+            uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
+                if ($poulePlaceA->getNumber() > $poulePlaceB->getNumber()) {
+                    return 1;
+                }
+                if ($poulePlaceA->getNumber() < $poulePlaceB->getNumber()) {
+                    return -1;
+                }
+                if ($poulePlaceA->getPoule()->getNumber() > $poulePlaceB->getPoule()->getNumber()) {
+                    return 1;
+                }
+                if ($poulePlaceA->getPoule()->getNumber() < $poulePlaceB->getPoule()->getNumber()) {
+                    return -1;
+                }
+                return 0;
+            });
+            $placeNumber = 0;
+            while (count($poulePlaces) > 0) {
+                $tmp = array_splice($poulePlaces,0, count($poulePlacesPerNumber[$placeNumber++]));
+                $poulePlacesPerQualifyRule[] = $tmp;
+            }
+        }
+        return $poulePlacesPerQualifyRule;
+    }
 
     public function needsRanking() {
         foreach( $this->getPoules() as $pouleIt ) {

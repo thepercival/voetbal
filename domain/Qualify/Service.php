@@ -28,30 +28,33 @@ class Service
         $this->parentRound = $childRound->getParent();
     }
 
-    public function setQualifyRules()
-    {
-        $parentRoundPoulePlacesPerNumber = $this->parentRound->getPoulePlacesPerNumber($this->childRound->getWinnersOrLosers());
-        $orderedByPlace = true;
+    public function createRules() {
         $childRoundPoulePlaces = $this->childRound->getPoulePlaces($this->childRound->getQualifyOrder());
         if ($this->childRound->getWinnersOrLosers() === Round::LOSERS) {
             $childRoundPoulePlaces = array_reverse( $childRoundPoulePlaces );
         }
-
+        /**@var : PoulePlace[][] $parentRoundPoulePlacesPer */
+        $parentRoundPoulePlacesPer = $this->parentRound->getPoulePlacesPer(
+            $this->childRound->getWinnersOrLosers(), $this->childRound->getQualifyOrder(), Round::ORDER_HORIZONTAL
+        );
         $nrOfShifts = 0;
-        while (count( $childRoundPoulePlaces) > 0) {
+        while (count($childRoundPoulePlaces) > 0 && count( $parentRoundPoulePlacesPer) > 0) {
             $qualifyRule = new Rule($this->parentRound, $this->childRound);
             // from places
             $nrOfPoulePlaces = 0;
             {
-                $poulePlaces = array_shift( $parentRoundPoulePlacesPerNumber );
-                $shuffledPoulePlaces = $this->getShuffledPoulePlaces($poulePlaces, $nrOfShifts, $this->childRound);
-                if ($this->childRound->getQualifyOrder() < Round::ORDER_CUSTOM && $nrOfPoulePlaces > 0) {
+                $poulePlaces = array_shift( $parentRoundPoulePlacesPer );
+                if ($this->childRound->getQualifyOrder() === Round::ORDER_HORIZONTAL) {
+                    $poulePlaces = $this->getShuffledPoulePlaces($poulePlaces, $nrOfShifts, $this->childRound);
                     $nrOfShifts++;
                 }
-                foreach( $shuffledPoulePlaces as $poulePlaceIt) {
+                foreach( $poulePlaces as $poulePlaceIt) {
                     $qualifyRule->addFromPoulePlace($poulePlaceIt);
                 }
-                $nrOfPoulePlaces = count( $shuffledPoulePlaces);
+                $nrOfPoulePlaces = count( $poulePlaces);
+            }
+            if ($nrOfPoulePlaces === 0) {
+                break;
             }
             // to places
             for ($nI = 0; $nI < $nrOfPoulePlaces; $nI++) {
@@ -64,13 +67,14 @@ class Service
         }
     }
 
-    protected function getShuffledPoulePlaces($poulePlaces, int $nrOfShifts, Round $childRound): array
-    {
+    protected function getShuffledPoulePlaces(array $poulePlaces, int $nrOfShifts, Round $childRound): array {
         $shuffledPoulePlaces = [];
         $qualifyOrder = $childRound->getQualifyOrder();
         if ($qualifyOrder === Round::ORDER_VERTICAL || $qualifyOrder === Round::ORDER_HORIZONTAL) {
-            for ($shiftTime = 0; $shiftTime < $nrOfShifts; $shiftTime++) {
-                $poulePlaces[] = array_shift($poulePlaces);
+            if ((count($poulePlaces) % 2) === 0) {
+                for ($shiftTime = 0; $shiftTime < $nrOfShifts; $shiftTime++) {
+                    $poulePlaces[] = array_shift($poulePlaces);
+                }
             }
             $shuffledPoulePlaces = $poulePlaces;
         } else if ($qualifyOrder === 4) { // shuffle per two on oneven placenumbers, horizontal-children
@@ -82,13 +86,12 @@ class Service
             } else {
                 $shuffledPoulePlaces = $poulePlaces;
             }
-        }
-        else if ($qualifyOrder === 5) { // reverse second and third item, vertical-children
-            if ( (count($poulePlaces) % 4 ) === 0) {
-                while ( count($poulePlaces) > 0) {
+        } else if ($qualifyOrder === 5) { // reverse second and third item, vertical-children
+            if ((count($poulePlaces) % 4) === 0) {
+                while (count($poulePlaces) > 0) {
                     $removedPlaced = array_splice($poulePlaces, 0, 4);
-                    $removedPlaced = array_splice($removedPlaced, 1, 0, array_splice($removedPlaced, 2, 1 ) );
-                    $shuffledPoulePlaces = array_merge( $shuffledPoulePlaces, $removedPlaced);
+                    $removedPlaced = array_splice($removedPlaced, 1, 0, array_splice($removedPlaced, 2, 1));
+                    $shuffledPoulePlaces = array_merge($shuffledPoulePlaces, $removedPlaced);
                 }
             } else {
                 $shuffledPoulePlaces = $poulePlaces;
@@ -96,37 +99,6 @@ class Service
         }
         return $shuffledPoulePlaces;
     }
-
-//    removeObjectsForParentRound() {
-//    let fromQualifyRules = this.childRound.getFromQualifyRules().slice();
-//        fromQualifyRules.forEach(function (qualifyRuleIt) {
-//    while (qualifyRuleIt.getFromPoulePlaces().length > 0) {
-//        qualifyRuleIt.removeFromPoulePlace();
-//    }
-//    while (qualifyRuleIt.getToPoulePlaces().length > 0) {
-//        qualifyRuleIt.removeToPoulePlace();
-//    }
-//    qualifyRuleIt.setFromRound(undefined);
-//    qualifyRuleIt.setToRound(undefined);
-//});
-//        fromQualifyRules = undefined;
-//    }
-//
-//    oneMultipleToSingle() {
-//        const fromQualifyRules = this.parentRound.getToQualifyRules();
-//        const multiples = fromQualifyRules.filter(function (qualifyRuleIt) {
-//                return qualifyRuleIt.isMultiple();
-//            });
-//        if (multiples.length !== 1) {
-//            return;
-//        }
-//
-//        const multiple = multiples.pop();
-//        const multipleFromPlaces = multiple.getFromPoulePlaces().slice();
-//        while (multiple.getFromPoulePlaces().length > 1) {
-//            multiple.removeFromPoulePlace(multipleFromPlaces.pop());
-//        }
-//    }
 
 
     public function getNewQualifiers( Poule $parentPoule): array/*Qualifier*/ {

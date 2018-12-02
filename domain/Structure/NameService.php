@@ -8,6 +8,7 @@
 
 namespace Voetbal\Structure;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\PoulePlace;
 use Voetbal\Poule;
 use Voetbal\Round;
@@ -18,8 +19,8 @@ class NameService
     public function getRoundNumberName( RoundNumber $roundNumber )
     {
         $rounds = $roundNumber->getRounds();
-        if ($this->roundsHaveSameName($rounds) === true) {
-            return $this->getRoundName(reset($rounds), true);
+        if ($this->roundsHaveSameName($roundNumber) === true) {
+            return $this->getRoundName($rounds->first(), true);
         }
         return $this->getHtmlNumber($roundNumber->getNumber()) . ' ronde';
     }
@@ -119,10 +120,10 @@ class NameService
         // return '&frac1' . $number . ';';
     }
 
-    protected function roundsHaveSameName( array $roundsByNumber)
+    protected function roundsHaveSameName( RoundNumber $roundNumber)
     {
         $roundNameAll = null;
-        foreach( $roundsByNumber as $round ) {
+        foreach( $roundNumber->getRounds() as $round ) {
             $roundName = $this->getRoundName($round, true);
             if ($roundNameAll === null) {
                 $roundNameAll = $roundName;
