@@ -32,7 +32,7 @@ class ScheduleHelper
     }
     
     public function reschedule(RoundNumber $roundNumber,  \DateTimeImmutable $startDateTime) {
-        $poules = $this->getPoulesForRoundNumber($roundNumber);
+        $poules = $roundNumber->getPoules();
         $fields = $roundNumber->getCompetition()->getFields();
         $referees = $roundNumber->getCompetition()->getReferees();
         if (count($referees) > 0 && count($referees) < count($fields)) {
@@ -60,8 +60,7 @@ class ScheduleHelper
             $amountPerResourceBatch = count($referees) > count($fields) ? count($fields) : count($referees);
         }
         if ($amountPerResourceBatch === 0) {
-            $poules = $this->getPoulesForRoundNumber( $roundNumber );
-            foreach( $poules as $poule ) {
+            foreach( $roundNumber->getPoules() as $poule ) {
                 $amountPerResourceBatch += $poule->getNrOfGamesPerRound();
             }
         }
@@ -231,14 +230,6 @@ class ScheduleHelper
             });
         }
         return $games;
-    }
-
-    protected function getPoulesForRoundNumber(RoundNumber $roundNumber): array {
-        $poules = [];
-        foreach( $roundNumber->getRounds() as $round ) {
-            $poules = array_merge( $poules, $round->getPoules()->toArray());
-        }
-        return $poules;
     }
 
     protected function getPoulesGamesByNumber(array $poules, int $order): array {

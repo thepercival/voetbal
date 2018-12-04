@@ -8,12 +8,11 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Competition;
+use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
-use Voetbal\Structure\Service as StructureService;
 use Doctrine\ORM\EntityManager;
-use Voetbal\Round;
+use Voetbal\Game;
 use Voetbal\Poule;
 
 class Service
@@ -29,16 +28,6 @@ class Service
     protected $gameRepos;
 
     /**
-     * @var StructureService
-     */
-    protected $structureService;
-
-    /**
-     * @var Round[]
-     */
-    protected $allRoundsByNumber;
-
-    /**
      * @var EntityManager
      */
     protected $em;
@@ -46,18 +35,15 @@ class Service
     public function __construct(
         GameService $gameService,
         GameRepos $gameRepos,
-        StructureService $structureService,
         EntityManager $em )
     {
         $this->gameService = $gameService;
         $this->gameRepos = $gameRepos;
-        $this->structureService = $structureService;
         $this->em = $em;
-        $this->allRoundsByNumber;
     }
 
-    public function create( Competition $competition, int $roundNumber = 1, \DateTimeImmutable $startDateTime = null ) {
-        if ( $this->gameRepos->hasRoundNumberGames( $competition, $roundNumber ) ) {
+    public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ) {
+        if ( $this->gameRepos->hasRoundNumberGames( $roundNumber ) ) {
             throw new \Exception("cannot create games, games already exist", E_ERROR );
         }
         if ($startDateTime === null) {
@@ -66,13 +52,10 @@ class Service
 
         $this->em->getConnection()->beginTransaction();
         try {
-            $this->createHelper($competition, $roundNumber, $startDateTime);
-            $fields = $competition->getFields();
-            $referees = $competition->getReferees();
-            $startNextRound = $this->rescheduleHelper($competition, $roundNumber, $startDateTime);
-            $nextRounds = $this->getRoundsByNumber( $competition, $roundNumber + 1 );
-            if ($nextRounds !== null) {
-                $this->create($competition, $roundNumber + 1, $startNextRound);
+            $this->createHelper($roundNumber);
+            $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+            if ($roundNumber->hasNext()) {
+                $this->create($roundNumber->getNext(), $startNextRound);
             }
             $this->em->getConnection()->commit();
         } catch (\Exception $e) {
@@ -117,7 +100,7 @@ class Service
         return $scheduleHelper->reschedule( $roundNumber, $startDateTime );
     }
 
-    protected function calculateStartDateTime(RoundNumber $roundNumber) {
+    public function calculateStartDateTime(RoundNumber $roundNumber): \DateTimeImmutable {
         if ($roundNumber->getConfig()->getEnableTime() === false) {
             return null;
         }
@@ -127,10 +110,6 @@ class Service
         return $this->calculateEndDateTime($roundNumber->getPrevious());
     }
 
-    /**
-     * @param Competition $competition
-     * @param int $roundNumber
-     */
     protected function createHelper( RoundNumber $roundNumber )
     {
         foreach ($roundNumber->getRounds() as $round) {
@@ -160,25 +139,78 @@ class Service
         }
     }
 
-    protected function getGamesByNumber( $round )
+    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array
     {
+        $poules = $roundNumber->getPoules();
         $games = [];
-        $poules = $round->getPoules();
-        foreach ($poules as $poule) {
-            $number = 1;
-            foreach ($poule->getGames() as $game) {
-                if (array_key_exists($number, $games) === false) {
-                    $games[$number] = [];
-                }
-                $games[$number++][] = $game;
-            }
+        foreach( $poules as $poule ) {
+            $games = array_merge( $games, $poule->getGames()->toArray());
         }
+        return $this->orderGames($games, $order, !$roundNumber->isFirst());
+    }
+
+    protected function orderGames(array $games, int $order, bool $pouleNumberReversed = false): array {
+        if ($order === Game::ORDER_BYNUMBER) {
+            uasort( $games, function($g1, $g2) use ($pouleNumberReversed) {
+                if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
+                    if ($g1->getSubNumber() === $g2->getSubNumber()) {
+                        if ($pouleNumberReversed === true) {
+                            return $g2->getPoule()->getNumber() - $g1->getPoule()->getNumber();
+                        } else {
+                            return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
+                        }
+                    }
+                    return $g1->getSubNumber() - $g2->getSubNumber();
+                }
+                return $g1->getRoundNumber() - $g2->getRoundNumber();
+            });
+            return $games;
+        }
+        uasort( $games, function($g1, $g2) use ($pouleNumberReversed) {
+            if ($g1->getConfig()->getEnableTime()) {
+                if ($g1->getStartDateTime() != $g2->getStartDateTime()) {
+                    return $g1->getStartDateTime() - $g2->getStartDateTime();
+                }
+            } else {
+                if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
+                    return $g1->getResourceBatch() - $g2->getResourceBatch();
+                }
+            }
+            // like order === Game.ORDER_BYNUMBER
+            if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
+                if ($g1->getSubNumber() === $g2->getSubNumber()) {
+                    if ($pouleNumberReversed === true) {
+                        return $g2->getPoule()->getNumber() - $g1->getPoule()->getNumber();
+                    } else {
+                        return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
+                    }
+                }
+                return $g1->getSubNumber() - $g2->getSubNumber();
+            }
+            return $g1->getRoundNumber() - $g2->getRoundNumber();
+        });
         return $games;
     }
 
     protected function determineReferee()
     {
         return null;
+    }
+
+    public function gamesOnSameDay( RoundNumber $roundNumber ) {
+        $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_RESOURCEBATCH);
+        $firstGame = $games[0];
+        $lastGame = $games[count($games)-1];
+        return $this->isOnSameDay($firstGame, $lastGame);
+    }
+
+    protected function isOnSameDay(Game $gameOne, Game $gameTwo): bool {
+        $dateOne = $gameOne->getStartDateTime();
+        $dateTwo = $gameTwo->getStartDateTime();
+        if ($dateOne === null && $dateTwo === null) {
+            return true;
+        }
+        return $dateOne->format('Y-m-d') === $dateTwo->format('Y-m-d');
     }
 
     public function removeDep( Poule $poule )

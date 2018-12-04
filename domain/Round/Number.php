@@ -2,6 +2,7 @@
 
 namespace Voetbal\Round;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
 use Voetbal\Round\Config as RoundConfig;
 use Voetbal\Round;
@@ -140,5 +141,15 @@ class Number
             }
         }
         return false;
+    }
+
+    public function getPoules(): ArrayCollection {
+        $poules = new ArrayCollection();
+        foreach( $this->getRounds() as $round ) {
+            foreach( $round->getPoules() as $poule ) {
+                $poules->add($poule);
+            }
+        }
+        return $poules;
     }
 }

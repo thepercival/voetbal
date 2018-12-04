@@ -97,7 +97,6 @@ class Service
             return new Planning\Service(
                 $this->getService(Game::class),
                 $this->getRepository(Game::class),
-                $this->getService(Structure::class),
                 $this->getEntityManager());
         }
         throw new \Exception("class " . $classname . " not supported to create service", E_ERROR);

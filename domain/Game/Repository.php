@@ -42,7 +42,7 @@ class Repository extends \Voetbal\Repository
         return count($x) === 1;
     }
 
-    public function hasRoundNumberGames( Competition $competition, int $roundNumber, $gameStates = null )
+    public function hasRoundNumberGames( RoundNumber $roundNumber, $gameStates = null )
     {
         $query = $this->createQueryBuilder('g')
             ->join("g.poule", "p")
@@ -54,7 +54,6 @@ class Repository extends \Voetbal\Repository
             $query = $query->andWhere('BIT_AND(g.state, :gamestates) = g.state');
             // $query = $query->andWhere('(g.state & :gamestates) = g.state');
         }
-        $query = $query->setParameter('competition', $competition);
         $query = $query->setParameter('roundNumber', $roundNumber);
         if( $gameStates !== null ) {
             $query = $query->setParameter('gamestates', $gameStates);
