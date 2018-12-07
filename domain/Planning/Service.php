@@ -149,7 +149,7 @@ class Service
         return $this->orderGames($games, $order, !$roundNumber->isFirst());
     }
 
-    protected function orderGames(array $games, int $order, bool $pouleNumberReversed = false): array {
+    public function orderGames(array $games, int $order, bool $pouleNumberReversed = false): array {
         if ($order === Game::ORDER_BYNUMBER) {
             uasort( $games, function($g1, $g2) use ($pouleNumberReversed) {
                 if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
@@ -168,9 +168,13 @@ class Service
         }
         uasort( $games, function($g1, $g2) use ($pouleNumberReversed) {
             if ($g1->getConfig()->getEnableTime()) {
-                if ($g1->getStartDateTime() != $g2->getStartDateTime()) {
-                    return $g1->getStartDateTime() - $g2->getStartDateTime();
+                if( $g1->getStartDateTime() == $g2->getStartDateTime() ) {
+                    if( $g1->getField() !== null and $g2->getField() !== null ) {
+                        return ($g1->getField()->getNumber() < $g2->getField()->getNumber() ? -1 : 1);
+                    }
+                    return 0;
                 }
+                return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
             } else {
                 if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
                     return $g1->getResourceBatch() - $g2->getResourceBatch();
@@ -211,11 +215,6 @@ class Service
             return true;
         }
         return $dateOne->format('Y-m-d') === $dateTwo->format('Y-m-d');
-    }
-
-    public function removeDep( Poule $poule )
-    {
-        $poule->getGames()->flush();
     }
 
     /**

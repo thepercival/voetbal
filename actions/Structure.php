@@ -131,12 +131,6 @@ final class Structure
             }
 
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
-            $this->em->persist($structure->getFirstRoundNumber());
-//            foreach( $structure->getRoundNumbers() as $roundNumber ) {
-//                $this->em->persist($roundNumber);
-//            }
-            $this->em->persist($structure->getRootRound());
-            $this->em->flush();
 
             return $response
                 ->withStatus(201)
@@ -165,12 +159,7 @@ final class Structure
             }
 
             $structureSer = $this->getSerializedStructureFromRound( $roundSer, $competition );
-            $structure = $this->service->createFromSerializedDeprecated( $structureSer, $competition );
-            foreach( $structure->getRoundNumbers() as $roundNumber ) {
-                $this->em->persist($roundNumber);
-            }
-            $this->em->persist($structure->getRootRound());
-            $this->em->flush();
+            $structure = $this->service->createFromSerialized( $structureSer, $competition );
 
             return $response
                 ->withStatus(201)
@@ -229,12 +218,6 @@ final class Structure
             list($round, $competition) = $this->checkInput( $roundId, (int)$request->getParam("competitionid") );
 
             $structure = $this->service->updateFromSerialized( $structureSer, $competition );
-//            foreach( $structure->getRoundNumbers() as $roundNumber ) {
-//                $this->em->persist($roundNumber);
-//            }
-            $this->em->persist($structure->getFirstRoundNumber());
-            $this->em->persist($structure->getRootRound());
-            $this->em->flush();
 
             return $response
                 ->withStatus(200)
@@ -259,11 +242,6 @@ final class Structure
 
             $structureSer = $this->getSerializedStructureFromRound( $roundSer, $competition );
             $structure = $this->service->updateFromSerialized( $structureSer, $competition );
-            foreach( $structure->getRoundNumbers() as $roundNumber ) {
-                $this->em->persist($roundNumber);
-            }
-            $this->em->persist($structure->getRootRound());
-            $this->em->flush();
 
             return $response
                 ->withStatus(200)

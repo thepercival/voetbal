@@ -70,9 +70,6 @@ class Service
     }
 
     /**
-     * loop door de pouleplacesSer en kijk per pouleplace als deze
-     * aangemaakt of geupdate moet worden.
-     * bij updaten ook kijken als er een move moet plaatsvinden!!!!
      *
      * @param array $poulePlacesSer
      * @param Round $round
@@ -115,7 +112,6 @@ class Service
                 $this->poulePlaceRepos->getEM()->persist($poulePlace);
             }
         }
-        $this->poulePlaceRepos->getEM()->flush();
         return;
     }
 
@@ -139,10 +135,6 @@ class Service
 //        $team->setAssociation($association);
 //    }
 //
-    public function removeDep( Poule $poule )
-    {
-        $poule->getRound()->getPoules()->removeElement($poule);
-    }
 
     /*protected function removeGames( Poule $poule )
     {

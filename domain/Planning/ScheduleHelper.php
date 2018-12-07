@@ -205,10 +205,11 @@ class ScheduleHelper
                 }
             }
         }
-        return $this->orderGames($games, $order);
+        return $this->planningService->orderGames($games, $order, !$roundNumber->isFirst());
+        // return $this->orderGames($games, $order);
     }
 
-    protected function orderGames( array $games, int $order): array {
+    /*protected function orderGames( array $games, int $order): array {
         foreach( $games as $gamesPerGameRoundNumber ) {
             uasort( $gamesPerGameRoundNumber, function( Game $g1, Game $g2) use ($order) {
                 if ($order === Game::ORDER_BYNUMBER) {
@@ -230,7 +231,7 @@ class ScheduleHelper
             });
         }
         return $games;
-    }
+    }*/
 
     protected function getPoulesGamesByNumber(array $poules, int $order): array {
         $games = [];

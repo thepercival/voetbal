@@ -86,6 +86,9 @@ class Service
         }
         // line beneath is saved through relationships
         $rootRound = $this->createRound( $firstRoundNumber, $structureSer->getRootRound() );
+
+        $this->updateDatabase( $firstRoundNumber, $rootRound );
+
         return new Structure( $firstRoundNumber, $rootRound );
     }
 
@@ -111,7 +114,26 @@ class Service
         $this->updateRoundNumbersFromSerialized( $structureSer->getFirstRoundNumber(), $competition, $structure );
         $this->removeNonexistingRounds( $structureSer->getRootRound(), $structure->getRootRound() );
         $this->updateRoundsFromSerialized( $structureSer->getRootRound(), $firstRoundNumber );
+
+        $this->updateDatabase( $firstRoundNumber, $structure->getRootRound() );
+
         return $structure;
+    }
+
+    protected function updateDatabase( RoundNumber $roundNumber, Round $round ) {
+        // database action
+        $em = $this->roundNumberRepos->getEM();
+        $conn = $em->getConnection();
+        $conn->beginTransaction();
+        try {
+            $em->persist($roundNumber);
+            $em->persist($round);
+            $em->flush();
+            $conn->commit();
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            throw $e;
+        }
     }
 
     protected function updateRoundNumbersFromSerialized(
@@ -155,7 +177,7 @@ class Service
     protected function removeNonexistingRoundNumbers( RoundNumber $firstRoundNumberSerialized, RoundNumber $firstRoundNumber )
     {
         if( $firstRoundNumberSerialized->hasNext() === false and $firstRoundNumber->hasNext() ) {
-            $this->roundNumberRepos->remove($firstRoundNumber->getNext());
+            $this->roundNumberRepos->getEM()->remove($firstRoundNumber->getNext());
             $firstRoundNumber->setNext(null);
         } else if( $firstRoundNumberSerialized->hasNext() and $firstRoundNumber->hasNext() ) {
             $this->removeNonexistingRoundNumbers( $firstRoundNumberSerialized->getNext(), $firstRoundNumber->getNext() );
@@ -214,29 +236,6 @@ class Service
 //
 //        return $round;
 //    }
-
-
-    /**
-     * @param Round $round
-     */
-    public function remove(Round $round)
-    {
-//        if( $round->getParent() !== null ) {
-//            throw new \Exception( 'alleen een indeling zonder parent kan worden verwijderd', E_ERROR );
-//        }
-//        return $this->roundService->remove( $round );
-    }
-
-    public function setConfigs( RoundNumber $roundNumber, RoundConfig $configSer, bool $recursive /* DEPRECATED */ )
-    {
-        $this->roundConfigService->update($roundNumber->getConfig(), $configSer->getOptions());
-
-        if( $recursive && $roundNumber->hasNext() ) {
-            $this->setConfigs($roundNumber->getNext(), $configSer, $recursive );
-        } else {
-            $this->roundNumberRepos->getEM()->flush();
-        }
-    }
 
     public function getStructure( Competition $competition ): Structure
     {

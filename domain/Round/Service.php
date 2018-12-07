@@ -194,7 +194,8 @@ class Service
         foreach( $poules as $poule ) {
             if( array_key_exists( $poule->getId(), $pouleIds ) === false ) {
                 // var_dump("poule with id ".$poule->getId()." removed " );
-                $this->pouleService->remove($poule);
+                $poule->getRound()->getPoules()->removeElement($poule);
+                $this->pouleRepos->getEM()->remove($poule);
             }
         }
     }
@@ -238,7 +239,7 @@ class Service
         if( $round->getParent() !== null ) {
             $round->getParent()->getChildRounds()->removeElement($round);
         }
-        return $this->repos->remove($round);
+        return $this->repos->getEM()->remove($round);
     }
 
     /**

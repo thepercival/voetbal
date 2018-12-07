@@ -9,13 +9,9 @@
 namespace Voetbal\Round\Number;
 
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Round\Config as RoundConfig;
 use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Competition;
-use Doctrine\DBAL\Connection;
-use Voetbal\Poule;
-use Voetbal\PoulePlace;
-use Voetbal\Round\Structure as RoundStructure;
-use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Round\Config\Options as ConfigOptions;
 
 class Service

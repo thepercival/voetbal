@@ -64,6 +64,17 @@ class Service
         return $roundConfig;
     }
 
+    public function updateFromSerialized( RoundNumber $roundNumber, RoundConfig $configSer, bool $recursive /* DEPRECATED */ )
+    {
+        $this->update($roundNumber->getConfig(), $configSer->getOptions());
+
+        if( $recursive && $roundNumber->hasNext() ) {
+            $this->updateFromSerialized($roundNumber->getNext(), $configSer, $recursive );
+        } else {
+            $this->repos->getEM()->flush();
+        }
+    }
+
     /*protected function removeScores( RoundConfig $roundConfig )
     {
         $scoreConfigs = $roundConfig->getScores();

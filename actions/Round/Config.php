@@ -10,6 +10,7 @@ namespace Voetbal\Action\Round;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Structure\Service as StructureService;
+use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
 final class Config
@@ -23,6 +24,10 @@ final class Config
      */
     protected $competitionRepos;
     /**
+     * @var RoundConfigService
+     */
+    protected $configService;
+    /**
      * @var Serializer
      */
     protected $serializer;
@@ -30,10 +35,12 @@ final class Config
     public function __construct(
         StructureService $structureService,
         CompetitionRepository $competitionRepos,
+        RoundConfigService $configService,
         Serializer $serializer
     )
     {
         $this->structureService = $structureService;
+        $this->configService = $configService;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
@@ -64,7 +71,7 @@ final class Config
             }
             $structure = $this->structureService->getStructure( $competition );
             $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
-            $this->structureService->setConfigs( $roundNumber, $configSer, true );
+            $this->configService->updateFromSerialized( $roundNumber, $configSer, true );
 
             return $response
                 ->withStatus(201)
@@ -103,7 +110,7 @@ final class Config
                 throw new \Exception("er kunnen geen ronde-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $this->structureService->setConfigs( $roundNumber, $configSer, false );
+            $this->configService->updateFromSerialized( $roundNumber, $configSer, false );
 
             return $response
                 ->withStatus(201)
