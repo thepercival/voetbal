@@ -84,10 +84,14 @@ class Service
                 $previousRoundNumber = $roundNumber;
             }
         }
+
         // line beneath is saved through relationships
         $rootRound = $this->createRound( $firstRoundNumber, $structureSer->getRootRound() );
 
-        $this->updateDatabase( $firstRoundNumber, $rootRound );
+        $em = $this->roundNumberRepos->getEM();
+        $em->persist($firstRoundNumber);
+        $em->persist($rootRound);
+        $em->flush();
 
         return new Structure( $firstRoundNumber, $rootRound );
     }
@@ -108,15 +112,26 @@ class Service
 
     public function updateFromSerialized( Structure $structureSer, Competition $competition )
     {
-        $structure = $this->getStructure( $competition ); // to init next/previous
-        $firstRoundNumber = $structure->getFirstRoundNumber();
-        $this->removeNonexistingRoundNumbers( $structureSer->getFirstRoundNumber(), $firstRoundNumber );
-        $this->updateRoundNumbersFromSerialized( $structureSer->getFirstRoundNumber(), $competition, $structure );
-        $this->removeNonexistingRounds( $structureSer->getRootRound(), $structure->getRootRound() );
-        $this->updateRoundsFromSerialized( $structureSer->getRootRound(), $firstRoundNumber );
-
-        $this->updateDatabase( $firstRoundNumber, $structure->getRootRound() );
-
+        $em = $this->roundNumberRepos->getEM();
+        $conn = $em->getConnection();
+        $conn->beginTransaction();
+        try {
+            $structure = $this->getStructure( $competition ); // to init next/previous
+            $firstRoundNumber = $structure->getFirstRoundNumber();
+            $this->removeNonexistingRoundNumbers( $structureSer->getFirstRoundNumber(), $firstRoundNumber );
+            $em->flush();
+            $this->updateRoundNumbersFromSerialized( $structureSer->getFirstRoundNumber(), $competition, $structure );
+            $this->removeNonexistingRounds( $structureSer->getRootRound(), $structure->getRootRound() );
+            // $em->flush();
+            $this->updateRoundsFromSerialized( $structureSer->getRootRound(), $firstRoundNumber );
+            $em->persist($firstRoundNumber);
+            $em->persist($structure->getRootRound());
+            $em->flush();
+            $conn->commit();
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            throw $e;
+        }
         return $structure;
     }
 
@@ -124,14 +139,15 @@ class Service
         // database action
         $em = $this->roundNumberRepos->getEM();
         $conn = $em->getConnection();
-        $conn->beginTransaction();
+        // $conn->beginTransaction();
         try {
+            $em->flush();
             $em->persist($roundNumber);
             $em->persist($round);
             $em->flush();
-            $conn->commit();
+           //  $conn->commit();
         } catch (\Exception $e) {
-            $conn->rollBack();
+            // $conn->rollBack();
             throw $e;
         }
     }
@@ -174,14 +190,17 @@ class Service
         }
     }
 
-    protected function removeNonexistingRoundNumbers( RoundNumber $firstRoundNumberSerialized, RoundNumber $firstRoundNumber )
+    protected function removeNonexistingRoundNumbers( RoundNumber $roundNumberSerialized, RoundNumber $roundNumber )
     {
-        if( $firstRoundNumberSerialized->hasNext() === false and $firstRoundNumber->hasNext() ) {
-            $this->roundNumberRepos->getEM()->remove($firstRoundNumber->getNext());
-            $firstRoundNumber->setNext(null);
-        } else if( $firstRoundNumberSerialized->hasNext() and $firstRoundNumber->hasNext() ) {
-            $this->removeNonexistingRoundNumbers( $firstRoundNumberSerialized->getNext(), $firstRoundNumber->getNext() );
+        if( !$roundNumber->hasNext() ) {
+            return;
         }
+        if( $roundNumberSerialized->hasNext() && $roundNumberSerialized->getNext()->getId() === $roundNumber->getNext()->getId() ) {
+            return $this->removeNonexistingRoundNumbers($roundNumberSerialized->getNext(), $roundNumber->getNext());
+        }
+        $next = $roundNumber->getNext();
+        $this->roundNumberRepos->getEM()->remove($next);
+        $roundNumber->setNext(null);
     }
 
     protected function removeNonexistingRounds( Round $rootRoundSerialized, Round $rootRound )
