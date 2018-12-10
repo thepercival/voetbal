@@ -43,13 +43,12 @@ class Round
     /**
      * @var Round\Config
      */
-    protected $config;
+    protected $config; // Deprecated
 
     /**
      * @var Round\Number
      */
     protected $number;
-
     /**
      * @var Round
      */
@@ -215,22 +214,6 @@ class Round
         }
 
         $this->name = $name;
-    }
-
-    /**
-     * @return Round\Config
-     */
-    public function getConfig()
-    {
-        return $this->getNumber()->getConfig();
-    }
-
-    /**
-     * @param Round\Config $config
-     */
-    public function setConfig( Round\Config $config )
-    {
-        $this->getNumber()->setConfig($config);
     }
 
     /**
@@ -542,5 +525,22 @@ class Round
             return $toQualifyRules;
         }
         return $this->toQualifyRules;
+    }
+
+    /**
+     * @return Round\Config
+     */
+    public function getConfig()
+    {
+        return $this->getNumber()->getConfig();
+    }
+
+    public function getConfigDeprecated()
+    {
+        return $this->config;
+    }
+
+    public function setConfig(Round\Config $config ) {
+        $this->config = $config;
     }
 }

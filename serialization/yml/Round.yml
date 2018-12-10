@@ -2,13 +2,16 @@ Voetbal\Round:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
+  custom_accessor_order: [number, config]
 
   properties:
     id:
       type: integer
     number:
       type: integer
-      access_type: property
+      read_only: true
+      accessor:
+        getter: getNumberAsValue
       until_version: 1
     winnersOrLosers:
       type: integer

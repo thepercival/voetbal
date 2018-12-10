@@ -52,8 +52,6 @@ final class Config
 
     public function addDeprecated( $request, $response, $args )
     {
-        $sErrorMessage = null;
-
         try {
             $competitionId = (int) $request->getParam("competitionid");
             $competition = $this->competitionRepos->find($competitionId);
@@ -80,15 +78,12 @@ final class Config
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422 )->write( $e->getMessage() );
         }
-        return $response->withStatus(422 )->write( $sErrorMessage );
     }
 
     public function edit( $request, $response, $args )
     {
-        $sErrorMessage = null;
-
         try {
             $competitionId = (int) $request->getParam("competitionid");
             $competition = $this->competitionRepos->find($competitionId);
@@ -119,8 +114,7 @@ final class Config
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422 )->write( $e->getMessage() );
         }
-        return $response->withStatus(422 )->write( $sErrorMessage );
     }
 }

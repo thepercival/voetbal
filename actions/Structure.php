@@ -105,7 +105,7 @@ final class Structure
 
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write($this->serializer->serialize( $structure->getRootRound(), 'json'));
+            ->write($this->serializer->serialize( [$structure->getRootRound()], 'json'));
         ;
     }
 
@@ -184,16 +184,26 @@ final class Structure
         RoundNumber $previousRoundNumber = null
     ): RoundNumber {
 
-        $refCl = new \ReflectionClass('RoundNumber');
+        $refCl = new \ReflectionClass('Voetbal\Round\Number');
         $roundNumber = null;
         if( $previousRoundNumber !== null && $previousRoundNumber->hasNext() ) {
             $roundNumber = $previousRoundNumber->getNext();
         } else {
             $roundNumber = $refCl->newInstanceWithoutConstructor ();
-            $refCl->getProperty("competition")->setValue($competition); // private, through constructor
-            $refCl->getProperty("previous")->setValue($previousRoundNumber); // private, through constructor
-            $roundNumber->setConfig( $roundSerialized->getConfig() );
-            $refCl->getProperty("number")->setValue($roundNumber);
+            $refClPropComp = $refCl->getProperty("competition");
+            $refClPropComp->setAccessible(true);
+            $refClPropComp->setValue($roundNumber, $competition); // private, through constructor
+            $refClPropComp->setAccessible(false);
+            $refClPropPrev = $refCl->getProperty("previous");
+            $refClPropPrev->setAccessible(true);
+            $refClPropPrev->setValue($roundNumber, $previousRoundNumber); // private, through constructor
+            $refClPropPrev->setAccessible(false);
+            $refClPropNumber = $refCl->getProperty("number");
+            $refClPropNumber->setAccessible(true);
+            $number = $previousRoundNumber !== null ? $previousRoundNumber->getNumber() + 1 : 1;
+            $refClPropNumber->setValue($roundNumber, $number);
+            $refClPropNumber->setAccessible(false);
+            $roundNumber->setConfig( $roundSerialized->getConfigDeprecated() );
         }
         foreach( $roundSerialized->getChildRounds() as $childRoundSerialized ) {
             $this->getRoundNumberFromRound( $childRoundSerialized, $competition, $roundNumber );
