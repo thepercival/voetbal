@@ -256,10 +256,13 @@ class Service
 //        return $round;
 //    }
 
-    public function getStructure( Competition $competition ): Structure
+    public function getStructure( Competition $competition ): ?Structure
     {
         $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition), array("id" => "asc"));
         $firstRoundNumber = $this->structureRoundNumbers($roundNumbers);
+        if ( $firstRoundNumber === null ) {
+            return null;
+        }
         return new Structure($firstRoundNumber, $firstRoundNumber->getRounds()->first());
     }
 

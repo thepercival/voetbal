@@ -173,43 +173,57 @@ final class Structure
     }
 
     private function getSerializedStructureFromRound( Round $roundSerialized, Competition $competition ): StructureT {
-
-        $firstRoundNumber = $this->getSerializedRoundNumberFromRound( $roundSerialized, $competition );
-        return new StructureT( $firstRoundNumber, $roundSerialized );
+        $structure = $this->service->getStructure( $competition ); // to init next/previous
+        $firstRoundNumber = $structure !== null ? $structure->getFirstRoundNumber() : null;
+        $firstRoundNumberSerialized = $this->getSerializedRoundNumberFromRound( $roundSerialized, $competition, $firstRoundNumber );
+        return new StructureT( $firstRoundNumberSerialized, $roundSerialized );
     }
 
     private function getSerializedRoundNumberFromRound(
         Round $roundSerialized,
         Competition $competition,
-        RoundNumber $previousRoundNumber = null
+        RoundNumber $roundNumber = null,
+        RoundNumber $previousRoundNumberSerialized = null
     ): RoundNumber {
 
         $refCl = new \ReflectionClass('Voetbal\Round\Number');
-        $roundNumber = null;
-        if( $previousRoundNumber !== null && $previousRoundNumber->hasNext() ) {
-            $roundNumber = $previousRoundNumber->getNext();
-        } else {
-            $roundNumber = $refCl->newInstanceWithoutConstructor ();
-            $refClPropComp = $refCl->getProperty("competition");
-            $refClPropComp->setAccessible(true);
-            $refClPropComp->setValue($roundNumber, $competition); // private, through constructor
-            $refClPropComp->setAccessible(false);
+//        $roundNumber = null;
+//        if( $previousRoundNumber !== null && $previousRoundNumber->hasNext() ) {
+//            $roundNumber = $previousRoundNumber->getNext();
+//        } else {
+        $roundNumberSer = $refCl->newInstanceWithoutConstructor ();
+        if( $roundNumber !== null ) {
+            $refClPropId = $refCl->getProperty("id");
+            $refClPropId->setAccessible(true);
+            $refClPropId->setValue($roundNumberSer, $roundNumber->getId() ); // private, through constructor
+            $refClPropId->setAccessible(false);
+        }
+        $refClPropComp = $refCl->getProperty("competition");
+        $refClPropComp->setAccessible(true);
+        $refClPropComp->setValue($roundNumberSer, $competition); // private, through constructor
+        $refClPropComp->setAccessible(false);
+        if( $previousRoundNumberSerialized !== null ) {
             $refClPropPrev = $refCl->getProperty("previous");
             $refClPropPrev->setAccessible(true);
-            $refClPropPrev->setValue($roundNumber, $previousRoundNumber); // private, through constructor
+            $refClPropPrev->setValue($roundNumberSer, $previousRoundNumberSerialized); // private, through constructor
             $refClPropPrev->setAccessible(false);
-            $refClPropNumber = $refCl->getProperty("number");
-            $refClPropNumber->setAccessible(true);
-            $number = $previousRoundNumber !== null ? $previousRoundNumber->getNumber() + 1 : 1;
-            $refClPropNumber->setValue($roundNumber, $number);
-            $refClPropNumber->setAccessible(false);
-            $roundNumber->setConfig( $roundSerialized->getConfigDeprecated() );
+            $refClPropNext = $refCl->getProperty("next");
+            $refClPropNext->setAccessible(true);
+            $refClPropNext->setValue($previousRoundNumberSerialized, $roundNumberSer);
+            $refClPropNext->setAccessible(false);
         }
+        $refClPropNumber = $refCl->getProperty("number");
+        $refClPropNumber->setAccessible(true);
+        $number = $previousRoundNumberSerialized !== null ? $previousRoundNumberSerialized->getNumber() + 1 : 1;
+        $refClPropNumber->setValue($roundNumberSer, $number);
+        $refClPropNumber->setAccessible(false);
+        $roundNumberSer->setConfig( $roundSerialized->getConfigDeprecated() );
+        // }
+        $nextRoundNumber = $roundNumber !== null ? $roundNumber->getNext() : null;
         foreach( $roundSerialized->getChildRounds() as $childRoundSerialized ) {
-            $this->getRoundNumberFromRound( $childRoundSerialized, $competition, $roundNumber );
+            $this->getSerializedRoundNumberFromRound( $childRoundSerialized, $competition, $nextRoundNumber, $roundNumberSer );
         }
-
-        return $roundNumber;
+        return $roundNumberSer;
     }
 
     public function edit( $request, $response, $args)
