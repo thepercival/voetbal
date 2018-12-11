@@ -11,7 +11,7 @@ Voetbal\Round:
     name:
       type: string
       nullable: true
-      length: php/const:Voetbal\Round::MAX_LENGTH_NAME
+      length: !php/const:Voetbal\Round::MAX_LENGTH_NAME
       unique: false
     winnersOrLosers:
       type: smallint
@@ -48,7 +48,7 @@ Voetbal\Round:
         referencedColumnName: id
         nullable: true # should be false, do sql by hand
         onDelete: CASCADE
-      cascade: [ persist, remove ]
+      cascade: [ persist ]
     parent:
       targetEntity: Voetbal\Round
       inversedBy: childRounds

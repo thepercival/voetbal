@@ -13,7 +13,7 @@ Voetbal\Competition:
     fields:
         state:
             type: smallint
-            default:  php/const:Voetbal\Competition::STATE_CREATED
+            default:  !php/const:Voetbal\Competition::STATE_CREATED
             nullable: false
             unique: false
         startDateTime:

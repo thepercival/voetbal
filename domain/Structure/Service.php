@@ -183,6 +183,7 @@ class Service
         }
         else {
             $round = $this->roundRepos->find($roundSer->getId());
+            $round->setQualifyOrder( $roundSer->getQualifyOrder() );
             $this->roundService->updatePoulesFromSerialized( $round, $roundSer->getPoules()->toArray() );
         }
         foreach( $roundSer->getChildRounds() as $childRoundSer ) {

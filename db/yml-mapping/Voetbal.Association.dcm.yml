@@ -10,12 +10,12 @@ Voetbal\Association:
   fields:
     name:
       type: string
-      length : php/const:Voetbal\Association::MAX_LENGTH_NAME
+      length : !php/const:Voetbal\Association::MAX_LENGTH_NAME
       unique: true
       nullable: false
     description:
       type: string
-      length : php/const:Voetbal\Association::MAX_LENGTH_DESCRIPTION
+      length : !php/const:Voetbal\Association::MAX_LENGTH_DESCRIPTION
       nullable: true
   oneToMany:
     children:

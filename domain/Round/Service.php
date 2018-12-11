@@ -238,6 +238,7 @@ class Service
     {
         if( $round->getParent() !== null ) {
             $round->getParent()->getChildRounds()->removeElement($round);
+            $round->getNumber()->getRounds()->removeElement($round);
         }
         return $this->repos->getEM()->remove($round);
     }

@@ -10,26 +10,26 @@ Voetbal\External\System:
   fields:
     name:
       type: string
-      length : php/const:Voetbal\External\System::MAX_LENGTH_NAME
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_NAME
       unique: true
       nullable: false
     website:
       type: string
-      length : php/const:Voetbal\External\System::MAX_LENGTH_WEBSITE
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_WEBSITE
       nullable: true
     username:
       type: string
-      length : php/const:Voetbal\External\System::MAX_LENGTH_USERNAME
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_USERNAME
       nullable: true
     password:
       type: string
-      length : php/const:Voetbal\External\System::MAX_LENGTH_PASSWORD
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_PASSWORD
       nullable: true
     apiurl:
       type: string
-      length : php/const:Voetbal\External\System::MAX_LENGTH_APIURL
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_APIURL
       nullable: true
     apikey:
       type: string
-      length : php/const:Voetbal\External\System::MAX_LENGTH_APIKEY
+      length : !php/const:Voetbal\External\System::MAX_LENGTH_APIKEY
       nullable: true
