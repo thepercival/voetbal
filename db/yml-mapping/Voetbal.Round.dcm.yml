@@ -11,7 +11,7 @@ Voetbal\Round:
     name:
       type: string
       nullable: true
-      length: !php/const:Voetbal\Round::MAX_LENGTH_NAME
+      length: php/const:Voetbal\Round::MAX_LENGTH_NAME
       unique: false
     winnersOrLosers:
       type: smallint

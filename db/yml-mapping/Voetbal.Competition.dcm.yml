@@ -13,7 +13,7 @@ Voetbal\Competition:
     fields:
         state:
             type: smallint
-            default:  !php/const:Voetbal\Competition::STATE_CREATED
+            default:  php/const:Voetbal\Competition::STATE_CREATED
             nullable: false
             unique: false
         startDateTime:
@@ -48,7 +48,7 @@ Voetbal\Competition:
               referencedColumnName: id
               nullable: false
               onDelete: CASCADE
-            cascade: [ persist, remove ]
+            cascade: [ persist ]
         season:
             targetEntity: Voetbal\Season
             inversedBy: competitions
@@ -56,7 +56,7 @@ Voetbal\Competition:
               name: seasonid
               referencedColumnName: id
               nullable: false
-            cascade: [ persist, remove ]
+            cascade: [ persist ]
     uniqueConstraints:
         main_u_idx:
             columns: [ leagueid, seasonid ]

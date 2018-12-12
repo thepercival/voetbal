@@ -11,7 +11,7 @@ Voetbal\PoulePlace:
     name:
       type: string
       nullable: true
-      length: !php/const:Voetbal\Poule::MAX_LENGTH_NAME
+      length: php/const:Voetbal\Poule::MAX_LENGTH_NAME
       unique: false
     number:
       type: smallint

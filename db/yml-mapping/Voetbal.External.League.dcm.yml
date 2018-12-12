@@ -10,7 +10,7 @@ Voetbal\External\League:
   fields:
       externalId:
         type: string
-        length : !php/const:Voetbal\External\ObjectX::MAX_LENGTH_EXTERNALID
+        length : php/const:Voetbal\External\ObjectX::MAX_LENGTH_EXTERNALID
         nullable: false
   manyToOne:
     externalSystem:

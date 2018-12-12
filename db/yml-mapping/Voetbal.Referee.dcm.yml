@@ -11,21 +11,21 @@ Voetbal\Referee:
     initials:
       type: string
       nullable: false
-      length: !php/const:Voetbal\Referee::MAX_LENGTH_INITIALS
+      length: php/const:Voetbal\Referee::MAX_LENGTH_INITIALS
       unique: false
     name:
       type: string
       nullable: true
-      length: !php/const:Voetbal\Referee::MAX_LENGTH_NAME
+      length: php/const:Voetbal\Referee::MAX_LENGTH_NAME
       unique: false
     emailaddress:
       type: string
-      length : !php/const:Voetbal\Referee::MAX_LENGTH_EMAIL
+      length : php/const:Voetbal\Referee::MAX_LENGTH_EMAIL
       nullable: true
     info:
       type: string
       nullable: true
-      length: !php/const:Voetbal\Referee::MAX_LENGTH_INFO
+      length: php/const:Voetbal\Referee::MAX_LENGTH_INFO
       unique: false
   manyToOne:
     competition:

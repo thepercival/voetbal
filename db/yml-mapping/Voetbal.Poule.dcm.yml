@@ -11,7 +11,7 @@ Voetbal\Poule:
     name:
       type: string
       nullable: true
-      length: !php/const:Voetbal\Poule::MAX_LENGTH_NAME
+      length: php/const:Voetbal\Poule::MAX_LENGTH_NAME
       unique: false
     number:
       type: smallint
@@ -38,7 +38,7 @@ Voetbal\Poule:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-      cascade: [ persist, remove ]
+      cascade: [ persist ]
   uniqueConstraints:
     number_u_idx:
       columns: [ roundid, number ]
