@@ -12,7 +12,6 @@ use JMS\Serializer\Serializer;
 use Voetbal\Season\Service as SeasonService;
 use Voetbal\Season\Repository as SeasonRepository;
 use Voetbal;
-use League\Period\Period;
 
 final class Season
 {

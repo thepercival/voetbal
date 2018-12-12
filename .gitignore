@@ -1,7 +1,5 @@
 /.idea/
 /vendor/
 /logs/
-/src/DAO/
-/src/Voetbal/
 .env
 *.log
