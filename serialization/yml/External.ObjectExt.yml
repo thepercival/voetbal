@@ -8,10 +8,7 @@ Voetbal\External\ObjectExt:
       type: int
     importableObjectId:
       type: int
-      serialized_name: importableObjectId
     externalSystemId:
       type: int
-      serialized_name: externalSystemId
     externalId:
       type: string
-      serialized_name: externalId

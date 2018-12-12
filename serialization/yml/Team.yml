@@ -14,4 +14,3 @@ Voetbal\Team:
       type: string
     imageUrl:
       type: string
-      serialized_name: imageUrl

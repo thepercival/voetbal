@@ -6,7 +6,5 @@ Voetbal\Structure:
   properties:
     rootRound:
       type: Voetbal\Round
-      serialized_name: rootRound
     firstRoundNumber:
       type: Voetbal\Round\Number
-      serialized_name: firstRoundNumber

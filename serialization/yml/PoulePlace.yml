@@ -12,4 +12,3 @@ Voetbal\PoulePlace:
       type: Voetbal\Team
     penaltyPoints:
       type: integer
-      serialized_name: penaltyPoints

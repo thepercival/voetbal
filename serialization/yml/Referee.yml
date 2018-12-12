@@ -15,7 +15,6 @@ Voetbal\Referee:
       groups: [privacy]
     userId:
       type: number
-      serialized_name: userId
     info:
       type: string
 

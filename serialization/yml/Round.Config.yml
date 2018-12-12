@@ -8,39 +8,27 @@ Voetbal\Round\Config:
       type: integer
     qualifyRule:
       type: integer
-      serialized_name: qualifyRule
     nrOfHeadtoheadMatches:
       type: integer
-      serialized_name: nrOfHeadtoheadMatches
     winPoints:
       type: integer
-      serialized_name: winPoints
     drawPoints:
       type: integer
-      serialized_name: drawPoints
     hasExtension:
       type: boolean
-      serialized_name: hasExtension
     winPointsExt:
       type: integer
-      serialized_name: winPointsExt
     drawPointsExt:
       type: integer
-      serialized_name: drawPointsExt
     minutesPerGameExt:
       type: integer
-      serialized_name: minutesPerGameExt
     minutesPerGame:
       type: integer
-      serialized_name: minutesPerGame
     enableTime:
       type: boolean
-      serialized_name: enableTime
     minutesBetweenGames:
       type: integer
-      serialized_name: minutesBetweenGames
     minutesAfter:
       type: integer
-      serialized_name: minutesAfter
     score:
       type: Voetbal\Round\Config\Score

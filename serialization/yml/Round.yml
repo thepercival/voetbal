@@ -15,15 +15,12 @@ Voetbal\Round:
       until_version: 1
     winnersOrLosers:
       type: integer
-      serialized_name: winnersOrLosers
     qualifyOrder:
       type: integer
-      serialized_name: qualifyOrder
     config:
       type: Voetbal\Round\Config
       until_version: 1
     childRounds:
       type: ArrayCollection<Voetbal\Round>
-      serialized_name: childRounds
     poules:
       type: ArrayCollection<Voetbal\Poule>

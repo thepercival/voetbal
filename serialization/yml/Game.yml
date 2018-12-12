@@ -8,13 +8,10 @@ Voetbal\Game:
       type: int
     roundNumber:
       type: int
-      serialized_name: roundNumber
     subNumber:
       type: int
-      serialized_name: subNumber
     resourceBatch:
       type: int
-      serialized_name: resourceBatch
     field:
       type: Voetbal\Field
     referee:
@@ -23,15 +20,11 @@ Voetbal\Game:
       type: integer
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
-      serialized_name: startDateTime
     homePoulePlace:
       type: Voetbal\PoulePlace
-      serialized_name: homePoulePlace
     awayPoulePlace:
       type: Voetbal\PoulePlace
-      serialized_name: awayPoulePlace
     scores:
       type: ArrayCollection<Voetbal\Game\Score>
     scoresMoment:
       type: integer
-      serialized_name: scoresMoment
