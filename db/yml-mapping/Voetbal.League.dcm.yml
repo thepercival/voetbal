@@ -11,18 +11,18 @@ Voetbal\League:
     name:
       type: string
       nullable: false
-      length: php/const:Voetbal\League::MAX_LENGTH_NAME
+      length: !php/const Voetbal\League::MAX_LENGTH_NAME
       unique: true
     sport:
       type: string
       nullable: false
-      length: php/const:Voetbal\League::MAX_LENGTH_SPORT
+      length: !php/const Voetbal\League::MAX_LENGTH_SPORT
       unique: false
     abbreviation:
       type: string
       nullable: true
       unique: false
-      length: php/const:Voetbal\League::MAX_LENGTH_ABBREVIATION
+      length: !php/const Voetbal\League::MAX_LENGTH_ABBREVIATION
       column: abbreviation
   oneToMany:
     competitions:

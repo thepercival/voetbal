@@ -11,23 +11,23 @@ Voetbal\Team:
     name:
       type: string
       nullable: false
-      length: php/const:Voetbal\Team::MAX_LENGTH_NAME
+      length: !php/const Voetbal\Team::MAX_LENGTH_NAME
       unique: false
     abbreviation:
       type: string
       nullable: true
       unique: false
-      length: php/const:Voetbal\Team::MAX_LENGTH_ABBREVIATION
+      length: !php/const Voetbal\Team::MAX_LENGTH_ABBREVIATION
       column: abbreviation
     info:
       type: string
       nullable: true
-      length: php/const:Voetbal\Team::MAX_LENGTH_INFO
+      length: !php/const Voetbal\Team::MAX_LENGTH_INFO
       unique: false
     imageUrl:
       type: string
       nullable: true
-      length: php/const:Voetbal\Team::MAX_LENGTH_IMAGEURL
+      length: !php/const Voetbal\Team::MAX_LENGTH_IMAGEURL
       unique: false
   oneToMany:
     externals:

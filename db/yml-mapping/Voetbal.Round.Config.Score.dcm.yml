@@ -12,7 +12,7 @@ Voetbal\Round\Config\Score:
     name:
       type: string
       nullable: false
-      length: php/const:Voetbal\Round\Config\Score\Options::MAX_LENGTH_NAME
+      length: !php/const Voetbal\Round\Config\Score\Options::MAX_LENGTH_NAME
       unique: false
     direction:
       type: smallint
