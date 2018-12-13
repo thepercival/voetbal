@@ -78,13 +78,15 @@ class Service
     public function updateFromSerialized( array $poulesSer, Round $round)
     {
         foreach( $poulesSer as $pouleSer ) {
-            $poule = null;
-            if( $pouleSer->getId() === null ) {
-                $poule = $this->create( $round, $pouleSer->getNumber() );
-                $this->poulePlaceRepos->getEM()->persist($poule);
-            } else {
-                $poule = $this->repos->find($pouleSer->getId());
+            if( $pouleSer->getId() !== null ) {
+                continue;
             }
+            $poule = $this->create( $round, $pouleSer->getNumber() );
+            $this->poulePlaceRepos->getEM()->persist($poule);
+        }
+
+        foreach( $poulesSer as $pouleSer ) {
+            $poule = $round->getPoule($pouleSer->getNumber());
             if ($poule === null) {
                 throw new \Exception("bij de plek kon geen poule gevonden worden ", E_ERROR);
             }

@@ -12,6 +12,7 @@ use Voetbal\Poule;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\Team\Repository as TeamRepository;
 use Voetbal\Team;
+use Voetbal\Round;
 use Doctrine\ORM\EntityManager;
 use Voetbal\PoulePlace;
 
@@ -50,20 +51,40 @@ class Service
 
     public function move( PoulePlace $poulePlace, int $newPouleNumber, int $newNumber)
     {
+        $oldPouleNumber = $poulePlace->getPoule()->getNumber();
         // var_dump("move pouleplace from p".$poulePlace->getPoule()->getNumber().":pp".$poulePlace->getNumber()." to ".$newPouleNumber.":p".$newNumber);
         $poulePlace->setNumber($newNumber);
         $poulePlace->setPoule($poulePlace->getRound()->getPoule($newPouleNumber));
-
+        // $this->repos->getEM()->persist($poulePlace->getPoule());
+        // $this->repos->getEM()->persist($poulePlace->getPoule());
         // @TODO should check if new place is not yet occupied
+        $this->persistMove( $poulePlace->getRound(), $oldPouleNumber, $newPouleNumber );
         return $poulePlace;
     }
 
     /**
      * @param PoulePlace $pouleplace
      */
-    public function remove( PoulePlace $pouleplace )
+    protected function persistMove( Round $round, int $oldPouleNumber, int $newPouleNumber )
     {
-        $pouleplace->getPoule()->getPlaces()->removeElement($pouleplace);
-        $this->repos->getEM()->remove($pouleplace);
+        $em = $this->repos->getEM();
+        $oldPoule = $round->getPoule($oldPouleNumber);
+        foreach( $oldPoule->getPlaces() as $place ) {
+            $em->persist($place);
+        }
+        $newPoule = $round->getPoule($newPouleNumber);
+        foreach( $newPoule->getPlaces() as $place ) {
+            $em->persist($place);
+        }
+    }
+
+    /**
+     * @param PoulePlace $pouleplace
+     */
+    public function remove( PoulePlace $poulePlace )
+    {
+        $poulePlace->getPoule()->getPlaces()->removeElement($poulePlace);
+        $poulePlace->setPoule(null);
+        $this->repos->getEM()->remove($poulePlace);
     }
 }

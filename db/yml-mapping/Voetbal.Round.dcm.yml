@@ -31,7 +31,7 @@ Voetbal\Round:
     childRounds:
       targetEntity: Voetbal\Round
       mappedBy: parent
-      cascade: [ remove ]
+      cascade: [ persist, remove ]
   manyToOne:
     competition: # DEPRECATED
       targetEntity: Voetbal\Competition

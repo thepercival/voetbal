@@ -19,6 +19,7 @@ Voetbal\Round\Number:
         name: configid
         referencedColumnName: id
         nullable: true # should be false
+        onDelete: CASCADE
       cascade: [ persist, remove ]
     previous:
       targetEntity: Voetbal\Round\Number
@@ -27,12 +28,13 @@ Voetbal\Round\Number:
         referencedColumnName: id
         nullable: true # should be false, do sql by hand
         onDelete: CASCADE
-      fetch: EAGER
+      # fetch: EAGER
+      cascade: [ persist, remove ]
   oneToMany:
     rounds:
       targetEntity: Voetbal\Round
       mappedBy: number
-      cascade: [ persist, remove ]
+      # cascade: [ persist, remove ]
   manyToOne:
     competition:
       targetEntity: Voetbal\Competition

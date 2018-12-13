@@ -90,9 +90,11 @@ class Number
         return $this->previous;
     }
 
-    public function setPrevious( Number $previous) {
+    public function setPrevious( Number $previous = null ) {
         $this->previous = $previous;
-        $this->number = $this->previous->getNumber() + 1;
+        if( $previous !== null ) {
+            $this->number = $this->previous->getNumber() + 1;
+        }
     }
 
     public function getCompetition(): Competition {

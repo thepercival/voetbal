@@ -176,14 +176,22 @@ class Service
         $poulePlacesSer = $this->getPlacesFromPoules( $poulesSer );
         $placeIds = $this->getNewPlaceIds( $poulePlacesSer );
         $this->removeNonexistingPoules( $round->getPoules()->toArray(), $pouleIds );
+        $em = $this->pouleRepos->getEM();
+        $em->flush();
         $this->removeNonexistingPlaces( $round->getPoulePlaces(), $placeIds );
+        $em->flush();
         $this->pouleService->updateFromSerialized( $poulesSer, $round);
+        // $em->persist($round);
+        $em->flush();
     }
 
     protected function getNewPouleIds( array $poulesSer )
     {
         $pouleIds = [];
         foreach( $poulesSer as $pouleSer ) {
+            if( $pouleSer->getId() === null ) {
+                continue;
+            }
             $pouleIds[$pouleSer->getId()] = true;
         }
         return $pouleIds;
@@ -195,6 +203,7 @@ class Service
             if( array_key_exists( $poule->getId(), $pouleIds ) === false ) {
                 // var_dump("poule with id ".$poule->getId()." removed " );
                 $poule->getRound()->getPoules()->removeElement($poule);
+                $poule->setRound(null);
                 $this->pouleRepos->getEM()->remove($poule);
             }
         }

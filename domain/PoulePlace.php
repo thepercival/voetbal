@@ -90,7 +90,7 @@ class PoulePlace
     /**
      * @param Poule $poule
      */
-    public function setPoule( Poule $poule )
+    public function setPoule( Poule $poule = null )
     {
         if ( $this->poule !== null && $this->poule->getPlaces()->contains( $this ) ){
             $this->poule->getPlaces()->removeElement($this) ;

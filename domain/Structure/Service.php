@@ -89,10 +89,17 @@ class Service
         $rootRound = $this->createRound( $firstRoundNumber, $structureSer->getRootRound() );
 
         $em = $this->roundNumberRepos->getEM();
-        $em->persist($firstRoundNumber);
-        $em->persist($rootRound);
-        $em->flush();
-
+        $conn = $em->getConnection();
+        $conn->beginTransaction();
+        try {
+            $em->persist($firstRoundNumber);
+            $em->persist($rootRound);
+            $em->flush();
+            $conn->commit();
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            throw $e;
+        }
         return new Structure( $firstRoundNumber, $rootRound );
     }
 
@@ -121,11 +128,11 @@ class Service
             $this->removeNonexistingRoundNumbers( $structureSer->getFirstRoundNumber(), $firstRoundNumber );
             $em->flush();
             $this->updateRoundNumbersFromSerialized( $structureSer->getFirstRoundNumber(), $competition, $structure );
-            $this->removeNonexistingRounds( $structureSer->getRootRound(), $structure->getRootRound() );
             // $em->flush();
+
+            $this->removeNonexistingRounds( $structureSer->getRootRound(), $structure->getRootRound() );
+            $em->flush();
             $this->updateRoundsFromSerialized( $structureSer->getRootRound(), $firstRoundNumber );
-            $em->persist($firstRoundNumber);
-            $em->persist($structure->getRootRound());
             $em->flush();
             $conn->commit();
         } catch (\Exception $e) {
@@ -133,23 +140,6 @@ class Service
             throw $e;
         }
         return $structure;
-    }
-
-    protected function updateDatabase( RoundNumber $roundNumber, Round $round ) {
-        // database action
-        $em = $this->roundNumberRepos->getEM();
-        $conn = $em->getConnection();
-        // $conn->beginTransaction();
-        try {
-            $em->flush();
-            $em->persist($roundNumber);
-            $em->persist($round);
-            $em->flush();
-           //  $conn->commit();
-        } catch (\Exception $e) {
-            // $conn->rollBack();
-            throw $e;
-        }
     }
 
     protected function updateRoundNumbersFromSerialized(
@@ -160,6 +150,7 @@ class Service
         if( $roundNumberSer->getId() === null ) {
             $configOptions = $roundNumberSer->getConfig()->getOptions();
             $roundNumber = $this->roundNumberService->create( $competition, $configOptions, $previousRoundNumber );
+            $this->roundNumberRepos->getEM()->persist($roundNumber);
         }
         else {
             $roundNumber = $structure->getRoundNumberById( $roundNumberSer->getId() );
@@ -184,6 +175,7 @@ class Service
         else {
             $round = $this->roundRepos->find($roundSer->getId());
             $round->setQualifyOrder( $roundSer->getQualifyOrder() );
+            $this->roundRepos->getEM()->persist($round);
             $this->roundService->updatePoulesFromSerialized( $round, $roundSer->getPoules()->toArray() );
         }
         foreach( $roundSer->getChildRounds() as $childRoundSer ) {
@@ -200,8 +192,9 @@ class Service
             return $this->removeNonexistingRoundNumbers($roundNumberSerialized->getNext(), $roundNumber->getNext());
         }
         $next = $roundNumber->getNext();
-        $this->roundNumberRepos->getEM()->remove($next);
+        $next->setPrevious(null);
         $roundNumber->setNext(null);
+        $this->roundNumberRepos->getEM()->remove($next);
     }
 
     protected function removeNonexistingRounds( Round $rootRoundSerialized, Round $rootRound )
