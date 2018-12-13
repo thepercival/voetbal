@@ -10,6 +10,7 @@ namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
 use JMS\Serializer\SerializationContext;
+use JMS\Serializer\DeserializationContext;
 use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal\Referee\Service as RefereeService;
 use Voetbal\Competition\Repository as CompetitionRepos;
@@ -49,6 +50,7 @@ final class Referee
     public function add($request, $response, $args)
     {
         try {
+            $serGroups = ['Default','privacy'];
             $competitionId = (int)$request->getParam("competitionid");
             $competition = $this->competitionRepos->find($competitionId);
             if ($competition === null) {
@@ -56,7 +58,7 @@ final class Referee
             }
 
             /** @var \Voetbal\Referee $refereeSer */
-            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json'/*, $contextSer*/);
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json', DeserializationContext::create()->setGroups($serGroups));
             if ($refereeSer === null) {
                 throw new \Exception("er kan geen scheidsrechter worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
@@ -73,7 +75,7 @@ final class Referee
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($referee, 'json'));;
+                ->write($this->serializer->serialize($referee, 'json', SerializationContext::create()->setGroups($serGroups)));;
         } catch (\Exception $e) {
             return $response->withStatus(422)->write($e->getMessage());
         }
@@ -82,9 +84,10 @@ final class Referee
     public function edit($request, $response, $args)
     {
         try {
+            $serGroups = ['Default','privacy'];
             $referee = $this->getReferee((int)$args["id"], (int)$request->getParam("competitionid"));
             /** @var \Voetbal\Referee $refereeSer */
-            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json');
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json', DeserializationContext::create()->setGroups($serGroups));
             if ($refereeSer === null) {
                 throw new \Exception("de scheidsrechter kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
@@ -99,7 +102,7 @@ final class Referee
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($referee, 'json'));
+                ->write($this->serializer->serialize($referee, 'json', SerializationContext::create()->setGroups($serGroups)));
         } catch (\Exception $e) {
             return $response->withStatus(400)->write($e->getMessage());
         }
