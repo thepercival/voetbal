@@ -88,4 +88,7 @@ delete from roundconfigs where not exists( select * from roundnumbers where conf
 update roundnumbers as rn inner join ( select * from roundnumbers ) as rn2 on rn2.competitionid = rn.competitionid and rn2.number = (rn.number - 1)  set rn.previousid = rn2.id;
 
 -- deze sql moet uitgevoerd kunnen worden, en dan zo blijven na het aanmaken, wijzigen van een nieuwe ronde
+-- 2X ???
 delete from rounds where ( select count(*) from pouleplaces pp join poules p on pp.pouleid = p.id where p.roundid = rounds.id ) = 1;
+
+update seasons set enddatetime = DATE_ADD(enddatetime, INTERVAL 1 DAY);
