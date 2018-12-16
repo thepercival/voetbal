@@ -131,7 +131,7 @@ final class Planning
                 );
                 $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId()) : null;
                 $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId()) : null;
-                $games[] = $this->gameService->editResource(
+                $this->gameService->editResource(
                     $game,
                     $field, $referee,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
@@ -141,7 +141,7 @@ final class Planning
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($games, 'json'));;
+                ->write($this->serializer->serialize(array_values($games->toArray()), 'json'));
         } catch (\Exception $e) {
             return $response->withStatus(422)->write($e->getMessage());
         }
