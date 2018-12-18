@@ -74,18 +74,21 @@ class Round
      */
     protected $toQualifyRules = array();
 
-    CONST TYPE_POULE = 1;
-    CONST TYPE_KNOCKOUT = 2;
-    CONST TYPE_WINNER = 4;
-
     CONST WINNERS = 1;
     CONST LOSERS = 2;
 
-    CONST ORDER_HORIZONTAL = 1;
-    CONST ORDER_VERTICAL = 2;
-    CONST ORDER_CUSTOM = 3;
-
     const MAX_LENGTH_NAME = 10;
+
+    CONST ORDER_NUMBER_POULE = 1;
+    CONST ORDER_POULE_NUMBER = 2;
+
+    CONST QUALIFYORDER_CROSS = 1;
+    CONST QUALIFYORDER_RANK = 2;
+    CONST QUALIFYORDER_CUSTOM1 = 4;
+    CONST QUALIFYORDER_CUSTOM2 = 5;
+
+    CONST RANK_NUMBER_POULE = 6;
+    CONST RANK_POULE_NUMBER = 7;
 
     public function __construct( Round\Number $roundNumber, Round $parent = null )
     {
@@ -94,7 +97,7 @@ class Round
         $this->scoreConfigs = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
         $this->setParent( $parent );
-        $this->setQualifyOrder(static::ORDER_HORIZONTAL);
+        $this->setQualifyOrder(static::QUALIFYORDER_CROSS);
         $this->setWinnersOrLosers( 0 );
     }
 
@@ -306,7 +309,7 @@ class Round
      * @param int $order
      * @return array
      */
-    public function getPoulePlaces( int $order = 0): array
+    public function getPoulePlaces( int $order = 0, bool $reversed = false): array
     {
         $poulePlaces = array();
         foreach( $this->getPoules() as $poule ) {
@@ -314,7 +317,7 @@ class Round
                 $poulePlaces[] = $place;
             }
         }
-        if ($order === Round::ORDER_HORIZONTAL || $order === 4) {
+        if ($order === Round::ORDER_NUMBER_POULE || $order === 4) {
             uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
                 if ($poulePlaceA->getNumber() > $poulePlaceB->getNumber()) {
                     return 1;
@@ -331,7 +334,7 @@ class Round
                 return 0;
             });
         }
-        else if ($order === Round::ORDER_VERTICAL || $order === 5) {
+        else if ($order === Round::ORDER_POULE_NUMBER || $order === 5) {
             uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
                 if ($poulePlaceA->getPoule()->getNumber() > $poulePlaceB->getPoule()->getNumber()) {
                     return 1;
@@ -347,6 +350,9 @@ class Round
                 }
                 return 0;
             });
+        }
+        if ($reversed === true) {
+            return array_reverse($poulePlaces);
         }
         return $poulePlaces;
     }
@@ -370,7 +376,7 @@ class Round
     {
         $poulePlacesPerNumber = [];
 
-        $poulePlacesOrderedByPlace = $this->getPoulePlaces(Round::ORDER_HORIZONTAL);
+        $poulePlacesOrderedByPlace = $this->getPoulePlaces(Round::ORDER_NUMBER_POULE);
         if ($winnersOrLosers === Round::LOSERS) {
             $poulePlacesOrderedByPlace = array_reverse($poulePlacesOrderedByPlace);
         }
@@ -382,48 +388,6 @@ class Round
             $poulePlacesPerNumber[ $orderedPlace->getNumber() ][] = $orderedPlace;
         }
         return $poulePlacesPerNumber;
-    }
-
-    /**
-     * @param int $winnersOrLosers
-     * @param int $qualifyOrder
-     * @param int $poulePlaceOrder
-     * @return PoulePlace[][]
-     */
-    public function getPoulePlacesPer(int $winnersOrLosers, int $qualifyOrder, int $poulePlaceOrder): array {
-        $poulePlacesPerNumber = $this->getPoulePlacesPerNumber($winnersOrLosers);
-        if ($qualifyOrder !== Round::ORDER_VERTICAL || $this->getParent() === null ) {
-            return $poulePlacesPerNumber;
-        }
-        if ($poulePlaceOrder === Round::ORDER_VERTICAL) {
-            return $this->getPoulePlacesPerPoule();
-        }
-        // vertical qualify rule
-        $poulePlacesPerQualifyRule = [];
-        foreach( $this->getFromQualifyRules() as $fromQualifyRule ) {
-            $poulePlaces = $fromQualifyRule->getToPoulePlaces()->toArray();
-            uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
-                if ($poulePlaceA->getNumber() > $poulePlaceB->getNumber()) {
-                    return 1;
-                }
-                if ($poulePlaceA->getNumber() < $poulePlaceB->getNumber()) {
-                    return -1;
-                }
-                if ($poulePlaceA->getPoule()->getNumber() > $poulePlaceB->getPoule()->getNumber()) {
-                    return 1;
-                }
-                if ($poulePlaceA->getPoule()->getNumber() < $poulePlaceB->getPoule()->getNumber()) {
-                    return -1;
-                }
-                return 0;
-            });
-            $placeNumber = 0;
-            while (count($poulePlaces) > 0) {
-                $tmp = array_splice($poulePlaces,0, count($poulePlacesPerNumber[$placeNumber++]));
-                $poulePlacesPerQualifyRule[] = $tmp;
-            }
-        }
-        return $poulePlacesPerQualifyRule;
     }
 
     public function needsRanking() {
@@ -453,14 +417,6 @@ class Round
             $games = array_merge( $games, $poule->getGamesWithState($state));
         }
         return $games;
-    }
-
-    public function getType()
-    {
-        if ($this->getPoules()->count() === 1 && count($this->getPoulePlaces()) < 2) {
-            return Round::TYPE_WINNER;
-        }
-        return ($this->needsRanking() ? Round::TYPE_POULE : Round::TYPE_KNOCKOUT);
     }
 
     public function getState(): int
@@ -542,5 +498,9 @@ class Round
 
     public function setConfig(Round\Config $config ) {
         $this->config = $config;
+    }
+
+    public function hasCustomQualifyOrder(): bool {
+        return !($this->getQualifyOrder() === Round::QUALIFYORDER_CROSS || $this->getQualifyOrder() === Round::QUALIFYORDER_RANK);
     }
 }

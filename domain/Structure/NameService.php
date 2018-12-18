@@ -56,11 +56,10 @@ class NameService
 
     public function getPouleName(Poule $poule, $withPrefix)
     {
-        $round = $poule->getRound();
         $previousNrOfPoules = $this->getNrOfPreviousPoules($poule);
         $pouleName = '';
         if ($withPrefix === true) {
-            $pouleName = $round->getType() === Round::TYPE_KNOCKOUT ? 'wed. ' : 'poule ';
+            $pouleName = $poule->needsRanking() ? 'poule ' : 'wed. ';
         }
         $secondLetter = $previousNrOfPoules % 26;
         if ($previousNrOfPoules >= 26) {
@@ -71,24 +70,24 @@ class NameService
         return $pouleName;
     }
 
-    public function getPoulePlaceName(PoulePlace $pouleplace, bool $teamName = false)
+    public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $teamName = false)
     {
         if ($teamName === true && $pouleplace->getTeam() !== null) {
             return $pouleplace->getTeam()->getName();
         }
         $fromQualifyRule = $pouleplace->getFromQualifyRule();
         if ($fromQualifyRule === null) { // first round
-            return $this->getPoulePlaceNameSimple($pouleplace, false);
+            return $this->getPoulePlaceName($pouleplace, false);
         }
 
         if ($fromQualifyRule->isMultiple() === false) {
             $fromPoulePlace = $fromQualifyRule->getFromEquivalent($pouleplace);
-            return $this->getPoulePlaceNameSimple($fromPoulePlace, false);
+            return $this->getPoulePlaceName($fromPoulePlace, false);
         }
         return '?' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber();
     }
 
-    public function getPoulePlaceNameSimple(PoulePlace $poulePlace, bool $teamName = false)
+    public function getPoulePlaceName(PoulePlace $poulePlace, bool $teamName = false)
     {
         if ($teamName === true && $poulePlace->getTeam() !== null) {
             return $poulePlace->getTeam()->getName();
