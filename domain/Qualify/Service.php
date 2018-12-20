@@ -50,7 +50,7 @@ class Service
                     $qualifyRule->addFromPoulePlace($poulePlaceIt);
                 }
                 $nrOfPoulePlaces = count( $poulePlaces);
-                if ( $this->childRound->getWinnersOrLosers() === Round::LOSERS
+                if ( $nrOfPoulePlaces > 0 && $this->childRound->getWinnersOrLosers() === Round::LOSERS
                     && $this->childRound->getQualifyOrder() === Round::QUALIFYORDER_CROSS
                     && (count($childRoundPoulePlaces) % $nrOfPoulePlaces) !== 0) {
                     $nrOfPoulePlaces = (count($childRoundPoulePlaces) % $nrOfPoulePlaces);
