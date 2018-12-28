@@ -73,7 +73,7 @@ class Service
     protected function getShuffledPoulePlaces(array $poulePlaces, int $nrOfShifts, Round $childRound): array {
         $shuffledPoulePlaces = [];
         $qualifyOrder = $childRound->getQualifyOrder();
-        if (@$childRound->hasCustomQualifyOrder() ) {
+        if (!$childRound->hasCustomQualifyOrder() ) {
             if ((count($poulePlaces) % 2) === 0) {
                 for ($shiftTime = 0; $shiftTime < $nrOfShifts; $shiftTime++) {
                     $poulePlaces[] = array_shift($poulePlaces);

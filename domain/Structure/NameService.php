@@ -33,7 +33,7 @@ class NameService
 
         $nrOfRoundsToGo = $this->getNrOfRoundsToGo($round);
         if ($nrOfRoundsToGo >= 2 && $nrOfRoundsToGo <= 5) {
-            return $this->getFractalNumber(pow(2, $nrOfRoundsToGo - 1)) . ' finale';
+            return $this->getFractalNumber(pow(2, $nrOfRoundsToGo)) . ' finale';
         } /*else if ($nrOfRoundsToGo === 1) {
             if (count($round->getPoulePlaces()) === 2 && $sameName === false) {
                 $rankedPlace = $this->getRankedPlace($round);
@@ -70,7 +70,7 @@ class NameService
         return $pouleName;
     }
 
-    public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $teamName = false)
+    public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $teamName)
     {
         if ($teamName === true && $pouleplace->getTeam() !== null) {
             return $pouleplace->getTeam()->getName();
@@ -87,7 +87,7 @@ class NameService
         return '?' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber();
     }
 
-    public function getPoulePlaceName(PoulePlace $poulePlace, bool $teamName = false)
+    public function getPoulePlaceName(PoulePlace $poulePlace, bool $teamName)
     {
         if ($teamName === true && $poulePlace->getTeam() !== null) {
             return $poulePlace->getTeam()->getName();
