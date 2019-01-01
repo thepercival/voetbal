@@ -33,7 +33,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Voetbal\\Tests\\": "tests/"
+      "Voetbal\\Tests\\": "tests/cases"
     },
     "psr-0": {
       "": "tests/"
@@ -41,7 +41,7 @@
   },
   "scripts": {
     "test": [
-      "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/"
+      "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/cases/"
     ]
   }
 }
