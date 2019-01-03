@@ -121,6 +121,9 @@ class Number
     }
 
     public function getRounds() {
+        if( $this->rounds === null ) {
+            $this->rounds = new ArrayCollection();
+        }
         return $this->rounds;
     }
 

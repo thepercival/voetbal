@@ -14,12 +14,14 @@ function postSerialize( Structure $structure ) {
     postSerializeHelper( $structure->getRootRound(), $structure->getFirstRoundNumber() );
 }
 
-function postSerializeHelper( Round $round, RoundNumber $roundNumber ) {
+function postSerializeHelper( Round $round, RoundNumber $roundNumber, RoundNumber $previousRoundNumber = null ) {
     $refCl = new \ReflectionClass($round);
     $refClPropNumber = $refCl->getProperty("number");
     $refClPropNumber->setAccessible(true);
     $refClPropNumber->setValue($round, $roundNumber);
     $refClPropNumber->setAccessible(false);
+    $roundNumber->getRounds()->add($round);
+    $roundNumber->setPrevious( $previousRoundNumber );
     foreach( $round->getPoules() as $poule ) {
         $poule->setRound($round);
         foreach( $poule->getPlaces() as $poulePlace ) {
@@ -43,6 +45,6 @@ function postSerializeHelper( Round $round, RoundNumber $roundNumber ) {
     }
     foreach( $round->getChildRounds() as $childRound ) {
         $childRound->setParent($round);
-        postSerializeHelper( $childRound, $roundNumber->getNext() );
+        postSerializeHelper( $childRound, $roundNumber->getNext(), $roundNumber );
     }
 }
