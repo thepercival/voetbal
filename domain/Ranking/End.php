@@ -10,6 +10,8 @@ namespace Voetbal\Ranking;
 
 use Voetbal\Ranking\Item as RankingItem;
 use Voetbal\Round;
+use Voetbal\Game;
+use Voetbal\Ranking;
 use Voetbal\PoulePlace;
 use Voetbal\Qualify\Rule as QualifyRule;
 
@@ -20,7 +22,7 @@ class End
      */
     private $rankingService;
 
-    public function __construct( int $ruleSet = Ranking::RULESSET_WC )
+    public function __construct( int $ruleSet = QualifyRule::SOCCERWORLDCUP )
     {
         $this->rankingService = new Ranking($ruleSet);
     }
@@ -33,7 +35,7 @@ class End
         return $this->getItemsHelper($rootRound);
     }
 
-    protected function getItemsHelper(Round $round, array $rankingItems = []): array
+    protected function getItemsHelper(Round $round = null, array &$rankingItems = []): array
     {
         if ($round === null) {
             return [];
@@ -122,47 +124,51 @@ class End
     protected function getDeadPlacesFromRoundPlayed(Round $round): array {
         $deadPlaces = [];
 
-        $multipleRules = array_filter( $round.getToQualifyRules(), function( $toRule ) { return $toRule.isMultiple(); } );
-        $multipleWinnersRule = multipleRules.find(toRule => toRule.getWinnersOrLosers() === Round.WINNERS);
-        $multipleLosersRule = multipleRules.find(toRule => toRule.getWinnersOrLosers() === Round.LOSERS);
+        $multipleRules = array_filter( $round->getToQualifyRules(), function( $toRule ) { return $toRule->isMultiple(); } );
+        $multipleWinnersRules = array_filter( $multipleRules, function( $toRule ) { return $toRule->getWinnersOrLosers() === Round::WINNERS; } );
+        $multipleWinnersRule = reset( $multipleWinnersRules );
+        $multipleLosersRules = array_filter( $multipleRules, function( $toRule ) { return $toRule->getWinnersOrLosers() === Round::LOSERS; } );
+        $multipleLosersRule = reset( $multipleLosersRules );
 
-        let nrOfUniqueFromPlacesMultiple = this.getUniqueFromPlaces(multipleRules).length;
-        if (multipleWinnersRule !== undefined) {
-            const qualifyAmount = multipleWinnersRule.getToPoulePlaces().length;
-            const rankingItems: RankingItem[] = this.getRankingItemsForMultipleRule(multipleWinnersRule);
-            for (let i = 0; i < qualifyAmount; i++) {
-                nrOfUniqueFromPlacesMultiple--;
-                rankingItems.shift();
+        $nrOfUniqueFromPlacesMultiple = count( $this->getUniqueFromPlaces($multipleRules));
+        if ($multipleWinnersRule !== false) {
+            $qualifyAmount = count( $multipleWinnersRule->getToPoulePlaces() );
+            $rankingItems = $this->getRankingItemsForMultipleRule($multipleWinnersRule);
+            for ($i = 0; $i < $qualifyAmount; $i++) {
+                $nrOfUniqueFromPlacesMultiple--;
+                array_shift( $rankingItems);
             }
-            const amountQualifyLosers = multipleLosersRule !== undefined ? multipleLosersRule.getToPoulePlaces().length : 0;
-            while (nrOfUniqueFromPlacesMultiple - amountQualifyLosers > 0) {
-                nrOfUniqueFromPlacesMultiple--;
-                deadPlaces.push(rankingItems.shift().getPoulePlace());
-            }
-        }
-        const poulePlacesPer: PoulePlace[][] = this.getPoulePlacesPer(round);
-        poulePlacesPer.forEach(poulePlaces => {
-        if (round.getWinnersOrLosers() === Round.LOSERS) {
-            poulePlaces.reverse();
-        }
-        const deadPlacesPer = poulePlaces.filter(poulePlace => poulePlace.getToQualifyRules().length === 0);
-            this.getDeadPlacesFromPlaceNumber(deadPlacesPer, round).forEach(deadPoulePlace => {
-            deadPlaces.push(deadPoulePlace);
-        });
-        });
-        if (multipleLosersRule !== undefined) {
-            const qualifyAmount = multipleLosersRule.getToPoulePlaces().length;
-            const rankingItems: RankingItem[] = this.getRankingItemsForMultipleRule(multipleLosersRule);
-            for (let i = 0; i < qualifyAmount; i++) {
-                nrOfUniqueFromPlacesMultiple--;
-                rankingItems.pop(); // or shift()???
-            }
-            while (nrOfUniqueFromPlacesMultiple) {
-                nrOfUniqueFromPlacesMultiple--;
-                deadPlaces.push(rankingItems.pop().getPoulePlace());
+            $amountQualifyLosers = $multipleLosersRule !== false ? count($multipleLosersRule->getToPoulePlaces()) : 0;
+            while ($nrOfUniqueFromPlacesMultiple - $amountQualifyLosers > 0) {
+                $nrOfUniqueFromPlacesMultiple--;
+                $deadPlaces[] = array_shift($rankingItems)->getPoulePlace();
             }
         }
-        return deadPlaces;
+        $poulePlacesPer = $this->getPoulePlacesPer($round);
+        foreach( $poulePlacesPer as $poulePlaces ) {
+            if ($round->getWinnersOrLosers() === Round::LOSERS) {
+                $poulePlaces = array_reverse($poulePlaces);
+            }
+            $deadPlacesPer = array_filter( $poulePlaces, function( $poulePlace ) {
+                return count($poulePlace->getToQualifyRules()) === 0;
+            });
+            foreach( $this->getDeadPlacesFromPlaceNumber($deadPlacesPer, $round) as $deadPoulePlace ) {
+                $deadPlaces[] = $deadPoulePlace;
+            }
+        }
+        if ($multipleLosersRule !== false) {
+            $qualifyAmount = count($multipleLosersRule->getToPoulePlaces());
+            $rankingItems = $this->getRankingItemsForMultipleRule($multipleLosersRule);
+            for ($i = 0; $i < $qualifyAmount; $i++) {
+                $nrOfUniqueFromPlacesMultiple--;
+                array_pop($rankingItems);
+            }
+            while ($nrOfUniqueFromPlacesMultiple) {
+                $nrOfUniqueFromPlacesMultiple--;
+                $deadPlaces[] = array_pop($rankingItems)->getPoulePlace();
+            }
+        }
+        return $deadPlaces;
     }
 
     /**
@@ -210,11 +216,11 @@ class End
         foreach ( $toRule->getFromPoulePlaces() as $fromPoulePlace ) {
             $poulePlacesToCompare[] = $this->getRankedEquivalent($fromPoulePlace);
         }
-        return $this->rankingService->getItems($poulePlacesToCompare, $toRule->getFromRound()->getGames());
+        return $this->rankingService->getItems($poulePlacesToCompare, $toRule->getFromRound()->getGames()->toArray());
     }
 
     protected function getRankedEquivalent( PoulePlace $poulePlace ): PoulePlace {
-        $rankingItems = $this->rankingService->getItems($poulePlace->getPoule()->getPlaces(), $poulePlace->getPoule()->getGames());
+        $rankingItems = $this->rankingService->getItems($poulePlace->getPoule()->getPlaces()->toArray(), $poulePlace->getPoule()->getGames()->toArray());
         return $this->rankingService->getItem($rankingItems, $poulePlace->getNumber())->getPoulePlace();
     }
 
@@ -228,13 +234,13 @@ class End
         {
             $poulePlacesToCompare = [];
             foreach( $poulePlaces as $poulePlace ) {
-                $rankingItems = $this->rankingService->getItems($poulePlace->getPoule()->getPlaces(), $poulePlace->getPoule()->getGames());
+                $rankingItems = $this->rankingService->getItems($poulePlace->getPoule()->getPlaces()->toArray(), $poulePlace->getPoule()->getGames()->toArray());
                 $rankingItem = $this->rankingService->getItem($rankingItems, $poulePlace->getNumber());
                 if ($rankingItem->isSpecified()) {
-                    $poulePlacesToCompare[] = $rankingItem.getPoulePlace();
+                    $poulePlacesToCompare[] = $rankingItem->getPoulePlace();
                 }
             }
-            $rankingItems = $this->rankingService->getItems($poulePlacesToCompare, $round->getGames());
+            $rankingItems = $this->rankingService->getItems($poulePlacesToCompare, $round->getGames()->toArray());
         }
         return array_map( function( $rankingItem ) { return $rankingItem->getPoulePlace(); }, $rankingItems );
     }

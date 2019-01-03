@@ -309,7 +309,7 @@ class Round
      * @param int $order
      * @return array
      */
-    public function getPoulePlaces( int $order = 0, bool $reversed = false): array
+    public function getPoulePlaces( int $order = null, bool $reversed = null): array
     {
         $poulePlaces = array();
         foreach( $this->getPoules() as $poule ) {

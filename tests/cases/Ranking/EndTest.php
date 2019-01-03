@@ -9,10 +9,9 @@
 namespace Voetbal\Tests\Ranking;
 
 include_once __DIR__ . '/../../helpers/Serializer.php';
+include_once __DIR__ . '/../../helpers/PostSerialize.php';
 
-use Voetbal\Ranking;
-use Voetbal\Game;
-use Voetbal\Qualify\Rule as QualifyRule;
+use Voetbal\Ranking\End as EndRanking;
 
 class EndTest extends \PHPUnit\Framework\TestCase
 {
@@ -27,18 +26,24 @@ class EndTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure9.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
+        postSerialize( $structure );
+        $structure->setQualifyRules();
 
-        $endRanking = new Ranking( QualifyRule::SOCCEREUROPEANCUP, Game::STATE_PLAYED );
+        $endRanking = new EndRanking();
 
-//        const items = endRanking.getItems(structure.getRootRound());
-//        expect(items[0].getPoulePlace().getTeam().getName()).to.equal('jil');
-//        expect(items[1].getPoulePlace().getTeam().getName()).to.equal('max');
-//        expect(items[2].getPoulePlace().getTeam().getName()).to.equal('zed');
-//        expect(items[3].getPoulePlace().getTeam().getName()).to.equal('jip');
-//        expect(items[4].getPoulePlace().getTeam().getName()).to.equal('jan');
-//        expect(items[5].getPoulePlace().getTeam().getName()).to.equal('jos');
-//        expect(items[6].getPoulePlace().getTeam().getName()).to.equal('wim');
-//        expect(items[7].getPoulePlace().getTeam().getName()).to.equal('cor');
-//        expect(items[8].getPoulePlace().getTeam().getName()).to.equal('pim');
+        $items = $endRanking->getItems($structure->getRootRound());
+        $this->assertSame($items[0]->getPoulePlace()->getTeam()->getName(), 'jil' );
+        $this->assertSame($items[1]->getPoulePlace()->getTeam()->getName(), 'max' );
+
+        $this->assertSame($items[2]->getPoulePlace()->getTeam()->getName(), 'zed' );
+        $this->assertSame($items[3]->getPoulePlace()->getTeam()->getName(), 'jip' );
+
+        $this->assertSame($items[4]->getPoulePlace()->getTeam()->getName(), 'jan' );
+
+        $this->assertSame($items[5]->getPoulePlace()->getTeam()->getName(), 'jos' );
+        $this->assertSame($items[6]->getPoulePlace()->getTeam()->getName(), 'wim' );
+
+        $this->assertSame($items[7]->getPoulePlace()->getTeam()->getName(), 'cor' );
+        $this->assertSame($items[8]->getPoulePlace()->getTeam()->getName(), 'pim' );
     }
 }

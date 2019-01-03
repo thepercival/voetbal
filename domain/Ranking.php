@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use Voetbal\Qualify\Rule as QualifyRule;
+use Voetbal\Ranking\Item as RankingItem;
 
 class Ranking
 {
@@ -49,33 +50,44 @@ class Ranking
         $this->initRankFunctions();
     }
 
-    public function getPoulePlacesByRank( array $p_poulePlaces, array $games)
+    public function getItems( array $p_poulePlaces, array $games)
     {
-        $ranking = [];
+        $items = [];
         $poulePlaces = $p_poulePlaces;
         $nrOfIterations = 0;
         while (count($poulePlaces) > 0) {
             $bestPoulePlaces = $this->getBestPoulePlaces($poulePlaces, $games, false);
-            $ranking[] = $bestPoulePlaces;
+
             foreach( $bestPoulePlaces as $bestPoulePlace ) {
+                $items[] = new RankingItem(++$nrOfIterations, $bestPoulePlace);
                 if (($key = array_search($bestPoulePlace, $poulePlaces)) !== false) {
                     unset($poulePlaces[$key]);
                 }
             }
-            if (++$nrOfIterations > $this->maxPoulePlaces) {
+            if ($nrOfIterations > $this->maxPoulePlaces) {
                 break;
             }
         }
-        return $ranking;
+        return $items;
     }
 
     public function getPoulePlacesByRankSingle( array $p_poulePlaces, array $games): array {
         $ranking = [];
-        $poulePlacesByRank = $this->getPoulePlacesByRank($p_poulePlaces, $games);
+        $poulePlacesByRank = $this->getItems($p_poulePlaces, $games);
         foreach( $poulePlacesByRank as $poulePlaces ) {
             $ranking = array_merge( $ranking, $poulePlaces );
         }
         return $ranking;
+    }
+
+    /**
+     * @param array | RankingItem[] $rankingItems
+     * @param int $rank
+     * @return string
+     */
+    public function getItem(array $rankingItems, int $rank): RankingItem {
+        $rankingItemsTmp= array_filter( $rankingItems, function( $rankingItemIt ) use ( $rank ) { return $rankingItemIt->getRank() === $rank; } );
+        return reset( $rankingItemsTmp );
     }
 
     protected function getBestPoulePlaces(array $p_poulePlaces, array $games, bool $skip): array

@@ -11,9 +11,21 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\ContextFactory\CallableSerializationContextFactory;
 use JMS\Serializer\ContextFactory\CallableDeserializationContextFactory;
+use JMS\Serializer\GraphNavigatorInterface;
+use Voetbal\Game;
+use JMS\Serializer\Handler\HandlerRegistry;
+
+//static::$poulePlaces = [];
+//
+//function createPoulePlace( array $poulePlace ) {
+//    $equals = array_filter( static::$poulePlaces, function( $poulePlaceIt ) use ($poulePlace) {
+//        return $poulePlaceIt == $poulePlace;
+//    });
+//}
 
 function getSerializer(): \JMS\Serializer\Serializer {
     $apiVersion = 2;
+
 
     $serializerBuilder = SerializerBuilder::create()->setDebug(true);
 
@@ -30,6 +42,38 @@ function getSerializer(): \JMS\Serializer\Serializer {
             ->setVersion($apiVersion);
     });
     $serializerBuilder->addMetadataDir(__DIR__.'/../../serialization/yml','Voetbal');
+
+    /*$serializerBuilder
+        ->configureListeners(function(JMS\Serializer\EventDispatcher\EventDispatcher $dispatcher) {
+//            $dispatcher->addListener('serializer.pre_serialize',
+//                function(JMS\Serializer\EventDispatcher\PreSerializeEvent $event) {
+//                    // do something
+//                }
+//            );
+//
+//            $dispatcher->addSubscriber(new MyEventSubscriber());
+        })
+    ;*/
+
+    /*$serializerBuilder->addDefaultHandlers();
+    $serializerBuilder
+        ->configureHandlers(function(JMS\Serializer\Handler\HandlerRegistry $registry) {
+            $registry->registerHandler(GraphNavigatorInterface::DIRECTION_DESERIALIZATION, 'Voetbal\PoulePlace', 'json',
+                function($visitor, $gameData, $type, $context) {
+                    if( $visitor->getCurrentObject() instanceof Game ) {
+                        // var_dump($context);
+                        $s = $context;
+                        $poulePlaces = $visitor->getCurrentObject()->getPoule()->getPlaces();
+                        $homePoulePlaces = array_filter( $poulePlaces->toArray() , function ( $poulePlace ) use ($gameData) {
+                            return $poulePlace->getNumber() === $gameData["homePoulePlace"]["number"];
+                        });
+                        return reset( $homePoulePlaces );
+                    }
+
+                }
+            );
+        })
+    ;*/
 
     return $serializerBuilder->build();
 }

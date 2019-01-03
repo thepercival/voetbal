@@ -70,7 +70,7 @@ class RankingTest extends \PHPUnit\Framework\TestCase
         $this->createGame( $poule, $poulePlaceOne, $poulePlaceTwo, 1, 1, 1, 1 );
 
         $ranking = new Ranking( QualifyRule::SOCCERWORLDCUP, Game::STATE_PLAYED );
-        $poulePlacesByRank = $ranking->getPoulePlacesByRank( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
+        $poulePlacesByRank = $ranking->getItems( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
 
         $this->assertEquals(1, count( $poulePlacesByRank ));
         $this->assertEquals(2, count( $poulePlacesByRank[0] ));
@@ -89,7 +89,7 @@ class RankingTest extends \PHPUnit\Framework\TestCase
         $this->createGame( $poule, $poulePlaceOne, $poulePlaceTwo, 1, 1, 1, 0 );
 
         $ranking = new Ranking( QualifyRule::SOCCERWORLDCUP, Game::STATE_PLAYED );
-        $poulePlacesByRank = $ranking->getPoulePlacesByRank( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
+        $poulePlacesByRank = $ranking->getItems( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
 
         $this->assertEquals(2, count( $poulePlacesByRank ));
         $this->assertEquals($poulePlaceOne, $poulePlacesByRank[0][0] );
@@ -110,7 +110,7 @@ class RankingTest extends \PHPUnit\Framework\TestCase
         $this->createGame( $poule, $poulePlaceTwo, $poulePlaceThree, 3, 1, 0, 2 );
 
         $ranking = new Ranking( QualifyRule::SOCCERWORLDCUP, Game::STATE_PLAYED );
-        $poulePlacesByRank = $ranking->getPoulePlacesByRank( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
+        $poulePlacesByRank = $ranking->getItems( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
 
         $this->assertEquals(3, count( $poulePlacesByRank ));
         $this->assertEquals($poulePlaceOne, $poulePlacesByRank[0][0] );
@@ -132,7 +132,7 @@ class RankingTest extends \PHPUnit\Framework\TestCase
         $this->createGame( $poule, $poulePlaceTwo, $poulePlaceThree, 3, 1, 0, 0 );
 
         $ranking = new Ranking( QualifyRule::SOCCERWORLDCUP, Game::STATE_PLAYED );
-        $poulePlacesByRank = $ranking->getPoulePlacesByRank( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
+        $poulePlacesByRank = $ranking->getItems( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
 
         $this->assertEquals(3, count( $poulePlacesByRank ));
         $this->assertEquals($poulePlaceOne, $poulePlacesByRank[0][0] );
@@ -159,7 +159,7 @@ class RankingTest extends \PHPUnit\Framework\TestCase
         $this->createGame( $poule, $poulePlaceFour, $poulePlaceOne, 3, 1, 0, 7 );
 
         $rankingWC = new Ranking( QualifyRule::SOCCERWORLDCUP, Game::STATE_PLAYED );
-        $poulePlacesByRankWC = $rankingWC->getPoulePlacesByRank( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
+        $poulePlacesByRankWC = $rankingWC->getItems( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
 
         $this->assertEquals(4, count( $poulePlacesByRankWC ));
         $this->assertEquals($poulePlaceOne, $poulePlacesByRankWC[0][0] );
@@ -168,7 +168,7 @@ class RankingTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($poulePlaceFour, $poulePlacesByRankWC[3][0] );
 
         $rankingEC = new Ranking( QualifyRule::SOCCEREUROPEANCUP, Game::STATE_PLAYED );
-        $poulePlacesByRankEC = $rankingEC->getPoulePlacesByRank( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
+        $poulePlacesByRankEC = $rankingEC->getItems( $poule->getPlaces()->toArray(), $poule->getGames()->toArray() );
 
         $this->assertEquals(4, count( $poulePlacesByRankEC ));
         $this->assertEquals($poulePlaceTwo, $poulePlacesByRankEC[0][0] );
