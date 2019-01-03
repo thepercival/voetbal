@@ -57,6 +57,14 @@ class Structure
         return $roundNumber;
     }
 
+    public function getRound( array $winnersOrLosersPath ): Round {
+        $round = $this->getRootRound();
+        foreach( $winnersOrLosersPath as $winnersOrLosers ) {
+            $round = $round->getChildRound($winnersOrLosers);
+        }
+        return $round;
+    }
+
     public function getRoundNumberById(int $id): ?RoundNumber {
         $roundNumber = $this->getFirstRoundNumber();
         while( $roundNumber !== null ) {

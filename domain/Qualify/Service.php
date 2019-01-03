@@ -114,7 +114,7 @@ class Service
         if ($this->childRound->getQualifyOrder() !== Round::QUALIFYORDER_RANK) {
             $poulePlacesPerNumber = $this->parentRound->getPoulePlacesPerNumber(Round::WINNERS);
             if ($this->childRound->getWinnersOrLosers() === Round::LOSERS) {
-                $poulePlacesPerNumber =array_reverse($poulePlacesPerNumber);
+                $poulePlacesPerNumber = array_reverse($poulePlacesPerNumber);
                 $spliceIndexReversed = null;
                 for ($i = 0, $x = 0; $i < count($poulePlacesPerNumber); $i++) {
                     if ($x >= $nrOfChildRoundPlaces) {

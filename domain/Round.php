@@ -364,7 +364,7 @@ class Round
     {
         $poulePlacesPerPoule = [];
         foreach( $this->getPoules() as $poule ) {
-            $poulePlacesPerPoule[] = $poule->getPlaces();
+            $poulePlacesPerPoule[] = $poule->getPlaces()->toArray();
         }
         return $poulePlacesPerPoule;
     }
