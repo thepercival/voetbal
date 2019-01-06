@@ -11,15 +11,15 @@ Voetbal\Round\Config:
     nrOfHeadtoheadMatches:
       type: integer
     winPoints:
-      type: integer
+      type: float
     drawPoints:
-      type: integer
+      type: float
     hasExtension:
       type: boolean
     winPointsExt:
-      type: integer
+      type: float
     drawPointsExt:
-      type: integer
+      type: float
     minutesPerGameExt:
       type: integer
     minutesPerGame:

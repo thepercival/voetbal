@@ -22,12 +22,12 @@ trait OptionsTrait
     protected $nrOfHeadtoheadMatches;
 
     /**
-     * @var int
+     * @var double
      */
     protected $winPoints;
 
     /**
-     * @var int
+     * @var double
      */
     protected $drawPoints;
 
@@ -37,12 +37,12 @@ trait OptionsTrait
     protected $hasExtension;
 
     /**
-     * @var int
+     * @var double
      */
     protected $winPointsExt;
 
     /**
-     * @var int
+     * @var double
      */
     protected $drawPointsExt;
 
@@ -115,7 +115,7 @@ trait OptionsTrait
     }
 
     /**
-     * @return int
+     * @return double
      */
     public function getWinPoints()
     {
@@ -127,14 +127,11 @@ trait OptionsTrait
      */
     public function setWinPoints($winPoints)
     {
-        if (!is_int($winPoints)) {
-            throw new \InvalidArgumentException("het aantal-punten-per-overwinning heeft een onjuiste waarde", E_ERROR);
-        }
         $this->winPoints = $winPoints;
     }
 
     /**
-     * @return int
+     * @return double
      */
     public function getDrawPoints()
     {
@@ -146,9 +143,6 @@ trait OptionsTrait
      */
     public function setDrawPoints($drawPoints)
     {
-        if (!is_int($drawPoints)) {
-            throw new \InvalidArgumentException("het aantal-punten-per-gelijkspel heeft een onjuiste waarde", E_ERROR);
-        }
         $this->drawPoints = $drawPoints;
     }
 
@@ -173,7 +167,7 @@ trait OptionsTrait
     }
 
     /**
-     * @return int
+     * @return double
      */
     public function getWinPointsExt()
     {
@@ -185,14 +179,11 @@ trait OptionsTrait
      */
     public function setWinPointsExt($winPointsExt)
     {
-        if (!is_int($winPointsExt)) {
-            throw new \InvalidArgumentException("het aantal-punten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
-        }
         $this->winPointsExt = $winPointsExt;
     }
 
     /**
-     * @return int
+     * @return double
      */
     public function getDrawPointsExt()
     {
@@ -204,9 +195,6 @@ trait OptionsTrait
      */
     public function setDrawPointsExt($drawPointsExt)
     {
-        if (!is_int($drawPointsExt)) {
-            throw new \InvalidArgumentException("het aantal-punten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
-        }
         $this->drawPointsExt = $drawPointsExt;
     }
 

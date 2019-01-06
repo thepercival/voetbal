@@ -18,11 +18,15 @@ Voetbal\Round\Config:
       nullable: false
       unique: false
     winPoints:
-      type: smallint
+      type: decimal
+      precision: 3
+      scale: 1
       nullable: false
       unique: false
     drawPoints:
-      type: smallint
+      type: decimal
+      precision: 3
+      scale: 1
       nullable: false
       unique: false
     hasExtension:
@@ -30,11 +34,15 @@ Voetbal\Round\Config:
       nullable: false
       unique: false
     winPointsExt:
-      type: smallint
+      type: decimal
+      precision: 3
+      scale: 1
       nullable: false
       unique: false
     drawPointsExt:
-      type: smallint
+      type: decimal
+      precision: 3
+      scale: 1
       nullable: false
       unique: false
     minutesPerGameExt:
