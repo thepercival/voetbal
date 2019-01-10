@@ -12,7 +12,7 @@ Voetbal\League:
       type: string
       nullable: false
       length: !php/const Voetbal\League::MAX_LENGTH_NAME
-      unique: true
+      unique: false
     sport:
       type: string
       nullable: false
