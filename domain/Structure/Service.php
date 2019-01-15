@@ -126,16 +126,17 @@ class Service
         $round->setId(null);
     }
 
-    private function createRound( RoundNumber $roundNumber, Round $roundSerialized ): Round
+    private function createRound( RoundNumber $roundNumber, Round $roundSerialized, Round $parentRound = null ): Round
     {
         $rootRound = $this->roundService->create(
             $roundNumber,
             $roundSerialized->getWinnersOrLosers(),
             $roundSerialized->getQualifyOrder(),
-            $roundSerialized->getPoules()->toArray()
+            $roundSerialized->getPoules()->toArray(),
+            $parentRound
         );
         foreach( $roundSerialized->getChildRounds() as $childRoundSerialized ) {
-            $this->createRound( $roundNumber->getNext(), $childRoundSerialized );
+            $this->createRound( $roundNumber->getNext(), $childRoundSerialized, $rootRound );
         }
         return $rootRound;
     }

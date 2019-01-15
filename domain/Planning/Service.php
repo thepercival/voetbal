@@ -13,7 +13,6 @@ use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
 use Doctrine\ORM\EntityManager;
 use Voetbal\Game;
-use Voetbal\Poule;
 
 class Service
 {
@@ -141,9 +140,8 @@ class Service
 
     public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array
     {
-        $poules = $roundNumber->getPoules();
         $games = [];
-        foreach( $poules as $poule ) {
+        foreach( $roundNumber->getPoules() as $poule ) {
             $games = array_merge( $games, $poule->getGames()->toArray());
         }
         return $this->orderGames($games, $order, !$roundNumber->isFirst());

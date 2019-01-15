@@ -8,10 +8,7 @@
 
 namespace Voetbal\Game;
 
-use Voetbal\Game;
-use Voetbal\Poule;
-use Voetbal\PoulePlace;
-use Voetbal\Field;
+use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Team;
 use Voetbal\Competition;
 
@@ -47,8 +44,7 @@ class Repository extends \Voetbal\Repository
         $query = $this->createQueryBuilder('g')
             ->join("g.poule", "p")
             ->join("p.round", "r")
-            ->where('r.competition = :competition')
-            ->andWhere('r.number = :roundNumber');
+            ->Where('r.number = :roundNumber');
         ;
         if( $gameStates !== null ) {
             $query = $query->andWhere('BIT_AND(g.state, :gamestates) = g.state');

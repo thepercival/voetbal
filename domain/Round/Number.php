@@ -148,12 +148,10 @@ class Number
         return false;
     }
 
-    public function getPoules(): ArrayCollection {
-        $poules = new ArrayCollection();
+    public function getPoules(): array {
+        $poules = [];
         foreach( $this->getRounds() as $round ) {
-            foreach( $round->getPoules() as $poule ) {
-                $poules->add($poule);
-            }
+            $poules = array_merge( $poules, $round->getPoules()->toArray());
         }
         return $poules;
     }

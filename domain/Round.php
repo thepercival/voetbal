@@ -132,9 +132,9 @@ class Round
      */
     private function setNumber( Round\Number $number )
     {
-//        if ( $this->competition === null and $competition !== null and !$competition->getRounds()->contains( $this )){
-//            $competition->getRounds()->add($this) ;
-//        }
+        if ( $number !== null and !$number->getRounds()->contains( $this )){
+            $number->getRounds()->add($this) ;
+        }
         $this->number = $number;
     }
 
