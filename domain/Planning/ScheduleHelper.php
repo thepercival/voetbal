@@ -40,11 +40,11 @@ class ScheduleHelper
         }
         $poulesFields = $this->getPoulesFields(array_slice($poules, 0), array_slice( $fields->toArray(), 0));
         foreach( $poulesFields as $poulesFieldsIt ) {
-            $this->assignFieldsToGames($poulesFieldsIt);
+            $this->assignFieldsToGames($roundNumber, $poulesFieldsIt);
         }
         $poulesReferees = $this->getPoulesReferees(array_slice($poules, 0), array_slice( $referees->toArray(), 0 ));
         foreach( $poulesReferees as $poulesRefereesIt ) {
-            $this->assignRefereesToGames($poulesRefereesIt);
+            $this->assignRefereesToGames($roundNumber, $poulesRefereesIt);
         }
         $amountPerResourceBatch = $this->getAmountPerResourceBatch($roundNumber, $fields, $referees);
         return $this->assignResourceBatchToGames($roundNumber->getConfig(), $amountPerResourceBatch, $startDateTime);
@@ -111,8 +111,8 @@ class ScheduleHelper
         }
     }
 
-    protected function assignFieldsToGames( PoulesFields $poulesFields ) {
-        $games = $this->getPoulesGamesByNumber($poulesFields->poules, Game::ORDER_BYNUMBER);
+    protected function assignFieldsToGames( RoundNumber $roundNumber, PoulesFields $poulesFields ) {
+        $games = $this->getPoulesGamesByNumber($roundNumber, $poulesFields->poules, Game::ORDER_BYNUMBER);
         foreach( $games as $gamesPerRoundNumber ) {
             $fieldNr = 0;
             $currentField = $poulesFields->getField($fieldNr);
@@ -128,8 +128,8 @@ class ScheduleHelper
         }
     }
 
-    protected function assignRefereesToGames( PoulesReferees $poulesReferees) {
-        $games = $this->getPoulesGamesByNumber($poulesReferees->poules, Game::ORDER_BYNUMBER);
+    protected function assignRefereesToGames( RoundNumber $roundNumber, PoulesReferees $poulesReferees) {
+        $games = $this->getPoulesGamesByNumber($roundNumber, $poulesReferees->poules, Game::ORDER_BYNUMBER);
         foreach( $games as $gamesPerRoundNumber ) {
             $refNr = 0;
             $currentReferee = $poulesReferees->getReferee($refNr);
@@ -205,35 +205,11 @@ class ScheduleHelper
                 }
             }
         }
-        return $this->planningService->orderGames($games, $order, !$roundNumber->isFirst());
-        // return $this->orderGames($games, $order);
+        $this->orderGames($games, $order, !$roundNumber->isFirst());
+        return $games;
     }
 
-    /*protected function orderGames( array $games, int $order): array {
-        foreach( $games as $gamesPerGameRoundNumber ) {
-            uasort( $gamesPerGameRoundNumber, function( Game $g1, Game $g2) use ($order) {
-                if ($order === Game::ORDER_BYNUMBER) {
-                    if ($g1->getSubNumber() === $g2->getSubNumber()) {
-                        return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
-                    }
-                    return $g1->getSubNumber() - $g2->getSubNumber();
-                }
-                if ($g1->getConfig()->getEnableTime()) {
-                    if ($g1->getStartDateTime()->getTime() !== $g2->getStartDateTime()->getTime()) {
-                        return $g1->getStartDateTime()->getTime() - $g2->getStartDateTime()->getTime();
-                    }
-                } else {
-                    if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
-                        return $g1->getResourceBatch() - $g2->getResourceBatch();
-                    }
-                }
-                return $g1->getField()->getNumber() - $g2->getField()->getNumber();
-            });
-        }
-        return $games;
-    }*/
-
-    protected function getPoulesGamesByNumber(array $poules, int $order): array {
+    protected function getPoulesGamesByNumber(RoundNumber $roundNumber, array $poules, int $order): array {
         $games = [];
         foreach( $poules as $poule ) {
             foreach( $poule->getGames() as $game) {
@@ -243,6 +219,13 @@ class ScheduleHelper
                 $games[$game->getRoundNumber()][] = $game;
             }
         }
-        return $this->orderGames($games, $order);
+        $this->orderGames($games, $order, !$roundNumber->isFirst());
+        return $games;
+    }
+
+    protected function orderGames( array &$games, int $order, bool $pouleNumberReversed = false) {
+        foreach( $games as $roundNumberGames ) {
+            $this->planningService->orderGames($roundNumberGames, $order, $pouleNumberReversed);
+        }
     }
 }

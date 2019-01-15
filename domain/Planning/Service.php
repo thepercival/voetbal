@@ -111,27 +111,24 @@ class Service
 
     protected function createHelper( RoundNumber $roundNumber )
     {
-        foreach ($roundNumber->getRounds() as $round) {
-            $poules = $round->getPoules();
-            foreach ($poules as $poule) {
-                $arrScheduledGames = $this->generateRRSchedule($poule->getPlaces()->toArray());
-                $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
-                for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
-                    $headToHeadNumber = (($headtohead - 1) * count($arrScheduledGames));
-                    for ($gameRoundNumber = 0; $gameRoundNumber < count($arrScheduledGames); $gameRoundNumber++) {
-                        $schedRoundGames = $arrScheduledGames[$gameRoundNumber];
-                        $subNumber = 1;
-                        foreach( $schedRoundGames as $schedGame ) {
-                            if ($schedGame[0] === null || $schedGame[1] === null) {
-                                continue;
-                            }
-                            $homePoulePlace = (($headtohead % 2) === 0) ? $schedGame[1] : $schedGame[0];
-                            $awayPoulePlace = (($headtohead % 2) === 0) ? $schedGame[0] : $schedGame[1];
-                            $gameTmp = $this->gameService->create(
-                                $poule, $homePoulePlace, $awayPoulePlace,
-                                $headToHeadNumber + $gameRoundNumber + 1, $subNumber++
-                            );
+        foreach ($roundNumber->getPoules() as $poule) {
+            $arrScheduledGames = $this->generateRRSchedule($poule->getPlaces()->toArray());
+            $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
+            for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
+                $headToHeadNumber = (($headtohead - 1) * count($arrScheduledGames));
+                for ($gameRoundNumber = 0; $gameRoundNumber < count($arrScheduledGames); $gameRoundNumber++) {
+                    $schedRoundGames = $arrScheduledGames[$gameRoundNumber];
+                    $subNumber = 1;
+                    foreach( $schedRoundGames as $schedGame ) {
+                        if ($schedGame[0] === null || $schedGame[1] === null) {
+                            continue;
                         }
+                        $homePoulePlace = (($headtohead % 2) === 0) ? $schedGame[1] : $schedGame[0];
+                        $awayPoulePlace = (($headtohead % 2) === 0) ? $schedGame[0] : $schedGame[1];
+                        $gameTmp = $this->gameService->create(
+                            $poule, $homePoulePlace, $awayPoulePlace,
+                            $headToHeadNumber + $gameRoundNumber + 1, $subNumber++
+                        );
                     }
                 }
             }
@@ -144,10 +141,11 @@ class Service
         foreach( $roundNumber->getPoules() as $poule ) {
             $games = array_merge( $games, $poule->getGames()->toArray());
         }
-        return $this->orderGames($games, $order, !$roundNumber->isFirst());
+        $this->orderGames($games, $order, !$roundNumber->isFirst());
+        return $games;
     }
 
-    public function orderGames(array $games, int $order, bool $pouleNumberReversed = false): array {
+    public function orderGames(array &$games, int $order, bool $pouleNumberReversed = false): array {
         if ($order === Game::ORDER_BYNUMBER) {
             uasort( $games, function($g1, $g2) use ($pouleNumberReversed) {
                 if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
@@ -191,7 +189,6 @@ class Service
             }
             return $g1->getRoundNumber() - $g2->getRoundNumber();
         });
-        return $games;
     }
 
     protected function determineReferee()

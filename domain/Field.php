@@ -35,7 +35,7 @@ class Field
     private $competition;
 
     const MIN_LENGTH_NAME = 1;
-    const MAX_LENGTH_NAME = 2;
+    const MAX_LENGTH_NAME = 3;
 
     public function __construct( Competition $competition, $number, $name )
     {
@@ -99,10 +99,6 @@ class Field
 
         if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
             throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
-        }
-
-        if( !ctype_alnum($name) ){
-            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers en letters bevatten", E_ERROR );
         }
 
         $this->name = $name;
