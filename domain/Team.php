@@ -10,41 +10,35 @@ namespace Voetbal;
 
 class Team implements External\Importable
 {
-    /**
-     * @var int
-     */
-    protected $id;
-
-    /**
-     * @var string
-     */
-    protected $name;
-
-    /**
-     * @var string
-     */
-    protected $abbreviation;
-
-    /**
-     * @var string
-     */
-    protected $info;
-
-    /**
-     * @var string
-     */
-    protected $imageUrl;
-
-    /**
-     * @var Association
-     */
-    protected $association;
-
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 30;
     const MAX_LENGTH_ABBREVIATION = 3;
     const MAX_LENGTH_INFO = 200;
     const MAX_LENGTH_IMAGEURL = 150;
+    /**
+     * @var int
+     */
+    protected $id;
+    /**
+     * @var string
+     */
+    protected $name;
+    /**
+     * @var string
+     */
+    protected $abbreviation;
+    /**
+     * @var string
+     */
+    protected $info;
+    /**
+     * @var string
+     */
+    protected $imageUrl;
+    /**
+     * @var Association
+     */
+    protected $association;
 
     use External\ImportableTrait;
 

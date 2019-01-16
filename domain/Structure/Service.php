@@ -103,29 +103,6 @@ class Service
         return new Structure( $firstRoundNumber, $rootRound );
     }
 
-    public function stripIds( Structure $structure)
-    {
-        $this->stripRoundIds( $structure->getRootRound() );
-        return $structure;
-    }
-
-    public function stripRoundIds( Round $round)
-    {
-        foreach( $round->getPoules() as $poule ) {
-            foreach( $poule->getPlaces() as $place ) {
-                if( $place->getTeam() !== null ) {
-                    // $place->getTeam()->setId(null);
-                }
-                $place->setId(null);
-            }
-            $poule->setId(null);
-        }
-        foreach( $round->getChildRounds() as $childRound ) {
-            $this->stripRoundIds( $childRound );
-        }
-        $round->setId(null);
-    }
-
     private function createRound( RoundNumber $roundNumber, Round $roundSerialized, Round $parentRound = null ): Round
     {
         $rootRound = $this->roundService->create(

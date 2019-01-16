@@ -91,9 +91,9 @@ class Service
                 throw new \Exception("bij de plek kon geen poule gevonden worden ", E_ERROR);
             }
             foreach ($pouleSer->getPlaces() as $poulePlaceSer) {
-                $team = null;
-                if ($poulePlaceSer->getTeam() !== null) {
-                    $team = $this->teamRepos->find($poulePlaceSer->getTeam()->getId());
+                $team = $poulePlaceSer->getTeam();
+                if ($team !== null && $team->getId() !== null) {
+                    $team = $this->teamRepos->find($team->getId());
                 }
                 $poulePlace = null;
                 if ($poulePlaceSer->getId() !== null) {
@@ -111,7 +111,7 @@ class Service
                             $pouleSer->getNumber(), $poulePlaceSer->getNumber());
                     }
                 }
-                $this->poulePlaceRepos->getEM()->persist($poulePlace);
+                // $this->poulePlaceRepos->getEM()->persist($poulePlace);
             }
         }
         return;
