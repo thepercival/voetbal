@@ -25,7 +25,7 @@ Voetbal\Round:
     poules:
       targetEntity: Voetbal\Poule
       mappedBy: round
-      cascade: [ persist, remove ]
+      cascade: [ persist, remove ] # persist removed
       orderBy:
         number: asc
     childRounds:
@@ -48,7 +48,7 @@ Voetbal\Round:
         referencedColumnName: id
         nullable: true # should be false, do sql by hand
         onDelete: CASCADE
-      cascade: [ persist ]
+      # cascade: [ persist ] removed
     parent:
       targetEntity: Voetbal\Round
       inversedBy: childRounds

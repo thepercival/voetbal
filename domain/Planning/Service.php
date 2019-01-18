@@ -41,7 +41,7 @@ class Service
         $this->em = $em;
     }
 
-    public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ) {
+    public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array {
         if ( $this->gameRepos->hasRoundNumberGames( $roundNumber ) ) {
             throw new \Exception("cannot create games, games already exist", E_ERROR );
         }
@@ -49,18 +49,39 @@ class Service
             $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
 
-        $this->em->getConnection()->beginTransaction();
-        try {
-            $this->createHelper($roundNumber);
-            $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
-            if ($roundNumber->hasNext()) {
-                $this->create($roundNumber->getNext(), $startNextRound);
+        return $this->createHelper($roundNumber, $startDateTime);
+    }
+
+    protected function createHelper( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array
+    {
+        $games = [];
+        foreach ($roundNumber->getPoules() as $poule) {
+            $arrScheduledGames = $this->generateRRSchedule($poule->getPlaces()->toArray());
+            $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
+            for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
+                $headToHeadNumber = (($headtohead - 1) * count($arrScheduledGames));
+                for ($gameRoundNumber = 0; $gameRoundNumber < count($arrScheduledGames); $gameRoundNumber++) {
+                    $schedRoundGames = $arrScheduledGames[$gameRoundNumber];
+                    $subNumber = 1;
+                    foreach( $schedRoundGames as $schedGame ) {
+                        if ($schedGame[0] === null || $schedGame[1] === null) {
+                            continue;
+                        }
+                        $homePoulePlace = (($headtohead % 2) === 0) ? $schedGame[1] : $schedGame[0];
+                        $awayPoulePlace = (($headtohead % 2) === 0) ? $schedGame[0] : $schedGame[1];
+                        $games[] = $this->gameService->create(
+                            $poule, $homePoulePlace, $awayPoulePlace,
+                            $headToHeadNumber + $gameRoundNumber + 1, $subNumber++
+                        );
+                    }
+                }
             }
-            $this->em->getConnection()->commit();
-        } catch (\Exception $e) {
-            $this->em->getConnection()->rollBack();
-            throw $e;
         }
+        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+        if ($roundNumber->hasNext()) {
+            $games = array_merge( $games, $this->createHelper($roundNumber->getNext(), $startNextRound) );
+        }
+        return $games;
     }
 
     public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
@@ -80,22 +101,22 @@ class Service
             $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
 
-        $this->em->getConnection()->beginTransaction();
-        try {
+//        $this->em->getConnection()->beginTransaction();
+//        try {
             $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
             if ($roundNumber->hasNext()) {
                 $this->reschedule( $roundNumber->getNext(), $startNextRound );
             }
-            $this->em->getConnection()->commit();
-        } catch (\Exception $e) {
-            $this->em->getConnection()->rollBack();
-            throw $e;
-        }
-        return;
+//            $this->em->getConnection()->commit();
+//        } catch (\Exception $e) {
+//            $this->em->getConnection()->rollBack();
+//            throw $e;
+//        }
+//        return;
     }
 
     protected function rescheduleHelper(RoundNumber $roundNumber, \DateTimeImmutable $startDateTime){
-        $scheduleHelper = new ScheduleHelper($this, $this->gameRepos);
+        $scheduleHelper = new ScheduleHelper($this);
         return $scheduleHelper->reschedule( $roundNumber, $startDateTime );
     }
 
@@ -109,39 +130,16 @@ class Service
         return $this->calculateEndDateTime($roundNumber->getPrevious());
     }
 
-    protected function createHelper( RoundNumber $roundNumber )
-    {
-        foreach ($roundNumber->getPoules() as $poule) {
-            $arrScheduledGames = $this->generateRRSchedule($poule->getPlaces()->toArray());
-            $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
-            for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
-                $headToHeadNumber = (($headtohead - 1) * count($arrScheduledGames));
-                for ($gameRoundNumber = 0; $gameRoundNumber < count($arrScheduledGames); $gameRoundNumber++) {
-                    $schedRoundGames = $arrScheduledGames[$gameRoundNumber];
-                    $subNumber = 1;
-                    foreach( $schedRoundGames as $schedGame ) {
-                        if ($schedGame[0] === null || $schedGame[1] === null) {
-                            continue;
-                        }
-                        $homePoulePlace = (($headtohead % 2) === 0) ? $schedGame[1] : $schedGame[0];
-                        $awayPoulePlace = (($headtohead % 2) === 0) ? $schedGame[0] : $schedGame[1];
-                        $gameTmp = $this->gameService->create(
-                            $poule, $homePoulePlace, $awayPoulePlace,
-                            $headToHeadNumber + $gameRoundNumber + 1, $subNumber++
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array
+    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order, bool $recursive = false ): array
     {
         $games = [];
         foreach( $roundNumber->getPoules() as $poule ) {
             $games = array_merge( $games, $poule->getGames()->toArray());
         }
         $this->orderGames($games, $order, !$roundNumber->isFirst());
+        if( $recursive === true && $roundNumber->hasNext() ) {
+            $games = array_merge( $games, $this->getGamesForRoundNumber($roundNumber->getNext(), $order, $recursive ) );
+        }
         return $games;
     }
 

@@ -112,7 +112,7 @@ class Handler
         } elseif ($resourceType === 'structures') {
             $action = new Voetbal\Action\Structure(
                 $voetbalservice->getService(Voetbal\Structure::class),
-                $voetbalservice->getRepository(Voetbal\Round::class),
+                new Voetbal\Structure\Repository($em),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer, $em
             );

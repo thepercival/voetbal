@@ -35,7 +35,7 @@ Voetbal\Competition:
             targetEntity: Voetbal\Field
             mappedBy: competition
             fetch: EXTRA_LAZY
-            cascade: [ persist, remove ]
+            cascade: [ remove ] # persist removed
 #        externals:
 #          targetEntity: Voetbal\Competition
 #          mappedBy: importableObject

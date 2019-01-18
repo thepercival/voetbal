@@ -22,13 +22,13 @@ Voetbal\Poule:
     places:
       targetEntity: Voetbal\PoulePlace
       mappedBy: poule
-      cascade: [ persist, remove ]
+      cascade: [ persist, remove ] # persist removed
       orderBy:
         number: asc
     games:
       targetEntity: Voetbal\Game
       mappedBy: poule
-      cascade: [ persist, remove ]
+      cascade: [ remove ] # persist removed
   manyToOne:
     round:
       targetEntity: Voetbal\Round
@@ -38,7 +38,7 @@ Voetbal\Poule:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-      cascade: [ persist ]
+      # cascade: [ persist ]
   uniqueConstraints:
     number_u_idx:
       columns: [ roundid, number ]

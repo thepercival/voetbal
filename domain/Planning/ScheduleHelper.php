@@ -20,15 +20,10 @@ class ScheduleHelper
      * @var PlanningService
      */
     protected $planningService;
-    /**
-     * @var GameRepository
-     */
-    protected $gameRepository;
 
-    public function __construct( PlanningService $planningService, GameRepository $gameRepository )
+    public function __construct( PlanningService $planningService )
     {
         $this->planningService = $planningService;
-        $this->gameRepository = $gameRepository;
     }
     
     public function reschedule(RoundNumber $roundNumber,  \DateTimeImmutable $startDateTime) {
@@ -118,7 +113,6 @@ class ScheduleHelper
             $currentField = $poulesFields->getField($fieldNr);
             foreach( $gamesPerRoundNumber as $game  ) {
                 $game->setField($currentField);
-                $this->gameRepository->save($game);
                 $currentField = $poulesFields->getField(++$fieldNr);
                 if ($currentField === null) {
                     $fieldNr = 0;
@@ -135,7 +129,6 @@ class ScheduleHelper
             $currentReferee = $poulesReferees->getReferee($refNr);
             foreach( $gamesPerRoundNumber as $game ) {
                 $game->setReferee($currentReferee);
-                $this->gameRepository->save($game);
                 $currentReferee = $poulesReferees->getReferee(++$refNr);
                 if ($currentReferee === null) {
                     $refNr = 0;
@@ -160,7 +153,6 @@ class ScheduleHelper
                 foreach( $resourceBatchGames as $game ) {
                     $game->setStartDateTime($dateTime);
                     $game->setResourceBatch($resourceBatch);
-                    $this->gameRepository->save($game);
                     if ( array_key_exists( $game->getId(), $gamesPerRoundNumber) === false ) {
                         continue;
                     }

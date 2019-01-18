@@ -159,19 +159,15 @@ class Service
         $round = new Round($roundNumber, $p_parent);
         $round->setWinnersOrLosers( $winnersOrLosers );
         $round->setQualifyOrder( $qualifyOrder );
-        $this->updatePoulesFromSerialized( $round, $poulesSer );
+        foreach( $poulesSer as $pouleSer ) {
+            $this->pouleService->createFromSerialized( $round, $pouleSer->getNumber(), $pouleSer->getPlaces()->toArray() );
+        }
         return $round;
     }
 
-    public function updateOptions( Round $round, int $qualifyOrder, ConfigOptions $configOptions )
+    // eerst alle poules verwijderen en daarna
+    /*public function updatePoulesFromSerialized( Round $round, array $poulesSer )
     {
-        throw new \Exception("convert to numberrr", E_ERROR );
-        $round->setQualifyOrder( $qualifyOrder );
-        $this->configService->update($round->getConfig(), $configOptions);
-    }
-
-    public function updatePoulesFromSerialized( Round $round, array $poulesSer ) {
-
         $pouleIds = $this->getNewPouleIds( $poulesSer );
         $poulePlacesSer = $this->getPlacesFromPoules( $poulesSer );
         $placeIds = $this->getNewPlaceIds( $poulePlacesSer );
@@ -183,9 +179,9 @@ class Service
         $this->pouleService->updateFromSerialized( $poulesSer, $round);
         // $em->persist($round);
         $em->flush();
-    }
+    }*/
 
-    protected function getNewPouleIds( array $poulesSer )
+    /*protected function getNewPouleIds( array $poulesSer )
     {
         $pouleIds = [];
         foreach( $poulesSer as $pouleSer ) {
@@ -238,7 +234,7 @@ class Service
                 // var_dump("pouleplace with id ".$place->getId()." removed " );
             }
         }
-    }
+    }*/
 
     /**
      * @param Round $round

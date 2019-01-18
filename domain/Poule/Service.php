@@ -75,45 +75,43 @@ class Service
      * @param Round $round
      * @throws \Exception
      */
-    public function updateFromSerialized( array $poulesSer, Round $round)
+    public function createFromSerialized( Round $round, int $number, array $placesSer )
     {
-        foreach( $poulesSer as $pouleSer ) {
-            if( $pouleSer->getId() !== null ) {
-                continue;
-            }
-            $poule = $this->create( $round, $pouleSer->getNumber() );
-            $this->poulePlaceRepos->getEM()->persist($poule);
+        $poule = $this->create( $round, $number );
+        foreach( $placesSer as $placeSer ) {
+            $this->poulePlaceService->create( $poule, $placeSer->getNumber(), $placeSer->getTeam() );
         }
 
-        foreach( $poulesSer as $pouleSer ) {
-            $poule = $round->getPoule($pouleSer->getNumber());
-            if ($poule === null) {
-                throw new \Exception("bij de plek kon geen poule gevonden worden ", E_ERROR);
-            }
-            foreach ($pouleSer->getPlaces() as $poulePlaceSer) {
-                $team = $poulePlaceSer->getTeam();
-                if ($team !== null && $team->getId() !== null) {
-                    $team = $this->teamRepos->find($team->getId());
-                }
-                $poulePlace = null;
-                if ($poulePlaceSer->getId() !== null) {
-                    $poulePlace = $this->poulePlaceRepos->find($poulePlaceSer->getId());
-                }
-                if ($poulePlace === null) {
-                    $poulePlace = $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $team);
-                }
-                else {
-                    $poulePlace->setTeam($team);
-                    if ($pouleSer->getNumber() !== $poulePlace->getPoule()->getNumber()
-                        || $poulePlaceSer->getNumber() !== $poulePlace->getNumber()
-                    ) {
-                        $this->poulePlaceService->move($poulePlace,
-                            $pouleSer->getNumber(), $poulePlaceSer->getNumber());
-                    }
-                }
-                // $this->poulePlaceRepos->getEM()->persist($poulePlace);
-            }
-        }
+
+//        foreach( $poulesSer as $pouleSer ) {
+//            $poule = $round->getPoule($pouleSer->getNumber());
+//            if ($poule === null) {
+//                throw new \Exception("bij de plek kon geen poule gevonden worden ", E_ERROR);
+//            }
+//            foreach ($pouleSer->getPlaces() as $poulePlaceSer) {
+//                $team = $poulePlaceSer->getTeam();
+//                if ($team !== null && $team->getId() !== null) {
+//                    $team = $this->teamRepos->find($team->getId());
+//                }
+//                $poulePlace = null;
+//                if ($poulePlaceSer->getId() !== null) {
+//                    $poulePlace = $this->poulePlaceRepos->find($poulePlaceSer->getId());
+//                }
+//                if ($poulePlace === null) {
+//                    $poulePlace = $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $team);
+//                }
+//                else {
+//                    $poulePlace->setTeam($team);
+//                    if ($pouleSer->getNumber() !== $poulePlace->getPoule()->getNumber()
+//                        || $poulePlaceSer->getNumber() !== $poulePlace->getNumber()
+//                    ) {
+//                        $this->poulePlaceService->move($poulePlace,
+//                            $pouleSer->getNumber(), $poulePlaceSer->getNumber());
+//                    }
+//                }
+//                // $this->poulePlaceRepos->getEM()->persist($poulePlace);
+//            }
+//        }
         return;
     }
 

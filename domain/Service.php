@@ -40,6 +40,8 @@ class Service
 
         if ($classname === Association::class) {
             return new Association\Service($repos);
+        } elseif ($classname === Team::class) {
+            return new Team\Service();
         } elseif ($classname === Field::class) {
             return new Field\Service($repos);
         } elseif ($classname === Referee::class) {
