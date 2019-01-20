@@ -9,9 +9,9 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Round\Config as RoundNumberConfig;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
-use Doctrine\ORM\EntityManager;
 use Voetbal\Game;
 
 class Service
@@ -26,19 +26,12 @@ class Service
      */
     protected $gameRepos;
 
-    /**
-     * @var EntityManager
-     */
-    protected $em;
-
     public function __construct(
         GameService $gameService,
-        GameRepos $gameRepos,
-        EntityManager $em )
+        GameRepos $gameRepos )
     {
         $this->gameService = $gameService;
         $this->gameRepos = $gameRepos;
-        $this->em = $em;
     }
 
     public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array {
@@ -115,9 +108,52 @@ class Service
 //        return;
     }
 
-    protected function rescheduleHelper(RoundNumber $roundNumber, \DateTimeImmutable $startDateTime){
-        $scheduleHelper = new ScheduleHelper($this);
-        return $scheduleHelper->reschedule( $roundNumber, $startDateTime );
+    protected function rescheduleHelper(RoundNumber $roundNumber, \DateTimeImmutable $pStartDateTime = null): \DateTimeImmutable {
+        $dateTime = ($pStartDateTime !== null) ? clone $pStartDateTime : null;
+        $fields = $roundNumber->getCompetition()->getFields()->toArray();
+        $referees = $roundNumber->getCompetition()->getReferees()->toArray();
+        $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $roundNumber->getConfig(), $dateTime, $fields, $referees);
+        if ($nextDateTime !== null) {
+            return $nextDateTime->modify("+" . $roundNumber->getConfig()->getMinutesAfter() . " minutes");
+        }
+        return $nextDateTime;
+    }
+
+    /**
+     * @param RoundNumber $roundNumber
+     * @param RoundNumberConfig $roundNumberConfig
+     * @param \DateTimeImmutable $dateTime
+     * @param array | Field[] $fields
+     * @param array | Referee[] $referees
+     * @return \DateTimeImmutable
+     */
+    protected function assignResourceBatchToGames(
+        RoundNumber $roundNumber,
+        RoundNumberConfig $roundNumberConfig,
+        \DateTimeImmutable $dateTime,
+        array $fields,
+        array $referees): ?\DateTimeImmutable
+    {
+        $gamesToProcess = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
+        $resourceService = new ResourceService(
+            $dateTime, $roundNumberConfig->getMaximalNrOfMinutesPerGame(), $roundNumberConfig->getMinutesBetweenGames());
+        $resourceService->setBlockedPeriod($this->blockedPeriod);
+        $resourceService->setFields($fields);
+        $resourceService->setReferees($referees);
+        while (count($gamesToProcess) > 0) {
+            $gameToProcess = $resourceService->getAssignableGame($gamesToProcess);
+            if ($gameToProcess === null) {
+                $resourceService->nextResourceBatch();
+                $gameToProcess = $resourceService->getAssignableGame($gamesToProcess);
+            }
+            $resourceService->assign($gameToProcess);
+            $index = array_search($gameToProcess,$gamesToProcess);
+            if ($index === false) {
+                return null;
+            }
+            array_splice($gamesToProcess,$index,1);
+        }
+        return $resourceService->getEndDateTime();
     }
 
     public function calculateStartDateTime(RoundNumber $roundNumber): \DateTimeImmutable {
@@ -130,63 +166,69 @@ class Service
         return $this->calculateEndDateTime($roundNumber->getPrevious());
     }
 
-    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order, bool $recursive = false ): array
-    {
+    public static function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array { // Game[]
+
+        $rounds = $roundNumber->getRounds()->toArray();
+        if (!$roundNumber->isFirst() ) {
+            uasort( $rounds, function($r1, $r2) { return static::getRoundPathAsNumber($r1) - static::getRoundPathAsNumber($r2); });
+        }
+
         $games = [];
-        foreach( $roundNumber->getPoules() as $poule ) {
-            $games = array_merge( $games, $poule->getGames()->toArray());
+        foreach( $rounds as $round ) {
+            $poules = $round->getPoules()->toArray();
+            if ($roundNumber->isFirst()) {
+                uasort($poules, function($p1, $p2) { return $p1->getNumber() - $p2->getNumber(); });
+            } else {
+                uasort($poules, function($p1, $p2) { return $p2->getNumber() - $p1->getNumber(); });
+            }
+            foreach( $poules as $poule ) {
+                $games = array_merge($games,$poule->getGames()->toArray());
+            }
         }
-        $this->orderGames($games, $order, !$roundNumber->isFirst());
-        if( $recursive === true && $roundNumber->hasNext() ) {
-            $games = array_merge( $games, $this->getGamesForRoundNumber($roundNumber->getNext(), $order, $recursive ) );
-        }
-        return $games;
+        return static::orderGames($games, $order);
     }
 
-    public function orderGames(array &$games, int $order, bool $pouleNumberReversed = false): array {
+    protected static function getRoundPathAsNumber(Round $round): int {
+        $value = 0;
+        $path = $round->getPath();
+        $pow = count($path);
+        foreach( $path as $winnersOrLosers ) {
+            $value += $winnersOrLosers === Round::WINNERS ? pow(2, $pow) : 0;
+            $pow--;
+        }
+        return $value;
+    }
+
+    public static function orderGames(array $games, int $order): array {
         if ($order === Game::ORDER_BYNUMBER) {
-            uasort( $games, function($g1, $g2) use ($pouleNumberReversed) {
+            uasort( $games, function($g1, $g2) {
                 if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
-                    if ($g1->getSubNumber() === $g2->getSubNumber()) {
-                        if ($pouleNumberReversed === true) {
-                            return $g2->getPoule()->getNumber() - $g1->getPoule()->getNumber();
-                        } else {
-                            return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
-                        }
-                    }
                     return $g1->getSubNumber() - $g2->getSubNumber();
                 }
                 return $g1->getRoundNumber() - $g2->getRoundNumber();
             });
             return $games;
         }
-        uasort( $games, function($g1, $g2) use ($pouleNumberReversed) {
+        uasort( $games, function($g1, $g2) {
             if ($g1->getConfig()->getEnableTime()) {
-                if( $g1->getStartDateTime() == $g2->getStartDateTime() ) {
-                    if( $g1->getField() !== null and $g2->getField() !== null ) {
-                        return ($g1->getField()->getNumber() < $g2->getField()->getNumber() ? -1 : 1);
-                    }
-                    return 0;
+                if( !($g1->getStartDateTime() == $g2->getStartDateTime() ) ) {
+                    return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
                 }
-                return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
             } else {
                 if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
                     return $g1->getResourceBatch() - $g2->getResourceBatch();
                 }
             }
-            // like order === Game.ORDER_BYNUMBER
+            // like order === Game::ORDER_BYNUMBER
             if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
                 if ($g1->getSubNumber() === $g2->getSubNumber()) {
-                    if ($pouleNumberReversed === true) {
-                        return $g2->getPoule()->getNumber() - $g1->getPoule()->getNumber();
-                    } else {
-                        return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
-                    }
+                    return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
                 }
-                return $g1->getSubNumber() - $g2->getSubNumber();
+               return $g1->getSubNumber() - $g2->getSubNumber();
             }
             return $g1->getRoundNumber() - $g2->getRoundNumber();
         });
+        return $games;
     }
 
     protected function determineReferee()

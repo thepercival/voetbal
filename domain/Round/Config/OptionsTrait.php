@@ -32,7 +32,7 @@ trait OptionsTrait
     protected $drawPoints;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $hasExtension;
 
@@ -52,7 +52,7 @@ trait OptionsTrait
     protected $minutesPerGameExt;
 
     /**
-     * @var boolean
+     * @var bool
      */
     protected $enableTime;
 
@@ -117,58 +117,6 @@ trait OptionsTrait
     /**
      * @return double
      */
-    public function getWinPoints()
-    {
-        return $this->winPoints;
-    }
-
-    /**
-     * @param $winPoints
-     */
-    public function setWinPoints($winPoints)
-    {
-        $this->winPoints = $winPoints;
-    }
-
-    /**
-     * @return double
-     */
-    public function getDrawPoints()
-    {
-        return $this->drawPoints;
-    }
-
-    /**
-     * @param $drawPoints
-     */
-    public function setDrawPoints($drawPoints)
-    {
-        $this->drawPoints = $drawPoints;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getHasExtension()
-    {
-        return $this->hasExtension;
-    }
-
-    /**
-     * @param $hasExtension
-     */
-    public function setHasExtension($hasExtension)
-    {
-        if (!is_bool($hasExtension)) {
-            throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
-        }
-
-        $this->hasExtension = $hasExtension;
-    }
-
-    /**
-     * @return double
-     */
     public function getWinPointsExt()
     {
         return $this->winPointsExt;
@@ -199,26 +147,7 @@ trait OptionsTrait
     }
 
     /**
-     * @return int
-     */
-    public function getMinutesPerGameExt()
-    {
-        return $this->minutesPerGameExt;
-    }
-
-    /**
-     * @param $minutesPerGameExt
-     */
-    public function setMinutesPerGameExt($minutesPerGameExt)
-    {
-        if ($minutesPerGameExt !== null and !is_int($minutesPerGameExt)) {
-            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
-        }
-        $this->minutesPerGameExt = $minutesPerGameExt;
-    }
-
-    /**
-     * @return boolean
+     * @return bool
      */
     public function getEnableTime()
     {
@@ -239,25 +168,6 @@ trait OptionsTrait
     /**
      * @return int
      */
-    public function getMinutesPerGame()
-    {
-        return $this->minutesPerGame;
-    }
-
-    /**
-     * @param $minutesPerGame
-     */
-    public function setMinutesPerGame($minutesPerGame)
-    {
-        if ($minutesPerGame !== null and !is_int($minutesPerGame)) {
-            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd heeft een onjuiste waarde", E_ERROR);
-        }
-        $this->minutesPerGame = $minutesPerGame;
-    }
-
-    /**
-     * @return int
-     */
     public function getMinutesBetweenGames()
     {
         return $this->minutesBetweenGames;
@@ -273,7 +183,7 @@ trait OptionsTrait
         }
         $this->minutesBetweenGames = $minutesBetweenGames;
     }
-    
+
     /**
      * @return int
      */
@@ -318,6 +228,64 @@ trait OptionsTrait
         return $nrOfMinutes;
     }
 
+    /**
+     * @return int
+     */
+    public function getMinutesPerGame()
+    {
+        return $this->minutesPerGame;
+    }
+
+    /**
+     * @param $minutesPerGame
+     */
+    public function setMinutesPerGame($minutesPerGame)
+    {
+        if ($minutesPerGame !== null and !is_int($minutesPerGame)) {
+            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesPerGame = $minutesPerGame;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHasExtension()
+    {
+        return $this->hasExtension;
+    }
+
+    /**
+     * @param $hasExtension
+     */
+    public function setHasExtension($hasExtension)
+    {
+        if (!is_bool($hasExtension)) {
+            throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+
+        $this->hasExtension = $hasExtension;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinutesPerGameExt()
+    {
+        return $this->minutesPerGameExt;
+    }
+    
+    /**
+     * @param $minutesPerGameExt
+     */
+    public function setMinutesPerGameExt($minutesPerGameExt)
+    {
+        if ($minutesPerGameExt !== null and !is_int($minutesPerGameExt)) {
+            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesPerGameExt = $minutesPerGameExt;
+    }
+
     protected function setDefaults()
     {
         $this->setQualifyRule( QualifyRule::SOCCERWORLDCUP );
@@ -331,6 +299,38 @@ trait OptionsTrait
         $this->setEnableTime( Options::ENABLETIME );
         $this->setMinutesPerGame( 0 );
         $this->setMinutesAfter( 0 );
+    }
+
+    /**
+     * @return double
+     */
+    public function getWinPoints()
+    {
+        return $this->winPoints;
+    }
+
+    /**
+     * @param $winPoints
+     */
+    public function setWinPoints($winPoints)
+    {
+        $this->winPoints = $winPoints;
+    }
+
+    /**
+     * @return double
+     */
+    public function getDrawPoints()
+    {
+        return $this->drawPoints;
+    }
+
+    /**
+     * @param $drawPoints
+     */
+    public function setDrawPoints($drawPoints)
+    {
+        $this->drawPoints = $drawPoints;
     }
 
 }

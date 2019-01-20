@@ -20,4 +20,4 @@ Voetbal\Competition:
       type: ArrayCollection<Voetbal\Referee>
 #  virtual_properties:
 #    hasStructure:
-#      type: boolean
+#      type: bool

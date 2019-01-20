@@ -15,7 +15,7 @@ Voetbal\Round\Config:
     drawPoints:
       type: float
     hasExtension:
-      type: boolean
+      type: bool
     winPointsExt:
       type: float
     drawPointsExt:
@@ -25,7 +25,7 @@ Voetbal\Round\Config:
     minutesPerGame:
       type: integer
     enableTime:
-      type: boolean
+      type: bool
     minutesBetweenGames:
       type: integer
     minutesAfter:
