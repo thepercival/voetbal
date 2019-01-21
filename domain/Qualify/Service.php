@@ -35,98 +35,65 @@ class Service
 
         $parentRoundPoulePlacesPer = $this->getParentPoulePlacesPer();
 
-        $nrOfShifts = 0;
+        $poulePlaceDivider = new PoulePlaceDivider($this->childRound);
         while (count($childRoundPoulePlaces) > 0 && count( $parentRoundPoulePlacesPer) > 0) {
             $qualifyRule = new Rule($this->parentRound, $this->childRound);
-            // from places
-            $nrOfPoulePlaces = null;
+
+            $poulePlaces = array_shift( $parentRoundPoulePlacesPer );
+            $nrOfToPoulePlaces = count($poulePlaces);
+            if ( $this->childRound->getWinnersOrLosers() === Round::LOSERS
+                && $this->childRound->getQualifyOrder() === Round::QUALIFYORDER_CROSS
+                && (count($childRoundPoulePlaces) % $nrOfToPoulePlaces) !== 0)
             {
-                $poulePlaces = array_shift( $parentRoundPoulePlacesPer );
-                if ($this->childRound->getQualifyOrder() === Round::QUALIFYORDER_CROSS) {
-                    $poulePlaces = $this->getShuffledPoulePlaces($poulePlaces, $nrOfShifts, $this->childRound);
-                    $nrOfShifts++;
-                }
-                foreach( $poulePlaces as $poulePlaceIt) {
-                    $qualifyRule->addFromPoulePlace($poulePlaceIt);
-                }
-                $nrOfPoulePlaces = count( $poulePlaces);
-                if ( $nrOfPoulePlaces > 0 && $this->childRound->getWinnersOrLosers() === Round::LOSERS
-                    && $this->childRound->getQualifyOrder() === Round::QUALIFYORDER_CROSS
-                    && (count($childRoundPoulePlaces) % $nrOfPoulePlaces) !== 0) {
-                    $nrOfPoulePlaces = (count($childRoundPoulePlaces) % $nrOfPoulePlaces);
-                }
-            }
-            if ($nrOfPoulePlaces === 0) {
-                break;
+                $nrOfToPoulePlaces = (count($childRoundPoulePlaces) % $nrOfToPoulePlaces);
             }
             // to places
-            for ($nI = 0; $nI < $nrOfPoulePlaces; $nI++) {
+            for ($nI = 0; $nI < $nrOfToPoulePlaces; $nI++) {
                 if (count($childRoundPoulePlaces) === 0) {
                     break;
                 }
-                $toPoulePlace = array_shift( $childRoundPoulePlaces );
-                $qualifyRule->addToPoulePlace($toPoulePlace);
+                $qualifyRule->addToPoulePlace( array_shift( $childRoundPoulePlaces ) );
             }
+            $poulePlaceDivider->divide($qualifyRule, $poulePlaces);
         }
-    }
-
-    protected function getShuffledPoulePlaces(array $poulePlaces, int $nrOfShifts, Round $childRound): array {
-        $shuffledPoulePlaces = [];
-        $qualifyOrder = $childRound->getQualifyOrder();
-        if (!$childRound->hasCustomQualifyOrder() ) {
-            if ((count($poulePlaces) % 2) === 0) {
-                for ($shiftTime = 0; $shiftTime < $nrOfShifts; $shiftTime++) {
-                    $poulePlaces[] = array_shift($poulePlaces);
-                }
-            }
-            $shuffledPoulePlaces = $poulePlaces;
-        } else if ($qualifyOrder === 4) { // shuffle per two on oneven placenumbers, horizontal-children
-            if ( ($poulePlaces[0]->getNumber() % 2 ) === 0) {
-                while (count($poulePlaces) > 0) {
-                    $reversedRemovedPlaced = array_reverse( array_splice($poulePlaces, 0, 2) );
-                    $shuffledPoulePlaces = array_merge( $shuffledPoulePlaces, $reversedRemovedPlaced);
-                }
-            } else {
-                $shuffledPoulePlaces = $poulePlaces;
-            }
-        } else if ($qualifyOrder === 5) { // reverse second and third item, vertical-children
-            if ((count($poulePlaces) % 4) === 0) {
-                while (count($poulePlaces) > 0) {
-                    $removedPlaced = array_splice($poulePlaces, 0, 4);
-                    $removedPlaced = array_splice($removedPlaced, 1, 0, array_splice($removedPlaced, 2, 1));
-                    $shuffledPoulePlaces = array_merge($shuffledPoulePlaces, $removedPlaced);
-                }
-            } else {
-                $shuffledPoulePlaces = $poulePlaces;
-            }
-        }
-        return $shuffledPoulePlaces;
     }
 
     protected function getParentPoulePlacesPer(): array
     {
-        /** LOSERS
-         * [ C3 B3 A3 ]
-         *  [ C2 B2 A2 ]
-         *  [ C1 B1 A1 ]
-         */
-        $nrOfChildRoundPlaces = count($this->childRound->getPoulePlaces());
         if ($this->childRound->getQualifyOrder() !== Round::QUALIFYORDER_RANK) {
-            $poulePlacesPerNumber = $this->parentRound->getPoulePlacesPerNumber(Round::WINNERS);
-            if ($this->childRound->getWinnersOrLosers() === Round::LOSERS) {
-                $poulePlacesPerNumber = array_reverse($poulePlacesPerNumber);
-                $spliceIndexReversed = null;
-                for ($i = 0, $x = 0; $i < count($poulePlacesPerNumber); $i++) {
-                    if ($x >= $nrOfChildRoundPlaces) {
-                        $spliceIndexReversed = $i; break;
-                    }
-                    $x += count($poulePlacesPerNumber[$i]);
-                }
-                array_splice($poulePlacesPerNumber, $spliceIndexReversed);
-                $poulePlacesPerNumber = array_reverse($poulePlacesPerNumber);
-            }
-            return $poulePlacesPerNumber;
+            return $this->getParentPoulePlacesPerNumber();
         }
+        return $this->getParentPoulePlacesPerQualifyRule();
+    }
+
+    protected function getParentPoulePlacesPerNumber(): array
+    {
+        if ($this->childRound->getWinnersOrLosers() === Round::WINNERS) {
+            return $this->parentRound->getPoulePlacesPerNumber(Round::WINNERS);
+        }
+        $poulePlacesPerNumber = [];
+        $nrOfPoules = $this->parentRound->getPoules()->count();
+        $reversedPoulePlaces = $this->parentRound->getPoulePlaces(Round::ORDER_NUMBER_POULE, true);
+        $nrOfChildRoundPlaces = count($this->childRound->getPoulePlaces());
+        while($nrOfChildRoundPlaces > 0 ) {
+            $tmp = array_splice($reversedPoulePlaces,0, $nrOfPoules);
+            $tmp = array_reverse($tmp);
+            $tmp = array_filter( $tmp, function( $poulePlace ) {
+                $toQualifyRule = $poulePlace->getToQualifyRule(Round::WINNERS);
+                return $toQualifyRule === null || $toQualifyRule->isMultiple();
+            });
+            // if( tmp.length > nrOfChildRoundPlaces ) {
+            //     tmp = tmp.splice(0,nrOfChildRoundPlaces);
+            // }
+            array_unshift($poulePlacesPerNumber,$tmp);
+            $nrOfChildRoundPlaces -= $nrOfPoules;
+        }
+        return $poulePlacesPerNumber;
+    }
+
+    protected function getParentPoulePlacesPerQualifyRule(): array
+    {
+        $nrOfChildRoundPlaces = count($this->childRound->getPoulePlaces());
 
         $poulePlacesToAdd = $this->getPoulePlacesPerParentFromQualifyRule();
         if ($this->childRound->getWinnersOrLosers() === Round::LOSERS) {

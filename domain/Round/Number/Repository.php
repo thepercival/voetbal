@@ -8,11 +8,12 @@
 
 namespace Voetbal\Round\Number;
 
+use Voetbal\Competition;
+
 /**
  * Round
  *
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

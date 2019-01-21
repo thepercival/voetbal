@@ -14,48 +14,50 @@ namespace Voetbal;
  */
 class Referee
 {
+    const MIN_LENGTH_INITIALS = 1;
+    const MAX_LENGTH_INITIALS = 3;
+    const MIN_LENGTH_NAME = 1;
+    const MAX_LENGTH_NAME = 30;
+    const MIN_LENGTH_EMAIL = 6;
+    const MAX_LENGTH_EMAIL = 100;
+    const MAX_LENGTH_INFO = 200;
     /**
      * @var int
      */
     private $id;
-
     /**
      * @var string
      */
     private $initials;
-
     /**
      * @var string
      */
     private $name;
-
     /**
      * @var string
      */
     private $emailaddress;
-
     /**
      * @var string
      */
     private $info;
-
     /**
      * @var Competition
      */
     private $competition;
 
-    const MIN_LENGTH_INITIALS = 1;
-    const MAX_LENGTH_INITIALS = 3;
-    const MIN_LENGTH_NAME = 1;
-    const MAX_LENGTH_NAME = 15;
-    const MIN_LENGTH_EMAIL = 6;
-    const MAX_LENGTH_EMAIL = 100;
-    const MAX_LENGTH_INFO = 200;
-
     public function __construct( Competition $competition, $initials )
     {
         $this->setInitials( $initials );
         $this->setCompetition( $competition );
+    }
+
+    /**
+     * @param Competition $Competition
+     */
+    private function setCompetition( Competition $competition )
+    {
+        $this->competition = $competition;
     }
 
     /**
@@ -173,13 +175,5 @@ class Referee
     public function getCompetition()
     {
         return $this->competition;
-    }
-
-    /**
-     * @param Competition $Competition
-     */
-    private function setCompetition( Competition $competition )
-    {
-        $this->competition = $competition;
     }
 }

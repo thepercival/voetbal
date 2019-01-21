@@ -32,12 +32,6 @@ class AssociationTest extends \PHPUnit\Framework\TestCase
 
 	public function testCreateNameCharactersTwo()
 	{
-		$this->expectException(\InvalidArgumentException::class);
-		$association = new Association("K.N.V.B");
-	}
-
-	public function testCreateNameCharactersThree()
-	{
 		$association = new Association("KNVB");
 		$this->assertEquals("KNVB", $association->getName() );
 	}

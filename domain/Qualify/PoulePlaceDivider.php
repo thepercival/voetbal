@@ -9,7 +9,6 @@
 namespace Voetbal\Qualify;
 
 use Voetbal\Round;
-use Voetbal\QualifyRule;
 use Voetbal\PoulePlace;
 use Voetbal\Poule;
 
@@ -39,7 +38,7 @@ class PoulePlaceDivider {
         $this->crossFinals = $childRound->getQualifyOrder() === Round::QUALIFYORDER_CROSS;
     }
 
-    public function divide( QualifyRule $qualifyRule, array $fromPoulePlaces) {
+    public function divide( Rule $qualifyRule, array $fromPoulePlaces) {
         $nrOfShifts = 0; $maxShifts = count( $fromPoulePlaces );
         $isMultiple = count( $fromPoulePlaces ) > count( $qualifyRule->getToPoulePlaces() );
         while ( count( $fromPoulePlaces ) > 0 ) {
@@ -75,7 +74,7 @@ class PoulePlaceDivider {
             return $reservationIt->toPouleNr === $toPouleNumber;
         });
         $reservation = reset( $reservationsFound );
-        return ( array_search($fromPoule, $reservation->fromPoules) !== false );
+        return ( array_search($fromPoule, $reservation->fromPoules) === false );
     }
 
     protected function reservePoule( Poule $fromPoule ) {

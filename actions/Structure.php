@@ -82,8 +82,10 @@ final class Structure
         ;
     }
 
+
     public function add( $request, $response, $args)
     {
+        $this->em->getConnection()->beginTransaction();
         try {
             /** @var \Voetbal\Structure $structureSer */
             $structureSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
@@ -98,15 +100,15 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            // 1 controleer als er al een ronde of rondenummer is : do find on rounds and roundnumbers
-            // 2a zoja, geef foutmelding
-            // 2b zonee, create structuur
-            // 3 schrijf weg
-
-
+            $roundNumberAsValue = 1;
+            $roundNumber = $this->repos->findOneBy(array("competition" => $competition, "number" => $roundNumberAsValue));
+            if( $roundNumber ) {
+                throw new \Exception("er is al een structuur aanwezig", E_ERROR);
+            }
 
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
             $this->repos->customPersist($structure);
+            $this->em->getConnection()->commit();
 
             return $response
                 ->withStatus(201)
@@ -115,12 +117,14 @@ final class Structure
             ;
         }
         catch( \Exception $e ){
+            $this->em->getConnection()->rollBack();
             return $response->withStatus( 422 )->write( $e->getMessage() );
         }
     }
 
     public function edit( $request, $response, $args)
     {
+        $this->em->getConnection()->beginTransaction();
         try {
             /** @var \Voetbal\Structure $structureSer */
             $structureSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
@@ -132,15 +136,12 @@ final class Structure
                 throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            // 1 controleer als er al een ronde of rondenummer is : do find on rounds and roundnumbers
-            // 2a zonee, geef foutmelding
-            // 2b zoja, verwijder en create structuur
-            // 3 schrijf weg
-
             $roundNumber = 1;
             $this->repos->remove( $competition, $roundNumber );
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
             $this->repos->customPersist($structure, $roundNumber);
+
+            $this->em->getConnection()->commit();
 
             return $response
                 ->withStatus(200)
@@ -149,25 +150,17 @@ final class Structure
             ;
         }
         catch( \Exception $e ){
+            $this->em->getConnection()->rollBack();
             return $response->withStatus(422 )->write( $e->getMessage() );
         }
     }
 
     public function remove( $request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             throw new \Exception("er is geen competitie zonder structuur mogelijk", E_ERROR);
-
-            $competition = $this->competitionRepos->find( (int) $args['id'] );
-            if ($competition === null) {
-                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-            $this->repos->remove($competition);
-            return $response->withStatus(204);
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write($e->getMessage());
         }
-        return $response->withStatus(404)->write($sErrorMessage);
     }
 }

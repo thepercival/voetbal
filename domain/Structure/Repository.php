@@ -10,6 +10,7 @@ namespace Voetbal\Structure;
 
 use Voetbal\Structure;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Competition;
 use Doctrine\ORM\EntityManagerInterface;
 
 /**
@@ -58,7 +59,21 @@ class Repository
         }
     }
 
-    public function remove(Structure $structure, int $roundNumberValue = null )
+    public function remove( Competition $competition, int $roundNumberAsValue = null )
+    {
+        if( $roundNumberAsValue === null ) {
+            $roundNumberAsValue = 1;
+        }
+        $roundNumberRepos = $this->em->getRepository(RoundNumber::class);
+        $roundNumber = $roundNumberRepos->findOneBy(array("competition" => $competition, "number" => $roundNumberAsValue));
+        if( $roundNumber === null ) {
+            return;
+        }
+        $this->em->remove($roundNumber);
+        $this->em->flush();
+    }
+
+    /*public function remove(Structure $structure, int $roundNumberValue = null )
     {
         $conn = $this->em->getConnection();
         $conn->beginTransaction();
@@ -74,6 +89,6 @@ class Repository
             $conn->rollBack();
             throw $e;
         }
-    }
+    }*/
 }
 
