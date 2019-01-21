@@ -8,11 +8,13 @@
 
 namespace Voetbal\Planning;
 
+use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Round\Config as RoundNumberConfig;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
 use Voetbal\Game;
+use League\Period;
 
 class Service
 {
@@ -26,12 +28,23 @@ class Service
      */
     protected $gameRepos;
 
+    /**
+     * @var Period
+     */
+    protected $blockedPeriod;
+
     public function __construct(
         GameService $gameService,
         GameRepos $gameRepos )
     {
         $this->gameService = $gameService;
         $this->gameRepos = $gameRepos;
+    }
+
+    public function setBlockedPeriod(\DateTimeImmutable $startDateTime, int $durationInMinutes) {
+        $endDateTime = clone $startDateTime;
+        $endDateTime->modify("+" . $durationInMinutes . " minutes");
+        $this->blockedPeriod = new Period($startDateTime, $endDateTime);
     }
 
     public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array {

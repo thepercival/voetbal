@@ -114,6 +114,7 @@ class Handler
                 $voetbalservice->getService(Voetbal\Structure::class),
                 new Voetbal\Structure\Repository($em),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
+                $voetbalservice->getService(Voetbal\Planning::class),
                 $serializer, $em
             );
         } elseif ($resourceType === 'planning') {

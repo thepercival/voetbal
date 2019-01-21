@@ -10,6 +10,7 @@ namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Structure\Service as StructureService;
+use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Doctrine\ORM\EntityManager;
@@ -29,6 +30,10 @@ final class Structure
      */
     protected $competitionRepos;
     /**
+     * @var PlanningService
+     */
+    protected $planningService;
+    /**
      * @var Serializer
      */
     protected $serializer;
@@ -41,13 +46,15 @@ final class Structure
         StructureService $service,
         StructureRepository $repos,
         CompetitionRepository $competitionRepos,
+        PlanningService $planningService,
         Serializer $serializer,
         EntityManager $em
     )
     {
+        $this->service = $service;
         $this->repos = $repos;
         $this->competitionRepos = $competitionRepos;
-        $this->service = $service;
+        $this->planningService = $planningService;
         $this->serializer = $serializer;
         $this->em = $em;
     }
@@ -100,9 +107,8 @@ final class Structure
                 throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
             }
 
-            $roundNumberAsValue = 1;
-            $roundNumber = $this->repos->findOneBy(array("competition" => $competition, "number" => $roundNumberAsValue));
-            if( $roundNumber ) {
+            $roundNumber = $this->repos->findRoundNumber($competition, 1);
+            if( $roundNumber !== null ) {
                 throw new \Exception("er is al een structuur aanwezig", E_ERROR);
             }
 
@@ -136,10 +142,16 @@ final class Structure
                 throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $roundNumber = 1;
-            $this->repos->remove( $competition, $roundNumber );
+            $roundNumberAsValue = 1;
+            $this->repos->remove( $competition, $roundNumberAsValue );
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
-            $this->repos->customPersist($structure, $roundNumber);
+            $roundNumber = $this->repos->customPersist($structure, $roundNumberAsValue);
+
+//            $games = $this->planningService->create( $roundNumber, $competition->getStartDateTime() );
+//            foreach( $games as $game ) {
+//                $this->em->persist($game);
+//            }
+//            $this->em->flush();
 
             $this->em->getConnection()->commit();
 
