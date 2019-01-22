@@ -149,7 +149,7 @@ class ResourceService
      * @param array | Game[] $gamesToProcess
      * @return Game
      */
-    public function getAssignableGame(array $gamesToProcess): Game {
+    public function getAssignableGame(array $gamesToProcess): ?Game {
         foreach( $gamesToProcess as $game ) {
             if( $this->isGameAssignable($game) ) {
                 return $game;

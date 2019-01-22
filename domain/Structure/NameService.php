@@ -69,30 +69,39 @@ class NameService
         return $pouleName;
     }
 
-    public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $teamName)
+    public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $teamName, bool $longName = null)
     {
         if ($teamName === true && $pouleplace->getTeam() !== null) {
             return $pouleplace->getTeam()->getName();
         }
         $fromQualifyRule = $pouleplace->getFromQualifyRule();
         if ($fromQualifyRule === null) { // first round
-            return $this->getPoulePlaceName($pouleplace, false);
+            return $this->getPoulePlaceName($pouleplace, false, $longName);
         }
 
         if ($fromQualifyRule->isMultiple() === false) {
             $fromPoulePlace = $fromQualifyRule->getFromEquivalent($pouleplace);
-            return $this->getPoulePlaceName($fromPoulePlace, false);
+            if ($longName !== true || $fromPoulePlace->getPoule()->needsRanking()) {
+                return $this->getPoulePlaceName($fromPoulePlace, false, $longName);
+            }
+            $name = $this->getWinnersLosersDescription($fromPoulePlace->getNumber() === 1 ? Round::WINNERS : Round::LOSERS);
+            return $name . ' ' . $this->getPouleName($fromPoulePlace->getPoule(), false);
+        }
+        if ($longName === true) {
+            return 'nr. ' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber() . ' poule ?';
         }
         return '?' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber();
     }
 
-    public function getPoulePlaceName(PoulePlace $poulePlace, bool $teamName)
+    public function getPoulePlaceName(PoulePlace $poulePlace, bool $teamName, bool $longName = null)
     {
         if ($teamName === true && $poulePlace->getTeam() !== null) {
             return $poulePlace->getTeam()->getName();
         }
-        $pouleplaceName = $this->getPouleName($poulePlace->getPoule(), false);
-        return $pouleplaceName . $poulePlace->getNumber();
+        if ($longName === true) {
+            return 'nr. ' . $poulePlace->getNumber() . ' ' . $this->getPouleName($poulePlace->getPoule(), true);
+        }
+        return $this->getPouleName($poulePlace->getPoule(), false) . $poulePlace->getNumber();
     }
 
     protected function getFractalNumber($number): string
