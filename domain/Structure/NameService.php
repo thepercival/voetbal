@@ -12,6 +12,7 @@ use Voetbal\PoulePlace;
 use Voetbal\Poule;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Qualify\Rule as QualifyRule;
 
 class NameService
 {
@@ -88,10 +89,19 @@ class NameService
             return $name . ' ' . $this->getPouleName($fromPoulePlace->getPoule(), false);
         }
         if ($longName === true) {
-            return 'nr. ' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber() . ' poule ?';
+            return 'poule ? nr. ' . $this->getMultipleRulePlaceName($fromQualifyRule);
         }
         return '?' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber();
     }
+
+    protected function getMultipleRulePlaceName(QualifyRule $qualifyRule): int {
+        $poulePlaces = $qualifyRule->getFromPoulePlaces();
+        if ($qualifyRule->getWinnersOrLosers() === Round::WINNERS) {
+            return $poulePlaces[0]->getNumber();
+        }
+        return $poulePlaces[count($poulePlaces) - 1]->getNumber();
+    }
+
 
     public function getPoulePlaceName(PoulePlace $poulePlace, bool $teamName, bool $longName = null)
     {
@@ -99,7 +109,7 @@ class NameService
             return $poulePlace->getTeam()->getName();
         }
         if ($longName === true) {
-            return 'nr. ' . $poulePlace->getNumber() . ' ' . $this->getPouleName($poulePlace->getPoule(), true);
+            return $this->getPouleName($poulePlace->getPoule(), true) . ' nr. ' . $poulePlace->getNumber();
         }
         return $this->getPouleName($poulePlace->getPoule(), false) . $poulePlace->getNumber();
     }

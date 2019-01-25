@@ -40,13 +40,9 @@ class Service
             $qualifyRule = new Rule($this->parentRound, $this->childRound);
 
             $poulePlaces = array_shift( $parentRoundPoulePlacesPer );
-            $nrOfToPoulePlaces = count($poulePlaces);
-            if ( $this->childRound->getWinnersOrLosers() === Round::LOSERS
-                && $this->childRound->getQualifyOrder() === Round::QUALIFYORDER_CROSS
-                && (count($childRoundPoulePlaces) % $nrOfToPoulePlaces) !== 0)
-            {
-                $nrOfToPoulePlaces = (count($childRoundPoulePlaces) % $nrOfToPoulePlaces);
-            }
+            $nrOfPlacesToAdd = $this->getNrOfToPlacesToAdd($parentRoundPoulePlacesPer);
+            $nrOfToPoulePlaces = $this->getNrOfToPoulePlaces(count($childRoundPoulePlaces), count($poulePlaces), $nrOfPlacesToAdd);
+
             // to places
             for ($nI = 0; $nI < $nrOfToPoulePlaces; $nI++) {
                 if (count($childRoundPoulePlaces) === 0) {
@@ -55,6 +51,42 @@ class Service
                 $qualifyRule->addToPoulePlace( array_shift( $childRoundPoulePlaces ) );
             }
             $poulePlaceDivider->divide($qualifyRule, $poulePlaces);
+        }
+        $this->repairOverlappingRules();
+    }
+
+    protected function getNrOfToPlacesToAdd(array $parentRoundPoulePlacesPer): int {
+        $nrOfPlacesToAdd = 0;
+        foreach( $parentRoundPoulePlacesPer as $poulePlaces ) {
+            $nrOfPlacesToAdd += count($poulePlaces);
+        }
+        return $nrOfPlacesToAdd;
+    }
+
+    protected function getNrOfToPoulePlaces(int $childRoundPoulePlaces, int $nrOfPlacesAdding, int $nrOfPlacesToAdd): int {
+        if ($this->childRound->getWinnersOrLosers() === Round::WINNERS
+            /* || $this->>childRound->getQualifyOrder() !== Round::QUALIFYORDER_CROSS */) {
+            return $nrOfPlacesAdding;
+        }
+        $nrOfPlacesTooMuch = ($nrOfPlacesAdding + $nrOfPlacesToAdd) - $childRoundPoulePlaces;
+        if ($nrOfPlacesTooMuch > 0) {
+            return ($childRoundPoulePlaces % count($this->parentRound->getPoules()));
+        }
+        return $nrOfPlacesAdding;
+    }
+
+    protected function repairOverlappingRules() {
+        $filteredPoulePlaces = array_filter( $this->parentRound->getPoulePlaces(), function( $poulePlace ) {
+            return count($poulePlace->getToQualifyRules()) > 1;
+        });
+        forEach( $filteredPoulePlaces as $poulePlace ){
+            $winnersRule = $poulePlace->getToQualifyRule(Round::WINNERS);
+            $losersRule = $poulePlace->getToQualifyRule(Round::LOSERS);
+            if ($winnersRule->isSingle() && $losersRule->isMultiple()) {
+                $losersRule->removeFromPoulePlace($poulePlace);
+            } else if ($winnersRule->isMultiple() && $losersRule->isSingle()) {
+                $winnersRule->removeFromPoulePlace($poulePlace);
+            }
         }
     }
 

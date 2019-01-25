@@ -207,6 +207,10 @@ class Rule
         return count( $this->getFromPoulePlaces() ) > count( $this->getToPoulePlaces() );
     }
 
+    public function isSingle(): bool {
+        return !$this->isMultiple();
+    }
+
     public function getFromEquivalent(PoulePlace $toPoulePlace ): ?PoulePlace
     {
         if ($this->isMultiple()) {
