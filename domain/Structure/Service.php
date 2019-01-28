@@ -63,7 +63,7 @@ class Service
     public function createFromSerialized( StructureBase $structureSer, Competition $competition ): StructureBase
     {
         if( count( $this->roundNumberRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
-            throw new \Exception("er kan voor deze competitie geen rondenumbers worden aangemaakt, omdat deze al bestaan", E_ERROR);
+            throw new \Exception("er kan voor deze competitie geen indeling worden aangemaakt, omdat deze al bestaan", E_ERROR);
         }
 //        if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
 //            throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
