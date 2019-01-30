@@ -291,6 +291,14 @@ class Service
         else if( $nrOfPlaces === 30 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 31 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 32 ) { $roundStructure->nrofpoules = 8; $roundStructure->nrofpoules =16; }
+        else if( $nrOfPlaces === 33 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 34 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 35 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 36 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 37 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 38 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 39 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 40 ) { $roundStructure->nrofpoules = 8; $roundStructure->nrofpoules = 8; }
         else {
             throw new \Exception("het aantal teams moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
         }
