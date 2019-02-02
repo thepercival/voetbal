@@ -22,6 +22,7 @@ use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Voetbal\Poule;
+use Voetbal\Game;
 
 final class Planning
 {
@@ -116,19 +117,18 @@ final class Planning
                 throw new \Exception("er kunnen geen wedstrijden worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
             foreach ($gamesSer as $gameSer) {
-                $homePoulePlace = $this->poulePlaceRepos->find($gameSer->getHomePoulePlace()->getId());
-                if ($homePoulePlace === null) {
-                    throw new \Exception("er kan geen thuis-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                $game = new Game( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber() );
+                foreach( $gameSer->getPoulePlaces() as $gamePoulePlace ){
+                    $poulePlace = $this->poulePlaceRepos->find($gamePoulePlace->getPoulePlace()->getId() );
+                    if ( $poulePlace === null ) {
+                        throw new \Exception("er kan team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                    }
+                    $gamePoulePlace->setPoulePlace($poulePlace);
                 }
-                $awayPoulePlace = $this->poulePlaceRepos->find($gameSer->getAwayPoulePlace()->getId());
-                if ($awayPoulePlace === null) {
-                    throw new \Exception("er kan geen uit-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                foreach( $gameSer->getPoulePlaces() as $gamePoulePlace ) {
+                    $game->addPoulePlace( $gamePoulePlace->getPoulePlace(), $gamePoulePlace->getHomeaway() );
                 }
-                $game = $this->gameService->create(
-                    $poule,
-                    $homePoulePlace, $awayPoulePlace,
-                    $gameSer->getRoundNumber(), $gameSer->getSubNumber()
-                );
+
                 $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId()) : null;
                 $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId()) : null;
                 $this->gameService->editResource(

@@ -12,6 +12,8 @@ use \Doctrine\Common\Collections\ArrayCollection;
 
 use Voetbal\Game\Score;
 use Voetbal\Round\Config as RoundConfig;
+use Voetbal\Game\PoulePlace as GamePoulePlace;
+use Voetbal\PoulePlace;
 
 class Game implements External\Importable
 {
@@ -76,6 +78,11 @@ class Game implements External\Importable
     protected $scores;
 
     /**
+     * @var GamePoulePlace[] | ArrayCollection
+     */
+    protected $poulePlaces;
+
+    /**
      * @var int
      */
     private $scoresMoment;
@@ -95,11 +102,11 @@ class Game implements External\Importable
     const ORDER_BYNUMBER = 1;
     const ORDER_RESOURCEBATCH = 2;
 
-    public function __construct( Poule $poule, PoulePlace $homePoulePlace, PoulePlace $awayPoulePlace, $roundNumber, $subNumber )
+    public function __construct( Poule $poule, $roundNumber, $subNumber )
     {
+        $this->setState( Game::STATE_CREATED );
         $this->setPoule( $poule );
-        $this->setHomePoulePlace( $homePoulePlace );
-        $this->setAwayPoulePlace( $awayPoulePlace );
+        $this->poulePlaces = new ArrayCollection();
         $this->setRoundNumber( $roundNumber );
         $this->setSubNumber( $subNumber );
         $this->scores = new ArrayCollection();
@@ -229,6 +236,7 @@ class Game implements External\Importable
      */
     public function getHomePoulePlace()
     {
+        throw new \Exception("homepp-get deprecated", E_ERROR );
         return $this->homePoulePlace;
     }
 
@@ -237,6 +245,7 @@ class Game implements External\Importable
      */
     public function setHomePoulePlace( PoulePlace $homePoulePlace )
     {
+        throw new \Exception("homepp-set deprecated", E_ERROR );
         $this->homePoulePlace = $homePoulePlace;
     }
 
@@ -245,6 +254,7 @@ class Game implements External\Importable
      */
     public function getAwayPoulePlace()
     {
+        throw new \Exception("awaypp-get deprecated", E_ERROR );
         return $this->awayPoulePlace;
     }
 
@@ -253,6 +263,7 @@ class Game implements External\Importable
      */
     public function setAwayPoulePlace( PoulePlace $awayPoulePlace )
     {
+        throw new \Exception("awaypp-set deprecated", E_ERROR );
         $this->awayPoulePlace = $awayPoulePlace;
     }
 
@@ -349,29 +360,68 @@ class Game implements External\Importable
     }
 
     /**
+     * @param bool|null $homeaway
+     * @return ArrayCollection|GamePoulePlace[]
+     */
+    public function getPoulePlaces( bool $homeaway = null )
+    {
+        if ($homeaway === null) {
+            return $this->poulePlaces;
+        }
+        return $this->poulePlaces->filter( function( $gamePoulePlace ) use ( $homeaway ) { return $gamePoulePlace->getHomeaway() === $homeaway; });
+    }
+
+    /**
+     * @param $poulePlaces
+     */
+    public function setPoulePlaces($poulePlaces)
+    {
+        $this->poulePlaces = $poulePlaces;
+    }
+
+    /**
+     * @param $poulePlaces
+     */
+    public function addPoulePlace(PoulePlace $poulePlace, bool $homeaway)
+    {
+        return new GamePoulePlace( $this, $poulePlace, $homeaway );
+    }
+
+    /**
+     * @param array $poulePlaces
+     * @param bool $homeaway
+     * @return bool
+     */
+    public function isOneParticipating(array $poulePlaces, bool $homeaway = null ): bool {
+        $places = $this->getPoulePlaces( $homeaway )->map( function( $gamePoulePlace ) { return $gamePoulePlace->getPoulePlace(); } );
+        foreach( $poulePlaces as $poulePlace ) {
+            if( $places->contains( $poulePlace ) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * @param Team $team
      * @return mixed|null|PoulePlace
      */
     public function getPoulePlaceForTeam( Team $team )
     {
-        foreach( $this->getPoule()->getPlaces() as $poulePlace ) {
-            if( $poulePlace->getTeam() === $team ) {
-                return $poulePlace;
-            }
-        }
+//        foreach( $this->getPoule()->getPlaces() as $poulePlace ) {
+//            if( $poulePlace->getTeam() === $team ) {
+//                return $poulePlace;
+//            }
+//        }
         return null;
     }
 
-    public function getPoulePlace(bool $homeAway): PoulePlace
+    public function getHomeAway(PoulePlace $poulePlace): ?bool
     {
-        return $homeAway === Game::HOME ? $this->getHomePoulePlace() : ($homeAway === Game::AWAY ? $this->getAwayPoulePlace() : null);
-    }
-
-    public function getHomeAway(PoulePlace $poulePlace)
-    {
-        if ($poulePlace === $this->getHomePoulePlace()) {
+        if( $this->isOneParticipating([$poulePlace], Game::HOME )) {
             return Game::HOME;
-        } else if ($poulePlace === $this->getAwayPoulePlace()) {
+        }
+        if( $this->isOneParticipating([$poulePlace], Game::AWAY )) {
             return Game::AWAY;
         }
         return null;

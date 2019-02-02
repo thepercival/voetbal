@@ -168,10 +168,10 @@ class Ranking
             }
             return $oBestGoalDifferencePoulePlaces;
         };
-        $fnMostGoalsScored = function ($oPoulePlaces, $oGames) {
+        $fnMostGoalsScored = function ($poulePlaces, $oGames) {
             $nMostGoalsScored = 0;
             $oMostGoalsScoredPoulePlaces = array();
-            foreach ($oPoulePlaces as $sPoulePlaceId => $oPoulePlace) {
+            foreach ($poulePlaces as $sPoulePlaceId => $oPoulePlace) {
                 $nGoalsScored = $this->getNrOfGoalsScored($oPoulePlace, $oGames);
                 if ($nGoalsScored === $nMostGoalsScored) {
                     $oMostGoalsScoredPoulePlaces[] = $oPoulePlace;
@@ -182,22 +182,20 @@ class Ranking
             }
             return $oMostGoalsScoredPoulePlaces;
         };
-        $fnBestHeadToHead = function ($oPoulePlaces, $oGames) {
+        $fnBestHeadToHead = function ($poulePlaces, $oGames) {
             $oGamesAgainstEachOther = array();
             {
                 foreach ($oGames as $game) {
                     if (($game->getState() & $this->gameStates) === 0 ) {
                         continue;
                     }
-                    if ( !in_array ( $game->getPoulePlace(Game::HOME), $oPoulePlaces, true )
-                        || !in_array ( $game->getPoulePlace(Game::AWAY), $oPoulePlaces, true )
-                    ) {
-                        continue;
+                    if( $game->isOneParticipating($poulePlaces, Game::HOME)
+                        && $game->isOneParticipating($poulePlaces, Game::AWAY) ) {
+                        $oGamesAgainstEachOther[] = $game;
                     }
-                    $oGamesAgainstEachOther[] = $game;
                 }
             }
-            return $this->getBestPoulePlaces($oPoulePlaces, $oGamesAgainstEachOther, true);
+            return $this->getBestPoulePlaces($poulePlaces, $oGamesAgainstEachOther, true);
         };
 
         if ($this->rulesSet === QualifyRule::SOCCERWORLDCUP) {
@@ -281,7 +279,7 @@ class Ranking
             if (($game->getState() & $this->gameStates) === 0) {
                 continue;
             }
-            if ($game->getHomeAway($poulePlace) === null) {
+            if ($game->isOneParticipating([$poulePlace], null )) {
                 continue;
             }
             $nrOfGames++;

@@ -15,6 +15,7 @@ use Voetbal\Game;
 use Voetbal\Referee;
 use Voetbal\Field;
 use Voetbal\Game\Score as GameScore;
+use Voetbal\Game\PoulePlace as GamePoulePlace;
 
 class Service
 {
@@ -36,37 +37,6 @@ class Service
     {
         $this->repos = $repos;
         $this->scoreRepos = $scoreRepos;
-    }
-
-    public function create( Poule $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber )
-    {
-        // controles
-        // competitieseizoen icm number groter of gelijk aan $number mag nog niet bestaan
-
-        // $this->em->getConnection()->beginTransaction(); // suspend auto-commit
-
-        $game = new Game( $poule, $homePoulePlace, $awayPoulePlace, $roundNumber, $subNumber );
-        $game->setState( Game::STATE_CREATED );
-
-
-//            if ( $places === null or $places->count() === 0 ) {
-//                throw new \Exception("een poule moet minimaal 1 pouleplace hebben", E_ERROR);
-//            }
-
-//            foreach( $places as $placeIt ){
-//                $this->pouleplaceService->create($poule, $placeIt->getNumber(), $placeIt->getTeam());
-//            }
-
-           // $this->em->getConnection()->commit();
-
-
-
-        /*$teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $teamWithSameName !== null ){
-            throw new \Exception("de teamnaam ".$name." bestaat al", E_ERROR );
-        }*/
-
-        return $game;
     }
 
     /**

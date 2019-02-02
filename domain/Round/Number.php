@@ -101,6 +101,10 @@ class Number
         return $this->competition;
     }
 
+    public function setCompetition( Competition $competition) {
+        $this->competition = $competition;
+    }
+
     public function getNumber(): int {
         return $this->number;
 //        if( $this->getPrevious() === null ) {

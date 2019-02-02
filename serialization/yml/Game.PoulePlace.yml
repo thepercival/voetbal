@@ -1,0 +1,12 @@
+Voetbal\Game\PoulePlace:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      type: integer
+    poulePlace:
+      type: Voetbal\PoulePlace
+    homeaway:
+      type: bool

@@ -159,10 +159,11 @@ class ResourceService
     }
 
     private function isGameAssignable(Game $game ): bool {
-        $homePoulePlace = $game->getHomePoulePlace();
-        $awayPoulePlace = $game->getAwayPoulePlace();
-        if ($this->isPoulePlaceAssigned($homePoulePlace) || $this->isPoulePlaceAssigned($awayPoulePlace)) {
-            return false;
+        $gamePoulePlaces = $game->getPoulePlaces();
+        foreach( $gamePoulePlaces as $gamePoulePlace ) {
+            if ($this->isPoulePlaceAssigned($gamePoulePlace->getPoulePlace() )) {
+                return false;
+            }
         }
         return true;
     }
@@ -232,8 +233,9 @@ class ResourceService
     }
 
     private function addPoulePlaces(Game $game) {
-        $this->poulePlaces[] = $game->getHomePoulePlace();
-        $this->poulePlaces[] = $game->getAwayPoulePlace();
+        foreach( $game->getPoulePlaces() as $gamePoulePlace ) {
+            $this->poulePlaces[] = $gamePoulePlace;
+        }
     }
 
     public function getEndDateTime(): \DateTimeImmutable {

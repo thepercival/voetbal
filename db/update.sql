@@ -92,3 +92,10 @@ update roundnumbers as rn inner join ( select * from roundnumbers ) as rn2 on rn
 delete from rounds where ( select count(*) from pouleplaces pp join poules p on pp.pouleid = p.id where p.roundid = rounds.id ) = 1;
 
 update seasons set enddatetime = DATE_ADD(enddatetime, INTERVAL 1 DAY);
+
+-- --------------------------------------------
+insert into gamepouleplaces( gameid, pouleplaceid, homeaway ) ( select id, homepouleplaceid, true from games );
+
+insert into gamepouleplaces( gameid, pouleplaceid, homeaway ) ( select id, awaypouleplaceid, false from games );
+
+update roundconfigs set teamup = false, pointsCalculation = 0;

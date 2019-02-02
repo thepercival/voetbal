@@ -32,3 +32,7 @@ Voetbal\Round\Config:
       type: integer
     score:
       type: Voetbal\Round\Config\Score
+    teamup:
+      type: bool
+    pointsCalculation:
+      type: integer

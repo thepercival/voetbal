@@ -96,10 +96,7 @@ class Service
                 $this->getRepository(Game\Score::class)
             );
         } elseif ($classname === Planning::class) {
-            return new Planning\Service(
-                $this->getService(Game::class),
-                $this->getRepository(Game::class),
-                $this->getEntityManager());
+            return new Planning\Service($this->getService(Game::class) );
         }
         throw new \Exception("class " . $classname . " not supported to create service", E_ERROR);
     }

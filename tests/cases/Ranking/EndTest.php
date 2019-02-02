@@ -26,7 +26,7 @@ class EndTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure9.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize( $structure );
+        postSerialize( $structure, $competition );
         $structure->setQualifyRules();
 
         $endRanking = new EndRanking();
@@ -58,7 +58,7 @@ class EndTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure16rank.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize( $structure );
+        postSerialize( $structure, $competition );
         $structure->setQualifyRules();
 
         $endRanking = new EndRanking();
@@ -80,5 +80,28 @@ class EndTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($items[13]->getPoulePlace()->getTeam()->getName(), 'mart' );
         $this->assertSame($items[14]->getPoulePlace()->getTeam()->getName(), 'fred' );
         $this->assertSame($items[15]->getPoulePlace()->getTeam()->getName(), 'toon' );
+    }
+
+    public function testStructure4Teamup()
+    {
+        $serializer = getSerializer();
+
+        $json_raw = file_get_contents(__DIR__ . "/../../data/competition.json");
+        $json = json_decode($json_raw, true);
+        $competition = $serializer->deserialize(json_encode($json), 'Voetbal\Competition', 'json');
+
+        $json_raw = file_get_contents(__DIR__ . "/../../data/structure4rankteamup.json");
+        $json = json_decode($json_raw, true);
+        $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
+        postSerialize( $structure, $competition );
+        $structure->setQualifyRules();
+
+        $endRanking = new EndRanking();
+
+        $items = $endRanking->getItems($structure->getRootRound());
+        $this->assertSame($items[0]->getPoulePlace()->getTeam()->getName(), 'rank1' );
+        $this->assertSame($items[1]->getPoulePlace()->getTeam()->getName(), 'rank2' );
+        $this->assertSame($items[2]->getPoulePlace()->getTeam()->getName(), 'rank3' );
+        $this->assertSame($items[3]->getPoulePlace()->getTeam()->getName(), 'rank4' );
     }
 }

@@ -18,6 +18,7 @@ use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Voetbal\Poule;
+use Voetbal\Game as GameBase;
 
 final class Game
 {
@@ -106,20 +107,15 @@ final class Game
                 throw new \Exception("er kan geen wedstrijd worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $homePoulePlace = $this->poulePlaceRepos->find($gameSer->getHomePoulePlace()->getId() );
-            if ( $homePoulePlace === null ) {
-                throw new \Exception("er kan thuis-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            foreach( $gameSer->getPoulePlaces() as $gamePoulePlace ){
+                $poulePlace = $this->poulePlaceRepos->find($gamePoulePlace->getPoulePlace()->getId() );
+                if ( $poulePlace === null ) {
+                    throw new \Exception("er kan team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                }
+                $gamePoulePlace->setPoulePlace($poulePlace);
             }
-
-            $awayPoulePlace = $this->poulePlaceRepos->find($gameSer->getAwayPoulePlace()->getId() );
-            if ( $awayPoulePlace === null ) {
-                throw new \Exception("er kan uit-team worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-
-            $game = $this->service->create(
-                $poule,
-                $homePoulePlace, $awayPoulePlace,
-                $gameSer->getRoundNumber(), $gameSer->getSubNumber() );
+            $game = new GameBase( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber());
+            $game->setPoulePlaces($gameSer->getPoulePlaces());
 
             $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId() ) : null;
             $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId() ) : null;

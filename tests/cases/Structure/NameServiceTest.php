@@ -27,7 +27,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure9.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure);
+        postSerialize($structure,$competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {
@@ -169,7 +169,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure16rank.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure);
+        postSerialize($structure,$competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {
@@ -402,7 +402,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure163poules.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure);
+        postSerialize($structure,$competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {
@@ -507,7 +507,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure15.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure);
+        postSerialize($structure,$competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: coen
@@ -75,6 +76,16 @@ trait OptionsTrait
      * @var Score\Options
      */
     protected $score;
+
+    /**
+     * @var bool
+     */
+    protected $teamup;
+
+    /**
+     * @var int
+     */
+    protected $pointsCalculation;
 
     /**
      * @return int
@@ -299,6 +310,8 @@ trait OptionsTrait
         $this->setEnableTime( Options::ENABLETIME );
         $this->setMinutesPerGame( 0 );
         $this->setMinutesAfter( 0 );
+        $this->setTeamup( false );
+        $this->setPointsCalculation( Options::POINTS_CALC_GAMEPOINTS );
     }
 
     /**
@@ -331,6 +344,44 @@ trait OptionsTrait
     public function setDrawPoints($drawPoints)
     {
         $this->drawPoints = $drawPoints;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getTeamup()
+    {
+        return $this->teamup;
+    }
+
+    /**
+     * @param $teamup
+     */
+    public function setTeamup($teamup)
+    {
+        if (!is_bool($teamup)) {
+            throw new \InvalidArgumentException("mixen-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->teamup = $teamup;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getPointsCalculation()
+    {
+        return $this->pointsCalculation;
+    }
+
+    /**
+     * @param $pointsAreGamepoints
+     */
+    public function setPointsCalculation($pointsCalculation)
+    {
+        if (!is_int($pointsCalculation)) {
+            throw new \InvalidArgumentException("punten-berekening heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->pointsCalculation = $pointsCalculation;
     }
 
 }

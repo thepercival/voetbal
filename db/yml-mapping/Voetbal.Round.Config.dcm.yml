@@ -66,6 +66,14 @@ Voetbal\Round\Config:
       type: smallint
       nullable: true
       unique: false
+    teamup:
+      type: boolean
+      nullable: true
+      unique: false
+    pointsCalculation:
+      type: smallint
+      nullable: true
+      unique: false
   oneToMany:
     scores:
       targetEntity: Voetbal\Round\Config\Score

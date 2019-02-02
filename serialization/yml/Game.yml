@@ -20,10 +20,8 @@ Voetbal\Game:
       type: integer
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
-    homePoulePlace:
-      type: Voetbal\PoulePlace
-    awayPoulePlace:
-      type: Voetbal\PoulePlace
+    poulePlaces:
+      type: ArrayCollection<Voetbal\Game\PoulePlace>
     scores:
       type: ArrayCollection<Voetbal\Game\Score>
     scoresMoment:

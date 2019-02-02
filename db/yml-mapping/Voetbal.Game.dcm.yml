@@ -48,23 +48,20 @@ Voetbal\Game:
         onDelete: CASCADE
     homePoulePlace:
       targetEntity: Voetbal\PoulePlace
-      #inversedBy: games
       joinColumn:
         name: homepouleplaceid
         referencedColumnName: id
-        nullable: false
+        nullable: true
         onDelete: CASCADE
     awayPoulePlace:
       targetEntity: Voetbal\PoulePlace
-      #inversedBy: games
       joinColumn:
         name: awaypouleplaceid
         referencedColumnName: id
-        nullable: false
+        nullable: true
         onDelete: CASCADE
     referee:
       targetEntity: Voetbal\Referee
-#      inversedBy: games
       joinColumn:
         name: refereeid
         referencedColumnName: id
@@ -72,7 +69,6 @@ Voetbal\Game:
         onDelete: SET NULL
     field:
       targetEntity: Voetbal\Field
-#      inversedBy: games
       joinColumn:
         name: fieldid
         referencedColumnName: id
@@ -80,9 +76,10 @@ Voetbal\Game:
         onDelete: SET NULL
   oneToMany:
     scores:
-        targetEntity: Voetbal\Game\Score
-        mappedBy: game
-        cascade: [ persist, remove ]
-#  uniqueConstraints:
-#    number_u_idx:
-#      columns: [ pouleid, roundnumber, subnumber ]
+      targetEntity: Voetbal\Game\Score
+      mappedBy: game
+      cascade: [ persist, remove ]
+    poulePlaces:
+      targetEntity: Voetbal\Game\PoulePlace
+      mappedBy: game
+      cascade: [ persist, remove ]

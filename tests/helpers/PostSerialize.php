@@ -8,18 +8,20 @@
 
 use Voetbal\Structure;
 use Voetbal\Round;
+use Voetbal\Competition;
 use Voetbal\Round\Number as RoundNumber;
 
-function postSerialize( Structure $structure ) {
-    postSerializeHelper( $structure->getRootRound(), $structure->getFirstRoundNumber() );
+function postSerialize( Structure $structure, Competition $competition ) {
+    postSerializeHelper( $structure->getRootRound(), $structure->getFirstRoundNumber(), $competition );
 }
 
-function postSerializeHelper( Round $round, RoundNumber $roundNumber, RoundNumber $previousRoundNumber = null ) {
+function postSerializeHelper( Round $round, RoundNumber $roundNumber, Competition $competition, RoundNumber $previousRoundNumber = null ) {
     $refCl = new \ReflectionClass($round);
     $refClPropNumber = $refCl->getProperty("number");
     $refClPropNumber->setAccessible(true);
     $refClPropNumber->setValue($round, $roundNumber);
     $refClPropNumber->setAccessible(false);
+    $roundNumber->setCompetition($competition);
     $roundNumber->getRounds()->add($round);
     $roundNumber->setPrevious( $previousRoundNumber );
     foreach( $round->getPoules() as $poule ) {
@@ -33,10 +35,15 @@ function postSerializeHelper( Round $round, RoundNumber $roundNumber, RoundNumbe
             });
             return reset($items);
         };
+        if( $poule->getGames() === null ) {
+            $poule->setGames([]);
+        }
         foreach( $poule->getGames() as $game ) {
             $poulePlace->setPoule($poule);
-            $game->setHomePoulePlace($getRealPoulePlace($game->getHomePoulePlace()));
-            $game->setAwayPoulePlace($getRealPoulePlace($game->getAwayPoulePlace()));
+            foreach( $game->getPoulePlaces() as $gamePoulePlace ) {
+                $gamePoulePlace->setPoulePlace($getRealPoulePlace($gamePoulePlace->getPoulePlace()));
+            }
+
             $game->setPoule($poule);
             foreach ($game->getScores() as $gameScore) {
                 $gameScore->setGame($game);
@@ -45,6 +52,6 @@ function postSerializeHelper( Round $round, RoundNumber $roundNumber, RoundNumbe
     }
     foreach( $round->getChildRounds() as $childRound ) {
         $childRound->setParent($round);
-        postSerializeHelper( $childRound, $roundNumber->getNext(), $roundNumber );
+        postSerializeHelper( $childRound, $roundNumber->getNext(), $competition, $roundNumber );
     }
 }

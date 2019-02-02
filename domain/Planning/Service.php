@@ -12,33 +12,18 @@ use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Round\Config as RoundNumberConfig;
 use Voetbal\Game\Service as GameService;
-use Voetbal\Game\Repository as GameRepos;
 use Voetbal\Game;
-use League\Period;
 
 class Service
 {
-    /**
-     * @var GameService
-     */
-    protected $gameService;
-
-    /**
-     * @var GameRepos
-     */
-    protected $gameRepos;
-
     /**
      * @var Period
      */
     protected $blockedPeriod;
 
-    public function __construct(
-        GameService $gameService,
-        GameRepos $gameRepos )
+    public function __construct()
     {
-        $this->gameService = $gameService;
-        $this->gameRepos = $gameRepos;
+
     }
 
     public function setBlockedPeriod(\DateTimeImmutable $startDateTime, int $durationInMinutes) {
@@ -48,7 +33,7 @@ class Service
     }
 
     public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array {
-        if ( $this->gameRepos->hasRoundNumberGames( $roundNumber ) ) {
+        if( count( $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER) ) > 0 ) {
             throw new \Exception("cannot create games, games already exist", E_ERROR );
         }
         if ($startDateTime === null) {
@@ -61,24 +46,20 @@ class Service
     protected function createHelper( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array
     {
         $games = [];
+        $roundNumberConfig = $roundNumber->getConfig();
         foreach ($roundNumber->getPoules() as $poule) {
-            $arrScheduledGames = $this->generateRRSchedule($poule->getPlaces()->toArray());
+            $gameGenerator = new GameGenerator($poule);
+            $gameRounds = $gameGenerator->generate($roundNumberConfig->getTeamup());
             $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
             for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
-                $headToHeadNumber = (($headtohead - 1) * count($arrScheduledGames));
-                for ($gameRoundNumber = 0; $gameRoundNumber < count($arrScheduledGames); $gameRoundNumber++) {
-                    $schedRoundGames = $arrScheduledGames[$gameRoundNumber];
+                $reverseHomeAway = ($headtohead % 2) === 0;
+                $headToHeadNumber = ($headtohead - 1) * count($gameRounds);
+                foreach ($gameRounds as $gameRound ) {
                     $subNumber = 1;
-                    foreach( $schedRoundGames as $schedGame ) {
-                        if ($schedGame[0] === null || $schedGame[1] === null) {
-                            continue;
-                        }
-                        $homePoulePlace = (($headtohead % 2) === 0) ? $schedGame[1] : $schedGame[0];
-                        $awayPoulePlace = (($headtohead % 2) === 0) ? $schedGame[0] : $schedGame[1];
-                        $games[] = $this->gameService->create(
-                            $poule, $homePoulePlace, $awayPoulePlace,
-                            $headToHeadNumber + $gameRoundNumber + 1, $subNumber++
-                        );
+                    foreach( $gameRound->getCombinations() as $combination ) {
+                        $game = new Game( $poule,  $headToHeadNumber + $gameRound->getNumber(), $subNumber ++);
+                        $game->setPoulePlaces($combination->getGamePoulePlaces($game, $reverseHomeAway/*, reverseCombination*/));
+                        $games[] = $game;
                     }
                 }
             }
@@ -263,50 +244,5 @@ class Service
             return true;
         }
         return $dateOne->format('Y-m-d') === $dateTwo->format('Y-m-d');
-    }
-
-    /**
-     * Generate a round robin schedule from a list of players
-     *
-     * @param <array> $players	A list of players
-     * @param <bool> $rand		Set TRUE to randomize the results
-     * @return <array>			Array of matchups separated by sets
-     */
-    protected function generateRRSchedule(array $players) {
-        $numPlayers = count($players);
-
-        // add a placeholder if the count is odd
-        if($numPlayers%2) {
-            $players[] = null;
-            $numPlayers++;
-        }
-
-        // calculate the number of sets and matches per set
-        $numSets = $numPlayers-1;
-        $numMatches = $numPlayers/2;
-
-        $matchups = array();
-
-        // generate each set
-        for($j = 0; $j < $numSets; $j++) {
-            // break the list in half
-            $halves = array_chunk($players, $numMatches);
-            // reverse the order of one half
-            $halves[1] = array_reverse($halves[1]);
-            // generate each match in the set
-            for($i = 0; $i < $numMatches; $i++) {
-                // match each pair of elements
-                $matchups[$j][$i][0] = $halves[0][$i];
-                $matchups[$j][$i][1] = $halves[1][$i];
-            }
-            // remove the first player and store
-            $first = array_shift($players);
-            // move the second player to the end of the list
-            $players[] = array_shift($players);
-            // place the first item back in the first position
-            array_unshift($players, $first);
-        }
-
-        return $matchups;
     }
 }

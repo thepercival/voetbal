@@ -17,6 +17,9 @@ class Options
     CONST DRAWPOINTS = 1;
     CONST HASEXTENSION = false;
     CONST ENABLETIME = false;
+    CONST POINTS_CALC_GAMEPOINTS = 0;
+    CONST POINTS_CALC_SCOREPOINTS = 1;
+    CONST POINTS_CALC_BOTH = 2;
 
     public function __construct()
     {

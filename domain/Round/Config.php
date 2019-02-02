@@ -173,6 +173,8 @@ class Config
         $configOptions->setMinutesBetweenGames($this->getMinutesBetweenGames());
         $configOptions->setMinutesAfter($this->getMinutesAfter());
         $configOptions->setScore($this->getScore()->getOptions());
+        $configOptions->setTeamup($this->getTeamup());
+        $configOptions->setPointsCalculation($this->getPointsCalculation());
         return $configOptions;
     }
 
@@ -191,6 +193,8 @@ class Config
         $this->setMinutesBetweenGames($configOptions->getMinutesBetweenGames());
         $this->setMinutesAfter($configOptions->getMinutesAfter());
         $this->setScoreOptions( $this->getScore(), $configOptions->getScore() );
+        $this->setTeamup($configOptions->getTeamup());
+        $this->setPointsCalculation($configOptions->getPointsCalculation());
     }
 
     protected function setScoreOptions(Config\Score $score, Config\Score\Options $scoreOptions)
