@@ -175,6 +175,7 @@ class Config
         $configOptions->setScore($this->getScore()->getOptions());
         $configOptions->setTeamup($this->getTeamup());
         $configOptions->setPointsCalculation($this->getPointsCalculation());
+        $configOptions->setSelfReferee($this->getSelfReferee());
         return $configOptions;
     }
 
@@ -195,6 +196,7 @@ class Config
         $this->setScoreOptions( $this->getScore(), $configOptions->getScore() );
         $this->setTeamup($configOptions->getTeamup());
         $this->setPointsCalculation($configOptions->getPointsCalculation());
+        $this->setSelfReferee($configOptions->getSelfReferee());
     }
 
     protected function setScoreOptions(Config\Score $score, Config\Score\Options $scoreOptions)

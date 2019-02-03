@@ -98,4 +98,4 @@ insert into gamepouleplaces( gameid, pouleplaceid, homeaway ) ( select id, homep
 
 insert into gamepouleplaces( gameid, pouleplaceid, homeaway ) ( select id, awaypouleplaceid, false from games );
 
-update roundconfigs set teamup = false, pointsCalculation = 0;
+update roundconfigs set teamup = false, pointsCalculation = 0, selfReferee = false;

@@ -74,6 +74,10 @@ Voetbal\Round\Config:
       type: smallint
       nullable: true
       unique: false
+    selfReferee:
+      type: boolean
+      nullable: true
+      unique: false
   oneToMany:
     scores:
       targetEntity: Voetbal\Round\Config\Score

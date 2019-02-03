@@ -88,6 +88,11 @@ trait OptionsTrait
     protected $pointsCalculation;
 
     /**
+     * @var bool
+     */
+    protected $selfReferee;
+
+    /**
      * @return int
      */
     public function getQualifyRule()
@@ -312,6 +317,7 @@ trait OptionsTrait
         $this->setMinutesAfter( 0 );
         $this->setTeamup( false );
         $this->setPointsCalculation( Options::POINTS_CALC_GAMEPOINTS );
+        $this->setSelfReferee( false );
     }
 
     /**
@@ -363,6 +369,25 @@ trait OptionsTrait
             throw new \InvalidArgumentException("mixen-ja/nee heeft een onjuiste waarde", E_ERROR);
         }
         $this->teamup = $teamup;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSelfReferee()
+    {
+        return $this->selfReferee;
+    }
+
+    /**
+     * @param $selfReferee
+     */
+    public function setSelfReferee($selfReferee)
+    {
+        if (!is_bool($selfReferee)) {
+            throw new \InvalidArgumentException("zelf-scheidsrechter-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->selfReferee = $selfReferee;
     }
 
     /**
