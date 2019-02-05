@@ -63,6 +63,11 @@ class Game implements External\Importable
     protected $referee;
 
     /**
+     * @var PoulePlace
+     */
+    protected $poulePlaceReferee;
+
+    /**
      * @var Field
      */
     protected $field;
@@ -303,6 +308,22 @@ class Game implements External\Importable
 //            $referee->getGames()->add($this) ;
 //        }
         $this->referee = $referee;
+    }
+
+    /**
+     * @return PoulePlace
+     */
+    public function getPoulePlaceReferee()
+    {
+        return $this->poulePlaceReferee;
+    }
+
+    /**
+     * @param PoulePlace $poulePlaceReferee
+     */
+    public function setPoulePlaceReferee( PoulePlace $poulePlaceReferee )
+    {
+        $this->poulePlaceReferee = $poulePlaceReferee;
     }
 
     /**

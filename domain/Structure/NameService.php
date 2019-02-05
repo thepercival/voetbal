@@ -8,6 +8,7 @@
 
 namespace Voetbal\Structure;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\PoulePlace;
 use Voetbal\Poule;
 use Voetbal\Round;
@@ -68,6 +69,12 @@ class NameService
         }
         $pouleName .= (chr(ord('A') + $secondLetter));
         return $pouleName;
+    }
+
+    public function getPoulePlacesFromName(ArrayCollection $gamePouleplaces, bool $teamName, bool $longName = null): string {
+        return implode( ' & ', $gamePouleplaces->map( function( $gamePoulePlace) use ( $teamName, $longName ) {
+                return $this->getPoulePlaceFromName($gamePoulePlace->getPoulePlace(), $teamName, $longName);
+        })->toArray());
     }
 
     public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $teamName, bool $longName = null)

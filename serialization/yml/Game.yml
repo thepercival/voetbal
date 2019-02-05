@@ -16,6 +16,8 @@ Voetbal\Game:
       type: Voetbal\Field
     referee:
       type: Voetbal\Referee
+    poulePlaceReferee:
+      type: Voetbal\PoulePlace
     state:
       type: integer
     startDateTime:
