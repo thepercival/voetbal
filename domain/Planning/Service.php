@@ -160,7 +160,7 @@ class Service
         return $this->calculateEndDateTime($roundNumber->getPrevious());
     }
 
-    public static function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array { // Game[]
+    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array { // Game[]
 
         $rounds = $roundNumber->getRounds()->toArray();
         if (!$roundNumber->isFirst() ) {
