@@ -175,8 +175,8 @@ class Rule
         if ($poulePlace === null) {
             $poulePlace = $fromPoulePlaces[count($fromPoulePlaces) - 1];
         }
-        if (($key = array_search($poulePlace, $fromPoulePlaces)) !== false) {
-            unset($fromPoulePlaces[$key]);
+        if (($key = $fromPoulePlaces->indexOf($poulePlace)) !== false) {
+            $fromPoulePlaces->remove($key);
             $poulePlace->setToQualifyRule($this->getWinnersOrLosers(), null);
         }
     }

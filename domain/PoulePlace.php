@@ -215,7 +215,6 @@ class PoulePlace
     {
         $toQualifyRuleOld = $this->getToQualifyRule($winnersOrLosers);
         if ($toQualifyRuleOld !== null) {
-            // toQualifyRuleOld.removeFromPoulePlace( this );
             if (($key = array_search($toQualifyRuleOld, $this->toQualifyRules)) !== false) {
                 unset($this->toQualifyRules[$key]);
             }
