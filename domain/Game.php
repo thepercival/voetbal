@@ -48,16 +48,6 @@ class Game implements External\Importable
     private $startDateTime;
 
     /**
-     * @var PoulePlace
-     */
-    protected $homePoulePlace;
-
-    /**
-     * @var PoulePlace
-     */
-    protected $awayPoulePlace;
-
-    /**
      * @var Referee
      */
     protected $referee;
@@ -234,42 +224,6 @@ class Game implements External\Importable
     public function setStartDateTime( \DateTimeImmutable $startDateTime = null )
     {
         $this->startDateTime = $startDateTime;
-    }
-
-    /**
-     * @return PoulePlace
-     */
-    public function getHomePoulePlace()
-    {
-        throw new \Exception("homepp-get deprecated", E_ERROR );
-        return $this->homePoulePlace;
-    }
-
-    /**
-     * @param PoulePlace $homePoulePlace
-     */
-    public function setHomePoulePlace( PoulePlace $homePoulePlace )
-    {
-        throw new \Exception("homepp-set deprecated", E_ERROR );
-        $this->homePoulePlace = $homePoulePlace;
-    }
-
-    /**
-     * @return PoulePlace
-     */
-    public function getAwayPoulePlace()
-    {
-        throw new \Exception("awaypp-get deprecated", E_ERROR );
-        return $this->awayPoulePlace;
-    }
-
-    /**
-     * @param PoulePlace $awayPoulePlace
-     */
-    public function setAwayPoulePlace( PoulePlace $awayPoulePlace )
-    {
-        throw new \Exception("awaypp-set deprecated", E_ERROR );
-        $this->awayPoulePlace = $awayPoulePlace;
     }
 
     /**

@@ -9,7 +9,6 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Qualify\Rule as QualifyRule;
 
 class Round
 {
@@ -29,21 +28,9 @@ class Round
     protected $winnersOrLosers;
 
     /**
-     * DEPRECATED
-     *
-     * @var int
-     */
-    protected $competition;
-
-    /**
      * @var int
      */
     protected $qualifyOrder;
-
-    /**
-     * @var Round\Config
-     */
-    protected $config; // Deprecated
 
     /**
      * @var Round\Number
@@ -136,14 +123,6 @@ class Round
             $number->getRounds()->add($this) ;
         }
         $this->number = $number;
-    }
-
-    /**
-     * @return Competition
-     */
-    public function getCompetition()
-    {
-        return $this->number->getCompetition();
     }
 
     /**
@@ -481,23 +460,6 @@ class Round
             return $toQualifyRules;
         }
         return $this->toQualifyRules;
-    }
-
-    /**
-     * @return Round\Config
-     */
-    public function getConfig()
-    {
-        return $this->getNumber()->getConfig();
-    }
-
-    public function getConfigDeprecated()
-    {
-        return $this->config;
-    }
-
-    public function setConfig(Round\Config $config ) {
-        $this->config = $config;
     }
 
     public function hasCustomQualifyOrder(): bool {

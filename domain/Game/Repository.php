@@ -63,6 +63,8 @@ class Repository extends \Voetbal\Repository
 
     public function findByExt( Team $homeTeam, Team $awayTeam, Competition $competition, $gameStates = null)
     {
+        throw new \Exception("rebuild to where exists", E_ERROR );
+
         $query = $this->createQueryBuilder('g')
             ->join("g.homePoulePlace", "hpp")
             ->join("g.awayPoulePlace", "app")

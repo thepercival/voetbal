@@ -24,12 +24,7 @@ class Config
      * @var Number
      */
     protected $roundNumber;
-    /**
-     * DEPRECATED
-     *
-     * @var Round
-     */
-    protected $round;
+
     /**
      * @var Score[] | ArrayCollection
      */
