@@ -137,7 +137,6 @@ final class Game
 
     public function edit($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
 
@@ -170,9 +169,9 @@ final class Game
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($game, 'json'));
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422)->write($e->getMessage());
         }
-        return $response->withStatus(422)->write($sErrorMessage);
+
     }
 
     protected function getPoule( int $pouleId, int $competitionId ): Poule
@@ -192,7 +191,7 @@ final class Game
         if ($competition === null) {
             throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
-        if ($poule->getRound()->getCompetition() !== $competition) {
+        if ($poule->getRound()->getNumber()->getCompetition() !== $competition) {
             throw new \Exception("de competitie van de poule komt niet overeen met de verstuurde competitie",
                 E_ERROR);
         }

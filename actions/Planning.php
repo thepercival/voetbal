@@ -207,7 +207,7 @@ final class Planning
         if ($competition === null) {
             throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
-        if ($poule->getRound()->getCompetition() !== $competition) {
+        if ($poule->getRound()->getNumber()->getCompetition() !== $competition) {
             throw new \Exception("de competitie van de poule komt niet overeen met de verstuurde competitie",
                 E_ERROR);
         }
