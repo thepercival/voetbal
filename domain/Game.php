@@ -275,7 +275,7 @@ class Game implements External\Importable
     /**
      * @param PoulePlace $poulePlaceReferee
      */
-    public function setPoulePlaceReferee( PoulePlace $poulePlaceReferee )
+    public function setPoulePlaceReferee( PoulePlace $poulePlaceReferee = null )
     {
         $this->poulePlaceReferee = $poulePlaceReferee;
     }
