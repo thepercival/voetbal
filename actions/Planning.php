@@ -128,12 +128,12 @@ final class Planning
                 foreach( $gameSer->getPoulePlaces() as $gamePoulePlace ) {
                     $game->addPoulePlace( $gamePoulePlace->getPoulePlace(), $gamePoulePlace->getHomeaway() );
                 }
-
+                $poulePlaceReferee = $gameSer->getPoulePlaceReferee() ? $this->poulePlaceRepos->find($gameSer->getPoulePlaceReferee()->getId()) : null;
                 $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId()) : null;
                 $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId()) : null;
                 $this->gameService->editResource(
                     $game,
-                    $field, $referee,
+                    $field, $referee, $poulePlaceReferee,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
                 $this->em->persist($game);
             }
@@ -171,11 +171,12 @@ final class Planning
                 if ($game === null) {
                     throw new \Exception("er kan geen wedstrijd(".$gameSer->getId().") worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
+                $poulePlaceReferee = $gameSer->getPoulePlaceReferee() ? $this->poulePlaceRepos->find($gameSer->getPoulePlaceReferee()->getId()) : null;
                 $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId()) : null;
                 $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId()) : null;
                 $games[] = $this->gameService->editResource(
                     $game,
-                    $field, $referee,
+                    $field, $referee, $poulePlaceReferee,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
                 $this->em->persist($game);
             }

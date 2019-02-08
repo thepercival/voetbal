@@ -18,6 +18,7 @@ use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Voetbal\Poule;
+use Voetbal\PoulePlace;
 use Voetbal\Game as GameBase;
 
 final class Game
@@ -116,12 +117,12 @@ final class Game
             }
             $game = new GameBase( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber());
             $game->setPoulePlaces($gameSer->getPoulePlaces());
-
+            $poulePlaceReferee = $gameSer->getPoulePlaceReferee() ? $this->poulePlaceRepos->find($gameSer->getPoulePlaceReferee()->getId()) : null;
             $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId() ) : null;
             $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId() ) : null;
             $game = $this->service->editResource(
                 $game,
-                $field, $referee,
+                $field, $referee, $poulePlaceReferee,
                 $gameSer->getStartDateTime(), $gameSer->getResourceBatch() );
 
             return $response

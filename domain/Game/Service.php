@@ -10,12 +10,11 @@ namespace Voetbal\Game;
 
 use Voetbal\Game\Repository as GameRepository;
 use Voetbal\Game\Score\Repository as GameScoreRepository;
-use Voetbal\Poule;
+use Voetbal\PoulePlace;
 use Voetbal\Game;
 use Voetbal\Referee;
 use Voetbal\Field;
 use Voetbal\Game\Score as GameScore;
-use Voetbal\Game\PoulePlace as GamePoulePlace;
 
 class Service
 {
@@ -43,18 +42,20 @@ class Service
      * @param Game $game
      * @param Field|null $field
      * @param Referee|null $referee
+     * @param PoulePlace|null $poulePlaceReferee
      * @param \DateTimeImmutable|null $startDateTime
      * @param int|null $resourceBatch
-     * @return mixed
+     * @return Game
      */
     public function editResource( Game $game,
-        Field $field = null, Referee $referee = null,
+        Field $field = null, Referee $referee = null, PoulePlace $poulePlaceReferee = null,
         \DateTimeImmutable $startDateTime = null, int $resourceBatch = null )
     {
         $game->setField($field);
         $game->setStartDateTime($startDateTime);
         $game->setResourceBatch($resourceBatch);
         $game->setReferee($referee);
+        $game->setPoulePlaceReferee($poulePlaceReferee);
         return $game;
     }
 
