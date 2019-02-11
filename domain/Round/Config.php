@@ -116,14 +116,13 @@ class Config
      */
     public function getInputScore()
     {
-        $score = $this->getRootScore();
-        while ($score->getChild()) {
-            if ($score->getMaximum() !== 0) {
-                break;
-            }
-            $score = $score->getChild();
+        $parentScoreConfig = $this->getRootScore();
+        $childScoreConfig = $parentScoreConfig->getChild();
+        while ($childScoreConfig !== null && ( $childScoreConfig->getMaximum() > 0 || $parentScoreConfig->getMaximum() === 0 )) {
+            $parentScoreConfig = $childScoreConfig;
+            $childScoreConfig = $childScoreConfig->getChild();
         }
-        return $score;
+        return $parentScoreConfig;
     }
 
     /**

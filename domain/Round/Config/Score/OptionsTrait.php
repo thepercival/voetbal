@@ -45,6 +45,13 @@ trait OptionsTrait
         $this->name = $name;
     }
 
+    public function getNameSingle(): string {
+        if ( strpos($this->getName(),'en') !== false ) {
+            return substr( $this->getName(), 0, strlen($this->getName()) - 1);
+        }
+        return substr( $this->getName(), 0, strlen($this->getName()) - 1);
+    }
+
     /**
      * @return int
      */
