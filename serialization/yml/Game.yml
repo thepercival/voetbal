@@ -12,14 +12,14 @@ Voetbal\Game:
       type: int
     resourceBatch:
       type: int
-    field:
-      type: Voetbal\Field
-    referee:
-      type: Voetbal\Referee
-    poulePlaceReferee:
-      type: Voetbal\PoulePlace
+    fieldNr:
+      type: int
+    refereeInitials:
+      type: string
+    refereePoulePlaceNr:
+      type: int
     state:
-      type: integer
+      type: int
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
     poulePlaces:
@@ -27,4 +27,4 @@ Voetbal\Game:
     scores:
       type: ArrayCollection<Voetbal\Game\Score>
     scoresMoment:
-      type: integer
+      type: int

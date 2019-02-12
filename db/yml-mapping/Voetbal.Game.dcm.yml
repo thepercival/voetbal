@@ -53,7 +53,7 @@ Voetbal\Game:
         referencedColumnName: id
         nullable: true
         onDelete: SET NULL
-    poulePlaceReferee:
+    refereePoulePlace:
       targetEntity: Voetbal\PoulePlace
       joinColumn:
         name: pouleplacerefereeid

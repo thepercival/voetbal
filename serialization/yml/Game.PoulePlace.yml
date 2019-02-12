@@ -5,8 +5,8 @@ Voetbal\Game\PoulePlace:
 
   properties:
     id:
-      type: integer
-    poulePlace:
-      type: Voetbal\PoulePlace
+      type: int
+    poulePlaceNr:
+      type: int
     homeaway:
       type: bool

@@ -42,20 +42,20 @@ class Service
      * @param Game $game
      * @param Field|null $field
      * @param Referee|null $referee
-     * @param PoulePlace|null $poulePlaceReferee
+     * @param PoulePlace|null $refereePoulePlace
      * @param \DateTimeImmutable|null $startDateTime
      * @param int|null $resourceBatch
      * @return Game
      */
     public function editResource( Game $game,
-        Field $field = null, Referee $referee = null, PoulePlace $poulePlaceReferee = null,
+        Field $field = null, Referee $referee = null, PoulePlace $refereePoulePlace = null,
         \DateTimeImmutable $startDateTime = null, int $resourceBatch = null )
     {
         $game->setField($field);
         $game->setStartDateTime($startDateTime);
         $game->setResourceBatch($resourceBatch);
         $game->setReferee($referee);
-        $game->setPoulePlaceReferee($poulePlaceReferee);
+        $game->setRefereePoulePlace($refereePoulePlace);
         return $game;
     }
 

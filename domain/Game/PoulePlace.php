@@ -30,6 +30,8 @@ class PoulePlace
      */
     private $homeaway;
 
+    private $poulePlaceNr;
+
     public function __construct( Game $game, PoulePlaceBase $poulePlace, bool $homeaway )
     {
         $this->setGame( $game );
@@ -69,6 +71,19 @@ class PoulePlace
     public function setPoulePlace( PoulePlaceBase $poulePlace )
     {
         $this->poulePlace = $poulePlace;
+    }
+
+    public function getPoulePlaceNr(): int
+    {
+        if( $this->getPoulePlace() !== null ) {
+            return $this->getPoulePlace()->getNumber();
+        }
+        return $this->poulePlaceNr;
+    }
+
+    public function setPoulePlaceNr( int $poulePlaceNr )
+    {
+        $this->poulePlaceNr = $poulePlaceNr;
     }
 
     /**

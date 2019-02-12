@@ -13,10 +13,7 @@ use JMS\Serializer\Serializer;
 use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
-use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\Poule\Repository as PouleRepository;
-use Voetbal\Field\Repository as FieldRepository;
-use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Psr\Http\Message\ServerRequestInterface;
@@ -39,21 +36,9 @@ final class Planning
      */
     protected $repos;
     /**
-     * @var PoulePlaceRepository
-     */
-    protected $poulePlaceRepos;
-    /**
      * @var PouleRepository
      */
     protected $pouleRepos;
-    /**
-     * @var FieldRepository
-     */
-    protected $fieldRepos;
-    /**
-     * @var RefereeRepository
-     */
-    protected $refereeRepos;
     /**
      * @var CompetitionRepository
      */
@@ -71,10 +56,7 @@ final class Planning
         PlanningService $service,
         GameRepository $repos,
         GameService $gameService,
-        PoulePlaceRepository $poulePlaceRepos,
         PouleRepository $pouleRepos,
-        FieldRepository $fieldRepos,
-        RefereeRepository $refereeRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer,
         EntityManager $em
@@ -82,10 +64,7 @@ final class Planning
         $this->service = $service;
         $this->repos = $repos;
         $this->gameService = $gameService;
-        $this->poulePlaceRepos = $poulePlaceRepos;
         $this->pouleRepos = $pouleRepos;
-        $this->fieldRepos = $fieldRepos;
-        $this->refereeRepos = $refereeRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
         $this->em = $em;
@@ -103,6 +82,7 @@ final class Planning
     {
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
+            $competition = $poule->getRound()->getNumber()->getCompetition();
 
             $games = $poule->getGames();
             while( $games->count() > 0 ) {
@@ -118,22 +98,19 @@ final class Planning
             }
             foreach ($gamesSer as $gameSer) {
                 $game = new Game( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber() );
-                foreach( $gameSer->getPoulePlaces() as $gamePoulePlace ){
-                    $poulePlace = $this->poulePlaceRepos->find($gamePoulePlace->getPoulePlace()->getId() );
+                foreach( $gameSer->getPoulePlaces() as $gamePoulePlaceSer ){
+                    $poulePlace = $poule->getPlace($gamePoulePlaceSer->getPoulePlaceNr());
                     if ( $poulePlace === null ) {
                         throw new \Exception("er kan team worden gevonden o.b.v. de invoergegevens", E_ERROR);
                     }
-                    $gamePoulePlace->setPoulePlace($poulePlace);
+                    $game->addPoulePlace( $poulePlace, $gamePoulePlaceSer->getHomeaway() );
                 }
-                foreach( $gameSer->getPoulePlaces() as $gamePoulePlace ) {
-                    $game->addPoulePlace( $gamePoulePlace->getPoulePlace(), $gamePoulePlace->getHomeaway() );
-                }
-                $poulePlaceReferee = $gameSer->getPoulePlaceReferee() ? $this->poulePlaceRepos->find($gameSer->getPoulePlaceReferee()->getId()) : null;
-                $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId()) : null;
-                $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId()) : null;
+                $refereePoulePlace = $gameSer->getRefereePoulePlaceNr() ? $poule->getPlace($gameSer->getRefereePoulePlaceNr()) : null;
+                $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
+                $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $this->gameService->editResource(
                     $game,
-                    $field, $referee, $poulePlaceReferee,
+                    $field, $referee, $refereePoulePlace,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
                 $this->em->persist($game);
             }
@@ -159,6 +136,7 @@ final class Planning
     {
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
+            $competition = $poule->getRound()->getNumber()->getCompetition();
 
             $games = [];
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
@@ -171,12 +149,12 @@ final class Planning
                 if ($game === null) {
                     throw new \Exception("er kan geen wedstrijd(".$gameSer->getId().") worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
-                $poulePlaceReferee = $gameSer->getPoulePlaceReferee() ? $this->poulePlaceRepos->find($gameSer->getPoulePlaceReferee()->getId()) : null;
-                $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId()) : null;
-                $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId()) : null;
+                $refereePoulePlace = $gameSer->getRefereePoulePlaceNr() ? $poule->getPlace($gameSer->getRefereePoulePlaceNr()) : null;
+                $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
+                $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $games[] = $this->gameService->editResource(
                     $game,
-                    $field, $referee, $poulePlaceReferee,
+                    $field, $referee, $refereePoulePlace,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
                 $this->em->persist($game);
             }

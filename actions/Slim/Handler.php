@@ -122,10 +122,7 @@ class Handler
                 $voetbalservice->getService(Voetbal\Planning::class),
                 $voetbalservice->getRepository(Voetbal\Game::class),
                 $voetbalservice->getService(Voetbal\Game::class),
-                $voetbalservice->getRepository(Voetbal\PoulePlace::class),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
-                $voetbalservice->getRepository(Voetbal\Field::class),
-                $voetbalservice->getRepository(Voetbal\Referee::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer, $em);
         } elseif ($resourceType === 'fields') {

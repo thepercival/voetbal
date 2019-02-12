@@ -100,6 +100,7 @@ final class Game
         $sErrorMessage = null;
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
+            $competition = $poule->getRound()->getNumber()->getCompetition();
 
             /** @var \Voetbal\Game $gameSer */
             $gameSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Game', 'json');
@@ -108,21 +109,21 @@ final class Game
                 throw new \Exception("er kan geen wedstrijd worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            foreach( $gameSer->getPoulePlaces() as $gamePoulePlace ){
-                $poulePlace = $this->poulePlaceRepos->find($gamePoulePlace->getPoulePlace()->getId() );
+            foreach( $gameSer->getPoulePlaces() as $gamePoulePlaceSer ){
+                $poulePlace = $poule->getPlace($gamePoulePlaceSer->getPoulePlaceNr());
                 if ( $poulePlace === null ) {
                     throw new \Exception("er kan team worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
-                $gamePoulePlace->setPoulePlace($poulePlace);
+                $gamePoulePlaceSer->setPoulePlace($poulePlace);
             }
             $game = new GameBase( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber());
             $game->setPoulePlaces($gameSer->getPoulePlaces());
-            $poulePlaceReferee = $gameSer->getPoulePlaceReferee() ? $this->poulePlaceRepos->find($gameSer->getPoulePlaceReferee()->getId()) : null;
-            $field = $gameSer->getField() ? $this->fieldRepos->find($gameSer->getField()->getId() ) : null;
-            $referee = $gameSer->getReferee() ? $this->refereeRepos->find($gameSer->getReferee()->getId() ) : null;
+            $refereePoulePlace = $gameSer->getRefereePoulePlaceNr() ? $poule->getPlace($gameSer->getRefereePoulePlaceNr()) : null;
+            $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
+            $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
             $game = $this->service->editResource(
                 $game,
-                $field, $referee, $poulePlaceReferee,
+                $field, $referee, $refereePoulePlace,
                 $gameSer->getStartDateTime(), $gameSer->getResourceBatch() );
 
             return $response

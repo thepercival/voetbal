@@ -51,16 +51,19 @@ class Game implements External\Importable
      * @var Referee
      */
     protected $referee;
+    protected $refereeInitials; // for serialization, not used
 
     /**
      * @var PoulePlace
      */
-    protected $poulePlaceReferee;
+    protected $refereePoulePlace;
+    protected $refereePoulePlaceNr; // for serialization, not used
 
     /**
      * @var Field
      */
     protected $field;
+    protected $fieldNr; // for serialization, not used
 
     /**
      * @var int
@@ -258,26 +261,55 @@ class Game implements External\Importable
      */
     public function setReferee( Referee $referee = null )
     {
-//        if ( $this->referee === null and $referee !== null){
-//            $referee->getGames()->add($this) ;
-//        }
         $this->referee = $referee;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRefereeInitials()
+    {
+        return $this->referee ? $this->referee->getInitials() : $this->refereeInitials;
+    }
+
+    /**
+     * @param string $refereeInitials
+     */
+    public function setRefereeInitials( string $refereeInitials = null )
+    {
+        $this->refereeInitials = $refereeInitials;
     }
 
     /**
      * @return PoulePlace
      */
-    public function getPoulePlaceReferee()
+    public function getRefereePoulePlace()
     {
-        return $this->poulePlaceReferee;
+        return $this->refereePoulePlace;
     }
 
     /**
-     * @param PoulePlace $poulePlaceReferee
+     * @param PoulePlace $refereePoulePlace
      */
-    public function setPoulePlaceReferee( PoulePlace $poulePlaceReferee = null )
+    public function setRefereePoulePlace( PoulePlace $refereePoulePlace = null )
     {
-        $this->poulePlaceReferee = $poulePlaceReferee;
+        $this->refereePoulePlace = $refereePoulePlace;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRefereePoulePlaceNr()
+    {
+        return $this->refereePoulePlace ? $this->refereePoulePlace->getNumber() : $this->refereePoulePlaceNr;
+    }
+
+    /**
+     * @param int $refereePoulePlaceNr
+     */
+    public function setRefereePoulePlaceNr( int $refereePoulePlaceNr = null )
+    {
+        $this->refereePoulePlaceNr = $refereePoulePlaceNr;
     }
 
     /**
@@ -293,10 +325,23 @@ class Game implements External\Importable
      */
     public function setField( Field $field = null )
     {
-//        if ( $this->field === null and $field !== null){
-//            $field->getGames()->add($this) ;
-//        }
         $this->field = $field;
+    }
+
+    /**
+     * @return int
+     */
+    public function getFieldNr()
+    {
+        return $this->field ? $this->field->getNumber() : $this->fieldNr;
+    }
+
+    /**
+     * @param int $fieldNr
+     */
+    public function setFieldNr( int $fieldNr = null )
+    {
+        $this->fieldNr = $fieldNr;
     }
 
     /**
