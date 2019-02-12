@@ -8,7 +8,7 @@ Voetbal\PoulePlace:
       type: integer
     number:
       type: integer
-    team:
-      type: Voetbal\Team
+    competitor:
+      type: Voetbal\Competitor
     penaltyPoints:
       type: integer

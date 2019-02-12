@@ -422,20 +422,6 @@ class Game implements External\Importable
         return false;
     }
 
-    /**
-     * @param Team $team
-     * @return mixed|null|PoulePlace
-     */
-    public function getPoulePlaceForTeam( Team $team )
-    {
-//        foreach( $this->getPoule()->getPlaces() as $poulePlace ) {
-//            if( $poulePlace->getTeam() === $team ) {
-//                return $poulePlace;
-//            }
-//        }
-        return null;
-    }
-
     public function getHomeAway(PoulePlace $poulePlace): ?bool
     {
         if( $this->isOneParticipating([$poulePlace], Game::HOME )) {

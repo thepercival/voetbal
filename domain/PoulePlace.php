@@ -38,9 +38,9 @@ class PoulePlace
     protected $poule;
 
     /**
-     * @var Team
+     * @var Competitor
      */
-    protected $team;
+    protected $competitor;
 
     /**
      * @var QualfyRule
@@ -172,19 +172,19 @@ class PoulePlace
     }
 
     /**
-     * @return Team
+     * @return Competitor
      */
-    public function getTeam()
+    public function getCompetitor()
     {
-        return $this->team;
+        return $this->competitor;
     }
 
     /**
-     * @param Team $team
+     * @param Competitor $competitor
      */
-    public function setTeam( Team $team = null )
+    public function setCompetitor( Competitor $competitor = null )
     {
-        $this->team = $team;
+        $this->competitor = $competitor;
     }
 
     public function getFromQualifyRule(): ?QualifyRule

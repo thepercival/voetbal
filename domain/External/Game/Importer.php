@@ -62,14 +62,14 @@ class Importer
         $externalSystemRepos = $this->voetbalService->getRepository( \Voetbal\External\System::class );
         $externalTeamRepos = $this->voetbalService->getRepository( \Voetbal\External\Team::class );
         $gameRepos = $this->voetbalService->getRepository( \Voetbal\Game::class );
-        $teamRepos = $this->voetbalService->getRepository( \Voetbal\Team::class );
+        $teamRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
         $competitionRepos = $this->voetbalService->getRepository( \Voetbal\Competition::class );
         $externalGameRepos = $this->voetbalService->getRepository( \Voetbal\External\Game::class );
         $externalCompetitionRepos = $this->voetbalService->getRepository( \Voetbal\External\Competition::class );
 
         $externalSystemFactory = new ExternalSystemFactory();
 
-        $teamService = $this->voetbalService->getService( \Voetbal\Team::class );
+        $teamService = $this->voetbalService->getService( \Voetbal\Competitor::class );
         $planningService = $this->voetbalService->getService( \Voetbal\Planning::class );
 
         $externalSystems = $externalSystemRepos->findAll();

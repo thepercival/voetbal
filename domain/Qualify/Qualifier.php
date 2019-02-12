@@ -9,7 +9,7 @@
 namespace Voetbal\Qualify;
 
 use Voetbal\PoulePlace;
-use Voetbal\Team;
+use Voetbal\Competitor;
 
 class Qualifier
 {
@@ -18,11 +18,11 @@ class Qualifier
      */
     private $poulePlace;
     /**
-     * @var Team
+     * @var Competitor
      */
     private $team;
 
-    public function __construct( PoulePlace $poulePlace, Team $team = null )
+    public function __construct( PoulePlace $poulePlace, Competitor $team = null )
     {
         $this->poulePlace = $poulePlace;
         $this->team = $team;
@@ -37,7 +37,7 @@ class Qualifier
     }
 
     /**
-     * @return Team
+     * @return Competitor
      */
     public function getTeam()
     {
@@ -45,9 +45,9 @@ class Qualifier
     }
 
     /**
-     * @param Team $team
+     * @param Competitor $team
      */
-    public function setTeam( Team $team )
+    public function setCompetitor( Competitor $team )
     {
         $this->team = $team;
     }

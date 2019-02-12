@@ -11,7 +11,7 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
-use Voetbal\Team\Repository as TeamRepository;
+use Voetbal\Competitor\Repository as CompetitorRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal\Poule;
@@ -27,9 +27,9 @@ final class PoulePlace
      */
     protected $service;
     /**
-     * @var TeamRepository
+     * @var CompetitorRepository
      */
-    protected $teamRepos;
+    protected $competitorRepos;
     /**
      * @var CompetitionRepository
      */
@@ -46,7 +46,7 @@ final class PoulePlace
     public function __construct(
         PoulePlaceRepository $repos,
         PoulePlaceService $service,
-        TeamRepository $teamRepos,
+        CompetitionRepository $competitorRepos,
         PouleRepository $pouleRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
@@ -54,7 +54,7 @@ final class PoulePlace
     {
         $this->repos = $repos;
         $this->service = $service;
-        $this->teamRepos = $teamRepos;
+        $this->competitorRepos = $competitorRepos;
         $this->pouleRepos = $pouleRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
@@ -78,8 +78,8 @@ final class PoulePlace
             if ( $poulePlace->getPoule() !== $poule ) {
                 throw new \Exception("de poule van de pouleplek komt niet overeen met de verstuurde poule", E_ERROR);
             }
-            $team = $pouleplaceSer->getTeam() ? $this->teamRepos->find($pouleplaceSer->getTeam()->getId()) : null;
-            $poulePlace->setTeam($team);
+            $competitor = $pouleplaceSer->getCompetitor() ? $this->competitorRepos->find($pouleplaceSer->getCompetitor()->getId()) : null;
+            $poulePlace->setCompetitor($competitor);
             $this->repos->save($poulePlace);
 
             return $response

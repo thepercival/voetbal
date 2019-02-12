@@ -24,8 +24,8 @@ Voetbal\Association:
     competitions:
       targetEntity: Voetbal\Competition
       mappedBy: association
-    teams:
-      targetEntity: Voetbal\Team
+    competitors:
+      targetEntity: Voetbal\Competitor
       mappedBy: association
     externals:
       targetEntity: Voetbal\External\Association

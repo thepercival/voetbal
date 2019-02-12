@@ -9,19 +9,19 @@
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
-use Voetbal\Team\Service as TeamService;
-use Voetbal\Team\Repository as TeamRepository;
+use Voetbal\Competitor\Service as CompetitorService;
+use Voetbal\Competitor\Repository as CompetitorRepository;
 use Voetbal\Association\Repository as AssociationRepository;
-use Voetbal\Team as TeamBase;
+use Voetbal\Competitor as CompetitorBase;
 
-final class Team
+final class Competitor
 {
     /**
-     * @var TeamService
+     * @var CompetitorService
      */
     protected $service;
     /**
-     * @var TeamRepository
+     * @var CompetitorRepository
      */
     protected $repos;
     /**
@@ -34,7 +34,7 @@ final class Team
     protected $serializer;
 
     public function __construct(
-        TeamRepository $repos,
+        CompetitorRepository $repos,
         AssociationRepository $associationRepos,
         Serializer $serializer)
     {
@@ -51,10 +51,10 @@ final class Team
             throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
         $filters = array( "association" => $association );
-        $teams = $this->repos->findBy( $filters );
+        $competitors = $this->repos->findBy( $filters );
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write( $this->serializer->serialize( $teams, 'json') );
+            ->write( $this->serializer->serialize( $competitors, 'json') );
         ;
     }
 
@@ -79,22 +79,22 @@ final class Team
                 throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            /** @var \Voetbal\Team $teamSer */
-            $teamSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
-            if ( $teamSer === null ) {
+            /** @var \Voetbal\Competitor $competitorSer */
+            $competitorSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Competitor', 'json');
+            if ( $competitorSer === null ) {
                 throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $team = new TeamBase( $teamSer->getName(), $association );
-            $team->setAbbreviation($teamSer->getAbbreviation());
-            $team->setImageUrl($teamSer->getImageUrl());
-            $team->setInfo($teamSer->getInfo());
-            $this->repos->save($team);
+            $competitor = new CompetitorBase( $competitorSer->getName(), $association );
+            $competitor->setAbbreviation($competitorSer->getAbbreviation());
+            $competitor->setImageUrl($competitorSer->getImageUrl());
+            $competitor->setInfo($competitorSer->getInfo());
+            $this->repos->save($competitor);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $team, 'json'));
+                ->write($this->serializer->serialize( $competitor, 'json'));
         } catch( \Exception $e ){
             return $response->withStatus(422)->write( $e->getMessage() );
         }
@@ -103,24 +103,24 @@ final class Team
     public function edit($request, $response, $args)
     {
         try {
-            $team = $this->getTeam( $args['id'], (int) $request->getParam("associationid") );
+            $competitor = $this->getCompetitor( $args['id'], (int) $request->getParam("associationid") );
 
-            /** @var \Voetbal\Team $teamSer */
-            $teamSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Team', 'json');
-            if ( $teamSer === null ) {
+            /** @var \Voetbal\Competitor $teamSer */
+            $competitorSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competitor', 'json');
+            if ( $competitorSer === null ) {
                 throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            $team->setName($teamSer->getName());
-            $team->setAbbreviation($teamSer->getAbbreviation());
-            $team->setImageUrl($teamSer->getImageUrl());
-            $team->setInfo($teamSer->getInfo());
-            $this->repos->save($team);
+            $competitor->setName($competitorSer->getName());
+            $competitor->setAbbreviation($competitorSer->getAbbreviation());
+            $competitor->setImageUrl($competitorSer->getImageUrl());
+            $competitor->setInfo($competitorSer->getInfo());
+            $this->repos->save($competitor);
 
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($team, 'json'));
+                ->write($this->serializer->serialize($competitor, 'json'));
         } catch (\Exception $e) {
             $response->withStatus(422)->write($e->getMessage());
         }
@@ -129,27 +129,27 @@ final class Team
     public function remove( $request, $response, $args)
     {
         try {
-            $team = $this->getTeam( $args['id'], (int) $request->getParam("associationid") );
-            $this->repos->remove($team);
+            $competitor = $this->getCompetitor( $args['id'], (int) $request->getParam("associationid") );
+            $this->repos->remove($competitor);
             return $response->withStatus(204);
         } catch( \Exception $e ){
             return $response->withStatus(404)->write($e->getMessage());
         }
     }
 
-    protected function getTeam( int $teamId, int $associationId ): TeamBase
+    protected function getCompetitor( int $id, int $associationId ): CompetitorBase
     {
         $association = $this->associationRepos->find($associationId);
         if ( $association === null ) {
             throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
-        $team = $this->repos->find($teamId);
-        if ( $team === null ) {
-            throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+        $competitor = $this->repos->find($id);
+        if ( $competitor === null ) {
+            throw new \Exception("de deelnemer kon niet gevonden worden o.b.v. de invoer", E_ERROR);
         }
-        if ($team->getAssociation() !== $association) {
-            throw new \Exception("de bond van het team komt niet overeen met de verstuurde bond", E_ERROR);
+        if ($competitor->getAssociation() !== $association) {
+            throw new \Exception("de bond van de deelnemer komt niet overeen met de verstuurde bond", E_ERROR);
         }
-        return $team;
+        return $competitor;
     }
 }

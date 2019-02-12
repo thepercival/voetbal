@@ -13,7 +13,7 @@ use Voetbal\Poule;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
-use Voetbal\Team\Repository as TeamRepository;
+use Voetbal\Competitor\Repository as TeamRepository;
 use Voetbal\PoulePlace;
 
 class Service
@@ -101,7 +101,7 @@ class Service
 //                    $poulePlace = $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $team);
 //                }
 //                else {
-//                    $poulePlace->setTeam($team);
+//                    $poulePlace->setCompetitor($team);
 //                    if ($pouleSer->getNumber() !== $poulePlace->getPoule()->getNumber()
 //                        || $poulePlaceSer->getNumber() !== $poulePlace->getNumber()
 //                    ) {

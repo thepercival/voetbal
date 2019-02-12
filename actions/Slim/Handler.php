@@ -66,9 +66,9 @@ class Handler
                 $voetbalservice->getService(Voetbal\Association::class),
                 $voetbalservice->getRepository(Voetbal\Association::class),
                 $serializer);
-        } elseif ($resourceType === 'teams') {
-            $action = new Voetbal\Action\Team(
-                $voetbalservice->getRepository(Voetbal\Team::class),
+        } elseif ($resourceType === 'competitors') {
+            $action = new Voetbal\Action\Competitor(
+                $voetbalservice->getRepository(Voetbal\Competitor::class),
                 $voetbalservice->getRepository(Voetbal\Association::class),
                 $serializer);
         } elseif ($resourceType === 'seasons') {
@@ -150,7 +150,7 @@ class Handler
             $action = new Voetbal\Action\PoulePlace(
                 $voetbalservice->getRepository(Voetbal\PoulePlace::class),
                 $voetbalservice->getService(Voetbal\PoulePlace::class),
-                $voetbalservice->getRepository(Voetbal\Team::class),
+                $voetbalservice->getRepository(Voetbal\Competitor::class),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer);

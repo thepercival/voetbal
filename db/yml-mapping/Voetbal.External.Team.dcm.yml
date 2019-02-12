@@ -1,6 +1,6 @@
-Voetbal\External\Team:
+Voetbal\External\Competitor:
   type: entity
-  repositoryClass: Voetbal\External\Team\Repository
+  repositoryClass: Voetbal\External\Competitor\Repository
   table: externalteams
   id:
     id:
@@ -22,7 +22,7 @@ Voetbal\External\Team:
         nullable: false
         onDelete: CASCADE
     importableObject:
-      targetEntity: Voetbal\Team
+      targetEntity: Voetbal\Competitor
       inversedBy: externals
       joinColumn:
         name: importableObjectid

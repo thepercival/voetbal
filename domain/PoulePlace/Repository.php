@@ -9,7 +9,7 @@
 namespace Voetbal\PoulePlace;
 
 use Voetbal\PoulePlace;
-use Voetbal\Team;
+use Voetbal\Competitor;
 use Voetbal\Poule;
 
 /**
@@ -28,7 +28,7 @@ class Repository extends \Voetbal\Repository
 //        }
 //
 //        $place->setPoule( $poule );
-//        $place->setTeam( $teamEnt );
+//        $place->setCompetitor( $teamEnt );
 //        $this->_em->persist($place);
 //    }
 }

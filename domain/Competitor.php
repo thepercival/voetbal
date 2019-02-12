@@ -8,7 +8,7 @@
 
 namespace Voetbal;
 
-class Team implements External\Importable
+class Competitor implements External\Importable
 {
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 30;

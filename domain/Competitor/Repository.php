@@ -6,11 +6,9 @@
  * Time: 13:17
  */
 
-namespace Voetbal\Team;
+namespace Voetbal\Competitor;
 
 use Voetbal\External\Importable\Repository as ImportableRepository;
-use Voetbal\Team;
-use Voetbal\Association;
 
 /**
  * Team

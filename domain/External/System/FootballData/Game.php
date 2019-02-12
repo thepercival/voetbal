@@ -18,7 +18,7 @@ use Voetbal\External\Game\Repository as ExternalGameRepos;
 use Voetbal\External\Team\Repository as ExternalTeamRepos;
 use Voetbal\Game as GameBase;
 use Voetbal\Competition;
-use Voetbal\Team as TeamBase;
+use Voetbal\Competitor as TeamBase;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\External\Competition as ExternalCompetition;
 

@@ -5,7 +5,7 @@ namespace Voetbal\Qualify;
 use Voetbal\Round;
 use Voetbal\Poule;
 use Voetbal\PoulePlace;
-use Voetbal\Team;
+use Voetbal\Competitor;
 use Voetbal\Game;
 use Voetbal\Ranking;
 
@@ -276,7 +276,7 @@ class Service
 
     protected function hasTeam(array $allTeams, array $teamsToFind)
     {
-        return count( array_filter( $allTeams, function( Team $team ) use ($teamsToFind) {
+        return count( array_filter( $allTeams, function( Competitor $team ) use ($teamsToFind) {
             return in_array ( $team, $teamsToFind);
         })) > 0;
     }

@@ -93,7 +93,7 @@ class ExternalHandler
         else if ( $resourcetype === "competitions") { return \Voetbal\Competition::class; }
         else if ( $resourcetype === "associations") { return \Voetbal\Association::class; }
         else if ( $resourcetype === "seasons") { return \Voetbal\Season::class; }
-        else if ( $resourcetype === "teams") { return \Voetbal\Team::class; }
+        else if ( $resourcetype === "competitors") { return \Voetbal\Competitor::class; }
         else if ( $resourcetype === "games") { return \Voetbal\Game::class; }
 
         throw new \Exception("geen importeerbare klasse gevonden voor resource " . $resourcetype, E_ERROR );
@@ -105,7 +105,7 @@ class ExternalHandler
         else if ( $resourcetype === "competitions") { return \Voetbal\External\Competition::class; }
         else if ( $resourcetype === "associations") { return \Voetbal\External\Association::class; }
         else if ( $resourcetype === "seasons") { return \Voetbal\External\Season::class; }
-        else if ( $resourcetype === "teams") { return \Voetbal\External\Team::class; }
+        else if ( $resourcetype === "competitors") { return \Voetbal\External\Competitor::class; }
         else if ( $resourcetype === "games") { return \Voetbal\External\Game::class; }
 
        throw new \Exception("geen externe klasse gevonden voor resource " . $resourcetype, E_ERROR );

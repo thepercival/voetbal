@@ -8,7 +8,7 @@
 
 namespace Voetbal\External\Team;
 
-use Voetbal\Team\Service as TeamService;
+use Voetbal\Competitor\Service as TeamService;
 use Voetbal\Service as VoetbalService;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
@@ -65,7 +65,7 @@ class Importer
 
     public function import() {
         $externalSystemRepos = $this->voetbalService->getRepository( \Voetbal\External\System::class );
-        $teamRepos = $this->voetbalService->getRepository( \Voetbal\Team::class );
+        $teamRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
         $competitionRepos = $this->voetbalService->getRepository( \Voetbal\Competition::class );
         $externalTeamRepos = $this->voetbalService->getRepository( \Voetbal\External\Team::class );
         $externalCompetitionRepos = $this->voetbalService->getRepository( \Voetbal\External\Competition::class );

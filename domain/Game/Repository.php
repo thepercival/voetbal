@@ -9,7 +9,7 @@
 namespace Voetbal\Game;
 
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Team;
+use Voetbal\Competitor;
 use Voetbal\Competition;
 
 /**
@@ -61,7 +61,7 @@ class Repository extends \Voetbal\Repository
         return count($x) === 1;
     }
 
-    public function findByExt( Team $homeTeam, Team $awayTeam, Competition $competition, $gameStates = null)
+    public function findByExt( Competitor $homeTeam, Competitor $awayTeam, Competition $competition, $gameStates = null)
     {
         throw new \Exception("rebuild to where exists", E_ERROR );
 

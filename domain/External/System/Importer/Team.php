@@ -10,7 +10,7 @@ namespace Voetbal\External\System\Importer;
 
 use Voetbal\External\Competition as ExternalCompetition;
 use Voetbal\Association;
-use Voetbal\Team as TeamBase;
+use Voetbal\Competitor as TeamBase;
 
 interface Team
 {

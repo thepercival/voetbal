@@ -10,12 +10,12 @@ namespace Voetbal\External\System\FootballData;
 
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Team as TeamImporter;
-use Voetbal\Team\Service as TeamService;
-use Voetbal\Team\Repository as TeamRepos;
+use Voetbal\Competitor\Service as TeamService;
+use Voetbal\Competitor\Repository as TeamRepos;
 use Voetbal\External\Object\Service as ExternalObjectService;
 use Voetbal\External\Team\Repository as ExternalTeamRepos;
 use Voetbal\Association;
-use Voetbal\Team as TeamBase;
+use Voetbal\Competitor as TeamBase;
 use Voetbal\External\Competition as ExternalCompetition;
 
 class Team implements TeamImporter

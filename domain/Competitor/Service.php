@@ -6,12 +6,12 @@
  * Time: 7:52
  */
 
-namespace Voetbal\Team;
+namespace Voetbal\Competitor;
 
 use Voetbal\Round;
 use Voetbal\Association;
 use Voetbal\Structure;
-use Voetbal\Team;
+use Voetbal\Competitor;
 
 class Service
 {
@@ -22,7 +22,7 @@ class Service
         foreach ($poulePlaces as $poulePlace) {
             $team = $poulePlace->getTeam();
             if ($team !== null) {
-                $newTeam = new Team($team->getName(), $association);
+                $newTeam = new Competitor($team->getName(), $association);
                 $newTeam->setAbbreviation($team->getAbbreviation());
                 $newTeam->setImageUrl($team->getImageUrl());
                 $newTeam->setInfo($team->getInfo());
@@ -32,26 +32,26 @@ class Service
         return $teams;
     }
 
-    public function assignTeams( Structure $newStructure, array $newTeams )
+    public function assignCompetitors( Structure $newStructure, array $newTeams )
     {
         foreach( $newStructure->getRootRound()->getPoulePlaces() as $poulePlace ) {
-            $poulePlace->setTeam(null);
-            $poulePlace->setTeam(array_shift($newTeams));
+            $poulePlace->setCompetitor(null);
+            $poulePlace->setCompetitor(array_shift($newTeams));
         }
         foreach( $newStructure->getRootRound()->getChildRounds() as $childRound ) {
-            $this->removeQualifiedTeams( $childRound );
+            $this->removeQualifiedCompetitors( $childRound );
         }
     }
 
-    protected function removeQualifiedTeams( Round $round)
+    protected function removeQualifiedCompetitors( Round $round)
     {
         foreach( $round->getPoules() as $poule ) {
             foreach( $poule->getPlaces() as $place ) {
-                $place->setTeam(null);
+                $place->setCompetitor(null);
             }
         }
         foreach( $round->getChildRounds() as $childRound ) {
-            $this->removeQualifiedTeams( $childRound );
+            $this->removeQualifiedCompetitors( $childRound );
         }
     }
 }

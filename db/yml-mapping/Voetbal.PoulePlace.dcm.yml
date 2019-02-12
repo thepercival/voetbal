@@ -33,8 +33,8 @@ Voetbal\PoulePlace:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    team:
-      targetEntity: Voetbal\Team
+    competitor:
+      targetEntity: Voetbal\Competitor
       joinColumn:
         name: teamid
         referencedColumnName: id

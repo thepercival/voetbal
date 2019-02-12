@@ -1,4 +1,4 @@
-Voetbal\Team:
+Voetbal\Competitor:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method

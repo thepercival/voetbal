@@ -76,8 +76,8 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
         return new FootballDataTeamImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
-            $voetbalService->getService( \Voetbal\Team::class ),
-            $voetbalService->getRepository( \Voetbal\Team::class ),
+            $voetbalService->getService( \Voetbal\Competitor::class ),
+            $voetbalService->getRepository( \Voetbal\Competitor::class ),
             $voetbalService->getRepository( \Voetbal\External\Team::class )
         );
     }

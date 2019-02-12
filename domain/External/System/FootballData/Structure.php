@@ -116,7 +116,7 @@ class Structure implements StructureImporter
         $roundStructure->nrofwinners = 0;
 
         $round = $this->createStructure($competition, $roundStructure, $nrOfHeadtotheadMatches);
-        $this->assignTeams( $round, $externalCompetition);
+        $this->assignCompetitors( $round, $externalCompetition);
         return $round;
     }
 
@@ -156,7 +156,7 @@ class Structure implements StructureImporter
         return $round;
     }
 
-    protected function assignTeams( Round $round, ExternalCompetition $externalCompetition ) {
+    protected function assignCompetitors( Round $round, ExternalCompetition $externalCompetition ) {
 //        $externalSystemTeams = $this->teamImporter->get( $externalCompetition );
 //        if( count( $externalSystemTeams ) !== $poule->getPlaces()->count() ) {
 //            throw new \Exception("cannot assign teams: number of places does not match number of teams");
