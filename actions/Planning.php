@@ -101,7 +101,7 @@ final class Planning
                 foreach( $gameSer->getPoulePlaces() as $gamePoulePlaceSer ){
                     $poulePlace = $poule->getPlace($gamePoulePlaceSer->getPoulePlaceNr());
                     if ( $poulePlace === null ) {
-                        throw new \Exception("er kan team worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                        throw new \Exception("er kan geen deelnemer worden gevonden o.b.v. de invoergegevens", E_ERROR);
                     }
                     $game->addPoulePlace( $poulePlace, $gamePoulePlaceSer->getHomeaway() );
                 }

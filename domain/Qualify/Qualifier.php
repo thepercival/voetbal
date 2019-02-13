@@ -20,12 +20,12 @@ class Qualifier
     /**
      * @var Competitor
      */
-    private $team;
+    private $competitor;
 
-    public function __construct( PoulePlace $poulePlace, Competitor $team = null )
+    public function __construct( PoulePlace $poulePlace, Competitor $competitor = null )
     {
         $this->poulePlace = $poulePlace;
-        $this->team = $team;
+        $this->competitor = $competitor;
     }
 
     /**
@@ -39,16 +39,16 @@ class Qualifier
     /**
      * @return Competitor
      */
-    public function getTeam()
+    public function getCompetitor()
     {
-        return $this->team;
+        return $this->competitor;
     }
 
     /**
-     * @param Competitor $team
+     * @param Competitor $competitor
      */
-    public function setCompetitor( Competitor $team )
+    public function setCompetitor( Competitor $competitor )
     {
-        $this->team = $team;
+        $this->competitor = $competitor;
     }
 }

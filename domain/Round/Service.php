@@ -249,8 +249,9 @@ class Service
     }
 
     /**
-     * @param $nrOfTeams
-     * @return []
+     * @param int $roundNr
+     * @param int $nrOfPlaces
+     * @return Structure
      * @throws \Exception
      */
     public function getDefault( int $roundNr, int $nrOfPlaces ): RoundStructure
@@ -300,7 +301,7 @@ class Service
         else if( $nrOfPlaces === 39 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 40 ) { $roundStructure->nrofpoules = 8; $roundStructure->nrofpoules = 8; }
         else {
-            throw new \Exception("het aantal teams moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
+            throw new \Exception("het aantal deelnemers moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
         }
         return $roundStructure;
     }

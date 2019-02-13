@@ -10,7 +10,7 @@ namespace Voetbal\External\System\Importer;
 
 use Voetbal\External\League as ExternalLeague;
 
-interface TeamGetter
+interface CompetitorGetter
 {
-    public function getTeams( ExternalLeague $externalLeague );
+    public function getCompetitors( ExternalLeague $externalLeague );
 }

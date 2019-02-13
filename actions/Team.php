@@ -82,7 +82,7 @@ final class Competitor
             /** @var \Voetbal\Competitor $competitorSer */
             $competitorSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Competitor', 'json');
             if ( $competitorSer === null ) {
-                throw new \Exception("er kan geen team worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen deelnemer worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
             $competitor = new CompetitorBase( $competitorSer->getName(), $association );
@@ -105,10 +105,10 @@ final class Competitor
         try {
             $competitor = $this->getCompetitor( $args['id'], (int) $request->getParam("associationid") );
 
-            /** @var \Voetbal\Competitor $teamSer */
+            /** @var \Voetbal\Competitor $competitorSer */
             $competitorSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competitor', 'json');
             if ( $competitorSer === null ) {
-                throw new \Exception("het team kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+                throw new \Exception("de deelnemer kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
             $competitor->setName($competitorSer->getName());

@@ -222,7 +222,7 @@ class Poule
         return Game::STATE_CREATED;
     }
 
-    public function getCompetitors(): ArrayCollection // <Team>
+    public function getCompetitors(): ArrayCollection
     {
         $competitors = new ArrayCollection();
         foreach ( $this->getPlaces() as $place ) {

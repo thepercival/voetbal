@@ -11,14 +11,13 @@ namespace Voetbal\External\System\FootballData;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
-use Voetbal\External\System\Importer\Team as TeamImporter;
+use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
 use Voetbal\External\System\Importer\Game as GameImporter;
 use Voetbal\Competition as Competition;
 use Voetbal\External\Competition as ExternalCompetition;
-use Voetbal\External\Team\Repository as ExternalTeamRepos;
+use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
-use Voetbal\Poule;
 use Voetbal\Round;
 use Voetbal\Round\Structure as RoundStructure;
 use Voetbal\Structure\Options as StructureOptions;
@@ -42,9 +41,9 @@ class Structure implements StructureImporter
     private $competitionImporter;
 
     /**
-     * @var TeamImporter
+     * @var CompetitorImporter
      */
-    private $teamImporter;
+    private $competitorImporter;
 
     /**
      * @var GameImporter
@@ -52,9 +51,9 @@ class Structure implements StructureImporter
     private $gameImporter;
 
     /**
-     * @var ExternalTeamRepos
+     * @var ExternalCompetitorRepos
      */
-    private $externalTeamRepos;
+    private $externalCompetitorRepos;
 
     /**
      * @var StructureService
@@ -75,9 +74,9 @@ class Structure implements StructureImporter
         ExternalSystemBase $externalSystemBase,
         ApiHelper $apiHelper,
         CompetitionImporter $competitionImporter,
-        TeamImporter $teamImporter,
+        CompetitorImporter $competitorImporter,
         GameImporter $gameImporter,
-        ExternalTeamRepos $externalTeamRepos,
+        ExternalCompetitorRepos $externalCompetitorRepos,
         StructureService $structureService,
         PoulePlaceService $poulePlaceService,
         RoundConfigService $roundConfigService
@@ -86,9 +85,9 @@ class Structure implements StructureImporter
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
         $this->competitionImporter = $competitionImporter;
-        $this->teamImporter = $teamImporter;
+        $this->competitorImporter = $competitorImporter;
         $this->gameImporter = $gameImporter;
-        $this->externalTeamRepos = $externalTeamRepos;
+        $this->externalCompetitorRepos = $externalCompetitorRepos;
         $this->structureService = $structureService;
         $this->poulePlaceService = $poulePlaceService;
         $this->roundConfigService = $roundConfigService;
@@ -101,12 +100,12 @@ class Structure implements StructureImporter
             return;
         }
         $nrOfPoules = $this->getNrOfPoules($externalCompetition);
-        $nrOfPlaces = $footballDataCompetition->numberOfTeams;
-        $externalTeams = $this->externalTeamRepos->findBy(array(
+        $nrOfPlaces = $footballDataCompetition->numberOfCompetitors;
+        $externalCompetitors = $this->externalCompetitorRepos->findBy(array(
             'externalSystem' => $this->externalSystemBase
         ));
-        if( count($externalTeams) < $nrOfPlaces ) {
-            throw new \Exception("for ".$this->externalSystemBase->getName()." there are not enough teams to create a structure", E_ERROR);
+        if( count($externalCompetitors) < $nrOfPlaces ) {
+            throw new \Exception("for ".$this->externalSystemBase->getName()." there are not enough competitors to create a structure", E_ERROR);
         }
         $nrOfHeadtotheadMatches = $this->getNrOfHeadtotheadMatches($externalCompetition, $nrOfPlaces, $nrOfPoules);
 
@@ -122,18 +121,18 @@ class Structure implements StructureImporter
 
     protected function getNrOfHeadtotheadMatches($externalCompetition, $nrOfPlaces, $nrOfPoules)
     {
-        $nrOfTeams = $nrOfPlaces;
-        $nrOfTeams = $nrOfTeams - ( $nrOfTeams % $nrOfPoules );
-        $nrOfTeamsPerPoule = $nrOfTeams / $nrOfPoules;
+        $nrOfCompetitors = $nrOfPlaces;
+        $nrOfCompetitors = $nrOfCompetitors - ( $nrOfCompetitors % $nrOfPoules );
+        $nrOfCompetitorsPerPoule = $nrOfCompetitors / $nrOfPoules;
 
         $nrOfGames = count( $this->gameImporter->get($externalCompetition) );
         $nrOfGamesPerPoule = $nrOfGames / $nrOfPoules;
 
-        $nrOfGamesPerGameRound = ( $nrOfTeamsPerPoule - ( $nrOfTeamsPerPoule % 2 ) ) / 2;
+        $nrOfGamesPerGameRound = ( $nrOfCompetitorsPerPoule - ( $nrOfCompetitorsPerPoule % 2 ) ) / 2;
 
         $nrOfGameRounds = ( $nrOfGamesPerPoule / $nrOfGamesPerGameRound );
 
-        return $nrOfGameRounds / ( $nrOfTeamsPerPoule - 1 );
+        return $nrOfGameRounds / ( $nrOfCompetitorsPerPoule - 1 );
     }
 
     protected function getNrOfPoules($externalCompetition)
@@ -157,9 +156,9 @@ class Structure implements StructureImporter
     }
 
     protected function assignCompetitors( Round $round, ExternalCompetition $externalCompetition ) {
-//        $externalSystemTeams = $this->teamImporter->get( $externalCompetition );
-//        if( count( $externalSystemTeams ) !== $poule->getPlaces()->count() ) {
-//            throw new \Exception("cannot assign teams: number of places does not match number of teams");
+//        $externalSystemCompetitors = $this->competitorImporter->get( $externalCompetition );
+//        if( count( $externalSystemCompetitors ) !== $poule->getPlaces()->count() ) {
+//            throw new \Exception("cannot assign competitors: number of places does not match number of competitors");
 //        }
 
         $leagueTables = (array) $this->get($externalCompetition);
@@ -177,20 +176,20 @@ class Structure implements StructureImporter
                     throw new \Exception("not enough places for leaguetableitems", E_ERROR );
                 }
                 $place = $placeIt->current();
-                $teamExternalId = null;
-                if( property_exists ( $leagueTableItem, "teamId" )  ) {
-                    $teamExternalId = $leagueTableItem->teamId;
+                $competitorExternalId = null;
+                if( property_exists ( $leagueTableItem, "competitorId" )  ) {
+                    $competitorExternalId = $leagueTableItem->competitorId;
                 } else {
-                    $teamExternalId = $this->apiHelper->getId( $leagueTableItem );
+                    $competitorExternalId = $this->apiHelper->getId( $leagueTableItem );
                 }
-                if( $teamExternalId === null ) {
-                    throw new \Exception("teamid could not be found", E_ERROR );
+                if( $competitorExternalId === null ) {
+                    throw new \Exception("competitorid could not be found", E_ERROR );
                 }
-                $team = $this->externalTeamRepos->findImportable( $this->externalSystemBase, $teamExternalId );
-                if( $team === null ) {
-                    throw new \Exception("cannot assign teams: no team for externalid ".$teamExternalId." and ".$this->externalSystemBase->getName(), E_ERROR );
+                $competitor = $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $competitorExternalId );
+                if( $competitor === null ) {
+                    throw new \Exception("cannot assign competitors: no competitor for externalid ".$competitorExternalId." and ".$this->externalSystemBase->getName(), E_ERROR );
                 }
-                $this->poulePlaceService->assignTeam($place, $team );
+                $this->poulePlaceService->assignCompetitor($place, $competitor );
                 $placeIt->next();
             }
             $pouleIt->next();
@@ -199,8 +198,8 @@ class Structure implements StructureImporter
 
 //        $counter = 0;
 //        foreach( $poule->getPlaces() as $place ) {
-//            $externalSystemTeam = $externalSystemTeams[$counter++];
-//            $teamExternalId = $this->teamImporter->getId($externalSystemTeam);
+//            $externalSystemCompetitor = $externalSystemCompetitors[$counter++];
+//            $competitorExternalId = $this->competitorImporter->getId($externalSystemCompetitor);
 //
 //        }
     }

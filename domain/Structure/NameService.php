@@ -71,16 +71,16 @@ class NameService
         return $pouleName;
     }
 
-    public function getPoulePlacesFromName(ArrayCollection $gamePouleplaces, bool $teamName, bool $longName = null): string {
-        return implode( ' & ', $gamePouleplaces->map( function( $gamePoulePlace) use ( $teamName, $longName ) {
-                return $this->getPoulePlaceFromName($gamePoulePlace->getPoulePlace(), $teamName, $longName);
+    public function getPoulePlacesFromName(ArrayCollection $gamePouleplaces, bool $competitorName, bool $longName = null): string {
+        return implode( ' & ', $gamePouleplaces->map( function( $gamePoulePlace) use ( $competitorName, $longName ) {
+                return $this->getPoulePlaceFromName($gamePoulePlace->getPoulePlace(), $competitorName, $longName);
         })->toArray());
     }
 
-    public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $teamName, bool $longName = null)
+    public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $competitorName, bool $longName = null)
     {
-        if ($teamName === true && $pouleplace->getTeam() !== null) {
-            return $pouleplace->getTeam()->getName();
+        if ($competitorName === true && $pouleplace->getCompetitor() !== null) {
+            return $pouleplace->getCompetitor()->getName();
         }
         $fromQualifyRule = $pouleplace->getFromQualifyRule();
         if ($fromQualifyRule === null) { // first round
@@ -110,10 +110,10 @@ class NameService
     }
 
 
-    public function getPoulePlaceName(PoulePlace $poulePlace, bool $teamName, bool $longName = null)
+    public function getPoulePlaceName(PoulePlace $poulePlace, bool $competitorName, bool $longName = null)
     {
-        if ($teamName === true && $poulePlace->getTeam() !== null) {
-            return $poulePlace->getTeam()->getName();
+        if ($competitorName === true && $poulePlace->getCompetitor() !== null) {
+            return $poulePlace->getCompetitor()->getName();
         }
         if ($longName === true) {
             return $this->getPouleName($poulePlace->getPoule(), true) . ' nr. ' . $poulePlace->getNumber();

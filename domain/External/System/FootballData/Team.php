@@ -9,16 +9,16 @@
 namespace Voetbal\External\System\FootballData;
 
 use Voetbal\External\System as ExternalSystemBase;
-use Voetbal\External\System\Importer\Team as TeamImporter;
-use Voetbal\Competitor\Service as TeamService;
-use Voetbal\Competitor\Repository as TeamRepos;
+use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
+use Voetbal\Competitor\Service as CompetitorService;
+use Voetbal\Competitor\Repository as CompetitorRepos;
 use Voetbal\External\Object\Service as ExternalObjectService;
-use Voetbal\External\Team\Repository as ExternalTeamRepos;
+use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
 use Voetbal\Association;
-use Voetbal\Competitor as TeamBase;
+use Voetbal\Competitor as CompetitorBase;
 use Voetbal\External\Competition as ExternalCompetition;
 
-class Team implements TeamImporter
+class Competitor implements CompetitorImporter
 {
     /**
      * @var ExternalSystemBase
@@ -31,12 +31,12 @@ class Team implements TeamImporter
     private $apiHelper;
 
     /**
-     * @var TeamService
+     * @var CompetitorService
      */
     private $service;
 
     /**
-     * @var TeamRepos
+     * @var CompetitorRepos
      */
     private $repos;
 
@@ -46,16 +46,16 @@ class Team implements TeamImporter
     private $externalObjectService;
 
     /**
-     * @var ExternalTeamRepos
+     * @var ExternalCompetitorRepos
      */
     private $externalObjectRepos;
 
     public function __construct(
         ExternalSystemBase $externalSystemBase,
         ApiHelper $apiHelper,
-        TeamService $service,
-        TeamRepos $repos,
-        ExternalTeamRepos $externalRepos
+        CompetitorService $service,
+        CompetitorRepos $repos,
+        ExternalCompetitorRepos $externalRepos
     )
     {
         $this->externalSystemBase = $externalSystemBase;
@@ -70,50 +70,50 @@ class Team implements TeamImporter
 
     public function get( ExternalCompetition $externalCompetition )
     {
-        $retVal = $this->apiHelper->getData("competitions/". $externalCompetition->getExternalId() . "/teams");
-        return $retVal->teams;
+        $retVal = $this->apiHelper->getData("competitions/". $externalCompetition->getExternalId() . "/competitors");
+        return $retVal->competitors;
     }
 
     public function create( Association $association, $externalSystemObject )
     {
-        $team = $this->repos->findOneBy(["association" => $association, "name" => $externalSystemObject->name]);
-        if ( $team === null ) {
-            $team = $this->service->create(
+        $competitor = $this->repos->findOneBy(["association" => $association, "name" => $externalSystemObject->name]);
+        if ( $competitor === null ) {
+            $competitor = $this->service->create(
                 $externalSystemObject->name,
                 $association,
-                strtolower( substr( trim( $externalSystemObject->shortName ), 0, TeamBase::MAX_LENGTH_ABBREVIATION ) ),
+                strtolower( substr( trim( $externalSystemObject->shortName ), 0, CompetitorBase::MAX_LENGTH_ABBREVIATION ) ),
                 $externalSystemObject->crestUrl
             );
         }
-        $externalTeam = $this->createExternal( $team, $this->apiHelper->getId( $externalSystemObject) );
-        return $team;
+        $externalCompetitor = $this->createExternal( $competitor, $this->apiHelper->getId( $externalSystemObject) );
+        return $competitor;
 
     }
 
-    public function update( TeamBase $team, $externalSystemObject )
+    public function update( CompetitorBase $competitor, $externalSystemObject )
     {
         return $this->service->edit(
-            $team,
+            $competitor,
             $externalSystemObject->name,
-            strtolower( substr( trim( $externalSystemObject->shortName ), 0, TeamBase::MAX_LENGTH_ABBREVIATION ) ),
+            strtolower( substr( trim( $externalSystemObject->shortName ), 0, CompetitorBase::MAX_LENGTH_ABBREVIATION ) ),
             $externalSystemObject->crestUrl
         );
     }
 
-    protected function createExternal( TeamBase $team, $externalId )
+    protected function createExternal( CompetitorBase $competitor, $externalId )
     {
-        $externalTeam = $this->externalObjectRepos->findOneByExternalId (
+        $externalCompetitor = $this->externalObjectRepos->findOneByExternalId (
             $this->externalSystemBase,
             $externalId
         );
-        if( $externalTeam === null ) {
-            $externalTeam = $this->externalObjectService->create(
-                $team,
+        if( $externalCompetitor === null ) {
+            $externalCompetitor = $this->externalObjectService->create(
+                $competitor,
                 $this->externalSystemBase,
                 $externalId
             );
         }
-        return $externalTeam;
+        return $externalCompetitor;
     }
 
     public function getId($externalSystemObject): int

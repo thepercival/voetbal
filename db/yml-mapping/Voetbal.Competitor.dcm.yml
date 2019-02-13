@@ -42,6 +42,3 @@ Voetbal\Competitor:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-
-
-       # association icm teamname moet unique zijn!!!

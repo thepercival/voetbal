@@ -13,8 +13,7 @@ use Voetbal\Poule;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
-use Voetbal\Competitor\Repository as TeamRepository;
-use Voetbal\PoulePlace;
+use Voetbal\Competitor\Repository as CompetitorRepository;
 
 class Service
 {
@@ -31,27 +30,27 @@ class Service
      */
     protected $poulePlaceRepos;
     /**
-     * @var TeamRepository
+     * @var CompetitorRepository
      */
-    protected $teamRepos;
+    protected $competitorRepos;
 
     /**
      * Service constructor.
      * @param Repository $repos
      * @param PoulePlaceService $poulePlaceService
      * @param PoulePlaceRepository $poulePlaceRepos
-     * @param TeamRepository $teamRepos
+     * @param CompetitorRepository $competitorRepos
      */
     public function __construct( 
         PouleRepository $repos, 
         PoulePlaceService $poulePlaceService,
         PoulePlaceRepository $poulePlaceRepos,
-        TeamRepository $teamRepos )
+        CompetitorRepository $competitorRepos )
     {
         $this->repos = $repos;
         $this->poulePlaceService = $poulePlaceService;
         $this->poulePlaceRepos = $poulePlaceRepos;
-        $this->teamRepos = $teamRepos;
+        $this->competitorRepos = $competitorRepos;
     }
 
     public function create( Round $round, int $number, int $nrOfPlaces = null ): Poule
@@ -79,7 +78,7 @@ class Service
     {
         $poule = $this->create( $round, $number );
         foreach( $placesSer as $placeSer ) {
-            $this->poulePlaceService->create( $poule, $placeSer->getNumber(), $placeSer->getTeam() );
+            $this->poulePlaceService->create( $poule, $placeSer->getNumber(), $placeSer->getCompetitor() );
         }
 
 
@@ -89,19 +88,19 @@ class Service
 //                throw new \Exception("bij de plek kon geen poule gevonden worden ", E_ERROR);
 //            }
 //            foreach ($pouleSer->getPlaces() as $poulePlaceSer) {
-//                $team = $poulePlaceSer->getTeam();
-//                if ($team !== null && $team->getId() !== null) {
-//                    $team = $this->teamRepos->find($team->getId());
+//                $competitor = $poulePlaceSer->getCompetitor();
+//                if ($competitor !== null && $competitor->getId() !== null) {
+//                    $competitor = $this->competitorRepos->find($competitor->getId());
 //                }
 //                $poulePlace = null;
 //                if ($poulePlaceSer->getId() !== null) {
 //                    $poulePlace = $this->poulePlaceRepos->find($poulePlaceSer->getId());
 //                }
 //                if ($poulePlace === null) {
-//                    $poulePlace = $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $team);
+//                    $poulePlace = $this->poulePlaceService->create($poule, $poulePlaceSer->getNumber(), $competitor);
 //                }
 //                else {
-//                    $poulePlace->setCompetitor($team);
+//                    $poulePlace->setCompetitor($competitor);
 //                    if ($pouleSer->getNumber() !== $poulePlace->getPoule()->getNumber()
 //                        || $poulePlaceSer->getNumber() !== $poulePlace->getNumber()
 //                    ) {
@@ -116,23 +115,23 @@ class Service
     }
 
 //    /**
-//     * @param Team $team
+//     * @param Competitor $competitor
 //     * @param $name
 //     * @param Association $association
 //     * @param null $abbreviation
 //     * @return mixed
 //     * @throws \Exception
 //     */
-//    public function edit( Team $team, $name, Association $association, $abbreviation = null )
+//    public function edit( Competitor $competitor, $name, Association $association, $abbreviation = null )
 //    {
-//        $teamWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-//        if ( $teamWithSameName !== null and $teamWithSameName !== $team ){
+//        $competitorWithSameName = $this->repos->findOneBy( array('name' => $name ) );
+//        if ( $competitorWithSameName !== null and $competitorWithSameName !== $competitor ){
 //            throw new \Exception("de bondsnaam ".$name." bestaat al", E_ERROR );
 //        }
 //
-//        $team->setName($name);
-//        $team->setAbbreviation($abbreviation);
-//        $team->setAssociation($association);
+//        $competitor->setName($name);
+//        $competitor->setAbbreviation($abbreviation);
+//        $competitor->setAssociation($association);
 //    }
 //
 

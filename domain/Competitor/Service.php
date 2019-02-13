@@ -15,28 +15,28 @@ use Voetbal\Competitor;
 
 class Service
 {
-    public function createTeamsFromRound(Round $rootRound, Association $association)
+    public function createCompetitorsFromRound(Round $rootRound, Association $association)
     {
-        $teams = [];
+        $competitors = [];
         $poulePlaces = $rootRound->getPoulePlaces();
         foreach ($poulePlaces as $poulePlace) {
-            $team = $poulePlace->getTeam();
-            if ($team !== null) {
-                $newTeam = new Competitor($team->getName(), $association);
-                $newTeam->setAbbreviation($team->getAbbreviation());
-                $newTeam->setImageUrl($team->getImageUrl());
-                $newTeam->setInfo($team->getInfo());
-                $teams[] = $newTeam;
+            $competitor = $poulePlace->getCompetitor();
+            if ($competitor !== null) {
+                $newCompetitor = new Competitor($competitor->getName(), $association);
+                $newCompetitor->setAbbreviation($competitor->getAbbreviation());
+                $newCompetitor->setImageUrl($competitor->getImageUrl());
+                $newCompetitor->setInfo($competitor->getInfo());
+                $competitors[] = $newCompetitor;
             }
         }
-        return $teams;
+        return $competitors;
     }
 
-    public function assignCompetitors( Structure $newStructure, array $newTeams )
+    public function assignCompetitors( Structure $newStructure, array $newCompetitors )
     {
         foreach( $newStructure->getRootRound()->getPoulePlaces() as $poulePlace ) {
             $poulePlace->setCompetitor(null);
-            $poulePlace->setCompetitor(array_shift($newTeams));
+            $poulePlace->setCompetitor(array_shift($newCompetitors));
         }
         foreach( $newStructure->getRootRound()->getChildRounds() as $childRound ) {
             $this->removeQualifiedCompetitors( $childRound );

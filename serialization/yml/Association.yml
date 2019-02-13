@@ -11,12 +11,3 @@ Voetbal\Association:
       type: string
     parent:
       type: Voetbal\Association
-#    externals:
-#      read_only: true
-#    competitions:
-#      read_only: true
-#    teams:
-#      read_only: true
-
-#  virtual_properties:
-#    isInGebruik:

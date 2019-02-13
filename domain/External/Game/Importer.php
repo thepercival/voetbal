@@ -16,7 +16,7 @@ use Voetbal\Game;
 use Voetbal\External\System\Factory as ExternalSystemFactory;
 
 use Voetbal\External\System\Importable\Game as GameImportable;
-use Voetbal\External\System\Importable\Team as TeamImportable;
+use Voetbal\External\System\Importable\Competitor as CompetitorImportable;
 use Voetbal\External\System\Importable\Competition as CompetitionImportable;
 
 class Importer
@@ -60,16 +60,16 @@ class Importer
 
     public function import() {
         $externalSystemRepos = $this->voetbalService->getRepository( \Voetbal\External\System::class );
-        $externalTeamRepos = $this->voetbalService->getRepository( \Voetbal\External\Team::class );
+        $externalCompetitorRepos = $this->voetbalService->getRepository( \Voetbal\External\Competitor::class );
         $gameRepos = $this->voetbalService->getRepository( \Voetbal\Game::class );
-        $teamRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
+        $competitorRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
         $competitionRepos = $this->voetbalService->getRepository( \Voetbal\Competition::class );
         $externalGameRepos = $this->voetbalService->getRepository( \Voetbal\External\Game::class );
         $externalCompetitionRepos = $this->voetbalService->getRepository( \Voetbal\External\Competition::class );
 
         $externalSystemFactory = new ExternalSystemFactory();
 
-        $teamService = $this->voetbalService->getService( \Voetbal\Competitor::class );
+        $competitorService = $this->voetbalService->getService( \Voetbal\Competitor::class );
         $planningService = $this->voetbalService->getService( \Voetbal\Planning::class );
 
         $externalSystems = $externalSystemRepos->findAll();
@@ -80,7 +80,7 @@ class Importer
                 $externalSystem = $externalSystemFactory->create( $externalSystemBase );
                 if( $externalSystem === null or ( $externalSystem instanceof GameImportable ) !== true
                     or ( $externalSystem instanceof CompetitionImportable ) !== true
-                    or ( $externalSystem instanceof TeamImportable ) !== true ) {
+                    or ( $externalSystem instanceof CompetitorImportable ) !== true ) {
                     continue;
                 }
                 $externalSystem->init();

@@ -6,21 +6,16 @@
  * Time: 9:52
  */
 
-namespace Voetbal\External\Team;
+namespace Voetbal\External\Competitor;
 
-use Voetbal\Competitor\Service as TeamService;
 use Voetbal\Service as VoetbalService;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Voetbal\External\System\Factory as ExternalSystemFactory;
-use Voetbal\External\System\Importable\Team as TeamImportable;
+use Voetbal\External\System\Importable\Competitor as CompetitorImportable;
 
 class Importer
 {
-    /**
-     * @var TeamService
-     */
-    protected $teamService;
     /**
      * @var VoetbalService
      */
@@ -40,19 +35,16 @@ class Importer
 
     /**
      * Importer constructor.
-     * @param TeamService $teamService
      * @param VoetbalService $voetbalService
      * @param Connection $conn
      * @param Logger $logger
      */
     public function __construct(
-        TeamService $teamService,
         VoetbalService $voetbalService,
         Connection $conn,
         Logger $logger
     )
     {
-        $this->teamService = $teamService;
         $this->conn = $conn;
         $this->voetbalService = $voetbalService;
         $this->logger = $logger;
@@ -65,9 +57,9 @@ class Importer
 
     public function import() {
         $externalSystemRepos = $this->voetbalService->getRepository( \Voetbal\External\System::class );
-        $teamRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
+        $competitorRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
         $competitionRepos = $this->voetbalService->getRepository( \Voetbal\Competition::class );
-        $externalTeamRepos = $this->voetbalService->getRepository( \Voetbal\External\Team::class );
+        $externalCompetitorRepos = $this->voetbalService->getRepository( \Voetbal\External\Competitor::class );
         $externalCompetitionRepos = $this->voetbalService->getRepository( \Voetbal\External\Competition::class );
         $externalSystemFactory = new ExternalSystemFactory();
 
@@ -77,7 +69,7 @@ class Importer
             echo $externalSystemBase->getName() . PHP_EOL;
             try {
                 $externalSystem = $externalSystemFactory->create( $externalSystemBase );
-                if( $externalSystem === null or ( $externalSystem instanceof TeamImportable ) !== true ) {
+                if( $externalSystem === null or ( $externalSystem instanceof CompetitorImportable ) !== true ) {
                     continue;
                 }
                 $externalSystem->init();
@@ -88,21 +80,21 @@ class Importer
                         continue;
                     }
                     $association = $externalCompetition->getImportableObject()->getLeague()->getAssociation();
-                    $externalSystemHelper = $externalSystem->getTeamImporter($this->voetbalService);
-                    $teams = $externalSystemHelper->get( $externalCompetition );
-                    foreach( $teams as $externalSystemTeam ) {
-                        $externalId = $externalSystemHelper->getId( $externalSystemTeam );
-                        $externalTeam = $externalTeamRepos->findOneByExternalId( $externalSystemBase, $externalId );
+                    $externalSystemHelper = $externalSystem->getCompetitorImporter($this->voetbalService);
+                    $competitors = $externalSystemHelper->get( $externalCompetition );
+                    foreach( $competitors as $externalSystemCompetitor ) {
+                        $externalId = $externalSystemHelper->getId( $externalSystemCompetitor );
+                        $externalCompetitor = $externalCompetitorRepos->findOneByExternalId( $externalSystemBase, $externalId );
                         $this->conn->beginTransaction();
                         try {
-                            if( $externalTeam === null ) {
-                                $team = $externalSystemHelper->create($association, $externalSystemTeam);
+                            if( $externalCompetitor === null ) {
+                                $competitor = $externalSystemHelper->create($association, $externalSystemCompetitor);
                             } else if( $this->onlyAdd !== true ) {
-                                $externalSystemHelper->update( $externalTeam->getImportableObject(), $externalSystemTeam );
+                                $externalSystemHelper->update( $externalCompetitor->getImportableObject(), $externalSystemCompetitor );
                             }
                             $this->conn->commit();
                         } catch( \Exception $error ) {
-                            $this->logger->addError($externalSystemBase->getName().'"-team could not be created: ' . $error->getMessage() );
+                            $this->logger->addError($externalSystemBase->getName().'"-competitor could not be created: ' . $error->getMessage() );
                             $this->conn->rollBack();
                             continue;
                         }

@@ -10,15 +10,15 @@ namespace Voetbal\External\System\FootballData;
 
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Game as GameImporter;
-use Voetbal\External\System\Importer\Team as TeamImporter;
+use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
 use Voetbal\External\Object\Service as ExternalObjectService;
 use Voetbal\External\Game\Repository as ExternalGameRepos;
-use Voetbal\External\Team\Repository as ExternalTeamRepos;
+use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
 use Voetbal\Game as GameBase;
 use Voetbal\Competition;
-use Voetbal\Competitor as TeamBase;
+use Voetbal\Competitor as CompetitorBase;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\External\Competition as ExternalCompetition;
 
@@ -55,14 +55,14 @@ class Game implements GameImporter
     private $externalRepos;
 
     /**
-     * @var ExternalTeamRepos
+     * @var ExternalCompetitorRepos
      */
-    private $externalTeamRepos;
+    private $externalCompetitorRepos;
 
     /**
-     * @var TeamImporter
+     * @var CompetitorImporter
      */
-    private $teamImporter;
+    private $competitorImporter;
 
     public function __construct(
         ExternalSystemBase $externalSystemBase,
@@ -70,8 +70,8 @@ class Game implements GameImporter
         GameService $service,
         GameRepos $repos,
         ExternalGameRepos $externalRepos,
-        ExternalTeamRepos $externalTeamRepos,
-        TeamImporter $teamImporter
+        ExternalCompetitorRepos $externalCompetitorRepos,
+        CompetitorImporter $competitorImporter
     ) {
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
@@ -81,17 +81,17 @@ class Game implements GameImporter
         $this->externalObjectService = new ExternalObjectService(
             $this->externalRepos
         );
-        $this->externalTeamRepos = $externalTeamRepos;
-        $this->teamImporter = $teamImporter;
+        $this->externalCompetitorRepos = $externalCompetitorRepos;
+        $this->competitorImporter = $competitorImporter;
     }
 
-    public function get(ExternalCompetition $externalCompetition, bool $onlyWithTeams = true )
+    public function get(ExternalCompetition $externalCompetition, bool $onlyWithCompetitors = true )
     {
         $externalGames = $this->apiHelper->getData("competitions/" . $externalCompetition->getExternalId() . "/fixtures");
         $externalGames = $externalGames->fixtures;
-        if( $onlyWithTeams === true ) {
+        if( $onlyWithCompetitors === true ) {
             $externalGames = array_filter( $externalGames, function( $externalGame ) {
-                return ( strlen( $externalGame->homeTeamName ) > 0 && strlen( $externalGame->awayTeamName ) > 0 );
+                return ( strlen( $externalGame->homeCompetitorName ) > 0 && strlen( $externalGame->awayCompetitorName ) > 0 );
             });
         }
         return $externalGames;
@@ -99,12 +99,12 @@ class Game implements GameImporter
 
     /**
      * @param ExternalCompetition $externalCompetition
-     * @param array $externalSystemTeams
+     * @param array $externalSystemCompetitors
      * @throws \Exception
      */
     public function create(ExternalCompetition $externalCompetition)
     {
-        $externalSystemTeams = $this->teamImporter->get( $externalCompetition );
+        $externalSystemCompetitors = $this->competitorImporter->get( $externalCompetition );
         $externalSystemGames = $this->get($externalCompetition);
         foreach ($externalSystemGames as $externalSystemGame) {
             $externalGame = $this->externalRepos->findOneByExternalId(
@@ -117,9 +117,9 @@ class Game implements GameImporter
             }
             $game = $this->getGame(
                 $externalCompetition->getImportableObject(),
-                $externalSystemGame->homeTeamName,
-                $externalSystemGame->awayTeamName,
-                $externalSystemTeams
+                $externalSystemGame->homeCompetitorName,
+                $externalSystemGame->awayCompetitorName,
+                $externalSystemCompetitors
             );
 
             $this->externalObjectService->create(
@@ -133,14 +133,14 @@ class Game implements GameImporter
 
     public function update(ExternalCompetition $externalCompetition)
     {
-        $externalSystemTeams = $this->teamImporter->get( $externalCompetition );
+        $externalSystemCompetitors = $this->competitorImporter->get( $externalCompetition );
         $externalSystemGames = $this->get($externalCompetition);
         foreach ($externalSystemGames as $externalSystemGame) {
             $game = $this->getGame(
                 $externalCompetition->getImportableObject(),
-                $externalSystemGame->homeTeamName,
-                $externalSystemGame->awayTeamName,
-                $externalSystemTeams
+                $externalSystemGame->homeCompetitorName,
+                $externalSystemGame->awayCompetitorName,
+                $externalSystemCompetitors
             );
             $externalGame = $this->externalRepos->findOneByExternalId(
                 $this->externalSystemBase,
@@ -174,15 +174,15 @@ class Game implements GameImporter
             $gameScores = [];
             if( property_exists ( $externalSystemGame->result, "halfTime" ) ) {
                 $gameScoreHalfTime = new \StdClass();
-                $gameScoreHalfTime->home = $externalSystemGame->result->halfTime->goalsHomeTeam;
-                $gameScoreHalfTime->away = $externalSystemGame->result->halfTime->goalsAwayTeam;
+                $gameScoreHalfTime->home = $externalSystemGame->result->halfTime->goalsHomeCompetitor;
+                $gameScoreHalfTime->away = $externalSystemGame->result->halfTime->goalsAwayCompetitor;
                 $gameScoreHalfTime->moment = GameBase::MOMENT_HALFTIME;
                 $gameScores[] = $gameScoreHalfTime;
             }
 
             $gameScoreFullTime = new \StdClass();
-            $gameScoreFullTime->home = $externalSystemGame->result->goalsHomeTeam;
-            $gameScoreFullTime->away = $externalSystemGame->result->goalsAwayTeam;
+            $gameScoreFullTime->home = $externalSystemGame->result->goalsHomeCompetitor;
+            $gameScoreFullTime->away = $externalSystemGame->result->goalsAwayCompetitor;
             $gameScoreFullTime->moment = GameBase::MOMENT_FULLTIME;
             $gameScores[] = $gameScoreFullTime;
 
@@ -194,7 +194,7 @@ class Game implements GameImporter
                 $qualifyService->setQualifyRules();
                 $newQualifiers = $qualifyService->getNewQualifiers( $game->getPoule() );
                 foreach( $newQualifiers as $newQualifier ) {
-                    $this->poulePlaceService->assignTeam( $newQualifier->getPoulePlace(), $newQualifier->getTeam() );
+                    $this->poulePlaceService->assignCompetitor( $newQualifier->getPoulePlace(), $newQualifier->getCompetitor() );
                 }
             }
         }
@@ -202,22 +202,22 @@ class Game implements GameImporter
     }
 
     protected function getGame( Competition $competition,
-        $externalSystemHomeTeam, $externalSystemAwayTeam, array $externalSystemTeams): GameBase
+        $externalSystemHomeCompetitor, $externalSystemAwayCompetitor, array $externalSystemCompetitors): GameBase
     {
-        $homeTeam = $this->getTeam( $externalSystemHomeTeam, $externalSystemTeams);
-        if( $homeTeam === null ) {
-            throw new \Exception("hometeam could not be found for ".$this->externalSystemBase->getName()."-teamid " . $externalSystemHomeTeam, E_ERROR );
+        $homeCompetitor = $this->getCompetitor( $externalSystemHomeCompetitor, $externalSystemCompetitors);
+        if( $homeCompetitor === null ) {
+            throw new \Exception("homecompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemHomeCompetitor, E_ERROR );
         }
-        $awayTeam = $this->getTeam( $externalSystemAwayTeam, $externalSystemTeams);
-        if( $awayTeam === null ) {
-            throw new \Exception("awayteam could not be found for ".$this->externalSystemBase->getName()."-teamid " . $externalSystemAwayTeam, E_ERROR );
+        $awayCompetitor = $this->getCompetitor( $externalSystemAwayCompetitor, $externalSystemCompetitors);
+        if( $awayCompetitor === null ) {
+            throw new \Exception("awaycompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemAwayCompetitor, E_ERROR );
         }
-        $games = $this->repos->findByExt($homeTeam, $awayTeam, $competition );
+        $games = $this->repos->findByExt($homeCompetitor, $awayCompetitor, $competition );
         if( count($games) === 0 ) {
-            $games = $this->repos->findByExt($awayTeam, $homeTeam, $competition );
+            $games = $this->repos->findByExt($awayCompetitor, $homeCompetitor, $competition );
         }
         if( count($games) === 0 ) {
-            throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemHomeTeam . " vs " . $externalSystemAwayTeam, E_ERROR );
+            throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemHomeCompetitor . " vs " . $externalSystemAwayCompetitor, E_ERROR );
         }
         if( count($games) > 1 ) {
             uasort( $games, function( Game $g1, Game $g2) {
@@ -227,19 +227,19 @@ class Game implements GameImporter
         return reset( $games );
     }
 
-    protected function getTeam( $externalSystemTeamName, array $externalSystemTeams): TeamBase
+    protected function getCompetitor( $externalSystemCompetitorName, array $externalSystemCompetitors): CompetitorBase
     {
-        $externalSystemFilteredTeams = array_filter( $externalSystemTeams, function ( $externalSystemTeamIt ) use ($externalSystemTeamName) {
-            return  $externalSystemTeamIt->name === $externalSystemTeamName;
+        $externalSystemFilteredCompetitors = array_filter( $externalSystemCompetitors, function ( $externalSystemCompetitorIt ) use ($externalSystemCompetitorName) {
+            return  $externalSystemCompetitorIt->name === $externalSystemCompetitorName;
         });
-        $externalSystemTeam = count($externalSystemFilteredTeams) === 1 ? reset($externalSystemFilteredTeams) : null;
-        if( $externalSystemTeam === null ) {
-            throw new \Exception("team for ".$this->externalSystemBase->getName()."-team " . $externalSystemTeamName . " could not be found", E_ERROR );
+        $externalSystemCompetitor = count($externalSystemFilteredCompetitors) === 1 ? reset($externalSystemFilteredCompetitors) : null;
+        if( $externalSystemCompetitor === null ) {
+            throw new \Exception("competitor for ".$this->externalSystemBase->getName()."-competitor " . $externalSystemCompetitorName . " could not be found", E_ERROR );
         }
-        $externalSystemTeamId = $externalSystemTeam ? $this->apiHelper->getId( $externalSystemTeam ) : null;
-        if( $externalSystemTeamId === null ) {
-            throw new \Exception("teamid for ".$this->externalSystemBase->getName()."-team " . $externalSystemTeamName . " could not be found", E_ERROR );
+        $externalSystemCompetitorId = $externalSystemCompetitor ? $this->apiHelper->getId( $externalSystemCompetitor ) : null;
+        if( $externalSystemCompetitorId === null ) {
+            throw new \Exception("competitorid for ".$this->externalSystemBase->getName()."-competitor " . $externalSystemCompetitorName . " could not be found", E_ERROR );
         }
-        return $this->externalTeamRepos->findImportable( $this->externalSystemBase, $externalSystemTeamId);
+        return $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $externalSystemCompetitorId);
     }
 }

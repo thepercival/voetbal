@@ -10,20 +10,20 @@ namespace Voetbal\External\System;
 
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importable\Competition as CompetitionImportable;
-use Voetbal\External\System\Importable\Team as TeamImportable;
+use Voetbal\External\System\Importable\Competitor as CompetitorImportable;
 use Voetbal\External\System\Importable\Game as GameImportable;
 use Voetbal\External\System\Importable\Structure as StructureImportable;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 use Voetbal\External\System\Importer\Game as GameImporter;
-use Voetbal\External\System\Importer\Team as TeamImporter;
+use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
 use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\System\FootballData\Competition as FootballDataCompetitionImporter;
-use Voetbal\External\System\FootballData\Team as FootballDataTeamImporter;
+use Voetbal\External\System\FootballData\Competitor as FootballDataCompetitorImporter;
 use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
 use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
 use Voetbal\Service as VoetbalService;
 
-class FootballData implements Def, CompetitionImportable, TeamImportable, StructureImportable, GameImportable
+class FootballData implements Def, CompetitionImportable, CompetitorImportable, StructureImportable, GameImportable
 {
     /**
      * @var ExternalSystem
@@ -71,14 +71,14 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
         );
     }
 
-    public function getTeamImporter(VoetbalService $voetbalService ) : TeamImporter
+    public function getCompetitorImporter(VoetbalService $voetbalService ) : CompetitorImporter
     {
-        return new FootballDataTeamImporter(
+        return new FootballDataCompetitorImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
             $voetbalService->getService( \Voetbal\Competitor::class ),
             $voetbalService->getRepository( \Voetbal\Competitor::class ),
-            $voetbalService->getRepository( \Voetbal\External\Team::class )
+            $voetbalService->getRepository( \Voetbal\External\Competitor::class )
         );
     }
 
@@ -88,9 +88,9 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
             $this->getExternalSystem(),
             $this->getApiHelper(),
             $this->getCompetitionImporter($voetbalService),
-            $this->getTeamImporter($voetbalService),
+            $this->getCompetitorImporter($voetbalService),
             $this->getGameImporter($voetbalService),
-            $voetbalService->getRepository( \Voetbal\External\Team::class ),
+            $voetbalService->getRepository( \Voetbal\External\Competitor::class ),
             $voetbalService->getService( \Voetbal\Structure::class ),
             $voetbalService->getService( \Voetbal\PoulePlace::class ),
             $voetbalService->getService( \Voetbal\Round\Config::class )
@@ -104,8 +104,8 @@ class FootballData implements Def, CompetitionImportable, TeamImportable, Struct
             $voetbalService->getService( \Voetbal\Game::class ),
             $voetbalService->getRepository( \Voetbal\Game::class ),
             $voetbalService->getRepository( \Voetbal\External\Game::class ),
-            $voetbalService->getRepository( \Voetbal\External\Team::class ),
-            $this->getTeamImporter($voetbalService)
+            $voetbalService->getRepository( \Voetbal\External\Competitor::class ),
+            $this->getCompetitorImporter($voetbalService)
         );
     }
 }

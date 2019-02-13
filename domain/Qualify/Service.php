@@ -225,8 +225,8 @@ class Service
                 $fromRankNr = $fromPoulePlace->getNumber();
                 $fromPoule = $fromPoulePlace->getPoule();
                 $ranking = $rankingService->getPoulePlacesByRankSingle($fromPoule->getPlaces()->toArray(), $fromPoule->getGames()->toArray());
-                $qualifiedTeam = $ranking[$fromRankNr - 1]->getTeam();
-                $newQualifiers[] = new Qualifier( $toPoulePlace, $qualifiedTeam );
+                $qualifiedCompetitor = $ranking[$fromRankNr - 1]->getCompetitor();
+                $newQualifiers[] = new Qualifier( $toPoulePlace, $qualifiedCompetitor );
             }
             return $newQualifiers;
         }
@@ -256,7 +256,7 @@ class Service
             if ($rankedPoulePlace === null) {
                 break;
             }
-            $newQualifiers[] = new Qualifier( $toPoulePlace, $rankedPoulePlace->getTeam());
+            $newQualifiers[] = new Qualifier( $toPoulePlace, $rankedPoulePlace->getCompetitor());
             if (($key = array_search($rankedPoulePlace, $rankedPoulePlaces)) !== false) {
                 unset($rankedPoulePlaces[$key]);
             }
@@ -266,18 +266,18 @@ class Service
 
     protected function getRankedPoulePlace(array $rankedPoulePlaces, Poule $toPoule): PoulePlace
     {
-        $toTeams = $toPoule->getTeams()->toArray();
-        $filteredRankedPoulePlaces = array_filter( $rankedPoulePlaces, function( PoulePlace $rankedPoulePlace ) use ($toTeams) {
-            $teamsToFind = $rankedPoulePlace->getPoule()->getTeams()->toArray();
-            return !$this->hasTeam($toTeams, $teamsToFind);
+        $toCompetitors = $toPoule->getCompetitors()->toArray();
+        $filteredRankedPoulePlaces = array_filter( $rankedPoulePlaces, function( PoulePlace $rankedPoulePlace ) use ($toCompetitors) {
+            $competitorsToFind = $rankedPoulePlace->getPoule()->getCompetitors()->toArray();
+            return !$this->hasCompetitor($toCompetitors, $competitorsToFind);
         });
         return reset( $filteredRankedPoulePlaces );
     }
 
-    protected function hasTeam(array $allTeams, array $teamsToFind)
+    protected function hasCompetitor(array $allCompetitors, array $competitorsToFind)
     {
-        return count( array_filter( $allTeams, function( Competitor $team ) use ($teamsToFind) {
-            return in_array ( $team, $teamsToFind);
+        return count( array_filter( $allCompetitors, function( Competitor $competitor ) use ($competitorsToFind) {
+            return in_array ( $competitor, $competitorsToFind);
         })) > 0;
     }
 }

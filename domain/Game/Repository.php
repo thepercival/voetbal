@@ -61,7 +61,7 @@ class Repository extends \Voetbal\Repository
         return count($x) === 1;
     }
 
-    public function findByExt( Competitor $homeTeam, Competitor $awayTeam, Competition $competition, $gameStates = null)
+    public function findByExt( Competitor $homeCompetitor, Competitor $awayCompetitor, Competition $competition, $gameStates = null)
     {
         throw new \Exception("rebuild to where exists", E_ERROR );
 
@@ -71,8 +71,8 @@ class Repository extends \Voetbal\Repository
             ->join("g.poule", "p")
             ->join("p.round", "r")
             ->where('r.competition = :competition')
-            ->andWhere('hpp.team = :hometeam')
-            ->andWhere('app.team = :awayteam')
+            ->andWhere('hpp.team = :homecompetitor')
+            ->andWhere('app.team = :awaycompetitor')
             ;
         if( $gameStates !== null ) {
 
@@ -81,8 +81,8 @@ class Repository extends \Voetbal\Repository
         }
         $query = $query
             ->setParameter('competition', $competition)
-            ->setParameter('hometeam', $homeTeam)
-            ->setParameter('awayteam', $awayTeam)
+            ->setParameter('homecompetitor', $homeCompetitor)
+            ->setParameter('awaycompetitor', $awayCompetitor)
         ;
         if( $gameStates !== null ) {
             $query = $query->setParameter('gamestates', $gameStates);

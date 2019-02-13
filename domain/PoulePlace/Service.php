@@ -10,7 +10,7 @@ namespace Voetbal\PoulePlace;
 
 use Voetbal\Poule;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
-use Voetbal\Competitor\Repository as TeamRepository;
+use Voetbal\Competitor\Repository as CompetitorRepository;
 use Voetbal\Competitor;
 use Voetbal\Round;
 use Doctrine\ORM\EntityManager;
@@ -24,27 +24,27 @@ class Service
     protected $repos;
 
     /**
-     * @var TeamRepository
+     * @var CompetitorRepository
      */
-    protected $teamRepos;
+    protected $competitorRepos;
 
     /**
      * Service constructor.
      * @param Repository $repos
      */
-    public function __construct( PoulePlaceRepository $repos, TeamRepository $teamRepos )
+    public function __construct( PoulePlaceRepository $repos, CompetitorRepository $competitorRepos )
     {
         $this->repos = $repos;
-        $this->teamRepos = $teamRepos;
+        $this->competitorRepos = $competitorRepos;
     }
 
-    public function create( Poule $poule, $number, Competitor $team = null/*, PoulePlace $toPoulePlace*/ )
+    public function create( Poule $poule, $number, Competitor $competitor = null/*, PoulePlace $toPoulePlace*/ )
     {
-        if ( $team !== null ){
-            $team = $this->teamRepos->find( $team->getId() );
+        if ( $competitor !== null ){
+            $competitor = $this->competitorRepos->find( $competitor->getId() );
         }
         $pouleplace = new PoulePlace( $poule, $number );
-        $pouleplace->setCompetitor($team);
+        $pouleplace->setCompetitor($competitor);
 
         return $pouleplace;
     }

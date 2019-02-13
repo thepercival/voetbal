@@ -9,9 +9,9 @@
 namespace Voetbal\External\System\Importable;
 
 use Voetbal\Service as VoetbalService;
-use Voetbal\External\System\Importer\Team as TeamImporter;
+use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
 
-interface Team
+interface Competitor
 {
-    public function getTeamImporter(VoetbalService $voetbalService) : TeamImporter;
+    public function getCompetitorImporter(VoetbalService $voetbalService) : CompetitorImporter;
 }

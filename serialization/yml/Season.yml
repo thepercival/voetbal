@@ -12,9 +12,3 @@ Voetbal\Season:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
     endDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
-#    externals:
-#      read_only: true
-#    competitions:
-#      read_only: true
-#    teams:
-#      read_only: true

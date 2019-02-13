@@ -15,7 +15,6 @@ Voetbal\External\Competitor:
   manyToOne:
     externalSystem:
       targetEntity: Voetbal\External\System
-      #inversedBy: teams
       joinColumn:
         name: externalSystemid
         referencedColumnName: id

@@ -29,21 +29,13 @@ function postSerializeHelper( Round $round, RoundNumber $roundNumber, Competitio
         foreach( $poule->getPlaces() as $poulePlace ) {
             $poulePlace->setPoule($poule);
         }
-        $getRealPoulePlace = function ( $poulePlace ) use ( $poule ) {
-            $items = array_filter($poule->getPlaces()->toArray(), function ($poulePlaceIt) use ($poulePlace) {
-                return $poulePlaceIt->getNumber() === $poulePlace->getNumber();
-            });
-            return reset($items);
-        };
         if( $poule->getGames() === null ) {
             $poule->setGames([]);
         }
         foreach( $poule->getGames() as $game ) {
-            $poulePlace->setPoule($poule);
             foreach( $game->getPoulePlaces() as $gamePoulePlace ) {
-                $gamePoulePlace->setPoulePlace($getRealPoulePlace($gamePoulePlace->getPoulePlace()));
+                $gamePoulePlace->setPoulePlace($poule->getPlace($gamePoulePlace->getPoulePlaceNr()));
             }
-
             $game->setPoule($poule);
             foreach ($game->getScores() as $gameScore) {
                 $gameScore->setGame($game);

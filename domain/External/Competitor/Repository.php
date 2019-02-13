@@ -6,11 +6,11 @@
  * Time: 10:27
  */
 
-namespace Voetbal\External\Team;
+namespace Voetbal\External\Competitor;
 
 /**
  * Class Repository
- * @package Voetbal\External\Team
+ * @package Voetbal\External\Competitor
  */
 class Repository extends \Voetbal\External\Repository
 {
