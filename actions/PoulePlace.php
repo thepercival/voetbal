@@ -46,7 +46,7 @@ final class PoulePlace
     public function __construct(
         PoulePlaceRepository $repos,
         PoulePlaceService $service,
-        CompetitionRepository $competitorRepos,
+        CompetitorRepository $competitorRepos,
         PouleRepository $pouleRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
@@ -62,7 +62,6 @@ final class PoulePlace
 
     public function edit($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
 
@@ -87,9 +86,8 @@ final class PoulePlace
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($poulePlace, 'json'));
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(422)->write($e->getMessage());
         }
-        return $response->withStatus(422)->write($sErrorMessage);
     }
 
     protected function getPoule( int $pouleId, int $competitionId ): Poule

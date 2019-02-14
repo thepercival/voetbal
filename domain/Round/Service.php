@@ -283,10 +283,10 @@ class Service
         else if( $nrOfPlaces === 21 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 22 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 23 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 24 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 24 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 25 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 26 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 27 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
+        else if( $nrOfPlaces === 27 ) { $roundStructure->nrofpoules = 9; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 28 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 29 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
         else if( $nrOfPlaces === 30 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
