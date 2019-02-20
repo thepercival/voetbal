@@ -18,7 +18,6 @@ use Voetbal\Referee\Repository as RefereeRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Voetbal\Poule;
-use Voetbal\PoulePlace;
 use Voetbal\Game as GameBase;
 
 final class Game
@@ -55,6 +54,8 @@ final class Game
      * @var Serializer
      */
     protected $serializer;
+
+    use Traits\PostSerialize;
 
     public function __construct(
         GameService $service,
@@ -100,7 +101,8 @@ final class Game
         $sErrorMessage = null;
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
-            $competition = $poule->getRound()->getNumber()->getCompetition();
+            $roundNumber = $poule->getRound()->getNumber();
+            $competition = $roundNumber->getCompetition();
 
             /** @var \Voetbal\Game $gameSer */
             $gameSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Game', 'json');
@@ -118,7 +120,7 @@ final class Game
             }
             $game = new GameBase( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber());
             $game->setPoulePlaces($gameSer->getPoulePlaces());
-            $refereePoulePlace = $gameSer->getRefereePoulePlaceNr() ? $poule->getPlace($gameSer->getRefereePoulePlaceNr()) : null;
+            $refereePoulePlace = $gameSer->getRefereePoulePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePoulePlaceId()) : null;
             $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
             $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
             $game = $this->service->editResource(

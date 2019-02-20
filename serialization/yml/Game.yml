@@ -16,7 +16,7 @@ Voetbal\Game:
       type: int
     refereeInitials:
       type: string
-    refereePoulePlaceNr:
+    refereePoulePlaceId:
       type: int
     state:
       type: int

@@ -52,6 +52,8 @@ final class Planning
      */
     protected $em;
 
+    use Traits\PostSerialize;
+
     public function __construct(
         PlanningService $service,
         GameRepository $repos,
@@ -82,7 +84,8 @@ final class Planning
     {
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
-            $competition = $poule->getRound()->getNumber()->getCompetition();
+            $roundNumber = $poule->getRound()->getNumber();
+            $competition = $roundNumber->getCompetition();
 
             $games = $poule->getGames();
             while( $games->count() > 0 ) {
@@ -105,7 +108,7 @@ final class Planning
                     }
                     $game->addPoulePlace( $poulePlace, $gamePoulePlaceSer->getHomeaway() );
                 }
-                $refereePoulePlace = $gameSer->getRefereePoulePlaceNr() ? $poule->getPlace($gameSer->getRefereePoulePlaceNr()) : null;
+                $refereePoulePlace = $gameSer->getRefereePoulePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePoulePlaceId()) : null;
                 $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
                 $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $this->gameService->editResource(
@@ -136,7 +139,8 @@ final class Planning
     {
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
-            $competition = $poule->getRound()->getNumber()->getCompetition();
+            $roundNumber = $poule->getRound()->getNumber();
+            $competition = $roundNumber->getCompetition();
 
             $games = [];
             /** @var ArrayCollection<Voetbal\Game> $gamesSer */
@@ -149,7 +153,7 @@ final class Planning
                 if ($game === null) {
                     throw new \Exception("er kan geen wedstrijd(".$gameSer->getId().") worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
-                $refereePoulePlace = $gameSer->getRefereePoulePlaceNr() ? $poule->getPlace($gameSer->getRefereePoulePlaceNr()) : null;
+                $refereePoulePlace = $gameSer->getRefereePoulePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePoulePlaceId()) : null;
                 $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
                 $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $games[] = $this->gameService->editResource(

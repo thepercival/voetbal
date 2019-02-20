@@ -57,7 +57,7 @@ class Game implements External\Importable
      * @var PoulePlace
      */
     protected $refereePoulePlace;
-    protected $refereePoulePlaceNr; // for serialization, not used
+    protected $refereePoulePlaceId; // for serialization, not used
 
     /**
      * @var Field
@@ -299,17 +299,17 @@ class Game implements External\Importable
     /**
      * @return int
      */
-    public function getRefereePoulePlaceNr()
+    public function getRefereePoulePlaceId()
     {
-        return $this->refereePoulePlace ? $this->refereePoulePlace->getNumber() : $this->refereePoulePlaceNr;
+        return $this->refereePoulePlace ? $this->refereePoulePlace->getId() : $this->refereePoulePlaceId;
     }
 
     /**
-     * @param int $refereePoulePlaceNr
+     * @param int $refereePoulePlaceId
      */
-    public function setRefereePoulePlaceNr( int $refereePoulePlaceNr = null )
+    public function setRefereePoulePlaceId( int $refereePoulePlaceId = null )
     {
-        $this->refereePoulePlaceNr = $refereePoulePlaceNr;
+        $this->refereePoulePlaceId = $refereePoulePlaceId;
     }
 
     /**
