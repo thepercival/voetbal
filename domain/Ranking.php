@@ -189,8 +189,21 @@ class Ranking
                     if (($game->getState() & $this->gameStates) === 0 ) {
                         continue;
                     }
-                    if( $game->isOneParticipating($poulePlaces, Game::HOME)
-                        && $game->isOneParticipating($poulePlaces, Game::AWAY) ) {
+                    $inHome = false;
+                    foreach( $poulePlaces as $poulePlace ) {
+                        if( $game->isParticipating($poulePlace, Game::HOME)) {
+                            $inHome = true;
+                            break;
+                        }
+                    }
+                    $inAway = false;
+                    foreach( $poulePlaces as $poulePlace ) {
+                        if( $game->isParticipating($poulePlace, Game::AWAY)) {
+                            $inAway = true;
+                            break;
+                        }
+                    }
+                    if( $inHome && $inAway ) {
                         $oGamesAgainstEachOther[] = $game;
                     }
                 }
@@ -279,7 +292,7 @@ class Ranking
             if (($game->getState() & $this->gameStates) === 0) {
                 continue;
             }
-            if ($game->isOneParticipating([$poulePlace], null )) {
+            if ($game->isParticipating($poulePlace, null )) {
                 continue;
             }
             $nrOfGames++;

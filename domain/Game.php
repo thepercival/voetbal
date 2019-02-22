@@ -400,34 +400,31 @@ class Game implements External\Importable
     }
 
     /**
-     * @param $poulePlaces
+     * @param \Voetbal\PoulePlace $poulePlace
+     * @param bool $homeaway
+     * @return GamePoulePlace
      */
-    public function addPoulePlace(PoulePlace $poulePlace, bool $homeaway)
+    public function addPoulePlace(PoulePlace $poulePlace, bool $homeaway): GamePoulePlace
     {
         return new GamePoulePlace( $this, $poulePlace, $homeaway );
     }
 
     /**
-     * @param array $poulePlaces
-     * @param bool $homeaway
+     * @param \Voetbal\PoulePlace $poulePlace
+     * @param bool|null $homeaway
      * @return bool
      */
-    public function isOneParticipating(array $poulePlaces, bool $homeaway = null ): bool {
+    public function isParticipating(PoulePlace $poulePlace, bool $homeaway = null ): bool {
         $places = $this->getPoulePlaces( $homeaway )->map( function( $gamePoulePlace ) { return $gamePoulePlace->getPoulePlace(); } );
-        foreach( $poulePlaces as $poulePlace ) {
-            if( $places->contains( $poulePlace ) ) {
-                return true;
-            }
-        }
-        return false;
+        return $places->contains( $poulePlace );
     }
 
     public function getHomeAway(PoulePlace $poulePlace): ?bool
     {
-        if( $this->isOneParticipating([$poulePlace], Game::HOME )) {
+        if( $this->isParticipating($poulePlace, Game::HOME )) {
             return Game::HOME;
         }
-        if( $this->isOneParticipating([$poulePlace], Game::AWAY )) {
+        if( $this->isParticipating($poulePlace, Game::AWAY )) {
             return Game::AWAY;
         }
         return null;

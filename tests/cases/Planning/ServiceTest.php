@@ -30,7 +30,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         postSerialize( $structure, $competition );
         $structure->setQualifyRules();
 
-        $planningService = new PlanningService();
+        $planningService = new PlanningService($competition);
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $firstRoundNumber->getConfig()->setNrOfHeadtoheadMatches(2);
         $planningService->create($firstRoundNumber, $competition->getStartDateTime());
@@ -67,7 +67,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         postSerialize( $structure, $competition );
         $structure->setQualifyRules();
 
-        $planningService = new PlanningService();
+        $planningService = new PlanningService($competition);
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $firstRoundNumber->getConfig()->setNrOfHeadtoheadMatches(2);
         $firstRoundNumber->getConfig()->setTeamup(true);
@@ -98,7 +98,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         postSerialize( $structure, $competition );
         $structure->setQualifyRules();
 
-        $planningService = new PlanningService();
+        $planningService = new PlanningService($competition);
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $firstRoundNumber->getConfig()->setTeamup(true);
         $planningService->create($firstRoundNumber, $competition->getStartDateTime());

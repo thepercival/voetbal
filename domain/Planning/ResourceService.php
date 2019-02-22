@@ -9,71 +9,62 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Game;
-use League\Period;
+use Voetbal\Round\Config as RoundNumberConfig;
 use Voetbal\PoulePlace;
 use Voetbal\Field;
-use Voetbal\Referee;
+use League\Period\Period;
+use Voetbal\Game\PoulePlace as GamePoulePlace;
+use Voetbal\Planning\Referee as PlanningReferee;
 
 class ResourceService
 {
     /**
-     * @var array | PoulePlace[]
+     * @var RoundNumberConfig
      */
-    private $poulePlaces = [];
-    /**
-     * @var int
-     */
-    private $maximalNrOfMinutesPerGame;
-    /**
-     * @var int
-     */
-    private $nrOfMinutesBetweenGames;
+    private $roundNumberConfig;
     /**
      * @var \DateTimeImmutable
      */
-    private $dateTime;
+    private $currentGameStartDate;
+    
+    /**
+     * @var array | PoulePlace[]
+     */
+    private $assignedPoulePlaces = [];
+    /**
+     * @var array | array<PlanningReferee>
+     */
+    private $assignableReferees = [];    
+    /**
+     * @var array | PlanningReferee[]
+     */
+    private $availableReferees = [];
+    
     /**
      * @var array | Field[]
      */
-    private $fields = [];
-    /**
-     * @var array | Referee[]
-     */
-    private $referees = [];
+    private $availableFields = [];
     /**
      * @var array | Field[]
      */
     private $assignableFields = [];
-    /**
-     * @var bool
-     */
-    private $areFieldsAssignable;
-    /**
-     * @var Referee
-     */
-    private $assignableReferees = [];
-    /**
-     * @var bool
-     */
-    private $areRefereesAssignable;
+    
     /**
      * @var int
      */
-    private $resourceBatch = 0;
+    private $resourceBatch = 1;
     /**
      * @var Period
      */
     private $blockedPeriod;
 
     public function __construct(
-        \DateTimeImmutable $dateTime,
-        int $maximalNrOfMinutesPerGame,
-        int $nrOfMinutesBetweenGames
+        RoundNumberConfig $roundNumberConfig,
+        \DateTimeImmutable $dateTime
     )
     {
-        $this->maximalNrOfMinutesPerGame = $maximalNrOfMinutesPerGame;
-        $this->nrOfMinutesBetweenGames = $nrOfMinutesBetweenGames;
-        $this->dateTime = $dateTime;
+        $this->roundNumberConfig = $roundNumberConfig;
+        $this->currentGameStartDate = clone $dateTime;
     }
 
 
@@ -85,62 +76,60 @@ class ResourceService
      * @param array | Field[] $fields
      */
     public function setFields( array $fields) {
-        $this->fields = $fields;
-        $this->areFieldsAssignable = count($fields) > 0;
+        $this->availableFields = $fields;
         $this->fillAssignableFields();
     }
 
     private function fillAssignableFields() {
-        if (count($this->assignableFields) >= count($this->fields)) {
+        if (count($this->assignableFields) >= count($this->availableFields)) {
             return;
         }
         if (count($this->assignableFields) === 0) {
-            $this->assignableFields = array_slice($this->fields,0);
+            $this->assignableFields = array_slice($this->availableFields,0);
             return;
         }
         $lastAssignableField = $this->assignableFields[count($this->assignableFields) - 1];
-        $idxLastAssignableField = array_search($lastAssignableField,$this->fields);
-        $firstAssignableField = $this->assignableFields[0];
-        $idxFirstAssignableField = array_search($firstAssignableField,$this->fields);
-        $endIndex = $idxFirstAssignableField > $idxLastAssignableField ? $idxFirstAssignableField : count($this->fields);
+        $idxLastAssignableField = array_search($lastAssignableField,$this->availableFields);
+        $firstAssignableField = reset($this->assignableFields);
+        $idxFirstAssignableField = array_search($firstAssignableField,$this->availableFields);
+        $endIndex = $idxFirstAssignableField > $idxLastAssignableField ? $idxFirstAssignableField : count($this->availableFields);
         for ($i = $idxLastAssignableField + 1; $i < $endIndex; $i++) {
-            $this->assignableFields[] = $this->fields[$i];
+            $this->assignableFields[] = $this->availableFields[$i];
         }
         if ($idxFirstAssignableField <= $idxLastAssignableField) {
             for ($j = 0; $j < $idxFirstAssignableField; $j++) {
-                $this->assignableFields[] = $this->fields[$j];
+                $this->assignableFields[] = $this->availableFields[$j];
             }
         }
     }
 
     /**
-     * @param array | Referee[] $referees
+     * @param array | PlanningReferee[] $referees
      */
     public function setReferees(array $referees) {
-        $this->referees = $referees;
-        $this->areRefereesAssignable = count($referees) > 0;
+        $this->availableReferees = $referees;
         $this->fillAssignableReferees();
     }
 
     private function fillAssignableReferees() {
-        if (count($this->assignableReferees) >= count($this->referees)){
+        if (count($this->assignableReferees) >= count($this->availableReferees)){
             return;
         }
         if (count($this->assignableReferees) === 0) {
-            $this->assignableReferees = array_slice($this->referees,0);
+            $this->assignableReferees = array_slice($this->availableReferees,0);
             return;
         }
         $lastAssignableReferee = $this->assignableReferees[count($this->assignableReferees) - 1];
-        $idxLastAssignableReferee = array_search($lastAssignableReferee,$this->referees);
-        $firstAssignableReferee = $this->assignableReferees[0];
-        $idxFirstAssignableReferee = array_search($firstAssignableReferee,$this->referees);
-        $endIndex = $idxFirstAssignableReferee > $idxLastAssignableReferee ? $idxFirstAssignableReferee : count($this->referees);
+        $idxLastAssignableReferee = array_search($lastAssignableReferee,$this->availableReferees);
+        $firstAssignableReferee = reset($this->assignableReferees);
+        $idxFirstAssignableReferee = array_search($firstAssignableReferee,$this->availableReferees);
+        $endIndex = $idxFirstAssignableReferee > $idxLastAssignableReferee ? $idxFirstAssignableReferee : count($this->availableReferees);
         for ($i = $idxLastAssignableReferee + 1; $i < $endIndex; $i++) {
-            $this->assignableReferees[] = $this->referees[$i];
+            $this->assignableReferees[] = $this->availableReferees[$i];
         }
         if ($idxFirstAssignableReferee <= $idxLastAssignableReferee) {
             for ($j = 0; $j < $idxFirstAssignableReferee; $j++) {
-                $this->assignableReferees[] = $this->referees[$j];
+                $this->assignableReferees[] = $this->availableReferees[$j];
             }
         }
     }
@@ -158,57 +147,67 @@ class ResourceService
         return null;
     }
 
-    private function isGameAssignable(Game $game ): bool {
-        $gamePoulePlaces = $game->getPoulePlaces();
-        foreach( $gamePoulePlaces as $gamePoulePlace ) {
-            if ($this->isPoulePlaceAssigned($gamePoulePlace->getPoulePlace() )) {
-                return false;
+    /**
+     * @param array | Game[] $games
+     * @return \DateTimeImmutable
+     */
+    public function assign(array $games): \DateTimeImmutable {
+        while (count($games) > 0) {
+            $game = $this->getAssignableGame($games);
+            if ($game === null) {
+                $this->nextResourceBatch();
+                $game = $this->getAssignableGame($games);
             }
+            $this->assignGame($game);
+            array_splice($games, array_search($game,$games), 1);
         }
-        return true;
+        return $this->getEndDateTime();
     }
 
-    public function assign(Game $game ) {
-        if ($this->fieldsOrRefereesNotAssignable()) {
-            $this->nextResourceBatch();
-        }
-        if ($this->resourceBatch === 0) {
-            $this->resourceBatch++;
-        }
-        $game->setStartDateTime($this->getDateTime());
+    public function assignGame(Game $game ) {
+        $game->setStartDateTime($this->cloneDateTime($this->currentGameStartDate));
         $game->setResourceBatch($this->resourceBatch);
-        if ($this->areFieldsAssignable) {
-            $game->setField(array_shift($this->assignableFields));
+        if ($this->areFieldsAvailable()) {
+            $this->assignField($game);
         }
-        if ($this->areRefereesAssignable) {
-            $game->setReferee(array_shift($this->assignableReferees));
-        }
-        $this->addPoulePlaces($game);
-
-        if ($this->fieldsOrRefereesNotAssignable()) {
-            $this->resetPoulePlaces();
+        $this->assignPoulePlaces($game);
+        if ($this->areRefereesAvailable()) {
+            $this->assignReferee($game);
         }
     }
 
-    public function fieldsOrRefereesNotAssignable() {
-        return (($this->areFieldsAssignable === false && $this->areRefereesAssignable === false)
-            || ($this->areFieldsAssignable && count($this->fields) > 0 && count($this->assignableFields) === 0)
-            || ($this->areRefereesAssignable && count($this->referees) > 0 && count($this->assignableReferees) === 0));
+    private function assignPoulePlaces(Game $game ) {
+        foreach( $game->getPoulePlaces() as $gamePoulePlace ) {
+            $this->assignedPoulePlaces[] = $gamePoulePlace->getPoulePlace();
+        }
+    }
+
+    protected function assignReferee(Game $game) {
+        $referee = $this->getAssignableReferee($game);
+        $referee->assign($game);
+        if ($referee->isSelf()) {
+            $this->assignedPoulePlaces[] = $referee->getPoulePlace();
+        }
+    }
+
+    protected function assignField(Game $game) {
+        $game->setField(array_shift($this->assignableFields));
     }
 
     public function nextResourceBatch() {
         $this->fillAssignableFields();
         $this->fillAssignableReferees();
         $this->resourceBatch++;
-        $this->setNextDateTime();
+        $this->setNextGameStartDateTime();
         $this->resetPoulePlaces();
     }
 
-    public function setNextDateTime() {
-        if ($this->dateTime === null) {
+    public function setNextGameStartDateTime() {
+        if ($this->currentGameStartDate === null) {
             return;
         }
-        $this->dateTime = $this->addMinutes($this->dateTime, $this->maximalNrOfMinutesPerGame + $this->nrOfMinutesBetweenGames);
+        $minutes = $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() + $this->roundNumberConfig->getMinutesBetweenGames();
+        $this->currentGameStartDate = $this->addMinutes($this->currentGameStartDate, $minutes);
     }
 
     protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {
@@ -221,37 +220,114 @@ class ResourceService
         return $newDateTime;
     }
 
-    private function resetPoulePlaces() {
-        $this->poulePlaces = [];
-    }
-
-    public function getDateTime(): \DateTimeImmutable {
-        if ($this->dateTime === null) {
+    public function cloneDateTime(\DateTimeImmutable $dateTime): \DateTimeImmutable {
+        if ($dateTime === null) {
             return null;
         }
-        return clone $this->dateTime;
-    }
-
-    private function addPoulePlaces(Game $game) {
-        foreach( $game->getPoulePlaces() as $gamePoulePlace ) {
-            $this->poulePlaces[] = $gamePoulePlace;
-        }
+        return clone $dateTime;
     }
 
     public function getEndDateTime(): \DateTimeImmutable {
-        if ($this->dateTime === null) {
+        if ($this->currentGameStartDate === null) {
             return null;
         }
-        $endDateTime = clone $this->dateTime;
-        return $endDateTime->modify("+" . $this->maximalNrOfMinutesPerGame . " minutes");
+        $endDateTime = clone $this->currentGameStartDate;
+        return $endDateTime->modify("+" . $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() . " minutes");
     }
 
-    protected function isPoulePlaceAssigned(PoulePlace $poulePlace ): bool {
-        foreach( $this->poulePlaces as $poulePlaceIt) {
-            if( $poulePlaceIt === $poulePlace) {
+    private function areFieldsAvailable(): bool {
+        return count($this->availableFields) > 0;
+    }
+
+    private function isSomeFieldAssignable(): bool {
+        return count($this->assignableFields) > 0;
+    }
+
+    private function areRefereesAvailable(): bool {
+        return count($this->availableReferees) > 0 &&
+            (!$this->roundNumberConfig->getSelfReferee() || count($this->availableReferees) > $this->roundNumberConfig->getNrOfCompetitorsPerGame())
+            ;
+    }
+
+    private function isSomeRefereeAssignable(Game $game): bool {
+        if (!$this->roundNumberConfig->getSelfReferee()) {
+            return count($this->assignableReferees) > 0;
+        }
+        foreach( $this->assignableReferees as $assignableRef ) {
+            if( !$game->isParticipating($assignableRef->getPoulePlace()) ) {
                 return true;
             }
         }
         return false;
+    }
+
+    private function getAssignableReferee(Game $game): PlanningReferee {
+        if (!$this->roundNumberConfig->getSelfReferee()) {
+            return array_shift($this->assignableReferees);
+        }
+        $refereesNotParticipating = array_filter( $this->assignableReferees, function( $assignableRef ) use ($game) {
+            return !$game->isParticipating($assignableRef->getPoulePlace());
+        });
+        $refereesOtherPoule = array_filter( $refereesNotParticipating, function( $assignableRef ) use ($game) {
+            return $game->getPoule() !== $assignableRef->getPoulePlace()->getPoule();
+        });
+        $referee = count( $refereesOtherPoule ) > 0 ? reset($refereesOtherPoule) : null;
+        if ($referee === null && count($refereesNotParticipating) > 0) {
+            $referee = reset($refereesNotParticipating);
+        }
+        if ($referee !== null) {
+            array_splice($this->assignableReferees, array_search($referee,$this->assignableReferees), 1);
+        }
+        return $referee;
+    }
+
+    private function isGameAssignable(Game $game): bool {
+        if ($this->areFieldsAvailable() && !$this->isSomeFieldAssignable()) {
+            return false;
+        }
+        if ($this->areRefereesAvailable() && !$this->isSomeRefereeAssignable($game)) {
+            return false;
+        }
+        return $this->areAllPoulePlacesAssignable($this->getPoulePlaces($game));
+    }
+
+    /**
+     * @param Game $game
+     * @return array | PoulePlace[]
+     */
+    protected function getPoulePlaces(Game $game): array {
+        return $game->getPoulePlaces()->map( function( GamePoulePlace $gamePoulePlace ) {
+            return $gamePoulePlace->getPoulePlace();
+        } )->toArray();
+    }
+
+    /**
+     * @param array | PoulePlace[] $poulePlaces
+     * @return bool
+     */
+    protected function areAllPoulePlacesAssignable(array $poulePlaces): bool {
+        foreach( $poulePlaces as $poulePlace ) {
+            if( !$this->isPoulePlacesAssignable($poulePlace) ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected function isPoulePlacesAssignable(PoulePlace $poulePlace): bool {
+        return !$this->hasPoulePlace($this->assignedPoulePlaces, $poulePlace);
+    }
+
+    /**
+     * @param array | PoulePlace[] $poulePlaces
+     * @param PoulePlace $poulePlaceToFind
+     * @return bool
+     */
+    protected function hasPoulePlace(array $poulePlaces, PoulePlace $poulePlaceToFind): bool {
+        return ( array_search( $poulePlaceToFind, $poulePlaces ) !== false);
+    }
+
+    private function resetPoulePlaces() {
+        $this->assignedPoulePlaces = [];
     }
 }

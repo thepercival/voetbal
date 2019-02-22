@@ -10,7 +10,6 @@ namespace Voetbal\Action;
 
 use Doctrine\ORM\EntityManager;
 use JMS\Serializer\Serializer;
-use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
 use Voetbal\Poule\Repository as PouleRepository;
@@ -23,10 +22,6 @@ use Voetbal\Game;
 
 final class Planning
 {
-    /**
-     * @var PlanningService
-     */
-    protected $service;
     /**
      * @var GameService
      */
@@ -55,7 +50,6 @@ final class Planning
     use Traits\PostSerialize;
 
     public function __construct(
-        PlanningService $service,
         GameRepository $repos,
         GameService $gameService,
         PouleRepository $pouleRepos,
@@ -63,7 +57,6 @@ final class Planning
         Serializer $serializer,
         EntityManager $em
     ) {
-        $this->service = $service;
         $this->repos = $repos;
         $this->gameService = $gameService;
         $this->pouleRepos = $pouleRepos;

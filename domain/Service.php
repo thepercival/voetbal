@@ -95,8 +95,6 @@ class Service
                 $repos,
                 $this->getRepository(Game\Score::class)
             );
-        } elseif ($classname === Planning::class) {
-            return new Planning\Service($this->getService(Game::class) );
         }
         throw new \Exception("class " . $classname . " not supported to create service", E_ERROR);
     }

@@ -20,6 +20,8 @@ class Options
     CONST POINTS_CALC_GAMEPOINTS = 0;
     CONST POINTS_CALC_SCOREPOINTS = 1;
     CONST POINTS_CALC_BOTH = 2;
+    CONST TEAMUP_MIN = 4;
+    CONST TEAMUP_MAX = 6;
 
     public function __construct()
     {

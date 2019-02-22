@@ -409,4 +409,7 @@ trait OptionsTrait
         $this->pointsCalculation = $pointsCalculation;
     }
 
+    public function getNrOfCompetitorsPerGame(): int {
+        return $this->getTeamup() ? 4 : 2;
+    }
 }

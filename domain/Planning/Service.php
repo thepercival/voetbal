@@ -11,19 +11,24 @@ namespace Voetbal\Planning;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Round\Config as RoundNumberConfig;
-use Voetbal\Game\Service as GameService;
+use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Game;
+use Voetbal\Competition;
 
 class Service
 {
+    /**
+     * @var Competition
+     */
+    private $competition;
     /**
      * @var Period
      */
     protected $blockedPeriod;
 
-    public function __construct()
+    public function __construct( Competition $competition)
     {
-
+        $this->competition = $competition;
     }
 
     public function setBlockedPeriod(\DateTimeImmutable $startDateTime, int $durationInMinutes) {
@@ -88,29 +93,37 @@ class Service
             $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
 
-//        $this->em->getConnection()->beginTransaction();
-//        try {
-            $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
-            if ($roundNumber->hasNext()) {
-                $this->reschedule( $roundNumber->getNext(), $startNextRound );
-            }
-//            $this->em->getConnection()->commit();
-//        } catch (\Exception $e) {
-//            $this->em->getConnection()->rollBack();
-//            throw $e;
-//        }
-//        return;
+        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+        if ($roundNumber->hasNext()) {
+            $this->reschedule( $roundNumber->getNext(), $startNextRound );
+        }
     }
 
     protected function rescheduleHelper(RoundNumber $roundNumber, \DateTimeImmutable $pStartDateTime = null): \DateTimeImmutable {
         $dateTime = ($pStartDateTime !== null) ? clone $pStartDateTime : null;
-        $fields = $roundNumber->getCompetition()->getFields()->toArray();
-        $referees = $roundNumber->getCompetition()->getReferees()->toArray();
-        $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $roundNumber->getConfig(), $dateTime, $fields, $referees);
+        $fields = $this->competition->getFields()->toArray();
+        $referees = $this->getReferees($roundNumber);
+        $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $dateTime, $fields, $referees);
         if ($nextDateTime !== null) {
             return $nextDateTime->modify("+" . $roundNumber->getConfig()->getMinutesAfter() . " minutes");
         }
         return $nextDateTime;
+    }
+
+    /**
+     * @param RoundNumber $roundNumber
+     * @return array | PlanningReferee[]
+     */
+    protected function getReferees(RoundNumber $roundNumber): array {
+        if ($roundNumber->getConfig()->getSelfReferee()) {
+            return array_map( function( $place ) {
+                $x = new PlanningReferee(null, $place);
+                return $x;
+            }, $roundNumber->getPlaces() );
+        }
+        return $this->competition->getReferees()->map( function( $referee ) {
+            return new PlanningReferee($referee, null);
+        })->toArray();
     }
 
     /**
@@ -123,31 +136,16 @@ class Service
      */
     protected function assignResourceBatchToGames(
         RoundNumber $roundNumber,
-        RoundNumberConfig $roundNumberConfig,
         \DateTimeImmutable $dateTime,
         array $fields,
         array $referees): ?\DateTimeImmutable
     {
-        $gamesToProcess = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $resourceService = new ResourceService(
-            $dateTime, $roundNumberConfig->getMaximalNrOfMinutesPerGame(), $roundNumberConfig->getMinutesBetweenGames());
+        $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
+        $resourceService = new ResourceService($roundNumber->getConfig(), $dateTime);
         $resourceService->setBlockedPeriod($this->blockedPeriod);
         $resourceService->setFields($fields);
         $resourceService->setReferees($referees);
-        while (count($gamesToProcess) > 0) {
-            $gameToProcess = $resourceService->getAssignableGame($gamesToProcess);
-            if ($gameToProcess === null) {
-                $resourceService->nextResourceBatch();
-                $gameToProcess = $resourceService->getAssignableGame($gamesToProcess);
-            }
-            $resourceService->assign($gameToProcess);
-            $index = array_search($gameToProcess,$gamesToProcess);
-            if ($index === false) {
-                return null;
-            }
-            array_splice($gamesToProcess,$index,1);
-        }
-        return $resourceService->getEndDateTime();
+        return $resourceService->assign($games);
     }
 
     public function calculateStartDateTime(RoundNumber $roundNumber): \DateTimeImmutable {
@@ -157,7 +155,19 @@ class Service
         if ($roundNumber->isFirst() ) {
             return $roundNumber->getCompetition()->getStartDateTime();
         }
-        return $this->calculateEndDateTime($roundNumber->getPrevious());
+        $previousEndDateTime = $this->calculateEndDateTime($roundNumber->getPrevious());
+        $aPreviousConfig = $roundNumber->getPrevious()->getConfig();
+        return $this->addMinutes($previousEndDateTime, $aPreviousConfig->getMinutesAfter());
+    }
+
+    protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {
+        $newDateTime = $dateTime->modify("+" . $minutes . " minutes");
+        if ($this->blockedPeriod !== null
+            && $newDateTime > $this->blockedPeriod->getStartDate()
+            && $newDateTime < $this->blockedPeriod->getEndDate() ) {
+            $newDateTime = clone $this->blockedPeriod->getEndDate();
+        }
+        return $newDateTime;
     }
 
     public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array { // Game[]
@@ -225,15 +235,10 @@ class Service
         return $games;
     }
 
-    protected function determineReferee()
-    {
-        return null;
-    }
-
     public function gamesOnSameDay( RoundNumber $roundNumber ) {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_RESOURCEBATCH);
-        $firstGame = $games[0];
-        $lastGame = $games[count($games)-1];
+        $firstGame = array_shift($games);
+        $lastGame = (count($games) === 0) ? $firstGame : array_shift($games);
         return $this->isOnSameDay($firstGame, $lastGame);
     }
 

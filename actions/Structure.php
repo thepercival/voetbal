@@ -30,10 +30,6 @@ final class Structure
      */
     protected $competitionRepos;
     /**
-     * @var PlanningService
-     */
-    protected $planningService;
-    /**
      * @var Serializer
      */
     protected $serializer;
@@ -46,7 +42,6 @@ final class Structure
         StructureService $service,
         StructureRepository $repos,
         CompetitionRepository $competitionRepos,
-        PlanningService $planningService,
         Serializer $serializer,
         EntityManager $em
     )
@@ -54,7 +49,6 @@ final class Structure
         $this->service = $service;
         $this->repos = $repos;
         $this->competitionRepos = $competitionRepos;
-        $this->planningService = $planningService;
         $this->serializer = $serializer;
         $this->em = $em;
     }
@@ -147,7 +141,8 @@ final class Structure
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
             $roundNumber = $this->repos->customPersist($structure, $roundNumberAsValue);
 
-//            $games = $this->planningService->create( $roundNumber, $competition->getStartDateTime() );
+//            $planningService = new PlanningService($competition);
+//            $games = $planningService->create( $roundNumber, $competition->getStartDateTime() );
 //            foreach( $games as $game ) {
 //                $this->em->persist($game);
 //            }

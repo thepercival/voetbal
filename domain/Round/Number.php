@@ -132,7 +132,7 @@ class Number
     }
 
     public function getARound(): Round {
-        return $this->getRounds()[0];
+        return $this->getRounds()->first();
     }
 
     public function getConfig(): RoundConfig {
@@ -158,5 +158,16 @@ class Number
             $poules = array_merge( $poules, $round->getPoules()->toArray());
         }
         return $poules;
+    }
+
+    /**
+     * @return array | PoulePlace[]
+     */
+    public function getPlaces(): array {
+        $places = [];
+        foreach( $this->getPoules() as $poule ) {
+            $places = array_merge( $places, $poule->getPlaces()->toArray());
+        }
+        return $places;
     }
 }

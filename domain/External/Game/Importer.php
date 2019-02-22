@@ -14,6 +14,7 @@ use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Voetbal\Game;
 use Voetbal\External\System\Factory as ExternalSystemFactory;
+use Voetbal\Planning\Service as PlanningService;
 
 use Voetbal\External\System\Importable\Game as GameImportable;
 use Voetbal\External\System\Importable\Competitor as CompetitorImportable;
@@ -70,7 +71,6 @@ class Importer
         $externalSystemFactory = new ExternalSystemFactory();
 
         $competitorService = $this->voetbalService->getService( \Voetbal\Competitor::class );
-        $planningService = $this->voetbalService->getService( \Voetbal\Planning::class );
 
         $externalSystems = $externalSystemRepos->findAll();
         $competitions = $competitionRepos->findAll();
@@ -86,6 +86,7 @@ class Importer
                 $externalSystem->init();
                 $externalSystemHelper = $externalSystem->getGameImporter($this->voetbalService);
                 foreach( $competitions as $competition ) {
+                    $planningService = new PlanningService($competition);
                     $externalCompetition = $externalCompetitionRepos->findOneByImportable( $externalSystemBase, $competition );
                     if( $externalCompetition === null or strlen($externalCompetition->getExternalId()) === null ) {
                         $this->logger->addNotice('for competition '.$competition->getName().' there is no "'.$externalSystemBase->getName().'"-competition available' );

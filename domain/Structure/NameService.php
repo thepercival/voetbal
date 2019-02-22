@@ -98,13 +98,13 @@ class NameService
         if ($longName === true) {
             return 'poule ? nr. ' . $this->getMultipleRulePlaceName($fromQualifyRule);
         }
-        return '?' . $fromQualifyRule->getFromPoulePlaces()[0]->getNumber();
+        return '?' . $fromQualifyRule->getFromPoulePlaces()->first()->getNumber();
     }
 
     protected function getMultipleRulePlaceName(QualifyRule $qualifyRule): int {
         $poulePlaces = $qualifyRule->getFromPoulePlaces();
         if ($qualifyRule->getWinnersOrLosers() === Round::WINNERS) {
-            return $poulePlaces[0]->getNumber();
+            return $poulePlaces->first()->getNumber();
         }
         return $poulePlaces[count($poulePlaces) - 1]->getNumber();
     }
