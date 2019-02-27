@@ -61,21 +61,17 @@ class ApiHelper
             return $this->requests[$postUrl];
         }
         if( $this->nrOfRequestLeft === 0 ) {
-            sleep(60);
+            sleep($this->waitTime);
         }
         $response = $this->getClient()->get(
             $this->externalSystem->getApiurl() . $postUrl,
             $this->getHeaders()
         );
-        if( count($response->getHeader('X-Requests-Available-Minute')) > 0 ) {
-            $x = $response->getHeader('X-Requests-Available-Minute');
-
-            // $this->nrOfRequestLeft;
+        if( count($response->getHeader('X-Requests-Available-Minute')) === 1 ) {
+            $nrOfRequestLeftAsArray = $response->getHeader('X-Requests-Available-Minute');
+            $this->nrOfRequestLeft = (int) reset($nrOfRequestLeftAsArray);
         }
-
-        $json = $response->json();
-
-        $this->requests[$postUrl] = $json;
+        $this->requests[$postUrl] = json_decode($response->getBody());
         return $this->requests[$postUrl];
     }
 
