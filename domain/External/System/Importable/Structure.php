@@ -13,5 +13,5 @@ use Voetbal\Service as VoetbalService;
 
 interface Structure
 {
-    public function getStructureImporter( VoetbalService $voetbalService ) : StructureImporter;
+    public function getStructureImporter() : StructureImporter;
 }

@@ -13,5 +13,5 @@ use Voetbal\External\System\Importer\Game as GameImporter;
 
 interface Game
 {
-    public function getGameImporter( VoetbalService $voetbalService ) : GameImporter;
+    public function getGameImporter() : GameImporter;
 }

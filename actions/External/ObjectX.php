@@ -15,7 +15,7 @@ use Voetbal\External\Object\Service as ExternalObjectService;
 use \Doctrine\ORM\EntityRepository;
 use Voetbal;
 
-final class Object
+final class ObjectX
 {
     /**
      * @var EntityRepository

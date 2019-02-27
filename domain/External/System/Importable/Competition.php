@@ -13,5 +13,5 @@ use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 
 interface Competition
 {
-    public function getCompetitionImporter(VoetbalService $voetbalService) : CompetitionImporter;
+    public function getCompetitionImporter() : CompetitionImporter;
 }

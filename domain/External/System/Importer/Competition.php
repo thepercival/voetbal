@@ -14,7 +14,5 @@ use Voetbal\League;
 
 interface Competition
 {
-    public function get( ExternalSeason $externalSeason );
-    public function getOne( $externalId );
-    public function create( League $league, Season $season, $externalSystemObject );
+    public function createByLeaguesAndSeasons( array $leagues, array $seasons );
 }

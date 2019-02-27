@@ -22,6 +22,8 @@ use Voetbal\External\System\FootballData\Competitor as FootballDataCompetitorImp
 use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
 use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
 use Voetbal\Service as VoetbalService;
+use Doctrine\DBAL\Connection;
+use Monolog\Logger;
 
 class FootballData implements Def, CompetitionImportable, CompetitorImportable, StructureImportable, GameImportable
 {
@@ -29,9 +31,29 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
      * @var ExternalSystem
      */
     private $externalSystem;
+    /**
+     * @var VoetbalService
+     */
+    private $voetbalService;
+    /**
+     * @var Connection
+     */
+    private $conn;
+    /**
+     * @var Logger
+     */
+    private $logger;
 
-    public function __construct( ExternalSystemBase $externalSystem )
+    public function __construct(
+        VoetbalService $voetbalService,
+        ExternalSystemBase $externalSystem,
+        Connection $conn,
+        Logger $logger
+    )
     {
+        $this->voetbalService = $voetbalService;
+        $this->conn = $conn;
+        $this->logger = $logger;
         $this->setExternalSystem( $externalSystem );
     }
 
@@ -60,52 +82,64 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         $this->externalSystem = $externalSystem;
     }
 
-    public function getCompetitionImporter(VoetbalService $voetbalService) : CompetitionImporter
+    public function getCompetitionImporter() : CompetitionImporter
     {
         return new FootballDataCompetitionImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
-            $voetbalService->getService( \Voetbal\Competition::class ),
-            $voetbalService->getRepository( \Voetbal\Competition::class ),
-            $voetbalService->getRepository( \Voetbal\External\Competition::class )
+            $this->voetbalService->getService( \Voetbal\Competition::class ),
+            $this->voetbalService->getRepository( \Voetbal\Competition::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\League::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Competition::class ),
+            $this->conn, $this->logger
         );
     }
 
-    public function getCompetitorImporter(VoetbalService $voetbalService ) : CompetitorImporter
+    public function getCompetitorImporter() : CompetitorImporter
     {
+        //    $externalSystemRepos = $this->voetbalService->getRepository( \Voetbal\External\System::class );
+//    $competitorRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
+//    $externalCompetitorRepos = $this->voetbalService->getRepository( \Voetbal\External\Competitor::class );
+//    $externalCompetitionRepos = $this->voetbalService->getRepository( \Voetbal\External\Competition::class );
+
+
         return new FootballDataCompetitorImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
-            $voetbalService->getService( \Voetbal\Competitor::class ),
-            $voetbalService->getRepository( \Voetbal\Competitor::class ),
-            $voetbalService->getRepository( \Voetbal\External\Competitor::class )
+            $this->voetbalService->getService( \Voetbal\Competitor::class ),
+            $this->voetbalService->getRepository( \Voetbal\Competitor::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\League::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
+            $this->conn, $this->logger
         );
     }
 
-    public function getStructureImporter( VoetbalService $voetbalService ) : StructureImporter {
+    public function getStructureImporter() : StructureImporter {
 
         return new FootballDataStructureImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
-            $this->getCompetitionImporter($voetbalService),
-            $this->getCompetitorImporter($voetbalService),
-            $this->getGameImporter($voetbalService),
-            $voetbalService->getRepository( \Voetbal\External\Competitor::class ),
-            $voetbalService->getService( \Voetbal\Structure::class ),
-            $voetbalService->getService( \Voetbal\PoulePlace::class ),
-            $voetbalService->getService( \Voetbal\Round\Config::class )
+            $this->getCompetitionImporter($this->voetbalService),
+            $this->getCompetitorImporter($this->voetbalService),
+            $this->getGameImporter($this->voetbalService),
+            $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
+            $this->voetbalService->getService( \Voetbal\Structure::class ),
+            $this->voetbalService->getService( \Voetbal\PoulePlace::class ),
+            $this->voetbalService->getService( \Voetbal\Round\Config::class )
         );
     }
 
-    public function getGameImporter( VoetbalService $voetbalService ) : GameImporter {
+    public function getGameImporter() : GameImporter {
         return new FootballDataGameImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
-            $voetbalService->getService( \Voetbal\Game::class ),
-            $voetbalService->getRepository( \Voetbal\Game::class ),
-            $voetbalService->getRepository( \Voetbal\External\Game::class ),
-            $voetbalService->getRepository( \Voetbal\External\Competitor::class ),
-            $this->getCompetitorImporter($voetbalService)
+            $this->voetbalService->getService( \Voetbal\Game::class ),
+            $this->voetbalService->getRepository( \Voetbal\Game::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Game::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
+            $this->getCompetitorImporter($this->voetbalService)
         );
     }
 }

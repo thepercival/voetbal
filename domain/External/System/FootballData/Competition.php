@@ -11,13 +11,18 @@ namespace Voetbal\External\System\FootballData;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 use Voetbal\Competition\Service as CompetitionService;
-use Voetbal\Competition\Repository as CompetitionRepos;
+use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal\External\Object\Service as ExternalObjectService;
 use Voetbal\External\Competition\Repository as ExternalCompetitionRepos;
+use Voetbal\External\League\Repository as ExternalLeagueRepos;
+use Voetbal\External\Season\Repository as ExternalSeasonRepos;
 use Voetbal\League;
 use Voetbal\Season;
 use Voetbal\Competition as CompetitionBase;
 use Voetbal\External\Season as ExternalSeason;
+use Voetbal\External\League as ExternalLeague;
+use Doctrine\DBAL\Connection;
+use Monolog\Logger;
 
 class Competition implements CompetitionImporter
 {
@@ -35,11 +40,19 @@ class Competition implements CompetitionImporter
      * @var CompetitionService
      */
     private $service;
-
     /**
-     * @var CompetitionRepos
+     * @var CompetitionRepository
      */
     private $repos;
+    /**
+     * @var ExternalLeagueRepos
+     */
+    private $externalLeagueRepos;
+
+    /**
+     * @var ExternalSeasonRepos
+     */
+    private $externalSeasonRepos;
 
     /**
      * @var ExternalObjectService
@@ -50,46 +63,100 @@ class Competition implements CompetitionImporter
      * @var ExternalCompetitionRepos
      */
     private $externalObjectRepos;
+    /**
+     * @var Connection $conn;
+     */
+    private $conn;
+    /**
+     * @var Logger $logger;
+     */
+    private $logger;
+
+    use Helper;
 
     public function __construct(
         ExternalSystemBase $externalSystemBase,
         ApiHelper $apiHelper,
         CompetitionService $service,
-        CompetitionRepos $repos,
-        ExternalCompetitionRepos $externalRepos
+        CompetitionRepository $repos,
+        ExternalLeagueRepos $externalLeagueRepos,
+        ExternalSeasonRepos $externalSeasonRepos,
+        ExternalCompetitionRepos $externalRepos,
+        Connection $conn,
+        Logger $logger
     )
     {
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
         $this->service = $service;
         $this->repos = $repos;
+        $this->externalLeagueRepos = $externalLeagueRepos;
+        $this->externalSeasonRepos = $externalSeasonRepos;
         $this->externalObjectRepos = $externalRepos;
         $this->externalObjectService = new ExternalObjectService(
             $this->externalObjectRepos
         );
+        $this->conn = $conn;
+        $this->logger = $logger;
     }
 
-    public function get( ExternalSeason $externalSeason )
-    {
-        return $this->apiHelper->getData("competitions/?season=". $externalSeason->getExternalId());
+    public function createByLeaguesAndSeasons( array $leagues, array $seasons) {
+        /** @var League $league */
+        foreach( $leagues as $league ) {
+            $externalLeague = $this->getExternalLeague( $league );
+            if( $externalLeague === null ) {
+                continue;
+            }
+            foreach( $seasons as $season ) {
+                $externalSeason = $this->getExternalSeason( $season );
+                if( $externalSeason === null ) {
+                    continue;
+                }
+                $this->create($externalLeague, $externalSeason );
+            }
+        }
     }
 
-    public function getOne( $externalId ) {
-        return $this->apiHelper->getData("competitions/".$externalId);
+    private function create( ExternalLeague $externalLeague, ExternalSeason $externalSeason ) {
+
+        $externalSystemCompetition = $this->apiHelper->getCompetition( $externalLeague, $externalSeason );
+        if( $externalSystemCompetition === null ){
+            $this->addNotice('for external league "'.$externalLeague->getExternalId().'" and external season "'.$externalSeason->getExternalId().'" there is no externalsystemcompetition found' );
+            return;
+        }
+
+        $externalCompetition = $this->externalObjectRepos->findOneByExternalId( $this->externalSystemBase, $externalSystemCompetition->id );
+
+        $this->conn->beginTransaction();
+        try {
+            if( $externalCompetition === null ) { // add and create structure
+                $league = $externalLeague->getImportableObject();
+                $season = $externalSeason->getImportableObject();
+                $competition = $this->createHelper($league, $season, $externalSystemCompetition->id);
+            }
+            else {
+                // maybe update something??
+            }
+            $this->conn->commit();
+        } catch( \Exception $e ) {
+            $this->addError('competition for league "'.$league->getName().'" and season "'.$season->getName().'" could not be created: ' . $e->getMessage() );
+            $this->conn->rollBack();
+        }
     }
 
-    public function create( League $league, Season $season, $externalSystemObject )
+
+    private function createHelper( League $league, Season $season, $externalSystemCompetitionId )
     {
         $competition = $this->repos->findExt( $league, $season );
         if ( $competition === false ) {
             $competition = $this->service->create( $league, $season, $season->getStartDateTime() );
         }
-        $externalCompetition = $this->createExternal( $competition, $externalSystemObject->id );
+        $externalCompetition = $this->createExternal( $competition, $externalSystemCompetitionId );
         return $competition;
 
     }
 
-    public function createExternal( CompetitionBase $competition, $externalId )
+    private function createExternal( CompetitionBase $competition, $externalId )
     {
         $externalCompetition = $this->externalObjectRepos->findOneByExternalId (
             $this->externalSystemBase,
@@ -103,5 +170,13 @@ class Competition implements CompetitionImporter
             );
         }
         return $externalCompetition;
+    }
+
+    private function addNotice( $msg ) {
+        $this->logger->addNotice( $this->externalSystemBase->getName() . " : " . $msg );
+    }
+
+    private function addError( $msg ) {
+        $this->logger->addError( $this->externalSystemBase->getName() . " : " . $msg );
     }
 }

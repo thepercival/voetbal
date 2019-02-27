@@ -14,7 +14,5 @@ use Voetbal\Competitor as CompetitorBase;
 
 interface Competitor
 {
-    public function get( ExternalCompetition $externalCompetition );
-    public function create( Association $association, $externalSystemObject );
-    public function update( CompetitorBase $competitor, $externalSystemCompetitor );
+    public function createByCompetitions( array $competitions );
 }
