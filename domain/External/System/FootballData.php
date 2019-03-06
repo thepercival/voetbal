@@ -98,12 +98,6 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
 
     public function getCompetitorImporter() : CompetitorImporter
     {
-        //    $externalSystemRepos = $this->voetbalService->getRepository( \Voetbal\External\System::class );
-//    $competitorRepos = $this->voetbalService->getRepository( \Voetbal\Competitor::class );
-//    $externalCompetitorRepos = $this->voetbalService->getRepository( \Voetbal\External\Competitor::class );
-//    $externalCompetitionRepos = $this->voetbalService->getRepository( \Voetbal\External\Competition::class );
-
-
         return new FootballDataCompetitorImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
@@ -116,8 +110,8 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         );
     }
 
-    public function getStructureImporter() : StructureImporter {
-
+    public function getStructureImporter() : StructureImporter
+    {
         return new FootballDataStructureImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
@@ -127,7 +121,10 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
             $this->voetbalService->getService( \Voetbal\Structure::class ),
             $this->voetbalService->getService( \Voetbal\PoulePlace::class ),
-            $this->voetbalService->getService( \Voetbal\Round\Config::class )
+            $this->voetbalService->getService( \Voetbal\Round\Config::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\League::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
+            $this->conn, $this->logger
         );
     }
 

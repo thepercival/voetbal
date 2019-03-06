@@ -150,6 +150,7 @@ class Competition implements CompetitionImporter
         $competition = $this->repos->findExt( $league, $season );
         if ( $competition === false ) {
             $competition = $this->service->create( $league, $season, $season->getStartDateTime() );
+            $this->repos->save($competition);
         }
         $externalCompetition = $this->createExternal( $competition, $externalSystemCompetitionId );
         return $competition;

@@ -71,8 +71,9 @@ class Round
 
     CONST QUALIFYORDER_CROSS = 1;
     CONST QUALIFYORDER_RANK = 2;
-    CONST QUALIFYORDER_CUSTOM1 = 4;
-    CONST QUALIFYORDER_CUSTOM2 = 5;
+    CONST QUALIFYORDER_DRAW = 4;
+    CONST QUALIFYORDER_CUSTOM1 = 8;
+    CONST QUALIFYORDER_CUSTOM2 = 16;
 
     CONST RANK_NUMBER_POULE = 6;
     CONST RANK_POULE_NUMBER = 7;
@@ -434,6 +435,14 @@ class Round
             return null;
         }
         return $this->getParent()->getChildRound(Round::getOpposing($this->getWinnersOrLosers()));
+    }
+
+    public function getNrOfPlaces(): int {
+        $nrOfPlaces = 0;
+        foreach( $this->getPoules() as $poule ) {
+            $nrOfPlaces += $poule->getPlaces()->count();
+        }
+        return nrOfPlaces;
     }
 
     public function getPath(): array

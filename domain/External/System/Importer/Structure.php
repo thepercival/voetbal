@@ -13,5 +13,5 @@ use Voetbal\Competition;
 
 interface Structure
 {
-    public function create( Competition $competition, ExternalCompetition $externalCompetition );
+    public function createByCompetitions( array $competitions );
 }

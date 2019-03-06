@@ -11,13 +11,9 @@ namespace Voetbal\Round;
 use Voetbal\Round;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Poule\Repository as PouleRepository;
-use Voetbal\Competition;
-use Doctrine\DBAL\Connection;
 use Voetbal\Poule;
 use Voetbal\PoulePlace;
-use Voetbal\Round\Structure as RoundStructure;
-use Voetbal\Structure\Options as StructureOptions;
-use Voetbal\Round\Config\Options as ConfigOptions;
+use Voetbal\Round\Number as RoundNumber;
 
 class Service
 {
@@ -64,88 +60,6 @@ class Service
         $this->poulePlaceService = $poulePlaceService;
     }
 
-    /*public function generate( Competition $competition, int $winnersOrLosers, StructureOptions $structureOptions, Round $parent = null ): Round
-    {
-        $opposingChildRound = $parent ? $parent->getChildRound( Round::getOpposing($winnersOrLosers)) : null;
-        $opposing = $opposingChildRound !== null ? $opposingChildRound->getWinnersOrLosers() : 0;
-
-        return $this->generateHelper( $competition, $winnersOrLosers, $structureOptions, $opposing, $parent);
-    }
-
-    private function generateHelper(
-        Competition $competition,
-        int $winnersOrLosers,
-        StructureOptions $structureOptions,
-        int $opposing,
-        Round $parent = null
-    ): Round
-    {
-        if ($structureOptions->round->nrofplaces <= 0) {
-            throw new \Exception("het aantal plekken voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
-        }
-        if ($structureOptions->round->nrofpoules <= 0) {
-            throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
-        }
-
-        $round = new Round($competition, $parent);
-        $round->setWinnersOrLosers( $winnersOrLosers );
-
-        $nrOfPlaces = $structureOptions->round->nrofplaces;
-
-        $nrOfPlacesPerPoule = $structureOptions->round->getNrOfPlacesPerPoule();
-        $nrOfPlacesNextRound = ($winnersOrLosers === Round::LOSERS) ? ($nrOfPlaces - $structureOptions->round->nrofwinners) : $structureOptions->round->nrofwinners;
-        $nrOfOpposingPlacesNextRound = (Round::getOpposing($winnersOrLosers) === Round::WINNERS) ? $structureOptions->round->nrofwinners : $nrOfPlaces - $structureOptions->round->nrofwinners;
-
-        $pouleNumber = 1;
-
-        while ($nrOfPlaces > 0) {
-            $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
-            $poule = $this->pouleService->create( $round, $pouleNumber++, $nrOfPlacesToAdd );
-            $nrOfPlaces -= $nrOfPlacesPerPoule;
-        }
-
-        $roundConfigOptions = $structureOptions->roundConfig;
-//            if ($round->getParent() !== null) {
-//                $roundConfigOptionsTmp = $round->getParent()->getConfig()->getOptions();
-//            }
-        $roundConfigOptions->setHasExtension(!$round->needsRanking());
-
-        $this->configService->create($round, $roundConfigOptions);
-        // this.configRepos.createObjectFromParent(round);
-
-//        if ($parent !== null) {
-//            $qualifyService = new QualifyService($round);
-//            $qualifyService->createObjectsForParent();
-//        }
-//
-        if ($structureOptions->round->nrofwinners === 0) {
-            return $round;
-        }
-
-        $structureOptions->round = new RoundStructure( $nrOfPlacesNextRound );
-        $this->generateHelper(
-            $competition,
-            $winnersOrLosers ? $winnersOrLosers : Round::WINNERS,
-            $structureOptions,
-            $opposing,
-            $round
-        );
-
-        // $hasParentOpposingChild = ( $parent->getChild( Round::getOpposing( $winnersOrLosers ) )!== null );
-        if ($opposing > 0 || (count($round->getPoulePlaces()) === 2)) {
-            $structureOptions->round = new RoundStructure( $nrOfOpposingPlacesNextRound );
-            $opposing = $opposing > 0 ? $opposing : Round::getOpposing($winnersOrLosers);
-            $this->generateHelper(
-                $competition,
-                $winnersOrLosers,
-                $structureOptions,
-                $opposing,
-                $round
-            );
-        }
-        return $round;
-    }*/
-
     public function create(
         Number $roundNumber,
         int $winnersOrLosers,
@@ -153,9 +67,6 @@ class Service
         array $poulesSer,
         Round $p_parent = null ): Round
     {
-        if ( count($poulesSer) <= 0) {
-            throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
-        }
         $round = new Round($roundNumber, $p_parent);
         $round->setWinnersOrLosers( $winnersOrLosers );
         $round->setQualifyOrder( $qualifyOrder );
@@ -165,76 +76,47 @@ class Service
         return $round;
     }
 
-    // eerst alle poules verwijderen en daarna
-    /*public function updatePoulesFromSerialized( Round $round, array $poulesSer )
+    public function createByOptions(
+        RoundNumber $roundNumber,
+        int $winnersOrLosers,
+        int  $nrOfPlaces,
+        int  $nrOfPoules,
+        int $qualifyOrder = Round::QUALIFYORDER_CROSS,
+        Round $parent = null
+    ): Round
     {
-        $pouleIds = $this->getNewPouleIds( $poulesSer );
-        $poulePlacesSer = $this->getPlacesFromPoules( $poulesSer );
-        $placeIds = $this->getNewPlaceIds( $poulePlacesSer );
-        $this->removeNonexistingPoules( $round->getPoules()->toArray(), $pouleIds );
-        $em = $this->pouleRepos->getEM();
-        $em->flush();
-        $this->removeNonexistingPlaces( $round->getPoulePlaces(), $placeIds );
-        $em->flush();
-        $this->pouleService->updateFromSerialized( $poulesSer, $round);
-        // $em->persist($round);
-        $em->flush();
-    }*/
-
-    /*protected function getNewPouleIds( array $poulesSer )
-    {
-        $pouleIds = [];
-        foreach( $poulesSer as $pouleSer ) {
-            if( $pouleSer->getId() === null ) {
-                continue;
-            }
-            $pouleIds[$pouleSer->getId()] = true;
+        if ($nrOfPlaces < 2) {
+            throw new \Exception("het aantal plekken voor een nieuwe ronde moet minimaal 2 zijn", E_ERROR );
         }
-        return $pouleIds;
+        if ($nrOfPoules < 1) {
+            throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
+        }
+
+        $round = $this->create( $roundNumber, $winnersOrLosers, $qualifyOrder, [], $parent );
+        $this->createPoules( $round, $nrOfPlaces, $nrOfPoules );
+
+        return $round;
     }
 
-    protected function removeNonexistingPoules( array $poules, array $pouleIds )
+    public function createPoules( Round $round, int $nrOfPlaces, int $nrOfPoules )
     {
-        foreach( $poules as $poule ) {
-            if( array_key_exists( $poule->getId(), $pouleIds ) === false ) {
-                // var_dump("poule with id ".$poule->getId()." removed " );
-                $poule->getRound()->getPoules()->removeElement($poule);
-                $poule->setRound(null);
-                $this->pouleRepos->getEM()->remove($poule);
-            }
+        $nrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule( $nrOfPlaces, $nrOfPoules);
+
+        $pouleNumber = 1;
+        while ($nrOfPlaces > 0) {
+            $nrOfPlacesToAdd = $nrOfPlaces < $nrOfPlacesPerPoule ? $nrOfPlaces : $nrOfPlacesPerPoule;
+            $this->pouleService->create( $round, $pouleNumber++, $nrOfPlacesToAdd );
+            $nrOfPlaces -= $nrOfPlacesPerPoule;
         }
     }
 
-    protected function getNewPlaceIds( array $placesSer )
-    {
-        $placeIds = [];
-        foreach( $placesSer as $placeSer ) {
-            $placeIds[$placeSer->getId()] = true;
+    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules): int {
+        $nrOfPlaceLeft = ($nrOfPlaces % $nrOfPoules);
+        if ($nrOfPlaceLeft === 0) {
+            return $nrOfPlaces / $nrOfPoules;
         }
-        return $placeIds;
+        return (($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules) + 1;
     }
-
-    protected function getPlacesFromPoules( array $poules )
-    {
-        $places = [];
-        foreach( $poules as $poule ) {
-            foreach( $poule->getPlaces() as $place ) {
-                $places[] = $place;
-            }
-        }
-        return $places;
-    }
-
-
-    protected function removeNonexistingPlaces( array $places, array $placeIds )
-    {
-        foreach( $places as $place ) {
-            if( array_key_exists( $place->getId(), $placeIds ) === false ) {
-                $this->poulePlaceService->remove($place);
-                // var_dump("pouleplace with id ".$place->getId()." removed " );
-            }
-        }
-    }*/
 
     /**
      * @param Round $round

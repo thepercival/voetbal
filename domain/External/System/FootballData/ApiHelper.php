@@ -79,7 +79,7 @@ class ApiHelper
     {
         $leagues = $this->getData("competitions/?plan=TIER_ONE")->competitions;
         $foundLeagues = array_filter( $leagues, function ( $league ) use ( $externalLeague ) {
-            return $league->id === $externalLeague->getExternalId();
+            return $league->id === (int)$externalLeague->getExternalId();
         });
         if( count( $foundLeagues ) !== 1 ) {
             return null;
@@ -106,10 +106,55 @@ class ApiHelper
         return reset($foundLeagueSeaons);
     }
 
+    public function getRounds( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?array
+    {
+//        1 item moet hebben:
+//        1 name
+//        2 nrOfPlaces,
+//        3 nrOfPoules
+
+        $retVal = $this->getData("competitions/".$externalLeague->getExternalId()."/matches?season=".$externalSeason->getExternalId() );
+        if( $this->getRoundsHelperAllMatchesHaveDate( $retVal->matches ) !== true ) {
+            return [];
+        }
+
+        uasort( $retVal->matches, function( $matchA, $matchB ) {
+            return $matchA->utcDate < $matchB->utcDate;
+        } );
+        $rounds = [];
+        foreach( $retVal->matches as $match) {
+            if( array_search( $match->stage, $rounds ) !== false ) {
+                $round = new \stdClass();
+                $round->name = $match->stage;
+                $round->nrOfPlaces = ?;
+                $round->nrOfPoules = ?;
+
+                $rounds[] = $match->stage;
+            }
+        }
+        return $rounds;
+    }
+
+    protected function getRoundsHelperAllMatchesHaveDate( array $matches ): boolean
+    {
+        foreach( $matches as $match) {
+            if( strlen( $match->utcDare ) === 0  ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function getCompetitors( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?array
     {
         $retVal = $this->getData("competitions/".$externalLeague->getExternalId()."/teams?season=".$externalSeason->getExternalId() );
         return $retVal->teams;
+    }
+
+    public function getGames( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?array
+    {
+        $retVal = $this->getData("competitions/".$externalLeague->getExternalId()."/matches?season=".$externalSeason->getExternalId() );
+        return $retVal->matches;
     }
 
     public function getDate( string $date ) {

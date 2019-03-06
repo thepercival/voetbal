@@ -17,8 +17,7 @@ use Voetbal\Round\Number\Repository as RoundNumberRepository;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Round\Config\Service as RoundConfigService;
-use Voetbal\Structure\Options as StructureOptions;
-use Voetbal\Round\Config as RoundConfig;
+use Voetbal\Round\Config\Options as RoundNumberConfigOptions;
 
 class Service
 {
@@ -55,9 +54,12 @@ class Service
         $this->roundConfigService = $roundConfigService;
     }
 
-    public function create(Competition $competition, StructureOptions $structureOptions): Round
+    public function create(Competition $competition, RoundNumberConfigOptions $roundNumberConfigOptions,
+        int $nrOfPlaces, int $nrOfPoules): StructureBase
     {
-        return $this->roundService->create($competition, 0, $structureOptions);
+        $firstRoundNumber = $this->roundNumberService->create( $competition, $roundNumberConfigOptions );
+        $rootRound =  $this->roundService->createByOptions($firstRoundNumber, 0, $nrOfPlaces, $nrOfPoules);
+        return new StructureBase( $firstRoundNumber, $rootRound );
     }
 
     public function createFromSerialized( StructureBase $structureSer, Competition $competition ): StructureBase

@@ -1,7 +1,7 @@
 Voetbal\Competitor:
   type: entity
   repositoryClass: Voetbal\Competitor\Repository
-  table: teams
+  table: competitors
   id:
     id:
       type: integer

@@ -5,6 +5,12 @@
 -- drop table roundnumbers;
 
 
+RENAME TABLE teams TO competitors;
+
+RENAME TABLE externalteams TO externalcompetitors;
+
+alter table pouleplaces change teamid competitorid int;
+
 
 
 

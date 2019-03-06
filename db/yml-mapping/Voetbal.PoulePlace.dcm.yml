@@ -36,7 +36,7 @@ Voetbal\PoulePlace:
     competitor:
       targetEntity: Voetbal\Competitor
       joinColumn:
-        name: teamid
+        name: competitorid
         referencedColumnName: id
         nullable: true
         onDelete: RESTRICT

@@ -139,8 +139,7 @@ class Competitor implements CompetitorImporter
     {
         $competitor = $this->repos->findOneBy(["association" => $association, "name" => $externalSystemObject->name]);
         if ( $competitor === null ) {
-            $competitor = new \Voetbal\Competitor( $association );
-            $competitor->setName($externalSystemObject->name);
+            $competitor = new \Voetbal\Competitor( $externalSystemObject->name, $association );
             $abb = strtolower( substr( trim( $externalSystemObject->shortName ), 0, CompetitorBase::MAX_LENGTH_ABBREVIATION ) );
             $competitor->setAbbreviation($abb);
             $competitor->setImageUrl($externalSystemObject->crestUrl);
