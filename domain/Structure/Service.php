@@ -87,13 +87,13 @@ class Service
             }
         }
 
-        $rootRound = $this->createRound( $firstRoundNumber, $structureSer->getRootRound() );
+        $rootRound = $this->createRoundFromSerialized( $firstRoundNumber, $structureSer->getRootRound() );
         return new StructureBase( $firstRoundNumber, $rootRound );
     }
 
-    private function createRound( RoundNumber $roundNumber, Round $roundSerialized, Round $parentRound = null ): Round
+    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, Round $parentRound = null ): Round
     {
-        $rootRound = $this->roundService->create(
+        $rootRound = $this->roundService->createFromSerialized(
             $roundNumber,
             $roundSerialized->getWinnersOrLosers(),
             $roundSerialized->getQualifyOrder(),
@@ -101,145 +101,15 @@ class Service
             $parentRound
         );
         foreach( $roundSerialized->getChildRounds() as $childRoundSerialized ) {
-            $this->createRound( $roundNumber->getNext(), $childRoundSerialized, $rootRound );
+            $this->createRoundFromSerialized( $roundNumber->getNext(), $childRoundSerialized, $rootRound );
         }
         return $rootRound;
     }
-
-    /*public function updateFromSerialized( StructureBase $structureSer, Competition $competition )
-    {
-        $em = $this->roundNumberRepos->getEM();
-        $conn = $em->getConnection();
-        $conn->beginTransaction();
-        try {
-            $structure = $this->getStructure( $competition ); // to init next/previous
-            $firstRoundNumber = $structure->getFirstRoundNumber();
-            $this->removeNonexistingRoundNumbers( $structureSer->getFirstRoundNumber(), $firstRoundNumber );
-            $em->flush();
-            $this->updateRoundNumbersFromSerialized( $structureSer->getFirstRoundNumber(), $competition, $structure );
-            // $em->flush();
-
-            $this->removeNonexistingRounds( $structureSer->getRootRound(), $structure->getRootRound() );
-            $em->flush();
-            $this->updateRoundsFromSerialized( $structureSer->getRootRound(), $firstRoundNumber );
-            $em->flush();
-            $conn->commit();
-        } catch (\Exception $e) {
-            $conn->rollBack();
-            throw $e;
-        }
-        return $structure;
-    }
-
-    protected function updateRoundNumbersFromSerialized(
-        RoundNumber $roundNumberSer, Competition $competition, StructureBase $structure, RoundNumber $previousRoundNumber = null
-    )
-    {
-        $roundNumber = null;
-        if( $roundNumberSer->getId() === null ) {
-            $configOptions = $roundNumberSer->getConfig()->getOptions();
-            $roundNumber = $this->roundNumberService->create( $competition, $configOptions, $previousRoundNumber );
-            $this->roundNumberRepos->getEM()->persist($roundNumber);
-        }
-        else {
-            $roundNumber = $structure->getRoundNumberById( $roundNumberSer->getId() );
-            // maybe update roundconfig? TODO CDK
-        }
-        if( $roundNumberSer->hasNext() ) {
-            $this->updateRoundNumbersFromSerialized( $roundNumberSer->getNext(), $competition, $structure, $roundNumber );
-        }
-    }*/
-
-    /*protected function updateRoundsFromSerialized( Round $roundSer, RoundNumber $roundNumber, Round $parentRound = null)
-    {
-        if( $roundSer->getId() === null ) {
-            $round = $this->roundService->create(
-                $roundNumber,
-                $roundSer->getWinnersOrLosers(),
-                $roundSer->getQualifyOrder(),
-                $roundSer->getPoules()->toArray(),
-                $parentRound
-            );
-        }
-        else {
-            $round = $this->roundRepos->find($roundSer->getId());
-            $round->setQualifyOrder( $roundSer->getQualifyOrder() );
-            $this->roundRepos->getEM()->persist($round);
-            $this->roundService->updatePoulesFromSerialized( $round, $roundSer->getPoules()->toArray() );
-        }
-        foreach( $roundSer->getChildRounds() as $childRoundSer ) {
-            $this->updateRoundsFromSerialized( $childRoundSer, $roundNumber->getNext(), $round );
-        }
-    }*/
-
-    /*protected function removeNonexistingRoundNumbers( RoundNumber $roundNumberSerialized, RoundNumber $roundNumber )
-    {
-        if( !$roundNumber->hasNext() ) {
-            return;
-        }
-        if( $roundNumberSerialized->hasNext() && $roundNumberSerialized->getNext()->getId() === $roundNumber->getNext()->getId() ) {
-            return $this->removeNonexistingRoundNumbers($roundNumberSerialized->getNext(), $roundNumber->getNext());
-        }
-        $next = $roundNumber->getNext();
-        $next->setPrevious(null);
-        $roundNumber->setNext(null);
-        $this->roundNumberRepos->getEM()->remove($next);
-    }
-
-    protected function removeNonexistingRounds( Round $rootRoundSerialized, Round $rootRound )
-    {
-        $existingRoundIds = $this->getExistingRoundIds( $rootRoundSerialized );
-        $this->removeNonexistingRoundsHelper( $rootRound, $existingRoundIds );
-    }
-
-    protected function getExistingRoundIds( Round $roundSer ): array
-    {
-        $existingRoundIds = [];
-        if( $roundSer->getId() === null ) {
-            return $existingRoundIds;
-        }
-        $existingRoundIds[$roundSer->getId()] = true;
-        foreach( $roundSer->getChildRounds() as $childRoundSer ) {
-            $roundIdsTmp = $this->getExistingRoundIds($childRoundSer);
-            foreach( $roundIdsTmp as $roundId => $value ) {
-                $existingRoundIds[$roundId] = true;
-            }
-        }
-        return $existingRoundIds;
-    }
-
-    protected function removeNonexistingRoundsHelper( Round $round, array $existingRoundIds )
-    {
-        if( array_key_exists( $round->getId(), $existingRoundIds ) === false ) {
-            $this->roundService->remove($round);
-            return;
-        }
-        foreach( $round->getChildRounds() as $childRound ) {
-            $this->removeNonexistingRoundsHelper( $childRound, $existingRoundIds);
-        }
-    }*/
 
     public function copy( StructureBase $structure, Competition $competition )
     {
         return $this->createFromSerialized( $structure, $competition );
     }
-
-//    public function editFromJSON( Round $p_round, Competition $competition )
-//    {
-////        $number = $p_round->getNumber();
-////        if ( $number !== 1 ) {
-////            throw new \Exception("het eerste rondenummer moet 1 zijn", E_ERROR);
-////        }
-//
-//        if( count( $this->roundRepository->findBy( array( "competition" => $competition ) ) ) === 0 ) {
-//            throw new \Exception("er bestaat nog geen indeling", E_ERROR);
-//        };
-//
-//        $round = $this->roundService->editFromJSON( $p_round, $competition );
-//
-//
-//        return $round;
-//    }
 
     public function getStructure( Competition $competition ): ?StructureBase
     {

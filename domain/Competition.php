@@ -9,7 +9,6 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Structure;
 
 class Competition implements External\Importable
 {
@@ -55,6 +54,10 @@ class Competition implements External\Importable
 
     const STATE_CREATED = 1;
     const STATE_PUBLISHED = 2;
+
+    const MIN_COMPETITORS = 3;
+    const MAX_COMPETITORS = 40;
+
 
     use External\ImportableTrait;
 

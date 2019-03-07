@@ -8,6 +8,7 @@
 
 namespace Voetbal\Round;
 
+use Voetbal\Competition;
 use Voetbal\Round;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Poule\Repository as PouleRepository;
@@ -64,6 +65,22 @@ class Service
         Number $roundNumber,
         int $winnersOrLosers,
         int $qualifyOrder,
+        array $nrOfPlacesPerPoule,
+        Round $p_parent = null ): Round
+    {
+        $round = new Round($roundNumber, $p_parent);
+        $round->setWinnersOrLosers( $winnersOrLosers );
+        $round->setQualifyOrder( $qualifyOrder );
+        foreach( $nrOfPlacesPerPoule as $idx => $nrOfPlaces  ) {
+            $this->pouleService->create( $round, $idx + 1, $nrOfPlaces );
+        }
+        return $round;
+    }
+
+    public function createFromSerialized(
+        Number $roundNumber,
+        int $winnersOrLosers,
+        int $qualifyOrder,
         array $poulesSer,
         Round $p_parent = null ): Round
     {
@@ -98,7 +115,7 @@ class Service
         return $round;
     }
 
-    public function createPoules( Round $round, int $nrOfPlaces, int $nrOfPoules )
+    private function createPoules( Round $round, int $nrOfPlaces, int $nrOfPoules )
     {
         $nrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule( $nrOfPlaces, $nrOfPoules);
 
@@ -130,61 +147,59 @@ class Service
         return $this->repos->getEM()->remove($round);
     }
 
-    /**
-     * @param int $roundNr
-     * @param int $nrOfPlaces
-     * @return Structure
-     * @throws \Exception
-     */
-    public function getDefault( int $roundNr, int $nrOfPlaces ): RoundStructure
-    {
-        $roundStructure = new RoundStructure( $nrOfPlaces );
-        if( $roundNr > 1 ) {
-            if ( $nrOfPlaces > 1 && ( $nrOfPlaces % 2 ) !== 0 ) {
-                throw new \Exception("het aantal(".$nrOfPlaces.") moet een veelvoud van 2 zijn na de eerste ronde", E_ERROR);
-            }
-            $roundStructure->nrofpoules = $nrOfPlaces / 2;
-            $roundStructure->nrofwinners = $nrOfPlaces / 2;
-            return $roundStructure;
+    public function getDefaultNrOfPoules(int $nrOfPlaces, int $min = null, int $max = null): int {
+        if( $min === null ) {
+            $min = Competition::MIN_COMPETITORS;
         }
-        if( $nrOfPlaces ===  5 ) { $roundStructure->nrofpoules = 1; $roundStructure->nrofpoules = 2; }
-        else if( $nrOfPlaces ===  6 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
-        else if( $nrOfPlaces ===  8 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
-        else if( $nrOfPlaces ===  9 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
-        else if( $nrOfPlaces === 10 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
-        else if( $nrOfPlaces === 11 ) { $roundStructure->nrofpoules = 2; $roundStructure->nrofpoules = 2; }
-        else if( $nrOfPlaces === 12 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
-        else if( $nrOfPlaces === 13 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
-        else if( $nrOfPlaces === 14 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
-        else if( $nrOfPlaces === 15 ) { $roundStructure->nrofpoules = 3; $roundStructure->nrofpoules = 4; }
-        else if( $nrOfPlaces === 16 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 4; }
-        else if( $nrOfPlaces === 17 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 4; }
-        else if( $nrOfPlaces === 18 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 19 ) { $roundStructure->nrofpoules = 4; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 20 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 21 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 22 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 23 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 24 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 25 ) { $roundStructure->nrofpoules = 5; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 26 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 27 ) { $roundStructure->nrofpoules = 9; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 28 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 29 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 30 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 31 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 32 ) { $roundStructure->nrofpoules = 8; $roundStructure->nrofpoules =16; }
-        else if( $nrOfPlaces === 33 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 34 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 35 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 36 ) { $roundStructure->nrofpoules = 6; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 37 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 38 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 39 ) { $roundStructure->nrofpoules = 7; $roundStructure->nrofpoules = 8; }
-        else if( $nrOfPlaces === 40 ) { $roundStructure->nrofpoules = 8; $roundStructure->nrofpoules = 8; }
-        else {
-            throw new \Exception("het aantal deelnemers moet minimaal 1 zijn en mag maximaal 32 zijn", E_ERROR);
+        if( $max === null ) {
+            $max = Competition::MAX_COMPETITORS;
         }
-        return $roundStructure;
+        if ($nrOfPlaces < $min || $nrOfPlaces > $max) {
+            return null;
+        }
+
+        $defaultNrOfPlaces = [
+            null, null, /* 2 */
+            1, // 2
+            1,
+            1,
+            1,
+            2, // 6
+            1,
+            2,
+            3,
+            2, // 10
+            2,
+            3,
+            3,
+            3,
+            3,
+            4,
+            4,
+            4, // 18
+            4,
+            5,
+            5,
+            5,
+            5,
+            6, // 24
+            5,
+            6,
+            9, // 27
+            7,
+            6,
+            6,
+            7,
+            8, // 32
+            6,
+            6,
+            7,
+            6,
+            7,
+            7,
+            7,
+            8
+        ];
+        $defaultNrOfPlaces[$nrOfPlaces];
     }
 }

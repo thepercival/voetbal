@@ -108,41 +108,72 @@ class ApiHelper
 
     public function getRounds( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?array
     {
-//        1 item moet hebben:
-//        1 name
-//        2 nrOfPlaces,
-//        3 nrOfPoules
-
-        $retVal = $this->getData("competitions/".$externalLeague->getExternalId()."/matches?season=".$externalSeason->getExternalId() );
-        if( $this->getRoundsHelperAllMatchesHaveDate( $retVal->matches ) !== true ) {
+        $matches = $this->getGames($externalLeague,$externalSeason);
+        if( $this->getRoundsHelperAllMatchesHaveDate( $matches ) !== true ) {
             return [];
         }
-
-        uasort( $retVal->matches, function( $matchA, $matchB ) {
+        uasort( $matches, function( $matchA, $matchB ) {
             return $matchA->utcDate < $matchB->utcDate;
         } );
+
         $rounds = [];
-        foreach( $retVal->matches as $match) {
+        foreach( $matches as $match) {
             if( array_search( $match->stage, $rounds ) !== false ) {
                 $round = new \stdClass();
                 $round->name = $match->stage;
-                $round->nrOfPlaces = ?;
-                $round->nrOfPoules = ?;
-
+                $round->nrPlacesPerPoule = $this->getRoundsHelperGetNrOfPlacesPerPoule( $matches, $match->stage );
                 $rounds[] = $match->stage;
             }
         }
         return $rounds;
     }
 
-    protected function getRoundsHelperAllMatchesHaveDate( array $matches ): boolean
+    protected function getRoundsHelperAllMatchesHaveDate( array $matches ): bool
     {
         foreach( $matches as $match) {
-            if( strlen( $match->utcDare ) === 0  ) {
+            if( strlen( $match->utcDate ) === 0  ) {
                 return false;
             }
         }
         return true;
+    }
+
+
+    protected function getRoundsHelperGetNrOfPlacesPerPoule( array $matches, string $stage ): array
+    {
+        $stageMatches = array_filter( $matches, function( $match ) use ($stage) {
+            return $match->stage === $stage;
+        });
+        $placesPerPoule = $this->getRoundsHelperGetPlacesPerPoule( $stageMatches );
+        if( count($placesPerPoule) === 0 ) {
+            throw new \Exception("no places to be found for stage " . $stage, E_ERROR );
+        }
+        return array_map( function( $placesPerPoule ) {
+            return count($placesPerPoule);
+        }, $placesPerPoule );
+    }
+
+    protected function getRoundsHelperGetPlacesPerPoule( array $stageMatches ): array
+    {
+        $poules = [];
+        foreach( $stageMatches as $stageMatch ) {
+            if( $stageMatch->homeTeam === null || $stageMatch->awayTeam === null ) {
+                continue;
+            }
+            $homeTeamId = $stageMatch->homeTeam->id;
+            $awayTeamId = $stageMatch->awayTeam->id;
+            $found = false;
+            foreach( $poules as $poule ) {
+                if( array_search( $homeTeamId, $poule ) || array_search( $awayTeamId, $poule ) ) {
+                    $found = true;
+                    break;
+                }
+            }
+            if( !$found ) {
+                $poules[] = [$homeTeamId, $awayTeamId];
+            }
+        }
+        return $poules;
     }
 
     public function getCompetitors( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?array
@@ -151,10 +182,15 @@ class ApiHelper
         return $retVal->teams;
     }
 
-    public function getGames( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?array
+    public function getGames( ExternalLeague $externalLeague, ExternalSeason $externalSeason, string $stage = null /* round */ ): ?array
     {
         $retVal = $this->getData("competitions/".$externalLeague->getExternalId()."/matches?season=".$externalSeason->getExternalId() );
-        return $retVal->matches;
+        if( $stage === null ) {
+            return $retVal->matches;
+        }
+        return array_filter( $retVal->matches, function( $match ) use ($stage) {
+            return $match->stage === $stage;
+        });
     }
 
     public function getDate( string $date ) {
