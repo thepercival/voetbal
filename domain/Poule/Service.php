@@ -10,8 +10,8 @@ namespace Voetbal\Poule;
 
 use Voetbal\Round;
 use Voetbal\Poule;
+use Voetbal\PoulePlace;
 use Voetbal\Poule\Repository as PouleRepository;
-use Voetbal\PoulePlace\Service as PoulePlaceService;
 use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
 use Voetbal\Competitor\Repository as CompetitorRepository;
 
@@ -21,10 +21,6 @@ class Service
      * @var PouleRepository
      */
     protected $repos;
-    /**
-     * @var PoulePlaceService
-     */
-    protected $poulePlaceService;
     /**
      * @var PoulePlaceRepository
      */
@@ -37,18 +33,15 @@ class Service
     /**
      * Service constructor.
      * @param Repository $repos
-     * @param PoulePlaceService $poulePlaceService
      * @param PoulePlaceRepository $poulePlaceRepos
      * @param CompetitorRepository $competitorRepos
      */
     public function __construct( 
-        PouleRepository $repos, 
-        PoulePlaceService $poulePlaceService,
+        PouleRepository $repos,
         PoulePlaceRepository $poulePlaceRepos,
         CompetitorRepository $competitorRepos )
     {
         $this->repos = $repos;
-        $this->poulePlaceService = $poulePlaceService;
         $this->poulePlaceRepos = $poulePlaceRepos;
         $this->competitorRepos = $competitorRepos;
     }
@@ -61,10 +54,9 @@ class Service
                 throw new \Exception("een poule moet minimaal 1 plek hebben", E_ERROR);
             }
             for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ){
-                $this->poulePlaceService->create($poule, $placeNr, null );
+                $pouleplace = new PoulePlace( $poule, $placeNr );
             }
         }
-
         return $poule;
     }
 
@@ -78,7 +70,11 @@ class Service
     {
         $poule = $this->create( $round, $number );
         foreach( $placesSer as $placeSer ) {
-            $this->poulePlaceService->create( $poule, $placeSer->getNumber(), $placeSer->getCompetitor() );
+            $pouleplace = new PoulePlace( $poule, $placeSer->getNumber() );
+            if ( $placeSer->getCompetitor() !== null ){
+                $competitor = $this->competitorRepos->find( $placeSer->getCompetitor()->getId() );
+            }
+            $pouleplace->setCompetitor($competitor);
         }
     }
 

@@ -23,10 +23,6 @@ final class PoulePlace
      */
     protected $repos;
     /**
-     * @var PoulePlaceService
-     */
-    protected $service;
-    /**
      * @var CompetitorRepository
      */
     protected $competitorRepos;
@@ -45,7 +41,6 @@ final class PoulePlace
 
     public function __construct(
         PoulePlaceRepository $repos,
-        PoulePlaceService $service,
         CompetitorRepository $competitorRepos,
         PouleRepository $pouleRepos,
         CompetitionRepository $competitionRepos,
@@ -53,7 +48,6 @@ final class PoulePlace
     )
     {
         $this->repos = $repos;
-        $this->service = $service;
         $this->competitorRepos = $competitorRepos;
         $this->pouleRepos = $pouleRepos;
         $this->competitionRepos = $competitionRepos;

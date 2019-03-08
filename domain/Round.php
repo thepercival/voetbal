@@ -64,7 +64,7 @@ class Round
     CONST WINNERS = 1;
     CONST LOSERS = 2;
 
-    const MAX_LENGTH_NAME = 10;
+    const MAX_LENGTH_NAME = 20;
 
     CONST ORDER_NUMBER_POULE = 1;
     CONST ORDER_POULE_NUMBER = 2;
@@ -190,10 +190,6 @@ class Round
 
         if ( strlen( $name ) > static::MAX_LENGTH_NAME ){
             throw new \InvalidArgumentException( "de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
-        }
-
-        if(preg_match('/[^a-z0-9 ]/i', $name)){
-            throw new \InvalidArgumentException( "de naam mag alleen cijfers, letters en spaties bevatten", E_ERROR );
         }
 
         $this->name = $name;

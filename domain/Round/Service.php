@@ -34,10 +34,6 @@ class Service
      * @var PouleRepository
      */
     protected $pouleRepos;
-    /**
-     * @var PoulePlace\Service
-     */
-    protected $poulePlaceService;
 
     /**
      * Service constructor.
@@ -50,15 +46,13 @@ class Service
         RoundRepository $repos,
         Config\Service $configService,
         Poule\Service $pouleService,
-        PouleRepository $pouleRepos,
-        PoulePlace\Service $poulePlaceService
+        PouleRepository $pouleRepos
     )
     {
         $this->repos = $repos;
         $this->configService = $configService;
         $this->pouleService = $pouleService;
         $this->pouleRepos = $pouleRepos;
-        $this->poulePlaceService = $poulePlaceService;
     }
 
     public function create(

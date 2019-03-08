@@ -22,6 +22,7 @@ use Voetbal\External\System\FootballData\Competitor as FootballDataCompetitorImp
 use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
 use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
 use Voetbal\Service as VoetbalService;
+use Voetbal\Structure\Repository as StructureRepository;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 
@@ -119,8 +120,9 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->getCompetitorImporter($this->voetbalService),
             $this->getGameImporter($this->voetbalService),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
-            $this->voetbalService->getService( \Voetbal\Structure::class ),
-            $this->voetbalService->getService( \Voetbal\PoulePlace::class ),
+            $this->voetbalService->getStructureRepository(),
+            $this->voetbalService->getService( \Voetbal\Round::class ),
+            $this->voetbalService->getService( \Voetbal\Round\Number::class ),
             $this->voetbalService->getService( \Voetbal\Round\Config::class ),
             $this->voetbalService->getRepository( \Voetbal\External\League::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Season::class ),

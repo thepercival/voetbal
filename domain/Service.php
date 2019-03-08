@@ -31,10 +31,17 @@ class Service
         return $this->getEntityManager()->getRepository($classname);
     }
 
+    public function getStructureRepository()
+    {
+        return new Structure\Repository($this->getEntityManager());
+    }
+
     public function getService($classname)
     {
         $repos = null;
-        if ($classname !== Structure::class and $classname !== Planning::class) {
+        if ($classname === Structure::class) {
+            $repos = $this->getStructureRepository();
+        } else if ($classname !== Planning::class) {
             $repos = $this->getRepository($classname);
         }
 
@@ -70,7 +77,6 @@ class Service
                 $this->getService(Round\Config::class),
                 $this->getService(Poule::class),
                 $this->getRepository(Poule::class),
-                $this->getService(PoulePlace::class),
                 $this->getEntityManager()->getConnection()
             );
         } elseif ($classname === Round\Config::class) {
@@ -80,15 +86,9 @@ class Service
         } elseif ($classname === Poule::class) {
             return new Poule\Service(
                 $repos,
-                $this->getService(PoulePlace::class),
                 $this->getRepository(PoulePlace::class),
                 $this->getRepository(Competitor::class),
                 $this->getEntityManager()->getConnection()
-            );
-        } elseif ($classname === PoulePlace::class) {
-            return new PoulePlace\Service(
-                $repos,
-                $this->getRepository(Competitor::class)
             );
         } elseif ($classname === Game::class) {
             return new Game\Service(

@@ -14,11 +14,12 @@ use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
 use Voetbal\External\System\Importer\Game as GameImporter;
 use Voetbal\Competition as Competition;
-use Voetbal\Config as VoetbalConfig;
 use Voetbal\External\Competition as ExternalCompetition;
 use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\PoulePlace\Service as PoulePlaceService;
+use Voetbal\Structure\Repository as StructureRepository;
+use Voetbal\Round\Service as RoundService;
+use Voetbal\Round\Number\Service as RoundNumberService;
+use Voetbal\Structure as StructureBase;
 use Voetbal\Round;
 use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\External\League\Repository as ExternalLeagueRepos;
@@ -72,14 +73,19 @@ class Structure implements StructureImporter
     private $externalSeasonRepos;
 
     /**
-     * @var StructureService
+     * @var StructureRepository
      */
-    private $structureService;
+    private $structureRepos;
 
     /**
-     * @var PoulePlaceService
+     * @var RoundService
      */
-    private $poulePlaceService;
+    private $roundService;
+
+    /**
+     * @var RoundNumberService
+     */
+    private $roundNumberService;
 
     /**
      * @var RoundConfigService
@@ -103,8 +109,9 @@ class Structure implements StructureImporter
         CompetitorImporter $competitorImporter,
         GameImporter $gameImporter,
         ExternalCompetitorRepos $externalCompetitorRepos,
-        StructureService $structureService,
-        PoulePlaceService $poulePlaceService,
+        StructureRepository $structureRepository,
+        RoundService $roundService,
+        RoundNumberService $roundNumberService,
         RoundConfigService $roundConfigService,
         ExternalLeagueRepos $externalLeagueRepos,
         ExternalSeasonRepos $externalSeasonRepos,
@@ -118,8 +125,9 @@ class Structure implements StructureImporter
         $this->competitorImporter = $competitorImporter;
         $this->gameImporter = $gameImporter;
         $this->externalCompetitorRepos = $externalCompetitorRepos;
-        $this->structureService = $structureService;
-        $this->poulePlaceService = $poulePlaceService;
+        $this->structureRepos = $structureRepository;
+        $this->roundService = $roundService;
+        $this->roundNumberService = $roundNumberService;
         $this->roundConfigService = $roundConfigService;
         $this->externalLeagueRepos = $externalLeagueRepos;
         $this->externalSeasonRepos = $externalSeasonRepos;
@@ -129,8 +137,7 @@ class Structure implements StructureImporter
 
     public function createByCompetitions( array $competitions ) {
         foreach( $competitions as $competition ) {
-            $structure = $this->structureService->getStructure( $competition );
-            if( $structure !== null ) {
+            if( $this->structureRepos->findRoundNumber( $competition, 1 ) !== null ) {
                 continue;
             }
 
@@ -140,8 +147,8 @@ class Structure implements StructureImporter
             }
             $this->conn->beginTransaction();
             try {
-                $this->create( $competition, $externalLeague, $externalSeason );
-
+                $structure = $this->create( $competition, $externalLeague, $externalSeason );
+                $this->structureRepos->customPersist($structure);
                 $this->conn->commit();
             } catch( \Exception $e ) {
                 $this->addError('for competition '.$competition->getName(). ' structure could not be created: ' . $e->getMessage() );
@@ -152,12 +159,13 @@ class Structure implements StructureImporter
 
     protected function create( Competition $competition, ExternalLeague $externalLeague, ExternalSeason $externalSeason )
     {
-        $parentRound = null;
+        $parentRound = null; $rootRound = null;
         $externalSystemRounds = $this->apiHelper->getRounds($externalLeague, $externalSeason);
         /** @var $externalSystemRound string */
         foreach( $externalSystemRounds as $externalSystemRound ) {
 
             $configOptions = $this->getConfigOptions($competition->getLeague()->getSport());
+            $configOptions->setNrOfHeadtoheadMatches( $this->getNrOfHeadtoheadMatches($externalSystemRound));
             $previousRoundNumber = $parentRound ? $parentRound->getNumber() : null;
             $roundNumber = $this->roundNumberService->create($competition, $configOptions, $previousRoundNumber);
 
@@ -165,30 +173,32 @@ class Structure implements StructureImporter
                 $roundNumber,
                 Round::WINNERS,
                 Round::QUALIFYORDER_DRAW,
-                $externalSystemRound->nrPlacesPerPoule,
+                $this->getNrOfPlacesPerPoule( $externalSystemRound->poules ),
                 $parentRound);
             $round->setName( $externalSystemRound->name );
 
+            $this->assignCompetitors( $round, $externalSystemRound );
 
-            // haal poules->places op op basis van ronde
-            $this->assignCompetitors( $round );
-            //  1 bepaal poules, dit ook doen in apihelper
-
+            if( $parentRound === null ) {
+                $rootRound = $round;
+            }
             $parentRound = $round;
         }
 
-        // $externalSystemCompetitors = $this->apiHelper->getCompetitors($externalLeague, $externalSeason);
-//        // for now always one round
-//        $nrOfPoules = 1;
-//        $nrOfPlaces = count( $externalSystemCompetitors );
-//        $externalCompetitors = $this->externalCompetitorRepos->findBy(array(
-//            'externalSystem' => $this->externalSystemBase
-//        ));
-//        if( count($externalCompetitors) < $nrOfPlaces ) {
-//            throw new \Exception("for ".$this->externalSystemBase->getName()." there are not enough competitors to create a structure", E_ERROR);
-//        }
+        return new StructureBase( $rootRound->getNumber(), $rootRound);
+    }
 
+    protected function getNrOfPlacesPerPoule( array $poules ): array
+    {
+        return array_map( function( $poule ) {
+            return count($poule->places);
+        }, $poules );
+    }
 
+    protected function getNrOfHeadtoheadMatches( $externalSystemRound ): int
+    {
+        $firstPoule = reset($externalSystemRound->poules);
+        return $firstPoule->nrOfHeadtoheadMatches;
     }
 
     protected function getConfigOptions( $sport )
@@ -198,70 +208,38 @@ class Structure implements StructureImporter
         return $roundConfigOptions;
     }
 
-    protected function getNrOfHeadtotheadMatches(ExternalLeague $externalLeague, ExternalSeason $externalSeason, $nrOfPlaces, $nrOfPoules)
-    {
-        $nrOfCompetitors = $nrOfPlaces;
-        $nrOfCompetitors = $nrOfCompetitors - ( $nrOfCompetitors % $nrOfPoules );
-        $nrOfCompetitorsPerPoule = $nrOfCompetitors / $nrOfPoules;
+    /**
+     * competitors toevoegen obv wedstrijden per poule
+     *
+     * @param Round $round
+     * @param ExternalCompetition $externalCompetition
+     */
+    protected function assignCompetitors( Round $round, $externalSystemRound ) {
 
-        $nrOfGames = count( $this->apiHelper->getGames($externalLeague, $externalSeason) );
-        $nrOfGamesPerPoule = $nrOfGames / $nrOfPoules;
+        $poules = $round->getPoules();
+        $pouleIt = $poules->getIterator();
 
-        $nrOfGamesPerGameRound = ( $nrOfCompetitorsPerPoule - ( $nrOfCompetitorsPerPoule % 2 ) ) / 2;
-
-        $nrOfGameRounds = ( $nrOfGamesPerPoule / $nrOfGamesPerGameRound );
-
-        return $nrOfGameRounds / ( $nrOfCompetitorsPerPoule - 1 );
-    }
-
-    protected function assignCompetitors( Round $round, ExternalCompetition $externalCompetition ) {
-//        $externalSystemCompetitors = $this->competitorImporter->get( $externalCompetition );
-//        if( count( $externalSystemCompetitors ) !== $poule->getPlaces()->count() ) {
-//            throw new \Exception("cannot assign competitors: number of places does not match number of competitors");
-//        }
-
-//        hier worden leagtables gebruikt om competitor op een plek te zetten!!
-//        $leagueTables = (array) $this->get($externalCompetition);
-
-//        $poules = $round->getPoules();
-//        $pouleIt = $poules->getIterator();
-//        foreach( $leagueTables as $leagueTable) {
-//            if( $pouleIt->valid() === false ) {
-//                throw new \Exception("not enough poules for leaguetables", E_ERROR );
-//            }
-//            $poule = $pouleIt->current();
-//            $placeIt = $poule->getPlaces()->getIterator();
-//            foreach( $leagueTable as $leagueTableItem ) {
-//                if( $placeIt->valid() === false ) {
-//                    throw new \Exception("not enough places for leaguetableitems", E_ERROR );
-//                }
-//                $place = $placeIt->current();
-//                $competitorExternalId = null;
-//                if( property_exists ( $leagueTableItem, "competitorId" )  ) {
-//                    $competitorExternalId = $leagueTableItem->competitorId;
-//                } else {
-//                    $competitorExternalId = $this->apiHelper->getId( $leagueTableItem );
-//                }
-//                if( $competitorExternalId === null ) {
-//                    throw new \Exception("competitorid could not be found", E_ERROR );
-//                }
-//                $competitor = $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $competitorExternalId );
-//                if( $competitor === null ) {
-//                    throw new \Exception("cannot assign competitors: no competitor for externalid ".$competitorExternalId." and ".$this->externalSystemBase->getName(), E_ERROR );
-//                }
-//                $this->poulePlaceService->assignCompetitor($place, $competitor );
-//                $placeIt->next();
-//            }
-//            $pouleIt->next();
-//        }
-        //
-
-//        $counter = 0;
-//        foreach( $poule->getPlaces() as $place ) {
-//            $externalSystemCompetitor = $externalSystemCompetitors[$counter++];
-//            $competitorExternalId = $this->competitorImporter->getId($externalSystemCompetitor);
-//
-//        }
+        foreach( $externalSystemRound->poules as $externalSystemPoule ) {
+            if( $pouleIt->valid() === false ) {
+                throw new \Exception("not enough poules", E_ERROR );
+            }
+            $poule = $pouleIt->current();
+            $placeIt = $poule->getPlaces()->getIterator();
+            foreach( $externalSystemPoule->places as $externalCompetitorId ) {
+                if( $placeIt->valid() === false ) {
+                    throw new \Exception("not enough places", E_ERROR );
+                }
+                $place = $placeIt->current();
+                $competitorExternalId = null;
+                $competitor = $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $externalCompetitorId );
+                if( $competitor === null ) {
+                    throw new \Exception("cannot assign competitors: no competitor for externalid ".$competitorExternalId." and ".$this->externalSystemBase->getName(), E_ERROR );
+                }
+                $place->setCompetitor($competitor);
+                $placeIt->next();
+            }
+            $pouleIt->next();
+        }
     }
 
     private function addNotice( $msg ) {

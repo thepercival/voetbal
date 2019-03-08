@@ -118,11 +118,11 @@ class ApiHelper
 
         $rounds = [];
         foreach( $matches as $match) {
-            if( array_search( $match->stage, $rounds ) !== false ) {
+            if( array_key_exists( $match->stage, $rounds ) === false ) {
                 $round = new \stdClass();
                 $round->name = $match->stage;
-                $round->nrPlacesPerPoule = $this->getRoundsHelperGetNrOfPlacesPerPoule( $matches, $match->stage );
-                $rounds[] = $match->stage;
+                $round->poules = $this->getRoundsHelperGetPoules( $matches, $match->stage );
+                $rounds[$match->stage] = $round;
             }
         }
         return $rounds;
@@ -139,41 +139,84 @@ class ApiHelper
     }
 
 
-    protected function getRoundsHelperGetNrOfPlacesPerPoule( array $matches, string $stage ): array
+    protected function getRoundsHelperGetPoules( array $matches, string $stage ): array
     {
         $stageMatches = array_filter( $matches, function( $match ) use ($stage) {
             return $match->stage === $stage;
         });
-        $placesPerPoule = $this->getRoundsHelperGetPlacesPerPoule( $stageMatches );
-        if( count($placesPerPoule) === 0 ) {
+        $poules = $this->getRoundsHelperGetPoulesHelper( $stageMatches );
+        if( count($poules) === 0 ) {
             throw new \Exception("no places to be found for stage " . $stage, E_ERROR );
         }
-        return array_map( function( $placesPerPoule ) {
-            return count($placesPerPoule);
-        }, $placesPerPoule );
+        return $poules;
     }
 
-    protected function getRoundsHelperGetPlacesPerPoule( array $stageMatches ): array
+    protected function getRoundsHelperGetPoulesHelper( array $stageMatches ): array
     {
+        $movePlaces = function( &$poules, $oldPoule, $newPoule ) {
+            $newPoule->places = array_merge( $oldPoule->places, $newPoule->places);
+            unset($poules[array_search($oldPoule,$poules)]);
+        };
+
         $poules = [];
         foreach( $stageMatches as $stageMatch ) {
-            if( $stageMatch->homeTeam === null || $stageMatch->awayTeam === null ) {
+            $homeCompetitorId = $stageMatch->homeTeam->id;
+            $awayCompetitorId = $stageMatch->awayTeam->id;
+            if( $homeCompetitorId === null || $awayCompetitorId === null ) {
                 continue;
             }
-            $homeTeamId = $stageMatch->homeTeam->id;
-            $awayTeamId = $stageMatch->awayTeam->id;
-            $found = false;
-            foreach( $poules as $poule ) {
-                if( array_search( $homeTeamId, $poule ) || array_search( $awayTeamId, $poule ) ) {
-                    $found = true;
-                    break;
-                }
-            }
-            if( !$found ) {
-                $poules[] = [$homeTeamId, $awayTeamId];
+            $homePoule = $this->getRoundsHelperGetPoule( $poules, $homeCompetitorId );
+            $awayPoule = $this->getRoundsHelperGetPoule( $poules, $awayCompetitorId );
+            if( $homePoule === null && $awayPoule === null ) {
+                $poule = new \stdClass();
+                $poule->places = [$homeCompetitorId, $awayCompetitorId];
+                $poule->games = [];
+                $poules[] = $poule;
+            } else if( $homePoule !== null && $awayPoule === null ) {
+                $homePoule->places[] = $awayCompetitorId;
+            } else if( $homePoule === null && $awayPoule !== null ) {
+                $awayPoule->places[] = $homeCompetitorId;
+            } else if( $homePoule !== $awayPoule ) {
+                $movePlaces($poules,$awayPoule,$homePoule);
             }
         }
+        $this->getRoundsHelperGetPoulesHelperExt( $poules, $stageMatches );
         return $poules;
+    }
+
+    protected function getRoundsHelperGetPoulesHelperExt( array &$poules, array $stageMatches )
+    {
+        foreach( $stageMatches as $stageMatch ) {
+            $homeCompetitorId = $stageMatch->homeTeam->id;
+            $awayCompetitorId = $stageMatch->awayTeam->id;
+            if( $homeCompetitorId === null || $awayCompetitorId === null ) {
+                continue;
+            }
+            $homePoule = $this->getRoundsHelperGetPoule( $poules, $homeCompetitorId );
+            $awayPoule = $this->getRoundsHelperGetPoule( $poules, $awayCompetitorId );
+            if( $homePoule === null || $homePoule !== $awayPoule ) {
+                continue;
+            }
+            $homePoule->games[] = $stageMatch;
+        }
+
+        foreach( $poules as $poule ) {
+            $nrOfPlaces = count($poule->places);
+            $nrOfGames = count($poule->games);
+
+            $nrOfGamesPerGameRound = ( $nrOfPlaces - ( $nrOfPlaces % 2 ) ) / 2;
+            $nrOfGameRounds = ( $nrOfGames / $nrOfGamesPerGameRound );
+            $poule->nrOfHeadtoheadMatches = $nrOfGameRounds / ( $nrOfPlaces - 1 );
+        }
+    }
+
+    protected function getRoundsHelperGetPoule( $poules, $competitorId ): ?\stdClass {
+        foreach( $poules as $poule ) {
+            if( array_search( $competitorId, $poule->places ) !== false ) {
+                return $poule;
+            }
+        }
+        return null;
     }
 
     public function getCompetitors( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?array
