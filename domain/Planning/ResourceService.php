@@ -57,6 +57,10 @@ class ResourceService
      * @var Period
      */
     private $blockedPeriod;
+    /**
+     * @var int
+     */
+    private $nrOfPoules;
 
     public function __construct(
         RoundNumberConfig $roundNumberConfig,
@@ -65,6 +69,9 @@ class ResourceService
     {
         $this->roundNumberConfig = $roundNumberConfig;
         $this->currentGameStartDate = clone $dateTime;
+        if ($this->roundNumberConfig->getSelfReferee()) {
+            $this->nrOfPoules = count($this->roundNumberConfig->getRoundNumber()->getPoules());
+        }
     }
 
 
@@ -254,7 +261,9 @@ class ResourceService
             return count($this->assignableReferees) > 0;
         }
         foreach( $this->assignableReferees as $assignableRef ) {
-            if( !$game->isParticipating($assignableRef->getPoulePlace()) ) {
+            if( !$game->isParticipating($assignableRef->getPoulePlace()) && $this->isPoulePlaceAssignable($assignableRef->getPoulePlace())
+                && ($this->nrOfPoules === 1 || $assignableRef->getPoulePlace()->getPoule() !== $game->getPoule())
+            ) {
                 return true;
             }
         }
@@ -265,16 +274,12 @@ class ResourceService
         if (!$this->roundNumberConfig->getSelfReferee()) {
             return array_shift($this->assignableReferees);
         }
-        $refereesNotParticipating = array_filter( $this->assignableReferees, function( $assignableRef ) use ($game) {
-            return !$game->isParticipating($assignableRef->getPoulePlace());
+        $refereesAssignable = array_filter( $this->assignableReferees, function( $assignableRef ) use ($game) {
+            return ( !$game->isParticipating($assignableRef->getPoulePlace()) && $this->isPoulePlaceAssignable($assignableRef->getPoulePlace())
+                && ($this->nrOfPoules === 1 || $assignableRef->getPoulePlace()->getPoule() !== $game->getPoule())
+            );
         });
-        $refereesOtherPoule = array_filter( $refereesNotParticipating, function( $assignableRef ) use ($game) {
-            return $game->getPoule() !== $assignableRef->getPoulePlace()->getPoule();
-        });
-        $referee = count( $refereesOtherPoule ) > 0 ? reset($refereesOtherPoule) : null;
-        if ($referee === null && count($refereesNotParticipating) > 0) {
-            $referee = reset($refereesNotParticipating);
-        }
+        $referee = count( $refereesAssignable ) > 0 ? reset($refereesAssignable) : null;
         if ($referee !== null) {
             array_splice($this->assignableReferees, array_search($referee,$this->assignableReferees), 1);
         }
@@ -307,14 +312,14 @@ class ResourceService
      */
     protected function areAllPoulePlacesAssignable(array $poulePlaces): bool {
         foreach( $poulePlaces as $poulePlace ) {
-            if( !$this->isPoulePlacesAssignable($poulePlace) ) {
+            if( !$this->isPoulePlaceAssignable($poulePlace) ) {
                 return false;
             }
         }
         return true;
     }
 
-    protected function isPoulePlacesAssignable(PoulePlace $poulePlace): bool {
+    protected function isPoulePlaceAssignable(PoulePlace $poulePlace): bool {
         return !$this->hasPoulePlace($this->assignedPoulePlaces, $poulePlace);
     }
 

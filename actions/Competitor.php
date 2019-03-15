@@ -87,6 +87,7 @@ final class Competitor
 
             $competitor = new CompetitorBase( $competitorSer->getName(), $association );
             $competitor->setAbbreviation($competitorSer->getAbbreviation());
+            $competitor->setRegistered($competitorSer->getRegistered());
             $competitor->setImageUrl($competitorSer->getImageUrl());
             $competitor->setInfo($competitorSer->getInfo());
             $this->repos->save($competitor);
@@ -113,6 +114,7 @@ final class Competitor
 
             $competitor->setName($competitorSer->getName());
             $competitor->setAbbreviation($competitorSer->getAbbreviation());
+            $competitor->setRegistered($competitorSer->getRegistered());
             $competitor->setImageUrl($competitorSer->getImageUrl());
             $competitor->setInfo($competitorSer->getInfo());
             $this->repos->save($competitor);

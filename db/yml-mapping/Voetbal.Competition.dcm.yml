@@ -11,6 +11,10 @@ Voetbal\Competition:
             generator:
                 strategy: AUTO
     fields:
+        ruleSet:
+          type: smallint
+          unique: false
+          nullable: false
         state:
             type: smallint
             default:  !php/const Voetbal\Competition::STATE_CREATED

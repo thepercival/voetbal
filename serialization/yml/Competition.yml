@@ -6,6 +6,8 @@ Voetbal\Competition:
   properties:
     id:
       type: integer
+    ruleSet:
+      type: integer
     state:
       type: integer
     league:

@@ -32,6 +32,11 @@ class Competition implements External\Importable
      */
     private $startDateTime;
 
+    /**
+     * @var int
+     */
+    private $ruleSet;
+
 	/**
 	 * @var int
 	 */
@@ -65,6 +70,7 @@ class Competition implements External\Importable
     {
         $this->league = $league;
         $this->season = $season;
+        $this->ruleSet = Qualify\Rule::SOCCERWORLDCUP;
         $this->state = static::STATE_CREATED;
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();
@@ -145,6 +151,22 @@ class Competition implements External\Importable
         $this->startDateTime = $datetime;
     }
 
+    /**
+     * @return int
+     */
+    public function getRuleSet()
+    {
+        return $this->ruleSet;
+    }
+
+    /**
+     * @param int $ruleSet
+     */
+    public function setRuleSet( $ruleSet )
+    {
+        $this->ruleSet = $ruleSet;
+    }
+    
     /**
      * @return int
      */

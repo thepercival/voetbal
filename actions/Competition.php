@@ -98,7 +98,7 @@ final class Competition
                 throw new \Exception("er kan competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitionRet = $this->service->create( $league, $season,$competitionSer->getStartDateTime() );
+            $competitionRet = $this->service->create( $league, $season,$competitionSer->getRuleSet(),$competitionSer->getStartDateTime() );
 
             return $response
                 ->withStatus(201)
@@ -128,6 +128,7 @@ final class Competition
             }
 
             $competitionRet = $this->service->changeStartDateTime( $competition, $competitionSer->getStartDateTime() );
+            $competitionRet = $this->service->changeRuleSet( $competition, $competitionSer->getRuleSet() );
 
             return $response
                 ->withStatus(201)

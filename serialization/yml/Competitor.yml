@@ -10,6 +10,8 @@ Voetbal\Competitor:
       type: string
     abbreviation:
       type: string
+    registered:
+      type: bool
     info:
       type: string
     imageUrl:

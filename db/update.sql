@@ -11,6 +11,10 @@ RENAME TABLE externalteams TO externalcompetitors;
 
 alter table pouleplaces change teamid competitorid int;
 
+update competitions set ruleset = 1; -- QualifyRule::SOCCERWORLDCUP
+
+-- maak daarna ruleSet -> nullable = false
+
 
 
 

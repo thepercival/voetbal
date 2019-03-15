@@ -28,6 +28,10 @@ class Competitor implements External\Importable
      */
     protected $abbreviation;
     /**
+     * @var bool
+     */
+    protected $registered;
+    /**
      * @var string
      */
     protected $info;
@@ -46,6 +50,7 @@ class Competitor implements External\Importable
     {
         $this->setName( $name );
         $this->setAssociation( $association );
+        $this->setRegistered(false);
     }
 
     /**
@@ -106,6 +111,22 @@ class Competitor implements External\Importable
             throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
         }
         $this->abbreviation = $abbreviation;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getRegistered()
+    {
+        return $this->registered;
+    }
+
+    /**
+     * @param bool $registered
+     */
+    public function setRegistered( $registered )
+    {
+        $this->registered = $registered;
     }
 
     /**

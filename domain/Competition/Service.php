@@ -36,7 +36,7 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-	public function create( League $league, Season $season, \DateTimeImmutable $startDateTime ): Competition
+	public function create( League $league, Season $season, int $ruleSet, \DateTimeImmutable $startDateTime ): Competition
 	{
 		$sameCompetition = $this->repos->findOneBy( array(
             'league' => $league,
@@ -52,6 +52,7 @@ class Service
         }
 
         $competition = new Competition( $league, $season );
+        $competition->setRuleSet($ruleSet);
         $competition->setStartDateTime( $startDateTime );
 
         return $competition;
@@ -77,6 +78,23 @@ class Service
 
         return $competition;
 	}
+
+    /**
+     * @param Competition $competition
+     * @param \DateTimeImmutable $startDateTime
+     * @return mixed
+     * @throws \Exception
+     */
+    public function changeRuleSet( Competition $competition, int $ruleSet )
+    {
+        if( $competition->getState() === Competition::STATE_PUBLISHED ) {
+            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
+        }
+
+        $competition->setRuleSet( $ruleSet );
+
+        return $competition;
+    }
 
     /**
      * @param Competition $competition

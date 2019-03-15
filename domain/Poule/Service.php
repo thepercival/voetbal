@@ -71,9 +71,10 @@ class Service
         $poule = $this->create( $round, $number );
         foreach( $placesSer as $placeSer ) {
             $pouleplace = new PoulePlace( $poule, $placeSer->getNumber() );
-            if ( $placeSer->getCompetitor() !== null ){
-                $competitor = $this->competitorRepos->find( $placeSer->getCompetitor()->getId() );
+            if ( $placeSer->getCompetitor() === null ){
+                continue;
             }
+            $competitor = $this->competitorRepos->find( $placeSer->getCompetitor()->getId() );
             $pouleplace->setCompetitor($competitor);
         }
     }

@@ -19,6 +19,11 @@ Voetbal\Competitor:
       unique: false
       length: !php/const Voetbal\Competitor::MAX_LENGTH_ABBREVIATION
       column: abbreviation
+    registered:
+      type: boolean
+      nullable: true
+      unique: false
+      column: registered
     info:
       type: string
       nullable: true
