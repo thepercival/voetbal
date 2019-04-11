@@ -173,14 +173,14 @@ class Game implements GameImporter
 
             $gameScores = [];
             if( property_exists ( $externalSystemGame->result, "halfTime" ) ) {
-                $gameScoreHalfTime = new \StdClass();
+                $gameScoreHalfTime = new \stdClass();
                 $gameScoreHalfTime->home = $externalSystemGame->result->halfTime->goalsHomeCompetitor;
                 $gameScoreHalfTime->away = $externalSystemGame->result->halfTime->goalsAwayCompetitor;
                 $gameScoreHalfTime->moment = GameBase::MOMENT_HALFTIME;
                 $gameScores[] = $gameScoreHalfTime;
             }
 
-            $gameScoreFullTime = new \StdClass();
+            $gameScoreFullTime = new \stdClass();
             $gameScoreFullTime->home = $externalSystemGame->result->goalsHomeCompetitor;
             $gameScoreFullTime->away = $externalSystemGame->result->goalsAwayCompetitor;
             $gameScoreFullTime->moment = GameBase::MOMENT_FULLTIME;
@@ -194,7 +194,8 @@ class Game implements GameImporter
                 $qualifyService->setQualifyRules();
                 $newQualifiers = $qualifyService->getNewQualifiers( $game->getPoule() );
                 foreach( $newQualifiers as $newQualifier ) {
-                    $this->poulePlaceService->assignCompetitor( $newQualifier->getPoulePlace(), $newQualifier->getCompetitor() );
+                    throw new \Exception("poulePlaceService not yet available", E_ERROR );
+                    // $this->poulePlaceService->assignCompetitor( $newQualifier->getPoulePlace(), $newQualifier->getCompetitor() );
                 }
             }
         }

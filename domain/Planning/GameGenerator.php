@@ -147,7 +147,7 @@ class GameGenerator
     }
 
     /**
-     * @param array | PlanningGameRound[] $gameRounds
+     * @param array | GameRound[] $gameRounds
      * @return PoulePlaceCombination[] | array
      */
     protected function flattenGameRounds(array $gameRounds): array {

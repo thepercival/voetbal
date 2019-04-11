@@ -41,13 +41,6 @@ class Number
     }
 
     /**
-     * @return array | PoulePlaceCombination[]
-     */
-    public function getCombinations(): array {
-        return $this->combinations;
-    }
-
-    /**
      * @param Number $combinationNumber
      * @return bool
      */

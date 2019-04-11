@@ -14,6 +14,7 @@ use Voetbal\Round\Config as RoundNumberConfig;
 use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Game;
 use Voetbal\Competition;
+use League\Period\Period;
 
 class Service
 {
@@ -130,8 +131,8 @@ class Service
      * @param RoundNumber $roundNumber
      * @param RoundNumberConfig $roundNumberConfig
      * @param \DateTimeImmutable $dateTime
-     * @param array | Field[] $fields
-     * @param array | Referee[] $referees
+     * @param array | \Voetbal\Field[] $fields
+     * @param array | \Voetbal\Referee[] $referees
      * @return \DateTimeImmutable
      */
     protected function assignResourceBatchToGames(
@@ -158,6 +159,26 @@ class Service
         $previousEndDateTime = $this->calculateEndDateTime($roundNumber->getPrevious());
         $aPreviousConfig = $roundNumber->getPrevious()->getConfig();
         return $this->addMinutes($previousEndDateTime, $aPreviousConfig->getMinutesAfter());
+    }
+
+    protected function calculateEndDateTime(RoundNumber $roundNumber ): ?\DateTimeImmutable
+    {
+        $config = $roundNumber->getConfig();
+        if ($config->getEnableTime() === false) {
+            return null;
+        }
+        $mostRecentStartDateTime = null;
+        foreach( $roundNumber->getRounds() as $round ) {
+            foreach( $round->getGames() as $game ) {
+                if ($mostRecentStartDateTime === null || $game->getStartDateTime() > $mostRecentStartDateTime) {
+                    $mostRecentStartDateTime = $game->getStartDateTime();
+                }
+            }
+        }
+        if ($mostRecentStartDateTime === null) {
+            return null;
+        }
+        return $this->addMinutes($mostRecentStartDateTime, $config->getMaximalNrOfMinutesPerGame());
     }
 
     protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {

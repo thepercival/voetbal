@@ -8,8 +8,6 @@
 
 namespace Voetbal\External;
 
-use \Doctrine\Common\Collections\ArrayCollection;
-
 class System
 {
     /**
@@ -111,7 +109,7 @@ class System
     public function setWebsite( $website = null )
     {
         if ( strlen( $website ) > static::MAX_LENGTH_WEBSITE ){
-            throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_DESCRIPTION." karakters bevatten", E_ERROR );
+            throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_WEBSITE." karakters bevatten", E_ERROR );
         }
         $this->website = $website;
     }

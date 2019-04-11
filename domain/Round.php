@@ -52,12 +52,12 @@ class Round
     protected $poules;
 
     /**
-     * @var Qualfy\Rule[] | array
+     * @var Qualify\Rule[] | array
      */
     protected $fromQualifyRules = array();
 
     /**
-     * @var Qualfy\Rule[] | array
+     * @var Qualify\Rule[] | array
      */
     protected $toQualifyRules = array();
 
@@ -82,7 +82,6 @@ class Round
     {
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
-        $this->scoreConfigs = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
         $this->setParent( $parent );
         $this->setQualifyOrder(static::QUALIFYORDER_CROSS);
@@ -438,7 +437,7 @@ class Round
         foreach( $this->getPoules() as $poule ) {
             $nrOfPlaces += $poule->getPlaces()->count();
         }
-        return nrOfPlaces;
+        return $nrOfPlaces;
     }
 
     public function getPath(): array

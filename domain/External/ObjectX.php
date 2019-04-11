@@ -74,7 +74,7 @@ class ObjectX
     }
 
     /**
-     * @return \Voetbal\Importable
+     * @return Importable
      */
     public function getImportableObject()
     {

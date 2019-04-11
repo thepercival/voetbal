@@ -117,31 +117,35 @@ class Competition implements CompetitionImporter
         }
     }
 
-    private function create( ExternalLeague $externalLeague, ExternalSeason $externalSeason ) {
+    private function create( ExternalLeague $externalLeague, ExternalSeason $externalSeason )
+    {
 
-        $externalSystemCompetition = $this->apiHelper->getCompetition( $externalLeague, $externalSeason );
-        if( $externalSystemCompetition === null ){
-            $this->addNotice('for external league "'.$externalLeague->getExternalId().'" and external season "'.$externalSeason->getExternalId().'" there is no externalsystemcompetition found' );
+        $externalSystemCompetition = $this->apiHelper->getCompetition($externalLeague, $externalSeason);
+        if ($externalSystemCompetition === null) {
+            $this->addNotice('for external league "' . $externalLeague->getExternalId() . '" and external season "' . $externalSeason->getExternalId() . '" there is no externalsystemcompetition found');
             return;
         }
 
-        $externalCompetition = $this->externalObjectRepos->findOneByExternalId( $this->externalSystemBase, $externalSystemCompetition->id );
+        $externalCompetition = $this->externalObjectRepos->findOneByExternalId($this->externalSystemBase,
+            $externalSystemCompetition->id);
 
-        $this->conn->beginTransaction();
-        try {
-            if( $externalCompetition === null ) { // add and create structure
+
+        if ($externalCompetition === null) { // add and create structure
+            $this->conn->beginTransaction();
+            try {
                 $league = $externalLeague->getImportableObject();
                 $season = $externalSeason->getImportableObject();
                 $competition = $this->createHelper($league, $season, $externalSystemCompetition->id);
+                $this->conn->commit();
+            } catch (\Exception $e) {
+                $leagueName = $externalLeague->getImportableObject()->getName();
+                $seasonName = $externalSeason->getImportableObject()->getName();
+                $this->addError('competition for league "' . $leagueName . '" and season "' . $seasonName . '" could not be created: ' . $e->getMessage());
+                $this->conn->rollBack();
             }
-            else {
-                // maybe update something??
-            }
-            $this->conn->commit();
-        } catch( \Exception $e ) {
-            $this->addError('competition for league "'.$league->getName().'" and season "'.$season->getName().'" could not be created: ' . $e->getMessage() );
-            $this->conn->rollBack();
-        }
+        } // else {
+            // maybe update something??
+        // }
     }
 
 

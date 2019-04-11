@@ -29,8 +29,12 @@ class Service
 
     /**
      * @param $name
-     * @param null $description
-     * @return Association
+     * @param null $website
+     * @param null $username
+     * @param null $password
+     * @param null $apiurl
+     * @param null $apikey
+     * @return mixed
      * @throws \Exception
      */
     public function create( $name, $website = null, $username = null, $password = null, $apiurl = null, $apikey = null )

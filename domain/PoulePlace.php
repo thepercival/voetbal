@@ -43,16 +43,16 @@ class PoulePlace
     protected $competitor;
 
     /**
-     * @var QualfyRule
+     * @var Qualify\Rule
      */
     protected $fromQualifyRule;
 
     /**
-     * @var QualfyRule[] | array
+     * @var Qualify\Rule[] | array
      */
     protected $toQualifyRules = array();
 
-    const MIN_LENGTH_NAME = 10;
+    const MAX_LENGTH_NAME = 10;
 
     public function __construct( Poule $poule, $number )
     {

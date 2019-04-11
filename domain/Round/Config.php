@@ -26,7 +26,7 @@ class Config
     protected $roundNumber;
 
     /**
-     * @var Score[] | ArrayCollection
+     * @var Config\Score[] | ArrayCollection
      */
     protected $scores;
 

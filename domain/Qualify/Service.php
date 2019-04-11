@@ -21,6 +21,10 @@ class Service
      * @var Round
      */
     private $parentRound;
+    /**
+     * @var Round
+     */
+    private $childRound;
 
     public function __construct( Round $childRound )
     {

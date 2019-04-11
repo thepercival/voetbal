@@ -8,6 +8,8 @@
 
 namespace Voetbal;
 
+use \Doctrine\Common\Collections\ArrayCollection;
+
 class Competitor implements External\Importable
 {
     const MIN_LENGTH_NAME = 2;
