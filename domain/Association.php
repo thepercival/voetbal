@@ -72,7 +72,7 @@ class Association implements External\Importable // extends External\Importable
 	}
 
     /**
-     * @param $id
+     * @param int $id
      */
     public function setId( int $id )
     {
@@ -85,7 +85,7 @@ class Association implements External\Importable // extends External\Importable
     }
 
 	/**
-	 * @param string
+	 * @param string $name
 	 */
 	public function setName( $name )
 	{

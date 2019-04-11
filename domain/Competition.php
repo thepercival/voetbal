@@ -88,7 +88,7 @@ class Competition implements External\Importable
 	}
 
     /**
-     * @param $id
+     * @param int $id
      */
     public function setId( int $id )
     {
@@ -192,7 +192,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection | Referee[]
      */
     public function getReferees()
     {
@@ -200,7 +200,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @param $referees
+     * @param ArrayCollection | Referee[] $referees
      */
     public function setReferees( $referees )
     {
@@ -230,7 +230,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection | Field[]
      */
     public function getFields()
     {
@@ -238,7 +238,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @param $fields
+     * @param ArrayCollection | Field[] $fields
      */
     public function setFields( $fields )
     {

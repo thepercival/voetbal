@@ -42,15 +42,15 @@ class ObjectExt
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -80,7 +80,7 @@ class ObjectExt
     }
 
     /**
-     * @param int
+     * @param int $importableObjectId
      */
     public function setImportableObjectId( $importableObjectId )
     {
@@ -96,7 +96,7 @@ class ObjectExt
     }
 
     /**
-     * @param int
+     * @param int $externalSystemId
      */
     public function setExternalSystemId( $externalSystemId )
     {

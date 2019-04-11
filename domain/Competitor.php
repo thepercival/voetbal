@@ -66,7 +66,7 @@ class Competitor implements External\Importable
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
     public function setId( int $id )
     {
@@ -79,7 +79,7 @@ class Competitor implements External\Importable
     }
 
     /**
-     * @param string
+     * @param string $name
      */
     public function setName( $name )
     {

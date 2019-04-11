@@ -28,16 +28,16 @@ class Service
     }
 
     /**
-     * @param $name
-     * @param null $website
-     * @param null $username
-     * @param null $password
-     * @param null $apiurl
-     * @param null $apikey
-     * @return mixed
+     * @param string $name
+     * @param string $website
+     * @param string $username
+     * @param string $password
+     * @param string $apiurl
+     * @param string $apikey
+     * @return System
      * @throws \Exception
      */
-    public function create( $name, $website = null, $username = null, $password = null, $apiurl = null, $apikey = null )
+    public function create( string $name, string $website = null, string $username = null, string $password = null, string $apiurl = null, string $apikey = null ): System
     {
         $systemWithSameName = $this->repos->findOneBy( array('name' => $name ) );
         if ( $systemWithSameName !== null ){
@@ -56,10 +56,10 @@ class Service
 
     /**
      * @param System $system
-     * @param $data
+     * @param array $data
      * @throws \Exception
      */
-    public function edit( System $system, $data )
+    public function edit( System $system, array $data )
     {
         $name = $data['name'];
         $website = $data['website'];

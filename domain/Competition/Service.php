@@ -32,8 +32,11 @@ class Service
 	}
 
     /**
-     * @param Competition $competitionSer
-     * @return mixed
+     * @param League $league
+     * @param Season $season
+     * @param int $ruleSet
+     * @param \DateTimeImmutable $startDateTime
+     * @return Competition
      * @throws \Exception
      */
 	public function create( League $league, Season $season, int $ruleSet, \DateTimeImmutable $startDateTime ): Competition
@@ -81,8 +84,8 @@ class Service
 
     /**
      * @param Competition $competition
-     * @param \DateTimeImmutable $startDateTime
-     * @return mixed
+     * @param int $ruleSet
+     * @return Competition
      * @throws \Exception
      */
     public function changeRuleSet( Competition $competition, int $ruleSet )

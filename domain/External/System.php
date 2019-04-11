@@ -63,15 +63,15 @@ class System
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param number
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -82,7 +82,7 @@ class System
     }
 
     /**
-     * @param string
+     * @param string $name
      */
     public function setName( $name )
     {

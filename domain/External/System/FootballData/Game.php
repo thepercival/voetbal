@@ -99,7 +99,6 @@ class Game implements GameImporter
 
     /**
      * @param ExternalCompetition $externalCompetition
-     * @param array $externalSystemCompetitors
      * @throws \Exception
      */
     public function create(ExternalCompetition $externalCompetition)

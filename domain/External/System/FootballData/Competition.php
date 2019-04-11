@@ -23,6 +23,7 @@ use Voetbal\External\Season as ExternalSeason;
 use Voetbal\External\League as ExternalLeague;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
+use Voetbal\Qualify\Rule as QualifyRule;
 
 class Competition implements CompetitionImporter
 {
@@ -153,7 +154,7 @@ class Competition implements CompetitionImporter
     {
         $competition = $this->repos->findExt( $league, $season );
         if ( $competition === false ) {
-            $competition = $this->service->create( $league, $season, $season->getStartDateTime() );
+            $competition = $this->service->create( $league, $season, QualifyRule::SOCCERWORLDCUP, $season->getStartDateTime() );
             $this->repos->save($competition);
         }
         $externalCompetition = $this->createExternal( $competition, $externalSystemCompetitionId );

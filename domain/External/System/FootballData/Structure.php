@@ -161,7 +161,7 @@ class Structure implements StructureImporter
     {
         $parentRound = null; $rootRound = null;
         $externalSystemRounds = $this->apiHelper->getRounds($externalLeague, $externalSeason);
-        /** @var $externalSystemRound string */
+        /** @var \stdClass $externalSystemRound */
         foreach( $externalSystemRounds as $externalSystemRound ) {
 
             $configOptions = $this->getConfigOptions($competition->getLeague()->getSport());
@@ -209,12 +209,11 @@ class Structure implements StructureImporter
     }
 
     /**
-     * competitors toevoegen obv wedstrijden per poule
-     *
      * @param Round $round
-     * @param ExternalCompetition $externalCompetition
+     * @param \stdClass $externalSystemRound
+     * @throws \Exception
      */
-    protected function assignCompetitors( Round $round, $externalSystemRound ) {
+    protected function assignCompetitors( Round $round, \stdClass $externalSystemRound ) {
 
         $poules = $round->getPoules();
         $pouleIt = $poules->getIterator();

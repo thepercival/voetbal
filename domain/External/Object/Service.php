@@ -41,9 +41,8 @@ class Service
     }
 
     /**
-     * @param System $system
-     *
-     * @throws \Exception
+     * @param ExternalObject $externalobject
+     * @return mixed
      */
     public function remove( ExternalObject $externalobject )
     {
