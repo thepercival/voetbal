@@ -52,12 +52,12 @@ class Round
     protected $poules;
 
     /**
-     * @var QualfyRule[] | array
+     * @var Qualfy\Rule[] | array
      */
     protected $fromQualifyRules = array();
 
     /**
-     * @var QualfyRule[] | array
+     * @var Qualfy\Rule[] | array
      */
     protected $toQualifyRules = array();
 
@@ -178,7 +178,7 @@ class Round
     public function getName()
     {
         return $this->name;
-    }   
+    }
 
     /**
      * @param string

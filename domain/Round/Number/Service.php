@@ -19,7 +19,7 @@ class Service
     /**
      * @var RoundConfigService
      */
-    protected $roundConfigService;
+    protected $configService;
 
     /**
      * Service constructor.

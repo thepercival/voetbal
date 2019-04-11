@@ -20,7 +20,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class Repository
 {
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     protected $em;
 

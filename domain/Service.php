@@ -74,10 +74,8 @@ class Service
         } elseif ($classname === Round::class) {
             return new Round\Service(
                 $repos,
-                $this->getService(Round\Config::class),
                 $this->getService(Poule::class),
-                $this->getRepository(Poule::class),
-                $this->getEntityManager()->getConnection()
+                $this->getRepository(Poule::class)
             );
         } elseif ($classname === Round\Config::class) {
             return new Round\Config\Service(
@@ -87,8 +85,7 @@ class Service
             return new Poule\Service(
                 $repos,
                 $this->getRepository(PoulePlace::class),
-                $this->getRepository(Competitor::class),
-                $this->getEntityManager()->getConnection()
+                $this->getRepository(Competitor::class)
             );
         } elseif ($classname === Game::class) {
             return new Game\Service(

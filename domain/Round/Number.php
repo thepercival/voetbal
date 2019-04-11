@@ -161,7 +161,7 @@ class Number
     }
 
     /**
-     * @return array | PoulePlace[]
+     * @return array | \Voetbal\PoulePlace[]
      */
     public function getPlaces(): array {
         $places = [];
