@@ -44,15 +44,15 @@ class PoulePlace
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -95,7 +95,7 @@ class PoulePlace
     }
 
     /**
-     * @param $homeaway
+     * @param bool $homeaway
      */
     public function setHomeaway($homeaway)
     {

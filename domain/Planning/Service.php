@@ -129,7 +129,6 @@ class Service
 
     /**
      * @param RoundNumber $roundNumber
-     * @param RoundNumberConfig $roundNumberConfig
      * @param \DateTimeImmutable $dateTime
      * @param array | \Voetbal\Field[] $fields
      * @param array | \Voetbal\Referee[] $referees

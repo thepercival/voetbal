@@ -61,12 +61,12 @@ trait OptionsTrait
      * @var int
      */
     protected $minutesPerGame;
-    
+
     /**
      * @var int
      */
     protected $minutesBetweenGames;
-    
+
     /**
      * @var int
      */
@@ -139,7 +139,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $winPointsExt
+     * @param int $winPointsExt
      */
     public function setWinPointsExt($winPointsExt)
     {
@@ -155,7 +155,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $drawPointsExt
+     * @param int $drawPointsExt
      */
     public function setDrawPointsExt($drawPointsExt)
     {
@@ -171,7 +171,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $enableTime
+     * @param bool $enableTime
      */
     public function setEnableTime($enableTime)
     {
@@ -190,7 +190,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $minutesBetweenGames
+     * @param int $minutesBetweenGames
      */
     public function setMinutesBetweenGames($minutesBetweenGames)
     {
@@ -209,7 +209,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $minutesAfter
+     * @param int $minutesAfter
      */
     public function setMinutesAfter($minutesAfter)
     {
@@ -253,7 +253,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $minutesPerGame
+     * @param int $minutesPerGame
      */
     public function setMinutesPerGame($minutesPerGame)
     {
@@ -272,7 +272,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $hasExtension
+     * @param bool $hasExtension
      */
     public function setHasExtension($hasExtension)
     {
@@ -290,9 +290,9 @@ trait OptionsTrait
     {
         return $this->minutesPerGameExt;
     }
-    
+
     /**
-     * @param $minutesPerGameExt
+     * @param int $minutesPerGameExt
      */
     public function setMinutesPerGameExt($minutesPerGameExt)
     {
@@ -329,7 +329,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $winPoints
+     * @param double $winPoints
      */
     public function setWinPoints($winPoints)
     {
@@ -345,7 +345,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $drawPoints
+     * @param double $drawPoints
      */
     public function setDrawPoints($drawPoints)
     {
@@ -361,7 +361,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $teamup
+     * @param bool $teamup
      */
     public function setTeamup($teamup)
     {
@@ -380,7 +380,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $selfReferee
+     * @param bool $selfReferee
      */
     public function setSelfReferee($selfReferee)
     {
@@ -399,7 +399,7 @@ trait OptionsTrait
     }
 
     /**
-     * @param $pointsAreGamepoints
+     * @param int $pointsCalculation
      */
     public function setPointsCalculation($pointsCalculation)
     {

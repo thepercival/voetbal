@@ -9,6 +9,7 @@
 namespace Voetbal\PoulePlace\Combination;
 
 use Voetbal\PoulePlace\Combination as PoulePlaceCombination;
+use Voetbal\PoulePlace\Combination\Number as CombinationNumber;
 
 class Number
 {
@@ -41,19 +42,19 @@ class Number
     }
 
     /**
-     * @param Number $combinationNumber
+     * @param CombinationNumber $combinationNumber
      * @return bool
      */
-    public function equals(Number $combinationNumber ): bool {
+    public function equals(CombinationNumber $combinationNumber ): bool {
         return ($combinationNumber->getAway() === $this->getHome() || $combinationNumber->getHome() === $this->getHome())
             && ($combinationNumber->getAway() === $this->getAway() || $combinationNumber->getHome() === $this->getAway());
     }
 
     /**
-     * @param Number $combinationNumber
+     * @param CombinationNumber $combinationNumber
      * @return bool
      */
-    public function hasOverlap(Number $combinationNumber): bool {
+    public function hasOverlap(CombinationNumber $combinationNumber): bool {
         return ($combinationNumber->getAway() & $this->getHome()) > 0
             || ($combinationNumber->getAway() & $this->getAway()) > 0
             || ($combinationNumber->getHome() & $this->getHome()) > 0

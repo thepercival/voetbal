@@ -19,7 +19,7 @@ class Referee
      */
     private $referee;
     /**
-     * @var : PoulePlace
+     * @var PoulePlace
      */
     private $poulePlace;
 

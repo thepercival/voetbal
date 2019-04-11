@@ -118,7 +118,7 @@ class End
      * 4 bepaal wie er doorgaan van de verliezers en haal deze eraf
      * 5 voeg de overgebleven plekken toe aan de deadplaces
      *
-     * @param round
+     * @param Round $round
      * @return array | PoulePlace[]
      */
     protected function getDeadPlacesFromRoundPlayed(Round $round): array {

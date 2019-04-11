@@ -115,13 +115,13 @@ class Game implements External\Importable
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
     public function setId( $id )
     {
@@ -353,7 +353,7 @@ class Game implements External\Importable
     }
 
     /**
-     * @param $moment
+     * @param int $scoresMoment
      */
     public function setScoresMoment($scoresMoment)
     {
@@ -372,7 +372,7 @@ class Game implements External\Importable
     }
 
     /**
-     * @param $scores
+     * @param Score[] | ArrayCollection $scores
      */
     public function setScores($scores)
     {
@@ -381,7 +381,7 @@ class Game implements External\Importable
 
     /**
      * @param bool|null $homeaway
-     * @return ArrayCollection|GamePoulePlace[]
+     * @return ArrayCollection | GamePoulePlace[]
      */
     public function getPoulePlaces( bool $homeaway = null )
     {
@@ -392,7 +392,7 @@ class Game implements External\Importable
     }
 
     /**
-     * @param $poulePlaces
+     * @param ArrayCollection | GamePoulePlace[] $poulePlaces
      */
     public function setPoulePlaces($poulePlaces)
     {

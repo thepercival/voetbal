@@ -60,7 +60,7 @@ class Competitor implements External\Importable
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -68,7 +68,7 @@ class Competitor implements External\Importable
     /**
      * @param $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }

@@ -172,7 +172,7 @@ class GameGenerator
 
     /**
      * @param array | PoulePlace[] $places
-     * @return array | GameRound
+     * @return array | GameRound[]
      */
     protected function generateRRSchedule(array $places): array {
         $nrOfPlaces = count($places);

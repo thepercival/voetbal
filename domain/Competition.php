@@ -82,7 +82,7 @@ class Competition implements External\Importable
 	 *
 	 * @return int
 	 */
-	public function getId()
+	public function getId(): int
 	{
 		return $this->id;
 	}
@@ -90,7 +90,7 @@ class Competition implements External\Importable
     /**
      * @param $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -166,7 +166,7 @@ class Competition implements External\Importable
     {
         $this->ruleSet = $ruleSet;
     }
-    
+
     /**
      * @return int
      */

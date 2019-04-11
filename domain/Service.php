@@ -13,7 +13,7 @@ use Doctrine\ORM\EntityManager;
 class Service
 {
     /**
-     * @var
+     * @var EntityManager
      */
     protected $entitymanager;
 

@@ -58,15 +58,15 @@ class Season implements External\Importable
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -80,9 +80,9 @@ class Season implements External\Importable
     }
 
     /**
-     * @param string
+     * @param string $name
      */
-    public function setName( $name )
+    public function setName( string $name )
     {
         if ( $name === null )
             throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );

@@ -36,7 +36,7 @@ class Service
      * @param PoulePlaceRepository $poulePlaceRepos
      * @param CompetitorRepository $competitorRepos
      */
-    public function __construct( 
+    public function __construct(
         PouleRepository $repos,
         PoulePlaceRepository $poulePlaceRepos,
         CompetitorRepository $competitorRepos )
@@ -61,9 +61,9 @@ class Service
     }
 
     /**
-     *
-     * @param array $poulePlacesSer
      * @param Round $round
+     * @param int $number
+     * @param array $placesSer
      * @throws \Exception
      */
     public function createFromSerialized( Round $round, int $number, array $placesSer )
