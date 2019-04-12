@@ -8,6 +8,8 @@
 
 namespace Voetbal\External;
 
+use \Doctrine\Common\Collections\ArrayCollection;
+
 trait ImportableTrait
 {
     /**
@@ -23,7 +25,7 @@ trait ImportableTrait
     /**
      * @return ArrayCollection
      */
-    public function getExternals()
+    public function getExternals(): ArrayCollection
     {
         return $this->externals;
     }

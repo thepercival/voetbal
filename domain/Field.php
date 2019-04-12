@@ -49,15 +49,15 @@ class Field
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -90,7 +90,7 @@ class Field
     }
 
     /**
-     * @param string
+     * @param string $name
      */
     public function setName( $name )
     {
@@ -113,7 +113,7 @@ class Field
     }
 
     /**
-     * @param Competition $Competition
+     * @param Competition $competition
      */
     private function setCompetition( Competition $competition )
     {

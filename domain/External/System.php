@@ -8,8 +8,6 @@
 
 namespace Voetbal\External;
 
-use \Doctrine\Common\Collections\ArrayCollection;
-
 class System
 {
     /**
@@ -65,15 +63,15 @@ class System
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param number
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -84,7 +82,7 @@ class System
     }
 
     /**
-     * @param string
+     * @param string $name
      */
     public function setName( $name )
     {
@@ -111,7 +109,7 @@ class System
     public function setWebsite( $website = null )
     {
         if ( strlen( $website ) > static::MAX_LENGTH_WEBSITE ){
-            throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_DESCRIPTION." karakters bevatten", E_ERROR );
+            throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_WEBSITE." karakters bevatten", E_ERROR );
         }
         $this->website = $website;
     }

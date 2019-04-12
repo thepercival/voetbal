@@ -11,6 +11,7 @@ namespace Voetbal\Round;
 use Voetbal\Round\Config\Options as RoundConfigOptions;
 use Voetbal\Round\Config\OptionsTrait;
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Round\Number as RoundNumber;
 
 class Config
 {
@@ -21,16 +22,16 @@ class Config
      */
     protected $id;
     /**
-     * @var Number
+     * @var RoundNumber
      */
     protected $roundNumber;
 
     /**
-     * @var Score[] | ArrayCollection
+     * @var Config\Score[] | ArrayCollection
      */
     protected $scores;
 
-    public function __construct( Number $roundNumber )
+    public function __construct( RoundNumber $roundNumber )
     {
         $this->setRoundNumber($roundNumber);
         $this->setDefaults();
@@ -42,21 +43,21 @@ class Config
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId($id)
+    public function setId(int $id)
     {
         $this->id = $id;
     }
 
     /**
-     * @return Number
+     * @return RoundNumber
      */
     public function getRoundNumber()
     {
@@ -64,9 +65,9 @@ class Config
     }
 
     /**
-     * @param Number $roundNumber
+     * @param RoundNumber $roundNumber
      */
-    public function setRoundNumber(Number $roundNumber)
+    public function setRoundNumber(RoundNumber $roundNumber)
     {
         // $roundNumber->setConfig($this);
         $this->roundNumber = $roundNumber;
@@ -84,9 +85,9 @@ class Config
     }
 
     /**
-     * @return Config\Score
+     * @return Config\Score|null
      */
-    public function getScore()
+    public function getScore(): ?Config\Score
     {
         $score= $this->scores->first();
         if( $score === false ) {
@@ -138,7 +139,7 @@ class Config
     }
 
     /**
-     * @return Config\Score
+     * @return Config\Score|null
      */
     public function getRootScore()
     {

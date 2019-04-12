@@ -59,7 +59,6 @@ final class Season
 
 	public function add( $request, $response, $args)
 	{
-        $sErrorMessage = null;
         try {
             /** @var \Voetbal\Season $seasonSer */
             $seasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Season', 'json');
@@ -82,14 +81,12 @@ final class Season
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function edit( $request, $response, $args)
 	{
-        $sErrorMessage = null;
         try {
             /** @var \Voetbal\Season $seasonSer */
             $seasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Season', 'json');
@@ -120,25 +117,24 @@ final class Season
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
+
 	}
 
 	public function remove( $request, $response, $args)
 	{
 		$season = $this->repos->find($args['id']);
-		$sErrorMessage = null;
 		try {
-			$this->service->remove($season);
+			$this->repos->remove($season);
 
 			return $response
 				->withStatus(201);
 			;
 		}
 		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
+            return $response->withStatus(404, $e->getMessage() );
 		}
-		return $response->withStatus(404, $sErrorMessage );
+
 	}
 }

@@ -22,14 +22,13 @@ use Voetbal\External\System\FootballData\Competitor as FootballDataCompetitorImp
 use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
 use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
 use Voetbal\Service as VoetbalService;
-use Voetbal\Structure\Repository as StructureRepository;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 
 class FootballData implements Def, CompetitionImportable, CompetitorImportable, StructureImportable, GameImportable
 {
     /**
-     * @var ExternalSystem
+     * @var ExternalSystemBase
      */
     private $externalSystem;
     /**
@@ -116,9 +115,9 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         return new FootballDataStructureImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
-            $this->getCompetitionImporter($this->voetbalService),
-            $this->getCompetitorImporter($this->voetbalService),
-            $this->getGameImporter($this->voetbalService),
+            $this->getCompetitionImporter(),
+            $this->getCompetitorImporter(),
+            $this->getGameImporter(),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
             $this->voetbalService->getStructureRepository(),
             $this->voetbalService->getService( \Voetbal\Round::class ),
@@ -138,7 +137,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->voetbalService->getRepository( \Voetbal\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
-            $this->getCompetitorImporter($this->voetbalService)
+            $this->getCompetitorImporter()
         );
     }
 }

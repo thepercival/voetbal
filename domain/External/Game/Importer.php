@@ -68,7 +68,8 @@ class Importer
         $externalGameRepos = $this->voetbalService->getRepository( \Voetbal\External\Game::class );
         $externalCompetitionRepos = $this->voetbalService->getRepository( \Voetbal\External\Competition::class );
 
-        $externalSystemFactory = new ExternalSystemFactory();
+        throw new \Exception("fix this problem when it's needed", E_ERROR );
+        $externalSystemFactory = null; // new ExternalSystemFactory();
 
         $competitorService = $this->voetbalService->getService( \Voetbal\Competitor::class );
 

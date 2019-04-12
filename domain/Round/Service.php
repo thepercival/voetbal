@@ -23,10 +23,6 @@ class Service
      */
     protected $repos;
     /**
-     * @var Config\Service
-     */
-    protected $roundConfigService;
-    /**
      * @var Poule\Service
      */
     protected $pouleService;
@@ -38,19 +34,16 @@ class Service
     /**
      * Service constructor.
      * @param Repository $repos
-     * @param Config\Service $configService
      * @param Poule\Service $pouleService
      * @param PouleRepository $pouleRepos
      */
     public function __construct(
         RoundRepository $repos,
-        Config\Service $configService,
         Poule\Service $pouleService,
         PouleRepository $pouleRepos
     )
     {
         $this->repos = $repos;
-        $this->configService = $configService;
         $this->pouleService = $pouleService;
         $this->pouleRepos = $pouleRepos;
     }
@@ -148,8 +141,11 @@ class Service
         if( $max === null ) {
             $max = Competition::MAX_COMPETITORS;
         }
-        if ($nrOfPlaces < $min || $nrOfPlaces > $max) {
-            return null;
+        if ($nrOfPlaces < $min ) {
+            return 1;
+        }
+        if ($nrOfPlaces > $max) {
+            return 9;
         }
 
         $defaultNrOfPlaces = [

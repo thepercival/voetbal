@@ -66,12 +66,8 @@ final class Planning
     }
 
     /**
-     * do game add for multiple games
+     * do game remove and add for multiple games
      *
-     * @param $request
-     * @param $response
-     * @param $args
-     * @return mixed
      */
     public function add($request, $response, $args)
     {
@@ -123,10 +119,6 @@ final class Planning
     /**
      * do game remove and add for multiple games
      *
-     * @param $request
-     * @param $response
-     * @param $args
-     * @return mixed
      */
     public function edit($request, $response, $args)
     {

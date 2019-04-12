@@ -47,15 +47,15 @@ class Score
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }

@@ -23,6 +23,7 @@ use Voetbal\External\Season as ExternalSeason;
 use Voetbal\External\League as ExternalLeague;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
+use Voetbal\Qualify\Rule as QualifyRule;
 
 class Competition implements CompetitionImporter
 {
@@ -117,31 +118,36 @@ class Competition implements CompetitionImporter
         }
     }
 
-    private function create( ExternalLeague $externalLeague, ExternalSeason $externalSeason ) {
+    private function create( ExternalLeague $externalLeague, ExternalSeason $externalSeason )
+    {
 
-        $externalSystemCompetition = $this->apiHelper->getCompetition( $externalLeague, $externalSeason );
-        if( $externalSystemCompetition === null ){
-            $this->addNotice('for external league "'.$externalLeague->getExternalId().'" and external season "'.$externalSeason->getExternalId().'" there is no externalsystemcompetition found' );
+        $externalSystemCompetition = $this->apiHelper->getCompetition($externalLeague, $externalSeason);
+        if ($externalSystemCompetition === null) {
+            $this->addNotice('for external league "' . $externalLeague->getExternalId() . '" and external season "' . $externalSeason->getExternalId() . '" there is no externalsystemcompetition found');
             return;
         }
 
-        $externalCompetition = $this->externalObjectRepos->findOneByExternalId( $this->externalSystemBase, $externalSystemCompetition->id );
+        $externalCompetition = $this->externalObjectRepos->findOneByExternalId($this->externalSystemBase,
+            $externalSystemCompetition->id);
 
-        $this->conn->beginTransaction();
-        try {
-            if( $externalCompetition === null ) { // add and create structure
+
+        if ($externalCompetition === null) { // add and create structure
+            $this->conn->beginTransaction();
+            try {
                 $league = $externalLeague->getImportableObject();
                 $season = $externalSeason->getImportableObject();
                 $competition = $this->createHelper($league, $season, $externalSystemCompetition->id);
+                $this->conn->commit();
+            } catch (\Exception $e) {
+                $fncGetMessage = function( League $league, Season $season ) {
+                    return 'competition for league "' . $league->getName() . '" and season "' . $season->getName() . '" could not be created: ';
+                };
+                $this->addError( $fncGetMessage( $externalLeague->getImportableObject(), $externalSeason->getImportableObject() ). $e->getMessage());
+                $this->conn->rollBack();
             }
-            else {
-                // maybe update something??
-            }
-            $this->conn->commit();
-        } catch( \Exception $e ) {
-            $this->addError('competition for league "'.$league->getName().'" and season "'.$season->getName().'" could not be created: ' . $e->getMessage() );
-            $this->conn->rollBack();
-        }
+        } // else {
+            // maybe update something??
+        // }
     }
 
 
@@ -149,7 +155,7 @@ class Competition implements CompetitionImporter
     {
         $competition = $this->repos->findExt( $league, $season );
         if ( $competition === false ) {
-            $competition = $this->service->create( $league, $season, $season->getStartDateTime() );
+            $competition = $this->service->create( $league, $season, QualifyRule::SOCCERWORLDCUP, $season->getStartDateTime() );
             $this->repos->save($competition);
         }
         $externalCompetition = $this->createExternal( $competition, $externalSystemCompetitionId );

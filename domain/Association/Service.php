@@ -21,7 +21,7 @@ class Service
 	/**
 	 * Service constructor.
 	 *
-	 * @param AssociationRepository $associationRepos
+	 * @param AssociationRepository $repos
 	 */
 	public function __construct( AssociationRepository $repos )
 	{
@@ -29,8 +29,9 @@ class Service
 	}
 
     /**
-     * @param Association $associationSer
-     * @return mixed
+     * @param string $name
+     * @param string|null $description
+     * @return Association
      * @throws \Exception
      */
     public function create( string $name, string $description = null ): Association

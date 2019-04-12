@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
 use Voetbal\Round\Config as RoundConfig;
 use Voetbal\Round;
+use Voetbal\Round\Number as RoundNumber;
 
 class Number
 {
@@ -22,11 +23,11 @@ class Number
     */
     protected $number;
     /**
-     * @var int
+     * @var RoundNumber
      */
     protected $previous;
     /**
-     * @var int
+     * @var RoundNumber
      */
     protected $next;
     /**
@@ -34,14 +35,14 @@ class Number
      */
     protected $config;
     /**
-     * @var Round[]
+     * @var Round[] | ArrayCollection
      */
     protected $rounds;
     /**
      * @var bool
      */
 
-    public function __construct( Competition $competition, Number $previous = null )
+    public function __construct( Competition $competition, RoundNumber $previous = null )
     {
         $this->competition = $competition;
         if( $previous !== null ) {
@@ -57,15 +58,15 @@ class Number
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -74,11 +75,11 @@ class Number
         return $this->next !== null;
     }
 
-    public function getNext(): ?Number {
+    public function getNext(): ?RoundNumber {
         return $this->next;
     }
 
-    public function setNext(Number $next = null) {
+    public function setNext(RoundNumber $next = null) {
         $this->next = $next;
     }
 
@@ -86,11 +87,11 @@ class Number
         return $this->previous !== null;
     }
 
-    public function getPrevious(): ?Number {
+    public function getPrevious(): ?RoundNumber {
         return $this->previous;
     }
 
-    public function setPrevious( Number $previous = null ) {
+    public function setPrevious( RoundNumber $previous = null ) {
         $this->previous = $previous;
         if( $previous !== null ) {
             $this->number = $this->previous->getNumber() + 1;
@@ -161,7 +162,7 @@ class Number
     }
 
     /**
-     * @return array | PoulePlace[]
+     * @return array | \Voetbal\PoulePlace[]
      */
     public function getPlaces(): array {
         $places = [];

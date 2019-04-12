@@ -83,7 +83,7 @@ class Ranking
     /**
      * @param array | RankingItem[] $rankingItems
      * @param int $rank
-     * @return string
+     * @return RankingItem
      */
     public function getItem(array $rankingItems, int $rank): RankingItem {
         $rankingItemsTmp= array_filter( $rankingItems, function( $rankingItemIt ) use ( $rank ) { return $rankingItemIt->getRank() === $rank; } );

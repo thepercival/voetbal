@@ -30,9 +30,11 @@ class Service
 	}
 
     /**
-     * @param League $leagueSer
-     * @return mixed
-     * @throws \Exception
+     * @param string $name
+     * @param string $sport
+     * @param Association $association
+     * @param string|null $abbreviation
+     * @return League
      */
 	public function create( string $name, string $sport, Association $association, string $abbreviation = null ): League
 	{
@@ -43,10 +45,9 @@ class Service
 
     /**
      * @param League $league
-     * @param $name
-     * @param $abbreviation
-     * @return mixed
-     * @throws \Exception
+     * @param string $name
+     * @param string $abbreviation
+     * @return League
      */
     public function changeBasics( League $league, $name, $abbreviation )
     {

@@ -59,14 +59,6 @@ final class Structure
 
     }
 
-    /**
-     * Vanaf api 2.0 structure retourneren, anders rounds
-     *
-     * @param $request
-     * @param $response
-     * @param $args
-     * @return mixed
-     */
     public function fetchOne( $request, $response, $args)
     {
         $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
