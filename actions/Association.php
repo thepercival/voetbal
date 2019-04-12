@@ -37,7 +37,6 @@ final class Association
 
 	public function fetch( $request, $response, $args)
 	{
-
 		$objects = $this->repos->findAll();
 		return $response
 			->withHeader('Content-Type', 'application/json;charset=utf-8')
@@ -60,7 +59,6 @@ final class Association
 
 	public function add( $request, $response, $args)
 	{
-        $sErrorMessage = null;
         try {
             /** @var \Voetbal\Association $associationSer */
             $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
@@ -83,14 +81,12 @@ final class Association
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function edit( $request, $response, $args)
 	{
-        $sErrorMessage = null;
         try {
             /** @var \Voetbal\Association $associationSer */
             $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
@@ -121,25 +117,19 @@ final class Association
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function remove( $request, $response, $args)
 	{
 		$association = $this->repos->find($args['id']);
-		$sErrorMessage = null;
 		try {
-			$this->service->remove($association);
-
-			return $response
-				->withStatus(204);
-			;
+			$this->repos->remove($association);
+			return $response->withStatus(204);
 		}
 		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
 		}
-		return $response->withStatus(404)->write( $sErrorMessage );
 	}
 }

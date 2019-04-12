@@ -139,9 +139,10 @@ class Competition implements CompetitionImporter
                 $competition = $this->createHelper($league, $season, $externalSystemCompetition->id);
                 $this->conn->commit();
             } catch (\Exception $e) {
-                $leagueName = $externalLeague->getImportableObject()->getName();
-                $seasonName = $externalSeason->getImportableObject()->getName();
-                $this->addError('competition for league "' . $leagueName . '" and season "' . $seasonName . '" could not be created: ' . $e->getMessage());
+                $fncGetMessage = function( League $league, Season $season ) {
+                    return 'competition for league "' . $league->getName() . '" and season "' . $season->getName() . '" could not be created: ';
+                };
+                $this->addError( $fncGetMessage( $externalLeague->getImportableObject(), $externalSeason->getImportableObject() ). $e->getMessage());
                 $this->conn->rollBack();
             }
         } // else {

@@ -12,6 +12,7 @@ use Voetbal\Structure;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Competition;
 use Doctrine\ORM\EntityManagerInterface;
+use Voetbal\Round\Number\Repository as RoundNumberRepository;
 
 /**
  * Repository
@@ -60,8 +61,13 @@ class Repository
         }
     }
 
+    /**
+     * @param Competition $competition
+     * @param int $roundNumberAsValue
+     * @return RoundNumber|null
+     */
     public function findRoundNumber( Competition $competition, int $roundNumberAsValue ): ?RoundNumber {
-        $roundNumberRepos = $this->em->getRepository(RoundNumber::class);
+        $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
         return $roundNumberRepos->findOneBy(array("competition" => $competition, "number" => $roundNumberAsValue));
     }
 

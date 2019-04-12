@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use Doctrine\ORM\EntityManager;
+use Voetbal\Repository as VoetbalRepository;
 
 class Service
 {
@@ -26,7 +27,7 @@ class Service
         $this->entitymanager = $entitymanager;
     }
 
-    public function getRepository($classname): Repository
+    public function getRepository($classname): VoetbalRepository
     {
         return $this->getEntityManager()->getRepository($classname);
     }

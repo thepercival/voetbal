@@ -141,8 +141,11 @@ class Service
         if( $max === null ) {
             $max = Competition::MAX_COMPETITORS;
         }
-        if ($nrOfPlaces < $min || $nrOfPlaces > $max) {
-            return null;
+        if ($nrOfPlaces < $min ) {
+            return 1;
+        }
+        if ($nrOfPlaces > $max) {
+            return 9;
         }
 
         $defaultNrOfPlaces = [

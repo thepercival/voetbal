@@ -391,7 +391,7 @@ trait OptionsTrait
     }
 
     /**
-     * @return bool
+     * @return int
      */
     public function getPointsCalculation()
     {

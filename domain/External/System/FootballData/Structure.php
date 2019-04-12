@@ -43,7 +43,7 @@ class Structure implements StructureImporter
     private $apiHelper;
 
     /**
-     * @var ExternalSystemBase
+     * @var CompetitionImporter
      */
     private $competitionImporter;
 

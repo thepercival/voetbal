@@ -85,9 +85,9 @@ class Config
     }
 
     /**
-     * @return Config\Score
+     * @return Config\Score|null
      */
-    public function getScore()
+    public function getScore(): ?Config\Score
     {
         $score= $this->scores->first();
         if( $score === false ) {
@@ -139,7 +139,7 @@ class Config
     }
 
     /**
-     * @return Config\Score
+     * @return Config\Score|null
      */
     public function getRootScore()
     {

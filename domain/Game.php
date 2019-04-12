@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection as CommonCollection;
 
 use Voetbal\Game\Score;
 use Voetbal\Round\Config as RoundConfig;
@@ -381,7 +382,7 @@ class Game implements External\Importable
 
     /**
      * @param bool|null $homeaway
-     * @return ArrayCollection | GamePoulePlace[]
+     * @return CommonCollection | GamePoulePlace[]
      */
     public function getPoulePlaces( bool $homeaway = null )
     {
@@ -430,7 +431,7 @@ class Game implements External\Importable
         return null;
     }
 
-    public function getFinalScore(): Score\HomeAway
+    public function getFinalScore(): ?Score\HomeAway
     {
         if( $this->getScores()->count() === 0 ) {
             return null;

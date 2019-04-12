@@ -26,7 +26,7 @@ class ResourceService
      * @var \DateTimeImmutable
      */
     private $currentGameStartDate;
-    
+
     /**
      * @var array | PoulePlace[]
      */
@@ -34,12 +34,12 @@ class ResourceService
     /**
      * @var array | array<PlanningReferee>
      */
-    private $assignableReferees = [];    
+    private $assignableReferees = [];
     /**
      * @var array | PlanningReferee[]
      */
     private $availableReferees = [];
-    
+
     /**
      * @var array | Field[]
      */
@@ -48,7 +48,7 @@ class ResourceService
      * @var array | Field[]
      */
     private $assignableFields = [];
-    
+
     /**
      * @var int
      */
@@ -172,7 +172,7 @@ class ResourceService
     }
 
     public function assignGame(Game $game ) {
-        $game->setStartDateTime($this->cloneDateTime($this->currentGameStartDate));
+        $game->setStartDateTime(clone $this->currentGameStartDate);
         $game->setResourceBatch($this->resourceBatch);
         if ($this->areFieldsAvailable()) {
             $this->assignField($game);
@@ -210,9 +210,6 @@ class ResourceService
     }
 
     public function setNextGameStartDateTime() {
-        if ($this->currentGameStartDate === null) {
-            return;
-        }
         $minutes = $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() + $this->roundNumberConfig->getMinutesBetweenGames();
         $this->currentGameStartDate = $this->addMinutes($this->currentGameStartDate, $minutes);
     }
@@ -227,17 +224,7 @@ class ResourceService
         return $newDateTime;
     }
 
-    public function cloneDateTime(\DateTimeImmutable $dateTime): \DateTimeImmutable {
-        if ($dateTime === null) {
-            return null;
-        }
-        return clone $dateTime;
-    }
-
     public function getEndDateTime(): \DateTimeImmutable {
-        if ($this->currentGameStartDate === null) {
-            return null;
-        }
         $endDateTime = clone $this->currentGameStartDate;
         return $endDateTime->modify("+" . $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() . " minutes");
     }

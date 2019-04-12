@@ -9,12 +9,16 @@
 namespace Voetbal\Action\Slim;
 
 use Voetbal;
+use \Slim\Container as SlimContainer;
 
 class Handler
 {
+    /**
+     * @var SlimContainer
+     */
     protected $container;
 
-    public function __construct(\Slim\Container $container)
+    public function __construct(SlimContainer $container)
     {
         $this->container = $container;
     }

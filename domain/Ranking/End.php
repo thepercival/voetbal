@@ -78,7 +78,7 @@ class End
     /**
      * @param Round $fromRound
      * @param array | QualifyRule[] $toRules
-     * @return array | PoulePlace[]
+     * @return array | PoulePlace[] | null[]
      */
     protected function getDeadPlacesFromRulesNotPlayed(Round $fromRound, array $toRules ): array {
         $fromPlaces = $this->getUniqueFromPlaces($toRules);

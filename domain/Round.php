@@ -212,9 +212,9 @@ class Round
 
     /**
      * @param int $number
-     * @return Poule
+     * @return Poule|null
      */
-    public function getPoule( int $number ): Poule
+    public function getPoule( int $number ): ?Poule
     {
         foreach( $this->getPoules() as $poule ) {
             if ($poule->getNumber() === $number) {
@@ -268,9 +268,9 @@ class Round
 
     /**
      * @param integer $winnersOrLosers
-     * @return Round
+     * @return Round|null
      */
-    public function getChildRound($winnersOrLosers)
+    public function getChildRound($winnersOrLosers): ?Round
     {
         foreach( $this->getChildRounds() as $childRound ) {
             if( $childRound->getWinnersOrLosers() === $winnersOrLosers) {
