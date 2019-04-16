@@ -44,6 +44,7 @@
   "scripts": {
     "test": [
       "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/cases/"
-    ]
+    ],
+    "stan": "vendor/bin/phpstan analyse --level=1 domain tests/cases/"
   }
 }

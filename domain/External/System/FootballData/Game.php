@@ -21,6 +21,11 @@ use Voetbal\Competition;
 use Voetbal\Competitor as CompetitorBase;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\External\Competition as ExternalCompetition;
+use Voetbal\External\League\Repository as ExternalLeagueRepos;
+use Voetbal\External\Season\Repository as ExternalSeasonRepos;
+use Doctrine\DBAL\Connection;
+use Monolog\Logger;
+use Voetbal\Repository;
 
 class Game implements GameImporter
 {
@@ -28,12 +33,19 @@ class Game implements GameImporter
      * @var ExternalSystemBase
      */
     private $externalSystemBase;
-
     /**
      * @var ApiHelper
      */
     private $apiHelper;
+    /**
+     * @var ExternalLeagueRepos
+     */
+    private $externalLeagueRepos;
 
+    /**
+     * @var ExternalSeasonRepos
+     */
+    private $externalSeasonRepos;
     /**
      * @var GameService
      */
@@ -52,7 +64,7 @@ class Game implements GameImporter
     /**
      * @var ExternalGameRepos
      */
-    private $externalRepos;
+    private $externalGameRepos;
 
     /**
      * @var ExternalCompetitorRepos
@@ -63,100 +75,106 @@ class Game implements GameImporter
      * @var CompetitorImporter
      */
     private $competitorImporter;
+    /**
+     * @var Connection;
+     */
+    private $conn;
+    /**
+     * @var Logger;
+     */
+    private $logger;
+    /**
+     * @var string
+     */
+    private $errorUrl;
+
+    use Helper;
 
     public function __construct(
         ExternalSystemBase $externalSystemBase,
         ApiHelper $apiHelper,
+        ExternalLeagueRepos $externalLeagueRepos,
+        ExternalSeasonRepos $externalSeasonRepos,
         GameService $service,
         GameRepos $repos,
-        ExternalGameRepos $externalRepos,
+        ExternalGameRepos $externalGameRepos,
         ExternalCompetitorRepos $externalCompetitorRepos,
-        CompetitorImporter $competitorImporter
+        CompetitorImporter $competitorImporter,
+        Connection $conn,
+        Logger $logger,
+        string $errorUrl
+
     ) {
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
+        $this->externalLeagueRepos = $externalLeagueRepos;
+        $this->externalSeasonRepos = $externalSeasonRepos;
         $this->service = $service;
         $this->repos = $repos;
-        $this->externalRepos = $externalRepos;
+        $this->externalGameRepos = $externalGameRepos;
         $this->externalObjectService = new ExternalObjectService(
-            $this->externalRepos
+            $this->externalGameRepos
         );
         $this->externalCompetitorRepos = $externalCompetitorRepos;
         $this->competitorImporter = $competitorImporter;
+        $this->conn = $conn;
+        $this->logger = $logger;
+        $this->errorUrl = $errorUrl;
     }
 
-    public function get(ExternalCompetition $externalCompetition, bool $onlyWithCompetitors = true )
-    {
-        $externalGames = $this->apiHelper->getData("competitions/" . $externalCompetition->getExternalId() . "/fixtures");
-        $externalGames = $externalGames->fixtures;
-        if( $onlyWithCompetitors === true ) {
-            $externalGames = array_filter( $externalGames, function( $externalGame ) {
-                return ( strlen( $externalGame->homeCompetitorName ) > 0 && strlen( $externalGame->awayCompetitorName ) > 0 );
-            });
-        }
-        return $externalGames;
-    }
+    // als je van
 
-    /**
-     * @param ExternalCompetition $externalCompetition
-     * @throws \Exception
-     */
-    public function create(ExternalCompetition $externalCompetition)
-    {
-        $externalSystemCompetitors = $this->competitorImporter->get( $externalCompetition );
-        $externalSystemGames = $this->get($externalCompetition);
-        foreach ($externalSystemGames as $externalSystemGame) {
-            $externalGame = $this->externalRepos->findOneByExternalId(
-                $this->externalSystemBase,
-                $this->apiHelper->getId($externalSystemGame)
-            );
-            if ($externalGame !== null ) {
-                throw new \Exception("for " . $this->externalSystemBase->getName() . "-game there is already an external game",
-                    E_ERROR);
+    public function createByCompetitions( array $competitions ) {
+
+        foreach( $competitions as $competition ) {
+            list( $externalLeague, $externalSeason ) = $this->getExternalsForCompetition( $competition );
+            if( $externalLeague === null || $externalSeason === null ) {
+                continue;
             }
-            $game = $this->getGame(
-                $externalCompetition->getImportableObject(),
-                $externalSystemGame->homeCompetitorName,
-                $externalSystemGame->awayCompetitorName,
-                $externalSystemCompetitors
-            );
-
-            $this->externalObjectService->create(
-                $game,
-                $this->externalSystemBase,
-                $this->apiHelper->getId($externalSystemGame)
-            );
-            $this->updateGame($game, $externalSystemGame);
-        }
-    }
-
-    public function update(ExternalCompetition $externalCompetition)
-    {
-        $externalSystemCompetitors = $this->competitorImporter->get( $externalCompetition );
-        $externalSystemGames = $this->get($externalCompetition);
-        foreach ($externalSystemGames as $externalSystemGame) {
-            $game = $this->getGame(
-                $externalCompetition->getImportableObject(),
-                $externalSystemGame->homeCompetitorName,
-                $externalSystemGame->awayCompetitorName,
-                $externalSystemCompetitors
-            );
-            $externalGame = $this->externalRepos->findOneByExternalId(
-                $this->externalSystemBase,
-                $this->apiHelper->getId($externalSystemGame)
-            );
-            if ($externalGame === null ) {
-                $this->externalObjectService->create(
-                    $game,
-                    $this->externalSystemBase,
-                    $this->apiHelper->getId($externalSystemGame)
-                );
+            $this->conn->beginTransaction();
+            try {
+                $this->createFromExternalSystemGames( $competition, $externalLeague, $externalSeason );
+                $this->editGames($competition, $externalLeague, $externalSeason);
+                $this->conn->commit();
+            } catch( \Exception $error ) {
+                $this->addError('game could not be created: ' . $error->getMessage() );
+                $this->conn->rollBack();
+                continue;
             }
-            $this->updateGame($game, $externalSystemGame);
+
         }
     }
 
-    protected function updateGame(GameBase $game, $externalSystemGame)
+    private function createFromExternalSystemGames( Competition $competition, $externalLeague, $externalSeason ) {
+
+        $externalSystemGames = $this->apiHelper->getGames( $externalLeague, $externalSeason );
+        foreach( $externalSystemGames as $externalSystemGame ) {
+            $game = $this->getGame( $competition, $externalSystemGame );
+            if( $game === null ) {
+                $this->addNotice('game could not be found, check here if games are created at ' . $this->errorUrl . 'admin/games/' . $competition->getId()  );
+                continue;
+            }
+            $externalGame = $this->externalObjectService->create( $game, $this->externalSystemBase, $externalSystemGame->id );
+        }
+    }
+
+   
+        
+    private function editGames( Competition $competition, $externalLeague, $externalSeason ) {
+
+        $games = $competition->getGames();
+        foreach( $games as $game ) {
+            $externalGame = $this->externalGameRepos->findOneByExternalId( $this->externalSystemBase, $game->id );
+            if( $externalGame === null ) {
+                $this->addNotice('game could not be found for externalsystem "'.$this->externalSystemBase->getName().'" and gameid '.$game->getId().' for competition "' . $competition->getName(). '" for updating' );
+                continue;
+            }
+            $stage = null;
+            $this->editGame( $game, $this->apiHelper->getGame($externalLeague, $externalSeason, $stage, $externalGame->getExternalId() ) );
+        }
+    }
+
+    protected function editGame(GameBase $game, $externalSystemGame)
     {
         if( $game->getState() === GameBase::STATE_PLAYED ) {
             return $game;
@@ -201,23 +219,48 @@ class Game implements GameImporter
         return $this->repos->save($game);
     }
 
-    protected function getGame( Competition $competition,
-        $externalSystemHomeCompetitor, $externalSystemAwayCompetitor, array $externalSystemCompetitors): GameBase
+
+//    public function get(ExternalCompetition $externalCompetition, bool $onlyWithCompetitors = true )
+//    {
+//        $externalGames = $this->apiHelper->getData("competitions/" . $externalCompetition->getExternalId() . "/fixtures");
+//        $externalGames = $externalGames->fixtures;
+//        if( $onlyWithCompetitors === true ) {
+//            $externalGames = array_filter( $externalGames, function( $externalGame ) {
+//                return ( strlen( $externalGame->homeCompetitorName ) > 0 && strlen( $externalGame->awayCompetitorName ) > 0 );
+//            });
+//        }
+//        return $externalGames;
+//    }
+//
+
+
+
+    protected function getGame( Competition $competition, $externalSystemGame /*
+        $externalSystemHomeCompetitor, $externalSystemAwayCompetitor, array $externalSystemCompetitors*/): ?GameBase
     {
-        $homeCompetitor = $this->getCompetitor( $externalSystemHomeCompetitor, $externalSystemCompetitors);
+
+
+
+        // throw new \Exception("wedstrijd(o.b.v. externid) niet gevonden, maak eerst structuur en wedstrijden aan voor competitie " . $competition->getName() );
+
+        //
+        $homeCompetitor = $this->getCompetitor( $externalSystemGame->homecompetitor );
         if( $homeCompetitor === null ) {
-            throw new \Exception("homecompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemHomeCompetitor, E_ERROR );
+            $this->addNotice("homecompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemGame->homecompetitor );
+            return null;
         }
-        $awayCompetitor = $this->getCompetitor( $externalSystemAwayCompetitor, $externalSystemCompetitors);
+        $awayCompetitor = $this->getCompetitor( $externalSystemGame->awaycompetitor);
         if( $awayCompetitor === null ) {
-            throw new \Exception("awaycompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemAwayCompetitor, E_ERROR );
+            $this->addNotice("awaycompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemGame->awaycompetitor );
+            return null;
         }
         $games = $this->repos->findByExt($homeCompetitor, $awayCompetitor, $competition );
         if( count($games) === 0 ) {
             $games = $this->repos->findByExt($awayCompetitor, $homeCompetitor, $competition );
         }
         if( count($games) === 0 ) {
-            throw new \Exception( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemHomeCompetitor . " vs " . $externalSystemAwayCompetitor, E_ERROR );
+            $this->addNotice( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemGame->homecompetitor . " vs " . $externalSystemGame->awaycompetitor );
+            return null;
         }
         if( count($games) > 1 ) {
             uasort( $games, function( Game $g1, Game $g2) {
@@ -227,19 +270,29 @@ class Game implements GameImporter
         return reset( $games );
     }
 
-    protected function getCompetitor( $externalSystemCompetitorName, array $externalSystemCompetitors): CompetitorBase
+    protected function getCompetitor( $externalSystemCompetitor): ?CompetitorBase
     {
-        $externalSystemFilteredCompetitors = array_filter( $externalSystemCompetitors, function ( $externalSystemCompetitorIt ) use ($externalSystemCompetitorName) {
-            return  $externalSystemCompetitorIt->name === $externalSystemCompetitorName;
-        });
-        $externalSystemCompetitor = count($externalSystemFilteredCompetitors) === 1 ? reset($externalSystemFilteredCompetitors) : null;
-        if( $externalSystemCompetitor === null ) {
-            throw new \Exception("competitor for ".$this->externalSystemBase->getName()."-competitor " . $externalSystemCompetitorName . " could not be found", E_ERROR );
-        }
-        $externalSystemCompetitorId = $externalSystemCompetitor ? $this->apiHelper->getId( $externalSystemCompetitor ) : null;
-        if( $externalSystemCompetitorId === null ) {
-            throw new \Exception("competitorid for ".$this->externalSystemBase->getName()."-competitor " . $externalSystemCompetitorName . " could not be found", E_ERROR );
-        }
-        return $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $externalSystemCompetitorId);
+        ///$externalCompetitor = $this->externalCompetitorRepos->findOneByExternalId( $this->externalSystemBase, $externalSystemCompetitor->id );
+
+//        $externalSystemFilteredCompetitors = array_filter( $externalSystemCompetitors, function ( $externalSystemCompetitorIt ) use ($externalSystemCompetitorName) {
+//            return  $externalSystemCompetitorIt->name === $externalSystemCompetitorName;
+//        });
+//        $externalSystemCompetitor = count($externalSystemFilteredCompetitors) === 1 ? reset($externalSystemFilteredCompetitors) : null;
+//        if( $externalSystemCompetitor === null ) {
+//            throw new \Exception("competitor for ".$this->externalSystemBase->getName()."-competitor " . $externalSystemCompetitorName . " could not be found", E_ERROR );
+//        }
+//        $externalSystemCompetitorId = $externalSystemCompetitor ? $this->apiHelper->getId( $externalSystemCompetitor ) : null;
+        //if( $externalCompetitor === null ) {
+       //     return null;
+      //  }
+        return $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $externalSystemCompetitor->id);
+    }
+
+    private function addNotice( $msg ) {
+        $this->logger->addNotice( $this->externalSystemBase->getName() . " : " . $msg );
+    }
+
+    private function addError( $msg ) {
+        $this->logger->addError( $this->externalSystemBase->getName() . " : " . $msg );
     }
 }

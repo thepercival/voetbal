@@ -43,17 +43,23 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
      * @var Logger
      */
     private $logger;
+    /**
+     * @var array
+     */
+    private $settings;
 
     public function __construct(
         VoetbalService $voetbalService,
         ExternalSystemBase $externalSystem,
         Connection $conn,
-        Logger $logger
+        Logger $logger,
+        array $settings
     )
     {
         $this->voetbalService = $voetbalService;
         $this->conn = $conn;
         $this->logger = $logger;
+        $this->settings = $settings;
         $this->setExternalSystem( $externalSystem );
     }
 
@@ -64,6 +70,11 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
     protected function getApiHelper()
     {
         return new ExternalSystemBase\FootballData\ApiHelper( $this->getExternalSystem() );
+    }
+
+    protected function getErrorUrl(): string
+    {
+        reset( $this->settings['www']['urls']);
     }
 
     /**
@@ -133,11 +144,14 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         return new FootballDataGameImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
+            $this->voetbalService->getRepository( \Voetbal\External\League::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
             $this->voetbalService->getService( \Voetbal\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
-            $this->getCompetitorImporter()
+            $this->getCompetitorImporter(),
+            $this->conn, $this->logger, $this->getErrorUrl()
         );
     }
 }
