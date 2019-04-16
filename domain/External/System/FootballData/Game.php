@@ -8,9 +8,11 @@
 
 namespace Voetbal\External\System\FootballData;
 
+use Monolog\Logger;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Game as GameImporter;
 use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
+use Voetbal\Structure\Service as StructureService;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
 use Voetbal\External\Object\Service as ExternalObjectService;
@@ -20,12 +22,11 @@ use Voetbal\Game as GameBase;
 use Voetbal\Competition;
 use Voetbal\Competitor as CompetitorBase;
 use Voetbal\Qualify\Service as QualifyService;
-use Voetbal\External\Competition as ExternalCompetition;
 use Voetbal\External\League\Repository as ExternalLeagueRepos;
 use Voetbal\External\Season\Repository as ExternalSeasonRepos;
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
-use Voetbal\Repository;
+use Voetbal\External\System\Logger\GameLogger;
+use Voetbal\Round;
 
 class Game implements GameImporter
 {
@@ -46,6 +47,10 @@ class Game implements GameImporter
      * @var ExternalSeasonRepos
      */
     private $externalSeasonRepos;
+    /**
+     * @var StructureService
+     */
+    private $structureService;
     /**
      * @var GameService
      */
@@ -80,7 +85,7 @@ class Game implements GameImporter
      */
     private $conn;
     /**
-     * @var Logger;
+     * @var GameLogger | Logger;
      */
     private $logger;
     /**
@@ -95,13 +100,14 @@ class Game implements GameImporter
         ApiHelper $apiHelper,
         ExternalLeagueRepos $externalLeagueRepos,
         ExternalSeasonRepos $externalSeasonRepos,
+        StructureService $structureService,
         GameService $service,
         GameRepos $repos,
         ExternalGameRepos $externalGameRepos,
         ExternalCompetitorRepos $externalCompetitorRepos,
         CompetitorImporter $competitorImporter,
         Connection $conn,
-        Logger $logger,
+        GameLogger $logger,
         string $errorUrl
 
     ) {
@@ -109,6 +115,7 @@ class Game implements GameImporter
         $this->apiHelper = $apiHelper;
         $this->externalLeagueRepos = $externalLeagueRepos;
         $this->externalSeasonRepos = $externalSeasonRepos;
+        $this->structureService = $structureService;
         $this->service = $service;
         $this->repos = $repos;
         $this->externalGameRepos = $externalGameRepos;
@@ -121,8 +128,6 @@ class Game implements GameImporter
         $this->logger = $logger;
         $this->errorUrl = $errorUrl;
     }
-
-    // als je van
 
     public function createByCompetitions( array $competitions ) {
 
@@ -151,26 +156,41 @@ class Game implements GameImporter
         foreach( $externalSystemGames as $externalSystemGame ) {
             $game = $this->getGame( $competition, $externalSystemGame );
             if( $game === null ) {
-                $this->addNotice('game could not be found, check here if games are created at ' . $this->errorUrl . 'admin/games/' . $competition->getId()  );
+                $this->logger->getGameNotFoundNotice('game could not be found', $competition->getId() );
                 continue;
             }
             $externalGame = $this->externalObjectService->create( $game, $this->externalSystemBase, $externalSystemGame->id );
         }
     }
 
-   
-        
     private function editGames( Competition $competition, $externalLeague, $externalSeason ) {
 
-        $games = $competition->getGames();
-        foreach( $games as $game ) {
-            $externalGame = $this->externalGameRepos->findOneByExternalId( $this->externalSystemBase, $game->id );
-            if( $externalGame === null ) {
-                $this->addNotice('game could not be found for externalsystem "'.$this->externalSystemBase->getName().'" and gameid '.$game->getId().' for competition "' . $competition->getName(). '" for updating' );
+        $structure = $this->structureService->getStructure( $competition );
+        if( $structure === null ) {
+            $this->addNotice('structure not found for competition "' . $competition->getName() . '"');
+            return;
+        }
+        $structure->setQualifyRules();
+        $this->editGamesForRound( $structure->getRootRound(), $externalLeague, $externalSeason );
+    }
+
+    private function editGamesForRound( Round $round, $externalLeague, $externalSeason ) {
+        $games = $round->getGames();
+
+        foreach ($games as $game) {
+            $externalGame = $this->externalGameRepos->findOneByExternalId($this->externalSystemBase, $game->id);
+            if ($externalGame === null) {
+                $this->logger->getExternalGameNotFoundNotice('externalgame could not be found',
+                    $this->externalSystemBase, $game, $round->getNumber()->getCompetition());
                 continue;
             }
             $stage = null;
-            $this->editGame( $game, $this->apiHelper->getGame($externalLeague, $externalSeason, $stage, $externalGame->getExternalId() ) );
+            $this->editGame($game, $this->apiHelper->getGame($externalLeague, $externalSeason, $stage,
+                $externalGame->getExternalId()));
+        }
+
+        foreach( $round->getChildRounds() as $childRound ) {
+            $this->editGamesForRound( $childRound, $externalLeague, $externalSeason );
         }
     }
 
@@ -203,12 +223,11 @@ class Game implements GameImporter
             $gameScoreFullTime->moment = GameBase::MOMENT_FULLTIME;
             $gameScores[] = $gameScoreFullTime;
 
-            $this->service->setScores( $game, $gameScores );
+            $this->service->addScores( $game, $gameScores );
 
             // set qualifiers for next round
             foreach( $game->getRound()->getChildRounds() as $childRound ) {
                 $qualifyService = new QualifyService( $childRound );
-                $qualifyService->setQualifyRules();
                 $newQualifiers = $qualifyService->getNewQualifiers( $game->getPoule() );
                 foreach( $newQualifiers as $newQualifier ) {
                     throw new \Exception("poulePlaceService not yet available", E_ERROR );
@@ -238,32 +257,28 @@ class Game implements GameImporter
     protected function getGame( Competition $competition, $externalSystemGame /*
         $externalSystemHomeCompetitor, $externalSystemAwayCompetitor, array $externalSystemCompetitors*/): ?GameBase
     {
-
-
-
         // throw new \Exception("wedstrijd(o.b.v. externid) niet gevonden, maak eerst structuur en wedstrijden aan voor competitie " . $competition->getName() );
 
-        //
         $homeCompetitor = $this->getCompetitor( $externalSystemGame->homecompetitor );
         if( $homeCompetitor === null ) {
-            $this->addNotice("homecompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemGame->homecompetitor );
+            $this->logger->getExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->homecompetitor );
             return null;
         }
         $awayCompetitor = $this->getCompetitor( $externalSystemGame->awaycompetitor);
         if( $awayCompetitor === null ) {
-            $this->addNotice("awaycompetitor could not be found for ".$this->externalSystemBase->getName()."-competitorid " . $externalSystemGame->awaycompetitor );
+            $this->logger->getExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->awaycompetitor );
             return null;
         }
+        /**@var GameBase[] $games */
         $games = $this->repos->findByExt($homeCompetitor, $awayCompetitor, $competition );
         if( count($games) === 0 ) {
             $games = $this->repos->findByExt($awayCompetitor, $homeCompetitor, $competition );
         }
         if( count($games) === 0 ) {
-            $this->addNotice( $this->externalSystemBase->getName() . "-game could not be found for : " . $externalSystemGame->homecompetitor . " vs " . $externalSystemGame->awaycompetitor );
             return null;
         }
         if( count($games) > 1 ) {
-            uasort( $games, function( Game $g1, Game $g2) {
+            uasort( $games, function( GameBase $g1, GameBase $g2) {
                 return $g2->getStartDateTime()->getTimestamp() - $g1->getStartDateTime()->getTimestamp();
             });
         }
@@ -289,6 +304,7 @@ class Game implements GameImporter
     }
 
     private function addNotice( $msg ) {
+        // could add url, because is logger is gamelogger
         $this->logger->addNotice( $this->externalSystemBase->getName() . " : " . $msg );
     }
 

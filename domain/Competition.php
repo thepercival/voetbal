@@ -255,18 +255,4 @@ class Competition implements External\Importable
         });
         return array_shift( $fields );
     }
-
-    /**
-     * @return Structure
-     */
-    /*public function getStructure(): Structure
-    {
-        $firstRoundNumber = null;
-        foreach( $this->getRoundNumbers() as $roundNumber ) {
-            if( $roundNumber->getNumber() === 1 ) {
-                $firstRoundNumber = $roundNumber;
-            }
-        }
-        return new Structure( $firstRoundNumber, $firstRoundNumber->getRounds()->first() );
-    }*/
 }
