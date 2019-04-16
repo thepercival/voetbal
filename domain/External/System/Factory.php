@@ -30,24 +30,24 @@ class Factory
     /**
      * @var array
      */
-    private $settings;
+    // private $settings;
 
     public function __construct(
         VoetbalService $voetbalService,
         Logger $logger,
-        Connection $conn,
-        array $settings
+        Connection $conn/*,
+        array $settings*/
     )
     {
         $this->voetbalService = $voetbalService;
         $this->logger  = $logger;
         $this->conn = $conn;
-        $this->settings = $settings;
+        // $this->settings = $settings;
     }
 
     public function create( ExternalSystem $externalSystem ) {
         if( $externalSystem->getName() === "Football Data" ) {
-            return new FootballData($this->voetbalService,$externalSystem,$this->conn,$this->logger,$this->settings);
+            return new FootballData($this->voetbalService,$externalSystem,$this->conn,$this->logger/*,$this->settings*/);
         }
         return null;
     }

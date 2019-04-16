@@ -47,20 +47,20 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
     /**
      * @var array
      */
-    private $settings;
+    // private $settings;
 
     public function __construct(
         VoetbalService $voetbalService,
         ExternalSystemBase $externalSystem,
         Connection $conn,
-        Logger $logger,
-        array $settings
+        Logger $logger/*,
+        array $settings*/
     )
     {
         $this->voetbalService = $voetbalService;
         $this->conn = $conn;
         $this->logger = $logger;
-        $this->settings = $settings;
+        // $this->settings = $settings;
         $this->setExternalSystem( $externalSystem );
     }
 
@@ -73,10 +73,10 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         return new ExternalSystemBase\FootballData\ApiHelper( $this->getExternalSystem() );
     }
 
-    protected function getErrorUrl(): string
+    /*protected function getErrorUrl(): string
     {
         reset( $this->settings['www']['urls']);
-    }
+    }*/
 
     /**
      * @return ExternalSystemBase
@@ -152,7 +152,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->voetbalService->getRepository( \Voetbal\External\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
             $this->getCompetitorImporter(),
-            $this->conn, $gameLogger, $this->getErrorUrl()
+            $this->conn, $gameLogger
         );
     }
 }

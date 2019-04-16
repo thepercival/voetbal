@@ -13,6 +13,7 @@ use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Game as GameImporter;
 use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
 use Voetbal\Structure\Service as StructureService;
+use Voetbal\Structure;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepos;
 use Voetbal\External\Object\Service as ExternalObjectService;
@@ -88,10 +89,6 @@ class Game implements GameImporter
      * @var GameLogger | Logger;
      */
     private $logger;
-    /**
-     * @var string
-     */
-    private $errorUrl;
 
     use Helper;
 
@@ -107,8 +104,7 @@ class Game implements GameImporter
         ExternalCompetitorRepos $externalCompetitorRepos,
         CompetitorImporter $competitorImporter,
         Connection $conn,
-        GameLogger $logger,
-        string $errorUrl
+        GameLogger $logger
 
     ) {
         $this->externalSystemBase = $externalSystemBase;
@@ -126,20 +122,27 @@ class Game implements GameImporter
         $this->competitorImporter = $competitorImporter;
         $this->conn = $conn;
         $this->logger = $logger;
-        $this->errorUrl = $errorUrl;
     }
 
     public function createByCompetitions( array $competitions ) {
 
         foreach( $competitions as $competition ) {
+
+            $structure = $this->structureService->getStructure( $competition );
+            if( $structure === null ) {
+                $this->addNotice('structure not found for competition "' . $competition->getName() . '"');
+                return;
+            }
+            $structure->setQualifyRules();
+
             list( $externalLeague, $externalSeason ) = $this->getExternalsForCompetition( $competition );
             if( $externalLeague === null || $externalSeason === null ) {
                 continue;
             }
             $this->conn->beginTransaction();
             try {
-                $this->createFromExternalSystemGames( $competition, $externalLeague, $externalSeason );
-                $this->editGames($competition, $externalLeague, $externalSeason);
+                $this->createFromExternalSystemGames( $competition, $structure, $externalLeague, $externalSeason );
+                $this->editGames($structure, $externalLeague, $externalSeason);
                 $this->conn->commit();
             } catch( \Exception $error ) {
                 $this->addError('game could not be created: ' . $error->getMessage() );
@@ -150,27 +153,25 @@ class Game implements GameImporter
         }
     }
 
-    private function createFromExternalSystemGames( Competition $competition, $externalLeague, $externalSeason ) {
+    private function createFromExternalSystemGames( Competition $competition, Structure $structure, $externalLeague, $externalSeason ) {
 
-        $externalSystemGames = $this->apiHelper->getGames( $externalLeague, $externalSeason );
-        foreach( $externalSystemGames as $externalSystemGame ) {
-            $game = $this->getGame( $competition, $externalSystemGame );
-            if( $game === null ) {
-                $this->logger->getGameNotFoundNotice('game could not be found', $competition->getId() );
-                continue;
+        $externalSystemRounds = $this->apiHelper->getRounds( $externalLeague, $externalSeason );
+        foreach( $externalSystemRounds as $externalSystemRound ) {
+            $round = $this->getRound( $structure, $externalSystemRound->name );
+
+            $externalSystemGames = $this->apiHelper->getGames( $externalLeague, $externalSeason, $externalSystemRound->name );
+            foreach( $externalSystemGames as $externalSystemGame ) {
+                $game = $this->getGame( $competition, $round, $externalSystemGame );
+                if( $game === null ) {
+                    $this->logger->addGameNotFoundNotice('game could not be found', $competition );
+                    continue;
+                }
+                $externalGame = $this->externalObjectService->create( $game, $this->externalSystemBase, $externalSystemGame->id );
             }
-            $externalGame = $this->externalObjectService->create( $game, $this->externalSystemBase, $externalSystemGame->id );
         }
     }
 
-    private function editGames( Competition $competition, $externalLeague, $externalSeason ) {
-
-        $structure = $this->structureService->getStructure( $competition );
-        if( $structure === null ) {
-            $this->addNotice('structure not found for competition "' . $competition->getName() . '"');
-            return;
-        }
-        $structure->setQualifyRules();
+    private function editGames( Structure $structure, $externalLeague, $externalSeason ) {
         $this->editGamesForRound( $structure->getRootRound(), $externalLeague, $externalSeason );
     }
 
@@ -180,7 +181,7 @@ class Game implements GameImporter
         foreach ($games as $game) {
             $externalGame = $this->externalGameRepos->findOneByExternalId($this->externalSystemBase, $game->id);
             if ($externalGame === null) {
-                $this->logger->getExternalGameNotFoundNotice('externalgame could not be found',
+                $this->logger->addExternalGameNotFoundNotice('externalgame could not be found',
                     $this->externalSystemBase, $game, $round->getNumber()->getCompetition());
                 continue;
             }
@@ -192,6 +193,22 @@ class Game implements GameImporter
         foreach( $round->getChildRounds() as $childRound ) {
             $this->editGamesForRound( $childRound, $externalLeague, $externalSeason );
         }
+    }
+
+    private function getRound( Structure $structure, string $roundName ): ?Round {
+        $fnGetRound = function( Round $round, string $roundName ) use ( &$fnGetRound ): ?Round {
+            if( $round->getName() === $roundName ) {
+                return $round;
+            }
+            foreach( $round->getChildRounds() as $childRound ) {
+                $childRoundWithName = $fnGetRound( $childRound, $roundName );
+                if( $childRoundWithName !== null ) {
+                    return $childRoundWithName;
+                }
+            }
+            return null;
+        };
+        return $fnGetRound( $structure->getRootRound(), $roundName );
     }
 
     protected function editGame(GameBase $game, $externalSystemGame)
@@ -254,30 +271,30 @@ class Game implements GameImporter
 
 
 
-    protected function getGame( Competition $competition, $externalSystemGame /*
-        $externalSystemHomeCompetitor, $externalSystemAwayCompetitor, array $externalSystemCompetitors*/): ?GameBase
+    protected function getGame( Competition $competition, Round $round, $externalSystemGame ): ?GameBase
     {
-        // throw new \Exception("wedstrijd(o.b.v. externid) niet gevonden, maak eerst structuur en wedstrijden aan voor competitie " . $competition->getName() );
-
-        $homeCompetitor = $this->getCompetitor( $externalSystemGame->homecompetitor );
+        $homeCompetitor = $this->getCompetitor( $externalSystemGame->homeTeam );
         if( $homeCompetitor === null ) {
-            $this->logger->getExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->homecompetitor );
+            $this->logger->addExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->homeTeam );
             return null;
         }
-        $awayCompetitor = $this->getCompetitor( $externalSystemGame->awaycompetitor);
+        $awayCompetitor = $this->getCompetitor( $externalSystemGame->awayTeam);
         if( $awayCompetitor === null ) {
-            $this->logger->getExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->awaycompetitor );
+            $this->logger->addExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->awayTeam );
             return null;
         }
         /**@var GameBase[] $games */
         $games = $this->repos->findByExt($homeCompetitor, $awayCompetitor, $competition );
-        if( count($games) === 0 ) {
-            $games = $this->repos->findByExt($awayCompetitor, $homeCompetitor, $competition );
-        }
+//        if( count($games) === 0 ) {
+//            $games = $this->repos->findByExt($awayCompetitor, $homeCompetitor, $competition );
+//        }
         if( count($games) === 0 ) {
             return null;
         }
         if( count($games) > 1 ) {
+            $games = array_filter( $games, function( $gameIt ) use ( $round ) {
+                return $gameIt->getRound() === $round;
+            });
             uasort( $games, function( GameBase $g1, GameBase $g2) {
                 return $g2->getStartDateTime()->getTimestamp() - $g1->getStartDateTime()->getTimestamp();
             });

@@ -14,7 +14,7 @@ use Voetbal\Game;
 
 interface GameLogger
 {
-    public function getGameNotFoundNotice( string $msg, Competition $competition ): string;
-    public function getExternalGameNotFoundNotice( string $msg, ExternalSystem $externalSystem, Game $game, Competition $competition ): string;
-    public function getExternalCompetitorNotFoundNotice( string $msg, ExternalSystem $externalSystem, string $externalSystemCompetitor ): string;
+    public function addGameNotFoundNotice( string $msg, Competition $competition );
+    public function addExternalGameNotFoundNotice( string $msg, ExternalSystem $externalSystem, Game $game, Competition $competition );
+    public function addExternalCompetitorNotFoundNotice( string $msg, ExternalSystem $externalSystem, string $externalSystemCompetitor );
 }
