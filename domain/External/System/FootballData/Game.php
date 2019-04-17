@@ -28,6 +28,7 @@ use Voetbal\External\Season\Repository as ExternalSeasonRepos;
 use Doctrine\DBAL\Connection;
 use Voetbal\External\System\Logger\GameLogger;
 use Voetbal\Round;
+use Voetbal\Game\Score as GameScore;
 
 class Game implements GameImporter
 {
@@ -166,6 +167,10 @@ class Game implements GameImporter
                     $this->logger->addGameNotFoundNotice('game could not be found', $competition );
                     continue;
                 }
+                $externalGame = $this->externalGameRepos->findOneByExternalId($this->externalSystemBase, $externalSystemGame->id );
+                if ($externalGame !== null) {
+                    continue;
+                }
                 $externalGame = $this->externalObjectService->create( $game, $this->externalSystemBase, $externalSystemGame->id );
             }
         }
@@ -179,15 +184,17 @@ class Game implements GameImporter
         $games = $round->getGames();
 
         foreach ($games as $game) {
-            $externalGame = $this->externalGameRepos->findOneByExternalId($this->externalSystemBase, $game->id);
+            $externalGame = $this->externalGameRepos->findOneByImportable($this->externalSystemBase, $game);
             if ($externalGame === null) {
                 $this->logger->addExternalGameNotFoundNotice('externalgame could not be found',
                     $this->externalSystemBase, $game, $round->getNumber()->getCompetition());
                 continue;
             }
-            $stage = null;
-            $this->editGame($game, $this->apiHelper->getGame($externalLeague, $externalSeason, $stage,
-                $externalGame->getExternalId()));
+            $stage = $round->getName();
+            $this->editGame(
+                $game,
+                $this->apiHelper->getGame($externalLeague, $externalSeason, $stage, (int) $externalGame->getExternalId())
+            );
         }
 
         foreach( $round->getChildRounds() as $childRound ) {
@@ -211,7 +218,7 @@ class Game implements GameImporter
         return $fnGetRound( $structure->getRootRound(), $roundName );
     }
 
-    protected function editGame(GameBase $game, $externalSystemGame)
+    protected function editGame(GameBase $game, \stdClass $externalSystemGame )
     {
         if( $game->getState() === GameBase::STATE_PLAYED ) {
             return $game;
@@ -219,38 +226,35 @@ class Game implements GameImporter
 
         $game->setRoundNumber( $externalSystemGame->matchday );
         $game->setResourceBatch( $externalSystemGame->matchday );
-        $startDateTime = $this->apiHelper->getDate( $externalSystemGame->date );
+        $startDateTime = $this->apiHelper->getDate( $externalSystemGame->utcDate );
         $game->setStartDateTime( $startDateTime );
 
         if ( $externalSystemGame->status === "FINISHED" ) { //    OTHER, "IN_PLAY", "FINISHED",
             $game->setState( GameBase::STATE_PLAYED );
 
-            $gameScores = [];
-            if( property_exists ( $externalSystemGame->result, "halfTime" ) ) {
-                $gameScoreHalfTime = new \stdClass();
-                $gameScoreHalfTime->home = $externalSystemGame->result->halfTime->goalsHomeCompetitor;
-                $gameScoreHalfTime->away = $externalSystemGame->result->halfTime->goalsAwayCompetitor;
-                $gameScoreHalfTime->moment = GameBase::MOMENT_HALFTIME;
-                $gameScores[] = $gameScoreHalfTime;
+            $scores = $externalSystemGame->score;
+            if( property_exists ( $scores, "halfTime" ) ) {
+                $gameScoreHalfTime = new GameScore( $game );
+                $gameScoreHalfTime->setNumber( GameBase::MOMENT_HALFTIME );
+                $gameScoreHalfTime->setHome( $scores->halfTime->homeTeam );
+                $gameScoreHalfTime->setAway( $scores->halfTime->awayTeam );
             }
-
-            $gameScoreFullTime = new \stdClass();
-            $gameScoreFullTime->home = $externalSystemGame->result->goalsHomeCompetitor;
-            $gameScoreFullTime->away = $externalSystemGame->result->goalsAwayCompetitor;
-            $gameScoreFullTime->moment = GameBase::MOMENT_FULLTIME;
-            $gameScores[] = $gameScoreFullTime;
-
-            $this->service->addScores( $game, $gameScores );
+            if( property_exists ( $scores, "fullTime" ) ) {
+                $gameScoreHalfTime = new GameScore( $game );
+                $gameScoreHalfTime->setNumber( GameBase::MOMENT_FULLTIME );
+                $gameScoreHalfTime->setHome( $scores->fullTime->homeTeam );
+                $gameScoreHalfTime->setAway( $scores->fullTime->awayTeam );
+            }
 
             // set qualifiers for next round
-            foreach( $game->getRound()->getChildRounds() as $childRound ) {
-                $qualifyService = new QualifyService( $childRound );
-                $newQualifiers = $qualifyService->getNewQualifiers( $game->getPoule() );
-                foreach( $newQualifiers as $newQualifier ) {
-                    throw new \Exception("poulePlaceService not yet available", E_ERROR );
-                    // $this->poulePlaceService->assignCompetitor( $newQualifier->getPoulePlace(), $newQualifier->getCompetitor() );
-                }
-            }
+//            foreach( $game->getRound()->getChildRounds() as $childRound ) {
+//                $qualifyService = new QualifyService( $childRound );
+//                $newQualifiers = $qualifyService->getNewQualifiers( $game->getPoule() );
+//                foreach( $newQualifiers as $newQualifier ) {
+//                    throw new \Exception("poulePlaceService not yet available", E_ERROR );
+//                    // $this->poulePlaceService->assignCompetitor( $newQualifier->getPoulePlace(), $newQualifier->getCompetitor() );
+//                }
+//            }
         }
         return $this->repos->save($game);
     }
