@@ -59,6 +59,10 @@ class Service
         return $game;
     }
 
+    /**
+     * @param Game $game
+     * @param GameScore[]|array $newGameScores
+     */
     public function addScores( Game $game, array $newGameScores )
     {
         $count = 0;

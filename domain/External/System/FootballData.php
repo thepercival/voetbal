@@ -24,6 +24,7 @@ use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
 use Voetbal\Service as VoetbalService;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
+use Voetbal\External\System\Logger\GameLogger;
 
 class FootballData implements Def, CompetitionImportable, CompetitorImportable, StructureImportable, GameImportable
 {
@@ -43,17 +44,23 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
      * @var Logger
      */
     private $logger;
+    /**
+     * @var array
+     */
+    // private $settings;
 
     public function __construct(
         VoetbalService $voetbalService,
         ExternalSystemBase $externalSystem,
         Connection $conn,
-        Logger $logger
+        Logger $logger/*,
+        array $settings*/
     )
     {
         $this->voetbalService = $voetbalService;
         $this->conn = $conn;
         $this->logger = $logger;
+        // $this->settings = $settings;
         $this->setExternalSystem( $externalSystem );
     }
 
@@ -65,6 +72,11 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
     {
         return new ExternalSystemBase\FootballData\ApiHelper( $this->getExternalSystem() );
     }
+
+    /*protected function getErrorUrl(): string
+    {
+        reset( $this->settings['www']['urls']);
+    }*/
 
     /**
      * @return ExternalSystemBase
@@ -117,7 +129,6 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->getApiHelper(),
             $this->getCompetitionImporter(),
             $this->getCompetitorImporter(),
-            $this->getGameImporter(),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
             $this->voetbalService->getStructureRepository(),
             $this->voetbalService->getService( \Voetbal\Round::class ),
@@ -129,15 +140,19 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         );
     }
 
-    public function getGameImporter() : GameImporter {
+    public function getGameImporter( GameLogger $gameLogger ) : GameImporter {
         return new FootballDataGameImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),
+            $this->voetbalService->getRepository( \Voetbal\External\League::class ),
+            $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
+            $this->voetbalService->getService( \Voetbal\Structure::class ),
             $this->voetbalService->getService( \Voetbal\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
-            $this->getCompetitorImporter()
+            $this->getCompetitorImporter(),
+            $this->conn, $gameLogger
         );
     }
 }

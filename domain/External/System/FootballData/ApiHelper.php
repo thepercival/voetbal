@@ -236,6 +236,15 @@ class ApiHelper
         });
     }
 
+    public function getGame( ExternalLeague $externalLeague, ExternalSeason $externalSeason, string $stage = null /* round */, int $externalSystemGameId ): ?\stdClass
+    {
+        $games = $this->getGames( $externalLeague, $externalSeason, $stage );
+        $filteredGames = array_filter( $games, function( $game ) use ($externalSystemGameId) {
+            return $game->id === $externalSystemGameId;
+        });
+        return reset($filteredGames);
+    }
+
     public function getDate( string $date ) {
         if( strlen( $date ) === 0 ) {
             return null;
