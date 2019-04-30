@@ -126,6 +126,10 @@ class ResourceService
             $this->assignableReferees = array_slice($this->availableReferees,0);
             return;
         }
+        if ($this->roundNumberConfig->getSelfReferee()) {
+            $this->assignableReferees = array_merge( $this->assignableReferees, $this->availableReferees);
+            return;
+        }
         $lastAssignableReferee = $this->assignableReferees[count($this->assignableReferees) - 1];
         $idxLastAssignableReferee = array_search($lastAssignableReferee,$this->availableReferees);
         $firstAssignableReferee = reset($this->assignableReferees);
