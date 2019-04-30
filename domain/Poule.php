@@ -57,15 +57,15 @@ class Poule
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -117,7 +117,7 @@ class Poule
     }
 
     /**
-     * @param string
+     * @param string $name
      */
     public function setName( $name )
     {
@@ -144,7 +144,7 @@ class Poule
     }
 
     /**
-     * @param $places
+     * @param PoulePlace[] | ArrayCollection $places
      */
     public function setPlaces($places)
     {
@@ -171,7 +171,7 @@ class Poule
     }
 
     /**
-     * @param $games
+     * @param Game[] | ArrayCollection $games
      */
     public function setGames($games)
     {

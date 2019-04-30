@@ -75,7 +75,7 @@ class ApiHelper
         return $this->requests[$postUrl];
     }
 
-    public function getLeague( ExternalLeague $externalLeague ): ?\StdClass
+    public function getLeague( ExternalLeague $externalLeague ): ?\stdClass
     {
         $leagues = $this->getData("competitions/?plan=TIER_ONE")->competitions;
         $foundLeagues = array_filter( $leagues, function ( $league ) use ( $externalLeague ) {
@@ -87,7 +87,7 @@ class ApiHelper
         return reset($foundLeagues);
     }
 
-    public function getCompetition( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?\StdClass
+    public function getCompetition( ExternalLeague $externalLeague, ExternalSeason $externalSeason ): ?\stdClass
     {
         $externalSystemLeague = $this->getLeague($externalLeague);
         if( $externalSystemLeague === null ) {
@@ -234,6 +234,15 @@ class ApiHelper
         return array_filter( $retVal->matches, function( $match ) use ($stage) {
             return $match->stage === $stage;
         });
+    }
+
+    public function getGame( ExternalLeague $externalLeague, ExternalSeason $externalSeason, string $stage = null /* round */, int $externalSystemGameId ): ?\stdClass
+    {
+        $games = $this->getGames( $externalLeague, $externalSeason, $stage );
+        $filteredGames = array_filter( $games, function( $game ) use ($externalSystemGameId) {
+            return $game->id === $externalSystemGameId;
+        });
+        return reset($filteredGames);
     }
 
     public function getDate( string $date ) {

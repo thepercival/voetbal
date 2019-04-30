@@ -30,7 +30,7 @@ class Service
 	}
 
     /**
-     * @param $name
+     * @param string $name
      * @param Period $period
      * @return Season
      * @throws \Exception
@@ -46,12 +46,12 @@ class Service
 
     /**
      * @param Season $season
-     * @param $name
+     * @param string $name
      * @param Period $period
      * @return mixed
      * @throws \Exception
      */
-	public function edit( Season $season, $name, Period $period )
+	public function edit( Season $season, string $name, Period $period )
 	{
         $seasonWithSameName = $this->repos->findOneBy( array('name' => $name ) );
 		if ( $seasonWithSameName !== null and $seasonWithSameName !== $season ){

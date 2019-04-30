@@ -10,15 +10,15 @@
 namespace Voetbal\Action\External;
 
 use JMS\Serializer\Serializer;
-use Doctrine\ORM\EntityManager;
 use Voetbal\External\Object\Service as ExternalObjectService;
 use \Doctrine\ORM\EntityRepository;
+use Voetbal\Repository as VoetbalRepository;
 use Voetbal;
 
 final class ObjectX
 {
     /**
-     * @var EntityRepository
+     * @var VoetbalRepository
      */
     protected $repos;
     /**
@@ -26,26 +26,26 @@ final class ObjectX
      */
     protected $importableRepos;
     /**
-     * @var oetbal\External\System\Repository
+     * @var Voetbal\External\System\Repository
      */
     protected $systemRepos;
     /**
      * @var Serializer
      */
     protected $serializer;
+    /**
+     * @var ExternalObjectService
+     */
+    protected $service;
 
     public function __construct(
-        EntityRepository $repos,
+        VoetbalRepository $repos,
         EntityRepository $importableRepos,
         Voetbal\External\System\Repository $systemRepos,
         Serializer $serializer
     )
     {
-        $this->service = new ExternalObjectService(
-            $repos,
-            $systemRepos,
-            $importableRepos
-        );
+        $this->service = new ExternalObjectService($repos);
         $this->repos = $repos;
         $this->importableRepos = $importableRepos;
         $this->systemRepos = $systemRepos;

@@ -8,10 +8,10 @@
 
 namespace Voetbal\External\System\Importable;
 
-use Voetbal\Service as VoetbalService;
+use Voetbal\External\System\Logger\GameLogger;
 use Voetbal\External\System\Importer\Game as GameImporter;
 
 interface Game
 {
-    public function getGameImporter() : GameImporter;
+    public function getGameImporter( GameLogger $gameLogger ) : GameImporter;
 }

@@ -21,6 +21,10 @@ class Service
      * @var Round
      */
     private $parentRound;
+    /**
+     * @var Round
+     */
+    private $childRound;
 
     public function __construct( Round $childRound )
     {
@@ -251,7 +255,7 @@ class Service
         foreach( $toPoulePlaces as $toPoulePlace ) {
             $rankedPoulePlace = $this->getRankedPoulePlace($rankedPoulePlaces, $toPoulePlace->getPoule());
             if ($rankedPoulePlace === null && count($rankedPoulePlaces) > 0) {
-                $rankedPoulePlace = $rankedPoulePlaces->reset();
+                $rankedPoulePlace = reset($rankedPoulePlaces);
             }
             if ($rankedPoulePlace === null) {
                 break;

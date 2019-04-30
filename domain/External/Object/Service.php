@@ -10,22 +10,22 @@ namespace Voetbal\External\Object;
 
 use Voetbal\External\ObjectX as ExternalObject;
 use Voetbal\External\Importable;
-use \Doctrine\ORM\EntityRepository;
+use Voetbal\Repository as VoetbalRepository;
 use Voetbal\External\ObjectExt as ExternalObjectExt;
 use Voetbal\External\System;
 
 class Service
 {
     /**
-     * @var EntityRepository
+     * @var VoetbalRepository
      */
     protected $repos;
 
     /**
      * Service constructor.
-     * @param EntityRepository $repos
+     * @param VoetbalRepository $repos
      */
-    public function __construct(EntityRepository $repos)
+    public function __construct(VoetbalRepository $repos)
     {
         $this->repos = $repos;
     }
@@ -41,9 +41,8 @@ class Service
     }
 
     /**
-     * @param System $system
-     *
-     * @throws \Exception
+     * @param ExternalObject $externalobject
+     * @return mixed
      */
     public function remove( ExternalObject $externalobject )
     {

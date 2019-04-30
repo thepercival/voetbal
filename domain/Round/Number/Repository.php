@@ -8,8 +8,6 @@
 
 namespace Voetbal\Round\Number;
 
-use Voetbal\Competition;
-
 /**
  * Round
  *

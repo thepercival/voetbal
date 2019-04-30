@@ -32,7 +32,7 @@ trait HomeAwayTrait
     }
 
     /**
-     * @param $home
+     * @param int $home
      */
     public function setHome($home)
     {
@@ -57,7 +57,7 @@ trait HomeAwayTrait
     }
 
     /**
-     * @param $away
+     * @param int $away
      */
     public function setAway($away)
     {

@@ -8,6 +8,8 @@
 
 namespace Voetbal;
 
+use \Doctrine\Common\Collections\ArrayCollection;
+
 class Competitor implements External\Importable
 {
     const MIN_LENGTH_NAME = 2;
@@ -58,15 +60,15 @@ class Competitor implements External\Importable
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -77,7 +79,7 @@ class Competitor implements External\Importable
     }
 
     /**
-     * @param string
+     * @param string $name
      */
     public function setName( $name )
     {

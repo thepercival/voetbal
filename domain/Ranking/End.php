@@ -78,7 +78,7 @@ class End
     /**
      * @param Round $fromRound
      * @param array | QualifyRule[] $toRules
-     * @return array | PoulePlace[]
+     * @return array | PoulePlace[] | null[]
      */
     protected function getDeadPlacesFromRulesNotPlayed(Round $fromRound, array $toRules ): array {
         $fromPlaces = $this->getUniqueFromPlaces($toRules);
@@ -118,7 +118,7 @@ class End
      * 4 bepaal wie er doorgaan van de verliezers en haal deze eraf
      * 5 voeg de overgebleven plekken toe aan de deadplaces
      *
-     * @param round
+     * @param Round $round
      * @return array | PoulePlace[]
      */
     protected function getDeadPlacesFromRoundPlayed(Round $round): array {

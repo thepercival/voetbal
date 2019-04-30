@@ -78,7 +78,6 @@ final class Competition
 
 	public function add($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $leagueid = (int) $request->getParam("leagueid");
             $league = $this->leagueRepos->find($leagueid);
@@ -107,14 +106,12 @@ final class Competition
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
     }
 
     public function edit( $request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             /** @var \Voetbal\Competition $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
@@ -137,25 +134,19 @@ final class Competition
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
     }
 
 	public function remove( $request, $response, $args)
 	{
 		$competition = $this->repos->find($args['id']);
-		$sErrorMessage = null;
 		try {
-			$this->service->remove($competition);
-
-			return $response
-				->withStatus(200);
-			;
+			$this->repos->remove($competition);
+			return $response->withStatus(200);
 		}
 		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
+            return $response->withStatus(404, $e->getMessage() );
 		}
-		return $response->withStatus(404, $sErrorMessage );
 	}
 }

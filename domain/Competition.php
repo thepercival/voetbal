@@ -82,15 +82,15 @@ class Competition implements External\Importable
 	 *
 	 * @return int
 	 */
-	public function getId()
+	public function getId(): int
 	{
 		return $this->id;
 	}
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -166,7 +166,7 @@ class Competition implements External\Importable
     {
         $this->ruleSet = $ruleSet;
     }
-    
+
     /**
      * @return int
      */
@@ -192,7 +192,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection | Referee[]
      */
     public function getReferees()
     {
@@ -200,7 +200,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @param $referees
+     * @param ArrayCollection | Referee[] $referees
      */
     public function setReferees( $referees )
     {
@@ -230,7 +230,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @return ArrayCollection
+     * @return ArrayCollection | Field[]
      */
     public function getFields()
     {
@@ -238,7 +238,7 @@ class Competition implements External\Importable
     }
 
     /**
-     * @param $fields
+     * @param ArrayCollection | Field[] $fields
      */
     public function setFields( $fields )
     {
@@ -255,18 +255,4 @@ class Competition implements External\Importable
         });
         return array_shift( $fields );
     }
-
-    /**
-     * @return Structure
-     */
-    /*public function getStructure(): Structure
-    {
-        $firstRoundNumber = null;
-        foreach( $this->getRoundNumbers() as $roundNumber ) {
-            if( $roundNumber->getNumber() === 1 ) {
-                $firstRoundNumber = $roundNumber;
-            }
-        }
-        return new Structure( $firstRoundNumber, $firstRoundNumber->getRounds()->first() );
-    }*/
 }

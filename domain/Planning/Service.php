@@ -14,6 +14,7 @@ use Voetbal\Round\Config as RoundNumberConfig;
 use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Game;
 use Voetbal\Competition;
+use League\Period\Period;
 
 class Service
 {
@@ -41,7 +42,7 @@ class Service
         if( count( $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER) ) > 0 ) {
             throw new \Exception("cannot create games, games already exist", E_ERROR );
         }
-        if ($startDateTime === null) {
+        if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
             $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
 
@@ -128,17 +129,16 @@ class Service
 
     /**
      * @param RoundNumber $roundNumber
-     * @param RoundNumberConfig $roundNumberConfig
      * @param \DateTimeImmutable $dateTime
-     * @param array | Field[] $fields
-     * @param array | Referee[] $referees
+     * @param array | \Voetbal\Field[] $fields
+     * @param array | \Voetbal\Referee[] $referees
      * @return \DateTimeImmutable
      */
     protected function assignResourceBatchToGames(
         RoundNumber $roundNumber,
         \DateTimeImmutable $dateTime,
         array $fields,
-        array $referees): ?\DateTimeImmutable
+        array $referees): \DateTimeImmutable
     {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
         $resourceService = new ResourceService($roundNumber->getConfig(), $dateTime);
@@ -149,15 +149,25 @@ class Service
     }
 
     public function calculateStartDateTime(RoundNumber $roundNumber): \DateTimeImmutable {
-        if ($roundNumber->getConfig()->getEnableTime() === false) {
-            return null;
-        }
         if ($roundNumber->isFirst() ) {
             return $roundNumber->getCompetition()->getStartDateTime();
         }
         $previousEndDateTime = $this->calculateEndDateTime($roundNumber->getPrevious());
         $aPreviousConfig = $roundNumber->getPrevious()->getConfig();
         return $this->addMinutes($previousEndDateTime, $aPreviousConfig->getMinutesAfter());
+    }
+
+    protected function calculateEndDateTime(RoundNumber $roundNumber ): \DateTimeImmutable
+    {
+        $mostRecentStartDateTime = null;
+        foreach( $roundNumber->getRounds() as $round ) {
+            foreach( $round->getGames() as $game ) {
+                if ($mostRecentStartDateTime === null || $game->getStartDateTime() > $mostRecentStartDateTime) {
+                    $mostRecentStartDateTime = $game->getStartDateTime();
+                }
+            }
+        }
+        return $this->addMinutes($mostRecentStartDateTime, $roundNumber->getConfig()->getMaximalNrOfMinutesPerGame());
     }
 
     protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {

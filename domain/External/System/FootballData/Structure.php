@@ -12,7 +12,6 @@ use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
-use Voetbal\External\System\Importer\Game as GameImporter;
 use Voetbal\Competition as Competition;
 use Voetbal\External\Competition as ExternalCompetition;
 use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
@@ -43,7 +42,7 @@ class Structure implements StructureImporter
     private $apiHelper;
 
     /**
-     * @var ExternalSystemBase
+     * @var CompetitionImporter
      */
     private $competitionImporter;
 
@@ -51,11 +50,6 @@ class Structure implements StructureImporter
      * @var CompetitorImporter
      */
     private $competitorImporter;
-
-    /**
-     * @var GameImporter
-     */
-    private $gameImporter;
 
     /**
      * @var ExternalCompetitorRepos
@@ -107,7 +101,6 @@ class Structure implements StructureImporter
         ApiHelper $apiHelper,
         CompetitionImporter $competitionImporter,
         CompetitorImporter $competitorImporter,
-        GameImporter $gameImporter,
         ExternalCompetitorRepos $externalCompetitorRepos,
         StructureRepository $structureRepository,
         RoundService $roundService,
@@ -123,7 +116,6 @@ class Structure implements StructureImporter
         $this->apiHelper = $apiHelper;
         $this->competitionImporter = $competitionImporter;
         $this->competitorImporter = $competitorImporter;
-        $this->gameImporter = $gameImporter;
         $this->externalCompetitorRepos = $externalCompetitorRepos;
         $this->structureRepos = $structureRepository;
         $this->roundService = $roundService;
@@ -161,7 +153,7 @@ class Structure implements StructureImporter
     {
         $parentRound = null; $rootRound = null;
         $externalSystemRounds = $this->apiHelper->getRounds($externalLeague, $externalSeason);
-        /** @var $externalSystemRound string */
+        /** @var \stdClass $externalSystemRound */
         foreach( $externalSystemRounds as $externalSystemRound ) {
 
             $configOptions = $this->getConfigOptions($competition->getLeague()->getSport());
@@ -209,12 +201,11 @@ class Structure implements StructureImporter
     }
 
     /**
-     * competitors toevoegen obv wedstrijden per poule
-     *
      * @param Round $round
-     * @param ExternalCompetition $externalCompetition
+     * @param \stdClass $externalSystemRound
+     * @throws \Exception
      */
-    protected function assignCompetitors( Round $round, $externalSystemRound ) {
+    protected function assignCompetitors( Round $round, \stdClass $externalSystemRound ) {
 
         $poules = $round->getPoules();
         $pouleIt = $poules->getIterator();

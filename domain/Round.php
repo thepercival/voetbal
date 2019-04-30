@@ -52,12 +52,12 @@ class Round
     protected $poules;
 
     /**
-     * @var QualfyRule[] | array
+     * @var Qualify\Rule[] | array
      */
     protected $fromQualifyRules = array();
 
     /**
-     * @var QualfyRule[] | array
+     * @var Qualify\Rule[] | array
      */
     protected $toQualifyRules = array();
 
@@ -82,7 +82,6 @@ class Round
     {
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
-        $this->scoreConfigs = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
         $this->setParent( $parent );
         $this->setQualifyOrder(static::QUALIFYORDER_CROSS);
@@ -94,15 +93,15 @@ class Round
      *
      * @return int
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @param $id
+     * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id )
     {
         $this->id = $id;
     }
@@ -178,10 +177,10 @@ class Round
     public function getName()
     {
         return $this->name;
-    }   
+    }
 
     /**
-     * @param string
+     * @param string $name
      */
     public function setName( $name )
     {
@@ -204,7 +203,7 @@ class Round
     }
 
     /**
-     * @param $poules
+     * @param Poule[] | ArrayCollection $poules
      */
     public function setPoules($poules)
     {
@@ -213,9 +212,9 @@ class Round
 
     /**
      * @param int $number
-     * @return Poule
+     * @return Poule|null
      */
-    public function getPoule( int $number ): Poule
+    public function getPoule( int $number ): ?Poule
     {
         foreach( $this->getPoules() as $poule ) {
             if ($poule->getNumber() === $number) {
@@ -269,9 +268,9 @@ class Round
 
     /**
      * @param integer $winnersOrLosers
-     * @return Round
+     * @return Round|null
      */
-    public function getChildRound($winnersOrLosers)
+    public function getChildRound($winnersOrLosers): ?Round
     {
         foreach( $this->getChildRounds() as $childRound ) {
             if( $childRound->getWinnersOrLosers() === $winnersOrLosers) {
@@ -438,7 +437,7 @@ class Round
         foreach( $this->getPoules() as $poule ) {
             $nrOfPlaces += $poule->getPlaces()->count();
         }
-        return nrOfPlaces;
+        return $nrOfPlaces;
     }
 
     public function getPath(): array
