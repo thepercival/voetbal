@@ -177,6 +177,11 @@ class GameGenerator
     protected function generateRRSchedule(array $places): array {
         $nrOfPlaces = count($places);
 
+        $nrOfHomeGames = [];
+        foreach( $places as $place ) {
+            $nrOfHomeGames[$place->getNumber()] = 0;
+        }
+
         // add a placeholder if the count is odd
         if($nrOfPlaces%2) {
             $places[] = null;
@@ -190,6 +195,7 @@ class GameGenerator
 
         // generate each set
         for($roundNumber = 1; $roundNumber <= $nrOfRoundNumbers; $roundNumber++) {
+            $evenRoundNumber = ($roundNumber % 2) === 0;
             $combinations = [];
             // break the list in half
             $halves = array_chunk($places, $nrOfMatches);
@@ -201,7 +207,15 @@ class GameGenerator
                 if( $firstHalf[$i] === null || $secondHalf[$i] === null ) {
                     continue;
                 }
-                $combinations[] = new PoulePlaceCombination([$firstHalf[$i]], [$secondHalf[$i]]);
+                $homePlace = $evenRoundNumber ? $secondHalf[$i] : $firstHalf[$i];
+                $awayPlace = $evenRoundNumber ? $firstHalf[$i] : $secondHalf[$i];
+                if ($nrOfHomeGames[$awayPlace->getNumber()] < $nrOfHomeGames[$homePlace->getNumber()]) {
+                    $tmpPlace = $homePlace;
+                    $homePlace = $awayPlace;
+                    $awayPlace = $tmpPlace;
+                }
+                $combinations[] = new PoulePlaceCombination([$homePlace], [$awayPlace]);
+                $nrOfHomeGames[$homePlace->getNumber()]++;
             }
             $gameRounds[] = new GameRound($roundNumber, $combinations);
             // remove the first player and store
