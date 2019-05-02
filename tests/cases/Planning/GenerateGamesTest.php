@@ -37,9 +37,9 @@ class GenerateGamesTest extends \PHPUnit\Framework\TestCase
         $roundNr = 1; $subNr = 1;
         $this->assertSameGame($g,$roundNr,$subNr, [1], [4]); $subNr++;
         $this->assertSameGame($g,$roundNr,$subNr, [2], [3]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($g,$roundNr,$subNr, [1], [2]); $subNr++;
-        $this->assertSameGame($g,$roundNr,$subNr, [3], [4]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($g,$roundNr,$subNr, [1], [3]); $subNr++;
+        $this->assertSameGame($g,$roundNr,$subNr, [2], [1]); $subNr++;
+        $this->assertSameGame($g,$roundNr,$subNr, [4], [3]); $roundNr++; $subNr = 1;
+        $this->assertSameGame($g,$roundNr,$subNr, [3], [1]); $subNr++;
         $this->assertSameGame($g,$roundNr,$subNr, [4], [2]);
     }
 
@@ -68,8 +68,8 @@ class GenerateGamesTest extends \PHPUnit\Framework\TestCase
         $roundNr = 1; $subNr = 1;
         // controleer ook de lengte van het roundnr/subnr
         $this->assertSameGame($gameRounds,$roundNr,$subNr, [1,4], [2,3]); $roundNr++;
-        $this->assertSameGame($gameRounds,$roundNr,$subNr, [1,2], [3,4]); $roundNr++;
-        $this->assertSameGame($gameRounds,$roundNr,$subNr, [1,3], [2,4]); $roundNr++;
+        $this->assertSameGame($gameRounds,$roundNr,$subNr, [2,1], [3,4]); $roundNr++;
+        $this->assertSameGame($gameRounds,$roundNr,$subNr, [3,1], [2,4]); $roundNr++;
     }
 
     protected function assertSameGame( array $gameRounds, int $roundNr, int $subNr, array $home, array $away) {

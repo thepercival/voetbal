@@ -40,16 +40,16 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $roundNr = 1; $subNr = 1;
         $this->assertSameGame($games[0],$roundNr,$subNr, [1], [4]); $subNr++;
         $this->assertSameGame($games[1],$roundNr,$subNr, [2], [3]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($games[2],$roundNr,$subNr, [1], [2]); $subNr++;
-        $this->assertSameGame($games[3],$roundNr,$subNr, [3], [4]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($games[4],$roundNr,$subNr, [1], [3]); $subNr++;
+        $this->assertSameGame($games[2],$roundNr,$subNr, [2], [1]); $subNr++;
+        $this->assertSameGame($games[3],$roundNr,$subNr, [4], [3]); $roundNr++; $subNr = 1;
+        $this->assertSameGame($games[4],$roundNr,$subNr, [3], [1]); $subNr++;
         $this->assertSameGame($games[5],$roundNr,$subNr, [4], [2]); $roundNr++; $subNr = 1;
 
         $this->assertSameGame($games[6],$roundNr,$subNr, [4], [1]); $subNr++;
         $this->assertSameGame($games[7],$roundNr,$subNr, [3], [2]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($games[8],$roundNr,$subNr, [2], [1]); $subNr++;
-        $this->assertSameGame($games[9],$roundNr,$subNr, [4], [3]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($games[10],$roundNr,$subNr, [3], [1]); $subNr++;
+        $this->assertSameGame($games[8],$roundNr,$subNr, [1], [2]); $subNr++;
+        $this->assertSameGame($games[9],$roundNr,$subNr, [3], [4]); $roundNr++; $subNr = 1;
+        $this->assertSameGame($games[10],$roundNr,$subNr, [1], [3]); $subNr++;
         $this->assertSameGame($games[11],$roundNr,$subNr, [2], [4]); $roundNr++; $subNr = 1;
     }
 
@@ -77,11 +77,11 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $roundNr = 1; $subNr = 1;
         $this->assertSameGame($games[0],$roundNr,$subNr, [1,4], [2,3]); $roundNr++;
-        $this->assertSameGame($games[1],$roundNr,$subNr, [1,2], [3,4]); $roundNr++;
-        $this->assertSameGame($games[2],$roundNr,$subNr, [1,3], [2,4]); $roundNr++;
+        $this->assertSameGame($games[1],$roundNr,$subNr, [2,1], [3,4]); $roundNr++;
+        $this->assertSameGame($games[2],$roundNr,$subNr, [3,1], [2,4]); $roundNr++;
         $this->assertSameGame($games[3],$roundNr,$subNr, [3,2], [4,1]); $roundNr++;
-        $this->assertSameGame($games[4],$roundNr,$subNr, [4,3], [2,1]); $roundNr++;
-        $this->assertSameGame($games[5],$roundNr,$subNr, [4,2], [3,1]); $roundNr++;
+        $this->assertSameGame($games[4],$roundNr,$subNr, [4,3], [1,2]); $roundNr++;
+        $this->assertSameGame($games[5],$roundNr,$subNr, [4,2], [1,3]); $roundNr++;
     }
 
     public function testFivePoulePlacesTeamup()
@@ -108,19 +108,19 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $roundNr = 1; $subNr = 1;
         $this->assertSameGame($games[0],$roundNr,$subNr, [2, 5], [3, 4]); $roundNr++;
         $this->assertSameGame($games[1],$roundNr,$subNr, [1, 2], [4, 5]); $roundNr++;
-        $this->assertSameGame($games[2],$roundNr,$subNr, [4, 5], [2, 3]); $roundNr++;
+        $this->assertSameGame($games[2],$roundNr,$subNr, [5, 4], [2, 3]); $roundNr++;
         $this->assertSameGame($games[3],$roundNr,$subNr, [1, 3], [4, 5]); $roundNr++;
         $this->assertSameGame($games[4],$roundNr,$subNr, [4, 2], [3, 5]); $roundNr++;
-        $this->assertSameGame($games[5],$roundNr,$subNr, [1, 4], [3, 5]); $roundNr++;
-        $this->assertSameGame($games[6],$roundNr,$subNr, [1, 5], [3, 4]); $roundNr++;
+        $this->assertSameGame($games[5],$roundNr,$subNr, [4, 1], [3, 5]); $roundNr++;
+        $this->assertSameGame($games[6],$roundNr,$subNr, [5, 1], [3, 4]); $roundNr++;
         $this->assertSameGame($games[7],$roundNr,$subNr, [2, 5], [1, 3]); $roundNr++;
         $this->assertSameGame($games[8],$roundNr,$subNr, [3, 4], [1, 2]); $roundNr++;
         $this->assertSameGame($games[9],$roundNr,$subNr, [1, 3], [2, 4]); $roundNr++;
-        $this->assertSameGame($games[10],$roundNr,$subNr, [1, 4], [2, 3]); $roundNr++;
-        $this->assertSameGame($games[11],$roundNr,$subNr, [5, 3], [1, 2]); $roundNr++;
-        $this->assertSameGame($games[12],$roundNr,$subNr, [1, 5], [2, 3]); $roundNr++;
-        $this->assertSameGame($games[13],$roundNr,$subNr, [2, 5], [1, 4]); $roundNr++;
-        $this->assertSameGame($games[14],$roundNr,$subNr, [4, 2], [1, 5]); $roundNr++;
+        $this->assertSameGame($games[10],$roundNr,$subNr, [4, 1], [2, 3]); $roundNr++;
+        $this->assertSameGame($games[11],$roundNr,$subNr, [3, 5], [1, 2]); $roundNr++;
+        $this->assertSameGame($games[12],$roundNr,$subNr, [5, 1], [2, 3]); $roundNr++;
+        $this->assertSameGame($games[13],$roundNr,$subNr, [2, 5], [4, 1]); $roundNr++;
+        $this->assertSameGame($games[14],$roundNr,$subNr, [4, 2], [5, 1]); $roundNr++;
     }
 
     protected function assertSameGame( Game $game, int $roundNr, int $subNr, array $home, array $away) {
