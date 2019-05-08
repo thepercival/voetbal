@@ -70,7 +70,7 @@ class Competition implements External\Importable
     {
         $this->league = $league;
         $this->season = $season;
-        $this->ruleSet = Qualify\Rule::SOCCERWORLDCUP;
+        $this->ruleSet = Ranking::SOCCERWORLDCUP;
         $this->state = static::STATE_CREATED;
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();

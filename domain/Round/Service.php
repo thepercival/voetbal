@@ -15,6 +15,7 @@ use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Poule;
 use Voetbal\PoulePlace;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Qualify\Poule as QualifyPoule;
 
 class Service
 {
@@ -50,14 +51,11 @@ class Service
 
     public function create(
         Number $roundNumber,
-        int $winnersOrLosers,
-        int $qualifyOrder,
         array $nrOfPlacesPerPoule,
-        Round $p_parent = null ): Round
+        QualifyPoule $parentQualifyPoule = null ): Round
     {
-        $round = new Round($roundNumber, $p_parent);
-        $round->setWinnersOrLosers( $winnersOrLosers );
-        $round->setQualifyOrder( $qualifyOrder );
+        $parent = ( $parentQualifyPoule !== null ) ? $parentQualifyPoule->getRound() : null;
+        $round = new Round($roundNumber, $parent);
         foreach( $nrOfPlacesPerPoule as $idx => $nrOfPlaces  ) {
             $this->pouleService->create( $round, $idx + 1, $nrOfPlaces );
         }
@@ -66,14 +64,10 @@ class Service
 
     public function createFromSerialized(
         Number $roundNumber,
-        int $winnersOrLosers,
-        int $qualifyOrder,
         array $poulesSer,
-        Round $p_parent = null ): Round
+        QualifyPoule $parentQualifyPoule = null ): Round
     {
-        $round = new Round($roundNumber, $p_parent);
-        $round->setWinnersOrLosers( $winnersOrLosers );
-        $round->setQualifyOrder( $qualifyOrder );
+        $round = new Round($roundNumber, $parentQualifyPoule->getRound(), $parentQualifyPoule);
         foreach( $poulesSer as $pouleSer ) {
             $this->pouleService->createFromSerialized( $round, $pouleSer->getNumber(), $pouleSer->getPlaces()->toArray() );
         }
@@ -82,11 +76,9 @@ class Service
 
     public function createByOptions(
         RoundNumber $roundNumber,
-        int $winnersOrLosers,
         int  $nrOfPlaces,
         int  $nrOfPoules,
-        int $qualifyOrder = Round::QUALIFYORDER_CROSS,
-        Round $parent = null
+        QualifyPoule $parentQualifyPoule = null
     ): Round
     {
         if ($nrOfPlaces < 2) {
@@ -96,7 +88,7 @@ class Service
             throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
 
-        $round = $this->create( $roundNumber, $winnersOrLosers, $qualifyOrder, [], $parent );
+        $round = $this->create( $roundNumber, [], $parentQualifyPoule );
         $this->createPoules( $round, $nrOfPlaces, $nrOfPoules );
 
         return $round;

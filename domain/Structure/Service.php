@@ -18,6 +18,7 @@ use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Round\Config\Options as RoundNumberConfigOptions;
+use Voetbal\Qualify\Poule as QualifyPoule;
 
 class Service
 {
@@ -91,19 +92,24 @@ class Service
         return new StructureBase( $firstRoundNumber, $rootRound );
     }
 
-    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, Round $parentRound = null ): Round
+    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, QualifyPoule $parentQualifyPoule = null ): Round
     {
-        $rootRound = $this->roundService->createFromSerialized(
+        $newRound = $this->roundService->createFromSerialized(
             $roundNumber,
-            $roundSerialized->getWinnersOrLosers(),
-            $roundSerialized->getQualifyOrder(),
             $roundSerialized->getPoules()->toArray(),
-            $parentRound
+            $parentQualifyPoule
         );
-        foreach( $roundSerialized->getChildRounds() as $childRoundSerialized ) {
-            $this->createRoundFromSerialized( $roundNumber->getNext(), $childRoundSerialized, $rootRound );
+
+        foreach( $roundSerialized->getQualifyPoules() as $qualifyPouleSerialized ) {
+            $qualifyPoule = new QualifyPoule( $newRound );
+            $qualifyPoule->setWinnersOrLosers( $qualifyPouleSerialized->getWinnersOrLosers() );
+            $qualifyPoule->setNumber( $qualifyPouleSerialized->getNumber() );
+            $qualifyPoule->setNrOfHorizontalPoules( $qualifyPouleSerialized->getNrOfHorizontalPoules() );
+
+            $this->createRoundFromSerialized( $roundNumber->getNext(), $qualifyPouleSerialized->getChildRound(), $qualifyPoule );
         }
-        return $rootRound;
+
+        return $newRound;
     }
 
     public function copy( StructureBase $structure, Competition $competition )

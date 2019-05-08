@@ -60,7 +60,7 @@ class Structure
     public function getRound( array $winnersOrLosersPath ): Round {
         $round = $this->getRootRound();
         foreach( $winnersOrLosersPath as $winnersOrLosers ) {
-            $round = $round->getChildRound($winnersOrLosers);
+            $round = $round->getChildRoundDep($winnersOrLosers);
         }
         return $round;
     }

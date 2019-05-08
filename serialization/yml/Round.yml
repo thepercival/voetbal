@@ -7,20 +7,10 @@ Voetbal\Round:
   properties:
     id:
       type: integer
-    number:
-      type: integer
-      read_only: true
-      accessor:
-        getter: getNumberAsValue
-      until_version: 1
-    winnersOrLosers:
-      type: integer
-    qualifyOrder:
-      type: integer
     config:
       type: Voetbal\Round\Config
       until_version: 1
-    childRounds:
-      type: ArrayCollection<Voetbal\Round>
     poules:
       type: ArrayCollection<Voetbal\Poule>
+    qualifyPoules:
+      type: ArrayCollection<Voetbal\Qualify\Poule>

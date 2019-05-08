@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Qualify\Poule as QualifyPoule;
 
 class Round
 {
@@ -25,12 +26,12 @@ class Round
     /**
      * @var int
      */
-    protected $winnersOrLosers;
+    protected $winnersOrLosersDep; # DEPRECATED
 
     /**
      * @var int
      */
-    protected $qualifyOrder;
+    protected $qualifyOrderDep; # DEPRECATED
 
     /**
      * @var Round\Number
@@ -39,7 +40,12 @@ class Round
     /**
      * @var Round
      */
-    protected $parent;
+    protected $parent; # DEPRECATED : needs to be
+
+    /**
+     * @var QualifyPoule
+     */
+    protected $parentQualifyPoule;
 
     /**
      * @var Round[] | ArrayCollection
@@ -52,6 +58,11 @@ class Round
     protected $poules;
 
     /**
+     * @var QualifyPoule[] | ArrayCollection
+     */
+    protected $qualifyPoules;
+
+    /**
      * @var Qualify\Rule[] | array
      */
     protected $fromQualifyRules = array();
@@ -62,7 +73,9 @@ class Round
     protected $toQualifyRules = array();
 
     CONST WINNERS = 1;
-    CONST LOSERS = 2;
+    CONST DROPOUTS = 2;
+    CONST NEUTRAL = 2;
+    CONST LOSERS = 3;
 
     const MAX_LENGTH_NAME = 20;
 
@@ -78,14 +91,16 @@ class Round
     CONST RANK_NUMBER_POULE = 6;
     CONST RANK_POULE_NUMBER = 7;
 
-    public function __construct( Round\Number $roundNumber, Round $parent = null )
+    public function __construct( Round\Number $roundNumber, Round $parent = null, QualifyPoule $parentQualifyPoule = null )
     {
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
-        $this->setParent( $parent );
-        $this->setQualifyOrder(static::QUALIFYORDER_CROSS);
-        $this->setWinnersOrLosers( 0 );
+        $this->qualifyPoules = new ArrayCollection();
+        $this->setParent( $parent ); #DEPRECATED
+        $this->setParentQualifyPoule( $parentQualifyPoule );
+        $this->setQualifyOrderDep(static::QUALIFYORDER_CROSS);
+        $this->setWinnersOrLosersDep( 0 );
     }
 
     /**
@@ -136,39 +151,55 @@ class Round
     /**
      * @return int
      */
-    public function getWinnersOrlosers()
+    public function getWinnersOrlosersDep()
     {
-        return $this->winnersOrLosers;
-    }
-
-    /**
-     * @param int $winnersOrLosers
-     */
-    public function setWinnersOrLosers( $winnersOrLosers )
-    {
-        if ( !is_int( $winnersOrLosers )   ){
-            throw new \InvalidArgumentException( "winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->winnersOrLosers = $winnersOrLosers;
+        return $this->winnersOrLosersDep;
     }
 
     /**
      * @return int
      */
-    public function getQualifyOrder()
+    public function getWinnersOrlosers()
     {
-        return $this->qualifyOrder;
+        return $this->getWinnersOrlosersDep();
     }
 
     /**
-     * @param int $qualifyOrder
+     * @return int
      */
-    public function setQualifyOrder( $qualifyOrder )
+    public function getWinnersOrlosersNew()
     {
-        if ( !is_int( $qualifyOrder )   ){
+        return $this->getParentQualifyPoule() ? $this->getParentQualifyPoule()->getWinnersOrLosers() : Round::NEUTRAL;
+    }
+
+    /**
+     * @param int $winnersOrLosersDep
+     */
+    public function setWinnersOrLosersDep( $winnersOrLosersDep )
+    {
+        if ( !is_int( $winnersOrLosersDep )   ){
+            throw new \InvalidArgumentException( "winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR );
+        }
+        $this->winnersOrLosersDep = $winnersOrLosersDep;
+    }
+
+    /**
+     * @return int
+     */
+    public function getQualifyOrderDep()
+    {
+        return $this->qualifyOrderDep;
+    }
+
+    /**
+     * @param int $qualifyOrderDep
+     */
+    public function setQualifyOrderDep( $qualifyOrderDep )
+    {
+        if ( !is_int( $qualifyOrderDep )   ){
             throw new \InvalidArgumentException( "kwalificatie-volgorde heeft een onjuiste waarde", E_ERROR );
         }
-        $this->qualifyOrder = $qualifyOrder;
+        $this->qualifyOrderDep = $qualifyOrderDep;
     }
 
     /**
@@ -251,6 +282,57 @@ class Round
     }
 
     /**
+     * @return QualifyPoule
+     */
+    public function getParentQualifyPoule()
+    {
+        return $this->parentQualifyPoule;
+    }
+
+    /**
+     * @param QualifyPoule $parentQualifyPoule
+     */
+    public function setParentQualifyPoule( QualifyPoule $parentQualifyPoule = null )
+    {
+        $this->parentQualifyPoule = $parentQualifyPoule;
+    }
+
+    /**
+     * @return QualifyPoule
+     */
+    public function getQualifyPoule()
+    {
+        return $this->parentQualifyPoule;
+    }
+
+    /**
+     * @param QualifyPoule $parentQualifyPoule
+     */
+    public function setQualifyPoule( QualifyPoule $parentQualifyPoule = null )
+    {
+//        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
+//            $round->getChildRounds()->add( $this );
+//        }
+        $this->parentQualifyPoule = $parentQualifyPoule;
+    }
+
+    /**
+     * @return QualifyPoule[] | ArrayCollection
+     */
+    public function getQualifyPoules()
+    {
+        return $this->qualifyPoules;
+    }
+
+    /**
+     * @param QualifyPoule[] | ArrayCollection $qualifyPoules
+     */
+    public function setQualifyPoules($qualifyPoules)
+    {
+        $this->qualifyPoules = $qualifyPoules;
+    }
+
+    /**
      * @return Round[] | ArrayCollection
      */
     public function getChildRounds()
@@ -267,13 +349,13 @@ class Round
     }
 
     /**
-     * @param integer $winnersOrLosers
+     * @param integer $winnersOrLosersDep
      * @return Round|null
      */
-    public function getChildRound($winnersOrLosers): ?Round
+    public function getChildRoundDep($winnersOrLosersDep): ?Round
     {
         foreach( $this->getChildRounds() as $childRound ) {
-            if( $childRound->getWinnersOrLosers() === $winnersOrLosers) {
+            if( $childRound->getWinnersOrLosersDep() === $winnersOrLosersDep) {
                 return $childRound;
             }
         }
@@ -429,7 +511,7 @@ class Round
         if ( $this->getParent() === null ) {
             return null;
         }
-        return $this->getParent()->getChildRound(Round::getOpposing($this->getWinnersOrLosers()));
+        return $this->getParent()->getChildRoundDep(Round::getOpposing($this->getWinnersOrLosersDep()));
     }
 
     public function getNrOfPlaces(): int {
@@ -467,6 +549,6 @@ class Round
     }
 
     public function hasCustomQualifyOrder(): bool {
-        return !($this->getQualifyOrder() === Round::QUALIFYORDER_CROSS || $this->getQualifyOrder() === Round::QUALIFYORDER_RANK);
+        return !($this->getQualifyOrderDep() === Round::QUALIFYORDER_CROSS || $this->getQualifyOrderDep() === Round::QUALIFYORDER_RANK);
     }
 }

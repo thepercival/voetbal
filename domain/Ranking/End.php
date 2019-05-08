@@ -22,7 +22,7 @@ class End
      */
     private $rankingService;
 
-    public function __construct( int $ruleSet = QualifyRule::SOCCERWORLDCUP )
+    public function __construct( int $ruleSet = Ranking::SOCCERWORLDCUP )
     {
         $this->rankingService = new Ranking($ruleSet);
     }
@@ -40,12 +40,12 @@ class End
         if ($round === null) {
             return [];
         }
-        $this->getItemsHelper($round->getChildRound(Round::WINNERS), $rankingItems);
+        $this->getItemsHelper($round->getChildRoundDep(Round::WINNERS), $rankingItems);
         $deadPlaces = $this->getDeadPlacesFromRound($round);
         foreach( $deadPlaces as $deadPlace ) {
             $rankingItems[] = new RankingItem(count($rankingItems)+ 1, $deadPlace);
         }
-        $this->getItemsHelper($round->getChildRound(Round::LOSERS), $rankingItems);
+        $this->getItemsHelper($round->getChildRoundDep(Round::LOSERS), $rankingItems);
         return $rankingItems;
     }
 
@@ -176,7 +176,7 @@ class End
      * @return array | PoulePlace[][]
      */
     protected function getPoulePlacesPer( Round $round): array {
-        if ( $round->isRoot() || $round->getQualifyOrder() !== Round::QUALIFYORDER_RANK ) {
+        if ( $round->isRoot() || $round->getQualifyOrderDep() !== Round::QUALIFYORDER_RANK ) {
             return $round->getPoulePlacesPerNumber(Round::WINNERS);
         }
         return $round->getPoulePlacesPerPoule();

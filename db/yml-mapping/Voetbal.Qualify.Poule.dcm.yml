@@ -1,0 +1,45 @@
+Voetbal\Qualify\Poule:
+  type: entity
+  repositoryClass: Voetbal\Qualify\Poule\Repository
+  table: qualifypoules
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    winnersOrLosers:
+      type: smallint
+      nullable: false
+      unique: false
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+      column: number
+    nrOfHorizontalPoules:
+      type: smallint
+      nullable: false
+      unique: false
+  oneToOne:
+    childRound:
+      targetEntity: Voetbal\Round
+      joinColumn:
+        name: childRoundId
+        referencedColumnName: id
+        nullable: true # should be false, do sql by hand
+        onDelete: CASCADE
+      # fetch: EAGER
+      cascade: [ remove ] # persist removed
+  manyToOne:
+    round:
+      targetEntity: Voetbal\Round
+      mappedBy: qualifyPoules
+      joinColumn:
+        name: roundid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+  uniqueConstraints:
+    number_u_idx:
+      columns: [ roundid, winnersOrLosers, number ]

@@ -163,8 +163,6 @@ class Structure implements StructureImporter
 
             $round = $this->roundService->create(
                 $roundNumber,
-                Round::WINNERS,
-                Round::QUALIFYORDER_DRAW,
                 $this->getNrOfPlacesPerPoule( $externalSystemRound->poules ),
                 $parentRound);
             $round->setName( $externalSystemRound->name );

@@ -35,7 +35,7 @@ class PoulePlaceDivider {
             $this->reservations[] = new PouleNumberReservations( $poule->getNumber(), [] );
             $this->nrOfPoules++;
         }
-        $this->crossFinals = $childRound->getQualifyOrder() === Round::QUALIFYORDER_CROSS;
+        $this->crossFinals = $childRound->getQualifyOrderDep() === Round::QUALIFYORDER_CROSS;
     }
 
     public function divide( Rule $qualifyRule, array $fromPoulePlaces) {
@@ -91,7 +91,7 @@ class PoulePlaceDivider {
 
     // protected getShuffledPoulePlaces(poulePlaces: PoulePlace[], nrOfShifts: number, childRound: Round): PoulePlace[] {
     //     let shuffledPoulePlaces: PoulePlace[] = [];
-    //     const qualifyOrder = childRound.getQualifyOrder();
+    //     const qualifyOrderDep = childRound.getQualifyOrderDep();
     //     if (!childRound.hasCustomQualifyOrder()) {
     //         if ((poulePlaces.length % 2) === 0) {
     //             for (let shiftTime = 0; shiftTime < nrOfShifts; shiftTime++) {
@@ -99,7 +99,7 @@ class PoulePlaceDivider {
     //             }
     //         }
     //         shuffledPoulePlaces = poulePlaces;
-    //     } else if (qualifyOrder === 4) { // shuffle per two on oneven placenumbers, horizontal-children
+    //     } else if (qualifyOrderDep === 4) { // shuffle per two on oneven placenumbers, horizontal-children
     //         if ((poulePlaces[0].getNumber() % 2) === 0) {
     //             while (poulePlaces.length > 0) {
     //                 shuffledPoulePlaces = shuffledPoulePlaces.concat(poulePlaces.splice(0, 2).reverse());
@@ -107,7 +107,7 @@ class PoulePlaceDivider {
     //         } else {
     //             shuffledPoulePlaces = poulePlaces;
     //         }
-    //     } else if (qualifyOrder === 5) { // reverse second and third item, vertical-children
+    //     } else if (qualifyOrderDep === 5) { // reverse second and third item, vertical-children
     //         if (poulePlaces.length % 4 === 0) {
     //             while (poulePlaces.length > 0) {
     //                 const poulePlacesTmp = poulePlaces.splice(0, 4);

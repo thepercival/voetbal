@@ -13,14 +13,16 @@ Voetbal\Round:
       nullable: true
       length: !php/const Voetbal\Round::MAX_LENGTH_NAME
       unique: false
-    winnersOrLosers:
+    winnersOrLosersDep: # DEPRECATED
       type: smallint
       nullable: true
       unique: false
-    qualifyOrder:
+      column: winnersOrLosers
+    qualifyOrderDep:  # DEPRECATED
       type: smallint
       nullable: false
       unique: false
+      column: qualifyOrder
   oneToMany:
     poules:
       targetEntity: Voetbal\Poule
@@ -28,9 +30,13 @@ Voetbal\Round:
       cascade: [ persist, remove ]
       orderBy:
         number: asc
-    childRounds:
+    childRounds: # DEPRECATED : needs to be replaced by qualifyPoules and maybe something else
       targetEntity: Voetbal\Round
       mappedBy: parent
+      cascade: [ persist, remove ]
+    qualifyPoules:
+      targetEntity: Voetbal\Qualify\Poule
+      mappedBy: round
       cascade: [ persist, remove ]
   manyToOne:
     number:
@@ -39,9 +45,9 @@ Voetbal\Round:
       joinColumn:
         name: numberid
         referencedColumnName: id
-        nullable: true # should be false, do sql by hand
+        nullable: false
         onDelete: CASCADE
-    parent:
+    parent:  # DEPRECATED : needs to be replaced by parentQualifyPoule and maybe something else
       targetEntity: Voetbal\Round
       inversedBy: childRounds
       joinColumn:

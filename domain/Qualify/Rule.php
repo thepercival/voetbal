@@ -11,6 +11,7 @@ namespace Voetbal\Qualify;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\PoulePlace;
+use Voetbal\Ranking;
 
 class Rule
 {
@@ -38,9 +39,6 @@ class Rule
      * @var int
      */
     protected $configNr;
-
-    const SOCCERWORLDCUP = 1;
-    const SOCCEREUROPEANCUP = 2;
 
     public function __construct( Round $fromRound, Round $toRound )
     {
@@ -144,7 +142,7 @@ class Rule
     public static function getDescriptions()
     {
         return [
-            static::SOCCERWORLDCUP => [
+            Ranking::SOCCERWORLDCUP => [
                 "Meeste aantal punten in alle wedstrijden",
                 "Doelsaldo in alle wedstrijden",
                 "Aantal goals gemaakt in alle wedstrijden",
@@ -152,7 +150,7 @@ class Rule
                 "Doelsaldo in onderlinge duels",
                 "Aantal goals gemaakt in onderlinge duels"
             ],
-            static::SOCCEREUROPEANCUP => [
+            Ranking::SOCCEREUROPEANCUP => [
                 "Meeste aantal punten in alle wedstrijden",
                 "Meeste aantal punten in onderlinge duels",
                 "Doelsaldo in onderlinge duels",

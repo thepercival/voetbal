@@ -10,6 +10,7 @@
 namespace Voetbal\Round\Config;
 
 use Voetbal\Qualify\Rule as QualifyRule;
+use Voetbal\Ranking;
 
 trait OptionsTrait
 {
@@ -105,7 +106,7 @@ trait OptionsTrait
      */
     public function setQualifyRule( int $qualifyRule)
     {
-        if ( $qualifyRule < QualifyRule::SOCCERWORLDCUP or $qualifyRule > QualifyRule::SOCCEREUROPEANCUP) {
+        if ( $qualifyRule < Ranking::SOCCERWORLDCUP or $qualifyRule > Ranking::SOCCEREUROPEANCUP) {
             throw new \InvalidArgumentException("de kwalificatieregel heeft een onjuiste waarde", E_ERROR);
         }
         $this->qualifyRule = $qualifyRule;
@@ -304,7 +305,7 @@ trait OptionsTrait
 
     protected function setDefaults()
     {
-        $this->setQualifyRule( QualifyRule::SOCCERWORLDCUP );
+        $this->setQualifyRule( Ranking::SOCCERWORLDCUP );
         $this->setNrOfHeadtoheadMatches( Options::NROFHEADTOHEADMATCHES );
         $this->setWinPoints( Options::WINPOINTS );
         $this->setDrawPoints( Options::DRAWPOINTS );

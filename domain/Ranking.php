@@ -35,6 +35,9 @@ class Ranking
     CONST SCORED = 1;
     CONST RECEIVED = 2;
 
+    const SOCCERWORLDCUP = 1;
+    const SOCCEREUROPEANCUP = 2;
+
     /**
      * Ranking constructor.
      * @param int $rulesSet
@@ -211,11 +214,11 @@ class Ranking
             return $this->getBestPoulePlaces($poulePlaces, $oGamesAgainstEachOther, true);
         };
 
-        if ($this->rulesSet === QualifyRule::SOCCERWORLDCUP) {
+        if ($this->rulesSet === Ranking::SOCCERWORLDCUP) {
             $this->rankFunctions[static::BestGoalDifference] = $fnBestGoalDifference;
             $this->rankFunctions[static::MostGoalsScored] = $fnMostGoalsScored;
             $this->rankFunctions[static::BestHeadToHead] = $fnBestHeadToHead;
-        } elseif ($this->rulesSet === QualifyRule::SOCCEREUROPEANCUP) {
+        } elseif ($this->rulesSet === Ranking::SOCCEREUROPEANCUP) {
             $this->rankFunctions[static::BestHeadToHead] = $fnBestHeadToHead;
             $this->rankFunctions[static::BestGoalDifference] = $fnBestGoalDifference;
             $this->rankFunctions[static::MostGoalsScored] = $fnMostGoalsScored;

@@ -28,7 +28,7 @@ class NameService
 
     public function getRoundName( Round $round, $sameName = false) {
         if ($this->roundAndParentsNeedsRanking($round) || ($round->getChildRounds()->count() > 1
-                && $this->getNrOfRoundsToGo($round->getChildRound(Round::WINNERS)) !== $this->getNrOfRoundsToGo($round->getChildRound(Round::LOSERS)))) {
+                && $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::WINNERS)) !== $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::LOSERS)))) {
             return $this->getHtmlNumber($round->getNumber()->getNumber()) . ' ronde';
         }
 
@@ -187,14 +187,14 @@ class NameService
     {
         $nrOfRoundsToGoWinners = 0;
         {
-            $childRoundWinners = $round->getChildRound(Round::WINNERS);
+            $childRoundWinners = $round->getChildRoundDep(Round::WINNERS);
             if ($childRoundWinners !== null) {
                 $nrOfRoundsToGoWinners = $this->getNrOfRoundsToGo($childRoundWinners) + 1;
             }
         }
         $nrOfRoundsToGoLosers = 0;
         {
-            $childRoundLosers = $round->getChildRound(Round::LOSERS);
+            $childRoundLosers = $round->getChildRoundDep(Round::LOSERS);
             if ($childRoundLosers !== null) {
                 $nrOfRoundsToGoLosers = $this->getNrOfRoundsToGo($childRoundLosers) + 1;
             }

@@ -1,0 +1,17 @@
+Voetbal\Qualify\Poule:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+  custom_accessor_order: [winn, config]
+
+  properties:
+    id:
+      type: integer
+    winnersOrLosers:
+      type: integer
+    number:
+      type: integer
+    nrOfHorizontalPoules:
+      type: integer
+    childRound:
+      type: Voetbal\Round

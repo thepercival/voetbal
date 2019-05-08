@@ -34,7 +34,7 @@ class Service
 
     public function createRules() {
         // childRoundPoulePlaces
-        $order = $this->childRound->getQualifyOrder() === Round::QUALIFYORDER_RANK ? Round::ORDER_POULE_NUMBER : Round::ORDER_NUMBER_POULE;
+        $order = $this->childRound->getQualifyOrderDep() === Round::QUALIFYORDER_RANK ? Round::ORDER_POULE_NUMBER : Round::ORDER_NUMBER_POULE;
         $childRoundPoulePlaces = $this->childRound->getPoulePlaces($order);
 
         $parentRoundPoulePlacesPer = $this->getParentPoulePlacesPer();
@@ -69,7 +69,7 @@ class Service
 
     protected function getNrOfToPoulePlaces(int $childRoundPoulePlaces, int $nrOfPlacesAdding, int $nrOfPlacesToAdd): int {
         if ($this->childRound->getWinnersOrLosers() === Round::WINNERS
-            /* || $this->>childRound->getQualifyOrder() !== Round::QUALIFYORDER_CROSS */) {
+            /* || $this->>childRound->getQualifyOrderDep() !== Round::QUALIFYORDER_CROSS */) {
             return $nrOfPlacesAdding;
         }
         $nrOfPlacesTooMuch = ($nrOfPlacesAdding + $nrOfPlacesToAdd) - $childRoundPoulePlaces;
@@ -96,7 +96,7 @@ class Service
 
     protected function getParentPoulePlacesPer(): array
     {
-        if ($this->childRound->getQualifyOrder() !== Round::QUALIFYORDER_RANK) {
+        if ($this->childRound->getQualifyOrderDep() !== Round::QUALIFYORDER_RANK) {
             return $this->getParentPoulePlacesPerNumber();
         }
         return $this->getParentPoulePlacesPerQualifyRule();
@@ -211,7 +211,7 @@ class Service
     {
         // bij meerdere fromPoulePlace moet ik bepalen wie de beste is
         $newQualifiers = [];
-        $rankingService = new Ranking(Rule::SOCCERWORLDCUP);
+        $rankingService = new Ranking(Ranking::SOCCERWORLDCUP);
         $fromPoulePlaces = $rulePart->getQualifyRule()->getFromPoulePlaces();
         $toPoulePlaces = $rulePart->getQualifyRule()->getToPoulePlaces();
 
