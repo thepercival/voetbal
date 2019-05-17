@@ -30,12 +30,12 @@ Voetbal\Round:
       cascade: [ persist, remove ]
       orderBy:
         number: asc
-    childRounds: # DEPRECATED : needs to be replaced by qualifyPoules and maybe something else
+    childRounds: # DEPRECATED : needs to be replaced by qualifyGroups and maybe something else
       targetEntity: Voetbal\Round
       mappedBy: parent
       cascade: [ persist, remove ]
-    qualifyPoules:
-      targetEntity: Voetbal\Qualify\Poule
+    qualifyGroups:
+      targetEntity: Voetbal\Qualify\Group
       mappedBy: round
       cascade: [ persist, remove ]
   manyToOne:
@@ -47,7 +47,7 @@ Voetbal\Round:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    parent:  # DEPRECATED : needs to be replaced by parentQualifyPoule and maybe something else
+    parent:  # DEPRECATED : needs to be replaced by parentQualifyGroup and maybe something else
       targetEntity: Voetbal\Round
       inversedBy: childRounds
       joinColumn:

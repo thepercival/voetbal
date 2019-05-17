@@ -18,7 +18,7 @@ use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Round\Config\Service as RoundConfigService;
 use Voetbal\Round\Config\Options as RoundNumberConfigOptions;
-use Voetbal\Qualify\Poule as QualifyPoule;
+use Voetbal\Qualify\Group as QualifyGroup;
 
 class Service
 {
@@ -92,21 +92,21 @@ class Service
         return new StructureBase( $firstRoundNumber, $rootRound );
     }
 
-    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, QualifyPoule $parentQualifyPoule = null ): Round
+    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, QualifyGroup $parentQualifyGroup = null ): Round
     {
         $newRound = $this->roundService->createFromSerialized(
             $roundNumber,
             $roundSerialized->getPoules()->toArray(),
-            $parentQualifyPoule
+            $parentQualifyGroup
         );
 
-        foreach( $roundSerialized->getQualifyPoules() as $qualifyPouleSerialized ) {
-            $qualifyPoule = new QualifyPoule( $newRound );
-            $qualifyPoule->setWinnersOrLosers( $qualifyPouleSerialized->getWinnersOrLosers() );
-            $qualifyPoule->setNumber( $qualifyPouleSerialized->getNumber() );
-            $qualifyPoule->setNrOfHorizontalPoules( $qualifyPouleSerialized->getNrOfHorizontalPoules() );
+        foreach( $roundSerialized->getQualifyGroups() as $qualifyGroupSerialized ) {
+            $qualifyGroup = new QualifyGroup( $newRound );
+            $qualifyGroup->setWinnersOrLosers( $qualifyGroupSerialized->getWinnersOrLosers() );
+            $qualifyGroup->setNumber( $qualifyGroupSerialized->getNumber() );
+            $qualifyGroup->setNrOfHorizontalPoules( $qualifyGroupSerialized->getNrOfHorizontalPoules() );
 
-            $this->createRoundFromSerialized( $roundNumber->getNext(), $qualifyPouleSerialized->getChildRound(), $qualifyPoule );
+            $this->createRoundFromSerialized( $roundNumber->getNext(), $qualifyGroupSerialized->getChildRound(), $qualifyGroup );
         }
 
         return $newRound;

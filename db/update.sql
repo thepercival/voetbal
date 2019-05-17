@@ -4,8 +4,8 @@ ALTER TABLE rounds MODIFY numberid INT NOT NULL;
 -- draaien na doctrine-update
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;
 
--- add qualifyPoules
-insert into qualifypoules( roundid, winnersOrLosers, number, nrOfHorizontalPoules, childRoundId )
+-- add qualifyGroups
+insert into qualifyGroups( roundid, winnersOrLosers, number, nrOfHorizontalPoules, childRoundId )
 (
 	select 	parentrounds.id, childrounds.winnersOrLosers, 1,
 			ceil(
@@ -16,12 +16,12 @@ insert into qualifypoules( roundid, winnersOrLosers, number, nrOfHorizontalPoule
 			join rounds as parentrounds on childrounds.parentid = parentrounds.id
 );
 
--- add rounds and qualifypoules and update rounds.parentQualifyPoule for (parent)rounds with QualifyOrder = 2
+-- add rounds and qualifyGroups and update rounds.parentQualifyGroup for (parent)rounds with QualifyOrder = 2
 
 
 -- eerst qualifyOrder eruit en vervangen door
 --
--- QualifyPoule( round, winnersOrLosers, number, nrOfHorizontalPoules )
+-- QualifyGroup( round, winnersOrLosers, number, nrOfHorizontalPoules )
 --
 -- winnersOrLosers, number komt overeen met children
 --

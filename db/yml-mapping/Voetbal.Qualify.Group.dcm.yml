@@ -1,7 +1,7 @@
-Voetbal\Qualify\Poule:
+Voetbal\Qualify\Group:
   type: entity
-  repositoryClass: Voetbal\Qualify\Poule\Repository
-  table: qualifypoules
+  repositoryClass: Voetbal\Qualify\Group\Repository
+  table: qualifyGroups
   id:
     id:
       type: integer
@@ -34,7 +34,7 @@ Voetbal\Qualify\Poule:
   manyToOne:
     round:
       targetEntity: Voetbal\Round
-      mappedBy: qualifyPoules
+      mappedBy: qualifyGroups
       joinColumn:
         name: roundid
         referencedColumnName: id

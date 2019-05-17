@@ -180,93 +180,96 @@ class Service
             return [];
         }
         $qualifiers = [];
-        foreach($this->getRulePartsToProcess($parentPoule) as $rulePart ) {
-            $qualifiers = array_merge( $qualifiers, $this->getQualifiers($rulePart));
-        }
+        // RENEW CDK TODO
+//        foreach($this->getRulePartsToProcess($parentPoule) as $rulePart ) {
+//            $qualifiers = array_merge( $qualifiers, $this->getQualifiers($rulePart));
+//        }
         return $qualifiers;
     }
 
     protected function getRulePartsToProcess(Poule $parentPoule): array /*IQualifyRulePart*/ {
         $ruleParts = [];
-        $winnersOrLosers = $this->childRound->getWinnersOrlosers();
-        if ($parentPoule->getRound()->getState() === Game::STATE_PLAYED) {
-            foreach( $parentPoule->getRound()->getToQualifyRules($winnersOrLosers) as $qualifyRule ) {
-                $ruleParts[] = new RulePart( $qualifyRule );
-            }
-            return $ruleParts;
-        }
-
-        if ($parentPoule->getState() === Game::STATE_PLAYED) {
-            foreach( $parentPoule->getPlaces() as $poulePlace ) {
-                $qualifyRule = $poulePlace->getToQualifyRule($winnersOrLosers);
-                if( $qualifyRule !== null && !$qualifyRule->isMultiple() ) {
-                    $ruleParts[] = new RulePart( $qualifyRule, $parentPoule );
-                }
-            }
-        }
+        // RENEW CDK TODO
+//        $winnersOrLosers = $this->childRound->getWinnersOrlosers();
+//        if ($parentPoule->getRound()->getState() === Game::STATE_PLAYED) {
+//            foreach( $parentPoule->getRound()->getToQualifyRules($winnersOrLosers) as $qualifyRule ) {
+//                $ruleParts[] = new RulePart( $qualifyRule );
+//            }
+//            return $ruleParts;
+//        }
+//
+//        if ($parentPoule->getState() === Game::STATE_PLAYED) {
+//            foreach( $parentPoule->getPlaces() as $poulePlace ) {
+//                $qualifyRule = $poulePlace->getToQualifyRule($winnersOrLosers);
+//                if( $qualifyRule !== null && !$qualifyRule->isMultiple() ) {
+//                    $ruleParts[] = new RulePart( $qualifyRule, $parentPoule );
+//                }
+//            }
+//        }
         return $ruleParts;
     }
 
-    protected function getQualifiers( RulePart $rulePart): array /*Qualifier*/
-    {
-        // bij meerdere fromPoulePlace moet ik bepalen wie de beste is
-        $newQualifiers = [];
-        $rankingService = new Ranking(Ranking::SOCCERWORLDCUP);
-        $fromPoulePlaces = $rulePart->getQualifyRule()->getFromPoulePlaces();
-        $toPoulePlaces = $rulePart->getQualifyRule()->getToPoulePlaces();
-
-        if (!$rulePart->getQualifyRule()->isMultiple()) {
-            $poules = array();
-            if ($rulePart->getPoule() === null) {
-                $qualPoules = $rulePart->getQualifyRule()->getFromRound()->getPoules();
-                foreach( $qualPoules as $qualPoule ) { $poules[] = $qualPoule; }
-            } else {
-                $poules[] = $rulePart->getPoule();
-            }
-            foreach($poules as $poule ) {
-                $toPoulePlace = $toPoulePlaces[$poule->getNumber() - 1];
-                $fromPoulePlace = $fromPoulePlaces[$poule->getNumber() - 1];
-                $fromRankNr = $fromPoulePlace->getNumber();
-                $fromPoule = $fromPoulePlace->getPoule();
-                $ranking = $rankingService->getPoulePlacesByRankSingle($fromPoule->getPlaces()->toArray(), $fromPoule->getGames()->toArray());
-                $qualifiedCompetitor = $ranking[$fromRankNr - 1]->getCompetitor();
-                $newQualifiers[] = new Qualifier( $toPoulePlace, $qualifiedCompetitor );
-            }
-            return $newQualifiers;
-        }
-
-        // multiple
-        $selectedPoulePlaces = array();
-        foreach( $fromPoulePlaces as $fromPoulePlace ) {
-            $fromPoule = $fromPoulePlace->getPoule();
-            $fromRankNr = $fromPoulePlace->getNumber();
-            $ranking = $rankingService->getPoulePlacesByRankSingle($fromPoule->getPlaces()->toArray(), $fromPoule->getGames()->toArray());
-            $selectedPoulePlaces[] = $ranking[$fromRankNr - 1];
-        }
-
-        $rankedPoulePlaces = $rankingService->getPoulePlacesByRankSingle(
-            $selectedPoulePlaces,
-            $rulePart->getQualifyRule()->getFromRound()->getGames()->toArray()
-        );
-        while (count($rankedPoulePlaces) > count($toPoulePlaces) ) {
-            array_pop($rankedPoulePlaces);
-        }
-
-        foreach( $toPoulePlaces as $toPoulePlace ) {
-            $rankedPoulePlace = $this->getRankedPoulePlace($rankedPoulePlaces, $toPoulePlace->getPoule());
-            if ($rankedPoulePlace === null && count($rankedPoulePlaces) > 0) {
-                $rankedPoulePlace = reset($rankedPoulePlaces);
-            }
-            if ($rankedPoulePlace === null) {
-                break;
-            }
-            $newQualifiers[] = new Qualifier( $toPoulePlace, $rankedPoulePlace->getCompetitor());
-            if (($key = array_search($rankedPoulePlace, $rankedPoulePlaces)) !== false) {
-                unset($rankedPoulePlaces[$key]);
-            }
-        }
-        return $newQualifiers;
-    }
+//    protected function getQualifiers( RulePart $rulePart): array /*Qualifier*/
+//    {
+        // RENEW CDK TODO
+//        // bij meerdere fromPoulePlace moet ik bepalen wie de beste is
+//        $newQualifiers = [];
+//        $rankingService = new Ranking(Ranking::SOCCERWORLDCUP);
+//        $fromPoulePlaces = $rulePart->getQualifyRule()->getFromPoulePlaces();
+//        $toPoulePlaces = $rulePart->getQualifyRule()->getToPoulePlaces();
+//
+//        if (!$rulePart->getQualifyRule()->isMultiple()) {
+//            $poules = array();
+//            if ($rulePart->getPoule() === null) {
+//                $qualPoules = $rulePart->getQualifyRule()->getFromRound()->getPoules();
+//                foreach( $qualPoules as $qualPoule ) { $poules[] = $qualPoule; }
+//            } else {
+//                $poules[] = $rulePart->getPoule();
+//            }
+//            foreach($poules as $poule ) {
+//                $toPoulePlace = $toPoulePlaces[$poule->getNumber() - 1];
+//                $fromPoulePlace = $fromPoulePlaces[$poule->getNumber() - 1];
+//                $fromRankNr = $fromPoulePlace->getNumber();
+//                $fromPoule = $fromPoulePlace->getPoule();
+//                $ranking = $rankingService->getPoulePlacesByRankSingle($fromPoule->getPlaces()->toArray(), $fromPoule->getGames()->toArray());
+//                $qualifiedCompetitor = $ranking[$fromRankNr - 1]->getCompetitor();
+//                $newQualifiers[] = new Qualifier( $toPoulePlace, $qualifiedCompetitor );
+//            }
+//            return $newQualifiers;
+//        }
+//
+//        // multiple
+//        $selectedPoulePlaces = array();
+//        foreach( $fromPoulePlaces as $fromPoulePlace ) {
+//            $fromPoule = $fromPoulePlace->getPoule();
+//            $fromRankNr = $fromPoulePlace->getNumber();
+//            $ranking = $rankingService->getPoulePlacesByRankSingle($fromPoule->getPlaces()->toArray(), $fromPoule->getGames()->toArray());
+//            $selectedPoulePlaces[] = $ranking[$fromRankNr - 1];
+//        }
+//
+//        $rankedPoulePlaces = $rankingService->getPoulePlacesByRankSingle(
+//            $selectedPoulePlaces,
+//            $rulePart->getQualifyRule()->getFromRound()->getGames()->toArray()
+//        );
+//        while (count($rankedPoulePlaces) > count($toPoulePlaces) ) {
+//            array_pop($rankedPoulePlaces);
+//        }
+//
+//        foreach( $toPoulePlaces as $toPoulePlace ) {
+//            $rankedPoulePlace = $this->getRankedPoulePlace($rankedPoulePlaces, $toPoulePlace->getPoule());
+//            if ($rankedPoulePlace === null && count($rankedPoulePlaces) > 0) {
+//                $rankedPoulePlace = reset($rankedPoulePlaces);
+//            }
+//            if ($rankedPoulePlace === null) {
+//                break;
+//            }
+//            $newQualifiers[] = new Qualifier( $toPoulePlace, $rankedPoulePlace->getCompetitor());
+//            if (($key = array_search($rankedPoulePlace, $rankedPoulePlaces)) !== false) {
+//                unset($rankedPoulePlaces[$key]);
+//            }
+//        }
+//        return $newQualifiers;
+   // }
 
     protected function getRankedPoulePlace(array $rankedPoulePlaces, Poule $toPoule): PoulePlace
     {

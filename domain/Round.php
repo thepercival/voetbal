@@ -9,7 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Qualify\Poule as QualifyPoule;
+use Voetbal\Qualify\Group as QualifyGroup;
 
 class Round
 {
@@ -43,9 +43,9 @@ class Round
     protected $parent; # DEPRECATED : needs to be
 
     /**
-     * @var QualifyPoule
+     * @var QualifyGroup
      */
-    protected $parentQualifyPoule;
+    protected $parentQualifyGroup;
 
     /**
      * @var Round[] | ArrayCollection
@@ -58,9 +58,9 @@ class Round
     protected $poules;
 
     /**
-     * @var QualifyPoule[] | ArrayCollection
+     * @var QualifyGroup[] | ArrayCollection
      */
-    protected $qualifyPoules;
+    protected $qualifyGroups;
 
     /**
      * @var Qualify\Rule[] | array
@@ -91,14 +91,13 @@ class Round
     CONST RANK_NUMBER_POULE = 6;
     CONST RANK_POULE_NUMBER = 7;
 
-    public function __construct( Round\Number $roundNumber, Round $parent = null, QualifyPoule $parentQualifyPoule = null )
+    public function __construct( Round\Number $roundNumber, QualifyGroup $parentQualifyGroup = null )
     {
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
         $this->childRounds = new ArrayCollection();
-        $this->qualifyPoules = new ArrayCollection();
-        $this->setParent( $parent ); #DEPRECATED
-        $this->setParentQualifyPoule( $parentQualifyPoule );
+        $this->qualifyGroups = new ArrayCollection();
+        $this->setParentQualifyGroup( $parentQualifyGroup );
         $this->setQualifyOrderDep(static::QUALIFYORDER_CROSS);
         $this->setWinnersOrLosersDep( 0 );
     }
@@ -169,7 +168,7 @@ class Round
      */
     public function getWinnersOrlosersNew()
     {
-        return $this->getParentQualifyPoule() ? $this->getParentQualifyPoule()->getWinnersOrLosers() : Round::NEUTRAL;
+        return $this->getParentQualifyGroup() ? $this->getParentQualifyGroup()->getWinnersOrLosers() : Round::NEUTRAL;
     }
 
     /**
@@ -259,7 +258,7 @@ class Round
      * @return bool
      */
     public function isRoot(): bool {
-        return $this->parent === null;
+        return $this->getParentQualifyGroup() === null;
     }
 
     /**
@@ -267,69 +266,61 @@ class Round
      */
     public function getParent()
     {
-        return $this->parent;
+        return $this->getParentQualifyGroup() ? $this->getParentQualifyGroup()->getRound() : null;
     }
 
     /**
-     * @param Round $round
+     * @return QualifyGroup
      */
-    public function setParent( Round $round = null )
+    public function getParentQualifyGroup()
     {
-        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
-            $round->getChildRounds()->add( $this );
-        }
-        $this->parent = $round;
+        return $this->parentQualifyGroup;
     }
 
     /**
-     * @return QualifyPoule
+     * @param QualifyGroup $parentQualifyGroup
      */
-    public function getParentQualifyPoule()
-    {
-        return $this->parentQualifyPoule;
-    }
-
-    /**
-     * @param QualifyPoule $parentQualifyPoule
-     */
-    public function setParentQualifyPoule( QualifyPoule $parentQualifyPoule = null )
-    {
-        $this->parentQualifyPoule = $parentQualifyPoule;
-    }
-
-    /**
-     * @return QualifyPoule
-     */
-    public function getQualifyPoule()
-    {
-        return $this->parentQualifyPoule;
-    }
-
-    /**
-     * @param QualifyPoule $parentQualifyPoule
-     */
-    public function setQualifyPoule( QualifyPoule $parentQualifyPoule = null )
+    public function setParentQualifyGroup( QualifyGroup $parentQualifyGroup = null )
     {
 //        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
 //            $round->getChildRounds()->add( $this );
 //        }
-        $this->parentQualifyPoule = $parentQualifyPoule;
+        $this->parentQualifyGroup = $parentQualifyGroup;
     }
 
     /**
-     * @return QualifyPoule[] | ArrayCollection
+     * @return QualifyGroup
      */
-    public function getQualifyPoules()
+    public function getQualifyGroup()
     {
-        return $this->qualifyPoules;
+        return $this->parentQualifyGroup;
     }
 
     /**
-     * @param QualifyPoule[] | ArrayCollection $qualifyPoules
+     * @param QualifyGroup $parentQualifyGroup
      */
-    public function setQualifyPoules($qualifyPoules)
+    public function setQualifyGroup( QualifyGroup $parentQualifyGroup = null )
     {
-        $this->qualifyPoules = $qualifyPoules;
+//        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
+//            $round->getChildRounds()->add( $this );
+//        }
+        $this->parentQualifyGroup = $parentQualifyGroup;
+    }
+
+    /**
+     * @return QualifyGroup[] | ArrayCollection
+     */
+    public function getQualifyGroups()
+    {
+        return $this->qualifyGroups;
+    }
+
+    /**
+     * @param QualifyGroup[] | ArrayCollection $qualifyGroups
+     */
+    public function setQualifyGroups($qualifyGroups)
+    {
+        $this->qualifyGroups = $qualifyGroups;
     }
 
     /**

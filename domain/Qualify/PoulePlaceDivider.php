@@ -129,7 +129,7 @@ class PouleNumberReservations
      */
     public $toPouleNr;
     /**
-     * @var array | Poule[]
+     * @var array | Group[]
      */
     public $fromPoules;
 

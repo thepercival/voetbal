@@ -11,7 +11,7 @@ namespace Voetbal\Qualify;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 
-class Poule
+class Group
 {
     /**
      * @var int
@@ -129,8 +129,8 @@ class Poule
      */
     public function setRound( Round $round  )
     {
-        if( $round !== null and !$round->getQualifyPoules()->contains( $this ) ) {
-            $round->getQualifyPoules()->add( $this );
+        if( $round !== null and !$round->getQualifyGroups()->contains( $this ) ) {
+            $round->getQualifyGroups()->add( $this );
         }
         $this->round = $round;
     }

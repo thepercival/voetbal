@@ -15,7 +15,7 @@ use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Poule;
 use Voetbal\PoulePlace;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Qualify\Poule as QualifyPoule;
+use Voetbal\Qualify\Group as QualifyGroup;
 
 class Service
 {
@@ -52,10 +52,9 @@ class Service
     public function create(
         Number $roundNumber,
         array $nrOfPlacesPerPoule,
-        QualifyPoule $parentQualifyPoule = null ): Round
+        QualifyGroup $parentQualifyGroup = null ): Round
     {
-        $parent = ( $parentQualifyPoule !== null ) ? $parentQualifyPoule->getRound() : null;
-        $round = new Round($roundNumber, $parent);
+        $round = new Round($roundNumber, $parentQualifyGroup);
         foreach( $nrOfPlacesPerPoule as $idx => $nrOfPlaces  ) {
             $this->pouleService->create( $round, $idx + 1, $nrOfPlaces );
         }
@@ -65,9 +64,9 @@ class Service
     public function createFromSerialized(
         Number $roundNumber,
         array $poulesSer,
-        QualifyPoule $parentQualifyPoule = null ): Round
+        QualifyGroup $parentQualifyGroup = null ): Round
     {
-        $round = new Round($roundNumber, $parentQualifyPoule->getRound(), $parentQualifyPoule);
+        $round = new Round($roundNumber, $parentQualifyGroup);
         foreach( $poulesSer as $pouleSer ) {
             $this->pouleService->createFromSerialized( $round, $pouleSer->getNumber(), $pouleSer->getPlaces()->toArray() );
         }
@@ -78,7 +77,7 @@ class Service
         RoundNumber $roundNumber,
         int  $nrOfPlaces,
         int  $nrOfPoules,
-        QualifyPoule $parentQualifyPoule = null
+        QualifyGroup $parentQualifyGroup = null
     ): Round
     {
         if ($nrOfPlaces < 2) {
@@ -88,7 +87,7 @@ class Service
             throw new \Exception("het aantal poules voor een nieuwe ronde moet minimaal 1 zijn", E_ERROR );
         }
 
-        $round = $this->create( $roundNumber, [], $parentQualifyPoule );
+        $round = $this->create( $roundNumber, [], $parentQualifyGroup );
         $this->createPoules( $round, $nrOfPlaces, $nrOfPoules );
 
         return $round;

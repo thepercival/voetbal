@@ -6,7 +6,7 @@
  * Time: 16:21
  */
 
-namespace Voetbal\Qualify\Poule;
+namespace Voetbal\Qualify\Group;
 
 /**
  * Class Repository

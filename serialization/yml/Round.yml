@@ -12,5 +12,5 @@ Voetbal\Round:
       until_version: 1
     poules:
       type: ArrayCollection<Voetbal\Poule>
-    qualifyPoules:
-      type: ArrayCollection<Voetbal\Qualify\Poule>
+    qualifyGroups:
+      type: ArrayCollection<Voetbal\Qualify\Group>
