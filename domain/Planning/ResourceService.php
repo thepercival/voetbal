@@ -219,13 +219,16 @@ class ResourceService
     }
 
     protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {
-        $newDateTime = $dateTime->modify("+" . $minutes . " minutes");
-        if ($this->blockedPeriod !== null
-            && $newDateTime > $this->blockedPeriod->getStartDate()
-            && $newDateTime < $this->blockedPeriod->getEndDate() ) {
-            $newDateTime = clone $this->blockedPeriod->getEndDate();
+        $newStartDateTime = $dateTime->modify("+" . $minutes . " minutes");
+        if ($this->blockedPeriod === null ) {
+            return $newStartDateTime;
         }
-        return $newDateTime;
+
+        $endDateTime = $newStartDateTime->modify("+" . $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() . " minutes");
+        if( $endDateTime > $this->blockedPeriod->getStartDate() && $newStartDateTime < $this->blockedPeriod->getEndDate() ) {
+            $newStartDateTime = clone $this->blockedPeriod->getEndDate();
+        }
+        return $newStartDateTime;
     }
 
     public function getEndDateTime(): \DateTimeImmutable {
