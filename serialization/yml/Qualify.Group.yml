@@ -11,7 +11,5 @@ Voetbal\Qualify\Group:
       type: integer
     number:
       type: integer
-    nrOfHorizontalPoules:
-      type: integer
     childRound:
       type: Voetbal\Round

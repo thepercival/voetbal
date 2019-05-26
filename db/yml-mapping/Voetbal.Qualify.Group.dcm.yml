@@ -1,7 +1,7 @@
 Voetbal\Qualify\Group:
   type: entity
   repositoryClass: Voetbal\Qualify\Group\Repository
-  table: qualifyGroups
+  table: qualifygroups
   id:
     id:
       type: integer
@@ -17,20 +17,21 @@ Voetbal\Qualify\Group:
       nullable: false
       unique: false
       column: number
-    nrOfHorizontalPoules:
-      type: smallint
-      nullable: false
-      unique: false
+#    nrOfHorizontalPoules:
+#      type: smallint
+#      nullable: false
+#      unique: false
   oneToOne:
     childRound:
       targetEntity: Voetbal\Round
+      mappedBy: parentQualifyGroup
       joinColumn:
         name: childRoundId
         referencedColumnName: id
         nullable: true # should be false, do sql by hand
         onDelete: CASCADE
       # fetch: EAGER
-      cascade: [ remove ] # persist removed
+      cascade: [ persist, remove ] # persist removed
   manyToOne:
     round:
       targetEntity: Voetbal\Round

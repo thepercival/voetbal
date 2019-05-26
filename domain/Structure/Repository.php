@@ -39,11 +39,12 @@ class Repository
             if( $roundNumber === null ) {
                 throw new \Exception("rondenummer " . $roundNumberValue . " kon niet gevonden worden", E_ERROR);
             }
-            $this->customPersistHelper($roundNumber);
-
             foreach( $roundNumber->getRounds() as $round ) {
                 $this->em->persist($round);
             }
+            $this->customPersistHelper($roundNumber);
+
+
             $this->em->flush();
             $conn->commit();
             return $roundNumber;

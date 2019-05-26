@@ -38,7 +38,7 @@ class Service
             $poulePlace->setCompetitor(null);
             $poulePlace->setCompetitor(array_shift($newCompetitors));
         }
-        foreach( $newStructure->getRootRound()->getChildRounds() as $childRound ) {
+        foreach( $newStructure->getRootRound()->getChildren() as $childRound ) {
             $this->removeQualifiedCompetitors( $childRound );
         }
     }
@@ -50,7 +50,7 @@ class Service
                 $place->setCompetitor(null);
             }
         }
-        foreach( $round->getChildRounds() as $childRound ) {
+        foreach( $round->getChildren() as $childRound ) {
             $this->removeQualifiedCompetitors( $childRound );
         }
     }

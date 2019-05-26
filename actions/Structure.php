@@ -130,6 +130,8 @@ final class Structure
 
             $roundNumberAsValue = 1;
             $this->repos->remove( $competition, $roundNumberAsValue );
+            // parentQualifyGroup moet erin voor parent
+            // kijk als in $structureSer wel een childRound staat, zoja kijken waarom deze dan niet opgeslagen wordt
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
             $roundNumber = $this->repos->customPersist($structure, $roundNumberAsValue);
 

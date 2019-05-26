@@ -30,14 +30,14 @@ Voetbal\Round:
       cascade: [ persist, remove ]
       orderBy:
         number: asc
-    childRounds: # DEPRECATED : needs to be replaced by qualifyGroups and maybe something else
-      targetEntity: Voetbal\Round
-      mappedBy: parent
-      cascade: [ persist, remove ]
     qualifyGroups:
       targetEntity: Voetbal\Qualify\Group
       mappedBy: round
       cascade: [ persist, remove ]
+#    childRounds: # DEPRECATED : needs to be replaced by qualifyGroups and maybe something else
+#      targetEntity: Voetbal\Round
+#      mappedBy: parent
+#      cascade: [ persist, remove ]
   manyToOne:
     number:
       targetEntity: Voetbal\Round\Number
@@ -47,9 +47,17 @@ Voetbal\Round:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
+    parentQualifyGroup:
+      targetEntity: Voetbal\Qualify\Group
+      inversedBy: childRound
+      joinColumn:
+        name: parentQualifyId
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
     parent:  # DEPRECATED : needs to be replaced by parentQualifyGroup and maybe something else
       targetEntity: Voetbal\Round
-      inversedBy: childRounds
+      #inversedBy: childRounds
       joinColumn:
         name: parentid
         referencedColumnName: id

@@ -34,7 +34,7 @@ Voetbal\Round\Number:
     rounds:
       targetEntity: Voetbal\Round
       mappedBy: number
-      # cascade: [ persist, remove ]
+      cascade: [ persist, remove ] #eerst kijken als parentQualifyGroup toevoegen aan round helpt
   manyToOne:
     competition:
       targetEntity: Voetbal\Competition

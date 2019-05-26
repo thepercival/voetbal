@@ -84,10 +84,11 @@ class Structure
 
     protected function setQualifyRulesHelper( Round $parentRound )
     {
-        foreach ($parentRound->getChildRounds() as $childRound) {
-            $qualifyService = new QualifyService($childRound);
-            $qualifyService->createRules();
-            $this->setQualifyRulesHelper( $childRound );
-        }
+        throw new \Exception("setQualifyRulesHelper", E_ERROR);
+//        foreach ($parentRound->getChildRounds() as $childRound) {
+//            $qualifyService = new QualifyService($childRound);
+//            $qualifyService->createRules();
+//            $this->setQualifyRulesHelper( $childRound );
+//        }
     }
 }

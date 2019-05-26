@@ -104,7 +104,7 @@ class Service
             $qualifyGroup = new QualifyGroup( $newRound );
             $qualifyGroup->setWinnersOrLosers( $qualifyGroupSerialized->getWinnersOrLosers() );
             $qualifyGroup->setNumber( $qualifyGroupSerialized->getNumber() );
-            $qualifyGroup->setNrOfHorizontalPoules( $qualifyGroupSerialized->getNrOfHorizontalPoules() );
+            // $qualifyGroup->setNrOfHorizontalPoules( $qualifyGroupSerialized->getNrOfHorizontalPoules() );
 
             $this->createRoundFromSerialized( $roundNumber->getNext(), $qualifyGroupSerialized->getChildRound(), $qualifyGroup );
         }

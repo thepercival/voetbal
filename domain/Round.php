@@ -37,10 +37,11 @@ class Round
      * @var Round\Number
      */
     protected $number;
+
     /**
      * @var Round
      */
-    protected $parent; # DEPRECATED : needs to be
+    protected $parent; // DEPRECATED
 
     /**
      * @var QualifyGroup
@@ -50,7 +51,7 @@ class Round
     /**
      * @var Round[] | ArrayCollection
      */
-    protected $childRounds;
+    // protected $childRounds;
 
     /**
      * @var Poule[] | ArrayCollection
@@ -95,7 +96,7 @@ class Round
     {
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
-        $this->childRounds = new ArrayCollection();
+        // $this->childRounds = new ArrayCollection();
         $this->qualifyGroups = new ArrayCollection();
         $this->setParentQualifyGroup( $parentQualifyGroup );
         $this->setQualifyOrderDep(static::QUALIFYORDER_CROSS);
@@ -282,30 +283,30 @@ class Round
      */
     public function setParentQualifyGroup( QualifyGroup $parentQualifyGroup = null )
     {
-//        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
-//            $round->getChildRounds()->add( $this );
-//        }
+        if( $parentQualifyGroup !== null ) {
+            $parentQualifyGroup->setChildRound( $this );
+        }
         $this->parentQualifyGroup = $parentQualifyGroup;
     }
 
-    /**
-     * @return QualifyGroup
-     */
-    public function getQualifyGroup()
-    {
-        return $this->parentQualifyGroup;
-    }
-
-    /**
-     * @param QualifyGroup $parentQualifyGroup
-     */
-    public function setQualifyGroup( QualifyGroup $parentQualifyGroup = null )
-    {
-//        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
-//            $round->getChildRounds()->add( $this );
-//        }
-        $this->parentQualifyGroup = $parentQualifyGroup;
-    }
+//    /**
+//     * @return QualifyGroup
+//     */
+//    public function getQualifyGroup()
+//    {
+//        return $this->parentQualifyGroup;
+//    }
+//
+//    /**
+//     * @param QualifyGroup $parentQualifyGroup
+//     */
+//    public function setQualifyGroup( QualifyGroup $parentQualifyGroup = null )
+//    {
+////        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
+////            $round->getChildRounds()->add( $this );
+////        }
+//        $this->parentQualifyGroup = $parentQualifyGroup;
+//    }
 
     /**
      * @return QualifyGroup[] | ArrayCollection
@@ -326,32 +327,33 @@ class Round
     /**
      * @return Round[] | ArrayCollection
      */
-    public function getChildRounds()
-    {
-        return $this->childRounds;
+    public function getChildren(): ArrayCollection {
+        return $this->getQualifyGroups()->map( function($qualifyGroup) {
+            return $qualifyGroup->getChildRound();
+        });
     }
 
     /**
      * @param Round[] | ArrayCollection $rounds
      */
-    public function setChildRounds($rounds)
-    {
-        $this->childRounds = $rounds;
-    }
+//    public function setChildRounds($rounds)
+//    {
+//        $this->childRounds = $rounds;
+//    }
 
     /**
      * @param integer $winnersOrLosersDep
      * @return Round|null
      */
-    public function getChildRoundDep($winnersOrLosersDep): ?Round
-    {
-        foreach( $this->getChildRounds() as $childRound ) {
-            if( $childRound->getWinnersOrLosersDep() === $winnersOrLosersDep) {
-                return $childRound;
-            }
-        }
-        return null;
-    }
+//    public function getChildRoundDep($winnersOrLosersDep): ?Round
+//    {
+//        foreach( $this->getChildRounds() as $childRound ) {
+//            if( $childRound->getWinnersOrLosersDep() === $winnersOrLosersDep) {
+//                return $childRound;
+//            }
+//        }
+//        return null;
+//    }
 
     /**
      * @param int $order

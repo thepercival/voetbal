@@ -116,14 +116,14 @@ class Service
     /**
      * @param Round $round
      */
-    public function remove( Round $round )
-    {
-        if( $round->getParent() !== null ) {
-            $round->getParent()->getChildRounds()->removeElement($round);
-            $round->getNumber()->getRounds()->removeElement($round);
-        }
-        return $this->repos->getEM()->remove($round);
-    }
+//    public function remove( Round $round )
+//    {
+//        if( $round->getParent() !== null ) {
+//            $round->getParent()->getChildRounds()->removeElement($round);
+//            $round->getNumber()->getRounds()->removeElement($round);
+//        }
+//        return $this->repos->getEM()->remove($round);
+//    }
 
     public function getDefaultNrOfPoules(int $nrOfPlaces, int $min = null, int $max = null): int {
         if( $min === null ) {

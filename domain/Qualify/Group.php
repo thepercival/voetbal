@@ -27,10 +27,6 @@ class Group
      * @var int
      */
     protected $number;
-    /**
-     * @var int
-     */
-    protected $nrOfHorizontalPoules;
 
     /**
      * @var Round
@@ -98,22 +94,6 @@ class Group
     public function setNumber( int $number )
     {
         $this->number = $number;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNrOfHorizontalPoules()
-    {
-        return $this->nrOfHorizontalPoules;
-    }
-
-    /**
-     * @param int $nrOfHorizontalPoules
-     */
-    public function setNrOfHorizontalPoules( int $nrOfHorizontalPoules )
-    {
-        $this->nrOfHorizontalPoules = $nrOfHorizontalPoules;
     }
 
     /**

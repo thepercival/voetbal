@@ -27,7 +27,7 @@ class NameService
     }
 
     public function getRoundName( Round $round, $sameName = false) {
-        if ($this->roundAndParentsNeedsRanking($round) || ($round->getChildRounds()->count() > 1
+        if ($this->roundAndParentsNeedsRanking($round) || ($round->getQualifyGroups()->count() > 1
                 && $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::WINNERS)) !== $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::LOSERS)))) {
             return $this->getHtmlNumber($round->getNumber()->getNumber()) . ' ronde';
         }
@@ -173,7 +173,7 @@ class NameService
 
     protected function aChildRoundHasMultiplePlacesPerPoule(Round $round ): bool
     {
-        foreach( $round->getChildRounds() as $childRound ) {
+        foreach( $round->getChildren() as $childRound ) {
             foreach( $childRound->getPoules() as $poule ) {
                 if( $poule->getPlaces()->count() > 1 ) {
                     return true;

@@ -197,7 +197,7 @@ class Game implements GameImporter
             );
         }
 
-        foreach( $round->getChildRounds() as $childRound ) {
+        foreach( $round->getChildren() as $childRound ) {
             $this->editGamesForRound( $childRound, $externalLeague, $externalSeason );
         }
     }
@@ -207,7 +207,7 @@ class Game implements GameImporter
             if( $round->getName() === $roundName ) {
                 return $round;
             }
-            foreach( $round->getChildRounds() as $childRound ) {
+            foreach( $round->getChildren() as $childRound ) {
                 $childRoundWithName = $fnGetRound( $childRound, $roundName );
                 if( $childRoundWithName !== null ) {
                     return $childRoundWithName;

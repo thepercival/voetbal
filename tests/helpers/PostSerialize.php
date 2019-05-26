@@ -42,7 +42,7 @@ function postSerializeHelper( Round $round, RoundNumber $roundNumber, Competitio
             }
         }
     }
-    foreach( $round->getChildRounds() as $childRound ) {
+    foreach( $round->getChildren() as $childRound ) {
         $childRound->setParent($round);
         postSerializeHelper( $childRound, $roundNumber->getNext(), $competition, $roundNumber );
     }
