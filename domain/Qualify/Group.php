@@ -38,6 +38,10 @@ class Group
      */
     protected $childRound;
 
+    CONST WINNERS = 1;
+    CONST DROPOUTS = 2;
+    CONST LOSERS = 3;
+
     public function __construct( Round $round )
     {
         $this->setRound( $round );
