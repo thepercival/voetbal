@@ -9,9 +9,9 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Poule;
-use Voetbal\PoulePlace;
-use Voetbal\PoulePlace\Combination as PoulePlaceCombination;
-use Voetbal\PoulePlace\Combination\Number as PoulePlaceCombinationNumber;
+use Voetbal\Place;
+use Voetbal\Place\Combination as PoulePlaceCombination;
+use Voetbal\Place\Combination\Number as PoulePlaceCombinationNumber;
 use Voetbal\Round\Config\Options as RoundNumberConfigOptions;
 
 class GameGenerator

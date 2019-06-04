@@ -11,7 +11,7 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
-use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
+use Voetbal\Place\Repository as PoulePlaceRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Field\Repository as FieldRepository;
 use Voetbal\Referee\Repository as RefereeRepository;

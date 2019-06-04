@@ -6,10 +6,10 @@
  * Time: 12:43
  */
 
-namespace Voetbal\PoulePlace\Combination;
+namespace Voetbal\Place\Combination;
 
-use Voetbal\PoulePlace\Combination as PoulePlaceCombination;
-use Voetbal\PoulePlace\Combination\Number as CombinationNumber;
+use Voetbal\Place\Combination as PoulePlaceCombination;
+use Voetbal\Place\Combination\Number as CombinationNumber;
 
 class Number
 {

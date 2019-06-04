@@ -10,7 +10,7 @@ namespace Voetbal\Planning;
 
 use Voetbal\Game;
 use Voetbal\Round\Config as RoundNumberConfig;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Field;
 use League\Period\Period;
 use Voetbal\Game\PoulePlace as GamePoulePlace;

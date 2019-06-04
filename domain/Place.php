@@ -10,7 +10,7 @@ namespace Voetbal;
 
 use Voetbal\Qualify\Rule as QualifyRule;
 
-class PoulePlace
+class Place
 {
     /**
      * @var int

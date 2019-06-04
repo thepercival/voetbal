@@ -9,7 +9,7 @@
 namespace Voetbal\Structure;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Poule;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;

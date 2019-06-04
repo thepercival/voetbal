@@ -10,7 +10,7 @@ namespace Voetbal\Game;
 
 use Voetbal\Game\Repository as GameRepository;
 use Voetbal\Game\Score\Repository as GameScoreRepository;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Game;
 use Voetbal\Referee;
 use Voetbal\Field;

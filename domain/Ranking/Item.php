@@ -8,7 +8,7 @@
 
 namespace Voetbal\Ranking;
 
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 
 class Item
 {

@@ -8,8 +8,12 @@
 
 namespace Voetbal;
 
+use DeepCopy\f001\A;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Qualify\Group as QualifyGroup;
+use Voetbal\Poule\Horizontal as HorizontalPoule;
+use Voetbal\Place;
+use Voetbal\PlaceLocation;
 
 class Round
 {
@@ -61,21 +65,26 @@ class Round
     /**
      * @var QualifyGroup[] | ArrayCollection
      */
-    protected $qualifyGroups;
-
+    protected $losersQualifyGroups;
     /**
-     * @var Qualify\Rule[] | array
+     * @var QualifyGroup[] | ArrayCollection
      */
-    protected $fromQualifyRules = array();
-
+    protected $winnersQualifyGroups;
     /**
-     * @var Qualify\Rule[] | array
+     * @var HorizontalPoule[] | ArrayCollection
      */
-    protected $toQualifyRules = array();
+    protected $losersHorizontalPoules ;
+    /**
+     * @var HorizontalPoule[] | ArrayCollection
+     */
+    protected $winnersHorizontalPoules;
+    /**
+     * @var int
+     */
+    protected $structureNumber;
 
     CONST WINNERS = 1;
     CONST DROPOUTS = 2;
-    CONST NEUTRAL = 2;
     CONST LOSERS = 3;
 
     const MAX_LENGTH_NAME = 20;
@@ -96,11 +105,13 @@ class Round
     {
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
-        // $this->childRounds = new ArrayCollection();
-        $this->qualifyGroups = new ArrayCollection();
         $this->setParentQualifyGroup( $parentQualifyGroup );
         $this->setQualifyOrderDep(static::QUALIFYORDER_CROSS);
         $this->setWinnersOrLosersDep( 0 );
+        $this->winnersQualifyGroups = new ArrayCollection();
+        $this->losersQualifyGroups = new ArrayCollection();
+        $this->winnersHorizontalPoules = new ArrayCollection();
+        $this->losersHorizontalPoules = new ArrayCollection();
     }
 
     /**
@@ -225,6 +236,70 @@ class Round
         $this->name = $name;
     }
 
+    public function getStructureNumber(): int {
+        return $this->structureNumber;
+    }
+
+    public function setStructureNumber(int $structureNumber): void {
+        $this->structureNumber = $structureNumber;
+    }
+
+    public function getQualifyGroups(int $winnersOrLosers = null): ArrayCollection {
+        if ($winnersOrLosers === null) {
+            return new ArrayCollection( array_merge( $this->winnersQualifyGroups->toArray(), $this->losersQualifyGroups->toArray() ) );
+        }
+        return ($winnersOrLosers === QualifyGroup::WINNERS) ? $this->winnersQualifyGroups : $this->losersQualifyGroups;
+    }
+
+    public function getQualifyGroupsLosersReversed(): array {
+        $qualifyGroups = $this->getQualifyGroups()->toArray();
+        uasort( $qualifyGroups, function( $qualifyGroupA, $qualifyGroupB) {
+            if ($qualifyGroupA->getWinnersLosers() < $qualifyGroupB->getWinnersLosers()) {
+                return 1;
+            }
+            if ($qualifyGroupA->getWinnersLosers() > $qualifyGroupB->getWinnersLosers()) {
+                return -1;
+            }
+            if ($qualifyGroupA->getNumber() < $qualifyGroupB->getNumber()) {
+                return -1;
+            }
+            if ($qualifyGroupA->getNumber() > $qualifyGroupB->getNumber()) {
+                return -1;
+            }
+            return 0;
+        });
+        return $qualifyGroups; // $this->winnersQualifyGroups.concat($this->losersQualifyGroups->slice(0)->reverse());
+    }
+
+    public function getQualifyGroup(int $winnersOrLosers, int $qualifyGroupNumber): QualifyGroup {
+        return $this->getQualifyGroups($winnersOrLosers)->filter(function( $qualifyGroup ) use ($qualifyGroupNumber) {
+            return $qualifyGroup->getNumber() === $qualifyGroupNumber;
+        })->last();
+    }
+
+    public function getBorderQualifyGroup(int $winnersOrLosers): QualifyGroup {
+        $qualifyGroups = $this->getQualifyGroups($winnersOrLosers);
+        return $qualifyGroups->last();
+    }
+
+    public function getNrOfDropoutPlaces(): int {
+        // if (this.nrOfDropoutPlaces === undefined) {
+        // @TODO performance check
+        return $this->getNrOfPlaces() - $this->getNrOfPlacesChildren();
+        // }
+        // return this.nrOfDropoutPlaces;
+    }
+
+
+    public function getChildren(): ArrayCollection {
+        return $this->getQualifyGroups()->map( function( $qualifyGroup ) { return $qualifyGroup.getChildRound(); });
+    }
+
+    public function getChild(int $winnersOrLosers, int $qualifyGroupNumber): ?Round {
+        $qualifyGroup = $this->getQualifyGroup($winnersOrLosers, $qualifyGroupNumber);
+        return $qualifyGroup ? $qualifyGroup->getChildRound() : null;
+    }
+
     /**
      * @return Poule[] | ArrayCollection
      */
@@ -289,155 +364,41 @@ class Round
         $this->parentQualifyGroup = $parentQualifyGroup;
     }
 
-//    /**
-//     * @return QualifyGroup
-//     */
-//    public function getQualifyGroup()
-//    {
-//        return $this->parentQualifyGroup;
-//    }
-//
-//    /**
-//     * @param QualifyGroup $parentQualifyGroup
-//     */
-//    public function setQualifyGroup( QualifyGroup $parentQualifyGroup = null )
-//    {
-////        if( $round !== null and !$round->getChildRounds()->contains( $this ) ) {
-////            $round->getChildRounds()->add( $this );
-////        }
-//        $this->parentQualifyGroup = $parentQualifyGroup;
-//    }
+    public function getHorizontalPoules(int $winnersOrLosers): ArrayCollection {
+        if ($winnersOrLosers === QualifyGroup::WINNERS) {
+            return $this->winnersHorizontalPoules;
+        }
+        return $this->losersHorizontalPoules;
+    }
 
-    /**
-     * @return QualifyGroup[] | ArrayCollection
-     */
-    public function getQualifyGroups()
-    {
-        return $this->qualifyGroups;
+    protected function getFirstHorizontalPoule(int $winnersOrLosers): HorizontalPoule {
+        return $this->getHorizontalPoules($winnersOrLosers)->first();
+    }
+
+    public function getFirstPlace(int $winnersOrLosers): Place {
+        return $this->getFirstHorizontalPoule($winnersOrLosers)->getFirstPlace();
     }
 
     /**
-     * @param QualifyGroup[] | ArrayCollection $qualifyGroups
+     * @param int|null $order
+     * @return ArrayCollection | Place[]
      */
-    public function setQualifyGroups($qualifyGroups)
-    {
-        $this->qualifyGroups = $qualifyGroups;
-    }
-
-    /**
-     * @return Round[] | ArrayCollection
-     */
-    public function getChildren(): ArrayCollection {
-        return $this->getQualifyGroups()->map( function($qualifyGroup) {
-            return $qualifyGroup->getChildRound();
-        });
-    }
-
-    /**
-     * @param Round[] | ArrayCollection $rounds
-     */
-//    public function setChildRounds($rounds)
-//    {
-//        $this->childRounds = $rounds;
-//    }
-
-    /**
-     * @param integer $winnersOrLosersDep
-     * @return Round|null
-     */
-//    public function getChildRoundDep($winnersOrLosersDep): ?Round
-//    {
-//        foreach( $this->getChildRounds() as $childRound ) {
-//            if( $childRound->getWinnersOrLosersDep() === $winnersOrLosersDep) {
-//                return $childRound;
-//            }
-//        }
-//        return null;
-//    }
-
-    /**
-     * @param int $order
-     * @return array
-     */
-    public function getPoulePlaces( int $order = null, bool $reversed = null): array
-    {
-        $poulePlaces = array();
-        foreach( $this->getPoules() as $poule ) {
-            foreach( $poule->getPlaces() as $place ) {
-                $poulePlaces[] = $place;
+    public function getPlaces(int $order = null): ArrayCollection {
+        $places = new ArrayCollection();
+        if ($order === Round::ORDER_NUMBER_POULE) {
+            foreach( $this->getHorizontalPoules(QualifyGroup::WINNERS) as $horPoule ) {
+                $places = new ArrayCollection( array_merge( $places->toArray(), $horPoule->getPlaces()->toArray() ) );
+            }
+        } else {
+            foreach( $this->getPoules() as $poule ) {
+                $places = new ArrayCollection( array_merge( $places->toArray(), $poule->getPlaces()->toArray() ) );
             }
         }
-        if ($order === Round::ORDER_NUMBER_POULE || $order === 4) {
-            uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
-                if ($poulePlaceA->getNumber() > $poulePlaceB->getNumber()) {
-                    return 1;
-                }
-                if ($poulePlaceA->getNumber() < $poulePlaceB->getNumber()) {
-                    return -1;
-                }
-                if ($poulePlaceA->getPoule()->getNumber() > $poulePlaceB->getPoule()->getNumber()) {
-                    return 1;
-                }
-                if ($poulePlaceA->getPoule()->getNumber() < $poulePlaceB->getPoule()->getNumber()) {
-                    return -1;
-                }
-                return 0;
-            });
-        }
-        else if ($order === Round::ORDER_POULE_NUMBER || $order === 5) {
-            uasort( $poulePlaces, function($poulePlaceA, $poulePlaceB) {
-                if ($poulePlaceA->getPoule()->getNumber() > $poulePlaceB->getPoule()->getNumber()) {
-                    return 1;
-                }
-                if ($poulePlaceA->getPoule()->getNumber() < $poulePlaceB->getPoule()->getNumber()) {
-                    return -1;
-                }
-                if ($poulePlaceA->getNumber() > $poulePlaceB->getNumber()) {
-                    return 1;
-                }
-                if ($poulePlaceA->getNumber() < $poulePlaceB->getNumber()) {
-                    return -1;
-                }
-                return 0;
-            });
-        }
-        if ($reversed === true) {
-            return array_reverse($poulePlaces);
-        }
-        return $poulePlaces;
+        return $places;
     }
 
-    /**
-     * @return PoulePlace[][]
-     */
-    public function getPoulePlacesPerPoule(): array
-    {
-        $poulePlacesPerPoule = [];
-        foreach( $this->getPoules() as $poule ) {
-            $poulePlacesPerPoule[] = $poule->getPlaces()->toArray();
-        }
-        return $poulePlacesPerPoule;
-    }
-
-    /**
-     * @return PoulePlace[][]
-     */
-    public function getPoulePlacesPerNumber(int $winnersOrLosers): array
-    {
-        $poulePlacesPerNumber = [];
-
-        $poulePlacesOrderedByPlace = $this->getPoulePlaces(Round::ORDER_NUMBER_POULE);
-        if ($winnersOrLosers === Round::LOSERS) {
-            $poulePlacesOrderedByPlace = array_reverse($poulePlacesOrderedByPlace);
-        }
-
-        foreach( $poulePlacesOrderedByPlace as $orderedPlace ) {
-            if( array_key_exists( $orderedPlace->getNumber(), $poulePlacesPerNumber ) === false ) {
-                $poulePlacesPerNumber[ $orderedPlace->getNumber() ] = [];
-            }
-            $poulePlacesPerNumber[ $orderedPlace->getNumber() ][] = $orderedPlace;
-        }
-        return $poulePlacesPerNumber;
+    public function getPlace(PlaceLocation $placeLocation ): Place {
+        return $this->getPoule($placeLocation->getPouleNr())->getPlace($placeLocation->getPlaceNr());
     }
 
     public function needsRanking() {
@@ -499,49 +460,11 @@ class Round
         return $winnersOrLosers === Round::WINNERS ? Round::LOSERS : Round::WINNERS;
     }
 
-    public function getOpposingRound()
-    {
-        if ( $this->getParent() === null ) {
-            return null;
-        }
-        return $this->getParent()->getChildRoundDep(Round::getOpposing($this->getWinnersOrLosersDep()));
-    }
-
     public function getNrOfPlaces(): int {
         $nrOfPlaces = 0;
         foreach( $this->getPoules() as $poule ) {
             $nrOfPlaces += $poule->getPlaces()->count();
         }
         return $nrOfPlaces;
-    }
-
-    public function getPath(): array
-    {
-        if ( $this->isRoot() ) {
-            return [];
-        }
-        $path = $this->getParent()->getPath();
-        $path[] = $this->getWinnersOrLosers();
-        return $path;
-    }
-
-    public function &getFromQualifyRules(): array
-    {
-        return $this->fromQualifyRules;
-    }
-
-    public function &getToQualifyRules(int $winnersOrLosers = null): array
-    {
-        if ($winnersOrLosers !== null) {
-            $toQualifyRules = array_filter( $this->toQualifyRules, function( $toQualifyRule ) use ( $winnersOrLosers ) {
-                return $toQualifyRule->getToRound()->getWinnersOrLosers() === $winnersOrLosers;
-            });
-            return $toQualifyRules;
-        }
-        return $this->toQualifyRules;
-    }
-
-    public function hasCustomQualifyOrder(): bool {
-        return !($this->getQualifyOrderDep() === Round::QUALIFYORDER_CROSS || $this->getQualifyOrderDep() === Round::QUALIFYORDER_RANK);
     }
 }

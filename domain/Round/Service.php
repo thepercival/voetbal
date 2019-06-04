@@ -13,7 +13,7 @@ use Voetbal\Round;
 use Voetbal\Round\Repository as RoundRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Poule;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Qualify\Group as QualifyGroup;
 

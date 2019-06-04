@@ -9,8 +9,8 @@
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
-use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
-use Voetbal\PoulePlace\Service as PoulePlaceService;
+use Voetbal\Place\Repository as PoulePlaceRepository;
+use Voetbal\Place\Service as PoulePlaceService;
 use Voetbal\Competitor\Repository as CompetitorRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;

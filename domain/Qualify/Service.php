@@ -4,7 +4,7 @@ namespace Voetbal\Qualify;
 
 use Voetbal\Round;
 use Voetbal\Poule;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Competitor;
 use Voetbal\Game;
 use Voetbal\Ranking;

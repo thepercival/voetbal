@@ -10,7 +10,7 @@ namespace Voetbal\Planning;
 
 use Voetbal\Field;
 use Voetbal\Referee;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 
 class GameResources
 {

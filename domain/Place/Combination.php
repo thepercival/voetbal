@@ -6,12 +6,12 @@
  * Time: 12:43
  */
 
-namespace Voetbal\PoulePlace;
+namespace Voetbal\Place;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Game;
 use Voetbal\Game\PoulePlace as GamePoulePlace;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 
 class Combination
 {

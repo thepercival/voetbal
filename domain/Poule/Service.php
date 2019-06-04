@@ -10,9 +10,9 @@ namespace Voetbal\Poule;
 
 use Voetbal\Round;
 use Voetbal\Poule;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Poule\Repository as PouleRepository;
-use Voetbal\PoulePlace\Repository as PoulePlaceRepository;
+use Voetbal\Place\Repository as PoulePlaceRepository;
 use Voetbal\Competitor\Repository as CompetitorRepository;
 
 class Service

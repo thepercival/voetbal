@@ -12,7 +12,7 @@ use Voetbal\Ranking\Item as RankingItem;
 use Voetbal\Round;
 use Voetbal\Game;
 use Voetbal\Ranking;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Qualify\Rule as QualifyRule;
 
 class End

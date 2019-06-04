@@ -9,7 +9,7 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Referee as RefereeBase;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Game;
 
 class Referee

@@ -7,7 +7,7 @@
  * Time: 21:10
  */
 
-namespace Voetbal\Round\Config;
+namespace Voetbal\Config;
 
 use Voetbal\Qualify\Rule as QualifyRule;
 use Voetbal\Ranking;

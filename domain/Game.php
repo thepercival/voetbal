@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\Collection as CommonCollection;
 use Voetbal\Game\Score;
 use Voetbal\Round\Config as RoundConfig;
 use Voetbal\Game\PoulePlace as GamePoulePlace;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 
 class Game implements External\Importable
 {

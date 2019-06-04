@@ -8,7 +8,7 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\PoulePlace\Combination as PoulePlaceCombination;
+use Voetbal\Place\Combination as PoulePlaceCombination;
 
 class GameRound
 {

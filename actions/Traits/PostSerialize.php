@@ -9,7 +9,7 @@
 namespace Voetbal\Action\Traits;
 
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 
 trait PostSerialize {
 

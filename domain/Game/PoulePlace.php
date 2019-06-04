@@ -9,7 +9,7 @@
 namespace Voetbal\Game;
 
 use Voetbal\Game;
-use Voetbal\PoulePlace as PoulePlaceBase;
+use Voetbal\Place as PoulePlaceBase;
 
 class PoulePlace
 {

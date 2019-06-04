@@ -6,7 +6,7 @@
  * Time: 21:10
  */
 
-namespace Voetbal\Round\Config;
+namespace Voetbal\Config;
 
 class Options
 {

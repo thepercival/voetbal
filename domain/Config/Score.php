@@ -6,11 +6,11 @@
  * Time: 9:53
  */
 
-namespace Voetbal\Round\Config;
+namespace Voetbal\Config;
 
 use Voetbal\Round;
-use Voetbal\Round\Config;
-use Voetbal\Round\Config\Score\OptionsTrait;
+use Voetbal\Config;
+use Voetbal\Config\Score\OptionsTrait;
 
 class Score
 {

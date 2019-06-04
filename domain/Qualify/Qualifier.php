@@ -8,7 +8,7 @@
 
 namespace Voetbal\Qualify;
 
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Competitor;
 
 class Qualifier

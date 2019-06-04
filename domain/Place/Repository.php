@@ -6,9 +6,9 @@
  * Time: 16:21
  */
 
-namespace Voetbal\PoulePlace;
+namespace Voetbal\Place;
 
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Competitor;
 use Voetbal\Poule;
 

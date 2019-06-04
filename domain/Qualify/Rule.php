@@ -10,7 +10,7 @@ namespace Voetbal\Qualify;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
-use Voetbal\PoulePlace;
+use Voetbal\Place;
 use Voetbal\Ranking;
 
 class Rule
