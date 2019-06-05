@@ -191,13 +191,6 @@ class Structure implements StructureImporter
         return $firstPoule->nrOfHeadtoheadMatches;
     }
 
-    protected function getConfigOptions( $sport )
-    {
-        $roundConfigOptions = $this->roundConfigService->createDefault( $sport );
-        $roundConfigOptions->setMinutesPerGame( 90 );
-        return $roundConfigOptions;
-    }
-
     /**
      * @param Round $round
      * @param \stdClass $externalSystemRound

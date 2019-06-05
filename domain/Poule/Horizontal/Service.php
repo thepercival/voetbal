@@ -104,19 +104,19 @@ class Service {
     protected function getPlacesHorizontal(): array {
         $places = [];
         foreach( $this->round->getPoules() as $poule ) {
-            $places = array_merge( $places, $poule->getPlaces() );
+            $places = array_merge( $places, $poule->getPlaces()->toArray() );
         }
         uasort( $places, function( $placeA, $placeB) {
             if ($placeA->getNumber() > $placeB->getNumber()) {
                 return 1;
             }
-            if ($placeA->getNumber() < $placeB.getNumber()) {
+            if ($placeA->getNumber() < $placeB->getNumber()) {
                 return -1;
             }
-            if ($placeA->getPoule()->getNumber() > $placeB.getPoule()->getNumber()) {
+            if ($placeA->getPoule()->getNumber() > $placeB->getPoule()->getNumber()) {
                 return 1;
             }
-            if ($placeA->getPoule()->getNumber() < $placeB.getPoule()->getNumber()) {
+            if ($placeA->getPoule()->getNumber() < $placeB->getPoule()->getNumber()) {
                 return -1;
             }
             return 0;

@@ -8,10 +8,9 @@
 
 namespace Voetbal;
 
-use Voetbal\Config\Options as ConfigOptions;
-use Voetbal\Config\OptionsTrait;
-use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Config\Score;
 
 class Config
 {
@@ -83,7 +82,7 @@ class Config
     protected $minutesAfter;
 
     /**
-     * @var Score\Options
+     * @var Score
      */
     protected $score;
 
@@ -101,10 +100,6 @@ class Config
      * @var bool
      */
     protected $selfReferee;
-    /**
-     * @var Config\Score[] | ArrayCollection
-     */
-    protected $scores;
 
     const DEFAULTNROFHEADTOHEADMATCHES = 1;
     const DEFAULTWINPOINTS = 3;
@@ -120,8 +115,6 @@ class Config
     public function __construct( RoundNumber $roundNumber )
     {
         $this->setRoundNumber($roundNumber);
-        $this->setDefaults();
-        $this->scores = new ArrayCollection();
     }
 
     /**
@@ -270,7 +263,7 @@ class Config
     }
 
     /**
-     * @return Score\Options
+     * @return Score
      */
     public function getScore()
     {
@@ -278,9 +271,9 @@ class Config
     }
 
     /**
-     * @param Score\Options $score
+     * @param Score $score
      */
-    public function setScore( Score\Options $score)
+    public function setScore( Score $score)
     {
         $this->score = $score;
     }

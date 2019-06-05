@@ -10,8 +10,6 @@ namespace Voetbal\Config;
 
 use Voetbal\Config as ConfigBase;
 use Voetbal\SportConfig as VoetbalConfig;
-use Voetbal\Config\Score as ScoreConfig;
-use Voetbal\Config\Score\Options as ScoreOptions;
 use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Config;
@@ -139,7 +137,7 @@ class Service
         return $this->createScoreConfigFromRoundHelper($config, $unitName, ConfigScore::UPWARDS, 0, $parent);
     }
 
-    protected function createScoreConfigFromRoundHelper( Config $config, string $name, int $direction, int $maximum, ConfigScore $parent ): ConfigScore {
+    protected function createScoreConfigFromRoundHelper( Config $config, string $name, int $direction, int $maximum, ConfigScore $parent = null ): ConfigScore {
         $scoreConfig = new ConfigScore($config, $parent);
         $scoreConfig->setName($name);
         $scoreConfig->setDirection($direction);

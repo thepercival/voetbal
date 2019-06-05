@@ -9,6 +9,8 @@
 namespace Voetbal;
 
 use Voetbal\Qualify\Rule as QualifyRule;
+use Voetbal\Qualify\Group as QualifyGroup;
+use Voetbal\Poule\Horizontal as HorizontalPoule;
 
 class Place
 {
@@ -51,6 +53,16 @@ class Place
      * @var Qualify\Rule[] | array
      */
     protected $toQualifyRules = array();
+
+    /**
+     * @var HorizontalPoule
+     */
+    protected $horizontalPouleWinners;
+
+    /**
+     * @var HorizontalPoule
+     */
+    protected $horizontalPouleLosers;
 
     const MAX_LENGTH_NAME = 10;
 
@@ -224,6 +236,21 @@ class Place
         }
         if ($qualifyRule) {
             $this->toQualifyRules[] = $qualifyRule;
+        }
+    }
+
+    public function getHorizontalPoule(int $winnersOrLosers): HorizontalPoule {
+        return ($winnersOrLosers === QualifyGroup::WINNERS) ? $this->horizontalPouleWinners : $this->horizontalPouleLosers;
+    }
+
+    public function setHorizontalPoule(int $winnersOrLosers, HorizontalPoule $horizontalPoule ) {
+        if ($winnersOrLosers === QualifyGroup::WINNERS) {
+            $this->horizontalPouleWinners = $horizontalPoule;
+        } else {
+            $this->horizontalPouleLosers = $horizontalPoule;
+        }
+        if ($horizontalPoule !== null) {
+            $horizontalPoule->getPlaces()->add($this);
         }
     }
 }

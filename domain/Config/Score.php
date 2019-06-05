@@ -10,7 +10,6 @@ namespace Voetbal\Config;
 
 use Voetbal\Round;
 use Voetbal\Config;
-use Voetbal\Config\Score\OptionsTrait;
 
 class Score
 {
@@ -49,7 +48,7 @@ class Score
     const UPWARDS = 1;
     const DOWNWARDS = 2;
 
-    public function __construct( Config $config, Score $parent )
+    public function __construct( Config $config, Score $parent = null )
     {
         $this->setConfig( $config );
         $this->setParent( $parent );
@@ -133,9 +132,6 @@ class Score
      */
     public function setConfig( Config $config )
     {
-        if ( $this->config === null and $config !== null and !$config->getScores()->contains( $this )){
-            $config->getScores()->add($this) ;
-        }
         $this->config = $config;
     }
 
@@ -152,7 +148,7 @@ class Score
      */
     public function setName( $name )
     {
-        if ( !is_string( $name ) or strlen( $name ) < Options::MIN_LENGTH_NAME or strlen( $name ) > Options::MAX_LENGTH_NAME  ){
+        if ( !is_string( $name ) or strlen( $name ) < Score::MIN_LENGTH_NAME or strlen( $name ) > Score::MAX_LENGTH_NAME  ){
             throw new \InvalidArgumentException( "de naam heeft een onjuiste waarde", E_ERROR );
         }
         $this->name = $name;
@@ -178,7 +174,7 @@ class Score
      */
     public function setDirection( $direction )
     {
-        if ( $direction !== Options::UPWARDS and $direction !== Options::DOWNWARDS ) {
+        if ( $direction !== Score::UPWARDS and $direction !== Score::DOWNWARDS ) {
             throw new \InvalidArgumentException( "de richting heeft een onjuiste waarde", E_ERROR );
         }
         $this->direction = $direction;
