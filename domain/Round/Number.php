@@ -45,12 +45,8 @@ class Number
     public function __construct( Competition $competition, RoundNumber $previous = null )
     {
         $this->competition = $competition;
-        if( $previous !== null ) {
-            $this->setPrevious( $previous );
-            $previous->setNext( $this );
-        } else {
-            $this->number = 1;
-        }
+        $this->previous = $previous;
+        $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
     }
 
     /**
@@ -79,8 +75,13 @@ class Number
         return $this->next;
     }
 
-    public function setNext(RoundNumber $next = null) {
-        $this->next = $next;
+    public function createNext(): RoundNumber {
+        $this->next = new RoundNumber($this->getCompetition(), $this);
+        return $this->getNext();
+    }
+
+    public function removeNext() {
+        $this->next = null;
     }
 
     public function hasPrevious(): bool {
@@ -89,13 +90,6 @@ class Number
 
     public function getPrevious(): ?RoundNumber {
         return $this->previous;
-    }
-
-    public function setPrevious( RoundNumber $previous = null ) {
-        $this->previous = $previous;
-        if( $previous !== null ) {
-            $this->number = $this->previous->getNumber() + 1;
-        }
     }
 
     public function getCompetition(): Competition {

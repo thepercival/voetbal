@@ -15,8 +15,6 @@ use Voetbal\Round\Number as RoundNumber;
 
 class Config
 {
-    use OptionsTrait;
-
     /**
      * @var int
      */
@@ -25,11 +23,99 @@ class Config
      * @var RoundNumber
      */
     protected $roundNumber;
+    /**
+     * @var int
+     */
+    protected $qualifyRule;
+    /**
+     * @var int
+     */
+    protected $nrOfHeadtoheadMatches;
 
+    /**
+     * @var double
+     */
+    protected $winPoints;
+
+    /**
+     * @var double
+     */
+    protected $drawPoints;
+
+    /**
+     * @var bool
+     */
+    protected $hasExtension;
+
+    /**
+     * @var double
+     */
+    protected $winPointsExt;
+
+    /**
+     * @var double
+     */
+    protected $drawPointsExt;
+
+    /**
+     * @var int
+     */
+    protected $minutesPerGameExt;
+
+    /**
+     * @var bool
+     */
+    protected $enableTime;
+
+    /**
+     * @var int
+     */
+    protected $minutesPerGame;
+
+    /**
+     * @var int
+     */
+    protected $minutesBetweenGames;
+
+    /**
+     * @var int
+     */
+    protected $minutesAfter;
+
+    /**
+     * @var Score\Options
+     */
+    protected $score;
+
+    /**
+     * @var bool
+     */
+    protected $teamup;
+
+    /**
+     * @var int
+     */
+    protected $pointsCalculation;
+
+    /**
+     * @var bool
+     */
+    protected $selfReferee;
     /**
      * @var Config\Score[] | ArrayCollection
      */
     protected $scores;
+
+    const DEFAULTNROFHEADTOHEADMATCHES = 1;
+    const DEFAULTWINPOINTS = 3;
+    const DEFAULTDRAWPOINTS = 1;
+    const DEFAULTHASEXTENSION = false;
+    const DEFAULTENABLETIME = false;
+    const TEAMUP_MIN = 4;
+    const TEAMUP_MAX = 6;
+    const POINTS_CALC_GAMEPOINTS = 0;
+    const POINTS_CALC_SCOREPOINTS = 1;
+    const POINTS_CALC_BOTH = 2;
 
     public function __construct( RoundNumber $roundNumber )
     {
@@ -57,6 +143,309 @@ class Config
     }
 
     /**
+     * @return int
+     */
+    public function getQualifyRule()
+    {
+        return $this->qualifyRule;
+    }
+
+    /**
+     * @param int $qualifyRule
+     */
+    public function setQualifyRule( int $qualifyRule)
+    {
+        if ( $qualifyRule < RankingService::RULESSET_WC or $qualifyRule > RankingService::RULESSET_EC) {
+            throw new \InvalidArgumentException("de kwalificatieregel heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->qualifyRule = $qualifyRule;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNrOfHeadtoheadMatches()
+    {
+        return $this->nrOfHeadtoheadMatches;
+    }
+
+    /**
+     * @param int $nrOfHeadtoheadMatches
+     */
+    public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
+    {
+        if (!is_int($nrOfHeadtoheadMatches)) {
+            throw new \InvalidArgumentException("het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
+    }
+
+    /**
+     * @return double
+     */
+    public function getWinPointsExt()
+    {
+        return $this->winPointsExt;
+    }
+
+    /**
+     * @param int $winPointsExt
+     */
+    public function setWinPointsExt($winPointsExt)
+    {
+        $this->winPointsExt = $winPointsExt;
+    }
+
+    /**
+     * @return double
+     */
+    public function getDrawPointsExt()
+    {
+        return $this->drawPointsExt;
+    }
+
+    /**
+     * @param int $drawPointsExt
+     */
+    public function setDrawPointsExt($drawPointsExt)
+    {
+        $this->drawPointsExt = $drawPointsExt;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getEnableTime()
+    {
+        return $this->enableTime;
+    }
+
+    /**
+     * @param bool $enableTime
+     */
+    public function setEnableTime($enableTime)
+    {
+        if (!is_bool($enableTime)) {
+            throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->enableTime = $enableTime;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinutesBetweenGames()
+    {
+        return $this->minutesBetweenGames;
+    }
+
+    /**
+     * @param int $minutesBetweenGames
+     */
+    public function setMinutesBetweenGames($minutesBetweenGames)
+    {
+        if ($minutesBetweenGames !== null and !is_int($minutesBetweenGames)) {
+            throw new \InvalidArgumentException("het aantal-minuten-tussen-wedstrijden heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesBetweenGames = $minutesBetweenGames;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinutesAfter()
+    {
+        return $this->minutesAfter;
+    }
+
+    /**
+     * @param int $minutesAfter
+     */
+    public function setMinutesAfter($minutesAfter)
+    {
+        if ($minutesAfter !== null and !is_int($minutesAfter)) {
+            throw new \InvalidArgumentException("het aantal minuten pauze na de ronde heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesAfter = $minutesAfter;
+    }
+
+    /**
+     * @return Score\Options
+     */
+    public function getScore()
+    {
+        return $this->score;
+    }
+
+    /**
+     * @param Score\Options $score
+     */
+    public function setScore( Score\Options $score)
+    {
+        $this->score = $score;
+    }
+
+    public function getMaximalNrOfMinutesPerGame(): int
+    {
+        $nrOfMinutes = $this->getMinutesPerGame();
+        if ($this->getHasExtension()) {
+            $nrOfMinutes += $this->getMinutesPerGameExt();
+        }
+        return $nrOfMinutes;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinutesPerGame()
+    {
+        return $this->minutesPerGame;
+    }
+
+    /**
+     * @param int $minutesPerGame
+     */
+    public function setMinutesPerGame($minutesPerGame)
+    {
+        if ($minutesPerGame !== null and !is_int($minutesPerGame)) {
+            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesPerGame = $minutesPerGame;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHasExtension()
+    {
+        return $this->hasExtension;
+    }
+
+    /**
+     * @param bool $hasExtension
+     */
+    public function setHasExtension($hasExtension)
+    {
+        if (!is_bool($hasExtension)) {
+            throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+
+        $this->hasExtension = $hasExtension;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinutesPerGameExt()
+    {
+        return $this->minutesPerGameExt;
+    }
+
+    /**
+     * @param int $minutesPerGameExt
+     */
+    public function setMinutesPerGameExt($minutesPerGameExt)
+    {
+        if ($minutesPerGameExt !== null and !is_int($minutesPerGameExt)) {
+            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->minutesPerGameExt = $minutesPerGameExt;
+    }
+
+    /**
+     * @return double
+     */
+    public function getWinPoints()
+    {
+        return $this->winPoints;
+    }
+
+    /**
+     * @param double $winPoints
+     */
+    public function setWinPoints($winPoints)
+    {
+        $this->winPoints = $winPoints;
+    }
+
+    /**
+     * @return double
+     */
+    public function getDrawPoints()
+    {
+        return $this->drawPoints;
+    }
+
+    /**
+     * @param double $drawPoints
+     */
+    public function setDrawPoints($drawPoints)
+    {
+        $this->drawPoints = $drawPoints;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getTeamup()
+    {
+        return $this->teamup;
+    }
+
+    /**
+     * @param bool $teamup
+     */
+    public function setTeamup($teamup)
+    {
+        if (!is_bool($teamup)) {
+            throw new \InvalidArgumentException("mixen-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->teamup = $teamup;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSelfReferee()
+    {
+        return $this->selfReferee;
+    }
+
+    /**
+     * @param bool $selfReferee
+     */
+    public function setSelfReferee($selfReferee)
+    {
+        if (!is_bool($selfReferee)) {
+            throw new \InvalidArgumentException("zelf-scheidsrechter-ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->selfReferee = $selfReferee;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPointsCalculation()
+    {
+        return $this->pointsCalculation;
+    }
+
+    /**
+     * @param int $pointsCalculation
+     */
+    public function setPointsCalculation($pointsCalculation)
+    {
+        if (!is_int($pointsCalculation)) {
+            throw new \InvalidArgumentException("punten-berekening heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->pointsCalculation = $pointsCalculation;
+    }
+
+    public function getNrOfCompetitorsPerGame(): int {
+        return $this->getTeamup() ? 4 : 2;
+    }
+
+    /**
      * @return RoundNumber
      */
     public function getRoundNumber()
@@ -71,45 +460,6 @@ class Config
     {
         // $roundNumber->setConfig($this);
         $this->roundNumber = $roundNumber;
-    }
-
-    /**
-     * @return Config\Score[] | ArrayCollection
-     */
-    public function getScores()
-    {
-        if( $this->scores === null ) {
-            $this->scores = new ArrayCollection();
-        }
-        return $this->scores;
-    }
-
-    /**
-     * @return Config\Score|null
-     */
-    public function getScore(): ?Config\Score
-    {
-        $score= $this->scores->first();
-        if( $score === false ) {
-            return null;
-        }
-        while( $score->getChild() !== null ) {
-            $score = $score->getChild();
-        }
-        return $score;
-    }
-
-    /**
-     * @param Config\Score $score
-     */
-    public function setScore( Config\Score $score )
-    {
-        $this->getScores()->clear();
-        $this->getScores()->add( $score );
-        while( $score->getParent() !== null ) {
-            $this->getScores()->add( $score->getParent() );
-            $score = $score->getParent();
-        }
     }
 
     /**
@@ -136,71 +486,5 @@ class Config
             $score = $score->getChild();
         }
         return $score;
-    }
-
-    /**
-     * @return Config\Score|null
-     */
-    public function getRootScore()
-    {
-        foreach( $this->getScores() as $score) {
-            if ($score->getParent() === null) {
-                return $score;
-            }
-        }
-        return null;
-    }
-
-
-    public function getOptions(): ConfigOptions
-    {
-        $configOptions = new ConfigOptions();
-        $configOptions->setQualifyRule($this->getQualifyRule());
-        $configOptions->setNrOfHeadtoheadMatches($this->getNrOfHeadtoheadMatches());
-        $configOptions->setWinPoints($this->getWinPoints());
-        $configOptions->setDrawPoints($this->getDrawPoints());
-        $configOptions->setHasExtension($this->getHasExtension());
-        $configOptions->setWinPointsExt($this->getWinPointsExt());
-        $configOptions->setDrawPointsExt($this->getDrawPointsExt());
-        $configOptions->setMinutesPerGameExt($this->getMinutesPerGameExt());
-        $configOptions->setEnableTime($this->getEnableTime());
-        $configOptions->setMinutesPerGame($this->getMinutesPerGame());
-        $configOptions->setMinutesBetweenGames($this->getMinutesBetweenGames());
-        $configOptions->setMinutesAfter($this->getMinutesAfter());
-        $configOptions->setScore($this->getScore()->getOptions());
-        $configOptions->setTeamup($this->getTeamup());
-        $configOptions->setPointsCalculation($this->getPointsCalculation());
-        $configOptions->setSelfReferee($this->getSelfReferee());
-        return $configOptions;
-    }
-
-    public function setOptions(ConfigOptions $configOptions)
-    {
-        $this->setQualifyRule($configOptions->getQualifyRule());
-        $this->setNrOfHeadtoheadMatches($configOptions->getNrOfHeadtoheadMatches());
-        $this->setWinPoints($configOptions->getWinPoints());
-        $this->setDrawPoints($configOptions->getDrawPoints());
-        $this->setHasExtension($configOptions->getHasExtension());
-        $this->setWinPointsExt($configOptions->getWinPointsExt());
-        $this->setDrawPointsExt($configOptions->getDrawPointsExt());
-        $this->setMinutesPerGameExt($configOptions->getMinutesPerGameExt());
-        $this->setEnableTime($configOptions->getEnableTime());
-        $this->setMinutesPerGame($configOptions->getMinutesPerGame());
-        $this->setMinutesBetweenGames($configOptions->getMinutesBetweenGames());
-        $this->setMinutesAfter($configOptions->getMinutesAfter());
-        $this->setScoreOptions( $this->getScore(), $configOptions->getScore() );
-        $this->setTeamup($configOptions->getTeamup());
-        $this->setPointsCalculation($configOptions->getPointsCalculation());
-        $this->setSelfReferee($configOptions->getSelfReferee());
-    }
-
-    protected function setScoreOptions(Config\Score $score, Config\Score\Options $scoreOptions)
-    {
-        $score->setName($scoreOptions->getName());
-        $score->setDirection($scoreOptions->getDirection());
-        $score->setMaximum($scoreOptions->getMaximum());
-        if( $score->getParent() !== null && $scoreOptions->getParent() !== null ) {
-            $this->setScoreOptions($score->getParent(), $scoreOptions->getParent());
-        }
     }
 }

@@ -8,21 +8,24 @@
 
 namespace Voetbal\Structure;
 
+use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Competitor\Range as CompetitorRange;
 use Voetbal\Structure as StructureBase;
 use Voetbal\Competition;
 use Voetbal\Place;
+use Voetbal\Poule;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
+use Voetbal\Poule\Horizontal\Creator as HorizontolPouleCreator;
+use Voetbal\Poule\Horizontal\Service as HorizontalPouleService;
 use Voetbal\Round\Number\Service as RoundNumberService;
 use Voetbal\Round\Service as RoundService;
 use Voetbal\Config\Service as ConfigService;
 use Voetbal\Config\Options as ConfigOptions;
 use Voetbal\Qualify\Rule\Service as QualifyRuleService;
 use Voetbal\Qualify\Group as QualifyGroup;
-
-
+use Voetbal\Qualify\Group\Service as QualifyGroupService;
 
 class Service {
 
@@ -81,8 +84,9 @@ class Service {
      */
     private $competitorRange;
 
-    public function __construct( CompetitorRange $competitorRange )
+    public function __construct( CompetitorRange $competitorRange = null )
     {
+        $this->competitorRange = $competitorRange;
         $this->configService = new ConfigService();
     }
 
@@ -158,7 +162,7 @@ class Service {
 
     public function addPoule(Round $round, bool $modifyNrOfPlaces = null): Poule {
         $poules = $round->getPoules();
-        $lastPoule = $poules[poules->count() - 1];
+        $lastPoule = $poules[$poules->count() - 1];
         $newNrOfPlaces = $round->getNrOfPlaces() + ($modifyNrOfPlaces ? $lastPoule->getPlaces()->count() : 0);
         if ($modifyNrOfPlaces && $this->competitorRange && $newNrOfPlaces > $this->competitorRange->max) {
             throw new \Exception('er mogen maximaal ' . $this->competitorRange->max . ' deelnemers meedoen', E_ERROR);
@@ -195,7 +199,7 @@ class Service {
 
     public function addQualifier(Round $round, int $winnersOrLosers) {
         if ($round->getNrOfPlacesChildren() >= $round->getNrOfPlaces()) {
-            throw new \Exception('er mogen maximaal ' . $round->.getNrOfPlacesChildren() . ' deelnemers naar de volgende ronde', E_ERROR);
+            throw new \Exception('er mogen maximaal ' . $round->getNrOfPlacesChildren() . ' deelnemers naar de volgende ronde', E_ERROR);
         }
         $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
         $newNrOfPlaces = $nrOfPlaces + ($nrOfPlaces === 0 ? 2 : 1);
@@ -210,259 +214,265 @@ class Service {
     }
 
     public function isQualifyGroupSplittable(HorizontalPoule $previous, HorizontalPoule $current ): bool {
-        if (!previous || !previous.getQualifyGroup() || previous.getQualifyGroup() !== current.getQualifyGroup()) {
+        if (!$previous || !$previous->getQualifyGroup() || $previous->getQualifyGroup() !== $current->getQualifyGroup()) {
             return false;
         }
-        if (current.isBorderPoule() && current.getNrOfQualifiers() < 2) {
+        if ($current->isBorderPoule() && $current->getNrOfQualifiers() < 2) {
             return false;
         }
         return true;
     }
 
-        splitQualifyGroup(qualifyGroup: QualifyGroup, pouleOne: HorizontalPoule, pouleTwo: HorizontalPoule) {
-        if (!this.isQualifyGroupSplittable(pouleOne, pouleTwo)) {
-            throw new Error('de kwalificatiegroepen zijn niet splitsbaar');
+    public function splitQualifyGroup(QualifyGroup $qualifyGroup, HorizontalPoule $pouleOne, HorizontalPoule $pouleTwo ) {
+        if (!$this->isQualifyGroupSplittable($pouleOne, $pouleTwo)) {
+            throw new \Exception('de kwalificatiegroepen zijn niet splitsbaar', E_ERROR );
         }
-        const round = qualifyGroup.getRound();
+        $round = $qualifyGroup->getRound();
 
-        const firstHorPoule = pouleOne.getNumber() <= pouleTwo.getNumber() ? pouleOne : pouleTwo;
-        const secondHorPoule = (firstHorPoule === pouleOne) ? pouleTwo : pouleOne;
+        $firstHorPoule = $pouleOne->getNumber() <= $pouleTwo->getNumber() ? $pouleOne : $pouleTwo;
+        $secondHorPoule = ($firstHorPoule === $pouleOne) ? $pouleTwo : $pouleOne;
 
-        const nrOfPlacesChildrenBeforeSplit = round.getNrOfPlacesChildren(qualifyGroup.getWinnersOrLosers());
-        const qualifyGroupService = new QualifyGroupService(this);
-        qualifyGroupService.splitFrom(secondHorPoule);
+        $nrOfPlacesChildrenBeforeSplit = $round->getNrOfPlacesChildren($qualifyGroup->getWinnersOrLosers());
+        $qualifyGroupService = new QualifyGroupService($this);
+        $qualifyGroupService->splitFrom($secondHorPoule);
 
-        this.updateQualifyGroups(round, qualifyGroup.getWinnersOrLosers(), nrOfPlacesChildrenBeforeSplit);
+        $this->updateQualifyGroups($round, $qualifyGroup->getWinnersOrLosers(), $nrOfPlacesChildrenBeforeSplit);
 
-        const qualifyRuleService = new QualifyRuleService(round);
-        qualifyRuleService.recreateTo();
+        $qualifyRuleService = new QualifyRuleService($round);
+        $qualifyRuleService->recreateTo();
 
-        const rootRound = this.getRoot(round);
-        const structure = new Structure(rootRound.getNumber(), rootRound);
-        structure.setStructureNumbers();
+        $rootRound = $this->getRoot($round);
+        $structure = new Structure($rootRound->getNumber(), $rootRound);
+        $structure->setStructureNumbers();
     }
 
-        areQualifyGroupsMergable(previous: QualifyGroup, current: QualifyGroup): boolean {
-        return (previous !== undefined && current !== undefined && previous.getWinnersOrLosers() !== QualifyGroup.DROPOUTS
-            && previous.getWinnersOrLosers() === current.getWinnersOrLosers() && previous !== current);
+    public function areQualifyGroupsMergable(QualifyGroup $previous, QualifyGroup $current ): bool {
+        return ($previous !== null && $current !== null && $previous->getWinnersOrLosers() !== QualifyGroup::DROPOUTS
+            && $previous->getWinnersOrLosers() === $current->getWinnersOrLosers() && $previous !== $current);
     }
 
-        mergeQualifyGroups(qualifyGroupOne: QualifyGroup, qualifyGroupTwo: QualifyGroup) {
-        if (!this.areQualifyGroupsMergable(qualifyGroupOne, qualifyGroupTwo)) {
-            throw new Error('de kwalificatiegroepen zijn niet te koppelen');
+    public function mergeQualifyGroups(QualifyGroup $qualifyGroupOne, QualifyGroup $qualifyGroupTwo) {
+        if (!$this->areQualifyGroupsMergable($qualifyGroupOne, $qualifyGroupTwo)) {
+            throw new \Exception('de kwalificatiegroepen zijn niet te koppelen', E_ERROR );
         }
-        const round = qualifyGroupOne.getRound();
-        const winnersOrLosers = qualifyGroupOne.getWinnersOrLosers();
+        $round = $qualifyGroupOne->getRound();
+        $winnersOrLosers = $qualifyGroupOne->getWinnersOrLosers();
 
-        const firstQualifyGroup = qualifyGroupOne.getNumber() <= qualifyGroupTwo.getNumber() ? qualifyGroupOne : qualifyGroupTwo;
-        const secondQualifyGroup = (firstQualifyGroup === qualifyGroupOne) ? qualifyGroupTwo : qualifyGroupOne;
+        $firstQualifyGroup = $qualifyGroupOne->getNumber() <= $qualifyGroupTwo->getNumber() ? $qualifyGroupOne : $qualifyGroupTwo;
+        $secondQualifyGroup = ($firstQualifyGroup === $qualifyGroupOne) ? $qualifyGroupTwo : $qualifyGroupOne;
 
-        const nrOfPlacesChildrenBeforeMerge = round.getNrOfPlacesChildren(winnersOrLosers);
-        const qualifyGroupService = new QualifyGroupService(this);
-        qualifyGroupService.merge(firstQualifyGroup, secondQualifyGroup);
+        $nrOfPlacesChildrenBeforeMerge = $round->getNrOfPlacesChildren($winnersOrLosers);
+        $qualifyGroupService = new QualifyGroupService($this);
+        $qualifyGroupService->merge($firstQualifyGroup, $secondQualifyGroup);
 
-        this.updateQualifyGroups(round, winnersOrLosers, nrOfPlacesChildrenBeforeMerge);
+        $this->updateQualifyGroups($round, $winnersOrLosers, $nrOfPlacesChildrenBeforeMerge);
 
-        const qualifyRuleService = new QualifyRuleService(round);
-        qualifyRuleService.recreateTo();
+        $qualifyRuleService = new QualifyRuleService($round);
+        $qualifyRuleService->recreateTo();
 
-        const rootRound = this.getRoot(round);
-        const structure = new Structure(rootRound.getNumber(), rootRound);
-        structure.setStructureNumbers();
+        $rootRound = $this->getRoot($round);
+        $structure = new StructureBase($rootRound->getNumber(), $rootRound);
+        $structure->setStructureNumbers();
     }
 
-        updateRound(round: Round, newNrOfPlaces: number, newNrOfPoules: number) {
+    public function updateRound(Round $round, int $newNrOfPlaces, int $newNrOfPoules ) {
 
-        if (round.getNrOfPlaces() === newNrOfPlaces && newNrOfPoules === round.getPoules().length) {
+        if ($round->getNrOfPlaces() === $newNrOfPlaces && $newNrOfPoules === $round->getPoules()->count() ) {
             return;
         }
-        this.refillRound(round, newNrOfPlaces, newNrOfPoules);
+        $this->refillRound($round, $newNrOfPlaces, $newNrOfPoules);
 
-        const horizontalPouleService = new HorizontalPouleService(round);
-        horizontalPouleService.recreate();
+        $horizontalPouleService = new HorizontalPouleService($round);
+        $horizontalPouleService->recreate();
 
-        [QualifyGroup.WINNERS, QualifyGroup.LOSERS].forEach(winnersOrLosers => {
-            let nrOfPlacesWinnersOrLosers = round.getNrOfPlacesChildren(winnersOrLosers);
+        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
+            $nrOfPlacesWinnersOrLosers = $round->getNrOfPlacesChildren($winnersOrLosers);
                 // als aantal plekken minder wordt, dan is nieuwe aantal plekken max. aantal plekken van de ronde
-                if (nrOfPlacesWinnersOrLosers > newNrOfPlaces) {
-                    nrOfPlacesWinnersOrLosers = newNrOfPlaces;
+                if ($nrOfPlacesWinnersOrLosers > $newNrOfPlaces) {
+                    $nrOfPlacesWinnersOrLosers = $newNrOfPlaces;
                 }
-                this.updateQualifyGroups(round, winnersOrLosers, nrOfPlacesWinnersOrLosers);
-            });
-
-            const qualifyRuleService = new QualifyRuleService(round);
-            qualifyRuleService.recreateTo();
+            $this->updateQualifyGroups($round, $winnersOrLosers, $nrOfPlacesWinnersOrLosers);
         }
 
-        protected updateQualifyGroups(round: Round, winnersOrLosers: number, newNrOfPlacesChildren: number) {
-        const roundNrOfPlaces = round.getNrOfPlaces()
-            if (newNrOfPlacesChildren > roundNrOfPlaces) {
-                newNrOfPlacesChildren = roundNrOfPlaces;
-            }
-            // dit kan niet direct door de gebruiker maar wel een paar dieptes verder op
-            if (roundNrOfPlaces < 4 && newNrOfPlacesChildren >= 2) {
-                newNrOfPlacesChildren = 0;
-            }
-            const getNewQualifyGroup = (removedQualifyGroups): HorizontolPoulesCreator => {
-            let qualifyGroup = removedQualifyGroups.shift();
-                let nrOfQualifiers;
-                if (qualifyGroup === undefined) {
-                    qualifyGroup = new QualifyGroup(round, winnersOrLosers);
-                    const nextRoundNumber = round.getNumber().hasNext() ? round.getNumber().getNext() : this.createRoundNumber(round);
-                    new Round(nextRoundNumber, qualifyGroup);
-                    nrOfQualifiers = newNrOfPlacesChildren;
-                } else {
-                    round.getQualifyGroups(winnersOrLosers).push(qualifyGroup);
-                    // warning: cannot make use of qualifygroup.horizontalpoules yet!
+        $qualifyRuleService = new QualifyRuleService($round);
+        $qualifyRuleService->recreateTo();
+    }
 
-                    // add and remove qualifiers
-                    nrOfQualifiers = qualifyGroup.getChildRound().getNrOfPlaces();
-
-                    if (nrOfQualifiers < round.getPoules().length && newNrOfPlacesChildren > nrOfQualifiers) {
-                        nrOfQualifiers = round.getPoules().length;
-                    }
-                    if (nrOfQualifiers > newNrOfPlacesChildren) {
-                        nrOfQualifiers = newNrOfPlacesChildren;
-                    } else if (nrOfQualifiers < newNrOfPlacesChildren && removedQualifyGroups.length === 0) {
-                        nrOfQualifiers = newNrOfPlacesChildren;
-                    }
-                    if (newNrOfPlacesChildren - nrOfQualifiers === 1) {
-                        nrOfQualifiers = newNrOfPlacesChildren;
-                    }
-                }
-                return { qualifyGroup: qualifyGroup, nrOfQualifiers: nrOfQualifiers };
-            };
-
-
-            const horizontolPoulesCreators: HorizontolPoulesCreator[] = [];
-            const qualifyGroups = round.getQualifyGroups(winnersOrLosers);
-            const removedQualifyGroups = qualifyGroups.splice(0, qualifyGroups.length);
-            let qualifyGroupNumber = 1;
-            while (newNrOfPlacesChildren > 0) {
-                const horizontolPoulesCreator = getNewQualifyGroup(removedQualifyGroups);
-                horizontolPoulesCreator.qualifyGroup.setNumber(qualifyGroupNumber++);
-                horizontolPoulesCreators.push(horizontolPoulesCreator);
-                newNrOfPlacesChildren -= horizontolPoulesCreator.nrOfQualifiers;
-            }
-            this.updateQualifyGroupsHorizontalPoules(round.getHorizontalPoules(winnersOrLosers).slice(), horizontolPoulesCreators);
-
-            horizontolPoulesCreators.forEach(creator => {
-            const newNrOfPoules = this.calculateNewNrOfPoules(creator.qualifyGroup, creator.nrOfQualifiers);
-            this.updateRound(creator.qualifyGroup.getChildRound(), creator.nrOfQualifiers, newNrOfPoules);
-        });
-            this.cleanupRemovedQualifyGroups(round, removedQualifyGroups);
+    protected function updateQualifyGroups(Round $round, int $winnersOrLosers, int $newNrOfPlacesChildren) {
+        $roundNrOfPlaces = $round->getNrOfPlaces();
+        if ($newNrOfPlacesChildren > $roundNrOfPlaces) {
+            $newNrOfPlacesChildren = $roundNrOfPlaces;
         }
-
-        updateQualifyGroupsHorizontalPoules(roundHorizontalPoules: HorizontalPoule[], horizontolPoulesCreators: HorizontolPoulesCreator[]) {
-        horizontolPoulesCreators.forEach(creator => {
-            creator.qualifyGroup.getHorizontalPoules().splice(0);
-            let qualifiersAdded = 0;
-                while (qualifiersAdded < creator.nrOfQualifiers) {
-                    const roundHorizontalPoule = roundHorizontalPoules.shift();
-                    roundHorizontalPoule.setQualifyGroup(creator.qualifyGroup);
-                    qualifiersAdded += roundHorizontalPoule.getPlaces().length;
-                }
-            });
-            roundHorizontalPoules.forEach(roundHorizontalPoule => roundHorizontalPoule.setQualifyGroup(undefined));
+        // dit kan niet direct door de gebruiker maar wel een paar dieptes verder op
+        if ($roundNrOfPlaces < 4 && $newNrOfPlacesChildren >= 2) {
+            $newNrOfPlacesChildren = 0;
         }
+        $getNewQualifyGroup = function(ArrayCollection $removedQualifyGroups) use ($round,$winnersOrLosers,$newNrOfPlacesChildren) : HorizontolPouleCreator {
+            $qualifyGroup = $removedQualifyGroups->shift();
+            $nrOfQualifiers = 0;
+            if ($qualifyGroup === null) {
+                $qualifyGroup = new QualifyGroup($round, $winnersOrLosers);
+                $nextRoundNumber = $round->getNumber()->hasNext() ? $round->getNumber()->getNext() : $this->createRoundNumber($round);
+                new Round($nextRoundNumber, $qualifyGroup);
+                $nrOfQualifiers = $newNrOfPlacesChildren;
+            } else {
+                $round->getQualifyGroups($winnersOrLosers)->push($qualifyGroup);
+                // warning: cannot make use of qualifygroup.horizontalpoules yet!
 
-        /**
-         * if roundnumber has no rounds left, also remove round number
-         *
-         * @param round
-         * @param removedQualifyGroups
-         */
-        protected cleanupRemovedQualifyGroups(round: Round, removedQualifyGroups: QualifyGroup[]) {
-        const nextRoundNumber = round.getNumber().getNext();
-        if (nextRoundNumber === undefined) {
+                // add and remove qualifiers
+                $nrOfQualifiers = $qualifyGroup->getChildRound()->getNrOfPlaces();
+
+                if ($nrOfQualifiers < $round->getPoules()->count() && $newNrOfPlacesChildren > $nrOfQualifiers) {
+                    $nrOfQualifiers = $round->getPoules()->count();
+                }
+                if ($nrOfQualifiers > $newNrOfPlacesChildren) {
+                    $nrOfQualifiers = $newNrOfPlacesChildren;
+                } else if ($nrOfQualifiers < $newNrOfPlacesChildren && $removedQualifyGroups->count() === 0) {
+                    $nrOfQualifiers = $newNrOfPlacesChildren;
+                }
+                if ($newNrOfPlacesChildren - $nrOfQualifiers === 1) {
+                    $nrOfQualifiers = $newNrOfPlacesChildren;
+                }
+            }
+            return new HorizontolPouleCreator( $qualifyGroup, $nrOfQualifiers );
+        };
+
+        $horizontolPoulesCreators = [];
+        $qualifyGroups = $round->getQualifyGroups($winnersOrLosers);
+
+        $removedQualifyGroups = new ArrayCollection( $qualifyGroups->toArray() );
+        $qualifyGroups->clear();
+        $qualifyGroupNumber = 1;
+        while ($newNrOfPlacesChildren > 0) {
+            $horizontolPoulesCreator = $getNewQualifyGroup($removedQualifyGroups);
+            $horizontolPoulesCreator->qualifyGroup->setNumber($qualifyGroupNumber++);
+            $horizontolPoulesCreators->push($horizontolPoulesCreator);
+            $newNrOfPlacesChildren -= $horizontolPoulesCreator->nrOfQualifiers;
+        }
+        $horPoules = $round->getHorizontalPoules($winnersOrLosers)->slice(0);
+        $this->updateQualifyGroupsHorizontalPoules($horPoules, $horizontolPoulesCreators);
+
+        foreach( $horizontolPoulesCreators as $creator ) {
+            $newNrOfPoules = $this->calculateNewNrOfPoules($creator->qualifyGroup, $creator->nrOfQualifiers);
+            $this->updateRound($creator->qualifyGroup->getChildRound(), $creator->nrOfQualifiers, $newNrOfPoules);
+        }
+        $this->cleanupRemovedQualifyGroups($round, $removedQualifyGroups);
+    }
+
+    /**
+     * @param array $roundHorizontalPoules | HorizontolPoule[]
+     * @param array $horizontolPoulesCreators | HorizontolPoulesCreator[]
+     */
+    protected function updateQualifyGroupsHorizontalPoules(array $roundHorizontalPoules, array $horizontolPoulesCreators ) {
+        foreach( $horizontolPoulesCreators as $creator ) {
+            $creator->qualifyGroup->getHorizontalPoules()->splice(0);
+            $qualifiersAdded = 0;
+            while ($qualifiersAdded < $creator->nrOfQualifiers) {
+                $roundHorizontalPoule = array_shift( $roundHorizontalPoules );
+                $roundHorizontalPoule->setQualifyGroup($creator->qualifyGroup);
+                $qualifiersAdded += $roundHorizontalPoule->getPlaces()->count();
+            }
+        }
+        foreach( $roundHorizontalPoules as $roundHorizontalPoule ) {
+            $roundHorizontalPoule->setQualifyGroup(null);
+        }
+    }
+
+    /**
+     * if roundnumber has no rounds left, also remove round number
+     *
+     * @param Round $round
+     * @param ArrayCollection $removedQualifyGroups | QualifyGroup[]
+     */
+    protected function cleanupRemovedQualifyGroups(Round $round, ArrayCollection $removedQualifyGroups) {
+        $nextRoundNumber = $round->getNumber()->getNext();
+        if ($nextRoundNumber === null) {
             return;
         }
-        removedQualifyGroups.forEach(removedQualifyGroup => {
-            removedQualifyGroup.getHorizontalPoules().forEach(horizontalPoule => {
-                horizontalPoule.setQualifyGroup(undefined);
-            });
-                const idx = nextRoundNumber.getRounds().indexOf(removedQualifyGroup.getChildRound());
-                if (idx > -1) {
-                    nextRoundNumber.getRounds().splice(idx, 1);
-                }
-
-            });
-            if (nextRoundNumber.getRounds().length === 0) {
-                round.getNumber().removeNext();
+        foreach( $removedQualifyGroups as $removedQualifyGroup ) {
+            foreach( $removedQualifyGroup->getHorizontalPoules() as $horizontalPoule ) {
+                $horizontalPoule->setQualifyGroup(null);
+            }
+            $idx = $nextRoundNumber->getRounds()->indexOf($removedQualifyGroup->getChildRound());
+            if ($idx > -1) {
+                $nextRoundNumber->getRounds()->splice($idx, 1);
             }
         }
+        if ($nextRoundNumber->getRounds()->count() === 0) {
+            $round->getNumber()->removeNext();
+        }
+    }
 
-        calculateNewNrOfPoules(parentQualifyGroup: QualifyGroup, newNrOfPlaces: number): number {
+    public function calculateNewNrOfPoules(QualifyGroup $parentQualifyGroup, int $newNrOfPlaces): int {
 
-        const round = parentQualifyGroup.getChildRound();
-        const oldNrOfPlaces = round ? round.getNrOfPlaces() : parentQualifyGroup.getNrOfPlaces();
-        const oldNrOfPoules = round ? round.getPoules().length : this.getDefaultNrOfPoules(oldNrOfPlaces);
+        $round = $parentQualifyGroup->getChildRound();
+        $oldNrOfPlaces = $round ? $round->getNrOfPlaces() : $parentQualifyGroup->getNrOfPlaces();
+        $oldNrOfPoules = $round ? $round->getPoules()->count() : $this->getDefaultNrOfPoules($oldNrOfPlaces);
 
-        if (oldNrOfPoules === 0) {
+        if ($oldNrOfPoules === 0) {
             return 1;
         }
-        if (oldNrOfPlaces < newNrOfPlaces) { // add
-            if ((oldNrOfPlaces % oldNrOfPoules) > 0 || (oldNrOfPlaces / oldNrOfPoules) === 2) {
-                return oldNrOfPoules;
+        if ($oldNrOfPlaces < $newNrOfPlaces) { // add
+            if (($oldNrOfPlaces % $oldNrOfPoules) > 0 || ($oldNrOfPlaces / $oldNrOfPoules) === 2) {
+                return $oldNrOfPoules;
             }
-            return oldNrOfPoules + 1;
+            return $oldNrOfPoules + 1;
         }
         // remove
-        if ((newNrOfPlaces / oldNrOfPoules) < 2) {
-            return oldNrOfPoules - 1;
+        if (($newNrOfPlaces / $oldNrOfPoules) < 2) {
+            return $oldNrOfPoules - 1;
         }
-        return oldNrOfPoules;
+        return $oldNrOfPoules;
     }
 
-        createRoundNumber(parentRound: Round): RoundNumber {
-        const roundNumber = parentRound.getNumber().createNext();
-        this.configService.createFromPrevious(roundNumber);
-        return roundNumber;
+    public function createRoundNumber(Round $parentRound ): RoundNumber {
+        $roundNumber = $parentRound->getNumber()->createNext();
+        $this->configService->createFromPrevious($roundNumber);
+        return $roundNumber;
     }
 
-        private refillRound(round: Round, nrOfPlaces: number, nrOfPoules: number): Round {
-        if (nrOfPlaces <= 0) {
-            return;
+    private function refillRound(Round $round, int $nrOfPlaces, int $nrOfPoules): ?Round {
+        if ($nrOfPlaces <= 0) {
+            return null;
         }
 
-        if (((nrOfPlaces / nrOfPoules) < 2)) {
-            throw new Error('De minimale aantal deelnemers per poule is 2.');
+        if ((($nrOfPlaces / $nrOfPoules) < 2)) {
+            throw new \Exception('De minimale aantal deelnemers per poule is 2.', E_ERROR );
         }
-        const poules = round.getPoules();
-        poules.splice(0, poules.length);
+        $round->getPoules()->clear();
 
-        while (nrOfPlaces > 0) {
-            const nrOfPlacesToAdd = this.getNrOfPlacesPerPoule(nrOfPlaces, nrOfPoules);
-            const poule = new Poule(round);
-            for (let i = 0; i < nrOfPlacesToAdd; i++) {
-                new PoulePlace(poule);
+        while ($nrOfPlaces > 0) {
+            $nrOfPlacesToAdd = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules);
+            $poule = new Poule($round);
+            for ($i = 0; $i < $nrOfPlacesToAdd; $i++) {
+                new Place($poule);
             }
-                nrOfPlaces -= nrOfPlacesToAdd;
-                nrOfPoules--;
+            $nrOfPlaces -= $nrOfPlacesToAdd;
+            $nrOfPoules--;
             }
-        return round;
+        return $round;
     }
 
-        protected getRoot(round: Round) {
-        if (!round.isRoot()) {
-            return this.getRoot(round.getParent());
+    protected function getRoot(Round $round ): Round {
+        if (!$round->isRoot()) {
+            return $this->getRoot($round->getParent());
         }
-        return round;
+        return $round;
     }
 
-        getDefaultNrOfPoules(nrOfPlaces): number {
-        if (this.competitorRange && (nrOfPlaces < this.competitorRange.min || nrOfPlaces > this.competitorRange.max)) {
-            return undefined;
+    public function getDefaultNrOfPoules(int $nrOfPlaces): int {
+        if ($this->competitorRange && ($nrOfPlaces < $this->competitorRange->min || $nrOfPlaces > $this->competitorRange->max)) {
+            return null;
         }
-        return StructureService.DEFAULTS[nrOfPlaces];
+        return Service::DEFAULTS[$nrOfPlaces];
     }
 
-        getNrOfPlacesPerPoule(nrOfPlaces: number, nrOfPoules: number): number {
-        const nrOfPlaceLeft = (nrOfPlaces % nrOfPoules);
-        if (nrOfPlaceLeft === 0) {
-            return nrOfPlaces / nrOfPoules;
+    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules): int {
+        $nrOfPlaceLeft = ($nrOfPlaces % $nrOfPoules);
+        if ($nrOfPlaceLeft === 0) {
+            return $nrOfPlaces / $nrOfPoules;
         }
-        return ((nrOfPlaces - nrOfPlaceLeft) / nrOfPoules) + 1;
+        return (($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules) + 1;
     }
 }
 

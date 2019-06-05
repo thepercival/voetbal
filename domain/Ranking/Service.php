@@ -6,12 +6,12 @@
  * Time: 15:02
  */
 
-namespace Voetbal;
+namespace Voetbal\Ranking;
 
 use Voetbal\Qualify\Rule as QualifyRule;
 use Voetbal\Ranking\Item as RankingItem;
 
-class Ranking
+class Service
 {
     /**
      * @var int
@@ -35,8 +35,8 @@ class Ranking
     CONST SCORED = 1;
     CONST RECEIVED = 2;
 
-    const SOCCERWORLDCUP = 1;
-    const SOCCEREUROPEANCUP = 2;
+    const RULESSET_WC = 1;
+    const RULESSET_EC = 2;
 
     /**
      * Ranking constructor.
@@ -214,11 +214,11 @@ class Ranking
             return $this->getBestPoulePlaces($poulePlaces, $oGamesAgainstEachOther, true);
         };
 
-        if ($this->rulesSet === Ranking::SOCCERWORLDCUP) {
+        if ($this->rulesSet === Service::RULESSET_WC) {
             $this->rankFunctions[static::BestGoalDifference] = $fnBestGoalDifference;
             $this->rankFunctions[static::MostGoalsScored] = $fnMostGoalsScored;
             $this->rankFunctions[static::BestHeadToHead] = $fnBestHeadToHead;
-        } elseif ($this->rulesSet === Ranking::SOCCEREUROPEANCUP) {
+        } elseif ($this->rulesSet === Service::RULESSET_EC) {
             $this->rankFunctions[static::BestHeadToHead] = $fnBestHeadToHead;
             $this->rankFunctions[static::BestGoalDifference] = $fnBestGoalDifference;
             $this->rankFunctions[static::MostGoalsScored] = $fnMostGoalsScored;
@@ -264,12 +264,12 @@ class Ranking
 
     protected function getNrOfGoalsScored(PoulePlace $poulePlace, array $games): int
     {
-        return $this->getNrOfGoals($poulePlace, $games, Ranking::SCORED);
+        return $this->getNrOfGoals($poulePlace, $games, Service::SCORED);
     }
 
     protected function getNrOfGoalsReceived(PoulePlace $poulePlace, array $games): int
     {
-        return $this->getNrOfGoals($poulePlace, $games, Ranking::RECEIVED);
+        return $this->getNrOfGoals($poulePlace, $games, Service::RECEIVED);
     }
 
     protected function getNrOfGoals(PoulePlace $poulePlace, array $games, int $scoredReceived): int
@@ -283,7 +283,7 @@ class Ranking
             if ($homeAway === null) {
                 continue;
             }
-            $nrOfGoals += $game->getFinalScore()->get($scoredReceived === Ranking::SCORED ? $homeAway : !$homeAway);
+            $nrOfGoals += $game->getFinalScore()->get($scoredReceived === Service::SCORED ? $homeAway : !$homeAway);
         }
         return $nrOfGoals;
     }

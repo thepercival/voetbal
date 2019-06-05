@@ -7,7 +7,7 @@ use Voetbal\Poule;
 use Voetbal\Place;
 use Voetbal\Competitor;
 use Voetbal\Game;
-use Voetbal\Ranking;
+use Voetbal\Service;
 
 /**
  * Created by PhpStorm.

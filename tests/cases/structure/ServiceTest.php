@@ -26,9 +26,9 @@ class ServiceTest extends SerializerTest
 
 
 
-        const $structureService = new StructureService();
-        const $structure = $structureService->create($competition, 8, 3);
-        const $rootRound = $structure->getRootRound();
+        $structureService = new StructureService();
+        $structure = $structureService->create($competition, 8, 3);
+        $rootRound = $structure->getRootRound();
 
         for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::WINNERS); }
         for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::LOSERS); }

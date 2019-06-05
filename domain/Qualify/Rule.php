@@ -11,7 +11,7 @@ namespace Voetbal\Qualify;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Place;
-use Voetbal\Ranking;
+use Voetbal\Ranking\Service as RankingService;
 
 class Rule
 {
@@ -142,7 +142,7 @@ class Rule
     public static function getDescriptions()
     {
         return [
-            Ranking::SOCCERWORLDCUP => [
+            RankingService::RULESSET_WC => [
                 "Meeste aantal punten in alle wedstrijden",
                 "Doelsaldo in alle wedstrijden",
                 "Aantal goals gemaakt in alle wedstrijden",
@@ -150,7 +150,7 @@ class Rule
                 "Doelsaldo in onderlinge duels",
                 "Aantal goals gemaakt in onderlinge duels"
             ],
-            Ranking::SOCCEREUROPEANCUP => [
+            RankingService::RULESSET_EC => [
                 "Meeste aantal punten in alle wedstrijden",
                 "Meeste aantal punten in onderlinge duels",
                 "Doelsaldo in onderlinge duels",

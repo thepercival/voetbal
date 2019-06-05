@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Ranking\Service as RankingService;
 
 class Competition implements External\Importable
 {
@@ -70,7 +71,7 @@ class Competition implements External\Importable
     {
         $this->league = $league;
         $this->season = $season;
-        $this->ruleSet = Ranking::SOCCERWORLDCUP;
+        $this->ruleSet = RankingService::RULESSET_WC;
         $this->state = static::STATE_CREATED;
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();

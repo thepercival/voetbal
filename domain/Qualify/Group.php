@@ -10,6 +10,7 @@ namespace Voetbal\Qualify;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
+use Voetbal\Poule\Horizontal as HorizontalPoule;
 
 class Group
 {
@@ -38,13 +39,24 @@ class Group
      */
     protected $childRound;
 
+    /**
+     * @var ArrayCollection | HorizontalPoule[]
+     */
+    protected $horizontalPoules;
+
     CONST WINNERS = 1;
     CONST DROPOUTS = 2;
     CONST LOSERS = 3;
 
-    public function __construct( Round $round )
+    public function __construct( Round $round, int $winnersOrLosers, int $number = null )
     {
-        $this->setRound( $round );
+        $this->horizontalPoules = new ArrayCollection();
+        $this->setWinnersOrLosers($winnersOrLosers);
+        if ($number === null) {
+            $this->setRound( $round );
+        } else {
+            $this->insertRoundAt($round, $number);
+        }
     }
 
     /**
@@ -108,6 +120,12 @@ class Group
         return $this->round;
     }
 
+    protected function insertRoundAt(Round $round, int $insertAt) {
+
+        $round->getQualifyGroups($this->getWinnersOrLosers())->splice($insertAt, 0, $this);
+        $this->round = $round;
+    }
+
     /**
      * @param Round $round
      */
@@ -133,5 +151,42 @@ class Group
     public function setChildRound( Round $childRound )
     {
         $this->childRound = $childRound;
+    }
+
+    /**
+     * @return ArrayCollection | HorizontalPoule[]
+     */
+    public function getHorizontalPoules(): ArrayCollection {
+        return $this->horizontalPoules;
+    }
+
+    public function isBorderGroup(): bool {
+        $qualifyGroups = $this->getRound()->getQualifyGroups($this->getWinnersOrLosers());
+        return $this === $qualifyGroups->last();
+    }
+
+    // public function isInBorderHoritontalPoule(Place $place ): bool {
+    //     $borderHorizontalPoule = $this->getHorizontalPoules()->last();
+    //     return $borderHorizontalPoule->hasPlace($place);
+    // }
+
+    public function getBorderPoule(): HorizontalPoule {
+        return $this->horizontalPoules->last();
+    }
+
+    public function getNrOfPlaces() {
+        return $this->getHorizontalPoules()->count() * $this->getRound()->getPoules()->count();
+    }
+
+    public function getNrOfToPlacesTooMuch(): int {
+        return $this->getNrOfPlaces() - $this->getChildRound()->getNrOfPlaces();
+    }
+
+    public function getNrOfQualifiers(): int {
+        $nrOfQualifiers = 0;
+        foreach( $this->getHorizontalPoules() as $horizontalPoule ) {
+            $nrOfQualifiers += $horizontalPoule->getNrOfQualifiers();
+        }
+        return $nrOfQualifiers;
     }
 }

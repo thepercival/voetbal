@@ -11,20 +11,20 @@ namespace Voetbal\Ranking;
 use Voetbal\Ranking\Item as RankingItem;
 use Voetbal\Round;
 use Voetbal\Game;
-use Voetbal\Ranking;
+use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Place;
 use Voetbal\Qualify\Rule as QualifyRule;
 
 class End
 {
     /**
-     * @var Ranking
+     * @var Service
      */
     private $rankingService;
 
-    public function __construct( int $ruleSet = Ranking::SOCCERWORLDCUP )
+    public function __construct( int $ruleSet = RankingService::RULESSET_WC )
     {
-        $this->rankingService = new Ranking($ruleSet);
+        $this->rankingService = new RankingService($ruleSet);
     }
 
     /**

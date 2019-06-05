@@ -10,7 +10,6 @@ namespace Voetbal\Tests\Structure;
 
 include_once __DIR__ . '/../../helpers/Serializer.php';
 include_once __DIR__ . '/../../helpers/PostSerialize.php';
-include_once __DIR__ . '/../../helpers/332a.php';
 
 use Voetbal\Structure;
 use Voetbal\Qualify\Group as QualifyGroup;

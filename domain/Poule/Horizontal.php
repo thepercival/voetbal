@@ -25,7 +25,7 @@ use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
  *  [ C1 B1 A1 ]
  *
  **/
-class HorizontalPoule {
+class Horizontal {
     /**
      * @var Round
      */

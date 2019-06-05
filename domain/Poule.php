@@ -44,8 +44,11 @@ class Poule
 
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Round $round, $number )
+    public function __construct( Round $round, int $number = null )
     {
+        if ($number === null) {
+            $number = $round->getPoules()->count() + 1;
+        }
         $this->setRound( $round );
         $this->setNumber( $number );
         $this->places = new ArrayCollection();

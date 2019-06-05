@@ -12,11 +12,147 @@ use Voetbal\Config as ConfigBase;
 use Voetbal\SportConfig as VoetbalConfig;
 use Voetbal\Config\Score as ScoreConfig;
 use Voetbal\Config\Score\Options as ScoreOptions;
+use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Config;
+use Voetbal\Config\Score as ConfigScore;
+use Voetbal\SportConfig;
 
 
 class Service
 {
+    public function createFromPrevious(RoundNumber $roundNumber): Config {
+        $previousConfig = $roundNumber->getPrevious()->getConfig();
+        $config = new Config($roundNumber);
+        $config->setQualifyRule($previousConfig->getQualifyRule());
+        $config->setNrOfHeadtoheadMatches($previousConfig->getNrOfHeadtoheadMatches());
+        $config->setWinPoints($previousConfig->getWinPoints());
+        $config->setDrawPoints($previousConfig->getDrawPoints());
+        $config->setHasExtension($previousConfig->getHasExtension());
+        $config->setWinPointsExt($previousConfig->getWinPointsExt());
+        $config->setDrawPointsExt($previousConfig->getDrawPointsExt());
+        $config->setMinutesPerGameExt($previousConfig->getMinutesPerGameExt());
+        $config->setEnableTime($previousConfig->getEnableTime());
+        $config->setMinutesPerGame($previousConfig->getMinutesPerGame());
+        $config->setMinutesBetweenGames($previousConfig->getMinutesBetweenGames());
+        $config->setMinutesAfter($previousConfig->getMinutesAfter());
+        $config->setScore($this->createScoreConfig($previousConfig));
+        $config->setTeamup($previousConfig->getTeamup());
+        $config->setPointsCalculation($previousConfig->getPointsCalculation());
+        $config->setSelfReferee($previousConfig->getSelfReferee());
+        return $config;
+    }
+
+    public function createDefault(RoundNumber $roundNumber ): Config {
+        $sport = $roundNumber->getCompetition()->getLeague()->getSport();
+        $config = new Config($roundNumber);
+        $config->setQualifyRule(RankingService::RULESSET_WC);
+        $config->setNrOfHeadtoheadMatches(Config::DEFAULTNROFHEADTOHEADMATCHES);
+        $config->setWinPoints($this->getDefaultWinPoints($sport));
+        $config->setDrawPoints($this->getDefaultDrawPoints($sport));
+        $config->setHasExtension(Config::DEFAULTHASEXTENSION);
+        $config->setWinPointsExt($config->getWinPoints() - 1);
+        $config->setDrawPointsExt($config->getDrawPoints());
+        $config->setMinutesPerGameExt(0);
+        $config->setEnableTime(Config::DEFAULTENABLETIME);
+        $config->setMinutesPerGame(0);
+        $config->setMinutesBetweenGames(0);
+        $config->setMinutesAfter(0);
+        $config->setEnableTime(true);
+        $config->setMinutesPerGame($this->getDefaultMinutesPerGame());
+        $config->setMinutesBetweenGames($this->getDefaultMinutesBetweenGames());
+        $config->setMinutesAfter($this->getDefaultMinutesAfter());
+        $config->setScore($this->createScoreConfig($config));
+        $config->setTeamup(false);
+        $config->setPointsCalculation(Config::POINTS_CALC_GAMEPOINTS);
+        $config->setSelfReferee(false);
+        return $config;
+    }
+
+    public function getDefaultWinPoints(string $sport): int {
+        if ($sport === SportConfig::Chess) {
+            return 1;
+        }
+        return Config::DEFAULTWINPOINTS;
+    }
+
+    public function getDefaultDrawPoints(string $sport): int {
+        if ($sport === SportConfig::Chess) {
+            return 0.5;
+        }
+        return Config::DEFAULTDRAWPOINTS;
+    }
+
+    public function getDefaultMinutesPerGame(): int {
+        return 20;
+    }
+
+    public function getDefaultMinutesPerGameExt(): int {
+        return 5;
+    }
+
+    public function getDefaultMinutesBetweenGames(): int {
+        return 5;
+    }
+
+    public function getDefaultMinutesAfter(): int {
+        return 5;
+    }
+
+    public function canSportBeDoneTeamup(string $sportName): bool {
+        return $sportName === SportConfig::Badminton || $sportName === SportConfig::Darts || $sportName === SportConfig::ESports
+            || $sportName === SportConfig::Squash || $sportName === SportConfig::TableTennis || $sportName === SportConfig::Tennis
+            || $sportName === null;
+
+        // return Sport$config->getSports().filter(sportName => {
+        //     return sportName === Sport$config->Badminton || sportName === Sport$config->Darts || sportName === Sport$config->ESports
+        //         || sportName === Sport$config->Squash || sportName === Sport$config->TableTennis || sportName === Sport$config->Tennis;
+        // });
+    }
+
+    protected function createScoreConfig(Config $config ): ConfigScore {
+        $roundNumber = $config->getRoundNumber();
+        $sport = $roundNumber->getCompetition()->getLeague()->getSport();
+
+        if (!$roundNumber->isFirst()) {
+            return $this->copyScoreConfigFromPrevious($config, $roundNumber->getPrevious()->getConfig()->getScore());
+        }
+
+        $unitName = 'punten'; $parentUnitName = null;
+        if ($sport === SportConfig::Darts) {
+            $unitName = 'legs';
+            $parentUnitName = 'sets';
+        } else if ($sport === SportConfig::Tennis) {
+            $unitName = 'games';
+            $parentUnitName = 'sets';
+        } else if ($sport === SportConfig::Squash || $sport === SportConfig::TableTennis
+            || $sport === SportConfig::Volleyball || $sport === SportConfig::Badminton) {
+            $parentUnitName = 'sets';
+        } else if ($sport === SportConfig::Football || $sport === SportConfig::Hockey) {
+            $unitName = 'goals';
+        }
+
+        $parent = null;
+        if ($parentUnitName !== null) {
+            $parent = $this->createScoreConfigFromRoundHelper($config, $parentUnitName, ConfigScore::UPWARDS, 0, null);
+        }
+        return $this->createScoreConfigFromRoundHelper($config, $unitName, ConfigScore::UPWARDS, 0, $parent);
+    }
+
+    protected function createScoreConfigFromRoundHelper( Config $config, string $name, int $direction, int $maximum, ConfigScore $parent ): ConfigScore {
+        $scoreConfig = new ConfigScore($config, $parent);
+        $scoreConfig->setName($name);
+        $scoreConfig->setDirection($direction);
+        $scoreConfig->setMaximum($maximum);
+        return $scoreConfig;
+    }
+
+    protected function copyScoreConfigFromPrevious(Config $config, ConfigScore $scoreConfig) {
+        $parent = $scoreConfig->getParent() ? $this->copyScoreConfigFromPrevious($config, $scoreConfig->getParent()) : null;
+        return $this->createScoreConfigFromRoundHelper(
+                $config, $scoreConfig->getName(), $scoreConfig->getDirection(), $scoreConfig->getMaximum(), $parent);
+    }
+
 //    public function __construct( ) {
 //        $this->repos = $repos;
 //        $this->scoreRepos = $scoreRepos;

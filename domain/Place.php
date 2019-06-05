@@ -54,8 +54,11 @@ class Place
 
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Poule $poule, $number )
+    public function __construct( Poule $poule, int $number = null )
     {
+        if ($number === null) {
+            $number = $poule->getPlaces()->count() + 1;
+        }
         $this->setPoule( $poule );
         $this->setNumber( $number );
         $this->setPenaltyPoints( 0 );

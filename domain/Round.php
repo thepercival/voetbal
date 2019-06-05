@@ -8,7 +8,6 @@
 
 namespace Voetbal;
 
-use DeepCopy\f001\A;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
@@ -466,5 +465,13 @@ class Round
             $nrOfPlaces += $poule->getPlaces()->count();
         }
         return $nrOfPlaces;
+    }
+
+    public function getNrOfPlacesChildren(int $winnersOrLosers = null): int {
+        $nrOfPlacesChildRounds = 0;
+        foreach( $this->getQualifyGroups($winnersOrLosers) as $qualifyGroup ) {
+            $nrOfPlacesChildRounds += $qualifyGroup->getChildRound()->getNrOfPlaces();
+        }
+        return $nrOfPlacesChildRounds;
     }
 }
