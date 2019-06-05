@@ -70,11 +70,11 @@ class Round
      */
     protected $winnersQualifyGroups;
     /**
-     * @var HorizontalPoule[] | ArrayCollection
+     * @var HorizontalPoule[] | array
      */
     protected $losersHorizontalPoules ;
     /**
-     * @var HorizontalPoule[] | ArrayCollection
+     * @var HorizontalPoule[] | array
      */
     protected $winnersHorizontalPoules;
     /**
@@ -109,8 +109,8 @@ class Round
         $this->setWinnersOrLosersDep( 0 );
         $this->winnersQualifyGroups = new ArrayCollection();
         $this->losersQualifyGroups = new ArrayCollection();
-        $this->winnersHorizontalPoules = new ArrayCollection();
-        $this->losersHorizontalPoules = new ArrayCollection();
+        $this->winnersHorizontalPoules = array();
+        $this->losersHorizontalPoules = array();
     }
 
     /**
@@ -243,15 +243,16 @@ class Round
         $this->structureNumber = $structureNumber;
     }
 
-    public function getQualifyGroups(int $winnersOrLosers = null): ArrayCollection {
-        if ($winnersOrLosers === null) {
-            return new ArrayCollection( array_merge( $this->winnersQualifyGroups->toArray(), $this->losersQualifyGroups->toArray() ) );
-        }
+    public function getQualifyGroups(int $winnersOrLosers ): ArrayCollection {
         return ($winnersOrLosers === QualifyGroup::WINNERS) ? $this->winnersQualifyGroups : $this->losersQualifyGroups;
     }
 
+    public function getAllQualifyGroups(): array {
+        return array_merge( $this->winnersQualifyGroups->toArray(), $this->losersQualifyGroups->toArray() );
+    }
+
     public function getQualifyGroupsLosersReversed(): array {
-        $qualifyGroups = $this->getQualifyGroups()->toArray();
+        $qualifyGroups = $this->getAllQualifyGroups();
         uasort( $qualifyGroups, function( $qualifyGroupA, $qualifyGroupB) {
             if ($qualifyGroupA->getWinnersLosers() < $qualifyGroupB->getWinnersLosers()) {
                 return 1;
@@ -276,9 +277,10 @@ class Round
         })->last();
     }
 
-    public function getBorderQualifyGroup(int $winnersOrLosers): QualifyGroup {
+    public function getBorderQualifyGroup(int $winnersOrLosers): ?QualifyGroup {
         $qualifyGroups = $this->getQualifyGroups($winnersOrLosers);
-        return $qualifyGroups->last();
+        $last = $qualifyGroups->last();
+        return $last ? $last : null;
     }
 
     public function getNrOfDropoutPlaces(): int {
@@ -290,8 +292,11 @@ class Round
     }
 
 
-    public function getChildren(): ArrayCollection {
-        return $this->getQualifyGroups()->map( function( $qualifyGroup ) { return $qualifyGroup.getChildRound(); });
+    public function getChildren(): array {
+        return array_map( function( $qualifyGroup ) {
+            return $qualifyGroup->getChildRound();
+        }, $this->getAllQualifyGroups() );
+
     }
 
     public function getChild(int $winnersOrLosers, int $qualifyGroupNumber): ?Round {
@@ -363,7 +368,7 @@ class Round
         $this->parentQualifyGroup = $parentQualifyGroup;
     }
 
-    public function getHorizontalPoules(int $winnersOrLosers): ArrayCollection {
+    public function &getHorizontalPoules(int $winnersOrLosers): array {
         if ($winnersOrLosers === QualifyGroup::WINNERS) {
             return $this->winnersHorizontalPoules;
         }
@@ -382,15 +387,15 @@ class Round
      * @param int|null $order
      * @return ArrayCollection | Place[]
      */
-    public function getPlaces(int $order = null): ArrayCollection {
-        $places = new ArrayCollection();
+    public function getPlaces(int $order = null): array {
+        $places = [];
         if ($order === Round::ORDER_NUMBER_POULE) {
             foreach( $this->getHorizontalPoules(QualifyGroup::WINNERS) as $horPoule ) {
-                $places = new ArrayCollection( array_merge( $places->toArray(), $horPoule->getPlaces()->toArray() ) );
+                $places = array_merge( $places, $horPoule->getPlaces()->toArray() );
             }
         } else {
             foreach( $this->getPoules() as $poule ) {
-                $places = new ArrayCollection( array_merge( $places->toArray(), $poule->getPlaces()->toArray() ) );
+                $places = array_merge( $places, $poule->getPlaces()->toArray() );
             }
         }
         return $places;
@@ -409,13 +414,11 @@ class Round
         return false;
     }
 
-    public function getGames(): ArrayCollection
+    public function getGames(): array
     {
-        $games = new ArrayCollection();
+        $games = [];
         foreach( $this->getPoules() as $poule ) {
-            foreach( $poule->getGames() as $game ) {
-                $games->add($game);
-            }
+            $games = array_merge( $games, $poule->getGames()->toArray() );
         }
         return $games;
     }
@@ -469,7 +472,8 @@ class Round
 
     public function getNrOfPlacesChildren(int $winnersOrLosers = null): int {
         $nrOfPlacesChildRounds = 0;
-        foreach( $this->getQualifyGroups($winnersOrLosers) as $qualifyGroup ) {
+        $qualifyGroups = $winnersOrLosers === null ? $this->getAllQualifyGroups() : $this->getQualifyGroups($winnersOrLosers);
+        foreach( $qualifyGroups as $qualifyGroup ) {
             $nrOfPlacesChildRounds += $qualifyGroup->getChildRound()->getNrOfPlaces();
         }
         return $nrOfPlacesChildRounds;

@@ -8,7 +8,6 @@
 
 namespace Voetbal\Qualify;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Poule;
 use Voetbal\Place\Location as PlaceLocation;
@@ -24,24 +23,23 @@ class ReservationService {
     {
         $this->reservations  = [];
         foreach( $childRound->getPoules() as $poule ) {
-            $this->reservations[] = new PouleNumberReservations( $poule->getNumber(), new ArrayCollection() );
+            $this->reservations[] = new PouleNumberReservations( $poule->getNumber(), [] );
         }
     }
 
-
     public function isFree( int $toPouleNumber, Poule $fromPoule): bool {
-        return !$this->get($toPouleNumber)->fromPoules->exists( function( $fromPouleIt ) use ($fromPoule) { return $fromPouleIt === $fromPoule; });
+        return array_search ( $fromPoule, $this->get($toPouleNumber)->fromPoules ) === false;
     }
 
     public function reserve(int $toPouleNumber, Poule $fromPoule) {
-        $this->get($toPouleNumber)->fromPoules->push($fromPoule);
+        $this->get($toPouleNumber)->fromPoules[] = $fromPoule;
     }
 
     protected function get(int $toPouleNumber): PouleNumberReservations {
         $filtered = array_filter( $this->reservations, function( $reservationIt ) use ($toPouleNumber) {
             return $reservationIt->toPouleNr === $toPouleNumber;
         });
-        return $filtered[0];
+        return array_shift($filtered);
     }
 
     public function getFreeAndLeastAvailabe(int $toPouleNumber, Round $fromRound, array $fromPlaceLocations ): PlaceLocation {
@@ -82,7 +80,7 @@ class PouleNumberReservations {
      */
     public $fromPoules;
 
-    public function __construct( int $toPouleNr, ArrayCollection $fromPoules )
+    public function __construct( int $toPouleNr, array $fromPoules )
     {
         $this->toPouleNr = $toPouleNr;
         $this->fromPoules = $fromPoules;

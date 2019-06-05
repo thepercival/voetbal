@@ -31,7 +31,8 @@
   "autoload": {
     "psr-4": {
       "Voetbal\\": "domain/",
-      "Voetbal\\Action\\": "actions/"
+      "Voetbal\\Action\\": "actions/",
+      "Voetbal\\SerializationHandler\\": "serialization/handler"
     }
   },
   "autoload-dev": {

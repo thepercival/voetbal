@@ -10,6 +10,6 @@ Voetbal\Poule:
     number:
       type: integer
     places:
-      type: ArrayCollection<Voetbal\PoulePlace>
+      type: ArrayCollection<Voetbal\Place>
     games:
       type: ArrayCollection<Voetbal\Game>

@@ -11,7 +11,7 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
-use Voetbal\Place\Repository as PoulePlaceRepository;
+use Voetbal\Place\Repository as PlaceRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Field\Repository as FieldRepository;
 use Voetbal\Referee\Repository as RefereeRepository;
@@ -31,9 +31,9 @@ final class Game
      */
     protected $repos;
     /**
-     * @var PoulePlaceRepository
+     * @var PlaceRepository
      */
-    protected $poulePlaceRepos;
+    protected $placeRepos;
     /**
      * @var PouleRepository
      */
@@ -60,7 +60,7 @@ final class Game
     public function __construct(
         GameService $service,
         GameRepository $repos,
-        PoulePlaceRepository $poulePlaceRepos,
+        PlaceRepository $placeRepos,
         PouleRepository $pouleRepos,
         FieldRepository $fieldRepos,
         RefereeRepository $refereeRepos,
@@ -69,7 +69,7 @@ final class Game
     {
         $this->service = $service;
         $this->repos = $repos;
-        $this->poulePlaceRepos = $poulePlaceRepos;
+        $this->placeRepos = $placeRepos;
         $this->pouleRepos = $pouleRepos;
         $this->fieldRepos = $fieldRepos;
         $this->refereeRepos = $refereeRepos;
@@ -111,21 +111,21 @@ final class Game
                 throw new \Exception("er kan geen wedstrijd worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            foreach( $gameSer->getPoulePlaces() as $gamePoulePlaceSer ){
-                $poulePlace = $poule->getPlace($gamePoulePlaceSer->getPoulePlaceNr());
-                if ( $poulePlace === null ) {
+            foreach( $gameSer->getPlaces() as $gamePlaceSer ){
+                $place = $poule->getPlace($gamePlaceSer->getPlaceNr());
+                if ( $place === null ) {
                     throw new \Exception("er kan geen deelnemer worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
-                $gamePoulePlaceSer->setPoulePlace($poulePlace);
+                $gamePlaceSer->setPlace($place);
             }
             $game = new GameBase( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber());
-            $game->setPoulePlaces($gameSer->getPoulePlaces());
-            $refereePoulePlace = $gameSer->getRefereePoulePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePoulePlaceId()) : null;
+            $game->setPlaces($gameSer->getPlaces());
+            $refereePlace = $gameSer->getRefereePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePlaceId()) : null;
             $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
             $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
             $game = $this->service->editResource(
                 $game,
-                $field, $referee, $refereePoulePlace,
+                $field, $referee, $refereePlace,
                 $gameSer->getStartDateTime(), $gameSer->getResourceBatch() );
 
             return $response

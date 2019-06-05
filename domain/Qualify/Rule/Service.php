@@ -9,8 +9,13 @@
 namespace Voetbal\Qualify\Rule;
 
 use Voetbal\Round;
+use Voetbal\Place;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Qualify\Rule\Queue as QualifyRuleQueue;
+use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
+use Voetbal\Qualify\Rule\Single as QualifyRuleSingle;
+use Voetbal\Qualify\Rule as QualifyRule;
+
 use Voetbal\Qualify\ReservationService as QualifyReservationService;
 
 class Service {
@@ -40,19 +45,19 @@ class Service {
 
     protected function removeTo(Round $round ) {
         foreach( $round->getPlaces() as $place ) {
-            $toQualifyRules = $place->getToQualifyRules();
+            $toQualifyRules = &$place->getToQualifyRules();
             foreach ($toQualifyRules as $toQualifyRule) {
                 $toPlaces = [];
                 if ($toQualifyRule->isMultiple()) {
                     $toPlaces = array_merge($toPlaces, $toQualifyRule->getToPlaces());
                 } else {
-                    $toPlaces->push($toQualifyRule->getToPlace());
+                    $toPlaces[] = $toQualifyRule->getToPlace();
                 }
                 foreach ($toPlaces as $toPlace) {
                     $toPlace->setFromQualifyRule(null);
                 }
             }
-            $toQualifyRules = array();
+            $toQualifyRules = [];
         }
         foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
             foreach( $round->getHorizontalPoules($winnersOrLosers) as $horizontalPoule ) {
@@ -62,7 +67,7 @@ class Service {
     }
 
     protected function createTo(Round $round) {
-        foreach( $round->getQualifyGroups() as $qualifyGroup ) {
+        foreach( $round->getAllQualifyGroups() as $qualifyGroup ) {
             $queue = new QualifyRuleQueue();
             $childRound = $qualifyGroup->getChildRound();
             $qualifyReservationService = new QualifyReservationService($childRound);
@@ -83,10 +88,10 @@ class Service {
             $queue->shuffleIfUnevenAndNoMultiple($childRound->getPoules()->count());
 
             // update rules with to places
-            $toHorPoules = $childRound->getHorizontalPoules($qualifyGroup->getWinnersOrLosers())->slice(0);
+            $toHorPoules = $childRound->getHorizontalPoules($qualifyGroup->getWinnersOrLosers());
             $startEnd = QualifyRuleQueue::START;
-            while ($toHorPoules->count() > 0) {
-                $toHorPoule = $startEnd === QualifyRuleQueue::START ? $toHorPoules->shift() : $toHorPoules->pop();
+            while (count($toHorPoules) > 0) {
+                $toHorPoule = $startEnd === QualifyRuleQueue::START ? array_shift($toHorPoules) : array_pop($toHorPoules);
                 foreach( $toHorPoule->getPlaces() as $place ) {
                     $this->connectPlaceWithRule($place, $queue, $startEnd, $qualifyReservationService);
                 }
@@ -128,8 +133,8 @@ class Service {
             $setToPlacesAndReserve($unfreeQualifyRules->shift());
         }
 
-        while ($unfreeQualifyRules->count() > 0) {
-            $queue->add($startEnd, $unfreeQualifyRules->shift());
+        while (count($unfreeQualifyRules) > 0) {
+            $queue->add($startEnd, array_shift($unfreeQualifyRules));
         }
     }
 }

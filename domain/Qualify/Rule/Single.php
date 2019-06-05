@@ -6,62 +6,76 @@
  * Time: 12:21
  */
 
-import { Poule } from '../../poule';
-import { Place } from '../../place';
-import { QualifyGroup } from '../../qualify/group';
-import { Round } from '../../round';
-import { QualifyRule } from '../rule';
+namespace Voetbal\Qualify\Rule;
 
-export class QualifyRuleSingle extends QualifyRule {
-private toPlace: Place;
-private winnersOrLosers: number;
+use Voetbal\Poule;
+use Voetbal\Place;
+use Voetbal\Qualify\Rule as QualifyRule;
+use Voetbal\Round;
+use Voetbal\Qualify\Group as QualifyGroup;
 
-constructor(private fromPlace: Place, toQualifyGroup: QualifyGroup) {
-super();
-this.winnersOrLosers = toQualifyGroup.getWinnersOrLosers();
-this.fromPlace.setToQualifyRule(toQualifyGroup.getWinnersOrLosers(), this);
-}
+class Single extends QualifyRule {
 
-    getFromRound(): Round {
-    return this.fromPlace.getRound();
-}
+    /**
+     * @var Place
+     */
+    private $fromPlace;
+    /**
+     * @var Place
+     */
+    private $toPlace;
+    /**
+     * @var int
+     */
+    private $winnersOrLosers;
 
-    isMultiple(): boolean {
-    return false;
-}
-
-    isSingle(): boolean {
-    return true;
-}
-
-    getWinnersOrLosers(): number {
-    return this.winnersOrLosers;
-}
-
-    getFromPlace(): Place {
-    return this.fromPlace;
-}
-
-    getFromPoule(): Poule {
-    return this.fromPlace.getPoule();
-}
-
-    getToPlace(): Place {
-    return this.toPlace;
-}
-
-    setToPlace(toPlace: Place) {
-    this.toPlace = toPlace;
-    if (toPlace !== undefined) {
-        toPlace.setFromQualifyRule(this);
+    public function __construct( Place $fromPlace, QualifyGroup $toQualifyGroup )
+    {
+        $this->fromPlace = $fromPlace;
+        $this->winnersOrLosers = $toQualifyGroup->getWinnersOrLosers();
+        $this->fromPlace->setToQualifyRule($toQualifyGroup->getWinnersOrLosers(), $this);
     }
-}
 
-    getFromPlaceNumber(): number {
-    if (this.getWinnersOrLosers() === QualifyGroup.WINNERS) {
-        return this.getFromPlace().getNumber();
+    public function getFromRound(): Round {
+        return $this->fromPlace->getRound();
     }
-    return (this.getFromPlace().getPoule().getPlaces().length - this.getFromPlace().getNumber()) + 1;
-}
+
+    public function isMultiple(): bool {
+        return false;
+    }
+
+    public function isSingle(): bool {
+        return true;
+    }
+
+    public function getWinnersOrLosers(): int {
+        return $this->winnersOrLosers;
+    }
+
+    public function getFromPlace(): Place {
+        return $this->fromPlace;
+    }
+
+    public function getFromPoule(): Poule {
+        return $this->fromPlace->getPoule();
+    }
+
+    public function getToPlace(): Place {
+        return $this->toPlace;
+    }
+
+    public function setToPlace(Place $toPlace) {
+        $this->toPlace = $toPlace;
+        if ($toPlace !== null) {
+            $toPlace->setFromQualifyRule($this);
+        }
+    }
+
+    public function getFromPlaceNumber(): int {
+        if ($this->getWinnersOrLosers() === QualifyGroup::WINNERS) {
+            return $this->getFromPlace()->getNumber();
+        }
+        return ($this->getFromPlace()->getPoule()->getPlaces()->count() - $this->getFromPlace()->getNumber()) + 1;
+    }
 }
 

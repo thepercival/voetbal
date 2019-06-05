@@ -54,7 +54,7 @@ Voetbal\Game:
         nullable: true
         onDelete: SET NULL
     refereePoulePlace:
-      targetEntity: Voetbal\PoulePlace
+      targetEntity: Voetbal\Place
       joinColumn:
         name: pouleplacerefereeid
         referencedColumnName: id
@@ -73,6 +73,6 @@ Voetbal\Game:
       mappedBy: game
       cascade: [ persist, remove ]
     poulePlaces:
-      targetEntity: Voetbal\Game\PoulePlace
+      targetEntity: Voetbal\Game\Place
       mappedBy: game
       cascade: [ persist, remove ]

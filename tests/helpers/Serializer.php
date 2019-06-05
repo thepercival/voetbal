@@ -15,13 +15,7 @@ use JMS\Serializer\GraphNavigatorInterface;
 use Voetbal\Game;
 use JMS\Serializer\Handler\HandlerRegistry;
 
-//static::$poulePlaces = [];
-//
-//function createPoulePlace( array $poulePlace ) {
-//    $equals = array_filter( static::$poulePlaces, function( $poulePlaceIt ) use ($poulePlace) {
-//        return $poulePlaceIt == $poulePlace;
-//    });
-//}
+use Voetbal\SerializationHandler\Round\Number as RoundNumberSerializationHandler;
 
 function getSerializer(): \JMS\Serializer\Serializer {
     $apiVersion = 2;
@@ -42,6 +36,12 @@ function getSerializer(): \JMS\Serializer\Serializer {
             ->setVersion($apiVersion);
     });
     $serializerBuilder->addMetadataDir(__DIR__.'/../../serialization/yml','Voetbal');
+
+    $serializerBuilder->configureHandlers(function(JMS\Serializer\Handler\HandlerRegistry $registry) {
+            $registry->registerSubscribingHandler(new RoundNumberSerializationHandler());
+        });
+
+    $serializerBuilder->addDefaultHandlers();
 
     /*$serializerBuilder
         ->configureListeners(function(JMS\Serializer\EventDispatcher\EventDispatcher $dispatcher) {

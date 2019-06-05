@@ -6,58 +6,73 @@
  * Time: 12:21
  */
 
-import { HorizontalPoule } from '../../poule/horizontal';
-import { Place } from '../../place';
-import { Round } from '../../round';
-import { QualifyRule } from '../rule';
+namespace Voetbal\Qualify\Rule;
 
-export class QualifyRuleMultiple extends QualifyRule {
-private toPlaces: Place[] = [];
-private fromHorizontalPoule: HorizontalPoule;
-private nrOfToPlaces: number;
+use Voetbal\Poule\Horizontal as HorizontalPoule;
+use Voetbal\Place;
+use Voetbal\Qualify\Rule as QualifyRule;
+use Voetbal\Round;
 
-constructor(fromHorizontalPoule: HorizontalPoule, nrOfToPlaces: number) {
-super();
-this.fromHorizontalPoule = fromHorizontalPoule;
-this.fromHorizontalPoule.setQualifyRuleMultiple(this);
-this.nrOfToPlaces = nrOfToPlaces;
-}
+class Multiple extends QualifyRule {
+    /**
+     * @var array | Place[]
+     */
+    private $toPlaces;
+    /**
+     * @var HorizontalPoule
+     */
+    private $fromHorizontalPoule;
+    /**
+     * @var int
+     */
+    private $nrOfToPlaces;
 
-    getFromHorizontalPoule(): HorizontalPoule {
-    return this.fromHorizontalPoule;
-}
+    public function __construct( HorizontalPoule $fromHorizontalPoule, int $nrOfToPlaces )
+    {
+        $this->fromHorizontalPoule = $fromHorizontalPoule;
+        $this->fromHorizontalPoule->setQualifyRuleMultiple($this);
+        $this->nrOfToPlaces = $nrOfToPlaces;
+        $this->toPlaces = [];
+    }
 
-    getFromRound(): Round {
-    return this.fromHorizontalPoule.getRound();
-}
+    public function getFromHorizontalPoule(): HorizontalPoule {
+        return $this->fromHorizontalPoule;
+    }
 
-    isMultiple(): boolean {
-    return true;
-}
+    public function getFromRound(): Round {
+        return $this->fromHorizontalPoule->getRound();
+    }
 
-    isSingle(): boolean {
-    return false;
-}
+    public function isMultiple(): bool {
+        return true;
+    }
 
-    getWinnersOrLosers(): number {
-    return this.fromHorizontalPoule.getQualifyGroup().getWinnersOrLosers();
-}
+    public function isSingle(): bool {
+        return false;
+    }
 
-    addToPlace(toPlace: Place) {
-    this.toPlaces.push(toPlace);
-    toPlace.setFromQualifyRule(this);
-}
+    public function getWinnersOrLosers(): int {
+        return $this->fromHorizontalPoule->getQualifyGroup()->getWinnersOrLosers();
+    }
 
-    toPlacesComplete(): boolean {
-    return this.nrOfToPlaces === this.toPlaces.length;
-}
+    public function addToPlace(Place $toPlace) {
+        $this->toPlaces[] = $toPlace;
+        $toPlace->setFromQualifyRule($this);
+    }
 
-    getToPlaces(): Place[] {
-    return this.toPlaces;
-}
+    public function toPlacesComplete(): bool {
+        return $this->nrOfToPlaces === count($this->toPlaces);
+    }
 
-    getFromPlaceNumber(): number {
-    return this.getFromHorizontalPoule().getPlaceNumber();
-}
+    /**
+     * @return ArrayCollection | Place[]
+     */
+    public function getToPlaces(): array {
+        return $this->toPlaces;
+    }
+
+    public function getFromPlaceNumber(): int {
+        return $this->getFromHorizontalPoule()->getPlaceNumber();
+    }
 }
 

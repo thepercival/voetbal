@@ -8,7 +8,6 @@
 
 namespace Voetbal\Qualify\Group;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Round;

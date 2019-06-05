@@ -73,7 +73,7 @@ class Combination
      * @param bool $reverseHomeAway
      * @return ArrayCollection
      */
-    public function getGamePoulePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/): ArrayCollection {
+    public function getGamePoulePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/): array {
         $home = array_map( function( $homeIt ) use ($game,$reverseHomeAway){
             return new GamePoulePlace($game, $homeIt, $reverseHomeAway ? Game::AWAY : Game::HOME);
         }, $this->getHome() );
@@ -86,8 +86,7 @@ class Combination
             $home = array_reverse($home);
             $away = array_reverse($away);
         }
-        $gamePoulePlaces = new ArrayCollection( array_merge($home,$away) );
-        return $gamePoulePlaces;
+        return array_merge($home,$away);
     }
 
     public function hasOverlap(Combination $combination ) {

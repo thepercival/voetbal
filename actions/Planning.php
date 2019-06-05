@@ -90,19 +90,19 @@ final class Planning
             }
             foreach ($gamesSer as $gameSer) {
                 $game = new Game( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber() );
-                foreach( $gameSer->getPoulePlaces() as $gamePoulePlaceSer ){
-                    $poulePlace = $poule->getPlace($gamePoulePlaceSer->getPoulePlaceNr());
-                    if ( $poulePlace === null ) {
+                foreach( $gameSer->getPlaces() as $gamePlaceSer ){
+                    $place = $poule->getPlace($gamePlaceSer->getePlaceNr());
+                    if ( $place === null ) {
                         throw new \Exception("er kan geen deelnemer worden gevonden o.b.v. de invoergegevens", E_ERROR);
                     }
-                    $game->addPoulePlace( $poulePlace, $gamePoulePlaceSer->getHomeaway() );
+                    $game->addPlace( $place, $gamePlaceSer->getHomeaway() );
                 }
-                $refereePoulePlace = $gameSer->getRefereePoulePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePoulePlaceId()) : null;
+                $refereePlace = $gameSer->getRefereePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePlaceId()) : null;
                 $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
                 $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $this->gameService->editResource(
                     $game,
-                    $field, $referee, $refereePoulePlace,
+                    $field, $referee, $refereePlace,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
                 $this->em->persist($game);
             }
@@ -138,12 +138,12 @@ final class Planning
                 if ($game === null) {
                     throw new \Exception("er kan geen wedstrijd(".$gameSer->getId().") worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
-                $refereePoulePlace = $gameSer->getRefereePoulePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePoulePlaceId()) : null;
+                $refereePlace = $gameSer->getRefereePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePlaceId()) : null;
                 $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
                 $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $games[] = $this->gameService->editResource(
                     $game,
-                    $field, $referee, $refereePoulePlace,
+                    $field, $referee, $refereePlace,
                     $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
                 $this->em->persist($game);
             }

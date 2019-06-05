@@ -20,7 +20,7 @@ Voetbal\Poule:
       column: number
   oneToMany:
     places:
-      targetEntity: Voetbal\PoulePlace
+      targetEntity: Voetbal\Place
       mappedBy: poule
       cascade: [ persist, remove ] # persist removed
       orderBy:

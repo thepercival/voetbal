@@ -16,14 +16,14 @@ Voetbal\Game:
       type: int
     refereeInitials:
       type: string
-    refereePoulePlaceId:
+    refereePlaceId:
       type: int
     state:
       type: int
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
-    poulePlaces:
-      type: ArrayCollection<Voetbal\Game\PoulePlace>
+    places:
+      type: ArrayCollection<Voetbal\Game\Place>
     scores:
       type: ArrayCollection<Voetbal\Game\Score>
     scoresMoment:

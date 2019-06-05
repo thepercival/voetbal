@@ -107,7 +107,7 @@ class Handler
             $action = new Voetbal\Action\Game(
                 $voetbalservice->getService(Voetbal\Game::class),
                 $voetbalservice->getRepository(Voetbal\Game::class),
-                $voetbalservice->getRepository(Voetbal\PoulePlace::class),
+                $voetbalservice->getRepository(Voetbal\Place::class),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
                 $voetbalservice->getRepository(Voetbal\Field::class),
                 $voetbalservice->getRepository(Voetbal\Referee::class),
@@ -148,9 +148,9 @@ class Handler
                 $voetbalservice->getService(Voetbal\Round\Config::class),
                 $serializer
             );
-        } elseif ($resourceType === 'pouleplaces') {
-            $action = new Voetbal\Action\PoulePlace(
-                $voetbalservice->getRepository(Voetbal\PoulePlace::class),
+        } elseif ($resourceType === 'places') {
+            $action = new Voetbal\Action\Place(
+                $voetbalservice->getRepository(Voetbal\Place::class),
                 $voetbalservice->getRepository(Voetbal\Competitor::class),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),

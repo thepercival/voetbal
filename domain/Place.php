@@ -207,12 +207,12 @@ class Place
         return $this->fromQualifyRule;
     }
 
-    public function setFromQualifyRule(QualifyRule $qualifyRule )
+    public function setFromQualifyRule(?QualifyRule $qualifyRule )
     {
         $this->fromQualifyRule = $qualifyRule;
     }
 
-    public function getToQualifyRules(): array /*QualifyRule*/
+    public function &getToQualifyRules(): array /*QualifyRule*/
     {
         return $this->toQualifyRules;
     }
@@ -243,14 +243,15 @@ class Place
         return ($winnersOrLosers === QualifyGroup::WINNERS) ? $this->horizontalPouleWinners : $this->horizontalPouleLosers;
     }
 
-    public function setHorizontalPoule(int $winnersOrLosers, HorizontalPoule $horizontalPoule ) {
+    public function setHorizontalPoule(int $winnersOrLosers, ?HorizontalPoule $horizontalPoule ) {
         if ($winnersOrLosers === QualifyGroup::WINNERS) {
             $this->horizontalPouleWinners = $horizontalPoule;
         } else {
             $this->horizontalPouleLosers = $horizontalPoule;
         }
         if ($horizontalPoule !== null) {
-            $horizontalPoule->getPlaces()->add($this);
+            $places = &$horizontalPoule->getPlaces();
+            $places[] = $this;
         }
     }
 }

@@ -8,7 +8,6 @@
 
 namespace Voetbal\Qualify\Rule;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Qualify\Rule as QualifyRule;
 
 class Queue {
@@ -16,29 +15,29 @@ class Queue {
     const END = 2;
 
     /**
-     * @var ArrayCollection
+     * @var array | QualifyRule[]
      */
     private $qualifyRules;
 
     public function __construct()
     {
-        $this->qualifyRules = new ArrayCollection();
+        $this->qualifyRules = [];
     }
 
     public function add(int $startEnd, QualifyRule $qualifyRule ) {
         if ($startEnd === Queue::START) {
-            $this->qualifyRules->push($qualifyRule);
+            $this->qualifyRules[] = $qualifyRule;
         } else {
-            $this->qualifyRules->unshift($qualifyRule);
+            array_unshift( $this->qualifyRules, $qualifyRule);
         }
     }
 
     public function remove( int $startEnd ) {
-        return $startEnd === Queue::START ? $this->qualifyRules->shift() : $this->qualifyRules->pop();
+        return $startEnd === Queue::START ? array_shift($this->qualifyRules) : array_pop($this->qualifyRules);
     }
 
     public function isEmpty(): bool {
-        return $this->qualifyRules->count() === 0;
+        return count($this->qualifyRules) === 0;
     }
 
     public function toggle( int $startEnd ): int {
@@ -54,12 +53,12 @@ class Queue {
         if( ($nrOfPoules % 2) === 0 || $nrOfPoules < 3) {
             return;
         }
-        $lastItem = $this->qualifyRules[$this->qualifyRules->count()-1];
-        if( $lastItem && $lastItem.isMultiple() ) {
+        $lastItem = $this->qualifyRules[count($this->qualifyRules)-1];
+        if( $lastItem && $lastItem->isMultiple() ) {
             return;
         }
-        $index = ($this->qualifyRules->count() - 1) - ( ( ( $nrOfPoules + 1 ) / 2 ) - 1 );
-        $x = $this->qualifyRules->splice( $index, 1);
-        $this->qualifyRules->push($x.pop());
+        $index = (count($this->qualifyRules) - 1) - ( ( ( $nrOfPoules + 1 ) / 2 ) - 1 );
+        $x = array_splice($this->qualifyRules, $index, 1);
+        $this->qualifyRules[] = $x->pop();
     }
 }

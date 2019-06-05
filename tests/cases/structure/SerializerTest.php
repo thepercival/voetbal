@@ -8,6 +8,7 @@
 
 namespace Voetbal\Tests\Structure;
 
+include_once __DIR__ . '/Check332a.php';
 include_once __DIR__ . '/../../helpers/Serializer.php';
 include_once __DIR__ . '/../../helpers/PostSerialize.php';
 
@@ -16,7 +17,9 @@ use Voetbal\Qualify\Group as QualifyGroup;
 
 class SerializerTest extends \PHPUnit\Framework\TestCase
 {
-    public function onholdSerializing332a()
+    use Check332a;
+
+    public function testSerializing332a()
     {
         $serializer = getSerializer();
 
@@ -36,70 +39,5 @@ class SerializerTest extends \PHPUnit\Framework\TestCase
         $this->check332astructure($structure);
     }
 
-    protected function check332astructure(Structure $structure) {
-        // roundnumbers
-        $this->assertNotSame($structure->getFirstRoundNumber(), null);
 
-        $firstRoundNumber = $structure->getFirstRoundNumber();
-        $this->assertSame($firstRoundNumber->getRounds()->count(), 1);
-
-        $this->assertSame($firstRoundNumber->hasNext(), true);
-
-        $secondRoundNumber = $firstRoundNumber->getNext();
-        $this->assertSame($secondRoundNumber->getRounds()->count(), 2);
-
-        $this->assertSame($secondRoundNumber->hasNext(), true);
-
-        $thirdRoundNumber = $secondRoundNumber->getNext();
-        $this->assertSame($thirdRoundNumber->getRounds()->count(), 4);
-
-        $this->assertSame($thirdRoundNumber->hasNext(), false);
-
-        // round 1
-        $this->assertNotSame($structure->getRootRound(), null);
-        $rootRound = $structure->getRootRound();
-
-        $this->assertSame($rootRound->getQualifyGroups(QualifyGroup::WINNERS), 1);
-
-        $this->assertSame($rootRound->getHorizontalPoules(QualifyGroup::WINNERS), 3);
-        $this->assertSame($rootRound->getHorizontalPoules(QualifyGroup::LOSERS), 3);
-
-        // second rounds
-        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
-            $this->assertNotSame($rootRound->getBorderQualifyGroup($winnersOrLosers), null);
-            $qualifyGroup = $rootRound->getBorderQualifyGroup($winnersOrLosers);
-
-            $this->assertNotSame($qualifyGroup->getBorderPoule(), null);
-
-            $borderPoule = $qualifyGroup->getBorderPoule();
-            $this->assertSame($borderPoule->getQualifyGroup(), $qualifyGroup);
-
-            $this->assertNotSame($qualifyGroup->getChildRound(), null);
-            $secondRound = $qualifyGroup->getChildRound();
-
-            $this->assertSame($secondRound->getPoules()->count(), 2);
-            $this->assertSame($secondRound->getHorizontalPoules(QualifyGroup::WINNERS)->count(), 2);
-            $this->assertSame($secondRound->getHorizontalPoules(QualifyGroup::LOSERS)->count(), 2);
-            $this->assertSame($secondRound->getNrOfPlaces(), 4);
-
-            // third rounds
-            foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers2 ) {
-                $this->assertNotSame($secondRound->getBorderQualifyGroup($winnersOrLosers2), null);
-                $qualifyGroup2 = $secondRound->getBorderQualifyGroup($winnersOrLosers2);
-
-                $this->assertNotSame($qualifyGroup2->getBorderPoule(), null);
-                $borderPoule2 = $qualifyGroup2->getBorderPoule();
-                $this->assertSame($borderPoule2->getQualifyGroup(), $qualifyGroup2);
-
-                $this->assertNotSame($qualifyGroup2->getChildRound(), null);
-
-                $thirdRound = $qualifyGroup2->getChildRound();
-
-                $this->assertSame($thirdRound->getPoules()->count(), 1);
-                $this->assertSame($thirdRound->getHorizontalPoules(QualifyGroup::WINNERS)->count(), 2);
-                $this->assertSame($thirdRound->getHorizontalPoules(QualifyGroup::LOSERS)->count(), 2);
-                $this->assertSame($thirdRound->getNrOfPlaces(), 2);
-            }
-        }
-    }
 }

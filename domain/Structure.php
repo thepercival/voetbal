@@ -9,7 +9,7 @@
 namespace Voetbal;
 
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Qualify\Service as QualifyService;
+use Voetbal\Qualify\Group as QualifyGroup;
 
 class Structure
 {
@@ -36,6 +36,16 @@ class Structure
         return $this->rootRound;
     }
 
+    public function getLastRoundNumber(): RoundNumber {
+        $getLastRoundNumber = function (RoundNumber $roundNumber): RoundNumber {
+            if (!$roundNumber->hasNext()) {
+                return $roundNumber;
+            }
+            return getLastRoundNumber($roundNumber->getNext());
+        };
+        return $getLastRoundNumber($this->getFirstRoundNumber());
+    }
+
     public function getRoundNumbers(): array {
         $roundNumbers = [];
         $roundNumber = $this->getFirstRoundNumber();
@@ -45,6 +55,7 @@ class Structure
         }
         return $roundNumbers;
     }
+
 
     public function getRoundNumber(int $roundNumberAsValue): ?RoundNumber {
         $roundNumber = $this->getFirstRoundNumber();
@@ -57,38 +68,60 @@ class Structure
         return $roundNumber;
     }
 
-    public function getRound( array $winnersOrLosersPath ): Round {
-        $round = $this->getRootRound();
-        foreach( $winnersOrLosersPath as $winnersOrLosers ) {
-            $round = $round->getChildRoundDep($winnersOrLosers);
-        }
-        return $round;
-    }
-
-    public function getRoundNumberById(int $id): ?RoundNumber {
-        $roundNumber = $this->getFirstRoundNumber();
-        while( $roundNumber !== null ) {
-            if($roundNumber->getId() === $id) {
-                return $roundNumber;
+    public function setStructureNumbers() {
+        $pouleStructureNumber = 1;
+        $nrOfDropoutPlaces = 0;
+        $setStructureNumbers = function(Round $round) use (&$setStructureNumbers, &$pouleStructureNumber, &$nrOfDropoutPlaces) {
+            foreach( $round->getPoules() as $poule ) {
+                $poule->setStructureNumber($pouleStructureNumber++);
             }
-            $roundNumber = $roundNumber->getNext();
-        }
-        return $roundNumber;
+            foreach( $round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup ) {
+                $setStructureNumbers($qualifyGroup->getChildRound());
+            }
+            $round->setStructureNumber($nrOfDropoutPlaces);
+            $nrOfDropoutPlaces += $round->getNrOfDropoutPlaces();
+            $losersQualifyGroups = array_reverse( $round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0) );
+            foreach( $losersQualifyGroups as $qualifyGroup ) {
+                $setStructureNumbers($qualifyGroup->getChildRound());
+            }
+        };
+        $setStructureNumbers($this->rootRound);
     }
 
-    public function setQualifyRules() {
-        if( count( $this->getRootRound()->getToQualifyRules() ) === 0 ) {
-            $this->setQualifyRulesHelper( $this->getRootRound() );
-        }
-    }
 
-    protected function setQualifyRulesHelper( Round $parentRound )
-    {
-        throw new \Exception("setQualifyRulesHelper", E_ERROR);
-//        foreach ($parentRound->getChildRounds() as $childRound) {
-//            $qualifyService = new QualifyService($childRound);
-//            $qualifyService->createRules();
-//            $this->setQualifyRulesHelper( $childRound );
+//
+//    public function getRound( array $winnersOrLosersPath ): Round {
+//        $round = $this->getRootRound();
+//        foreach( $winnersOrLosersPath as $winnersOrLosers ) {
+//            $round = $round->getChildRoundDep($winnersOrLosers);
 //        }
-    }
+//        return $round;
+//    }
+//
+//    public function getRoundNumberById(int $id): ?RoundNumber {
+//        $roundNumber = $this->getFirstRoundNumber();
+//        while( $roundNumber !== null ) {
+//            if($roundNumber->getId() === $id) {
+//                return $roundNumber;
+//            }
+//            $roundNumber = $roundNumber->getNext();
+//        }
+//        return $roundNumber;
+//    }
+//
+//    public function setQualifyRules() {
+//        if( count( $this->getRootRound()->getToQualifyRules() ) === 0 ) {
+//            $this->setQualifyRulesHelper( $this->getRootRound() );
+//        }
+//    }
+//
+//    protected function setQualifyRulesHelper( Round $parentRound )
+//    {
+//        throw new \Exception("setQualifyRulesHelper", E_ERROR);
+////        foreach ($parentRound->getChildRounds() as $childRound) {
+////            $qualifyService = new QualifyService($childRound);
+////            $qualifyService->createRules();
+////            $this->setQualifyRulesHelper( $childRound );
+////        }
+//    }
 }

@@ -1,6 +1,6 @@
-Voetbal\PoulePlace:
+Voetbal\Place:
   type: entity
-  repositoryClass: Voetbal\PoulePlace\Repository
+  repositoryClass: Voetbal\Place\Repository
   table: pouleplaces
   id:
     id:

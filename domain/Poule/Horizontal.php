@@ -8,7 +8,6 @@
 
 namespace Voetbal\Poule;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Place;
@@ -48,7 +47,7 @@ class Horizontal {
     protected $multipleRule;
 
     public function __construct( Round $round, int $number ) {
-        $this->places = new ArrayCollection();
+        $this->places = [];
         $this->round = $round;
         $this->number = $number;
     }
@@ -81,11 +80,11 @@ class Horizontal {
     return $nrOfPlaceNubers - ($this->number - 1);
 }
 
-    public function getQualifyGroup(): QualifyGroup {
+    public function getQualifyGroup(): ?QualifyGroup {
         return $this->qualifyGroup;
     }
 
-    public function setQualifyGroup(QualifyGroup $qualifyGroup) {
+    public function setQualifyGroup(?QualifyGroup $qualifyGroup) {
 
         // this is done in horizontalpouleservice
         // if( this.qualifyGroup != undefined ){ // remove from old round
@@ -96,7 +95,8 @@ class Horizontal {
         // }
         $this->qualifyGroup = $qualifyGroup;
         if ($qualifyGroup !== null) {
-            $this->qualifyGroup->getHorizontalPoules()->push($this);
+            $horizontalPoules = &$this->qualifyGroup->getHorizontalPoules();
+            $horizontalPoules[] = $this;
         }
     }
 
@@ -104,15 +104,14 @@ class Horizontal {
         return $this->multipleRule;
     }
 
-    public function setQualifyRuleMultiple(QualifyRuleMultiple $multipleRule) {
-        $this->getPlaces()->forAll( function( $place ) use ($multipleRule) {
+    public function setQualifyRuleMultiple(?QualifyRuleMultiple $multipleRule) {
+        foreach( $this->getPlaces() as $place ) {
             $place->setToQualifyRule($this->getWinnersOrLosers(), $multipleRule);
-            return true;
-        } );
+        }
         $this->multipleRule = $multipleRule;
     }
 
-    public function getPlaces(): ArrayCollection {
+    public function &getPlaces(): array {
         return $this->places;
     }
 
@@ -134,7 +133,7 @@ class Horizontal {
             return false;
         }
         $horPoules = $this->getQualifyGroup()->getHorizontalPoules();
-        return $horPoules[$horPoules.length - 1] === $this;
+        return $horPoules[count($horPoules)-1] === $this;
     }
 
     public function getNrOfQualifiers() {

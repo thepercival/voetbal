@@ -449,10 +449,10 @@ class Config
     /**
      * @param RoundNumber $roundNumber
      */
-    public function setRoundNumber(RoundNumber $roundNumber)
+    protected function setRoundNumber(RoundNumber $roundNumber)
     {
-        // $roundNumber->setConfig($this);
         $this->roundNumber = $roundNumber;
+        $this->roundNumber->setConfig($this);
     }
 
     /**

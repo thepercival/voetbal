@@ -13,7 +13,7 @@ use Doctrine\Common\Collections\Collection as CommonCollection;
 
 use Voetbal\Game\Score;
 use Voetbal\Round\Config as RoundConfig;
-use Voetbal\Game\PoulePlace as GamePoulePlace;
+use Voetbal\Game\Place as GamePlace;
 use Voetbal\Place;
 
 class Game implements External\Importable
@@ -57,8 +57,8 @@ class Game implements External\Importable
     /**
      * @var PoulePlace
      */
-    protected $refereePoulePlace;
-    protected $refereePoulePlaceId; // for serialization, not used
+    protected $refereePlace;
+    protected $refereePlaceId; // for serialization, not used
 
     /**
      * @var Field
@@ -79,7 +79,7 @@ class Game implements External\Importable
     /**
      * @var GamePoulePlace[] | ArrayCollection
      */
-    protected $poulePlaces;
+    protected $places;
 
     /**
      * @var int
@@ -105,7 +105,7 @@ class Game implements External\Importable
     {
         $this->setState( Game::STATE_CREATED );
         $this->setPoule( $poule );
-        $this->poulePlaces = new ArrayCollection();
+        $this->places = new ArrayCollection();
         $this->setRoundNumber( $roundNumber );
         $this->setSubNumber( $subNumber );
         $this->scores = new ArrayCollection();
@@ -284,33 +284,33 @@ class Game implements External\Importable
     /**
      * @return PoulePlace
      */
-    public function getRefereePoulePlace()
+    public function getRefereePlace()
     {
-        return $this->refereePoulePlace;
+        return $this->refereePlace;
     }
 
     /**
-     * @param PoulePlace $refereePoulePlace
+     * @param Place $refereePlace
      */
-    public function setRefereePoulePlace( PoulePlace $refereePoulePlace = null )
+    public function setRefereePlace( Place $refereePlace = null )
     {
-        $this->refereePoulePlace = $refereePoulePlace;
+        $this->refereePlace = $refereePlace;
     }
 
     /**
      * @return int
      */
-    public function getRefereePoulePlaceId()
+    public function getRefereePlaceId()
     {
-        return $this->refereePoulePlace ? $this->refereePoulePlace->getId() : $this->refereePoulePlaceId;
+        return $this->refereePlace ? $this->refereePlace->getId() : $this->refereePlaceId;
     }
 
     /**
-     * @param int $refereePoulePlaceId
+     * @param int $refereePlaceId
      */
-    public function setRefereePoulePlaceId( int $refereePoulePlaceId = null )
+    public function setRefereePlaceId( int $refereePlaceId = null )
     {
-        $this->refereePoulePlaceId = $refereePoulePlaceId;
+        $this->refereePlaceId = $refereePlaceId;
     }
 
     /**
@@ -382,50 +382,50 @@ class Game implements External\Importable
 
     /**
      * @param bool|null $homeaway
-     * @return CommonCollection | GamePoulePlace[]
+     * @return CommonCollection | GamePlace[]
      */
-    public function getPoulePlaces( bool $homeaway = null )
+    public function getPlaces( bool $homeaway = null )
     {
         if ($homeaway === null) {
-            return $this->poulePlaces;
+            return $this->places;
         }
-        return $this->poulePlaces->filter( function( $gamePoulePlace ) use ( $homeaway ) { return $gamePoulePlace->getHomeaway() === $homeaway; });
+        return $this->places->filter( function( $gamePlace ) use ( $homeaway ) { return $gamePlace->getHomeaway() === $homeaway; });
     }
 
     /**
-     * @param ArrayCollection | GamePoulePlace[] $poulePlaces
+     * @param ArrayCollection | GamePlace[] $places
      */
-    public function setPoulePlaces($poulePlaces)
+    public function setPlaces($places)
     {
-        $this->poulePlaces = $poulePlaces;
+        $this->places = $places;
     }
 
     /**
-     * @param \Voetbal\PoulePlace $poulePlace
+     * @param \Voetbal\Place $place
      * @param bool $homeaway
      * @return GamePoulePlace
      */
-    public function addPoulePlace(PoulePlace $poulePlace, bool $homeaway): GamePoulePlace
+    public function addPlace(Place $place, bool $homeaway): GamePlace
     {
-        return new GamePoulePlace( $this, $poulePlace, $homeaway );
+        return new GamePlace( $this, $place, $homeaway );
     }
 
     /**
-     * @param \Voetbal\PoulePlace $poulePlace
+     * @param \Voetbal\Place $place
      * @param bool|null $homeaway
      * @return bool
      */
-    public function isParticipating(PoulePlace $poulePlace, bool $homeaway = null ): bool {
-        $places = $this->getPoulePlaces( $homeaway )->map( function( $gamePoulePlace ) { return $gamePoulePlace->getPoulePlace(); } );
-        return $places->contains( $poulePlace );
+    public function isParticipating(Place $place, bool $homeaway = null ): bool {
+        $places = $this->getPlaces( $homeaway )->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+        return $places->contains( $place );
     }
 
-    public function getHomeAway(PoulePlace $poulePlace): ?bool
+    public function getHomeAway(Place $place): ?bool
     {
-        if( $this->isParticipating($poulePlace, Game::HOME )) {
+        if( $this->isParticipating($place, Game::HOME )) {
             return Game::HOME;
         }
-        if( $this->isParticipating($poulePlace, Game::AWAY )) {
+        if( $this->isParticipating($place, Game::AWAY )) {
             return Game::AWAY;
         }
         return null;

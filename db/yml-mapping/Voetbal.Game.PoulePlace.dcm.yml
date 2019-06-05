@@ -1,6 +1,6 @@
-Voetbal\Game\PoulePlace:
+Voetbal\Game\Place:
   type: entity
-  repositoryClass: Voetbal\Game\PoulePlace\Repository
+  repositoryClass: Voetbal\Game\Place\Repository
   table: gamepouleplaces
   id:
     id:
@@ -15,14 +15,14 @@ Voetbal\Game\PoulePlace:
   manyToOne:
     game:
       targetEntity: Voetbal\Game
-      inversedBy: pouleplaces
+      inversedBy: places
       joinColumn:
         name: gameid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
     poulePlace:
-      targetEntity: Voetbal\PoulePlace
+      targetEntity: Voetbal\Place
       joinColumn:
         name: pouleplaceid
         referencedColumnName: id

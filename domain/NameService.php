@@ -6,9 +6,8 @@
  * Time: 9:56
  */
 
-namespace Voetbal\Structure;
+namespace Voetbal;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Place;
 use Voetbal\Poule;
 use Voetbal\Round;
@@ -27,7 +26,7 @@ class NameService
     }
 
     public function getRoundName( Round $round, $sameName = false) {
-        if ($this->roundAndParentsNeedsRanking($round) || ($round->getQualifyGroups()->count() > 1
+        if ($this->roundAndParentsNeedsRanking($round) || (count($round->getAllQualifyGroups()) > 1
                 && $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::WINNERS)) !== $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::LOSERS)))) {
             return $this->getHtmlNumber($round->getNumber()->getNumber()) . ' ronde';
         }
@@ -71,10 +70,10 @@ class NameService
         return $pouleName;
     }
 
-    public function getPoulePlacesFromName(ArrayCollection $gamePouleplaces, bool $competitorName, bool $longName = null): string {
-        return implode( ' & ', $gamePouleplaces->map( function( $gamePoulePlace) use ( $competitorName, $longName ) {
+    public function getPoulePlacesFromName(array $gamePouleplaces, bool $competitorName, bool $longName = null): string {
+        return implode( ' & ', array_map( function( $gamePoulePlace) use ( $competitorName, $longName ) {
                 return $this->getPoulePlaceFromName($gamePoulePlace->getPoulePlace(), $competitorName, $longName);
-        })->toArray());
+        }, $gamePouleplaces ) );
     }
 
     public function getPoulePlaceFromName(PoulePlace $pouleplace, bool $competitorName, bool $longName = null)

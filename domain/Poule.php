@@ -41,6 +41,10 @@ class Poule
      * @var Game[] | ArrayCollection
      */
     protected $games;
+    /**
+     * @var int
+     */
+    protected $structureNumber;
 
     const MAX_LENGTH_NAME = 10;
 
@@ -138,6 +142,14 @@ class Poule
         $this->name = $name;
     }
 
+    public function getStructureNumber(): int {
+        return $this->structureNumber;
+    }
+
+    public function setStructureNumber(int $structureNumber): void {
+        $this->structureNumber = $structureNumber;
+    }
+
     /**
      * @return PoulePlace[] | ArrayCollection
      */
@@ -225,13 +237,13 @@ class Poule
         return Game::STATE_CREATED;
     }
 
-    public function getCompetitors(): ArrayCollection
+    public function getCompetitors(): array
     {
-        $competitors = new ArrayCollection();
+        $competitors = [];
         foreach ( $this->getPlaces() as $place ) {
             $competitor = $place->getCompetitor();
             if ($competitor !== null) {
-                $competitors->add($competitor);
+                $competitors[] = $competitor;
             }
         }
         return $competitors;

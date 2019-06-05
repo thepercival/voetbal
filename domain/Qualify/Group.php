@@ -8,7 +8,7 @@
 
 namespace Voetbal\Qualify;
 
-use \Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 
@@ -40,7 +40,7 @@ class Group
     protected $childRound;
 
     /**
-     * @var ArrayCollection | HorizontalPoule[]
+     * @var array | HorizontalPoule[]
      */
     protected $horizontalPoules;
 
@@ -50,7 +50,7 @@ class Group
 
     public function __construct( Round $round, int $winnersOrLosers, int $number = null )
     {
-        $this->horizontalPoules = new ArrayCollection();
+        $this->horizontalPoules = [];
         $this->setWinnersOrLosers($winnersOrLosers);
         if ($number === null) {
             $this->setRound( $round );
@@ -122,7 +122,10 @@ class Group
 
     protected function insertRoundAt(Round $round, int $insertAt) {
 
-        $round->getQualifyGroups($this->getWinnersOrLosers())->splice($insertAt, 0, $this);
+        $qualifyGroups = &$round->getQualifyGroups($this->getWinnersOrLosers());
+        $partOne = $qualifyGroups->slice(0, $insertAt );
+        $partTwo = $qualifyGroups->slice($insertAt);
+        $qualifyGroups = new ArrayCollection( array_merge( $partOne, [$this], $partTwo) );
         $this->round = $round;
     }
 
@@ -131,8 +134,9 @@ class Group
      */
     public function setRound( Round $round  )
     {
-        if( $round !== null and !$round->getQualifyGroups()->contains( $this ) ) {
-            $round->getQualifyGroups()->add( $this );
+        $qualifyGroups = $round->getQualifyGroups($this->getWinnersOrLosers());
+        if( $round !== null and !$qualifyGroups->contains( $this ) ) {
+            $qualifyGroups->add( $this );
         }
         $this->round = $round;
     }
@@ -156,7 +160,7 @@ class Group
     /**
      * @return ArrayCollection | HorizontalPoule[]
      */
-    public function getHorizontalPoules(): ArrayCollection {
+    public function &getHorizontalPoules(): array {
         return $this->horizontalPoules;
     }
 
@@ -171,11 +175,11 @@ class Group
     // }
 
     public function getBorderPoule(): HorizontalPoule {
-        return $this->horizontalPoules->last();
+        return $this->horizontalPoules[count($this->horizontalPoules)-1];
     }
 
     public function getNrOfPlaces() {
-        return $this->getHorizontalPoules()->count() * $this->getRound()->getPoules()->count();
+        return count($this->getHorizontalPoules()) * $this->getRound()->getPoules()->count();
     }
 
     public function getNrOfToPlacesTooMuch(): int {

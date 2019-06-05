@@ -12,7 +12,6 @@ use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Round;
 use Voetbal\Place;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
-use Doctrine\Common\Collections\ArrayCollection;
 
 class Service {
     /**
@@ -42,13 +41,13 @@ class Service {
 
     protected function remove() {
         foreach( $this->winnersAndLosers as $winnersOrLosers ) {
-            $horizontalPoules = $this->round->getHorizontalPoules($winnersOrLosers);
-            while ($horizontalPoules->count() > 0) {
-                $horizontalPoule = $horizontalPoules->pop();
+            $horizontalPoules = &$this->round->getHorizontalPoules($winnersOrLosers);
+            while (count($horizontalPoules) > 0) {
+                $horizontalPoule = array_pop($horizontalPoules);
 
-                $places = $horizontalPoule->getPlaces();
-                while ($places->length > 0) {
-                    $place = $places->pop();
+                $places = &$horizontalPoule->getPlaces();
+                while (count($places) > 0) {
+                    $place = array_pop($places);
                     $place->setHorizontalPoule($winnersOrLosers, null);
                 }
             }
@@ -65,8 +64,8 @@ class Service {
      * @param int $winnersOrLosers
      * @return array | HorizontalPoule[]
      */
-    protected function createRoundHorizontalPoules(int $winnersOrLosers): ArrayCollection {
-        $horizontalPoules = $this->round->getHorizontalPoules($winnersOrLosers);
+    protected function createRoundHorizontalPoules(int $winnersOrLosers): array {
+        $horizontalPoules = &$this->round->getHorizontalPoules($winnersOrLosers);
 
         $placesOrderedByPlaceNumber = $this->getPlacesHorizontal();
         if ($winnersOrLosers === QualifyGroup::LOSERS) {
@@ -74,8 +73,8 @@ class Service {
         }
 
         foreach( $placesOrderedByPlaceNumber as $placeIt ) {
-            $filteredHorizontalPoules = $horizontalPoules->filter( function($horizontalPoule) use($placeIt,$winnersOrLosers ) {
-                return $horizontalPoule->getPlaces()->forAll( function( $poulePlaceIt ) use($placeIt,$winnersOrLosers ) {
+            $filteredHorizontalPoules = array_filter( $horizontalPoules, function($horizontalPoule) use($placeIt,$winnersOrLosers ) {
+                foreach( $horizontalPoule->getPlaces() as $poulePlaceIt ) {
                     $poulePlaceNrIt = $poulePlaceIt->getNumber();
                     if ($winnersOrLosers === QualifyGroup::LOSERS) {
                         $poulePlaceNrIt = ($poulePlaceIt->getPoule()->getPlaces()->count() + 1) - $poulePlaceNrIt;
@@ -84,16 +83,19 @@ class Service {
                     if ($winnersOrLosers === QualifyGroup::LOSERS) {
                         $placeNrIt = ($placeIt->getPoule()->getPlaces()->count() + 1) - $placeNrIt;
                     }
-                    return $poulePlaceNrIt === $placeNrIt;
-                });
+                    if ( $poulePlaceNrIt === $placeNrIt ) {
+                        return true;
+                    }
+                }
+                return false;
             });
 
-            $horizontalPoule = $filteredHorizontalPoules->first();
-            if ($horizontalPoule === null) {
-                $horizontalPoule = new HorizontalPoule($this->round, $horizontalPoules->count() + 1);
-                $horizontalPoules->push($horizontalPoule);
+            $foundHorizontalPoule = array_shift($filteredHorizontalPoules);
+            if ($foundHorizontalPoule === null) {
+                $foundHorizontalPoule = new HorizontalPoule($this->round, count($horizontalPoules) + 1);
+                $horizontalPoules[] = $foundHorizontalPoule;
             }
-            $placeIt->setHorizontalPoule($winnersOrLosers, $horizontalPoule);
+            $placeIt->setHorizontalPoule($winnersOrLosers, $foundHorizontalPoule);
         }
         return $horizontalPoules;
     }

@@ -4,7 +4,7 @@ namespace Voetbal\Round;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
-use Voetbal\Round\Config as RoundConfig;
+use Voetbal\Config;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 
@@ -31,7 +31,7 @@ class Number
      */
     protected $next;
     /**
-     * @var RoundConfig
+     * @var Config
      */
     protected $config;
     /**
@@ -42,7 +42,7 @@ class Number
      * @var bool
      */
 
-    public function __construct( Competition $competition, RoundNumber $previous = null )
+    public function __construct( ?Competition $competition, RoundNumber $previous = null )
     {
         $this->competition = $competition;
         $this->previous = $previous;
@@ -130,11 +130,11 @@ class Number
         return $this->getRounds()->first();
     }
 
-    public function getConfig(): RoundConfig {
+    public function getConfig(): Config {
         return $this->config;
     }
 
-    public function setConfig(RoundConfig $config ) {
+    public function setConfig(Config $config ) {
         $this->config = $config;
     }
 
@@ -156,7 +156,7 @@ class Number
     }
 
     /**
-     * @return array | \Voetbal\PoulePlace[]
+     * @return array | \Voetbal\Place[]
      */
     public function getPlaces(): array {
         $places = [];

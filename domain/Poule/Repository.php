@@ -8,7 +8,6 @@
 
 namespace Voetbal\Poule;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Poule;
 use Voetbal\Field;
