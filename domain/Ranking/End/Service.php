@@ -6,81 +6,125 @@
  * Time: 7:57
  */
 
-import { Game } from '../../game';
-import { PlaceLocation } from '../../place/location';
-import { HorizontalPoule } from '../../poule/horizontal';
-import { QualifyGroup } from '../../qualify/group';
-import { Round } from '../../round';
-import { Structure } from '../../structure';
-import { EndRankingItem } from '../item';
-import { RankingService } from '../service';
+namespace Voetbal\Ranking\End;
+
+use Voetbal\Game;
+use Voetbal\Place\Location as PlaceLocation;
+use Voetbal\Poule\Horizontal as HorizontalPoule;
+use Voetbal\Qualify\Group as QualifyGroup;
+use Voetbal\Round;
+use Voetbal\Structure;
+use Voetbal\Ranking\Service as RankingService;
 
 /* tslint:disable:no-bitwise */
 
-export class EndRankingService {
+class Service {
+    /**
+     * @var int
+     */
+    private $currentRank;
+    /**
+     * @var Structure
+     */
+    private $structure;
+    /**
+     * @var int
+     */
+    private $ruleSet;
 
-private currentRank: number;
+    /**
+     * EndRankingItem constructor.
+     * @param int $uniqueRank
+     * @param int $rank
+     * @param string $name
+     */
+    public function __construct( Structure $structure, int $ruleSet )
+    {
+        $this->structure = $structure;
+        $this->ruleSet = $ruleSet;
+    }
 
-constructor(private structure: Structure, private ruleSet: number) {
-}
-
-    getItems(): EndRankingItem[] {
-    this.currentRank = 1;
-    const getItems = (round: Round): EndRankingItem[] => {
-        let items: EndRankingItem[] = [];
-            round.getQualifyGroups(QualifyGroup.WINNERS).forEach(qualifyGroup => {
-            items = items.concat(getItems(qualifyGroup.getChildRound()));
-        });
-            if (round.getState() === Game.STATE_PLAYED) {
-                items = items.concat(this.getDropouts(round));
-            } else {
-                items = items.concat(this.getDropoutsNotPlayed(round));
+    /**
+     * @return array | Item[]
+     */
+    public function getItems(): array {
+        $this->currentRank = 1;
+        $getItems = function (Round $round ) use (&$getItems) : array {
+            $items = [];
+            foreach( $round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup ) {
+                $items = array_merge( $items, $getItems($qualifyGroup->getChildRound()));
             }
-            round.getQualifyGroups(QualifyGroup.LOSERS).slice().reverse().forEach(qualifyGroup => {
-            items = items.concat(getItems(qualifyGroup.getChildRound()));
-        });
+            if ($round->getState() === Game::STATE_PLAYED) {
+                $items = array_merge( $items, $this->getDropouts($round));
+            } else {
+                $items = array_merge( $items, $this->getDropoutsNotPlayed($round));
+            }
+            foreach( aray_reverse( $round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0) ) as $qualifyGroup ) {
+                $items = array_merge( $items, $getItems($qualifyGroup->getChildRound()));
+            }
             return items;
+        };
+        return $getItems($this->structure->getRootRound());
+    }
+
+    /**
+     * @param Round $round
+     * @return array | Item[]
+     */
+    protected function getDropoutsNotPlayed(Round $round): array {
+        $items = [];
+        $nrOfDropouts = $round->getNrOfPlaces() - $round->getNrOfPlacesChildren();
+        for ($i = 0; $i < nrOfDropouts; $i++) {
+            $items[] = new Item($this->currentRank, $this->currentRank++, 'nog onbekend');
         }
-        return getItems(this.structure.getRootRound());
+        return $items;
     }
 
-    protected getDropoutsNotPlayed(round: Round): EndRankingItem[] {
-    const items: EndRankingItem[] = [];
-        const nrOfDropouts: number = round.getNrOfPlaces() - round.getNrOfPlacesChildren();
-        for (let i = 0; i < nrOfDropouts; i++) {
-        items.push(new EndRankingItem(this.currentRank, this.currentRank++, 'nog onbekend'));
-    }
-        return items;
-    }
-
-    protected getDropouts(round: Round): EndRankingItem[] {
-    const rankingService = new RankingService(round, this.ruleSet);
-    let dropouts: EndRankingItem[] = [];
-        let nrOfDropouts = round.getNrOfDropoutPlaces();
-        while (nrOfDropouts > 0) {
-            [QualifyGroup.WINNERS, QualifyGroup.LOSERS].every(winnersOrLosers => {
-                round.getHorizontalPoules(winnersOrLosers).every(horizontalPoule => {
-                    if (horizontalPoule.getQualifyGroup() && horizontalPoule.getQualifyGroup().getNrOfToPlacesTooMuch() === 0) {
-                        return nrOfDropouts > 0;
+    /**
+     * @param Round $round
+     * @return array | Item[]
+     */
+    protected function getDropouts(Round $round): array {
+        $rankingService = new RankingService($round, $this->ruleSet);
+        $dropouts = [];
+        $nrOfDropouts = $round->getNrOfDropoutPlaces();
+        while ($nrOfDropouts > 0) {
+            foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
+                foreach( $round->getHorizontalPoules($winnersOrLosers) as $horizontalPoule ) {
+                    /** @var HorizontalPoule $horizontalPoule */
+                    if ($horizontalPoule->getQualifyGroup() && $horizontalPoule->getQualifyGroup()->getNrOfToPlacesTooMuch() === 0) {
+                        if( $nrOfDropouts > 0 ) {
+                            continue;
+                        }
+                        break;
                     }
-                    const dropoutsHorizontalPoule = this.getDropoutsHorizontalPoule(horizontalPoule, rankingService);
-                    dropouts = dropouts.concat(dropoutsHorizontalPoule);
-                    nrOfDropouts -= dropoutsHorizontalPoule.length;
-                    return nrOfDropouts > 0;
-                });
-                return nrOfDropouts > 0;
-            });
+                    $dropoutsHorizontalPoule = $this->getDropoutsHorizontalPoule($horizontalPoule, $rankingService);
+                    $dropouts = array_merge( $dropouts, $dropoutsHorizontalPoule );
+                    $nrOfDropouts -= count($dropoutsHorizontalPoule);
+                    if( $nrOfDropouts === 0 ) {
+                        break;
+                    }
+                }
+                if( $nrOfDropouts === 0 ) {
+                    break;
+                }
+            }
         }
-        return dropouts;
+        return $dropouts;
     }
 
-    protected getDropoutsHorizontalPoule(horizontalPoule: HorizontalPoule, rankingService: RankingService): EndRankingItem[] {
-    const rankedPlaceLocations: PlaceLocation[] = rankingService.getPlaceLocationsForHorizontalPoule(horizontalPoule);
-        rankedPlaceLocations.splice(0, horizontalPoule.getNrOfQualifiers())
-        return rankedPlaceLocations.map(rankedPlaceLocation => {
-        const competitor = rankingService.getCompetitor(rankedPlaceLocation);
-        const name = competitor ? competitor.getName() : 'onbekend';
-        return new EndRankingItem(this.currentRank, this.currentRank++, name);
-    });
+    /**
+     * @param HorizontalPoule $horizontalPoule
+     * @param RankingService $rankingService
+     * @return array | Item[]
+     */
+    protected function getDropoutsHorizontalPoule(HorizontalPoule $horizontalPoule, RankingService $rankingService ): array {
+        $rankedPlaceLocations = $rankingService->getPlaceLocationsForHorizontalPoule($horizontalPoule);
+        array_splice( $rankedPlaceLocations, 0, $horizontalPoule->getNrOfQualifiers());
+        return array_map( function ($rankedPlaceLocation) use ($rankingService) {
+            $competitor = $rankingService->getCompetitor($rankedPlaceLocation);
+            $name = $competitor ? $competitor->getName() : 'onbekend';
+            return new Item($this->currentRank, $this->currentRank++, $name);
+        }, $rankedPlaceLocations );
     }
 }

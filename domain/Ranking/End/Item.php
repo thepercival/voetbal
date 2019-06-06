@@ -6,20 +6,45 @@
  * Time: 7:55
  */
 
-export class EndRankingItem {
-constructor(private uniqueRank: number, private rank: number, private name: string) {
-}
+namespace Voetbal\Ranking\End;
 
-getUniqueRank(): number {
-    return this.uniqueRank;
-}
+class Item
+{
+    /**
+     * @var int
+     */
+    private $uniqueRank;
+    /**
+     * @var int
+     */
+    private $rank;
+    /**
+     * @var string
+     */
+    private $name;
 
-    getRank(): number {
-    return this.rank;
-}
+    /**
+     * EndRankingItem constructor.
+     * @param int $uniqueRank
+     * @param int $rank
+     * @param string $name
+     */
+    public function __construct( int $uniqueRank, int $rank, string $name )
+    {
+        $this->uniqueRank = $uniqueRank;
+        $this->rank = $rank;
+        $this->name = $name;
+    }
 
-    getName(): string {
-    return this.name;
-}
-}
+    public function getUniqueRank(): int {
+        return $this->uniqueRank;
+    }
+
+    public function getRank(): int {
+        return $this->rank;
+    }
+
+    public function getName(): string {
+        return $this->name;
+    }
 }

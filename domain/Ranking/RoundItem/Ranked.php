@@ -6,28 +6,57 @@
  * Time: 7:56
  */
 
-export class RankedRoundItem {
-constructor(private unrankedRoundItem: UnrankedRoundItem, private uniqueRank: number, private rank: number
-) {
-}
+namespace Voetbal\Ranking\RoundItem;
 
-    getUniqueRank(): number {
-    return this.uniqueRank;
-}
+use Voetbal\Place;
+use Voetbal\Place\Location as PlaceLocation;
 
-    getRank(): number {
-    return this.rank;
-}
+class Ranked
+{
+    /**
+     * @var int
+     */
+    private $uniqueRank;
+    /**
+     * @var int
+     */
+    private $rank;
+    /**
+     * @var Unranked
+     */
+    private $unranked;
 
-    getPlaceLocation(): PlaceLocation {
-    return this.unrankedRoundItem.getPlaceLocation();
-}
+    /**
+     * Ranked constructor.
+     * @param Unranked $unranked
+     * @param int $uniqueRank
+     * @param int $rank
+     */
+    public function __construct( Unranked $unranked, int $uniqueRank, int $rank )
+    {
+        $this->unranked = $unranked;
+        $this->uniqueRank = $uniqueRank;
+        $this->rank = $rank;
+    }
 
-    getUnranked(): UnrankedRoundItem {
-    return this.unrankedRoundItem;
-}
 
-    getPlace(): Place {
-    return this.unrankedRoundItem.getRound().getPlace(this.unrankedRoundItem.getPlaceLocation());
-}
+    public function getUniqueRank(): int {
+        return $this->uniqueRank;
+    }
+
+    public function getRank(): int {
+        return $this->rank;
+    }
+
+    public function getPlaceLocation(): PlaceLocation {
+        return $this->unranked->getPlaceLocation();
+    }
+
+    public function getUnranked(): Unranked {
+        return $this->unranked;
+    }
+
+    public function getPlace(): Place {
+        return $this->unranked->getRound()->getPlace($this->unranked->getPlaceLocation());
+    }
 }

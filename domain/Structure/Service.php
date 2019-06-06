@@ -392,10 +392,7 @@ class Service {
             foreach( $removedQualifyGroup->getHorizontalPoules() as $horizontalPoule ) {
                 $horizontalPoule->setQualifyGroup(null);
             }
-            $idx = $nextRoundNumber->getRounds()->indexOf($removedQualifyGroup->getChildRound());
-            if ($idx > -1) {
-                $nextRoundNumber->getRounds()->splice($idx, 1);
-            }
+            $nextRoundNumber->getRounds()->removeElement($removedQualifyGroup->getChildRound());
         }
         if ($nextRoundNumber->getRounds()->count() === 0) {
             $round->getNumber()->removeNext();

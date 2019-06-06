@@ -6,7 +6,7 @@
  * Time: 11:58
  */
 
-use \JMS\Serializer\SerializerBuilder;
+use JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\ContextFactory\CallableSerializationContextFactory;
@@ -19,7 +19,6 @@ use Voetbal\SerializationHandler\Round\Number as RoundNumberSerializationHandler
 
 function getSerializer(): \JMS\Serializer\Serializer {
     $apiVersion = 2;
-
 
     $serializerBuilder = SerializerBuilder::create()->setDebug(true);
 

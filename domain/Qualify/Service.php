@@ -11,6 +11,7 @@ use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Game;
 use Voetbal\Qualify\Rule\Single as QualifyRuleSingle;
 use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
+use Voetbal\Qualify\Group as QualifyGroup;
 
 /**
  * Created by PhpStorm.
@@ -111,7 +112,7 @@ class Service
             $rankedPlaceLocation = $this->reservationService->getFreeAndLeastAvailabe($toPouleNumber, $round, $rankedPlaceLocations);
             $toPlace->setCompetitor($this->rankingService->getCompetitor($rankedPlaceLocation));
             $changedPlaces[] = $toPlace;
-            array_splice($rankedPlaceLocations, $rankedPlaceLocations->indexOf($rankedPlaceLocation), 1);
+            array_splice($rankedPlaceLocations, array_search( $rankedPlaceLocation, $rankedPlaceLocations), 1);
         }
         return $changedPlaces;
     }
@@ -315,7 +316,6 @@ class Service
 //            return [];
 //        }
 //        $qualifiers = [];
-//        // RENEW CDK TODO
 ////        foreach($this->getRulePartsToProcess($parentPoule) as $rulePart ) {
 ////            $qualifiers = array_merge( $qualifiers, $this->getQualifiers($rulePart));
 ////        }
@@ -324,7 +324,6 @@ class Service
 //
 //    protected function getRulePartsToProcess(Poule $parentPoule): array /*IQualifyRulePart*/ {
 //        $ruleParts = [];
-//        // RENEW CDK TODO
 ////        $winnersOrLosers = $this->childRound->getWinnersOrlosers();
 ////        if ($parentPoule->getRound()->getState() === Game::STATE_PLAYED) {
 ////            foreach( $parentPoule->getRound()->getToQualifyRules($winnersOrLosers) as $qualifyRule ) {
@@ -346,7 +345,7 @@ class Service
 //
 ////    protected function getQualifiers( RulePart $rulePart): array /*Qualifier*/
 ////    {
-//        // RENEW CDK TODO
+//
 ////        // bij meerdere fromPlace moet ik bepalen wie de beste is
 ////        $newQualifiers = [];
 ////        $rankingService = new Ranking(Ranking::SOCCERWORLDCUP);

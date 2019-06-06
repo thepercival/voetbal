@@ -29,7 +29,7 @@ class Service
         $qualifyGroup = $horizontalPoule->getQualifyGroup();
         $nrOfPlacesChildRound = $qualifyGroup->getChildRound()->getNrOfPlaces();
         $horizontalPoules = $qualifyGroup->getHorizontalPoules();
-        $idx = $horizontalPoules->indexOf($horizontalPoule);
+        $idx = array_search( $horizontalPoule, $horizontalPoules );
         if ($idx < 0) {
             throw new \Exception('de horizontale poule kan niet gevonden worden', E_ERROR );
         }
@@ -63,10 +63,10 @@ class Service
         $round = $firstQualifyGroup->getRound();
         $qualifyGroups = $round->getQualifyGroups($firstQualifyGroup->getWinnersOrLosers());
         $idx = $qualifyGroups->indexOf($secondQualifyGroup);
-        $qualifyGroups->splice($idx, 1);
+        $qualifyGroups->removeElement($secondQualifyGroup);
         $this->renumber($round, $firstQualifyGroup->getWinnersOrLosers());
 
-        $secondQualifyGroup->getHorizontalPoules()->splice($idx, 1);
+        array_splice( $secondQualifyGroup->getHorizontalPoules(), $idx, 1);
 
         $removedPoules = $secondQualifyGroup->getHorizontalPoules();
         foreach( $removedPoules as $removedPoule ) {

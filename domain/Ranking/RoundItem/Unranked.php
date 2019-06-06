@@ -6,81 +6,127 @@
  * Time: 7:56
  */
 
-export class UnrankedRoundItem {
-private games: number = 0;
-private points: number = 0;
-private scored: number = 0;
-private received: number = 0;
-private subReceived: number = 0;
-private subScored: number = 0;
+namespace Voetbal\Ranking\RoundItem;
 
-constructor(private round: Round, private placeLocation: PlaceLocation, penaltyPoints?: number) {
-if (penaltyPoints !== undefined) {
-this.addPoints(-penaltyPoints);
-}
+use Voetbal\Round;
+use Voetbal\Place\Location as PlaceLocation;
+
+class Unranked
+{
+    /**
+     * @var Round
+     */
+    private $round;
+    /**
+     * @var PlaceLocation
+     */
+    private $placeLocation;
+    /**
+     * @var int
+     */
+    private $penaltyPoints;
+
+    /**
+     * @var int
+     */
+    private $games = 0;
+    /**
+     * @var int
+     */
+    private $points = 0;
+    /**
+     * @var int
+     */
+    private $scored = 0;
+    /**
+     * @var int
+     */
+    private $received = 0;
+    /**
+     * @var int
+     */
+    private $subScored = 0;
+    /**
+     * @var int
+     */
+    private $subReceived = 0;
+
+    /**
+     * Unranked constructor.
+     * @param Round $round
+     * @param PlaceLocation $placeLocation
+     * @param int|null $penaltyPoints
+     */
+    public function __construct( Round $round, PlaceLocation $placeLocation, ?int $penaltyPoints )
+    {
+        $this->round = $round;
+        $this->placeLocation = $placeLocation;
+        if ($penaltyPoints !== null) {
+            $this->addPoints(-$penaltyPoints);
+        }
     }
 
-    getRound(): Round {
-    return this.round;
-}
-
-    getPlaceLocation(): PlaceLocation {
-    return this.placeLocation;
-}
-
-    getGames(): number {
-    return this.games;
-}
-
-    addGame() {
-    this.games++;
+    public function getRound(): Round {
+        return $this->round;
     }
 
-    getPoints(): number {
-    return this.points;
-}
+    public function getPlaceLocation(): PlaceLocation {
+        return $this->placeLocation;
+    }
 
-    addPoints(points: number) {
-    this.points += points;
-}
+    public function getGames(): int {
+        return $this->games;
+    }
 
-    getScored(): number {
-    return this.scored;
-}
+    public function addGame() {
+        $this->games++;
+    }
 
-    addScored(scored: number) {
-    this.scored += scored;
-}
+    public function getPoints(): int {
+        return $this->points;
+    }
 
-    getReceived(): number {
-    return this.received;
-}
+    public function addPoints( int $points) {
+        $this->points += $points;
+    }
 
-    addReceived(received: number) {
-    this.received += received;
-}
+    public function getScored(): int {
+        return $this->scored;
+    }
 
-    getDiff(): number {
-    return this.getScored() - this.getReceived();
-}
+    public function addScored(int $scored) {
+        $this->scored += $scored;
+    }
 
-    getSubScored(): number {
-    return this.subScored;
-}
+    public function getReceived(): int {
+        return $this->received;
+    }
 
-    addSubScored(subScored: number) {
-    this.subScored += subScored;
-}
+    public function addReceived(int $received) {
+        $this->received += $received;
+    }
 
-    getSubReceived(): number {
-    return this.subReceived;
-}
+    public function getDiff(): int {
+        return $this->getScored() - $this->getReceived();
+    }
 
-    addSubReceived(subReceived: number) {
-    this.subReceived += subReceived;
-}
+    public function getSubScored(): int {
+        return $this->subScored;
+    }
 
-    getSubDiff(): number {
-    return this.getSubScored() - this.getSubReceived();
-}
+    public function addSubScored(int $subScored) {
+        $this->subScored += $subScored;
+    }
+
+    public function getSubReceived(): int {
+        return $this->subReceived;
+    }
+
+    public function addSubReceived(int $subReceived) {
+        $this->subReceived += $subReceived;
+    }
+
+    public function getSubDiff(): int {
+        return $this->getSubScored() - $this->getSubReceived();
+    }
 }

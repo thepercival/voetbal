@@ -8,83 +8,127 @@
 
 namespace Voetbal\Ranking;
 
-use Voetbal\Qualify\Rule as QualifyRule;
-use Voetbal\Ranking\Item as RankingItem;
-
-import { Competitor } from '../competitor';
-import { Game } from '../game';
-import { PlaceLocation } from '../place/location';
-import { Poule } from '../poule';
-import { HorizontalPoule } from '../poule/horizontal';
-import { Place } from '../place';
-import { Round } from '../round';
-import { RankingItemsGetter } from './helper';
-import { RankedRoundItem, UnrankedRoundItem } from './item';
+use Voetbal\Competitor ;
+use Voetbal\Game;
+use Voetbal\Place\Location as PlaceLocation;
+use Voetbal\Poule;
+use Voetbal\Poule\Horizontal as HorizontalPoule;
+use Voetbal\Place;
+use Voetbal\Round;
+use Voetbal\RankingItemsGetter;
+use Voetbal\Ranking\RoundItem\Ranked as RankedRoundItem;
+use Voetbal\Ranking\RoundItem\Unranked as UnrankedRoundItem;
 
 /* tslint:disable:no-bitwise */
 
-export class RankingService {
-static readonly RULESSET_WC = 1;
-static readonly RULESSET_EC = 2;
-private maxPlaces = 64;
-private gameStates: number;
-private cache: {} = {};
+class Service {
+    /**
+     * @var Round
+     */
+    private $round;
+    /**
+     * @var int
+     */
+    private $rulesSet;
+    /**
+     * @var int
+     */
+    private $maxPlaces = 64;
+    /**
+     * @var int
+     */
+    private $gameStates;
+    /**
+     * @var array
+     */
+    private $cache = [];
+    /**
+     * @var array
+     */
+    private $rankFunctions;
 
-    constructor(
-        private round: Round, /* because cache-id is poulenumber */
-        private rulesSet: number,
-        gameStates?: number
-    ) {
-    this.gameStates = (gameStates !== undefined) ? gameStates : Game.STATE_PLAYED;
-}
+    const RULESSET_WC = 1;
+    const RULESSET_EC = 2;
 
-    getRuleDescriptions() {
-        return this.getRankFunctions().filter(rankFunction => {
-    return rankFunction !== this.filterBestSubUnitDifference
-        && rankFunction !== this.filterMostSubUnitsScored;
-}).map(rankFunction => {
-    if (rankFunction === this.filterMostPoints) {
-        return 'het meeste aantal punten';
-    } else if (rankFunction === this.filterFewestGames) {
-        return 'het minste aantal wedstrijden';
-    } else if (rankFunction === this.filterBestUnitDifference) {
-        return 'het beste saldo';
-    } else if (rankFunction === this.filterMostUnitsScored) {
-        return 'het meeste aantal eenheden voor';
-    } else /* if (rankFunction === this.filterBestAgainstEachOther) */ {
-        return 'het beste onderling resultaat';
+    CONST MostPoints = 1;
+    CONST FewestGames = 2;
+    CONST BestAgainstEachOther = 3;
+    CONST BestUnitDifference = 4;
+    CONST BestSubUnitDifference = 5;
+    CONST MostUnitsScored = 6;
+    CONST MostSubUnitsScored = 7;
+
+    public function __construct(Round $round, int $rulesSet, ?int $gameStates )
+    {
+        $this->round = $round;
+        $this->rulesSet = $rulesSet;
+        $this->gameStates = $gameStates !== null ? $gameStates : Game::STATE_PLAYED;
+        $this->initRankFunctions();
     }
-});
+
+    public function getRuleDescriptions() {
+        return array_map(
+            function( $rankFunction ) {
+                if ($rankFunction === $this->rankFunctions[Service::MostPoints]) {
+                    return 'het meeste aantal punten';
+                } else if ($rankFunction === $this->rankFunctions[Service::FewestGames]) {
+                    return 'het minste aantal wedstrijden';
+                } else if ($rankFunction === $this->rankFunctions[Service::BestUnitDifference]) {
+                    return 'het beste saldo';
+                } else if ($rankFunction === $this->rankFunctions[Service::MostUnitsScored]) {
+                    return 'het meeste aantal eenheden voor';
+                } else /* if ($rankFunction === $this->rankFunctions[Service::BestAgainstEachOther]) */ {
+                    return 'het beste onderling resultaat';
+                }
+            }
+            , array_filter( $this->getRankFunctions(), function( $rankFunction ) {
+                return $rankFunction !== $this->rankFunctions[Service::BestSubUnitDifference]
+                    && $rankFunction !== $this->rankFunctions[Service::MostSubUnitsScored];
+            })
+        );
     }
 
-    getItemsForPoule(poule: Poule): RankedRoundItem[] {
-    if (this.cache[poule.getNumber()] === undefined) {
-        const round: Round = poule.getRound();
-            const getter = new RankingItemsGetter(round, this.gameStates);
-            const unrankedItems: UnrankedRoundItem[] = getter.getUnrankedItems(poule.getPlaces(), poule.getGames());
-            const rankedItems = this.rankItems(unrankedItems, true);
-            this.cache[poule.getNumber()] = rankedItems;
+    /**
+     * @param Poule $poule
+     * @return array | RankedRoundItem[]
+     */
+    public function getItemsForPoule(Poule $poule ): array {
+        if ($this->cache[$poule->getNumber()] === null) {
+            $round = $poule->getRound();
+            $getter = new RankingItemsGetter($round, $this->gameStates);
+            $unrankedItems = $getter->getUnrankedItems($poule->getPlaces(), $poule->getGames());
+            $rankedItems = $this->rankItems($unrankedItems, true);
+            $this->cache[$poule->getNumber()] = $rankedItems;
         }
-    return this.cache[poule.getNumber()];
-}
-
-    getPlaceLocationsForHorizontalPoule(horizontalPoule: HorizontalPoule): PlaceLocation[] {
-    return this.getItemsForHorizontalPoule(horizontalPoule, true).map(rankingItem => {
-        return rankingItem.getPlaceLocation();
-    });
+        return $this->cache[$poule->getNumber()];
     }
 
-    getItemsForHorizontalPoule(horizontalPoule: HorizontalPoule, checkOnSingleQualifyRule?: boolean): RankedRoundItem[] {
-    const unrankedRoundItems: UnrankedRoundItem[] = [];
-        horizontalPoule.getPlaces().forEach(place => {
-        if (checkOnSingleQualifyRule && this.hasPlaceSingleQualifyRule(place)) {
-            return;
+    /**
+     * @param HorizontalPoule $horizontalPoule
+     * @return array | PlaceLocation[]
+     */
+    public function getPlaceLocationsForHorizontalPoule(HorizontalPoule $horizontalPoule ): array {
+        return array_map( function($rankingItem) {
+            return $rankingItem->getPlaceLocation();
+        }, $this->getItemsForHorizontalPoule($horizontalPoule, true) );
+    }
+
+    /**
+     * @param HorizontalPoule $horizontalPoule
+     * @param bool|null $checkOnSingleQualifyRule
+     * @return array | RankedRoundItem[]
+     */
+    public function getItemsForHorizontalPoule(HorizontalPoule $horizontalPoule, ?bool $checkOnSingleQualifyRule): array {
+        $unrankedRoundItems = [];
+        foreach( $horizontalPoule->getPlaces() as $place ) {
+            if ($checkOnSingleQualifyRule && $this->hasPlaceSingleQualifyRule($place)) {
+                continue;
+            }
+            $pouleRankingItems = $this->getItemsForPoule($place->getPoule());
+            $pouleRankingItem = $this->getItemByRank($pouleRankingItems, $place->getNumber());
+            $unrankedRoundItems[] = $pouleRankingItem->getUnranked();
         }
-        const pouleRankingItems: RankedRoundItem[] = this.getItemsForPoule(place.getPoule());
-            const pouleRankingItem = this.getItemByRank(pouleRankingItems, place.getNumber());
-            unrankedRoundItems.push(pouleRankingItem.getUnranked());
-        });
-        return this.rankItems(unrankedRoundItems, false);
+        return $this->rankItems($unrankedRoundItems, false);
     }
 
     /**
@@ -93,189 +137,249 @@ private cache: {} = {};
      *
      * @param place
      */
-    protected hasPlaceSingleQualifyRule(place: Place): boolean {
-    return place.getToQualifyRules().filter(qualifyRuleIt => qualifyRuleIt.isSingle()).length > 0;
-    }
-
-    getItemByRank(rankingItems: RankedRoundItem[], rank: number): RankedRoundItem {
-    return rankingItems.find(rankingItemIt => rankingItemIt.getUniqueRank() === rank);
-    }
-
-    getCompetitor(placeLocation: PlaceLocation): Competitor {
-    return this.round.getPoule(placeLocation.getPouleNr()).getPlace(placeLocation.getPlaceNr()).getCompetitor();
-}
-
-    private rankItems(unrankedItems: UnrankedRoundItem[], againstEachOther: boolean): RankedRoundItem[] {
-    const rankedItems: RankedRoundItem[] = [];
-        const rankFunctions = this.getRankFunctions(againstEachOther);
-        let nrOfIterations = 0;
-        while (unrankedItems.length > 0) {
-            const bestItems: UnrankedRoundItem[] = this.findBestItems(unrankedItems, rankFunctions);
-            const rank = nrOfIterations + 1;
-            bestItems.forEach(bestItem => {
-                unrankedItems.splice(unrankedItems.indexOf(bestItem), 1);
-                rankedItems.push(new RankedRoundItem(bestItem, ++nrOfIterations, rank));
+    protected function hasPlaceSingleQualifyRule(Place $place): bool {
+        $foundRules = array_filter( $place->getToQualifyRules(), function( $qualifyRuleIt ) {
+                return $qualifyRuleIt->isSingle();
             });
+        return count($foundRules) > 0;
+    }
+
+    /**
+     * @param array $rankingItems | RankedRoundItem[]
+     * @param int $rank
+     * @return RankedRoundItem
+     */
+    public function getItemByRank( array $rankingItems, int $rank): RankedRoundItem {
+        $foundItems = array_filter( $rankingItems, function($rankingItemIt) use($rank) {
+            return $rankingItemIt->getUniqueRank() === $rank;
+        });
+        return reset($foundItems );
+    }
+
+    public function getCompetitor(PlaceLocation $placeLocation ): Competitor {
+        return $this->round->getPoule($placeLocation->getPouleNr())->getPlace($placeLocation->getPlaceNr())->getCompetitor();
+    }
+
+    /**
+     * @param array | UnrankedRoundItem[] $unrankedItems
+     * @param bool $againstEachOther
+     * @return array | RankedRoundItem[]
+     */
+    private function rankItems(array $unrankedItems, bool $againstEachOther): array {
+        $rankedItems = [];
+        $rankFunctions = $this->getRankFunctions($againstEachOther);
+        $nrOfIterations = 0;
+        while (count($unrankedItems) > 0) {
+            $bestItems = $this->findBestItems($unrankedItems, $rankFunctions);
+            $rank = $nrOfIterations + 1;
+            foreach( $bestItems as $bestItem ) {
+                array_splice( $unrankedItems, array_search( $bestItem, $unrankedItems), 1);
+                $rankedItems[] = new RankedRoundItem($bestItem, ++$nrOfIterations, $rank);
+            }
             // if (nrOfIterations > this.maxPlaces) {
             //     console.error('should not be happening for ranking calc');
             //     break;
             // }
         }
-        return rankedItems;
+        return $rankedItems;
     }
 
-    private findBestItems(orgItems: UnrankedRoundItem[], rankFunctions: Function[]): UnrankedRoundItem[] {
-    let bestItems: UnrankedRoundItem[] = orgItems.slice();
-        rankFunctions.some(rankFunction => {
-        if (rankFunction === this.filterBestAgainstEachOther && orgItems.length === bestItems.length) {
-            return false;
+    /**
+     * @param array | UnrankedRoundItem[] $orgItems
+     * @param array | Function[] $rankFunctions
+     * @return array | UnrankedRoundItem[]
+     */
+    private function findBestItems(array $orgItems, array $rankFunctions): array {
+        $bestItems = $orgItems;
+
+        foreach( $rankFunctions as $rankFunction ) {
+            if ($rankFunction === $this->filterBestAgainstEachOther && count($orgItems) === count($bestItems)) {
+                continue;
+            }
+            $bestItems = $rankFunction($bestItems);
+            if(count($bestItems) < 2) {
+                break;
+            }
         }
-        bestItems = rankFunction(bestItems);
-        return (bestItems.length < 2);
-    });
-        return bestItems;
+        return $bestItems;
     }
 
-    private getRankFunctions(againstEachOther?: boolean): Function[] {
-    const rankFunctions: Function[] = [this.filterMostPoints, this.filterFewestGames];
-        if (this.rulesSet === RankingService.RULESSET_WC) {
-            rankFunctions.push(this.filterBestUnitDifference);
-            rankFunctions.push(this.filterMostUnitsScored);
-            rankFunctions.push(this.filterBestSubUnitDifference);
-            rankFunctions.push(this.filterMostSubUnitsScored);
-            if (againstEachOther !== false) {
-                rankFunctions.push(this.filterBestAgainstEachOther);
+    /**
+     * @param bool|null $againstEachOther
+     * @return array
+     */
+    private function getRankFunctions(?bool $againstEachOther): array {
+        $rankFunctions = [
+            $this->rankFunctions[Service::MostPoints],
+            $this->rankFunctions[Service::FewestGames]
+        ];
+        $unitRankFunctions = [
+            $this->rankFunctions[Service::BestUnitDifference],
+            $this->rankFunctions[Service::MostUnitsScored],
+            $this->rankFunctions[Service::BestSubUnitDifference],
+            $this->rankFunctions[Service::MostSubUnitsScored]
+        ];
+        if ($this->rulesSet === Service::RULESSET_WC) {
+            $rankFunctions = array_merge( $rankFunctions, $unitRankFunctions );
+            if ($againstEachOther !== false) {
+                $rankFunctions[] = $this->rankFunctions[Service::BestAgainstEachOther];
             }
-        } else if (this.rulesSet === RankingService.RULESSET_EC) {
-            if (againstEachOther !== false) {
-                rankFunctions.push(this.filterBestAgainstEachOther);
+        } else if ($this->rulesSet === RankingService::RULESSET_EC) {
+            if ($againstEachOther !== false) {
+                $rankFunctions[] = $this->rankFunctions[Service::BestAgainstEachOther];
             }
-            rankFunctions.push(this.filterBestUnitDifference);
-            rankFunctions.push(this.filterMostUnitsScored);
-            rankFunctions.push(this.filterBestSubUnitDifference);
-            rankFunctions.push(this.filterMostSubUnitsScored);
+            $rankFunctions = array_merge( $rankFunctions, $unitRankFunctions );
         } else {
-            throw new Error('Unknown qualifying rule');
+            throw new \Exception('Unknown qualifying rule', E_ERROR );
         }
-        return rankFunctions;
+        return $rankFunctions;
     }
 
-    private filterMostPoints = (items: UnrankedRoundItem[]): UnrankedRoundItem[] => {
-    let mostPoints;
-        let bestItems: UnrankedRoundItem[] = [];
-        items.forEach(item => {
-        let points = item.getPoints();
-            if (mostPoints === undefined || points === mostPoints) {
-                mostPoints = points;
-                bestItems.push(item);
-            } else if (points > mostPoints) {
-                mostPoints = points;
-                bestItems = [];
-                bestItems.push(item);
+    protected function initRankFunctions()
+    {
+        $this->rankFunctions = array();
+
+        $this->rankFunctions[Service::MostPoints] = function (array $items): array {
+            $mostPoints = null;
+            $bestItems = [];
+            foreach ($items as $item) {
+                $points = $item->getPoints();
+                if ($mostPoints === null || $points === $mostPoints) {
+                    $mostPoints = $points;
+                    $bestItems[] = $item;
+                } else {
+                    if ($points > $mostPoints) {
+                        $mostPoints = $points;
+                        $bestItems = [];
+                        $bestItems[] = $item;
+                    }
+                }
             }
-        });
-        return bestItems;
-    }
+            return $bestItems;
+        };
 
-    private filterFewestGames = (items: UnrankedRoundItem[]): UnrankedRoundItem[] => {
-    let fewestGames;
-        let bestItems: UnrankedRoundItem[] = [];
-        items.forEach(item => {
-        let nrOfGames = item.getGames();
-            if (fewestGames === undefined || nrOfGames === fewestGames) {
-                fewestGames = nrOfGames;
-                bestItems.push(item);
-            } else if (nrOfGames < fewestGames) {
-                fewestGames = nrOfGames;
-                bestItems = [item];
+        $this->rankFunctions[Service::FewestGames] = function (array $items): array {
+            $fewestGames = null;
+            $bestItems = [];
+            foreach ($items as $item) {
+                $nrOfGames = $item->getGames();
+                if ($fewestGames === null || $nrOfGames === $fewestGames) {
+                    $fewestGames = $nrOfGames;
+                    $bestItems[] = $item;
+                } else {
+                    if ($nrOfGames < $fewestGames) {
+                        $fewestGames = $nrOfGames;
+                        $bestItems = [$item];
+                    }
+                }
             }
-        });
-        return bestItems;
-    }
+            return $bestItems;
+        };
 
-    private filterBestAgainstEachOther = (items: UnrankedRoundItem[]): UnrankedRoundItem[] => {
-    const places = items.map(item => {
-        return item.getRound().getPlace(item.getPlaceLocation());
-    });
-        const poule = places[0].getPoule();
-        const round: Round = poule.getRound();
-        const games = this.getGamesBetweenEachOther(places, poule.getGames());
-        if (games.length === 0) {
-            return items;
-        }
-        const getter = new RankingItemsGetter(round, this.gameStates);
-        const unrankedItems: UnrankedRoundItem[] = getter.getUnrankedItems(places, games);
-        const rankedItems = this.rankItems(unrankedItems, true).filter(rankItem => rankItem.getRank() === 1);
-        if (rankedItems.length === items.length) {
-            return items;
-        }
-        return rankedItems.map(rankedItem => {
-        return items.find(item => item.getPlaceLocation().getPouleNr() === rankedItem.getPlaceLocation().getPouleNr()
-        && item.getPlaceLocation().getPlaceNr() === rankedItem.getPlaceLocation().getPlaceNr())
-        });
-    }
-
-    private filterBestUnitDifference = (items: UnrankedRoundItem[]): UnrankedRoundItem[] => {
-    return this.filterBestDifference(items, false);
-}
-
-    private filterBestSubUnitDifference = (items: UnrankedRoundItem[]): UnrankedRoundItem[] => {
-    return this.filterBestDifference(items, true);
-}
-
-    private filterBestDifference = (items: UnrankedRoundItem[], sub: boolean): UnrankedRoundItem[] => {
-    let bestDiff;
-        let bestItems: UnrankedRoundItem[] = [];
-        items.forEach(item => {
-        let diff = sub ? item.getSubDiff() : item.getDiff();
-            if (bestDiff === undefined || diff === bestDiff) {
-                bestDiff = diff;
-                bestItems.push(item);
-            } else if (diff > bestDiff) {
-                bestDiff = diff;
-                bestItems = [item];
+        $getGamesBetweenEachOther = function( array $places, array $games): array {
+            $gamesRet = [];
+            foreach( $games as $p_gameIt ) {
+                if (($p_gameIt->getState() & $this->gameStates) === 0) {
+                    continue;
+                }
+                $inHome = false;
+                foreach( $places as $place ) {
+                    if( $p_gameIt->isParticipating($place, Game::HOME) ) {
+                        $inHome = true;
+                        break;
+                    }
+                }
+                $inAway = false;
+                foreach( $places as $place ) {
+                    if( $p_gameIt->isParticipating($place, Game::AWAY) ) {
+                        $inAway = true;
+                        break;
+                    }
+                }
+                if ($inHome && $inAway) {
+                    $gamesRet[] = $p_gameIt;
+                }
             }
-        });
-        return bestItems;
-    }
+            return $gamesRet;
+        };
 
-    private filterMostUnitsScored = (items: UnrankedRoundItem[]): UnrankedRoundItem[] => {
-    return this.filterMostScored(items, false);
-}
-
-    private filterMostSubUnitsScored = (items: UnrankedRoundItem[]): UnrankedRoundItem[] => {
-    return this.filterMostScored(items, true);
-}
-
-    private filterMostScored = (items: UnrankedRoundItem[], sub: boolean): UnrankedRoundItem[] => {
-    let mostScored;
-        let bestItems: UnrankedRoundItem[] = [];
-        items.forEach(item => {
-        let scored = sub ? item.getSubScored() : item.getScored();
-            if (mostScored === undefined || scored === mostScored) {
-                mostScored = scored;
-                bestItems.push(item);
-            } else if (scored > mostScored) {
-                mostScored = scored;
-                bestItems = [item];
+        $this->rankFunctions[Service::BestAgainstEachOther] = function (array $items) use($getGamesBetweenEachOther) : array {
+            $places = array_map(function ($item) {
+                return $item->getRound()->getPlace($item->getPlaceLocation());
+            }, $items);
+            $poule = $places[0]->getPoule();
+            $round = $poule->getRound();
+            $games = $getGamesBetweenEachOther($places, $poule->getGames());
+            if (count($games) === 0) {
+                return $items;
             }
-        });
-        return bestItems;
-    }
-
-    private getGamesBetweenEachOther = (places: Place[], games: Game[]): Game[] => {
-    const gamesRet: Game[] = [];
-        games.forEach(p_gameIt => {
-        if ((p_gameIt.getState() & this.gameStates) === 0) {
-            return;
-        }
-        const inHome = places.some(place => p_gameIt.isParticipating(place, Game.HOME));
-            const inAway = places.some(place => p_gameIt.isParticipating(place, Game.AWAY));
-            if (inHome && inAway) {
-                gamesRet.push(p_gameIt);
+            $getter = new RankingItemsGetter($round, $this->gameStates);
+            $unrankedItems = $getter->getUnrankedItems($places, $games);
+            $rankedItems = array_filter($this->rankItems($unrankedItems, true), function ($rankItem) {
+                return $rankItem->getRank() === 1;
+            });
+            if (count($rankedItems) === count($items)) {
+                return $items;
             }
-        });
-        return gamesRet;
+            return array_map(function ($rankedItem) use ($items) {
+                $foundItems = array_filter($items, function ($item) use ($rankedItem) {
+                    return $item->getPlaceLocation()->getPouleNr() === $rankedItem->getPlaceLocation()->getPouleNr()
+                        && $item->getPlaceLocation()->getPlaceNr() === $rankedItem->getPlaceLocation()->getPlaceNr();
+                });
+                return reset($foundItems);
+            }, $rankedItems);
+        };
+
+        $bestDifference = function (array $items, bool $sub): array {
+            $bestDiff = null;
+            $bestItems = [];
+            foreach ($items as $item) {
+                $diff = $sub ? $item->getSubDiff() : $item->getDiff();
+                if ($bestDiff === null || $diff === $bestDiff) {
+                    $bestDiff = $diff;
+                    $bestItems[] = $item;
+                } else {
+                    if ($diff > $bestDiff) {
+                        $bestDiff = $diff;
+                        $bestItems = [$item];
+                    }
+                }
+            }
+        };
+
+        $this->rankFunctions[Service::BestUnitDifference] = function (array $items) use ($bestDifference) : array {
+            return $bestDifference($items, false);
+        };
+
+        $this->rankFunctions[Service::BestSubUnitDifference] = function (array $items) use ($bestDifference): array {
+            return $bestDifference($items, true);
+        };
+
+        $mostScored = function (array $items, bool $sub): array {
+            $mostScored = null;
+            $bestItems = [];
+            foreach ($items as $item) {
+                $scored = $sub ? $item->getSubScored() : $item->getScored();
+                if ($mostScored === null || $scored === $mostScored) {
+                    $mostScored = $scored;
+                    $bestItems[] = $item;
+                } else {
+                    if ($scored > $mostScored) {
+                        $mostScored = $scored;
+                        $bestItems = [$item];
+                    }
+                }
+            }
+            return $bestItems;
+        };
+
+        $this->rankFunctions[Service::MostUnitsScored] = function (array $items) use ($mostScored): array {
+            return $this->filterMostScored($items, false);
+        };
+
+        $this->rankFunctions[Service::MostSubUnitsScored] = function (array $items) use ($mostScored): array {
+            return $this->filterMostScored($items, true);
+        };
     }
 }
 

@@ -10,10 +10,10 @@ namespace Voetbal\Tests\Structure;
 
 include_once __DIR__ . '/Check332a.php';
 include_once __DIR__ . '/../../helpers/Serializer.php';
-include_once __DIR__ . '/../../helpers/PostSerialize.php';
+//include_once __DIR__ . '/../../helpers/PostSerialize.php';
 
-use Voetbal\Structure;
-use Voetbal\Qualify\Group as QualifyGroup;
+//use Voetbal\Structure;
+//use Voetbal\Qualify\Group as QualifyGroup;
 
 class SerializerTest extends \PHPUnit\Framework\TestCase
 {
@@ -30,10 +30,6 @@ class SerializerTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure/mapper/332a.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure, $competition);
-        // misschien hier nog iets van
-        // $structure->setQualifyRules();
-
 
         // let structure service inherit
         $this->check332astructure($structure);
