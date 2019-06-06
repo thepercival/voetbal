@@ -10,17 +10,17 @@ namespace Voetbal\Place;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Game;
-use Voetbal\Game\PoulePlace as GamePoulePlace;
+use Voetbal\Game\Place as GamePlace;
 use Voetbal\Place;
 
 class Combination
 {
     /**
-     * @var array | PoulePlace[]
+     * @var array | Place[]
      */
     private $home;
     /**
-     * @var array | PoulePlace[]
+     * @var array | Place[]
      */
     private $away;
 
@@ -30,39 +30,39 @@ class Combination
     }
 
     /**
-     * @param array | PoulePlace[] $poulePlaces
+     * @param array | Place[] $places
      * @return int
      */
-    public static function getSum(array $poulePlaces ): int {
+    public static function getSum(array $places ): int {
         $nr = 0;
-        foreach( $poulePlaces as $poulePlace ) { $nr += static::getNumber($poulePlace); };
+        foreach( $places as $place ) { $nr += static::getNumber($place); };
         return $nr;
     }
 
     /**
-     * @param PoulePlace $poulePlace
+     * @param Place $place
      * @return int
      */
-    public static function getNumber(PoulePlace $poulePlace ): int {
-        return pow(2, $poulePlace->getNumber() - 1);
+    public static function getNumber(Place $place ): int {
+        return pow(2, $place->getNumber() - 1);
     }
 
     /**
-     * @return array | PoulePlace[]
+     * @return array | Place[]
      */
     public function getHome(): array {
         return $this->home;
     }
 
     /**
-     * @return array | PoulePlace[]
+     * @return array | Place[]
      */
     public function getAway(): array {
         return $this->away;
     }
 
     /**
-     * @return array | PoulePlace[]
+     * @return array | Place[]
      */
     public function get(): array {
         return array_merge( $this->home, $this->away );
@@ -73,12 +73,12 @@ class Combination
      * @param bool $reverseHomeAway
      * @return ArrayCollection
      */
-    public function getGamePoulePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/): array {
+    public function getGamePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/): array {
         $home = array_map( function( $homeIt ) use ($game,$reverseHomeAway){
-            return new GamePoulePlace($game, $homeIt, $reverseHomeAway ? Game::AWAY : Game::HOME);
+            return new GamePlace($game, $homeIt, $reverseHomeAway ? Game::AWAY : Game::HOME);
         }, $this->getHome() );
         $away = array_map( function( $awayIt ) use ($game,$reverseHomeAway){
-            return new GamePoulePlace($game, $awayIt, $reverseHomeAway ? Game::HOME : Game::AWAY);
+            return new GamePlace($game, $awayIt, $reverseHomeAway ? Game::HOME : Game::AWAY);
         }, $this->getAway() );
 
 

@@ -9,9 +9,9 @@
 namespace Voetbal\Game;
 
 use Voetbal\Game;
-use Voetbal\Place as PoulePlaceBase;
+use Voetbal\Place as PlaceBase;
 
-class PoulePlace
+class Place
 {
     /**
      * @var int
@@ -22,20 +22,20 @@ class PoulePlace
      */
     private $game;
     /**
-     * @var PoulePlaceBase
+     * @var PlaceBase
      */
-    private $poulePlace;
+    private $place;
     /**
      * @var bool
      */
     private $homeaway;
 
-    private $poulePlaceNr;
+    private $pllaceNr;
 
-    public function __construct( Game $game, PoulePlaceBase $poulePlace, bool $homeaway )
+    public function __construct( Game $game, PlaceBase $place, bool $homeaway )
     {
         $this->setGame( $game );
-        $this->setPoulePlace( $poulePlace );
+        $this->setPlace( $place );
         $this->setHomeaway( $homeaway );
     }
 
@@ -58,32 +58,32 @@ class PoulePlace
     }
 
     /**
-     * @return PoulePlaceBase
+     * @return PlaceBase
      */
-    public function getPoulePlace()
+    public function getPlace()
     {
-        return $this->poulePlace;
+        return $this->place;
     }
 
     /**
-     * @param PoulePlaceBase $poulePlace
+     * @param PlaceBase $place
      */
-    public function setPoulePlace( PoulePlaceBase $poulePlace )
+    public function setPlace( PlaceBase $place )
     {
-        $this->poulePlace = $poulePlace;
+        $this->place = $place;
     }
 
-    public function getPoulePlaceNr(): int
+    public function getPlaceNr(): int
     {
-        if( $this->getPoulePlace() !== null ) {
-            return $this->getPoulePlace()->getNumber();
+        if( $this->getPlace() !== null ) {
+            return $this->getPlace()->getNumber();
         }
-        return $this->poulePlaceNr;
+        return $this->placeNr;
     }
 
-    public function setPoulePlaceNr( int $poulePlaceNr )
+    public function setPlaceNr( int $placeNr )
     {
-        $this->poulePlaceNr = $poulePlaceNr;
+        $this->placeNr = $placeNr;
     }
 
     /**
@@ -115,8 +115,8 @@ class PoulePlace
      */
     public function setGame( Game $game )
     {
-        if ( $this->game === null and $game !== null and !$game->getPoulePlaces()->contains( $this )){
-            $game->getPoulePlaces()->add($this) ;
+        if ( $this->game === null and $game !== null and !$game->getPlaces()->contains( $this )){
+            $game->getPlaces()->add($this) ;
         }
         $this->game = $game;
     }

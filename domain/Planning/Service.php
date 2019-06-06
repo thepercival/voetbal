@@ -64,7 +64,7 @@ class Service
                     $subNumber = 1;
                     foreach( $gameRound->getCombinations() as $combination ) {
                         $game = new Game( $poule,  $headToHeadNumber + $gameRound->getNumber(), $subNumber ++);
-                        $game->setPoulePlaces($combination->getGamePoulePlaces($game, $reverseHomeAway/*, reverseCombination*/));
+                        $game->setPlaces($combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/));
                         $games[] = $game;
                     }
                 }

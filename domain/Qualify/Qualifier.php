@@ -14,26 +14,26 @@ use Voetbal\Competitor;
 class Qualifier
 {
     /**
-     * @var PoulePlace
+     * @var Place
      */
-    private $poulePlace;
+    private $place;
     /**
      * @var Competitor
      */
     private $competitor;
 
-    public function __construct( PoulePlace $poulePlace, Competitor $competitor = null )
+    public function __construct( Place $place, Competitor $competitor = null )
     {
-        $this->poulePlace = $poulePlace;
+        $this->place = $place;
         $this->competitor = $competitor;
     }
 
     /**
-     * @return PoulePlace
+     * @return Place
      */
-    public function getPoulePlace()
+    public function getPlace()
     {
-        return $this->poulePlace;
+        return $this->place;
     }
 
     /**

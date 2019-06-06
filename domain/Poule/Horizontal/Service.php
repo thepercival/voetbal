@@ -74,16 +74,16 @@ class Service {
 
         foreach( $placesOrderedByPlaceNumber as $placeIt ) {
             $filteredHorizontalPoules = array_filter( $horizontalPoules, function($horizontalPoule) use($placeIt,$winnersOrLosers ) {
-                foreach( $horizontalPoule->getPlaces() as $poulePlaceIt ) {
-                    $poulePlaceNrIt = $poulePlaceIt->getNumber();
+                foreach( $horizontalPoule->getPlaces() as $placeIt ) {
+                    $placeNrIt = $placeIt->getNumber();
                     if ($winnersOrLosers === QualifyGroup::LOSERS) {
-                        $poulePlaceNrIt = ($poulePlaceIt->getPoule()->getPlaces()->count() + 1) - $poulePlaceNrIt;
+                        $placeNrIt = ($placeIt->getPoule()->getPlaces()->count() + 1) - $placeNrIt;
                     }
                     $placeNrIt = $placeIt->getNumber();
                     if ($winnersOrLosers === QualifyGroup::LOSERS) {
                         $placeNrIt = ($placeIt->getPoule()->getPlaces()->count() + 1) - $placeNrIt;
                     }
-                    if ( $poulePlaceNrIt === $placeNrIt ) {
+                    if ( $placeNrIt === $placeNrIt ) {
                         return true;
                     }
                 }

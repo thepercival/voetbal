@@ -6,7 +6,7 @@
  * Time: 12:12
  */
 
-namespace Voetbal\Game\PoulePlace;
+namespace Voetbal\Game\Place;
 
 //use Voetbal\Game;
 //use Voetbal\Poule;

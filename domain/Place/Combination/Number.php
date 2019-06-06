@@ -8,7 +8,7 @@
 
 namespace Voetbal\Place\Combination;
 
-use Voetbal\Place\Combination as PoulePlaceCombination;
+use Voetbal\Place\Combination as PlaceCombination;
 use Voetbal\Place\Combination\Number as CombinationNumber;
 
 class Number
@@ -22,9 +22,9 @@ class Number
      */
     private $away;
 
-    public function __construct( PoulePlaceCombination $combination ) {
-        $this->home = PoulePlaceCombination::getSum($combination->getHome());
-        $this->away = PoulePlaceCombination::getSum($combination->getAway());
+    public function __construct( PlaceCombination $combination ) {
+        $this->home = PlaceCombination::getSum($combination->getHome());
+        $this->away = PlaceCombination::getSum($combination->getAway());
     }
 
     /**

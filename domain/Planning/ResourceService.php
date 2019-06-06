@@ -13,7 +13,7 @@ use Voetbal\Round\Config as RoundNumberConfig;
 use Voetbal\Place;
 use Voetbal\Field;
 use League\Period\Period;
-use Voetbal\Game\PoulePlace as GamePoulePlace;
+use Voetbal\Game\Place as GamePlace;
 use Voetbal\Planning\Referee as PlanningReferee;
 
 class ResourceService
@@ -28,9 +28,9 @@ class ResourceService
     private $currentGameStartDate;
 
     /**
-     * @var array | PoulePlace[]
+     * @var array | Place[]
      */
-    private $assignedPoulePlaces = [];
+    private $assignedPlaces = [];
     /**
      * @var array | array<PlanningReferee>
      */
@@ -181,15 +181,15 @@ class ResourceService
         if ($this->areFieldsAvailable()) {
             $this->assignField($game);
         }
-        $this->assignPoulePlaces($game);
+        $this->assignPlaces($game);
         if ($this->areRefereesAvailable()) {
             $this->assignReferee($game);
         }
     }
 
-    private function assignPoulePlaces(Game $game ) {
-        foreach( $game->getPoulePlaces() as $gamePoulePlace ) {
-            $this->assignedPoulePlaces[] = $gamePoulePlace->getPoulePlace();
+    private function assignPlaces(Game $game ) {
+        foreach( $game->getPlaces() as $gamePlace ) {
+            $this->assignedPlaces[] = $gamePlace->getPlace();
         }
     }
 
@@ -197,7 +197,7 @@ class ResourceService
         $referee = $this->getAssignableReferee($game);
         $referee->assign($game);
         if ($referee->isSelf()) {
-            $this->assignedPoulePlaces[] = $referee->getPoulePlace();
+            $this->assignedPlaces[] = $referee->getPlace();
         }
     }
 
@@ -210,7 +210,7 @@ class ResourceService
         $this->fillAssignableReferees();
         $this->resourceBatch++;
         $this->setNextGameStartDateTime();
-        $this->resetPoulePlaces();
+        $this->resetPlaces();
     }
 
     public function setNextGameStartDateTime() {
@@ -255,8 +255,8 @@ class ResourceService
             return count($this->assignableReferees) > 0;
         }
         foreach( $this->assignableReferees as $assignableRef ) {
-            if( !$game->isParticipating($assignableRef->getPoulePlace()) && $this->isPoulePlaceAssignable($assignableRef->getPoulePlace())
-                && ($this->nrOfPoules === 1 || $assignableRef->getPoulePlace()->getPoule() !== $game->getPoule())
+            if( !$game->isParticipating($assignableRef->getPlace()) && $this->isPlaceAssignable($assignableRef->getPlace())
+                && ($this->nrOfPoules === 1 || $assignableRef->getPlace()->getPoule() !== $game->getPoule())
             ) {
                 return true;
             }
@@ -269,8 +269,8 @@ class ResourceService
             return array_shift($this->assignableReferees);
         }
         $refereesAssignable = array_filter( $this->assignableReferees, function( $assignableRef ) use ($game) {
-            return ( !$game->isParticipating($assignableRef->getPoulePlace()) && $this->isPoulePlaceAssignable($assignableRef->getPoulePlace())
-                && ($this->nrOfPoules === 1 || $assignableRef->getPoulePlace()->getPoule() !== $game->getPoule())
+            return ( !$game->isParticipating($assignableRef->getPlace()) && $this->isPlaceAssignable($assignableRef->getPlace())
+                && ($this->nrOfPoules === 1 || $assignableRef->getPlace()->getPoule() !== $game->getPoule())
             );
         });
         $referee = count( $refereesAssignable ) > 0 ? reset($refereesAssignable) : null;
@@ -287,46 +287,46 @@ class ResourceService
         if ($this->areRefereesAvailable() && !$this->isSomeRefereeAssignable($game)) {
             return false;
         }
-        return $this->areAllPoulePlacesAssignable($this->getPoulePlaces($game));
+        return $this->areAllPlacesAssignable($this->getPlaces($game));
     }
 
     /**
      * @param Game $game
-     * @return array | PoulePlace[]
+     * @return array | Place[]
      */
-    protected function getPoulePlaces(Game $game): array {
-        return $game->getPoulePlaces()->map( function( GamePoulePlace $gamePoulePlace ) {
-            return $gamePoulePlace->getPoulePlace();
+    protected function getPlaces(Game $game): array {
+        return $game->getPlaces()->map( function( GamePlace $gamePlace ) {
+            return $gamePlace->getPlace();
         } )->toArray();
     }
 
     /**
-     * @param array | PoulePlace[] $poulePlaces
+     * @param array | Place[] $places
      * @return bool
      */
-    protected function areAllPoulePlacesAssignable(array $poulePlaces): bool {
-        foreach( $poulePlaces as $poulePlace ) {
-            if( !$this->isPoulePlaceAssignable($poulePlace) ) {
+    protected function areAllPlacesAssignable(array $places): bool {
+        foreach( $places as $place ) {
+            if( !$this->isPlaceAssignable($place) ) {
                 return false;
             }
         }
         return true;
     }
 
-    protected function isPoulePlaceAssignable(PoulePlace $poulePlace): bool {
-        return !$this->hasPoulePlace($this->assignedPoulePlaces, $poulePlace);
+    protected function isPlaceAssignable(Place $place): bool {
+        return !$this->hasPlace($this->assignedPlaces, $place);
     }
 
     /**
-     * @param array | PoulePlace[] $poulePlaces
-     * @param PoulePlace $poulePlaceToFind
+     * @param array | Place[] $places
+     * @param Place $placeToFind
      * @return bool
      */
-    protected function hasPoulePlace(array $poulePlaces, PoulePlace $poulePlaceToFind): bool {
-        return ( array_search( $poulePlaceToFind, $poulePlaces ) !== false);
+    protected function hasPlace(array $places, Place $placeToFind): bool {
+        return ( array_search( $placeToFind, $places ) !== false);
     }
 
-    private function resetPoulePlaces() {
-        $this->assignedPoulePlaces = [];
+    private function resetPlaces() {
+        $this->assignedPlaces = [];
     }
 }

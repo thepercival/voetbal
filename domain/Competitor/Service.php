@@ -18,9 +18,9 @@ class Service
     public function createCompetitorsFromRound(Round $rootRound, Association $association)
     {
         $competitors = [];
-        $poulePlaces = $rootRound->getPoulePlaces();
-        foreach ($poulePlaces as $poulePlace) {
-            $competitor = $poulePlace->getCompetitor();
+        $places = $rootRound->getPlaces();
+        foreach ($places as $place) {
+            $competitor = $place->getCompetitor();
             if ($competitor !== null) {
                 $newCompetitor = new Competitor($competitor->getName(), $association);
                 $newCompetitor->setAbbreviation($competitor->getAbbreviation());
@@ -34,9 +34,9 @@ class Service
 
     public function assignCompetitors( Structure $newStructure, array $newCompetitors )
     {
-        foreach( $newStructure->getRootRound()->getPoulePlaces() as $poulePlace ) {
-            $poulePlace->setCompetitor(null);
-            $poulePlace->setCompetitor(array_shift($newCompetitors));
+        foreach( $newStructure->getRootRound()->getPlaces() as $place ) {
+            $place->setCompetitor(null);
+            $place->setCompetitor(array_shift($newCompetitors));
         }
         foreach( $newStructure->getRootRound()->getChildren() as $childRound ) {
             $this->removeQualifiedCompetitors( $childRound );

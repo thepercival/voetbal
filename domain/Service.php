@@ -85,7 +85,7 @@ class Service
         } elseif ($classname === Poule::class) {
             return new Poule\Service(
                 $repos,
-                $this->getRepository(PoulePlace::class),
+                $this->getRepository(Place::class),
                 $this->getRepository(Competitor::class)
             );
         } elseif ($classname === Game::class) {
