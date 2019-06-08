@@ -1,4 +1,4 @@
-Voetbal\Round\Config:
+Voetbal\Config:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -31,7 +31,7 @@ Voetbal\Round\Config:
     minutesAfter:
       type: integer
     score:
-      type: Voetbal\Round\Config\Score
+      type: Voetbal\Config\Score
     teamup:
       type: bool
     pointsCalculation:

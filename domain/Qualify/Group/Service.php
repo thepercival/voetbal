@@ -63,7 +63,7 @@ class Service
         $round = $firstQualifyGroup->getRound();
         $qualifyGroups = $round->getQualifyGroups($firstQualifyGroup->getWinnersOrLosers());
         $idx = $qualifyGroups->indexOf($secondQualifyGroup);
-        $qualifyGroups->removeElement($secondQualifyGroup);
+        $round->removeQualifyGroup($secondQualifyGroup);
         $this->renumber($round, $firstQualifyGroup->getWinnersOrLosers());
 
         array_splice( $secondQualifyGroup->getHorizontalPoules(), $idx, 1);
@@ -72,6 +72,26 @@ class Service
         foreach( $removedPoules as $removedPoule ) {
             $removedPoule->setQualifyGroup($firstQualifyGroup);
         }
+    }
+
+    public function getLosersReversed( ArrayCollection $qualifyGroups ) {
+
+        uasort( $qualifyGroups, function( QualifyGroup $qualifyGroupA, QualifyGroup $qualifyGroupB) {
+            if ($qualifyGroupA->getWinnersOrLosers() < $qualifyGroupB->getWinnersOrLosers()) {
+                return 1;
+            }
+            if ($qualifyGroupA->getWinnersOrLosers() > $qualifyGroupB->getWinnersOrLosers()) {
+                return -1;
+            }
+            if ( $qualifyGroupA->getNumber() < $qualifyGroupB->getNumber()) {
+                return ( $qualifyGroupA->getWinnersOrLosers() === QualifyGroup::WINNERS ) ? 1 : -1;
+            }
+            if ($qualifyGroupA->getNumber() > $qualifyGroupB->getNumber()) {
+                return ( $qualifyGroupA->getWinnersOrLosers() === QualifyGroup::WINNERS ) ? -1 : 1;
+            }
+            return 0;
+        });
+        return $qualifyGroups;
     }
 
     protected function renumber(Round $round, int $winnersOrLosers) {

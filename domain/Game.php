@@ -12,9 +12,9 @@ use \Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as CommonCollection;
 
 use Voetbal\Game\Score;
-use Voetbal\Round\Config as RoundConfig;
+use Voetbal\Config;
 use Voetbal\Game\Place as GamePlace;
-use Voetbal\Place;
+use Voetbal\State;
 
 class Game implements External\Importable
 {
@@ -89,10 +89,6 @@ class Game implements External\Importable
     const HOME = true;
     const AWAY = false;
 
-    const STATE_CREATED = 1;
-    const STATE_INPLAY = 2;
-    const STATE_PLAYED = 4;
-
     const MOMENT_HALFTIME = 1;
     const MOMENT_FULLTIME = 2;
     const MOMENT_EXTRATIME = 4;
@@ -103,7 +99,7 @@ class Game implements External\Importable
 
     public function __construct( Poule $poule, $roundNumber, $subNumber )
     {
-        $this->setState( Game::STATE_CREATED );
+        $this->setState( State::Created );
         $this->setPoule( $poule );
         $this->places = new ArrayCollection();
         $this->setRoundNumber( $roundNumber );
@@ -451,7 +447,7 @@ class Game implements External\Importable
         return new Score\HomeAway( $home, $away);
     }
 
-    public function getConfig(): RoundConfig {
+    public function getConfig(): Config {
         return $this->getRound()->getNumber()->getConfig();
     }
 }

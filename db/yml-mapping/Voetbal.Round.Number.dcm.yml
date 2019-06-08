@@ -14,7 +14,7 @@ Voetbal\Round\Number:
       unique: false
   oneToOne:
     config:
-      targetEntity: Voetbal\Round\Config
+      targetEntity: Voetbal\Config
       joinColumn:
         name: configid
         referencedColumnName: id

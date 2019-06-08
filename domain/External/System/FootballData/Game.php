@@ -22,7 +22,7 @@ use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
 use Voetbal\Game as GameBase;
 use Voetbal\Competition;
 use Voetbal\Competitor as CompetitorBase;
-use Voetbal\Qualify\Service as QualifyService;
+use Voetbal\State;
 use Voetbal\External\League\Repository as ExternalLeagueRepos;
 use Voetbal\External\Season\Repository as ExternalSeasonRepos;
 use Doctrine\DBAL\Connection;
@@ -220,7 +220,7 @@ class Game implements GameImporter
 
     protected function editGame(GameBase $game, \stdClass $externalSystemGame )
     {
-        if( $game->getState() === GameBase::STATE_PLAYED ) {
+        if( $game->getState() === State::Finished ) {
             return $game;
         }
 
@@ -230,7 +230,7 @@ class Game implements GameImporter
         $game->setStartDateTime( $startDateTime );
 
         if ( $externalSystemGame->status === "FINISHED" ) { //    OTHER, "IN_PLAY", "FINISHED",
-            $game->setState( GameBase::STATE_PLAYED );
+            $game->setState( State::Finished );
 
             $scores = $externalSystemGame->score;
             if( property_exists ( $scores, "halfTime" ) ) {

@@ -73,11 +73,11 @@ class Service {
     ];
 
     /**
-     * @var RoundNumberConfigService
+     * @var ConfigService
      */
     private $configService;
     /**
-     * @var RoundNumberConfigService
+     * @var CompetitorRange
      */
     private $competitorRange;
 
@@ -239,7 +239,7 @@ class Service {
         $qualifyRuleService->recreateTo();
 
         $rootRound = $this->getRoot($round);
-        $structure = new Structure($rootRound->getNumber(), $rootRound);
+        $structure = new StructureBase($rootRound->getNumber(), $rootRound);
         $structure->setStructureNumbers();
     }
 
@@ -314,7 +314,7 @@ class Service {
                 $nrOfQualifiers = $newNrOfPlacesChildren;
             } else {
                 $removedQualifyGroups->removeElement($qualifyGroup);
-                $round->getQualifyGroups($winnersOrLosers)->add($qualifyGroup);
+                $round->addQualifyGroup($qualifyGroup);
                 // warning: cannot make use of qualifygroup.horizontalpoules yet!
 
                 // add and remove qualifiers
@@ -336,10 +336,8 @@ class Service {
         };
 
         $horizontolPoulesCreators = [];
-        $qualifyGroups = $round->getQualifyGroups($winnersOrLosers);
-
-        $removedQualifyGroups = new ArrayCollection( $qualifyGroups->toArray() );
-        $qualifyGroups->clear();
+        $removedQualifyGroups = $round->getQualifyGroups($winnersOrLosers);
+        $round->clearQualifyGroups();
         $qualifyGroupNumber = 1;
         while ($newNrOfPlacesChildren > 0) {
             $horizontolPoulesCreator = $getNewQualifyGroup($removedQualifyGroups);
@@ -493,26 +491,26 @@ class Service {
 //     */
 //    protected $roundRepos;
 //    /**
-//    * @var RoundConfigService
+//    * @var ConfigService
 //    */
-//    protected $roundConfigService;
+//    protected $configService;
 //
 //    public function __construct(
 //        RoundNumberService $roundNumberService, RoundNumberRepository $roundNumberRepos,
 //        RoundService $roundService, RoundRepository $roundRepos,
-//        RoundConfigService $roundConfigService )
+//        ConfigService $configService )
 //    {
 //        $this->roundNumberService = $roundNumberService;
 //        $this->roundNumberRepos = $roundNumberRepos;
 //        $this->roundService = $roundService;
 //        $this->roundRepos = $roundRepos;
-//        $this->roundConfigService = $roundConfigService;
+//        $this->configService = $configService;
 //    }
 //
-//    public function create(Competition $competition, RoundNumberConfigOptions $roundNumberConfigOptions,
+//    public function create(Competition $competition, ConfigOptions $configOptions,
 //        int $nrOfPlaces, int $nrOfPoules): StructureBase
 //    {
-//        $firstRoundNumber = $this->roundNumberService->create( $competition, $roundNumberConfigOptions );
+//        $firstRoundNumber = $this->roundNumberService->create( $competition, $configOptions );
 //        $rootRound =  $this->roundService->createByOptions($firstRoundNumber, 0, $nrOfPlaces, $nrOfPoules);
 //        return new StructureBase( $firstRoundNumber, $rootRound );
 //    }

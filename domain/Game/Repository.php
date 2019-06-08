@@ -120,4 +120,13 @@ class Repository extends \Voetbal\Repository
         }
         return $query->getQuery()->getResult();
     }
+
+    /**
+     * @param GameBase $game
+     */
+    public function customRemove( GameBase $game )
+    {
+        $game->getPoule()->getGames()->removeElement($game);
+        return $this->remove($game);
+    }
 }

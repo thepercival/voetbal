@@ -10,7 +10,7 @@ namespace Voetbal\Planning;
 
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Round\Config as RoundNumberConfig;
+use Voetbal\Config;
 use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Game;
 use Voetbal\Competition;
@@ -52,10 +52,10 @@ class Service
     protected function createHelper( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array
     {
         $games = [];
-        $roundNumberConfig = $roundNumber->getConfig();
+        $config = $roundNumber->getConfig();
         foreach ($roundNumber->getPoules() as $poule) {
             $gameGenerator = new GameGenerator($poule);
-            $gameRounds = $gameGenerator->generate($roundNumberConfig->getTeamup());
+            $gameRounds = $gameGenerator->generate($config->getTeamup());
             $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
             for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
                 $reverseHomeAway = ($headtohead % 2) === 0;

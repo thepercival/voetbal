@@ -8,7 +8,7 @@ use Voetbal\Poule;
 use Voetbal\Place;
 use Voetbal\Competitor;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
-use Voetbal\Game;
+use Voetbal\State;
 use Voetbal\Qualify\Rule\Single as QualifyRuleSingle;
 use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
 use Voetbal\Qualify\Group as QualifyGroup;
@@ -66,7 +66,7 @@ class Service
                 }
             }
         };
-        foreach ($this->round->getAllQualifyGroups() as $qualifyGroup) {
+        foreach ($this->round->getQualifyGroups() as $qualifyGroup) {
             $this->reservationService = new QualifyReservationService($qualifyGroup->getChildRound());
             foreach ($qualifyGroup->getHorizontalPoules() as $horizontalPoule) {
                 $setQualifiersForHorizontalPoule($horizontalPoule);
@@ -145,7 +145,7 @@ class Service
     protected function isPoulePlayed(Poule $poule): bool
     {
         if (!array_key_exists($poule->getNumber(), $this->poulesPlayed)) {
-            $this->poulesPlayed[$poule->getNumber()] = ($poule->getState() === Game::STATE_PLAYED);
+            $this->poulesPlayed[$poule->getNumber()] = ($poule->getState() === State::Finished);
         }
         return $this->poulesPlayed[$poule->getNumber()];
     }

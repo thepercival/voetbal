@@ -21,7 +21,7 @@ Voetbal\Game\Place:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    poulePlace:
+    place:
       targetEntity: Voetbal\Place
       joinColumn:
         name: pouleplaceid

@@ -37,11 +37,10 @@ class Field
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 3;
 
-    public function __construct( Competition $competition, $number, $name )
+    public function __construct( Competition $competition, $number )
     {
         $this->setCompetition( $competition );
         $this->setNumber( $number );
-        $this->setName( $name );
     }
 
     /**

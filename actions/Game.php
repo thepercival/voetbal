@@ -11,6 +11,7 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
+use Voetbal\Game\Score\Repository as GameScoreRepos;
 use Voetbal\Place\Repository as PlaceRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Field\Repository as FieldRepository;
@@ -30,6 +31,10 @@ final class Game
      * @var GameRepository
      */
     protected $repos;
+    /**
+     * @var GameScoreRepos
+     */
+    protected $gameScoreRepos;
     /**
      * @var PlaceRepository
      */
@@ -60,6 +65,7 @@ final class Game
     public function __construct(
         GameService $service,
         GameRepository $repos,
+        GameScoreRepository $gameScoreRepos,
         PlaceRepository $placeRepos,
         PouleRepository $pouleRepos,
         FieldRepository $fieldRepos,
@@ -69,6 +75,7 @@ final class Game
     {
         $this->service = $service;
         $this->repos = $repos;
+        $this->gameScoreRepos = $gameScoreRepos;
         $this->placeRepos = $placeRepos;
         $this->pouleRepos = $pouleRepos;
         $this->fieldRepos = $fieldRepos;
@@ -158,11 +165,11 @@ final class Game
                 throw new \Exception("de poule van de wedstrijd komt niet overeen met de verstuurde poule", E_ERROR);
             }
 
+            $this->gameScoreRepos->removeScores( $game );
+
             $game->setState( $gameSer->getState() );
             $game->setStartDateTime( $gameSer->getStartDateTime() );
             $game->setScoresMoment( $gameSer->getScoresMoment() );
-
-            $this->service->removeScores( $game );
             $this->service->addScores( $game, $gameSer->getScores()->toArray() );
 
             $this->repos->save( $game );

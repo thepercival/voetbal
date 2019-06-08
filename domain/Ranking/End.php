@@ -10,9 +10,8 @@ namespace Voetbal\Ranking;
 
 use Voetbal\Ranking\Item as RankingItem;
 use Voetbal\Round;
-use Voetbal\Game;
+use Voetbal\State;
 use Voetbal\Ranking\Service as RankingService;
-use Voetbal\Place;
 use Voetbal\Qualify\Rule as QualifyRule;
 
 class End
@@ -54,7 +53,7 @@ class End
      * @return array | PoulePlace[]
      */
     protected function getDeadPlacesFromRound(Round $round): array {
-        if ($round->getState() === Game::STATE_PLAYED) {
+        if ($round->getState() === State::Finished) {
             return $this->getDeadPlacesFromRoundPlayed($round);
         }
         return $this->getDeadPlacesFromRoundNotPlayed($round);

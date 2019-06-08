@@ -42,7 +42,7 @@ class Number
      * @var bool
      */
 
-    public function __construct( ?Competition $competition, RoundNumber $previous = null )
+    public function __construct( Competition $competition, RoundNumber $previous = null )
     {
         $this->competition = $competition;
         $this->previous = $previous;

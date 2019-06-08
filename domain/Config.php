@@ -8,6 +8,7 @@
 
 namespace Voetbal;
 
+use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Config\Score;
@@ -87,6 +88,11 @@ class Config
     protected $score;
 
     /**
+     * @var ArrayCollection
+     */
+    protected $scoresDep;
+
+    /**
      * @var bool
      */
     protected $teamup;
@@ -115,6 +121,7 @@ class Config
     public function __construct( RoundNumber $roundNumber )
     {
         $this->setRoundNumber($roundNumber);
+        $this->scoresDep = new ArrayCollection();
     }
 
     /**

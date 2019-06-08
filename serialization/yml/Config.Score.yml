@@ -1,4 +1,4 @@
-Voetbal\Round\Config\Score:
+Voetbal\Config\Score:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -13,4 +13,4 @@ Voetbal\Round\Config\Score:
     maximum:
       type: integer
     parent:
-      type: Voetbal\Round\Config\Score
+      type: Voetbal\Config\Score

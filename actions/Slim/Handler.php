@@ -141,11 +141,11 @@ class Handler
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
-        } elseif ($resourceType === 'roundconfigs') {
-            $action = new Voetbal\Action\Round\Config(
+        } elseif ($resourceType === 'configs') {
+            $action = new Voetbal\Action\Config(
                 $voetbalservice->getService(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
-                $voetbalservice->getService(Voetbal\Round\Config::class),
+                $voetbalservice->getService(Voetbal\Config::class),
                 $serializer
             );
         } elseif ($resourceType === 'places') {

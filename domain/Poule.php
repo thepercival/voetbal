@@ -221,20 +221,20 @@ class Poule
     {
         $allPlayed = true;
         foreach( $this->getGames() as $game ) {
-            if( $game->getState() !== Game::STATE_PLAYED ) {
+            if( $game->getState() !== State::Finished ) {
                 $allPlayed = false;
                 break;
             }
         }
         if ($this->getGames()->count() > 0 && $allPlayed ) {
-            return Game::STATE_PLAYED;
+            return State::Finished;
         }
         foreach( $this->getGames() as $game ) {
-            if( $game->getState() !== Game::STATE_CREATED ) {
-                return Game::STATE_INPLAY;
+            if( $game->getState() !== State::Created ) {
+                return State::InProgress;
             }
         }
-        return Game::STATE_CREATED;
+        return State::Created;
     }
 
     public function getCompetitors(): array

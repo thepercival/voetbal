@@ -54,7 +54,7 @@ class Service {
             foreach( $round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup ) {
                 $items = array_merge( $items, $getItems($qualifyGroup->getChildRound()));
             }
-            if ($round->getState() === Game::STATE_PLAYED) {
+            if ($round->getState() === State::Finished) {
                 $items = array_merge( $items, $this->getDropouts($round));
             } else {
                 $items = array_merge( $items, $this->getDropoutsNotPlayed($round));

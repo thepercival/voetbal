@@ -8,8 +8,7 @@
 
 namespace Voetbal\Tests\Structure;
 
-include_once __DIR__ . '/../../helpers/Serializer.php';
-include_once __DIR__ . '/../../helpers/PostSerialize.php';
+include_once __DIR__ . '/../../data/CompetitionCreator.php';
 include_once __DIR__ . '/Check332a.php';
 
 use Voetbal\Structure\Service as StructureService;
@@ -21,11 +20,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
     public function testCreating332a()
     {
-        $serializer = getSerializer();
-
-        $json_raw = file_get_contents(__DIR__ . "/../../data/competition.json");
-        $json = json_decode($json_raw, true);
-        $competition = $serializer->deserialize(json_encode($json), 'Voetbal\Competition', 'json');
+        $competition = createCompetition();
 
         $structureService = new StructureService();
         $structure = $structureService->create($competition, 8, 3);
@@ -34,7 +29,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
-        // for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::WINNERS); }
+        for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::WINNERS); }
         for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::LOSERS); }
 
         foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {

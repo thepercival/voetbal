@@ -11,7 +11,7 @@ namespace Voetbal;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
-use Voetbal\Place;
+use Voetbal\State;
 use Voetbal\PlaceLocation;
 
 class Round
@@ -64,11 +64,7 @@ class Round
     /**
      * @var QualifyGroup[] | ArrayCollection
      */
-    protected $losersQualifyGroups;
-    /**
-     * @var QualifyGroup[] | ArrayCollection
-     */
-    protected $winnersQualifyGroups;
+    protected $qualifyGroups;
     /**
      * @var HorizontalPoule[] | array
      */
@@ -107,8 +103,7 @@ class Round
         $this->setParentQualifyGroup( $parentQualifyGroup );
         $this->setQualifyOrderDep(static::QUALIFYORDER_CROSS);
         $this->setWinnersOrLosersDep( 0 );
-        $this->winnersQualifyGroups = new ArrayCollection();
-        $this->losersQualifyGroups = new ArrayCollection();
+        $this->qualifyGroups = new ArrayCollection();
         $this->winnersHorizontalPoules = array();
         $this->losersHorizontalPoules = array();
     }
@@ -243,33 +238,51 @@ class Round
         $this->structureNumber = $structureNumber;
     }
 
-    public function getQualifyGroups(int $winnersOrLosers ): ArrayCollection {
-        return ($winnersOrLosers === QualifyGroup::WINNERS) ? $this->winnersQualifyGroups : $this->losersQualifyGroups;
-    }
-
-    public function getAllQualifyGroups(): array {
-        return array_merge( $this->winnersQualifyGroups->toArray(), $this->losersQualifyGroups->toArray() );
-    }
-
-    public function getQualifyGroupsLosersReversed(): array {
-        $qualifyGroups = $this->getAllQualifyGroups();
-        uasort( $qualifyGroups, function( $qualifyGroupA, $qualifyGroupB) {
-            if ($qualifyGroupA->getWinnersLosers() < $qualifyGroupB->getWinnersLosers()) {
-                return 1;
-            }
-            if ($qualifyGroupA->getWinnersLosers() > $qualifyGroupB->getWinnersLosers()) {
-                return -1;
-            }
-            if ($qualifyGroupA->getNumber() < $qualifyGroupB->getNumber()) {
-                return -1;
-            }
-            if ($qualifyGroupA->getNumber() > $qualifyGroupB->getNumber()) {
-                return -1;
-            }
-            return 0;
+    /**
+     * @param int $winnersOrLosers
+     * @return QualifyGroup[] | ArrayCollection
+     */
+    public function getQualifyGroups(int $winnersOrLosers = null): ArrayCollection {
+        if( $winnersOrLosers === null ) {
+            return clone $this->qualifyGroups;
+        }
+        return $this->qualifyGroups->filter( function( $qualifyGroup ) use ($winnersOrLosers) {
+           return $qualifyGroup->getWinnersOrLosers() === $winnersOrLosers;
         });
-        return $qualifyGroups; // $this->winnersQualifyGroups.concat($this->losersQualifyGroups->slice(0)->reverse());
     }
+
+    public function addQualifyGroup(QualifyGroup $qualifyGroup ) {
+        $this->qualifyGroups->add($qualifyGroup);
+        // @TODO should automatically sort
+        // $this->sortQualifyGroups();
+    }
+
+    public function removeQualifyGroup(QualifyGroup $qualifyGroup ) {
+        return $this->qualifyGroups->removeElement($qualifyGroup);
+    }
+
+    public function clearQualifyGroups() {
+        return $this->qualifyGroups->clear();
+    }
+
+
+//    protected function sortQualifyGroups() {
+//        uasort( $this->qualifyGroups, function( QualifyGroup $qualifyGroupA, QualifyGroup $qualifyGroupB) {
+//            if ($qualifyGroupA->getWinnersOrLosers() < $qualifyGroupB->getWinnersOrLosers()) {
+//                return 1;
+//            }
+//            if ($qualifyGroupA->getWinnersOrLosers() > $qualifyGroupB->getWinnersOrLosers()) {
+//                return -1;
+//            }
+//            if ($qualifyGroupA->getNumber() < $qualifyGroupB->getNumber()) {
+//                return 1;
+//            }
+//            if ($qualifyGroupA->getNumber() > $qualifyGroupB->getNumber()) {
+//                return -1;
+//            }
+//            return 0;
+//        });
+//    }
 
     public function getQualifyGroup(int $winnersOrLosers, int $qualifyGroupNumber): QualifyGroup {
         return $this->getQualifyGroups($winnersOrLosers)->filter(function( $qualifyGroup ) use ($qualifyGroupNumber) {
@@ -295,7 +308,7 @@ class Round
     public function getChildren(): array {
         return array_map( function( $qualifyGroup ) {
             return $qualifyGroup->getChildRound();
-        }, $this->getAllQualifyGroups() );
+        }, $this->getQualifyGroups() );
 
     }
 
@@ -436,25 +449,25 @@ class Round
     {
         $allPlayed = true;
         foreach( $this->getPoules() as $poule ) {
-            if( $poule->getState() !== Game::STATE_PLAYED ) {
+            if( $poule->getState() !== State::Finished ) {
                 $allPlayed = false;
                 break;
             }
         }
         if( $allPlayed ) {
-            return Game::STATE_PLAYED;
+            return State::Finished;
         }
         foreach( $this->getPoules() as $poule ) {
-            if( $poule->getState() !== Game::STATE_CREATED ) {
-                return Game::STATE_INPLAY;
+            if( $poule->getState() !== State::Created ) {
+                return State::InProgress;
             }
         }
-        return Game::STATE_CREATED;
+        return State::Created;
     }
 
     public function isStarted(): bool
     {
-        return $this->getState() > Game::STATE_CREATED;
+        return $this->getState() > State::Created;
     }
 
     public static function getOpposing( int $winnersOrLosers): int
@@ -472,7 +485,7 @@ class Round
 
     public function getNrOfPlacesChildren(int $winnersOrLosers = null): int {
         $nrOfPlacesChildRounds = 0;
-        $qualifyGroups = $winnersOrLosers === null ? $this->getAllQualifyGroups() : $this->getQualifyGroups($winnersOrLosers);
+        $qualifyGroups = $this->getQualifyGroups($winnersOrLosers);
         foreach( $qualifyGroups as $qualifyGroup ) {
             $nrOfPlacesChildRounds += $qualifyGroup->getChildRound()->getNrOfPlaces();
         }

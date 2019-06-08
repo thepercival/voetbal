@@ -13,22 +13,20 @@ use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal\Competition;
 use Voetbal\League;
 use Voetbal\Season;
+use Voetbal\State;
 
 class Service
 {
-	/**
-	 * @var CompetitionRepository
-	 */
-	protected $repos;
+
 
 	/**
 	 * Service constructor.
 	 *
 	 * @param CompetitionRepository $repos
 	 */
-	public function __construct( CompetitionRepository $repos )
+	public function __construct()
 	{
-		$this->repos = $repos;
+
 	}
 
     /**
@@ -41,15 +39,6 @@ class Service
      */
 	public function create( League $league, Season $season, int $ruleSet, \DateTimeImmutable $startDateTime ): Competition
 	{
-		$sameCompetition = $this->repos->findOneBy( array(
-            'league' => $league,
-            'season' => $season
-        ) );
-
-        if ( $sameCompetition !== null ){
-            throw new \Exception("de competitie bestaat al", E_ERROR );
-        }
-
         if( !$season->getPeriod()->contains( $startDateTime ) ) {
             throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR );
         }
@@ -69,8 +58,8 @@ class Service
      */
 	public function changeStartDateTime( Competition $competition, \DateTimeImmutable $startDateTime )
 	{
-        if( $competition->getState() === Competition::STATE_PUBLISHED ) {
-            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
+        if( $competition->getState() > State::Created ) {
+            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al gespeelde wedstrijden heeft", E_ERROR );
         }
 
         if( !$competition->getSeason()->getPeriod()->contains( $startDateTime ) ) {
@@ -90,20 +79,12 @@ class Service
      */
     public function changeRuleSet( Competition $competition, int $ruleSet )
     {
-        if( $competition->getState() === Competition::STATE_PUBLISHED ) {
-            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al is gepubliceerd", E_ERROR );
+        if( $competition->getState() > State::Created ) {
+            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al gespeelde wedstrijden heeft", E_ERROR );
         }
 
         $competition->setRuleSet( $ruleSet );
 
         return $competition;
-    }
-
-    /**
-     * @param Competition $competition
-     */
-    public function publish( Competition $competition )
-    {
-
     }
 }

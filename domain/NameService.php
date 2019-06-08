@@ -231,7 +231,7 @@ class NameService
 //    }
 //
 //    public function getRoundName( Round $round, $sameName = false) {
-//        if ($this->roundAndParentsNeedsRanking($round) || (count($round->getAllQualifyGroups()) > 1
+//        if ($this->roundAndParentsNeedsRanking($round) || (count($round->getQualifyGroups()) > 1
 //                && $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::WINNERS)) !== $this->getNrOfRoundsToGo($round->getChildRoundDep(Round::LOSERS)))) {
 //            return $this->getHtmlNumber($round->getNumber()->getNumber()) . ' ronde';
 //        }

@@ -20,7 +20,7 @@ use Voetbal\Round\Service as RoundService;
 use Voetbal\Round\Number\Service as RoundNumberService;
 use Voetbal\Structure as StructureBase;
 use Voetbal\Round;
-use Voetbal\Round\Config\Service as RoundConfigService;
+use Voetbal\Config\Service as ConfigService;
 use Voetbal\External\League\Repository as ExternalLeagueRepos;
 use Voetbal\External\Season\Repository as ExternalSeasonRepos;
 use Voetbal\External\Season as ExternalSeason;
@@ -82,9 +82,9 @@ class Structure implements StructureImporter
     private $roundNumberService;
 
     /**
-     * @var RoundConfigService
+     * @var ConfigService
      */
-    private $roundConfigService;
+    private $configService;
     /**
      * @var Connection $conn;
      */
@@ -105,7 +105,7 @@ class Structure implements StructureImporter
         StructureRepository $structureRepository,
         RoundService $roundService,
         RoundNumberService $roundNumberService,
-        RoundConfigService $roundConfigService,
+        ConfigService $configService,
         ExternalLeagueRepos $externalLeagueRepos,
         ExternalSeasonRepos $externalSeasonRepos,
         Connection $conn,
@@ -120,7 +120,7 @@ class Structure implements StructureImporter
         $this->structureRepos = $structureRepository;
         $this->roundService = $roundService;
         $this->roundNumberService = $roundNumberService;
-        $this->roundConfigService = $roundConfigService;
+        $this->configService = $configService;
         $this->externalLeagueRepos = $externalLeagueRepos;
         $this->externalSeasonRepos = $externalSeasonRepos;
         $this->conn = $conn;

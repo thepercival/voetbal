@@ -20,7 +20,7 @@ class Score
     /**
      * @var Config
      */
-    protected $config;
+    protected $configDep;
     /**
      * @var Score
      */
@@ -133,6 +133,7 @@ class Score
     public function setConfig( Config $config )
     {
         $this->config = $config;
+        $this->config->setScore($this);
     }
 
     /**

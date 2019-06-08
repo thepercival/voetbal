@@ -94,15 +94,21 @@ final class Competition
             /** @var \Voetbal\Competition $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
             if ( $competitionSer === null ) {
-                throw new \Exception("er kan competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen ompetitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitionRet = $this->service->create( $league, $season,$competitionSer->getRuleSet(),$competitionSer->getStartDateTime() );
+            $sameCompetition = $this->repos->findExt( $league, $season );
+            if ( $sameCompetition !== null ){
+                throw new \Exception("de competitie bestaat al", E_ERROR );
+            }
+
+            $competition = $this->service->create( $league, $season,$competitionSer->getRuleSet(),$competitionSer->getStartDateTime() );
+            $this->repos->save( $competition );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $competitionRet, 'json'));
+                ->write($this->serializer->serialize( $competition, 'json'));
             ;
         }
         catch( \Exception $e ){

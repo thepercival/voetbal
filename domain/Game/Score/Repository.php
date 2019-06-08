@@ -8,7 +8,7 @@
 
 namespace Voetbal\Game\Score;
 
-//use Voetbal\Game;
+use Voetbal\Game;
 //use Voetbal\Poule;
 //use Voetbal\PoulePlace;
 //use Voetbal\Field;
@@ -18,6 +18,20 @@ namespace Voetbal\Game\Score;
  */
 class Repository extends \Voetbal\Repository
 {
+    /**
+     * @param Game $game
+     */
+    public function removeScores( Game $game )
+    {
+        while( $game->getScores()->count() > 0 ) {
+            $gameScore = $game->getScores()->first();
+            $game->getScores()->removeElement( $gameScore );
+            $this->remove($gameScore);
+        }
+    }
+
+
+
 //    public function saveFromJSON( Game $game, Poule $poule )
 //    {
 //        $game->setPoule( $poule );

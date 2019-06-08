@@ -32,6 +32,9 @@ Voetbal\Round:
         number: asc
     qualifyGroups:
       targetEntity: Voetbal\Qualify\Group
+      orderBy:
+        winnersOrLosers: ASC
+        number: ASC
       mappedBy: round
       cascade: [ persist, remove ]
 #    childRounds: # DEPRECATED : needs to be replaced by qualifyGroups and maybe something else

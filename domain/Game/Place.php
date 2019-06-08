@@ -30,8 +30,6 @@ class Place
      */
     private $homeaway;
 
-    private $pllaceNr;
-
     public function __construct( Game $game, PlaceBase $place, bool $homeaway )
     {
         $this->setGame( $game );

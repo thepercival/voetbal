@@ -8,12 +8,11 @@
 
 namespace Voetbal\Config;
 
-use Voetbal\Round;
-use Voetbal\Round\Config;
+use Voetbal\Config as ConfigBase;
 
 /**
  * Class Repository
- * @package Voetbal\Round\Config
+ * @package Voetbal\Config
  */
 class Repository extends \Voetbal\Repository
 {

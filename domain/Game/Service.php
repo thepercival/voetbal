@@ -19,24 +19,10 @@ use Voetbal\Game\Score as GameScore;
 class Service
 {
     /**
-     * @var GameRepository
-     */
-    protected $repos;
-
-    /**
-     * @var GameScoreRepository
-     */
-    protected $scoreRepos;
-
-    /**
      * Service constructor.
      * @param Repository $repos
      */
-    public function __construct( GameRepository $repos, GameScoreRepository $scoreRepos )
-    {
-        $this->repos = $repos;
-        $this->scoreRepos = $scoreRepos;
-    }
+    public function __construct() {}
 
     /**
      * @param Game $game
@@ -71,27 +57,6 @@ class Service
             $gameScore->setNumber( ++$count );
             $gameScore->setHome( $newGameScore->getHome() );
             $gameScore->setAway( $newGameScore->getAway() );
-        }
-    }
-
-    /**
-     * @param Game $game
-     */
-    public function remove( Game $game )
-    {
-        $game->getPoule()->getGames()->removeElement($game);
-        return $this->repos->remove($game);
-    }
-
-    /**
-     * @param Game $game
-     */
-    public function removeScores( Game $game )
-    {
-        while( $game->getScores()->count() > 0 ) {
-            $gameScore = $game->getScores()->first();
-            $game->getScores()->removeElement( $gameScore );
-            $this->scoreRepos->remove($gameScore);
         }
     }
 }

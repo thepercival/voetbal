@@ -80,7 +80,7 @@ class Group
     /**
      * @return int
      */
-    public function getWinnersOrlosers()
+    public function getWinnersOrLosers()
     {
         return $this->winnersOrLosers;
     }
@@ -136,7 +136,7 @@ class Group
     {
         $qualifyGroups = $round->getQualifyGroups($this->getWinnersOrLosers());
         if( $round !== null and !$qualifyGroups->contains( $this ) ) {
-            $qualifyGroups->add( $this );
+            $round->addQualifyGroup( $this );
         }
         $this->round = $round;
     }

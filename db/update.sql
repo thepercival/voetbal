@@ -4,6 +4,12 @@ ALTER TABLE rounds MODIFY numberid INT NOT NULL;
 -- draaien na doctrine-update
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;
 
+-- update configs
+update roundconfigs set scoreid = ( select id from roundscoreconfigs where parentid is null and roundconfigid = roundconfigs.id );
+update roundscoreconfigs set roundconfigid = null;
+
+
+
 -- add qualifyGroups
 insert into qualifygroups( roundid, winnersOrLosers, number, childRoundId ) -- nrOfHorizontalPoules
 (

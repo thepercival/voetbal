@@ -10,7 +10,7 @@ Voetbal\Round\Number:
       access_type: property
       type: integer
     config:
-      type: Voetbal\Round\Config
+      type: Voetbal\Config
     next:
       # when serializing first call all next because of
       #access_type: property

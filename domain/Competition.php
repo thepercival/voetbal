@@ -58,9 +58,6 @@ class Competition implements External\Importable
      */
     private $fields;
 
-    const STATE_CREATED = 1;
-    const STATE_PUBLISHED = 2;
-
     const MIN_COMPETITORS = 3;
     const MAX_COMPETITORS = 40;
 
@@ -72,7 +69,7 @@ class Competition implements External\Importable
         $this->league = $league;
         $this->season = $season;
         $this->ruleSet = RankingService::RULESSET_WC;
-        $this->state = static::STATE_CREATED;
+        $this->state = State::Created;
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();
         $this->fields = new ArrayCollection();

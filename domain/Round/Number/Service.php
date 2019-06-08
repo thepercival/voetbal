@@ -9,23 +9,23 @@
 //namespace Voetbal\Round\Number;
 //
 //use Voetbal\Round\Number as RoundNumber;
-//use Voetbal\Round\Config as RoundConfig;
-//use Voetbal\Round\Config\Service as RoundConfigService;
+//use Voetbal\Config;
+//use Voetbal\Config\Service as ConfigService;
 //use Voetbal\Competition;
-//use Voetbal\Round\Config\Options as ConfigOptions;
+//use Voetbal\Config\Options as ConfigOptions;
 //
 //class Service
 //{
 //    /**
-//     * @var RoundConfigService
+//     * @var ConfigService
 //     */
 //    protected $configService;
 //
 //    /**
 //     * Service constructor.
-//     * @param RoundConfigService $configService
+//     * @param ConfigService $configService
 //     */
-//    public function __construct( RoundConfigService $configService )
+//    public function __construct( ConfigService $configService )
 //    {
 //        $this->configService = $configService;
 //    }

@@ -8,7 +8,7 @@
 
 namespace Voetbal\Game\Score;
 
-use Voetbal\Round\Config\Score as ScoreConfig;
+use Voetbal\Config\Score as ScoreConfig;
 use Voetbal\Game;
 
 trait HomeAwayTrait

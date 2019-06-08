@@ -66,11 +66,11 @@ class Service
                 $this->getRepository(Round\Number::class),
                 $this->getService(Round::class),
                 $this->getRepository(Round::class),
-                $this->getService(Round\Config::class)
+                $this->getService(Config::class)
             );
         } elseif ($classname === Round\Number::class) {
             return new Round\Number\Service(
-                $this->getService(Round\Config::class)
+                $this->getService(Config::class)
             );
         } elseif ($classname === Round::class) {
             return new Round\Service(
@@ -78,9 +78,9 @@ class Service
                 $this->getService(Poule::class),
                 $this->getRepository(Poule::class)
             );
-        } elseif ($classname === Round\Config::class) {
-            return new Round\Config\Service(
-                $repos, $this->getRepository(Round\Config\Score::class)
+        } elseif ($classname === Config::class) {
+            return new Config\Service(
+                $repos, $this->getRepository(Config\Score::class)
             );
         } elseif ($classname === Poule::class) {
             return new Poule\Service(

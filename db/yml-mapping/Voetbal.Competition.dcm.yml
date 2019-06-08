@@ -17,7 +17,7 @@ Voetbal\Competition:
           nullable: false
         state:
             type: smallint
-            default:  !php/const Voetbal\Competition::STATE_CREATED
+            default:  !php/const Voetbal\State::Created
             nullable: false
             unique: false
         startDateTime:

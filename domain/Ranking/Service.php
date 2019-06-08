@@ -18,6 +18,7 @@ use Voetbal\Round;
 use Voetbal\RankingItemsGetter;
 use Voetbal\Ranking\RoundItem\Ranked as RankedRoundItem;
 use Voetbal\Ranking\RoundItem\Unranked as UnrankedRoundItem;
+use Voetbal\State;
 
 /* tslint:disable:no-bitwise */
 
@@ -62,7 +63,7 @@ class Service {
     {
         $this->round = $round;
         $this->rulesSet = $rulesSet;
-        $this->gameStates = $gameStates !== null ? $gameStates : Game::STATE_PLAYED;
+        $this->gameStates = $gameStates !== null ? $gameStates : State::Finished;
         $this->initRankFunctions();
     }
 

@@ -9,7 +9,7 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Game;
-use Voetbal\Round\Config as RoundNumberConfig;
+use Voetbal\Config;
 use Voetbal\Place;
 use Voetbal\Field;
 use League\Period\Period;
@@ -19,9 +19,9 @@ use Voetbal\Planning\Referee as PlanningReferee;
 class ResourceService
 {
     /**
-     * @var RoundNumberConfig
+     * @var Config
      */
-    private $roundNumberConfig;
+    private $config;
     /**
      * @var \DateTimeImmutable
      */
@@ -63,14 +63,14 @@ class ResourceService
     private $nrOfPoules;
 
     public function __construct(
-        RoundNumberConfig $roundNumberConfig,
+        Config $config,
         \DateTimeImmutable $dateTime
     )
     {
-        $this->roundNumberConfig = $roundNumberConfig;
+        $this->config = $config;
         $this->currentGameStartDate = clone $dateTime;
-        if ($this->roundNumberConfig->getSelfReferee()) {
-            $this->nrOfPoules = count($this->roundNumberConfig->getRoundNumber()->getPoules());
+        if ($this->config->getSelfReferee()) {
+            $this->nrOfPoules = count($this->config->getRoundNumber()->getPoules());
         }
     }
 
@@ -126,7 +126,7 @@ class ResourceService
             $this->assignableReferees = array_slice($this->availableReferees,0);
             return;
         }
-        if ($this->roundNumberConfig->getSelfReferee()) {
+        if ($this->config->getSelfReferee()) {
             $this->assignableReferees = array_merge( $this->assignableReferees, $this->availableReferees);
             return;
         }
@@ -214,7 +214,7 @@ class ResourceService
     }
 
     public function setNextGameStartDateTime() {
-        $minutes = $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() + $this->roundNumberConfig->getMinutesBetweenGames();
+        $minutes = $this->config->getMaximalNrOfMinutesPerGame() + $this->config->getMinutesBetweenGames();
         $this->currentGameStartDate = $this->addMinutes($this->currentGameStartDate, $minutes);
     }
 
@@ -224,7 +224,7 @@ class ResourceService
             return $newStartDateTime;
         }
 
-        $endDateTime = $newStartDateTime->modify("+" . $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() . " minutes");
+        $endDateTime = $newStartDateTime->modify("+" . $this->config->getMaximalNrOfMinutesPerGame() . " minutes");
         if( $endDateTime > $this->blockedPeriod->getStartDate() && $newStartDateTime < $this->blockedPeriod->getEndDate() ) {
             $newStartDateTime = clone $this->blockedPeriod->getEndDate();
         }
@@ -233,7 +233,7 @@ class ResourceService
 
     public function getEndDateTime(): \DateTimeImmutable {
         $endDateTime = clone $this->currentGameStartDate;
-        return $endDateTime->modify("+" . $this->roundNumberConfig->getMaximalNrOfMinutesPerGame() . " minutes");
+        return $endDateTime->modify("+" . $this->config->getMaximalNrOfMinutesPerGame() . " minutes");
     }
 
     private function areFieldsAvailable(): bool {
@@ -246,12 +246,12 @@ class ResourceService
 
     private function areRefereesAvailable(): bool {
         return count($this->availableReferees) > 0 &&
-            (!$this->roundNumberConfig->getSelfReferee() || count($this->availableReferees) > $this->roundNumberConfig->getNrOfCompetitorsPerGame())
+            (!$this->config->getSelfReferee() || count($this->availableReferees) > $this->config->getNrOfCompetitorsPerGame())
             ;
     }
 
     private function isSomeRefereeAssignable(Game $game): bool {
-        if (!$this->roundNumberConfig->getSelfReferee()) {
+        if (!$this->config->getSelfReferee()) {
             return count($this->assignableReferees) > 0;
         }
         foreach( $this->assignableReferees as $assignableRef ) {
@@ -265,7 +265,7 @@ class ResourceService
     }
 
     private function getAssignableReferee(Game $game): PlanningReferee {
-        if (!$this->roundNumberConfig->getSelfReferee()) {
+        if (!$this->config->getSelfReferee()) {
             return array_shift($this->assignableReferees);
         }
         $refereesAssignable = array_filter( $this->assignableReferees, function( $assignableRef ) use ($game) {

@@ -133,7 +133,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->voetbalService->getStructureRepository(),
             $this->voetbalService->getService( \Voetbal\Round::class ),
             $this->voetbalService->getService( \Voetbal\Round\Number::class ),
-            $this->voetbalService->getService( \Voetbal\Round\Config::class ),
+            $this->voetbalService->getService( \Voetbal\Config::class ),
             $this->voetbalService->getRepository( \Voetbal\External\League::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
             $this->conn, $this->logger

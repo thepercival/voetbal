@@ -58,7 +58,17 @@ final class Field
             if ($competition === null) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            $field = $this->service->create( $fieldSer->getNumber(), $fieldSer->getName(), $competition);
+
+            $fieldsWithSameName = $competition->getFields()->filter( function( $fieldIt ) use ( $fieldSer ) {
+                return $fieldIt->getName() === $fieldSer->getName() || $fieldIt->getNumber() === $fieldSer->getNumber();
+            });
+            if( !$fieldsWithSameName->isEmpty() ) {
+                throw new \Exception("het veldnummer \"".$fieldSer->getNumber()."\" of de veldnaam \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
+            }
+
+            $field = new FieldBase( $competition, $fieldSer->getNumber() );
+            $field->setName( $fieldSer->getName() );
+
             $this->repos->save( $field );
             return $response
                 ->withStatus(201)
@@ -80,7 +90,17 @@ final class Field
             if ($fieldSer === null) {
                 throw new \Exception("het veld kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
-            $field = $this->service->rename( $field, $fieldSer->getName() );
+
+            $competition = $field->getCompetition();
+            $fieldsWithSameName = $competition->getFields()->filter( function( $fieldIt ) use ( $fieldSer, $field ) {
+                return $field->getName() === $fieldSer->getName() && $field !== $fieldIt;
+            });
+            if( !$fieldsWithSameName->isEmpty() ) {
+                throw new \Exception("het veld \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
+            }
+
+            $field->setName( $fieldSer->getName() );
+
             $this->repos->save( $field );
             return $response
                 ->withStatus(200)

@@ -63,19 +63,24 @@ final class Referee
                 throw new \Exception("er kan geen scheidsrechter worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $referee = $this->service->create(
-                $competition,
-                $refereeSer->getInitials(),
-                $refereeSer->getName(),
-                $refereeSer->getEmailaddress(),
-                $refereeSer->getInfo()
-            );
+            $refereesWithSameInitials = $competition->getReferees()->filter( function( $refereeIt ) use ( $refereeSer ) {
+                return $refereeIt->getInitials() === $refereeSer->getInitials();
+            });
+            if( !$refereesWithSameInitials->isEmpty() ) {
+                throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR );
+            }
+
+            $referee = new RefereeBase( $competition, $refereeSer->getInitials() );
+            $referee->setName($refereeSer->getName());
+            $referee->setEmailaddress($refereeSer->getEmailaddress());
+            $referee->setInfo($refereeSer->getInfo());
+
             $this->repos->save( $referee );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($referee, 'json', SerializationContext::create()->setGroups($serGroups)));;
+                ->write($this->serializer->serialize($referee, 'json', SerializationContext::create()->setGroups($serGroups)));
         } catch (\Exception $e) {
             return $response->withStatus(422)->write($e->getMessage());
         }
@@ -91,13 +96,21 @@ final class Referee
             if ($refereeSer === null) {
                 throw new \Exception("de scheidsrechter kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
-            $referee = $this->service->edit(
-                $referee,
-                $refereeSer->getInitials(),
-                $refereeSer->getName(),
-                $refereeSer->getEmailaddress(),
-                $refereeSer->getInfo()
-            );
+
+            $competition = $referee->getCompetition();
+
+            $refereesWithSameInitials = $competition->getReferees()->filter( function( $refereeIt ) use ( $refereeSer, $referee ) {
+                return $refereeIt->getInitials() === $refereeSer->getInitials() && $referee !== $refereeIt;
+            });
+            if( !$refereesWithSameInitials->isEmpty() ) {
+                throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR );
+            }
+
+            $referee->setInitials( $refereeSer->getInitials() );
+            $referee->setName( $refereeSer->getName() );
+            $referee->setEmailaddress($refereeSer->getEmailaddress());
+            $referee->setInfo( $refereeSer->getInfo() );
+
             $this->repos->save( $referee );
             return $response
                 ->withStatus(200)

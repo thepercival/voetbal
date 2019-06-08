@@ -67,7 +67,7 @@ class Service {
     }
 
     protected function createTo(Round $round) {
-        foreach( $round->getAllQualifyGroups() as $qualifyGroup ) {
+        foreach( $round->getQualifyGroups() as $qualifyGroup ) {
             $queue = new QualifyRuleQueue();
             $childRound = $qualifyGroup->getChildRound();
             $qualifyReservationService = new QualifyReservationService($childRound);
