@@ -8,7 +8,7 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Place\Combination as PoulePlaceCombination;
+use Voetbal\Place\Combination as PlaceCombination;
 
 class GameRound
 {
@@ -17,7 +17,7 @@ class GameRound
      */
     private $roundNumber;
     /**
-     * @var array | PoulePlaceCombination[]
+     * @var array | PlaceCombination[]
      */
     private $combinations;
 
@@ -34,16 +34,16 @@ class GameRound
     }
 
     /**
-     * @return array | PoulePlaceCombination[]
+     * @return array | PlaceCombination[]
      */
     public function getCombinations(): array {
         return $this->combinations;
     }
 
     /**
-     * @return PoulePlaceCombination
+     * @return PlaceCombination
      */
-    public function addCombination(PoulePlaceCombination $combination ): PoulePlaceCombination {
+    public function addCombination(PlaceCombination $combination ): PlaceCombination {
         $this->combinations[] = $combination;
         return $combination;
     }

@@ -8,6 +8,7 @@
 
 namespace Voetbal\Qualify\Group;
 
+use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Round;
@@ -33,10 +34,10 @@ class Service
         if ($idx < 0) {
             throw new \Exception('de horizontale poule kan niet gevonden worden', E_ERROR );
         }
-        $splittedPoules = $horizontalPoules->slice(0,$idx);
-        $horizontalPoules = $horizontalPoules->slice($idx);
+        $splittedPoules = array_slice($horizontalPoules,0,$idx);
+        $horizontalPoules = array_slice($horizontalPoules,$idx);
         $round = $qualifyGroup->getRound();
-        $newNrOfQualifiers = $horizontalPoules->count() * $round->getPoules()->count();
+        $newNrOfQualifiers = count($horizontalPoules) * $round->getPoules()->count();
         $newNrOfPoules = $this->structureService->calculateNewNrOfPoules($qualifyGroup, $newNrOfQualifiers);
         while (($newNrOfQualifiers / $newNrOfPoules) < 2) {
             $newNrOfPoules--;

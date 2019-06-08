@@ -6,7 +6,7 @@
  * Time: 14:49
  */
 
-namespace Voetbal\Tests\Structure;
+namespace Voetbal\Tests\Structure2;
 
 include_once __DIR__ . '/../../helpers/Serializer.php';
 include_once __DIR__ . '/../../helpers/PostSerialize.php';

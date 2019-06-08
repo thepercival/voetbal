@@ -23,10 +23,6 @@ final class Referee
      */
     protected $repos;
     /**
-     * @var RefereeService
-     */
-    protected $service;
-    /**
      * @var CompetitionRepos
      */
     protected $competitionRepos;
@@ -37,12 +33,10 @@ final class Referee
 
     public function __construct(
         RefereeRepository $repos,
-        RefereeService $service,
         CompetitionRepos $competitionRepos,
         Serializer $serializer
     ) {
         $this->repos = $repos;
-        $this->service = $service;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }

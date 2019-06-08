@@ -467,7 +467,7 @@ class Config
      */
     public function getInputScore()
     {
-        $parentScoreConfig = $this->getRootScore();
+        $parentScoreConfig = $this->getScore();
         $childScoreConfig = $parentScoreConfig->getChild();
         while ($childScoreConfig !== null && ( $childScoreConfig->getMaximum() > 0 || $parentScoreConfig->getMaximum() === 0 )) {
             $parentScoreConfig = $childScoreConfig;
@@ -481,7 +481,7 @@ class Config
      */
     public function getCalculateScore()
     {
-        $score = $this->getRootScore();
+        $score = $this->getScore();
         while ($score->getMaximum() === 0 && $score->getChild() !== null) {
             $score = $score->getChild();
         }

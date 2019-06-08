@@ -14,7 +14,7 @@ use Voetbal\Poule;
 
 /**
  * Class Repository
- * @package Voetbal\PoulePlace
+ * @package Voetbal\Place
  */
 class Repository extends \Voetbal\Repository
 {

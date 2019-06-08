@@ -22,6 +22,10 @@ class Score
      */
     protected $configDep;
     /**
+     * @var Config
+     */
+    protected $config;
+    /**
      * @var Score
      */
     protected $parent;

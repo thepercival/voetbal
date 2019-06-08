@@ -153,7 +153,7 @@ class Service {
         }
 
         $rootRound = $this->getRoot($round);
-        $structure = new StructureBae($rootRound->getNumber(), $rootRound);
+        $structure = new StructureBase($rootRound->getNumber(), $rootRound);
         $structure->setStructureNumbers();
     }
 
@@ -379,7 +379,7 @@ class Service {
      * if roundnumber has no rounds left, also remove round number
      *
      * @param Round $round
-     * @param ArrayCollection $removedQualifyGroups | QualifyGroup[]
+     * @param array $removedQualifyGroups
      */
     protected function cleanupRemovedQualifyGroups(Round $round, array $removedQualifyGroups) {
         $nextRoundNumber = $round->getNumber()->getNext();

@@ -47,7 +47,7 @@ class Queue {
     /**
      * bij 5 poules, haal 2 na laatste naar achterste plek
      *
-     * @param round
+     * @param int $nrOfPoules
      */
     public function shuffleIfUnevenAndNoMultiple( int $nrOfPoules ) {
         if( ($nrOfPoules % 2) === 0 || $nrOfPoules < 3) {
@@ -59,6 +59,6 @@ class Queue {
         }
         $index = (count($this->qualifyRules) - 1) - ( ( ( $nrOfPoules + 1 ) / 2 ) - 1 );
         $x = array_splice($this->qualifyRules, $index, 1);
-        $this->qualifyRules[] = $x->pop();
+        $this->qualifyRules[] = array_pop($x);
     }
 }

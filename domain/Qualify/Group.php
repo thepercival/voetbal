@@ -158,7 +158,7 @@ class Group
     }
 
     /**
-     * @return ArrayCollection | HorizontalPoule[]
+     * @return array | HorizontalPoule[]
      */
     public function &getHorizontalPoules(): array {
         return $this->horizontalPoules;

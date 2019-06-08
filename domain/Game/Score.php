@@ -27,6 +27,9 @@ class Score
 
     use Score\HomeAwayTrait;
 
+    const SCORED = 1;
+    const RECEIVED = 2;
+
     public function __construct( Game $game )
     {
         $this->setGame( $game );

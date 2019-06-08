@@ -9,16 +9,11 @@
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
-use Voetbal\Season\Service as SeasonService;
 use Voetbal\Season\Repository as SeasonRepository;
 use Voetbal;
 
 final class Season
 {
-    /**
-     * @var SeasonService
-     */
-	protected $service;
     /**
      * @var SeasonRepository
      */
@@ -28,10 +23,9 @@ final class Season
      */
 	protected $serializer;
 
-	public function __construct(SeasonService $service, SeasonRepository $repos, Serializer $serializer)
+	public function __construct(SeasonRepository $repos, Serializer $serializer)
 	{
 		$this->repos = $repos;
-		$this->service = $service;
 		$this->serializer = $serializer;
 	}
 

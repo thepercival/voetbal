@@ -37,11 +37,11 @@ class Structure
     }
 
     public function getLastRoundNumber(): RoundNumber {
-        $getLastRoundNumber = function (RoundNumber $roundNumber): RoundNumber {
+        $getLastRoundNumber = function (RoundNumber $roundNumber) use (&$getLastRoundNumber) : RoundNumber {
             if (!$roundNumber->hasNext()) {
                 return $roundNumber;
             }
-            return getLastRoundNumber($roundNumber->getNext());
+            return $getLastRoundNumber($roundNumber->getNext());
         };
         return $getLastRoundNumber($this->getFirstRoundNumber());
     }

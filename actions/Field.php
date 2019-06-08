@@ -21,10 +21,6 @@ final class Field
      */
     protected $repos;
     /**
-     * @var FieldService
-     */
-    protected $service;
-    /**
      * @var CompetitionRepos
      */
     protected $competitionRepos;
@@ -35,12 +31,10 @@ final class Field
 
     public function __construct(
         FieldRepository $repos,
-        FieldService $service,
         CompetitionRepos $competitionRepos,
         Serializer $serializer
     ) {
         $this->repos = $repos;
-        $this->service = $service;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }

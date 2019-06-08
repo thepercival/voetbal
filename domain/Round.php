@@ -12,7 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\State;
-use Voetbal\PlaceLocation;
+use Voetbal\Place\Location as PlaceLocation;
 
 class Round
 {
@@ -101,8 +101,6 @@ class Round
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
         $this->setParentQualifyGroup( $parentQualifyGroup );
-        $this->setQualifyOrderDep(static::QUALIFYORDER_CROSS);
-        $this->setWinnersOrLosersDep( 0 );
         $this->qualifyGroups = new ArrayCollection();
         $this->winnersHorizontalPoules = array();
         $this->losersHorizontalPoules = array();
@@ -151,60 +149,6 @@ class Round
     public function getNumberAsValue()
     {
         return $this->number->getNumber();
-    }
-
-    /**
-     * @return int
-     */
-    public function getWinnersOrlosersDep()
-    {
-        return $this->winnersOrLosersDep;
-    }
-
-    /**
-     * @return int
-     */
-    public function getWinnersOrlosers()
-    {
-        return $this->getWinnersOrlosersDep();
-    }
-
-    /**
-     * @return int
-     */
-    public function getWinnersOrlosersNew()
-    {
-        return $this->getParentQualifyGroup() ? $this->getParentQualifyGroup()->getWinnersOrLosers() : Round::NEUTRAL;
-    }
-
-    /**
-     * @param int $winnersOrLosersDep
-     */
-    public function setWinnersOrLosersDep( $winnersOrLosersDep )
-    {
-        if ( !is_int( $winnersOrLosersDep )   ){
-            throw new \InvalidArgumentException( "winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->winnersOrLosersDep = $winnersOrLosersDep;
-    }
-
-    /**
-     * @return int
-     */
-    public function getQualifyOrderDep()
-    {
-        return $this->qualifyOrderDep;
-    }
-
-    /**
-     * @param int $qualifyOrderDep
-     */
-    public function setQualifyOrderDep( $qualifyOrderDep )
-    {
-        if ( !is_int( $qualifyOrderDep )   ){
-            throw new \InvalidArgumentException( "kwalificatie-volgorde heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->qualifyOrderDep = $qualifyOrderDep;
     }
 
     /**
@@ -262,7 +206,7 @@ class Round
     }
 
     public function clearQualifyGroups() {
-        return $this->qualifyGroups->clear();
+        $this->qualifyGroups->clear();
     }
 
 
@@ -389,7 +333,7 @@ class Round
     }
 
     protected function getFirstHorizontalPoule(int $winnersOrLosers): HorizontalPoule {
-        return $this->getHorizontalPoules($winnersOrLosers)->first();
+        return reset($this->getHorizontalPoules($winnersOrLosers));
     }
 
     public function getFirstPlace(int $winnersOrLosers): Place {
@@ -398,7 +342,7 @@ class Round
 
     /**
      * @param int|null $order
-     * @return ArrayCollection | Place[]
+     * @return array | Place[]
      */
     public function getPlaces(int $order = null): array {
         $places = [];

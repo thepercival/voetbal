@@ -10,6 +10,7 @@ namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Association\Service as AssociationService;
+use Voetbal\Association as AssociationBase;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal;
 
@@ -71,13 +72,19 @@ final class Association
                 $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
             }
 
-            $associationRet = $this->service->create( $associationSer->getName(), $associationSer->getDescription() );
-            $associationRet = $this->service->changeParent( $associationRet, $parentAssociation );
+            $associationWithSameName = $this->repos->findOneBy( array('name' => $associationSer->getName() ) );
+            if ( $associationWithSameName !== null ){
+                throw new \Exception("de bond met de naam ".$associationSer->getName()." bestaat al", E_ERROR );
+            }
+
+            $association = new AssociationBase($associationSer->getName());
+            $association->setDescription($associationSer->getDescription());
+            $association = $this->service->changeParent( $association, $parentAssociation );
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $associationRet, 'json'));
+                ->write($this->serializer->serialize( $association, 'json'));
             ;
         }
         catch( \Exception $e ){
@@ -103,11 +110,13 @@ final class Association
                 $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
             }
 
-            $associationRet = $this->service->changeBasics(
-                $association,
-                $associationSer->getName(),
-                $associationSer->getDescription()
-            );
+            $associationWithSameName = $this->repos->findOneBy( array('name' => $associationSer->getName() ) );
+            if ( $associationWithSameName !== null and $associationWithSameName !== $association ){
+                throw new \Exception("de bond met de naam ".$associationSer->getName()." bestaat al", E_ERROR );
+            }
+
+            $association->setName($associationSer->getName());
+            $association->setDescription($associationSer->getDescription());
             $associationRet = $this->service->changeParent( $association, $parentAssociation );
 
             return $response

@@ -39,60 +39,18 @@ class Service
 
     public function getService($classname)
     {
-        $repos = null;
-        if ($classname === Structure::class) {
-            $repos = $this->getStructureRepository();
-        } else if ($classname !== Planning::class) {
-            $repos = $this->getRepository($classname);
-        }
-
         if ($classname === Association::class) {
-            return new Association\Service($repos);
+            return new Association\Service();
         } elseif ($classname === Competitor::class) {
             return new Competitor\Service();
-        } elseif ($classname === Field::class) {
-            return new Field\Service($repos);
-        } elseif ($classname === Referee::class) {
-            return new Referee\Service($repos);
-        } elseif ($classname === Season::class) {
-            return new Season\Service($repos);
-        } elseif ($classname === League::class) {
-            return new League\Service($repos);
         } elseif ($classname === Competition::class) {
-            return new Competition\Service($repos);
+            return new Competition\Service();
         } elseif ($classname === Structure::class) {
-            return new Structure\Service(
-                $this->getService(Round\Number::class),
-                $this->getRepository(Round\Number::class),
-                $this->getService(Round::class),
-                $this->getRepository(Round::class),
-                $this->getService(Config::class)
-            );
-        } elseif ($classname === Round\Number::class) {
-            return new Round\Number\Service(
-                $this->getService(Config::class)
-            );
-        } elseif ($classname === Round::class) {
-            return new Round\Service(
-                $repos,
-                $this->getService(Poule::class),
-                $this->getRepository(Poule::class)
-            );
+            return new Structure\Service();
         } elseif ($classname === Config::class) {
-            return new Config\Service(
-                $repos, $this->getRepository(Config\Score::class)
-            );
-        } elseif ($classname === Poule::class) {
-            return new Poule\Service(
-                $repos,
-                $this->getRepository(Place::class),
-                $this->getRepository(Competitor::class)
-            );
+            return new Config\Service();
         } elseif ($classname === Game::class) {
-            return new Game\Service(
-                $repos,
-                $this->getRepository(Game\Score::class)
-            );
+            return new Game\Service();
         }
         throw new \Exception("class " . $classname . " not supported to create service", E_ERROR);
     }

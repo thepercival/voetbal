@@ -33,7 +33,7 @@ class Poule
     protected $round;
 
     /**
-     * @var PoulePlace[] | ArrayCollection
+     * @var Place[] | ArrayCollection
      */
     protected $places;
 
@@ -151,7 +151,7 @@ class Poule
     }
 
     /**
-     * @return PoulePlace[] | ArrayCollection
+     * @return Place[] | ArrayCollection
      */
     public function getPlaces()
     {
@@ -159,7 +159,7 @@ class Poule
     }
 
     /**
-     * @param PoulePlace[] | ArrayCollection $places
+     * @param Place[] | ArrayCollection $places
      */
     public function setPlaces($places)
     {
@@ -167,7 +167,7 @@ class Poule
     }
 
     /**
-     * @return PoulePlace
+     * @return Place
      */
     public function getPlace( $number )
     {

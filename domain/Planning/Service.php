@@ -184,7 +184,7 @@ class Service
 
         $rounds = $roundNumber->getRounds()->toArray();
         if (!$roundNumber->isFirst() ) {
-            uasort( $rounds, function($r1, $r2) { return static::getRoundPathAsNumber($r1) - static::getRoundPathAsNumber($r2); });
+            uasort( $rounds, function($r1, $r2) { return $r1->getStructureNumber() - $r2->getStructureNumber(); });
         }
 
         $games = [];
@@ -200,17 +200,6 @@ class Service
             }
         }
         return static::orderGames($games, $order);
-    }
-
-    protected static function getRoundPathAsNumber(Round $round): int {
-        $value = 0;
-        $path = $round->getPath();
-        $pow = count($path);
-        foreach( $path as $winnersOrLosers ) {
-            $value += $winnersOrLosers === Round::WINNERS ? pow(2, $pow) : 0;
-            $pow--;
-        }
-        return $value;
     }
 
     public static function orderGames(array $games, int $order): array {

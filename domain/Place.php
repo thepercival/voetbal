@@ -254,4 +254,8 @@ class Place
             $places[] = $this;
         }
     }
+
+    public function getLocation(): Place\Location {
+        return new Place\Location($this->getPoule()->getNumber(), $this->getNumber());
+    }
 }

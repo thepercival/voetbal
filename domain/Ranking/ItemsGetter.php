@@ -17,7 +17,7 @@ use Voetbal\Ranking\RoundItem\Unranked as UnrankedRoundItem;
 
 /* tslint:disable:no-bitwise */
 
-class RankingItemsGetter {
+class ItemsGetter {
 
     /**
      * @var Round
@@ -28,7 +28,7 @@ class RankingItemsGetter {
      */
     private $gameStates;
 
-    public function __construct(Round $round, int $rulesSet, int $gameStates )
+    public function __construct(Round $round, int $gameStates )
     {
         $this->round = $round;
         $this->gameStates = $gameStates;
@@ -89,7 +89,7 @@ class RankingItemsGetter {
                 $points += $config->getWinPoints();
             }
         } else if ($this->getGameScorePart($finalScore, $homeAway) === $this->getGameScorePart($finalScore, !$homeAway)) {
-            if ($scoresMoment === Game.MOMENT_EXTRATIME) {
+            if ($scoresMoment === Game::MOMENT_EXTRATIME) {
                 $points += $config->getDrawPointsExt();
             } else {
                 $points += $config->getDrawPoints();

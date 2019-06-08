@@ -71,19 +71,6 @@ class Place
         $this->place = $place;
     }
 
-    public function getPlaceNr(): int
-    {
-        if( $this->getPlace() !== null ) {
-            return $this->getPlace()->getNumber();
-        }
-        return $this->placeNr;
-    }
-
-    public function setPlaceNr( int $placeNr )
-    {
-        $this->placeNr = $placeNr;
-    }
-
     /**
      * @return bool
      */

@@ -18,17 +18,13 @@ use Voetbal\Game\Score as GameScore;
 
 class Service
 {
-    /**
-     * Service constructor.
-     * @param Repository $repos
-     */
     public function __construct() {}
 
     /**
      * @param Game $game
      * @param Field|null $field
      * @param Referee|null $referee
-     * @param PoulePlace|null $refereePoulePlace
+     * @param Place|null $refereePlace
      * @param \DateTimeImmutable|null $startDateTime
      * @param int|null $resourceBatch
      * @return Game

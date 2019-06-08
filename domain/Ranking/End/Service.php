@@ -8,7 +8,7 @@
 
 namespace Voetbal\Ranking\End;
 
-use Voetbal\Game;
+use Voetbal\State;
 use Voetbal\Place\Location as PlaceLocation;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Qualify\Group as QualifyGroup;
@@ -33,10 +33,9 @@ class Service {
     private $ruleSet;
 
     /**
-     * EndRankingItem constructor.
-     * @param int $uniqueRank
-     * @param int $rank
-     * @param string $name
+     * Service constructor.
+     * @param Structure $structure
+     * @param int $ruleSet
      */
     public function __construct( Structure $structure, int $ruleSet )
     {
@@ -59,10 +58,10 @@ class Service {
             } else {
                 $items = array_merge( $items, $this->getDropoutsNotPlayed($round));
             }
-            foreach( aray_reverse( $round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0) ) as $qualifyGroup ) {
+            foreach( array_reverse( $round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0) ) as $qualifyGroup ) {
                 $items = array_merge( $items, $getItems($qualifyGroup->getChildRound()));
             }
-            return items;
+            return $items;
         };
         return $getItems($this->structure->getRootRound());
     }
@@ -74,7 +73,7 @@ class Service {
     protected function getDropoutsNotPlayed(Round $round): array {
         $items = [];
         $nrOfDropouts = $round->getNrOfPlaces() - $round->getNrOfPlacesChildren();
-        for ($i = 0; $i < nrOfDropouts; $i++) {
+        for ($i = 0; $i < $nrOfDropouts; $i++) {
             $items[] = new Item($this->currentRank, $this->currentRank++, 'nog onbekend');
         }
         return $items;

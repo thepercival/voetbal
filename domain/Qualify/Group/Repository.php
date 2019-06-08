@@ -10,7 +10,7 @@ namespace Voetbal\Qualify\Group;
 
 /**
  * Class Repository
- * @package Voetbal\PoulePlace
+ * @package Voetbal
  */
 class Repository extends \Voetbal\Repository
 {

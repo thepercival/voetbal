@@ -65,7 +65,7 @@ class Multiple extends QualifyRule {
     }
 
     /**
-     * @return ArrayCollection | Place[]
+     * @return array | Place[]
      */
     public function getToPlaces(): array {
         return $this->toPlaces;

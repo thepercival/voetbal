@@ -71,7 +71,7 @@ class Combination
     /**
      * @param Game $game
      * @param bool $reverseHomeAway
-     * @return ArrayCollection
+     * @return array
      */
     public function getGamePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/): array {
         $home = array_map( function( $homeIt ) use ($game,$reverseHomeAway){

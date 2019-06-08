@@ -9,17 +9,13 @@
 namespace Voetbal\Action;
 
 use JMS\Serializer\Serializer;
-use Voetbal\League\Service as LeagueService;
+use Voetbal\League as LeagueBase;
 use Voetbal\League\Repository as LeagueRepository;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal;
 
 final class League
 {
-    /**
-     * @var LeagueService
-     */
-	protected $service;
     /**
      * @var LeagueRepository
      */
@@ -34,14 +30,12 @@ final class League
 	protected $serializer;
 
 	public function __construct(
-	    LeagueService $service,
-        LeagueRepository $repos,
+	    LeagueRepository $repos,
         AssociationRepository $associationRepos,
         Serializer $serializer)
 	{
         $this->repos = $repos;
-		$this->service = $service;
-        $this->associationRepos = $associationRepos;
+		$this->associationRepos = $associationRepos;
 		$this->serializer = $serializer;
 	}
 
@@ -82,17 +76,15 @@ final class League
                 throw new \Exception("de bond kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            $leagueRet = $this->service->create(
-                $leagueSer->getName(),
-                $leagueSer->getSport(),
-                $association,
-                $leagueSer->getAbbreviation()
-            );
+            $league = new LeagueBase( $association, $leagueSer->getName() );
+            $league->setSport( $leagueSer->getSport() );
+            $league->setAbbreviation( $leagueSer->getAbbreviation() );
+            $league = $this->repos->save($league);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $leagueRet, 'json'));
+                ->write($this->serializer->serialize( $league, 'json'));
             ;
         }
         catch( \Exception $e ){
@@ -116,16 +108,14 @@ final class League
                 throw new \Exception("de competitie kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
-            $leagueRet = $this->service->changeBasics(
-                $league,
-                $leagueSer->getName(),
-                $leagueSer->getAbbreviation()
-            );
+            $league->setName($leagueSer->getName());
+            $league->setAbbreviation($leagueSer->getAbbreviation());
+            $league = $this->repos->save($league);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $leagueRet, 'json'));
+                ->write($this->serializer->serialize( $league, 'json'));
             ;
         }
         catch( \Exception $e ){

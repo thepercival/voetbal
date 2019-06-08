@@ -11,7 +11,7 @@ namespace Voetbal\Action;
 use JMS\Serializer\Serializer;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Game\Repository as GameRepository;
-use Voetbal\Game\Score\Repository as GameScoreRepos;
+use Voetbal\Game\Score\Repository as GameScoreRepository;
 use Voetbal\Place\Repository as PlaceRepository;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Field\Repository as FieldRepository;
@@ -32,7 +32,7 @@ final class Game
      */
     protected $repos;
     /**
-     * @var GameScoreRepos
+     * @var GameScoreRepository
      */
     protected $gameScoreRepos;
     /**

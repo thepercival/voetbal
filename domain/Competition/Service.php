@@ -17,16 +17,8 @@ use Voetbal\State;
 
 class Service
 {
-
-
-	/**
-	 * Service constructor.
-	 *
-	 * @param CompetitionRepository $repos
-	 */
 	public function __construct()
 	{
-
 	}
 
     /**

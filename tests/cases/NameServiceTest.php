@@ -6,7 +6,7 @@
  * Time: 21:27
  */
 
-namespace Voetbal\Tests\Structure;
+namespace Voetbal\Tests;
 
 include_once __DIR__ . '/../data/CompetitionCreator.php';
 

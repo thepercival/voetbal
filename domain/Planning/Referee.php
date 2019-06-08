@@ -19,31 +19,31 @@ class Referee
      */
     private $referee;
     /**
-     * @var PoulePlace
+     * @var Place
      */
-    private $poulePlace;
+    private $place;
 
     public function __construct(
         RefereeBase $referee = null,
-        PoulePlace $poulePlace = null) {
+        Place $place = null) {
         $this->referee = $referee;
-        $this->poulePlace = $poulePlace;
+        $this->place = $place;
     }
 
     public function getReferee(): ?RefereeBase {
         return $this->referee;
     }
 
-    public function getPoulePlace(): ?PoulePlace {
-        return $this->poulePlace;
+    public function getPlace(): ?Place {
+        return $this->place;
     }
 
     public function isSelf(): bool {
-        return $this->poulePlace !== null;
+        return $this->place !== null;
     }
 
     public function assign(Game $game) {
         $game->setReferee($this->referee ? $this->referee : null);
-        $game->setRefereePoulePlace($this->poulePlace ? $this->poulePlace : null);
+        $game->setRefereePlace($this->place ? $this->place : null);
     }
 }

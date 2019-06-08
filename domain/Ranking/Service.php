@@ -15,7 +15,6 @@ use Voetbal\Poule;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Place;
 use Voetbal\Round;
-use Voetbal\RankingItemsGetter;
 use Voetbal\Ranking\RoundItem\Ranked as RankedRoundItem;
 use Voetbal\Ranking\RoundItem\Unranked as UnrankedRoundItem;
 use Voetbal\State;
@@ -59,7 +58,7 @@ class Service {
     CONST MostUnitsScored = 6;
     CONST MostSubUnitsScored = 7;
 
-    public function __construct(Round $round, int $rulesSet, ?int $gameStates )
+    public function __construct(Round $round, int $rulesSet, int $gameStates = null)
     {
         $this->round = $round;
         $this->rulesSet = $rulesSet;
@@ -96,7 +95,7 @@ class Service {
     public function getItemsForPoule(Poule $poule ): array {
         if ($this->cache[$poule->getNumber()] === null) {
             $round = $poule->getRound();
-            $getter = new RankingItemsGetter($round, $this->gameStates);
+            $getter = new ItemsGetter($round, $this->gameStates);
             $unrankedItems = $getter->getUnrankedItems($poule->getPlaces(), $poule->getGames());
             $rankedItems = $this->rankItems($unrankedItems, true);
             $this->cache[$poule->getNumber()] = $rankedItems;
@@ -133,10 +132,10 @@ class Service {
     }
 
     /**
-     * Place can have a multiple and a single rule, if so than do not
-     * process place for horizontalpoule(multiple)
+     * Place can have a multiple and a single rule, if so than do not process place for horizontalpoule(multiple)
      *
-     * @param place
+     * @param Place $place
+     * @return bool
      */
     protected function hasPlaceSingleQualifyRule(Place $place): bool {
         $foundRules = array_filter( $place->getToQualifyRules(), function( $qualifyRuleIt ) {
@@ -187,14 +186,14 @@ class Service {
 
     /**
      * @param array | UnrankedRoundItem[] $orgItems
-     * @param array | Function[] $rankFunctions
+     * @param array $rankFunctions
      * @return array | UnrankedRoundItem[]
      */
     private function findBestItems(array $orgItems, array $rankFunctions): array {
         $bestItems = $orgItems;
 
         foreach( $rankFunctions as $rankFunction ) {
-            if ($rankFunction === $this->filterBestAgainstEachOther && count($orgItems) === count($bestItems)) {
+            if ($rankFunction === $this->rankFunctions[Service::BestAgainstEachOther] && count($orgItems) === count($bestItems)) {
                 continue;
             }
             $bestItems = $rankFunction($bestItems);
@@ -209,7 +208,7 @@ class Service {
      * @param bool|null $againstEachOther
      * @return array
      */
-    private function getRankFunctions(?bool $againstEachOther): array {
+    private function getRankFunctions(bool $againstEachOther = null): array {
         $rankFunctions = [
             $this->rankFunctions[Service::MostPoints],
             $this->rankFunctions[Service::FewestGames]
@@ -225,7 +224,7 @@ class Service {
             if ($againstEachOther !== false) {
                 $rankFunctions[] = $this->rankFunctions[Service::BestAgainstEachOther];
             }
-        } else if ($this->rulesSet === RankingService::RULESSET_EC) {
+        } else if ($this->rulesSet === Service::RULESSET_EC) {
             if ($againstEachOther !== false) {
                 $rankFunctions[] = $this->rankFunctions[Service::BestAgainstEachOther];
             }
@@ -314,7 +313,7 @@ class Service {
             if (count($games) === 0) {
                 return $items;
             }
-            $getter = new RankingItemsGetter($round, $this->gameStates);
+            $getter = new ItemsGetter($round, $this->gameStates);
             $unrankedItems = $getter->getUnrankedItems($places, $games);
             $rankedItems = array_filter($this->rankItems($unrankedItems, true), function ($rankItem) {
                 return $rankItem->getRank() === 1;
@@ -375,11 +374,11 @@ class Service {
         };
 
         $this->rankFunctions[Service::MostUnitsScored] = function (array $items) use ($mostScored): array {
-            return $this->filterMostScored($items, false);
+            return $mostScored($items, false);
         };
 
         $this->rankFunctions[Service::MostSubUnitsScored] = function (array $items) use ($mostScored): array {
-            return $this->filterMostScored($items, true);
+            return $mostScored($items, true);
         };
     }
 }

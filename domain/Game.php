@@ -55,7 +55,7 @@ class Game implements External\Importable
     protected $refereeInitials; // for serialization, not used
 
     /**
-     * @var PoulePlace
+     * @var Place
      */
     protected $refereePlace;
     protected $refereePlaceId; // for serialization, not used
@@ -77,7 +77,7 @@ class Game implements External\Importable
     protected $scores;
 
     /**
-     * @var GamePoulePlace[] | ArrayCollection
+     * @var GamePlace[] | ArrayCollection
      */
     protected $places;
 
@@ -278,7 +278,7 @@ class Game implements External\Importable
     }
 
     /**
-     * @return PoulePlace
+     * @return Place
      */
     public function getRefereePlace()
     {
@@ -399,7 +399,7 @@ class Game implements External\Importable
     /**
      * @param \Voetbal\Place $place
      * @param bool $homeaway
-     * @return GamePoulePlace
+     * @return GamePlace
      */
     public function addPlace(Place $place, bool $homeaway): GamePlace
     {

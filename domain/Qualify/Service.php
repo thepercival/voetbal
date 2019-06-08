@@ -6,6 +6,7 @@ use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Qualify\ReservationService as QualifyReservationService;
 use Voetbal\Poule;
 use Voetbal\Place;
+use Voetbal\Round;
 use Voetbal\Competitor;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\State;
@@ -21,6 +22,10 @@ use Voetbal\Qualify\Group as QualifyGroup;
  */
 class Service
 {
+    /**
+     * @var Round
+     */
+    private $round;
     /**
      * @var RankingService
      */

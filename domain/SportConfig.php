@@ -14,6 +14,7 @@ class SportConfig
     CONST Football = 'voetbal';
     CONST Chess = 'schaken';
     CONST Darts = 'darten';
+    const ESports = 'e-sporten';
     CONST Tennis = 'tennis';
     CONST Volleyball = 'volleybal';
     CONST Badminton = 'badminton';
@@ -29,6 +30,7 @@ class SportConfig
             static::Football,
             static::Chess,
             static::Darts,
+            static::ESports,
             static::Tennis,
             static::Volleyball,
             static::Badminton,

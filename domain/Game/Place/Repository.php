@@ -10,7 +10,7 @@ namespace Voetbal\Game\Place;
 
 //use Voetbal\Game;
 //use Voetbal\Poule;
-//use Voetbal\PoulePlace;
+//use Voetbal\Place;
 //use Voetbal\Field;
 
 /**

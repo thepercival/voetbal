@@ -38,7 +38,7 @@ class Horizontal {
      */
     protected $number;
     /**
-     * @var ArrayCollection | Place[]
+     * @var array | Place[]
      */
     protected $places = [];
     /**
@@ -76,7 +76,7 @@ class Horizontal {
     if ($this->getWinnersOrLosers() !== QualifyGroup::LOSERS) {
         return $this->number;
     }
-        $nrOfPlaceNubers = $this->getQualifyGroup()->getRound()->getHorizontalPoules(QualifyGroup::WINNERS)->count();
+        $nrOfPlaceNubers = count( $this->getQualifyGroup()->getRound()->getHorizontalPoules(QualifyGroup::WINNERS));
     return $nrOfPlaceNubers - ($this->number - 1);
 }
 
@@ -141,8 +141,8 @@ class Horizontal {
             return 0;
         }
         if (!$this->isBorderPoule()) {
-            return $this->getPlaces()->count();
+            return count($this->getPlaces());
         }
-        return $this->getPlaces()->count() - ($this->getQualifyGroup()->getNrOfToPlacesTooMuch());
+        return count($this->getPlaces()) - ($this->getQualifyGroup()->getNrOfToPlacesTooMuch());
     }
 }

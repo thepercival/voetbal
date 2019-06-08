@@ -17,7 +17,7 @@ class GameResources
     /**
      * @var array
      */
-    public $pouleplaces;
+    public $places;
     /**
      * @var array
      */
@@ -29,21 +29,21 @@ class GameResources
 
     public function __construct(  )
     {
-        $this->pouleplaces = [];
+        $this->places = [];
         $this->fields = [];
         $this->referees = [];
     }
 
-    public function getPouleplace( Pouleplace $pouleplace )
+    public function getPouleplace( Place $place )
     {
-        if( array_key_exists($pouleplace->getId(), $this->pouleplaces ) === false ){
+        if( array_key_exists($place->getId(), $this->places ) === false ){
             return null;
         }
-        return $this->pouleplaces[$pouleplace->getId()];
+        return $this->places[$place->getId()];
     }
 
-    public function addPoulePlace( PoulePlace $poulePlace ) {
-        $this->pouleplaces[$poulePlace->getId()] = $poulePlace;
+    public function addPoulePlace( Place $place ) {
+        $this->places[$place->getId()] = $place;
     }
     
     public function getField( Field $field )

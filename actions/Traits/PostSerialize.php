@@ -18,14 +18,14 @@ use Voetbal\Place;
 //     */
 //    protected $roundNumberPlaces;
 //
-//    protected function getPlace( RoundNumber $roundNumber, int $poulePlaceId): ?PoulePlace {
+//    protected function getPlace( RoundNumber $roundNumber, int $placeId): ?Place {
 //        if( $this->roundNumberPlaces === null ) {
 //            $this->roundNumberPlaces = $this->getPlaces( $roundNumber );
 //        }
-//        if( array_key_exists($poulePlaceId, $this->roundNumberPlaces) === false ) {
+//        if( array_key_exists($placeId, $this->roundNumberPlaces) === false ) {
 //            return null;
 //        }
-//        return $this->roundNumberPlaces[$poulePlaceId];
+//        return $this->roundNumberPlaces[$placeId];
 //    }
 //
 //    protected function getPlaces( RoundNumber $roundNumber): array {
