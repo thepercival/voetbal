@@ -29,8 +29,11 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
-        for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::WINNERS); }
-        for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::LOSERS); }
+        // for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::WINNERS); }
+        $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+        $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+        $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+        //for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::LOSERS); }
 
         foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
             $childRound = $rootRound->getBorderQualifyGroup($winnersOrLosers)->getChildRound();

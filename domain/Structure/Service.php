@@ -191,7 +191,20 @@ class Service {
 
         $rootRound = $this->getRoot($round);
         $structure = new StructureBase($rootRound->getNumber(), $rootRound);
-        $$structure->setStructureNumbers();
+        $structure->setStructureNumbers();
+    }
+
+    public function addQualifiers(Round $round, int $winnersOrLosers, int $nrOfQualifiers ) {
+
+        if ( $round->getBorderQualifyGroup($winnersOrLosers) === null  ) {
+            if( $nrOfQualifiers < 2) {
+                throw new \Exception("Voeg miniaal 2 gekwalificeerden toe", E_ERROR );
+            }
+            $nrOfQualifiers--;
+        }
+        for( $qualifier = 0 ; $qualifier < $nrOfQualifiers ; $qualifier++ ) {
+            $this->addQualifier($round, $winnersOrLosers);
+        }
     }
 
     public function addQualifier(Round $round, int $winnersOrLosers) {
@@ -335,20 +348,20 @@ class Service {
             return new HorizontolPouleCreator( $qualifyGroup, $nrOfQualifiers );
         };
 
-        $horizontolPoulesCreators = [];
+        $horizontalPoulesCreators = [];
         $removedQualifyGroups = $round->getQualifyGroups($winnersOrLosers);
-        $round->clearQualifyGroups();
+        $round->clearQualifyGroups($winnersOrLosers);
         $qualifyGroupNumber = 1;
         while ($newNrOfPlacesChildren > 0) {
-            $horizontolPoulesCreator = $getNewQualifyGroup($removedQualifyGroups);
-            $horizontolPoulesCreator->qualifyGroup->setNumber($qualifyGroupNumber++);
-            $horizontolPoulesCreators[] = $horizontolPoulesCreator;
-            $newNrOfPlacesChildren -= $horizontolPoulesCreator->nrOfQualifiers;
+            $horizontalPoulesCreator = $getNewQualifyGroup($removedQualifyGroups);
+            $horizontalPoulesCreator->qualifyGroup->setNumber($qualifyGroupNumber++);
+            $horizontalPoulesCreators[] = $horizontalPoulesCreator;
+            $newNrOfPlacesChildren -= $horizontalPoulesCreator->nrOfQualifiers;
         }
         $horPoules = array_slice( $round->getHorizontalPoules($winnersOrLosers), 0);
-        $this->updateQualifyGroupsHorizontalPoules($horPoules, $horizontolPoulesCreators);
+        $this->updateQualifyGroupsHorizontalPoules($horPoules, $horizontalPoulesCreators);
 
-        foreach( $horizontolPoulesCreators as $creator ) {
+        foreach( $horizontalPoulesCreators as $creator ) {
             $newNrOfPoules = $this->calculateNewNrOfPoules($creator->qualifyGroup, $creator->nrOfQualifiers);
             $this->updateRound($creator->qualifyGroup->getChildRound(), $creator->nrOfQualifiers, $newNrOfPoules);
         }
@@ -357,10 +370,10 @@ class Service {
 
     /**
      * @param array $roundHorizontalPoules | HorizontolPoule[]
-     * @param array $horizontolPoulesCreators | HorizontolPoulesCreator[]
+     * @param array $horizontalPoulesCreators | HorizontolPoulesCreator[]
      */
-    protected function updateQualifyGroupsHorizontalPoules(array $roundHorizontalPoules, array $horizontolPoulesCreators ) {
-        foreach( $horizontolPoulesCreators as $creator ) {
+    protected function updateQualifyGroupsHorizontalPoules(array $roundHorizontalPoules, array $horizontalPoulesCreators ) {
+        foreach( $horizontalPoulesCreators as $creator ) {
             $horizontalPoules = &$creator->qualifyGroup->getHorizontalPoules();
             $horizontalPoules = [];
             $qualifiersAdded = 0;

@@ -36,8 +36,8 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $rootRound = $structure->getRootRound();
 
-        for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::WINNERS); }
-        for ($i = 1; $i < 4; $i++) { $structureService->addQualifier($rootRound, QualifyGroup::LOSERS); }
+        $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
+        $structureService->addQualifiers($rootRound, QualifyGroup::LOSERS, 4);
 
         $secondRoundNumberName = $nameService->getRoundNumberName($firstRoundNumber->getNext());
         // all equal
@@ -50,135 +50,101 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $newSecondRoundNumberName = $nameService->getRoundNumberName($firstRoundNumber->getNext());
         $this->assertSame($newSecondRoundNumberName, '2<sup>de</sup> ronde');
     }
+
+    public function testRoundName()
+    {
+        $nameService = new NameService();
+        $competition = createCompetition();
+
+        // root needs no ranking, unequal depth
+        {
+            $structureService = new StructureService();
+            $structure = $structureService->create($competition, 4, 2);
+            $rootRound = $structure->getRootRound();
+
+            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+            $this->assertSame($nameService->getRoundName($rootRound), '1<sup>ste</sup> ronde');
+
+            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+            $this->assertSame($nameService->getRoundName($rootRound), '&frac12; finale');
+        }
+
+        // root needs ranking
+        {
+            $structureService2 = new StructureService();
+            $structure2 = $structureService2->create($competition, 16, 4);
+            $rootRound2 = $structure2->getRootRound();
+
+            $this->assertSame($nameService->getRoundName($rootRound2), '1<sup>ste</sup> ronde');
+
+            $structureService2->addQualifiers($rootRound2, QualifyGroup::WINNERS, 3);
+
+            $this->assertSame($nameService->getRoundName($rootRound2->getChild(QualifyGroup::WINNERS, 1)), '2<sup>de</sup> ronde');
+        }
+    }
+
+    public function testRoundNameHtmlFractialNumber()
+    {
+        $nameService = new NameService();
+        $competition = createCompetition();
+
+        // root needs ranking, depth 2
+        {
+            $structureService = new StructureService();
+            $structure = $structureService->create($competition, 16, 8);
+            $rootRound = $structure->getRootRound();
+
+            $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 8);
+
+            $winnersChildRound = $rootRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
+
+            $structureService->addQualifiers($winnersChildRound, QualifyGroup::WINNERS, 4);
+
+            $structureService->addQualifiers($rootRound, QualifyGroup::LOSERS, 8);
+
+            $losersChildRound = $rootRound->getBorderQualifyGroup(QualifyGroup::LOSERS)->getChildRound();
+
+            $structureService->addQualifiers($losersChildRound, QualifyGroup::LOSERS, 4);
+
+            $this->assertSame($nameService->getRoundName($rootRound), '&frac14; finale');
+
+            $doubleWinnersChildRound = $winnersChildRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
+            $structureService->addQualifier($doubleWinnersChildRound, QualifyGroup::WINNERS);
+
+            $doubleLosersChildRound = $losersChildRound->getBorderQualifyGroup(QualifyGroup::LOSERS)->getChildRound();
+            $structureService->addQualifier($doubleLosersChildRound, QualifyGroup::LOSERS);
+
+            $number = 8;
+            $this->assertSame($nameService->getRoundName($rootRound), '<span style="font-size: 80%"><sup>1</sup>&frasl;<sub>' . $number . '</sub></span> finale');
+
+            $losersFinal = $doubleLosersChildRound->getBorderQualifyGroup(QualifyGroup::LOSERS)->getChildRound();
+            $this->assertSame($nameService->getRoundName($losersFinal), '15<sup>de</sup>/16<sup>de</sup>' . ' plaats');
+        }
+    }
+
+    public function testPouleName()
+    {
+        $nameService = new NameService();
+        $competition = createCompetition();
+
+        // basics
+        {
+            $structureService = new StructureService();
+            $structure = $structureService->create($competition, 89, 30);
+            $rootRound = $structure->getRootRound();
+
+            $this->assertSame($nameService->getPouleName($rootRound->getPoule(1), false), 'A');
+            $this->assertSame($nameService->getPouleName($rootRound->getPoule(1), true), 'poule A');
+
+            $this->assertSame($nameService->getPouleName($rootRound->getPoule(27), false), 'AA');
+            $this->assertSame($nameService->getPouleName($rootRound->getPoule(27), true), 'poule AA');
+
+            $this->assertSame($nameService->getPouleName($rootRound->getPoule(30), false), 'AD');
+            $this->assertSame($nameService->getPouleName($rootRound->getPoule(30), true), 'wed. AD');
+        }
+    }
 }
 
-
-
-
-
-
-//
-//    it('round name, roundAndParentsNeedsRanking no ranking', () => {
-//
-//        const nameService = new NameService();
-//
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
-//
-//        // root needs no ranking, unequal depth
-//        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 4, 2);
-//            const rootRound = structure.getRootRound();
-//
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//            expect(nameService.getRoundName(rootRound)).to.equal('1<sup>ste</sup> ronde');
-//
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//
-//            expect(nameService.getRoundName(rootRound)).to.equal('&frac12; finale');
-//        }
-//
-//        // root needs ranking
-//        {
-//            const structureService2 = new StructureService();
-//            const structure2 = structureService2.create(competition, 16, 4);
-//            const rootRound2 = structure2.getRootRound();
-//
-//            expect(nameService.getRoundName(rootRound2)).to.equal('1<sup>ste</sup> ronde');
-//
-//            // child needs ranking
-//            structureService2.addQualifier(rootRound2, QualifyGroup.WINNERS);
-//            structureService2.addQualifier(rootRound2, QualifyGroup.WINNERS);
-//
-//            expect(nameService.getRoundName(rootRound2.getChild(QualifyGroup.WINNERS, 1))).to.equal('2<sup>de</sup> ronde');
-//        }
-//
-//    });
-//
-//    it('round name, htmlFractialNumber', () => {
-//
-//        const nameService = new NameService();
-//
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
-//
-//
-//
-//        // root needs ranking, depth 2
-//        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 16, 8);
-//            const rootRound = structure.getRootRound();
-//
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//            const winnersChildRound = rootRound.getBorderQualifyGroup(QualifyGroup.WINNERS).getChildRound();
-//
-//            structureService.addQualifier(winnersChildRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(winnersChildRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(winnersChildRound, QualifyGroup.WINNERS);
-//
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//
-//            const losersChildRound = rootRound.getBorderQualifyGroup(QualifyGroup.LOSERS).getChildRound();
-//
-//            structureService.addQualifier(losersChildRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(losersChildRound, QualifyGroup.LOSERS);
-//            structureService.addQualifier(losersChildRound, QualifyGroup.LOSERS);
-//
-//            expect(nameService.getRoundName(rootRound)).to.equal('&frac14; finale');
-//
-//            const doubleWinnersChildRound = winnersChildRound.getBorderQualifyGroup(QualifyGroup.WINNERS).getChildRound();
-//            structureService.addQualifier(doubleWinnersChildRound, QualifyGroup.WINNERS);
-//
-//            const doubleLosersChildRound = losersChildRound.getBorderQualifyGroup(QualifyGroup.LOSERS).getChildRound();
-//            structureService.addQualifier(doubleLosersChildRound, QualifyGroup.LOSERS);
-//
-//            const number = 8;
-//            expect(nameService.getRoundName(rootRound)).to.equal('<span style="font-size: 80%"><sup>1</sup>&frasl;<sub>' + number + '</sub></span> finale');
-//
-//            const losersFinal = doubleLosersChildRound.getBorderQualifyGroup(QualifyGroup.LOSERS).getChildRound();
-//            expect(nameService.getRoundName(losersFinal)).to.equal('15<sup>de</sup>' + '/' + '16<sup>de</sup>' + ' plaats');
-//        }
-//    });
-//
-//    it('poule name', () => {
-//
-//        const nameService = new NameService();
-//
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
-//
-//        // basics
-//        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 89, 30);
-//            const rootRound = structure.getRootRound();
-//
-//            expect(nameService.getPouleName(rootRound.getPoule(1), false)).to.equal('A');
-//            expect(nameService.getPouleName(rootRound.getPoule(1), true)).to.equal('poule A');
-//
-//            expect(nameService.getPouleName(rootRound.getPoule(27), false)).to.equal('AA');
-//            expect(nameService.getPouleName(rootRound.getPoule(27), true)).to.equal('poule AA');
-//
-//            expect(nameService.getPouleName(rootRound.getPoule(30), false)).to.equal('AD');
-//            expect(nameService.getPouleName(rootRound.getPoule(30), true)).to.equal('wed. AD');
-//        }
-//    });
 //
 //    it('place name', () => {
 //

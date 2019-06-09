@@ -205,8 +205,11 @@ class Round
         return $this->qualifyGroups->removeElement($qualifyGroup);
     }
 
-    public function clearQualifyGroups() {
-        $this->qualifyGroups->clear();
+    public function clearQualifyGroups(int $winnersOrLosers) {
+        $qualifyGroupsToRemove = $this->getQualifyGroups($winnersOrLosers);
+        foreach( $qualifyGroupsToRemove as $qualifyGroupToRemove) {
+            $this->qualifyGroups->removeElement($qualifyGroupToRemove);
+        }
     }
 
 
@@ -229,9 +232,10 @@ class Round
 //    }
 
     public function getQualifyGroup(int $winnersOrLosers, int $qualifyGroupNumber): QualifyGroup {
-        return $this->getQualifyGroups($winnersOrLosers)->filter(function( $qualifyGroup ) use ($qualifyGroupNumber) {
+        $qualifyGroup = $this->getQualifyGroups($winnersOrLosers)->filter(function( $qualifyGroup ) use ($qualifyGroupNumber) {
             return $qualifyGroup->getNumber() === $qualifyGroupNumber;
         })->last();
+        return $qualifyGroup === false ? null : $qualifyGroup;
     }
 
     public function getBorderQualifyGroup(int $winnersOrLosers): ?QualifyGroup {
@@ -252,7 +256,7 @@ class Round
     public function getChildren(): array {
         return array_map( function( $qualifyGroup ) {
             return $qualifyGroup->getChildRound();
-        }, $this->getQualifyGroups() );
+        }, $this->getQualifyGroups()->toArray() );
 
     }
 
