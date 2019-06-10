@@ -58,6 +58,7 @@ class Referee
     private function setCompetition( Competition $competition )
     {
         $this->competition = $competition;
+        $this->competition->getReferees()->add($this);
     }
 
     /**

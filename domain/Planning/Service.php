@@ -8,6 +8,7 @@
 
 namespace Voetbal\Planning;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Config;
@@ -39,13 +40,14 @@ class Service
     }
 
     public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array {
-        if( count( $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER) ) > 0 ) {
-            throw new \Exception("cannot create games, games already exist", E_ERROR );
-        }
+//        if( count( $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER) ) > 0 ) {
+//            throw new \Exception("cannot create games, games already exist", E_ERROR );
+//        }
         if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
             $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
 
+        $this->removeNumber($roundNumber);
         return $this->createHelper($roundNumber, $startDateTime);
     }
 
@@ -64,7 +66,7 @@ class Service
                     $subNumber = 1;
                     foreach( $gameRound->getCombinations() as $combination ) {
                         $game = new Game( $poule,  $headToHeadNumber + $gameRound->getNumber(), $subNumber ++);
-                        $game->setPlaces($combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/));
+                        $game->setPlaces(new ArrayCollection($combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/)));
                         $games[] = $game;
                     }
                 }
@@ -248,5 +250,14 @@ class Service
             return true;
         }
         return $dateOne->format('Y-m-d') === $dateTwo->format('Y-m-d');
+    }
+
+    protected function removeNumber(RoundNumber $roundNumber) {
+        $rounds = $roundNumber->getRounds();
+        foreach( $rounds as $round ) {
+            foreach( $round->getPoules() as $poule ) {
+                $poule->getGames()->clear();
+            }
+        }
     }
 }

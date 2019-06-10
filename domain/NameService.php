@@ -148,7 +148,7 @@ class NameService
         return $name;
     }
 
-    public function getRefereeName(Game $game, ?bool $longName): string {
+    public function getRefereeName(Game $game, bool $longName = null): string {
         if ($game->getReferee() !== null) {
             return $longName ? $game->getReferee()->getName() : $game->getReferee()->getInitials();
         }

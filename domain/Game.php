@@ -380,7 +380,7 @@ class Game implements External\Importable
      * @param bool|null $homeaway
      * @return CommonCollection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null )
+    public function getPlaces( bool $homeaway = null ): ArrayCollection
     {
         if ($homeaway === null) {
             return $this->places;
@@ -391,7 +391,7 @@ class Game implements External\Importable
     /**
      * @param ArrayCollection | GamePlace[] $places
      */
-    public function setPlaces($places)
+    public function setPlaces(ArrayCollection $places)
     {
         $this->places = $places;
     }
