@@ -15,7 +15,11 @@ use JMS\Serializer\GraphNavigatorInterface;
 use Voetbal\Game;
 use JMS\Serializer\Handler\HandlerRegistry;
 
+use Voetbal\SerializationHandler\Round as RoundSerializationHandler;
+use Voetbal\SerializationHandler\Qualify\Group as QualifyGroupSerializationHandler;
 use Voetbal\SerializationHandler\Round\Number as RoundNumberSerializationHandler;
+use Voetbal\SerializationHandler\Config as ConfigSerializationHandler;
+use Voetbal\SerializationHandler\Structure as StructureSerializationHandler;
 
 function getSerializer(): \JMS\Serializer\Serializer {
     $apiVersion = 2;
@@ -37,7 +41,10 @@ function getSerializer(): \JMS\Serializer\Serializer {
     $serializerBuilder->addMetadataDir(__DIR__.'/../../serialization/yml','Voetbal');
 
     $serializerBuilder->configureHandlers(function(JMS\Serializer\Handler\HandlerRegistry $registry) {
+            $registry->registerSubscribingHandler(new StructureSerializationHandler());
             $registry->registerSubscribingHandler(new RoundNumberSerializationHandler());
+            $registry->registerSubscribingHandler(new RoundSerializationHandler());
+            $registry->registerSubscribingHandler(new QualifyGroupSerializationHandler());
         });
 
     $serializerBuilder->addDefaultHandlers();

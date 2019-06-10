@@ -22,7 +22,7 @@ class Service
         foreach ($places as $place) {
             $competitor = $place->getCompetitor();
             if ($competitor !== null) {
-                $newCompetitor = new Competitor($competitor->getName(), $association);
+                $newCompetitor = new Competitor($association, $competitor->getName() );
                 $newCompetitor->setAbbreviation($competitor->getAbbreviation());
                 $newCompetitor->setImageUrl($competitor->getImageUrl());
                 $newCompetitor->setInfo($competitor->getInfo());

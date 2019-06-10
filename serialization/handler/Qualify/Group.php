@@ -2,11 +2,11 @@
 /**
  * Created by PhpStorm.
  * User: coen
- * Date: 5-6-19
- * Time: 21:17
+ * Date: 9-6-19
+ * Time: 14:10
  */
 
-namespace Voetbal\SerializationHandler\Round;
+namespace Voetbal\SerializationHandler\Qualify;
 
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigatorInterface;
@@ -16,9 +16,7 @@ use JMS\Serializer\Context;
 use Voetbal\Round\Number as RoundNumberBase;
 
 
-use Voetbal\Round\Number as RoundNumber;
-
-class Number implements SubscribingHandlerInterface
+class Group implements SubscribingHandlerInterface
 {
     public static function getSubscribingMethods()
     {
@@ -32,7 +30,7 @@ class Number implements SubscribingHandlerInterface
             [
                 'direction' => GraphNavigatorInterface::DIRECTION_DESERIALIZATION,
                 'format' => 'json',
-                'type' => 'Voetbal\Round\Number',
+                'type' => 'Voetbal\Qualify\Group',
                 'method' => 'deserializeFromJson',
             ],
         ];
@@ -40,24 +38,24 @@ class Number implements SubscribingHandlerInterface
 
     public function deserializeFromJson(JsonDeserializationVisitor $visitor, $arrRoundNumber, array $type, Context $context)
     {
-        $roundNumber = new RoundNumberBase( $type["params"]["competition"], $arrRoundNumber["previous"] );
-        if( array_key_exists( "id", $arrRoundNumber) ) {
-            $roundNumber->setId($arrRoundNumber["id"]);
-        }
-
-        $metadataConfig = new StaticPropertyMetadata('Voetbal\Config', "config", $arrRoundNumber["config"] );
-        $metadataConfig->setType(['name' => 'Voetbal\Config', "params" => [ "roundnumber" => $roundNumber]]);
-        $roundNumber->setConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
-
-        if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null )
-        {
-            $arrRoundNumber["next"]["previous"] = $roundNumber;
-            $metadataNext = new StaticPropertyMetadata('Voetbal\Round\Number', "next", $arrRoundNumber["next"] );
-            $metadataNext->setType(['name' => 'Voetbal\Round\Number', "params" => [ "competition" => $roundNumber->getCompetition()]] );
-            $next = $visitor->visitProperty($metadataNext, $arrRoundNumber);
-        }
-
-        return $roundNumber;
+//        $roundNumber = new RoundNumberBase( $type["params"]["competition"], $arrRoundNumber["previous"] );
+//        if( array_key_exists( "id", $arrRoundNumber) ) {
+//            $roundNumber->setId($arrRoundNumber["id"]);
+//        }
+//
+//        $metadataConfig = new StaticPropertyMetadata('Voetbal\Config', "config", $arrRoundNumber["config"] );
+//        $metadataConfig->setType(['name' => 'Voetbal\Config', "params" => [ "roundnumber" => $roundNumber]]);
+//        $roundNumber->setConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
+//
+//        if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null )
+//        {
+//            $arrRoundNumber["next"]["previous"] = $roundNumber;
+//            $metadataNext = new StaticPropertyMetadata('Voetbal\Round\Number', "next", $arrRoundNumber["next"] );
+//            $metadataNext->setType(['name' => 'Voetbal\Round\Number', "params" => [ "competition" => $roundNumber->getCompetition()]] );
+//            $next = $visitor->visitProperty($metadataNext, $arrRoundNumber);
+//        }
+//
+//        return $roundNumber;
     }
 
 

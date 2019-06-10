@@ -85,7 +85,7 @@ final class Competitor
                 throw new \Exception("er kan geen deelnemer worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competitor = new CompetitorBase( $competitorSer->getName(), $association );
+            $competitor = new CompetitorBase( $association, $competitorSer->getName() );
             $competitor->setAbbreviation($competitorSer->getAbbreviation());
             $competitor->setRegistered($competitorSer->getRegistered());
             $competitor->setImageUrl($competitorSer->getImageUrl());

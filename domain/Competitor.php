@@ -46,10 +46,10 @@ class Competitor implements External\Importable
 
     use External\ImportableTrait;
 
-    public function __construct( $name, Association $association )
+    public function __construct( Association $association, string $name )
     {
-        $this->setName( $name );
         $this->setAssociation( $association );
+        $this->setName( $name );
         $this->setRegistered(false);
     }
 

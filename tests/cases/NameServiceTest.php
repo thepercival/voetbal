@@ -11,6 +11,7 @@ namespace Voetbal\Tests;
 include_once __DIR__ . '/../data/CompetitionCreator.php';
 
 use Voetbal\NameService;
+use Voetbal\Competitor;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Qualify\Group as QualifyGroup;
 
@@ -143,153 +144,146 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $this->assertSame($nameService->getPouleName($rootRound->getPoule(30), true), 'wed. AD');
         }
     }
+
+    public function testPlaceName()
+    {
+        $nameService = new NameService();
+        $competition = createCompetition();
+
+        // basics
+        {
+            $structureService = new StructureService();
+            $structure = $structureService->create($competition, 3);
+            $rootRound = $structure->getRootRound();
+
+            $firstPlace = $rootRound->getFirstPlace(QualifyGroup::WINNERS);
+            $competitor = new Competitor($competition->getLeague()->getAssociation(), 'competitor 1');
+            $firstPlace->setCompetitor($competitor);
+
+            $this->assertSame($nameService->getPlaceName($firstPlace, false, false), 'A1');
+            $this->assertSame($nameService->getPlaceName($firstPlace, true, false), 'competitor 1');
+            $this->assertSame($nameService->getPlaceName($firstPlace, false, true), 'poule A nr. 1');
+            $this->assertSame($nameService->getPlaceName($firstPlace, true, true), 'competitor 1');
+
+            $lastPlace = $rootRound->getFirstPlace(QualifyGroup::LOSERS);
+
+            $this->assertSame($nameService->getPlaceName($lastPlace), 'A3');
+            $this->assertSame($nameService->getPlaceName($lastPlace, true, false), 'A3');
+            $this->assertSame($nameService->getPlaceName($lastPlace, false, true), 'poule A nr. 3');
+            $this->assertSame($nameService->getPlaceName($lastPlace, true, true), 'poule A nr. 3');
+        }
+    }
+
+    public function testPlaceFromName()
+    {
+        $nameService = new NameService();
+        $competition = createCompetition();
+
+        // basics
+        {
+            $structureService = new StructureService();
+            $structure = $structureService->create($competition, 9, 3);
+            $rootRound = $structure->getRootRound();
+
+            $firstPlace = $rootRound->getFirstPlace(QualifyGroup::WINNERS);
+            $competitor = new Competitor($competition->getLeague()->getAssociation(), 'competitor 1');
+            $firstPlace->setCompetitor($competitor);
+
+            $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
+
+            $this->assertSame($nameService->getPlaceFromName($firstPlace, false, false), 'A1');
+            $this->assertSame($nameService->getPlaceFromName($firstPlace, true, false), 'competitor 1');
+            $this->assertSame($nameService->getPlaceFromName($firstPlace, false, true), 'poule A nr. 1');
+            $this->assertSame($nameService->getPlaceFromName($firstPlace, true, true), 'competitor 1');
+
+            $lastPlace = $rootRound->getFirstPlace(QualifyGroup::LOSERS);
+
+            $this->assertSame($nameService->getPlaceFromName($lastPlace, false, false), 'C3');
+            $this->assertSame($nameService->getPlaceFromName($lastPlace, true, false), 'C3');
+            $this->assertSame($nameService->getPlaceFromName($lastPlace, false, true), 'poule C nr. 3');
+            $this->assertSame($nameService->getPlaceFromName($lastPlace, true, true), 'poule C nr. 3');
+
+
+            $winnersChildRound = $rootRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
+            $winnersLastPlace = $winnersChildRound->getPoule(1)->getPlace(2);
+
+            $this->assertSame($nameService->getPlaceFromName($winnersLastPlace, false, false),'?2');
+            $this->assertSame($nameService->getPlaceFromName($winnersLastPlace, false, true),'beste nummer 2');
+
+            $winnersFirstPlace = $winnersChildRound->getPoule(1)->getPlace(1);
+
+            $this->assertSame($nameService->getPlaceFromName($winnersFirstPlace, false, false),'A1');
+            $this->assertSame($nameService->getPlaceFromName($winnersFirstPlace, false, true),'poule A nr. 1');
+
+            $structureService->addQualifier($winnersChildRound, QualifyGroup::WINNERS);
+            $doubleWinnersChildRound = $winnersChildRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
+
+            $doubleWinnersFirstPlace = $doubleWinnersChildRound->getPoule(1)->getPlace(1);
+
+            $this->assertSame($nameService->getPlaceFromName($doubleWinnersFirstPlace, false, false),'D1');
+            $this->assertSame($nameService->getPlaceFromName($doubleWinnersFirstPlace, false, true),'winnaar D');
+
+            $structureService->addQualifier($winnersChildRound, QualifyGroup::LOSERS);
+            $winnersLosersChildRound = $winnersChildRound->getBorderQualifyGroup(QualifyGroup::LOSERS)->getChildRound();
+
+            $winnersLosersFirstPlace = $winnersLosersChildRound->getPoule(1)->getPlace(1);
+
+            $this->assertSame($nameService->getPlaceFromName($winnersLosersFirstPlace, false),'D2');
+            $this->assertSame($nameService->getPlaceFromName($winnersLosersFirstPlace, false, true),'verliezer D');
+        }
+    }
+
+    public function testPlacesFromName()
+    {
+        $nameService = new NameService();
+        $competition = createCompetition();
+
+        // basics
+        {
+            $structureService = new StructureService();
+            $structure = $structureService->create($competition, 3, 1);
+            $rootRound = $structure->getRootRound();
+
+            $firstPlace = $rootRound->getFirstPlace(QualifyGroup::WINNERS);
+            $competitor = new Competitor($competition->getLeague()->getAssociation(), 'competitor 1');
+            $firstPlace->setCompetitor($competitor);
+
+            $planningService = new PlanningService($competition);
+            $planningService->create($rootRound->getNumber());
+
+            $game = $rootRound->getGames()[0];
+            $gamePlaces = $game->getPlaces();
+
+            $this->assertSame($nameService->getPlacesFromName($gamePlaces, false, false),'A2 & A3');
+        }
+    }
 }
 
 //
-//    it('place name', () => {
-//
-//        const nameService = new NameService();
-//
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
-//
-//        // basics
-//        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 3);
-//            const rootRound = structure.getRootRound();
-//
-//            const firstPlace = rootRound.getFirstPlace(QualifyGroup.WINNERS);
-//            const competitor = new Competitor(competition.getLeague().getAssociation(), 'competitor 1');
-//            firstPlace.setCompetitor(competitor);
-//
-//            expect(nameService.getPlaceName(firstPlace, false, false)).to.equal('A1');
-//            expect(nameService.getPlaceName(firstPlace, true, false)).to.equal('competitor 1');
-//            expect(nameService.getPlaceName(firstPlace, false, true)).to.equal('poule A nr. 1');
-//            expect(nameService.getPlaceName(firstPlace, true, true)).to.equal('competitor 1');
-//
-//            const lastPlace = rootRound.getFirstPlace(QualifyGroup.LOSERS);
-//
-//            expect(nameService.getPlaceName(lastPlace)).to.equal('A3');
-//            expect(nameService.getPlaceName(lastPlace, true, false)).to.equal('A3');
-//            expect(nameService.getPlaceName(lastPlace, false, true)).to.equal('poule A nr. 3');
-//            expect(nameService.getPlaceName(lastPlace, true, true)).to.equal('poule A nr. 3');
-//        }
-//    });
-//
-//    it('place fromname', () => {
-//
-//        const nameService = new NameService();
-//
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
-//
-//        // basics
-//        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 9, 3);
-//            const rootRound = structure.getRootRound();
-//
-//            const firstPlace = rootRound.getFirstPlace(QualifyGroup.WINNERS);
-//            const competitor = new Competitor(competition.getLeague().getAssociation(), 'competitor 1');
-//            firstPlace.setCompetitor(competitor);
-//
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//            expect(nameService.getPlaceFromName(firstPlace, false, false)).to.equal('A1');
-//            expect(nameService.getPlaceFromName(firstPlace, true, false)).to.equal('competitor 1');
-//            expect(nameService.getPlaceFromName(firstPlace, false, true)).to.equal('poule A nr. 1');
-//            expect(nameService.getPlaceFromName(firstPlace, true, true)).to.equal('competitor 1');
-//
-//            const lastPlace = rootRound.getFirstPlace(QualifyGroup.LOSERS);
-//
-//            expect(nameService.getPlaceFromName(lastPlace, false, false)).to.equal('C3');
-//            expect(nameService.getPlaceFromName(lastPlace, true, false)).to.equal('C3');
-//            expect(nameService.getPlaceFromName(lastPlace, false, true)).to.equal('poule C nr. 3');
-//            expect(nameService.getPlaceFromName(lastPlace, true, true)).to.equal('poule C nr. 3');
-//
-//            const winnersChildRound = rootRound.getBorderQualifyGroup(QualifyGroup.WINNERS).getChildRound();
-//            const winnersLastPlace = winnersChildRound.getPoule(1).getPlace(2);
-//
-//            expect(nameService.getPlaceFromName(winnersLastPlace, false, false)).to.equal('?2');
-//            expect(nameService.getPlaceFromName(winnersLastPlace, false, true)).to.equal('beste nummer 2');
-//
-//            const winnersFirstPlace = winnersChildRound.getPoule(1).getPlace(1);
-//
-//            expect(nameService.getPlaceFromName(winnersFirstPlace, false, false)).to.equal('A1');
-//            expect(nameService.getPlaceFromName(winnersFirstPlace, false, true)).to.equal('poule A nr. 1');
-//
-//            structureService.addQualifier(winnersChildRound, QualifyGroup.WINNERS);
-//            const doubleWinnersChildRound = winnersChildRound.getBorderQualifyGroup(QualifyGroup.WINNERS).getChildRound();
-//
-//            const doubleWinnersFirstPlace = doubleWinnersChildRound.getPoule(1).getPlace(1);
-//
-//            expect(nameService.getPlaceFromName(doubleWinnersFirstPlace, false, false)).to.equal('D1');
-//            expect(nameService.getPlaceFromName(doubleWinnersFirstPlace, false, true)).to.equal('winnaar D');
-//
-//            structureService.addQualifier(winnersChildRound, QualifyGroup.LOSERS);
-//            const winnersLosersChildRound = winnersChildRound.getBorderQualifyGroup(QualifyGroup.LOSERS).getChildRound();
-//
-//            const winnersLosersFirstPlace = winnersLosersChildRound.getPoule(1).getPlace(1);
-//
-//            expect(nameService.getPlaceFromName(winnersLosersFirstPlace, false)).to.equal('D2');
-//            expect(nameService.getPlaceFromName(winnersLosersFirstPlace, false, true)).to.equal('verliezer D');
-//        }
-//    });
-//
-//    it('places fromname', () => {
-//
-//        const nameService = new NameService();
-//
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
-//
-//        // basics
-//        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 3, 1);
-//            const rootRound = structure.getRootRound();
-//
-//            const firstPlace = rootRound.getFirstPlace(QualifyGroup.WINNERS);
-//            const competitor = new Competitor(competition.getLeague().getAssociation(), 'competitor 1');
-//            firstPlace.setCompetitor(competitor);
-//
-//            const planningService = new PlanningService(competition);
-//            planningService.create(rootRound.getNumber());
-//
-//            const game = rootRound.getGames()[0];
-//            const gamePlaces = game.getPlaces();
-//
-//            expect(nameService.getPlacesFromName(gamePlaces, false, false)).to.equal('A2 & A3');
-//        }
-//    });
-//
 //    it('horizontalpoule name', () => {
 //
-//        const nameService = new NameService();
+//        $nameService = new NameService();
 //
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
+//        $competitionMapper = getMapper('competition');
+//        $competition = competitionMapper.toObject(jsonCompetition);
 //
 //        // basics
 //        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 12, 3);
-//            const rootRound = structure.getRootRound();
+//            $structureService = new StructureService();
+//            $structure = structureService.create(competition, 12, 3);
+//            $rootRound = structure.getRootRound();
 //
-//            const firstWinnersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[0];
-//            expect(nameService.getHorizontalPouleName(firstWinnersHorPoule)).to.equal('nummers 1');
+//            $firstWinnersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[0];
+//            expect(nameService.getHorizontalPouleName(firstWinnersHorPoule),'nummers 1');
 //
 //            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
 //            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
 //
-//            const firstWinnersHorPoule2 = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[0];
-//            expect(nameService.getHorizontalPouleName(firstWinnersHorPoule2)).to.equal('2 beste nummers 1');
+//            $firstWinnersHorPoule2 = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[0];
+//            expect(nameService.getHorizontalPouleName(firstWinnersHorPoule2),'2 beste nummers 1');
 //
-//            const firstLosersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[0];
-//            expect(nameService.getHorizontalPouleName(firstLosersHorPoule)).to.equal('2 slechtste nummers laatste');
+//            $firstLosersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[0];
+//            expect(nameService.getHorizontalPouleName(firstLosersHorPoule),'2 slechtste nummers laatste');
 //
 //            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
 //            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
@@ -297,79 +291,79 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 //            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
 //            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
 //
-//            const firstWinnersHorPoule3 = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[0];
-//            expect(nameService.getHorizontalPouleName(firstWinnersHorPoule3)).to.equal('nummers 1');
+//            $firstWinnersHorPoule3 = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[0];
+//            expect(nameService.getHorizontalPouleName(firstWinnersHorPoule3),'nummers 1');
 //
-//            const firstLosersHorPoule3 = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[0];
-//            expect(nameService.getHorizontalPouleName(firstLosersHorPoule3)).to.equal('nummers laatste');
+//            $firstLosersHorPoule3 = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[0];
+//            expect(nameService.getHorizontalPouleName(firstLosersHorPoule3),'nummers laatste');
 //
-//            const secondWinnersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[1];
-//            expect(nameService.getHorizontalPouleName(secondWinnersHorPoule)).to.equal('beste nummer 2');
+//            $secondWinnersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[1];
+//            expect(nameService.getHorizontalPouleName(secondWinnersHorPoule),'beste nummer 2');
 //
-//            const secondLosersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[1];
-//            expect(nameService.getHorizontalPouleName(secondLosersHorPoule)).to.equal('slechtste 1 na laatst');
+//            $secondLosersHorPoule = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[1];
+//            expect(nameService.getHorizontalPouleName(secondLosersHorPoule),'slechtste 1 na laatst');
 //
 //
 //            structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//            const secondWinnersHorPoule2 = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[1];
-//            expect(nameService.getHorizontalPouleName(secondWinnersHorPoule2)).to.equal('2 beste nummers 2');
+//            $secondWinnersHorPoule2 = rootRound.getHorizontalPoules(QualifyGroup.WINNERS)[1];
+//            expect(nameService.getHorizontalPouleName(secondWinnersHorPoule2),'2 beste nummers 2');
 //
 //            structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//            const secondLosersHorPoule2 = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[1];
-//            expect(nameService.getHorizontalPouleName(secondLosersHorPoule2)).to.equal('2 slechtste nummers 1 na laatst');
+//            $secondLosersHorPoule2 = rootRound.getHorizontalPoules(QualifyGroup.LOSERS)[1];
+//            expect(nameService.getHorizontalPouleName(secondLosersHorPoule2),'2 slechtste nummers 1 na laatst');
 //        }
 //    });
 //
 //    it('referee name', () => {
 //
-//        const nameService = new NameService();
+//        $nameService = new NameService();
 //
-//        const competitionMapper = getMapper('competition');
-//        const competition = competitionMapper.toObject(jsonCompetition);
+//        $competitionMapper = getMapper('competition');
+//        $competition = competitionMapper.toObject(jsonCompetition);
 //
 //        // basics
 //        {
-//            const structureService = new StructureService();
-//            const structure = structureService.create(competition, 3, 1);
-//            const rootRound = structure.getRootRound();
+//            $structureService = new StructureService();
+//            $structure = structureService.create(competition, 3, 1);
+//            $rootRound = structure.getRootRound();
 //
-//            const firstPlace = rootRound.getFirstPlace(QualifyGroup.WINNERS);
-//            const competitor = new Competitor(competition.getLeague().getAssociation(), 'competitor 1');
+//            $firstPlace = rootRound.getFirstPlace(QualifyGroup.WINNERS);
+//            $competitor = new Competitor(competition.getLeague().getAssociation(), 'competitor 1');
 //            firstPlace.setCompetitor(competitor);
 //
-//            const referee = new Referee(competition, 'CDK');
+//            $referee = new Referee(competition, 'CDK');
 //            referee.setName('Co Du');
 //
-//            const planningService = new PlanningService(competition);
+//            $planningService = new PlanningService(competition);
 //            planningService.create(rootRound.getNumber());
 //
-//            const game = rootRound.getGames()[0];
+//            $game = rootRound.getGames()[0];
 //
-//            expect(nameService.getRefereeName(game)).to.equal('CDK');
-//            expect(nameService.getRefereeName(game, false)).to.equal('CDK');
-//            expect(nameService.getRefereeName(game, true)).to.equal('Co Du');
+//            expect(nameService.getRefereeName(game),'CDK');
+//            expect(nameService.getRefereeName(game, false),'CDK');
+//            expect(nameService.getRefereeName(game, true),'Co Du');
 //
 //            rootRound.getNumber().getConfig().setSelfReferee(true);
 //            planningService.create(rootRound.getNumber());
 //
-//            const gameSelf = rootRound.getGames()[0];
+//            $gameSelf = rootRound.getGames()[0];
 //
-//            expect(nameService.getRefereeName(gameSelf)).to.equal('competitor 1');
-//            expect(nameService.getRefereeName(gameSelf, false)).to.equal('competitor 1');
-//            expect(nameService.getRefereeName(gameSelf, true)).to.equal('competitor 1');
+//            expect(nameService.getRefereeName(gameSelf),'competitor 1');
+//            expect(nameService.getRefereeName(gameSelf, false),'competitor 1');
+//            expect(nameService.getRefereeName(gameSelf, true),'competitor 1');
 //
-//            const gameSelfLast = rootRound.getGames()[2];
+//            $gameSelfLast = rootRound.getGames()[2];
 //
-//            expect(nameService.getRefereeName(gameSelfLast)).to.equal('A2');
-//            expect(nameService.getRefereeName(gameSelfLast, false)).to.equal('A2');
-//            expect(nameService.getRefereeName(gameSelfLast, true)).to.equal('poule A nr. 2');
+//            expect(nameService.getRefereeName(gameSelfLast),'A2');
+//            expect(nameService.getRefereeName(gameSelfLast, false),'A2');
+//            expect(nameService.getRefereeName(gameSelfLast, true),'poule A nr. 2');
 //
-//            const gameSelfMiddle = rootRound.getGames()[1];
+//            $gameSelfMiddle = rootRound.getGames()[1];
 //            gameSelfMiddle.setRefereePlace(undefined);
 //
-//            expect(nameService.getRefereeName(gameSelfMiddle)).to.equal(undefined);
-//            expect(nameService.getRefereeName(gameSelfMiddle, false)).to.equal(undefined);
-//            expect(nameService.getRefereeName(gameSelfMiddle, true)).to.equal(undefined);
+//            expect(nameService.getRefereeName(gameSelfMiddle),undefined);
+//            expect(nameService.getRefereeName(gameSelfMiddle, false),undefined);
+//            expect(nameService.getRefereeName(gameSelfMiddle, true),undefined);
 //        }
 //    });
 
