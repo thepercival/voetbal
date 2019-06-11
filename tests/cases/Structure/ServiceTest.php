@@ -30,7 +30,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
         $structureService->addQualifiers($rootRound, QualifyGroup::LOSERS, 4);
 
-        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
+        foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
             $childRound = $rootRound->getBorderQualifyGroup($winnersOrLosers)->getChildRound();
             $structureService->addQualifier($childRound, QualifyGroup::WINNERS);
             $structureService->addQualifier($childRound, QualifyGroup::LOSERS);
@@ -41,19 +41,19 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultPoules()
     {
-        $structureService = new StructureService( new CompetitorRange( 3, 40 ));
+        $structureService = new StructureService(new CompetitorRange(3, 40));
 
-        $this->assertSame($structureService->getDefaultNrOfPoules(3),1);
-        $this->assertSame($structureService->getDefaultNrOfPoules(40),8);
-        
+        $this->assertSame($structureService->getDefaultNrOfPoules(3), 1);
+        $this->assertSame($structureService->getDefaultNrOfPoules(40), 8);
+
         $structureService2 = new StructureService();
-        $this->assertSame($structureService2->getDefaultNrOfPoules(2),1);
-        $this->assertSame($structureService2->getDefaultNrOfPoules(41),8);
+        $this->assertSame($structureService2->getDefaultNrOfPoules(2), 1);
+        $this->assertSame($structureService2->getDefaultNrOfPoules(41), 8);
     }
 
     public function testDefaultPoulesOutOfRange1()
     {
-        $structureService = new StructureService( new CompetitorRange( 3, 40 ));
+        $structureService = new StructureService(new CompetitorRange(3, 40));
 
         $this->expectException(\Exception::class);
         $structureService->getDefaultNrOfPoules(2);
@@ -61,7 +61,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultPoulesOutOfRange2()
     {
-        $structureService = new StructureService( new CompetitorRange( 3, 40 ));
+        $structureService = new StructureService(new CompetitorRange(3, 40));
 
         $this->expectException(\Exception::class);
         $structureService->getDefaultNrOfPoules(41);
@@ -105,7 +105,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = createCompetition();
 
-        $structureService = new StructureService( new CompetitorRange(3, 40 ));
+        $structureService = new StructureService(new CompetitorRange(3, 40));
         $structure = $structureService->create($competition, 36, 6);
         $rootRound = $structure->getRootRound();
 
@@ -115,152 +115,164 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addPoule($rootRound, true);
     }
 
-//
-//    it('minumum number of qualifiers', () => {
-//    $competitionMapper = getMapper('competition');
-//    $competition = competitionMapper.toObject(jsonCompetition);
-//
-//    $structureService = new StructureService();
-//    $structure = structureService.create(competition, 4, 2);
-//    $rootRound = structure.getRootRound();
-//
-//    structureService.addPlaceToRootRound(rootRound);
-//    structureService.addPlaceToRootRound(rootRound);
-//
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//    structureService.addQualifier(rootRound, QualifyGroup.LOSERS);
-//
-//    expect(() => structureService.removePlaceFromRootRound(rootRound)).to.not.throw(Error);
-//        expect(() => structureService.removePlaceFromRootRound(rootRound)).to.throw(Error);
-//
-//        structureService.addPlaceToRootRound(rootRound);
-//
-//        structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//        structureService.removeQualifier(rootRound, QualifyGroup.LOSERS);
-//
-//        expect(() => structureService.removePoule(rootRound, true)).to.throw(Error);
-//    });
-//
-//    it('maximal number of qualifiers', () => {
-//    $competitionMapper = getMapper('competition');
-//    $competition = competitionMapper.toObject(jsonCompetition);
-//
-//    $structureService = new StructureService();
-//    $structure = structureService.create(competition, 4, 2);
-//    $rootRound = structure.getRootRound();
-//
-//    expect(() => structureService.addQualifier(rootRound, QualifyGroup.WINNERS)).to.not.throw(Error);
-//        expect(() => structureService.addQualifier(rootRound, QualifyGroup.WINNERS)).to.not.throw(Error);
-//        expect(() => structureService.addQualifier(rootRound, QualifyGroup.WINNERS)).to.not.throw(Error);
-//
-//        structureService.removeQualifier(rootRound, QualifyGroup.WINNERS);
-//        structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//        expect(() => structureService.addQualifier(rootRound, QualifyGroup.WINNERS)).to.throw(Error);
-//    });
-//
-//    it('qualifiers available', () => {
-//    $competitionMapper = getMapper('competition');
-//    $competition = competitionMapper.toObject(jsonCompetition);
-//
-//    $structureService = new StructureService();
-//    $structure = structureService.create(competition, 8, 2);
-//    $rootRound = structure.getRootRound();
-//
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//    expect(() => structureService.removePoule(rootRound, true)).to.not.throw(Error);
-//        expect(() => structureService.removePoule(rootRound, true)).to.throw(Error);
-//    });
-//
-//    it('competitor range', () => {
-//    $competitionMapper = getMapper('competition');
-//    $competition = competitionMapper.toObject(jsonCompetition);
-//
-//    $structureService = new StructureService({ min: 3, max: 40 });
-//        $structure = structureService.create(competition, 3, 1);
-//        $rootRound = structure.getRootRound();
-//
-//        expect(() => structureService.removePlaceFromRootRound(rootRound)).to.throw(Error);
-//
-//        $structure2 = structureService.create(competition, 40, 4);
-//        $rootRound2 = structure2.getRootRound();
-//
-//        expect(() => structureService.addPlaceToRootRound(rootRound2)).to.throw(Error);
-//    });
-//
-//    it('remove poule next round', () => {
-//    $competitionMapper = getMapper('competition');
-//    $competition = competitionMapper.toObject(jsonCompetition);
-//
-//    $structureService = new StructureService();
-//    $structure = structureService.create(competition, 6);
-//    $rootRound = structure.getRootRound();
-//    structureService.addPoule(rootRound, true);
-//
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//    $childRound = rootRound.getBorderQualifyGroup(QualifyGroup.WINNERS).getChildRound();
-//
-//    expect(() => structureService.removePoule(childRound)).to.not.throw(Error);
-//        expect(() => structureService.addPoule(childRound)).to.not.throw(Error);
-//        expect(() => structureService.removePoule(childRound)).to.not.throw(Error);
-//
-//        expect(childRound.getPoules().length,1);
-//        expect(childRound.getNrOfPlaces(),4);
-//    });
-//
-//    it('qualifygroup unsplittable winners 332', () => {
-//
-//    $competitionMapper = getMapper('competition');
-//    $competition = competitionMapper.toObject(jsonCompetition);
-//
-//    $structureService = new StructureService();
-//    $structure = structureService.create(competition, 8, 3);
-//    $rootRound = structure.getRootRound();
-//
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//    {
-//        $borderQualifyGroup = rootRound.getBorderQualifyGroup(QualifyGroup.WINNERS);
-//        $horPoules = borderQualifyGroup.getHorizontalPoules();
-//
-//        expect(horPoules.length,2);
-//
-//        expect(structureService.isQualifyGroupSplittable(null, horPoules[0]),false);
-//        expect(structureService.isQualifyGroupSplittable(null, horPoules[1]),false);
-//        expect(structureService.isQualifyGroupSplittable(horPoules[0], horPoules[1]),false);
-//        expect(() => structureService.splitQualifyGroup(borderQualifyGroup, null, horPoules[0])).to.throw(Error);
-//            expect(() => structureService.splitQualifyGroup(borderQualifyGroup, null, horPoules[1])).to.throw(Error);
-//            expect(() => structureService.splitQualifyGroup(borderQualifyGroup, horPoules[2], horPoules[1])).to.throw(Error);
-//        }
-//
-//    structureService.addQualifier(rootRound, QualifyGroup.WINNERS);
-//
-//    {
-//        $borderQualifyGroup = rootRound.getBorderQualifyGroup(QualifyGroup.WINNERS);
-//        $horPoules = borderQualifyGroup.getHorizontalPoules();
-//
-//        expect(horPoules.length,2);
-//
-//        expect(structureService.isQualifyGroupSplittable(null, horPoules[0]),false);
-//        expect(structureService.isQualifyGroupSplittable(null, horPoules[1]),false);
-//        expect(structureService.isQualifyGroupSplittable(horPoules[0], horPoules[1]),true);
-//        expect(() => structureService.splitQualifyGroup(borderQualifyGroup, null, horPoules[0])).to.throw(Error);
-//            expect(() => structureService.splitQualifyGroup(borderQualifyGroup, null, horPoules[1])).to.throw(Error);
-//            expect(() => structureService.splitQualifyGroup(borderQualifyGroup, horPoules[0], horPoules[1])).to.not.throw(Error);
-//        }
+    public function testMinimumNrOfQualifiers()
+    {
+        $competition = createCompetition();
+
+        $structureService = new StructureService();
+        $structure = $structureService->create($competition, 4, 2);
+        $rootRound = $structure->getRootRound();
+
+        $structureService->addPlaceToRootRound($rootRound);
+        $structureService->addPlaceToRootRound($rootRound);
+
+        $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+        $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+
+        $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+
+        $structureService->removePlaceFromRootRound($rootRound);
+        try {
+            $structureService->removePlaceFromRootRound($rootRound);
+            $this->assertSame(true, false);
+        } catch (\Exception $e) {
+        }
+
+        $structureService->addPlaceToRootRound($rootRound);
+
+        $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+        $structureService->removeQualifier($rootRound, QualifyGroup::LOSERS);
+
+        $this->expectException(\Exception::class);
+        $structureService->removePoule($rootRound, true);
+    }
+
+    public function testMaximumNrOfQualifiers()
+    {
+        $competition = createCompetition();
+
+        $structureService = new StructureService();
+        $structure = $structureService->create($competition, 4, 2);
+        $rootRound = $structure->getRootRound();
+
+        $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
+
+        $structureService->removeQualifier($rootRound, QualifyGroup::WINNERS);
+        $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+
+        $this->expectException(\Exception::class);
+        $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+    }
+
+    public function testQualifiersAvailable()
+    {
+        $competition = createCompetition();
+
+        $structureService = new StructureService();
+        $structure = $structureService->create($competition, 8, 2);
+        $rootRound = $structure->getRootRound();
+
+        $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
+
+
+        $structureService->removePoule($rootRound, true);
+
+
+        $this->expectException(\Exception::class);
+        $structureService->removePoule($rootRound, true);
+    }
+
+
+    public function testCompetitorRangeMinimum()
+    {
+        $competition = createCompetition();
+
+        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structure = $structureService->create($competition, 3, 1);
+        $rootRound = $structure->getRootRound();
+
+        $this->expectException(\Exception::class);
+        $structureService->removePlaceFromRootRound($rootRound);
+    }
+
+    public function testCompetitorRangeMaximum()
+    {
+        $competition = createCompetition();
+
+        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structure = $structureService->create($competition, 40, 4);
+        $rootRound = $structure->getRootRound();
+
+        $this->expectException(\Exception::class);
+        $structureService->addPlaceToRootRound($rootRound);
+    }
+
+    public function testRemovePouleNextRound()
+    {
+        $competition = createCompetition();
+
+        $structureService = new StructureService();
+        $structure = $structureService->create($competition, 6);
+        $rootRound = $structure->getRootRound();
+
+        $structureService->addPoule($rootRound, true);
+
+        $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
+
+        $childRound = $rootRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
+
+        $structureService->removePoule($childRound);
+        $structureService->addPoule($childRound);
+        $structureService->removePoule($childRound);
+
+        $this->assertSame($childRound->getPoules()->count(), 1);
+        $this->assertSame($childRound->getNrOfPlaces(), 4);
+    }
+
+    public function testQualifyGroupSplittableWinners332()
+    {
+        $competition = createCompetition();
+
+        $structureService = new StructureService();
+        $structure = $structureService->create($competition, 8, 3);
+        $rootRound = $structure->getRootRound();
+
+        $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
+        {
+            $borderQualifyGroup = $rootRound->getBorderQualifyGroup(QualifyGroup::WINNERS);
+            $horPoules = $borderQualifyGroup->getHorizontalPoules();
+
+            $this->assertSame(count($horPoules), 2);
+
+            $this->assertSame($structureService->isQualifyGroupSplittable($horPoules[0], $horPoules[1]), false);
+
+            try {
+                $structureService->splitQualifyGroup($borderQualifyGroup, $horPoules[2], $horPoules[1]);
+                $this->assertSame(true, false);
+            } catch (\Exception $e) {
+            }
+        }
+
+        $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+
+        {
+            $borderQualifyGroup = $rootRound->getBorderQualifyGroup(QualifyGroup::WINNERS);
+            $horPoules = $borderQualifyGroup->getHorizontalPoules();
+
+            $this->assertSame(count($horPoules), 2);
+
+            $this->assertSame($structureService->isQualifyGroupSplittable($horPoules[0], $horPoules[1]), true);
+
+            $structureService->splitQualifyGroup($borderQualifyGroup, $horPoules[0], $horPoules[1]);
+        }
+    }
+
+
+
+
 //});
 //
-//    it('qualifygroup (un)splittable losers 332', () => {
+//    it('qualifygroup Splittable losers 332', () => {
 //
 //    $competitionMapper = getMapper('competition');
 //    $competition = competitionMapper.toObject(jsonCompetition);

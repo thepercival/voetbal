@@ -178,7 +178,7 @@ class Service {
     }
 
     public function isQualifyGroupSplittable(HorizontalPoule $previous, HorizontalPoule $current ): bool {
-        if (!$previous || !$previous->getQualifyGroup() || $previous->getQualifyGroup() !== $current->getQualifyGroup()) {
+        if (!$previous->getQualifyGroup() || $previous->getQualifyGroup() !== $current->getQualifyGroup()) {
             return false;
         }
         if ($current->isBorderPoule() && $current->getNrOfQualifiers() < 2) {
