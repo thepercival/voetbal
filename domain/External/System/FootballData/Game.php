@@ -234,16 +234,10 @@ class Game implements GameImporter
 
             $scores = $externalSystemGame->score;
             if( property_exists ( $scores, "halfTime" ) ) {
-                $gameScoreHalfTime = new GameScore( $game );
-                $gameScoreHalfTime->setNumber( GameBase::MOMENT_HALFTIME );
-                $gameScoreHalfTime->setHome( $scores->halfTime->homeTeam );
-                $gameScoreHalfTime->setAway( $scores->halfTime->awayTeam );
+                new GameScore( $game, $scores->halfTime->homeTeam, $scores->halfTime->awayTeam, GameBase::MOMENT_HALFTIME );
             }
             if( property_exists ( $scores, "fullTime" ) ) {
-                $gameScoreHalfTime = new GameScore( $game );
-                $gameScoreHalfTime->setNumber( GameBase::MOMENT_FULLTIME );
-                $gameScoreHalfTime->setHome( $scores->fullTime->homeTeam );
-                $gameScoreHalfTime->setAway( $scores->fullTime->awayTeam );
+                new GameScore( $game, $scores->fullTime->homeTeam, $scores->fullTime->awayTeam, GameBase::MOMENT_FULLTIME );
             }
 
             // set qualifiers for next round

@@ -53,7 +53,7 @@ class Service
      * @param Poule|null $filterPoule
      * @return array | Place[]
      */
-    public function setQualifiers(?Poule $filterPoule): array
+    public function setQualifiers(Poule $filterPoule = null): array
     {
         $changedPlaces = [];
 

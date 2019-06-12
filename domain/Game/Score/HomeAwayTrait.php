@@ -26,7 +26,7 @@ trait HomeAwayTrait
     /**
      * @return int
      */
-    public function getHome()
+    public function getHome(): int
     {
         return $this->home;
     }
@@ -34,11 +34,8 @@ trait HomeAwayTrait
     /**
      * @param int $home
      */
-    public function setHome($home)
+    public function setHome(int $home)
     {
-        if ($home === null or !is_int($home)) {
-            throw new \InvalidArgumentException("thuis-score heeft een onjuiste waarde", E_ERROR);
-        }
         /*$scoreConfig = $this->getGame() ? $this->getGame()->getConfig()->getInputScore() : null;
         if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($home < 0 ) {
@@ -51,7 +48,7 @@ trait HomeAwayTrait
     /**
      * @return int
      */
-    public function getAway()
+    public function getAway(): int
     {
         return $this->away;
     }
@@ -59,11 +56,8 @@ trait HomeAwayTrait
     /**
      * @param int $away
      */
-    public function setAway($away)
+    public function setAway( int $away)
     {
-        if ($away === null or !is_int($away)) {
-            throw new \InvalidArgumentException("uit-score heeft een onjuiste waarde", E_ERROR);
-        }
         /*$scoreConfig = $this->getGame() ? $this->getGame()->getConfig()->getInputScore() : null;
         if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
             if ($away < 0 ) {
@@ -73,8 +67,8 @@ trait HomeAwayTrait
         $this->away = $away;
     }
 
-    public function get(bool $homeAway): int
-    {
-        return $homeAway === Game::HOME ? $this->getHome() : $this->getAway();
-    }
+//    public function get(bool $homeAway): int
+//    {
+//        return $homeAway === Game::HOME ? $this->getHome() : $this->getAway();
+//    }
 }

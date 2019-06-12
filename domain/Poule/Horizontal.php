@@ -100,11 +100,11 @@ class Horizontal {
         }
     }
 
-    public function getQualifyRuleMultiple(): QualifyRuleMultiple {
+    public function getQualifyRuleMultiple(): ?QualifyRuleMultiple {
         return $this->multipleRule;
     }
 
-    public function setQualifyRuleMultiple(?QualifyRuleMultiple $multipleRule) {
+    public function setQualifyRuleMultiple(QualifyRuleMultiple $multipleRule = null ) {
         foreach( $this->getPlaces() as $place ) {
             $place->setToQualifyRule($this->getWinnersOrLosers(), $multipleRule);
         }

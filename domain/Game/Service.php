@@ -47,12 +47,8 @@ class Service
      */
     public function addScores( Game $game, array $newGameScores )
     {
-        $count = 0;
         foreach( $newGameScores as $newGameScore ) {
-            $gameScore = new GameScore( $game );
-            $gameScore->setNumber( ++$count );
-            $gameScore->setHome( $newGameScore->getHome() );
-            $gameScore->setAway( $newGameScore->getAway() );
+            new GameScore( $game, $newGameScore->getHome(), $newGameScore->getAway() );
         }
     }
 }

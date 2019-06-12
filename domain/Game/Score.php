@@ -30,9 +30,15 @@ class Score
     const SCORED = 1;
     const RECEIVED = 2;
 
-    public function __construct( Game $game )
+    public function __construct( Game $game, int $home, int $away, int $number = null )
     {
+        $this->setHome( $home );
+        $this->setAway( $away );
         $this->setGame( $game );
+        if ($number === null) {
+            $number = $game->getScores()->count();
+        }
+        $this->setNumber($number);
     }
 
     /**

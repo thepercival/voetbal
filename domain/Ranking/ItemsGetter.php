@@ -53,7 +53,7 @@ class ItemsGetter {
             }
             $finalScore = $game->getFinalScore();
             foreach( [Game::HOME, Game::AWAY] as $homeAway ) {
-                $points = $this->getNrOfPoints($finalScore, $game->getScoresMoment(), $homeAway);
+                $points = $this->getNrOfPoints($finalScore, $homeAway, $game->getScoresMoment());
                 $scored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED, false);
                 $received = $this->getNrOfUnits($finalScore, $homeAway, GameScore::RECEIVED, false);
                 $subScored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED, true);
@@ -76,7 +76,7 @@ class ItemsGetter {
         return $items;
     }
 
-    private function getNrOfPoints(?GameScoreHomeAway $finalScore, int $scoresMoment, bool $homeAway): int {
+    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoresMoment): int {
         $points = 0;
         if ($finalScore === null) {
             return $points;

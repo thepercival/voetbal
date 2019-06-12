@@ -93,10 +93,10 @@ class Service {
      * @return array | RankedRoundItem[]
      */
     public function getItemsForPoule(Poule $poule ): array {
-        if ($this->cache[$poule->getNumber()] === null) {
+        if ( array_key_exists( $poule->getNumber(), $this->cache) === false) {
             $round = $poule->getRound();
             $getter = new ItemsGetter($round, $this->gameStates);
-            $unrankedItems = $getter->getUnrankedItems($poule->getPlaces(), $poule->getGames());
+            $unrankedItems = $getter->getUnrankedItems($poule->getPlaces()->toArray(), $poule->getGames()->toArray());
             $rankedItems = $this->rankItems($unrankedItems, true);
             $this->cache[$poule->getNumber()] = $rankedItems;
         }
