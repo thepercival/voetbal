@@ -34,8 +34,8 @@ class Service
         if ($idx < 0) {
             throw new \Exception('de horizontale poule kan niet gevonden worden', E_ERROR );
         }
-        $splittedPoules = array_slice($horizontalPoules,0,$idx);
-        $horizontalPoules = array_slice($horizontalPoules,$idx);
+        $splittedPoules = array_slice($horizontalPoules, $idx);
+        $horizontalPoules = array_slice($horizontalPoules,0,$idx);
         $round = $qualifyGroup->getRound();
         $newNrOfQualifiers = count($horizontalPoules) * $round->getPoules()->count();
         $newNrOfPoules = $this->structureService->calculateNewNrOfPoules($qualifyGroup, $newNrOfQualifiers);

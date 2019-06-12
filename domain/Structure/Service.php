@@ -271,7 +271,7 @@ class Service {
         if ($roundNrOfPlaces < 4 && $newNrOfPlacesChildren >= 2) {
             $newNrOfPlacesChildren = 0;
         }
-        $getNewQualifyGroup = function(ArrayCollection $removedQualifyGroups) use ($round,$winnersOrLosers,$newNrOfPlacesChildren) : HorizontolPouleCreator {
+        $getNewQualifyGroup = function(ArrayCollection $removedQualifyGroups) use ($round,$winnersOrLosers,&$newNrOfPlacesChildren) : HorizontolPouleCreator {
             $qualifyGroup = $removedQualifyGroups->first();
             $nrOfQualifiers = 0;
             if ($qualifyGroup === false) {

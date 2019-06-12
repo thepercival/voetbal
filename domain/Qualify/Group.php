@@ -121,18 +121,11 @@ class Group
     }
 
     protected function insertRoundAt(Round $round, int $insertAt) {
-
-        // $qualifyGroups = &$round->getQualifyGroups($this->getWinnersOrLosers());
         $qualifyGroups = $round->getQualifyGroups($this->getWinnersOrLosers());
-//        $partOne = $qualifyGroups->slice(0, $insertAt );
-//        $partTwo = $qualifyGroups->slice($insertAt);
-//        $qualifyGroups = new ArrayCollection( array_merge( $partOne, [$this], $partTwo) );
-
-        // should sort auto?
         if( $round !== null and !$qualifyGroups->contains( $this ) ) {
             $round->addQualifyGroup( $this );
+            // sort auto because of sort-config in db-yml
         }
-
         $this->round = $round;
     }
 

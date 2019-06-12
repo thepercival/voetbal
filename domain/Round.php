@@ -336,12 +336,16 @@ class Round
         return $this->losersHorizontalPoules;
     }
 
-    protected function getFirstHorizontalPoule(int $winnersOrLosers): HorizontalPoule {
-        return reset($this->getHorizontalPoules($winnersOrLosers));
+    public function getHorizontalPoule(int $winnersOrLosers, int $number): ?HorizontalPoule {
+        $foundHorPoules = array_filter( $this->getHorizontalPoules($winnersOrLosers), function ( $horPoule ) use ($number) {
+            return $horPoule->getNumber() === $number;
+        });
+        $first = reset($foundHorPoules );
+        return $first ? $first : null;
     }
 
     public function getFirstPlace(int $winnersOrLosers): Place {
-        return $this->getFirstHorizontalPoule($winnersOrLosers)->getFirstPlace();
+        return $this->getHorizontalPoule($winnersOrLosers, 1)->getFirstPlace();
     }
 
     /**
