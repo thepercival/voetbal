@@ -345,6 +345,7 @@ class Service {
                     }
                 }
             }
+            return $bestItems;
         };
 
         $this->rankFunctions[Service::BestUnitDifference] = function (array $items) use ($bestDifference) : array {

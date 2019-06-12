@@ -28,7 +28,11 @@ function setScoreSingle(Poule $poule, int $homePlaceNr, int $awayPlaceNr, int $h
     $foundGame = $foundGames->first();
     $newHomeGoals = $foundGame->getHomeAway($homePlace) === Game::HOME ? $homeGoals : $awayGoals;
     $newAwayGoals = $foundGame->getHomeAway($awayPlace) === Game::AWAY ? $awayGoals : $homeGoals;
+
     $foundGame->getScores()->add(new GameScore($foundGame, $newHomeGoals, $newAwayGoals));
+
+    $moment = $state === State::Finished ? Game::MOMENT_FULLTIME : Game::MOMENT_HALFTIME;
+    $foundGame->setScoresMoment( $moment );
 
     $foundGame->setState($state ? $state : State::Finished);
 }
