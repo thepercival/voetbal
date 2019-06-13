@@ -32,7 +32,7 @@
   "autoload": {
     "psr-4": {
       "Voetbal\\": "domain/",
-      "Voetbal\\Action\\": "actions/",
+      "Voetbal\\App\\": "app/",
       "Voetbal\\SerializationHandler\\": "serialization/handler"
     }
   },

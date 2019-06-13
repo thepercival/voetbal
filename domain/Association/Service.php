@@ -18,15 +18,17 @@ class Service
 	{
 	}
 
-    public function changeParent( Association $association, Association $parentAssociation )
+    public function changeParent( Association $association, Association $parentAssociation = null )
     {
         $descendants = $this->getDescendants($association);
         $descendants[$association->getId()] = $association;
-        $ancestors = $this->getAncestors($parentAssociation);
-        $ancestors[$parentAssociation->getId()] = $parentAssociation;
-        foreach( $ancestors as $ancestor ) {
-            if( array_key_exists( $ancestor->getId(), $descendants ) ) {
-                throw new \Exception("er ontstaat een circulaire relatie tussen de bonden", E_ERROR );
+        if( $parentAssociation !== null ) {
+            $ancestors = $this->getAncestors($parentAssociation);
+            $ancestors[$parentAssociation->getId()] = $parentAssociation;
+            foreach( $ancestors as $ancestor ) {
+                if( array_key_exists( $ancestor->getId(), $descendants ) ) {
+                    throw new \Exception("er ontstaat een circulaire relatie tussen de bonden", E_ERROR );
+                }
             }
         }
         $association->setParent($parentAssociation);

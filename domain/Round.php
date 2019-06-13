@@ -111,7 +111,7 @@ class Round
      *
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -119,7 +119,7 @@ class Round
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId( int $id = null )
     {
         $this->id = $id;
     }

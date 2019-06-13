@@ -66,7 +66,7 @@ class Season implements External\Importable
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId( int $id = null )
     {
         $this->id = $id;
     }

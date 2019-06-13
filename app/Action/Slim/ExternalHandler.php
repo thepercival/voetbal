@@ -6,7 +6,7 @@
  * Time: 9:04
  */
 
-namespace Voetbal\Action\Slim;
+namespace Voetbal\App\Action\Slim;
 
 use Voetbal;
 use Slim\Container as SlimContainer;

@@ -112,7 +112,7 @@ class Game implements External\Importable
      *
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -120,7 +120,7 @@ class Game implements External\Importable
     /**
      * @param int $id
      */
-    public function setId( $id )
+    public function setId( int $id = null )
     {
         $this->id = $id;
     }

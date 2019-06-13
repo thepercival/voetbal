@@ -66,7 +66,7 @@ class Association implements External\Importable // extends External\Importable
 	 *
 	 * @return int
 	 */
-	public function getId(): int
+	public function getId(): ?int
 	{
 		return $this->id;
 	}
@@ -74,7 +74,7 @@ class Association implements External\Importable // extends External\Importable
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId( int $id = null )
     {
         $this->id = $id;
     }
@@ -89,9 +89,9 @@ class Association implements External\Importable // extends External\Importable
 	 */
 	public function setName( $name )
 	{
-		if ( $name === null )
+		if ( $name === null ) {
 			throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
-
+        }
 		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
 			throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
 		}

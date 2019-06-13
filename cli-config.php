@@ -5,7 +5,7 @@ use Symfony\Component\Yaml\Yaml;
 
 require 'vendor/autoload.php';
 
-$settings = include 'db/settings.php';
+$settings = include 'conf/settings.php';
 $settings = $settings['settings']['doctrine'];
 
 // this one parses constants
@@ -18,7 +18,7 @@ class CustomYamlDriver extends Doctrine\ORM\Mapping\Driver\YamlDriver
 }
 
 $config = \Doctrine\ORM\Tools\Setup::createConfiguration(
-	$settings['meta']['auto_generate_proxies'],
+	$settings['meta']['dev_mode'],
 	$settings['meta']['proxy_dir'],
 	$settings['meta']['cache']
 );

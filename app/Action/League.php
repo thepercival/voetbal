@@ -6,7 +6,7 @@
  * Time: 21:49
  */
 
-namespace Voetbal\Action;
+namespace Voetbal\App\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\League as LeagueBase;
@@ -63,7 +63,6 @@ final class League
 
 	public function add( $request, $response, $args)
 	{
-        $sErrorMessage = null;
         try {
             /** @var \Voetbal\League $leagueSer */
             $leagueSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\League', 'json');
@@ -71,7 +70,7 @@ final class League
                 throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $association = $this->associationRepos->find($leagueSer->getAssociation()->getId());
+            $association = $this->associationRepos->find($request->getParam("associationid"));
             if ( $association === null ) {
                 throw new \Exception("de bond kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
@@ -88,9 +87,8 @@ final class League
             ;
         }
         catch( \Exception $e ){
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
-        return $response->withStatus(404)->write( $sErrorMessage );
 	}
 
 	public function edit( $request, $response, $args)
@@ -103,9 +101,18 @@ final class League
                 throw new \Exception("er kan geen competitie worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $league = $this->repos->find($leagueSer->getId());
+            $association = $this->associationRepos->find($request->getParam("associationid"));
+            if ( $association === null ) {
+                throw new \Exception("de bond kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
+
+            $league = $this->repos->find($args['id']);
             if ( $league === null ) {
                 throw new \Exception("de competitie kon niet gevonden worden o.b.v. de invoer", E_ERROR);
+            }
+
+            if ( $league->getAssociation() !== $association ) {
+                throw new \Exception("de bond van de competitie komt niet overeen met de paramter-bond", E_ERROR);
             }
 
             $league->setName($leagueSer->getName());
@@ -127,17 +134,12 @@ final class League
 	public function remove( $request, $response, $args)
 	{
 		$league = $this->repos->find($args['id']);
-		$sErrorMessage = null;
 		try {
 			$this->repos->remove($league);
-
-			return $response
-				->withStatus(201);
-			;
+			return $response->withStatus(204);
 		}
 		catch( \Exception $e ){
-			$sErrorMessage = $e->getMessage();
+            return $response->withStatus(404, $e->getMessage() );
 		}
-		return $response->withStatus(404, $sErrorMessage );
 	}
 }

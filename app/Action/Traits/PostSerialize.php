@@ -6,7 +6,7 @@
  * Time: 16:00
  */
 
-namespace Voetbal\Action\Traits;
+namespace Voetbal\App\Action\Traits;
 
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Place;

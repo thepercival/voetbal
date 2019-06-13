@@ -11,8 +11,8 @@ namespace Voetbal\External;
 
 interface Importable
 {
-    public function getId(): int;
-    public function setId( int $id );
+    public function getId(): ?int;
+    public function setId( int $id = null );
 }
 
 //class Importable

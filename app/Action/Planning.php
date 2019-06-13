@@ -6,7 +6,7 @@
  * Time: 14:04
  */
 
-namespace Voetbal\Action;
+namespace Voetbal\App\Action;
 
 use Doctrine\ORM\EntityManager;
 use JMS\Serializer\Serializer;

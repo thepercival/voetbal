@@ -48,7 +48,7 @@ class Field
      *
      * @return int
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
@@ -56,7 +56,7 @@ class Field
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId( int $id = null )
     {
         $this->id = $id;
     }
