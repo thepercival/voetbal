@@ -156,7 +156,7 @@ class Service {
         return reset($foundItems );
     }
 
-    public function getCompetitor(PlaceLocation $placeLocation ): Competitor {
+    public function getCompetitor(PlaceLocation $placeLocation ): ?Competitor {
         return $this->round->getPoule($placeLocation->getPouleNr())->getPlace($placeLocation->getPlaceNr())->getCompetitor();
     }
 
@@ -309,7 +309,7 @@ class Service {
             }, $items);
             $poule = $places[0]->getPoule();
             $round = $poule->getRound();
-            $games = $getGamesBetweenEachOther($places, $poule->getGames());
+            $games = $getGamesBetweenEachOther($places, $poule->getGames()->toArray());
             if (count($games) === 0) {
                 return $items;
             }
