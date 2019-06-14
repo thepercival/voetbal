@@ -48,7 +48,7 @@ final class Competitor
         $associationid = (int) $request->getParam("associationid");
         $association = $this->associationRepos->find($associationid);
         if ( $association === null ) {
-            throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            throw new \Exception("er kan geen bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
         $filters = array( "association" => $association );
         $competitors = $this->repos->findBy( $filters );
@@ -76,7 +76,7 @@ final class Competitor
             $associationid = (int) $request->getParam("associationid");
             $association = $this->associationRepos->find($associationid);
             if ( $association === null ) {
-                throw new \Exception("er kan bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
             /** @var \Voetbal\Competitor $competitorSer */
@@ -120,11 +120,11 @@ final class Competitor
             $this->repos->save($competitor);
 
             return $response
-                ->withStatus(200)
+                ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($competitor, 'json'));
         } catch (\Exception $e) {
-            $response->withStatus(422)->write($e->getMessage());
+            $response->withStatus(401)->write($e->getMessage());
         }
     }
 
