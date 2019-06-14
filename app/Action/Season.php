@@ -89,13 +89,13 @@ final class Season
                 throw new \Exception("er kan geen seizoen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $season = $this->repos->find($seasonSer->getId());
+            $season = $this->repos->find($args['id']);
             if ( $season === null ) {
-                throw new \Exception("de naam van het seizoen wordt al gebruikt", E_ERROR);
+                throw new \Exception("het seizoen kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
             $seasonWithSameName = $this->repos->findOneBy( array( 'name' => $seasonSer->getName() ) );
-            if ( $seasonWithSameName !== null and $season->getId() !== $seasonWithSameName->getId() ){
+            if ( $seasonWithSameName !== null and $season !== $seasonWithSameName ){
                 throw new \Exception("het seizoen ".$seasonSer->getName()." bestaat al", E_ERROR );
             }
 
@@ -123,7 +123,7 @@ final class Season
 			$this->repos->remove($season);
 
 			return $response
-				->withStatus(201);
+				->withStatus(204);
 			;
 		}
 		catch( \Exception $e ){

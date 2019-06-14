@@ -41,6 +41,28 @@ final class Referee
         $this->serializer = $serializer;
     }
 
+    public function fetch( $request, $response, $args)
+    {
+        $objects = $this->repos->findAll();
+        return $response
+            ->withHeader('Content-Type', 'application/json;charset=utf-8')
+            ->write( $this->serializer->serialize( $objects, 'json') );
+        ;
+
+    }
+
+    public function fetchOne( $request, $response, $args)
+    {
+        $object = $this->repos->find($args['id']);
+        if ($object) {
+            return $response
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $object, 'json'));
+            ;
+        }
+        return $response->withStatus(404)->write('geen seizoen met het opgegeven id gevonden');
+    }
+
     public function add($request, $response, $args)
     {
         try {
@@ -107,11 +129,11 @@ final class Referee
 
             $this->repos->save( $referee );
             return $response
-                ->withStatus(200)
+                ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($referee, 'json', SerializationContext::create()->setGroups($serGroups)));
         } catch (\Exception $e) {
-            return $response->withStatus(400)->write($e->getMessage());
+            return $response->withStatus(401)->write($e->getMessage());
         }
     }
 

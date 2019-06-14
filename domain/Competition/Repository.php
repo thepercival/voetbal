@@ -34,7 +34,7 @@ class Repository extends \Voetbal\Repository
     public function findExt( League $league, Season $season )
     {
         $query = $this->createQueryBuilder('c')
-            ->where('c.season>= :season')
+            ->where('c.season = :season')
             ->andWhere('c.league = :league');
         $query = $query->setParameter('season', $season);
         $query = $query->setParameter('league', $league);

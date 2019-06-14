@@ -88,17 +88,17 @@ final class Competition
             $seasonid = (int) $request->getParam("seasonid");
             $season = $this->seasonRepos->find($seasonid);
             if ( $season === null ) {
-                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen seizoen worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
             /** @var \Voetbal\Competition $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
             if ( $competitionSer === null ) {
-                throw new \Exception("er kan geen ompetitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
             $sameCompetition = $this->repos->findExt( $league, $season );
-            if ( $sameCompetition !== null ){
+            if ( $sameCompetition !== false ){
                 throw new \Exception("de competitie bestaat al", E_ERROR );
             }
 
@@ -125,7 +125,7 @@ final class Competition
                 throw new \Exception("er kan competitieseizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $competition = $this->repos->find($competitionSer->getId());
+            $competition = $this->repos->find($args['id']);
             if ( $competition === null ) {
                 throw new \Exception("het competitieseizoen kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
@@ -149,7 +149,7 @@ final class Competition
 		$competition = $this->repos->find($args['id']);
 		try {
 			$this->repos->remove($competition);
-			return $response->withStatus(200);
+			return $response->withStatus(204);
 		}
 		catch( \Exception $e ){
             return $response->withStatus(404, $e->getMessage() );

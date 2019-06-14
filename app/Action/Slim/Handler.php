@@ -77,7 +77,6 @@ class Handler
                 $serializer);
         } elseif ($resourceType === 'seasons') {
             $action = new Voetbal\App\Action\Season(
-                $voetbalservice->getService(Voetbal\Season::class),
                 $voetbalservice->getRepository(Voetbal\Season::class),
                 $serializer);
         } elseif ($resourceType === 'leagues') {
@@ -136,7 +135,6 @@ class Handler
         } elseif ($resourceType === 'referees') {
             $action = new Voetbal\App\Action\Referee(
                 $voetbalservice->getRepository(Voetbal\Referee::class),
-                $voetbalservice->getService(Voetbal\Referee::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
