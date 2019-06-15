@@ -1,15 +1,14 @@
 <?php
 
-use FCToernooi\Token;
-use Gofabian\Negotiation\NegotiationMiddleware;
-use Tuupola\Middleware\JwtAuthentication;
-use Tuupola\Middleware\CorsMiddleware;
-use App\Response\Unauthorized;
-use App\Middleware\Authentication;
 use \JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\DeserializationContext;
-use FCToernooi\Auth\JWT\TournamentRule;
+
+use Voetbal\SerializationHandler\Round as RoundSerializationHandler;
+use Voetbal\SerializationHandler\Qualify\Group as QualifyGroupSerializationHandler;
+use Voetbal\SerializationHandler\Round\Number as RoundNumberSerializationHandler;
+// use Voetbal\SerializationHandler\Config as ConfigSerializationHandler;
+use Voetbal\SerializationHandler\Structure as StructureSerializationHandler;
 
 $app->add(function ( $request,  $response, callable $next) use ( $container ){
     $apiVersion = $request->getHeaderLine('X-Api-Version');
@@ -38,6 +37,15 @@ $app->add(function ( $request,  $response, callable $next) use ( $container ){
         foreach( $settings['serializer']['yml_dir'] as $ymlnamespace => $ymldir ){
             $serializerBuilder->addMetadataDir($ymldir,$ymlnamespace);
         }
+
+        $serializerBuilder->configureHandlers(function(JMS\Serializer\Handler\HandlerRegistry $registry) {
+            $registry->registerSubscribingHandler(new StructureSerializationHandler());
+            $registry->registerSubscribingHandler(new RoundNumberSerializationHandler());
+            $registry->registerSubscribingHandler(new RoundSerializationHandler());
+//            $registry->registerSubscribingHandler(new QualifyGroupSerializationHandler());
+        });
+        $serializerBuilder->addDefaultHandlers();
+
         return $serializerBuilder->build();
     };
 

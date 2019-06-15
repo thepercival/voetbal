@@ -45,10 +45,13 @@ class Structure implements SubscribingHandlerInterface
         $arrStructure["firstRoundNumber"]["previous"] = null;
         $metadataRoundNumber = new StaticPropertyMetadata('Voetbal\Round\Number', "firstRoundNumber", $arrStructure["firstRoundNumber"] );
         $metadataRoundNumber->setType(['name' => 'Voetbal\Round\Number', "params" => [ "competition" => $this->createCompetition()]] );
+        $firstRoundNumber = $visitor->visitProperty($metadataRoundNumber, $arrStructure);
+
         $metadataRound = new StaticPropertyMetadata('Voetbal\Round', "rootRound", $arrStructure["rootRound"] );
-        $metadataRound->setType(['name' => 'Voetbal\Round'] );
+        $metadataRound->setType(['name' => 'Voetbal\Round', "params" => [ "roundnumber" => $firstRoundNumber]] );
+
         return new StructureBase(
-            $visitor->visitProperty($metadataRoundNumber, $arrStructure),
+            $firstRoundNumber,
             $visitor->visitProperty($metadataRound, $arrStructure)
         );
     }

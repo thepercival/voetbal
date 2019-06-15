@@ -47,9 +47,11 @@ class Round implements SubscribingHandlerInterface
 //    qualifyGroups:
 //      type: ArrayCollection<Voetbal\Qualify\Group>
 
-        $round = new RoundBase( $type["params"]["roundnumber"], $arrRound["previous"] );
-        if( array_key_exists( "id", $arrRoundNumber) ) {
-            $roundNumber->setId($arrRoundNumber["id"]);
+        $parentQualifyGroup = null; // $arrRound["previous"]
+
+        $round = new RoundBase( $type["params"]["roundnumber"], $parentQualifyGroup );
+        if( array_key_exists( "id", $arrRound) ) {
+            $round->setId($arrRound["id"]);
         }
 //
 //        $metadataConfig = new StaticPropertyMetadata('Voetbal\Config', "config", $arrRoundNumber["config"] );

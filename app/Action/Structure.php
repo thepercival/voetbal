@@ -55,7 +55,7 @@ final class Structure
 
     public function fetch( $request, $response, $args)
     {
-        return $this->fetchOne( $request, $response, $args);
+        return $response->withStatus( 400 )->write( "only one entity can be fetched" );
 
     }
 
@@ -78,40 +78,42 @@ final class Structure
 
     public function add( $request, $response, $args)
     {
-        $this->em->getConnection()->beginTransaction();
-        try {
-            /** @var \Voetbal\Structure $structureSer */
-            $structureSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
+        return $response->withStatus( 401 )->write( "only one entity can be fetched" );
 
-            if ( $structureSer === null ) {
-                throw new \Exception("er kan geen structuur worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
-            }
-
-            $competitionid = (int) $request->getParam("competitionid");
-            $competition = $this->competitionRepos->find($competitionid);
-            if ( $competition === null ) {
-                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
-            }
-
-            $roundNumber = $this->repos->findRoundNumber($competition, 1);
-            if( $roundNumber !== null ) {
-                throw new \Exception("er is al een structuur aanwezig", E_ERROR);
-            }
-
-            $structure = $this->service->createFromSerialized( $structureSer, $competition );
-            $this->repos->customPersist($structure);
-            $this->em->getConnection()->commit();
-
-            return $response
-                ->withStatus(201)
-                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $structure, 'json'));
-            ;
-        }
-        catch( \Exception $e ){
-            $this->em->getConnection()->rollBack();
-            return $response->withStatus( 422 )->write( $e->getMessage() );
-        }
+//        $this->em->getConnection()->beginTransaction();
+//        try {
+//            /** @var \Voetbal\Structure $structureSer */
+//            $structureSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
+//
+//            if ( $structureSer === null ) {
+//                throw new \Exception("er kan geen structuur worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
+//            }
+//
+//            $competitionid = (int) $request->getParam("competitionid");
+//            $competition = $this->competitionRepos->find($competitionid);
+//            if ( $competition === null ) {
+//                throw new \Exception("het competitieseizoen kan niet gevonden worden", E_ERROR);
+//            }
+//
+//            $roundNumber = $this->repos->findRoundNumber($competition, 1);
+//            if( $roundNumber !== null ) {
+//                throw new \Exception("er is al een structuur aanwezig", E_ERROR);
+//            }
+//
+//            $structure = $this->service->createFromSerialized( $structureSer, $competition );
+//            $this->repos->customPersist($structure);
+//            $this->em->getConnection()->commit();
+//
+//            return $response
+//                ->withStatus(201)
+//                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+//                ->write($this->serializer->serialize( $structure, 'json'));
+//            ;
+//        }
+//        catch( \Exception $e ){
+//            $this->em->getConnection()->rollBack();
+//            return $response->withStatus( 422 )->write( $e->getMessage() );
+//        }
     }
 
     public function edit( $request, $response, $args)
@@ -131,7 +133,9 @@ final class Structure
             $roundNumberAsValue = 1;
             $this->repos->remove( $competition, $roundNumberAsValue );
             // parentQualifyGroup moet erin voor parent
-            // kijk als in $structureSer wel een childRound staat, zoja kijken waarom deze dan niet opgeslagen wordt
+
+            // @TODO kijk als in $structureSer wel een childRound staat, zoja kijken waarom deze dan niet opgeslagen wordt
+
             $structure = $this->service->createFromSerialized( $structureSer, $competition );
             $roundNumber = $this->repos->customPersist($structure, $roundNumberAsValue);
 
@@ -152,7 +156,7 @@ final class Structure
         }
         catch( \Exception $e ){
             $this->em->getConnection()->rollBack();
-            return $response->withStatus(422 )->write( $e->getMessage() );
+            return $response->withStatus( 401 )->write( $e->getMessage() );
         }
     }
 
