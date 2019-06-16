@@ -38,6 +38,16 @@ class Number implements SubscribingHandlerInterface
         ];
     }
 
+    /**
+     * Previous moet gezet worden, zou ook met slechts 1 reflection-actie gedaan kunnen worden
+     * lijkt me wel makkelijker
+     *
+     * @param JsonDeserializationVisitor $visitor
+     * @param $arrRoundNumber
+     * @param array $type
+     * @param Context $context
+     * @return RoundNumber
+     */
     public function deserializeFromJson(JsonDeserializationVisitor $visitor, $arrRoundNumber, array $type, Context $context)
     {
         $roundNumber = new RoundNumberBase( $type["params"]["competition"], $arrRoundNumber["previous"] );

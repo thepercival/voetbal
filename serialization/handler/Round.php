@@ -53,6 +53,8 @@ class Round implements SubscribingHandlerInterface
         if( array_key_exists( "id", $arrRound) ) {
             $round->setId($arrRound["id"]);
         }
+
+        // hierna dan andere dingen weer zetten!!!
 //
 //        $metadataConfig = new StaticPropertyMetadata('Voetbal\Config', "config", $arrRoundNumber["config"] );
 //        $metadataConfig->setType(['name' => 'Voetbal\Config']);
