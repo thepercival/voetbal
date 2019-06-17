@@ -31,6 +31,8 @@ class SerializerTest extends \PHPUnit\Framework\TestCase
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
 
+
+
         // let structure service inherit
         $this->check332astructure($structure);
     }

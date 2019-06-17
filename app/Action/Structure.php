@@ -14,6 +14,7 @@ use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Doctrine\ORM\EntityManager;
+use Voetbal\Structure as StructureBase;
 
 final class Structure
 {
@@ -136,8 +137,14 @@ final class Structure
 
             // @TODO kijk als in $structureSer wel een childRound staat, zoja kijken waarom deze dan niet opgeslagen wordt
 
-            $structure = $this->service->createFromSerialized( $structureSer, $competition );
-            $roundNumber = $this->repos->customPersist($structure, $roundNumberAsValue);
+            // $structure = $this->service->createFromSerialized( $structureSer, $competition );
+            $rn = $structureSer->getFirstRoundNumber();
+            $rn->setCompetition($competition);
+            while ( $rn->hasNext() ) {
+                $rn = $rn->getNext();
+                $rn->setCompetition($competition);
+            }
+            $roundNumber = $this->repos->customPersist($structureSer, $roundNumberAsValue);
 
 //            $planningService = new PlanningService($competition);
 //            $games = $planningService->create( $roundNumber, $competition->getStartDateTime() );
@@ -151,7 +158,7 @@ final class Structure
             return $response
                 ->withStatus(200)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $structure, 'json'));
+                ->write($this->serializer->serialize( $structureSer, 'json'));
             ;
         }
         catch( \Exception $e ){

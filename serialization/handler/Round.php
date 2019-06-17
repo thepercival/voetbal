@@ -15,6 +15,10 @@ use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
 
 use Voetbal\Round as RoundBase;
+use Voetbal\Poule;
+use Voetbal\Place;
+use Voetbal\Competitor;
+use Voetbal\Qualify\Group as QualifyGroup;
 
 class Round implements SubscribingHandlerInterface
 {
@@ -38,35 +42,38 @@ class Round implements SubscribingHandlerInterface
 
     public function deserializeFromJson(JsonDeserializationVisitor $visitor, $arrRound, array $type, Context $context)
     {
-        // public function Round::__construct( Round\Number $roundNumber, QualifyGroup $parentQualifyGroup = null )
-
-//     id:
-//        type: integer
-//    poules:
-//      type: ArrayCollection<Voetbal\Poule>
-//    qualifyGroups:
-//      type: ArrayCollection<Voetbal\Qualify\Group>
-
-        $parentQualifyGroup = null; // $arrRound["previous"]
-
-        $round = new RoundBase( $type["params"]["roundnumber"], $parentQualifyGroup );
-        if( array_key_exists( "id", $arrRound) ) {
-            $round->setId($arrRound["id"]);
+        $roundNumber = $type["params"]["roundnumber"];
+        $parentQualifyGroup = null;
+        if( array_key_exists( "parentqualifygroup", $type["params"]) && $type["params"]["parentqualifygroup"] !== null ) {
+            $parentQualifyGroup = $type["params"]["parentqualifygroup"];
         }
 
-        // hierna dan andere dingen weer zetten!!!
-//
-//        $metadataConfig = new StaticPropertyMetadata('Voetbal\Config', "config", $arrRoundNumber["config"] );
-//        $metadataConfig->setType(['name' => 'Voetbal\Config']);
-//        $roundNumber->setConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
-//
-//        if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null )
-//        {
-//            $arrRoundNumber["next"]["previous"] = $roundNumber;
-//            $metadataNext = new StaticPropertyMetadata('Voetbal\Round\Number', "next", $arrRoundNumber["next"] );
-//            $metadataNext->setType(['name' => 'Voetbal\Round\Number', "params" => [ "competition" => $roundNumber->getCompetition()]] );
-//            $next = $visitor->visitProperty($metadataNext, $arrRoundNumber);
-//        }
+        $round = new RoundBase( $roundNumber, $parentQualifyGroup );
+        $association = $round->getNumber()->getCompetition()->getLeague()->getAssociation();
+
+        // set poules
+        foreach( $arrRound["poules"] as $arrPoule ) {
+            $poule = new Poule( $round, $arrPoule["number"] );
+            foreach( $arrPoule["places"] as $arrPlace ) {
+                $place = new Place($poule, $arrPlace["number"]);
+                $place->setPenaltyPoints($arrPlace["penaltyPoints"]);
+
+                if( !array_key_exists( "competitor", $arrPlace )) {
+                    continue;
+                }
+                $competitor = new Competitor($association, "dummy");
+                $competitor->setId($arrPlace["competitor"]["id"]);
+                $place->setCompetitor($arrPlace["competitor"]);
+            }
+        }
+
+        foreach( $arrRound["qualifyGroups"] as $arrQualifyGroup ) {
+
+            $qualifyGroup = new QualifyGroup( $round, $arrQualifyGroup["winnersOrLosers"] );
+            $metadataConfig = new StaticPropertyMetadata('Voetbal\Round', "childRound", $arrQualifyGroup );
+            $metadataConfig->setType(['name' => 'Voetbal\Round', "params" => [ "roundnumber" => $roundNumber->getNext(), "parentqualifygroup" => $qualifyGroup ]]);
+            $qualifyGroup->setChildRound( $visitor->visitProperty($metadataConfig, $arrQualifyGroup ) );
+        }
 
         return $round;
     }

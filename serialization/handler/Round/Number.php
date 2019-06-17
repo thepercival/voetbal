@@ -50,10 +50,16 @@ class Number implements SubscribingHandlerInterface
      */
     public function deserializeFromJson(JsonDeserializationVisitor $visitor, $arrRoundNumber, array $type, Context $context)
     {
-        $roundNumber = new RoundNumberBase( $type["params"]["competition"], $arrRoundNumber["previous"] );
-        if( array_key_exists( "id", $arrRoundNumber) ) {
-            $roundNumber->setId($arrRoundNumber["id"]);
+        $roundNumber = null;
+        if( array_key_exists( "previous", $type["params"]) && $type["params"]["previous"] !== null ) {
+            $roundNumber = $type["params"]["previous"]->createNext();
+        } else {
+            $roundNumber = new RoundNumberBase( $type["params"]["competition"], null );
         }
+
+//        if( array_key_exists( "id", $arrRoundNumber) ) {
+//            $roundNumber->setId($arrRoundNumber["id"]);
+//        }
 
         $metadataConfig = new StaticPropertyMetadata('Voetbal\Config', "config", $arrRoundNumber["config"] );
         $metadataConfig->setType(['name' => 'Voetbal\Config', "params" => [ "roundnumber" => $roundNumber]]);
@@ -63,7 +69,10 @@ class Number implements SubscribingHandlerInterface
         {
             $arrRoundNumber["next"]["previous"] = $roundNumber;
             $metadataNext = new StaticPropertyMetadata('Voetbal\Round\Number', "next", $arrRoundNumber["next"] );
-            $metadataNext->setType(['name' => 'Voetbal\Round\Number', "params" => [ "competition" => $roundNumber->getCompetition()]] );
+            $metadataNext->setType(['name' => 'Voetbal\Round\Number', "params" => [
+                "competition" => $roundNumber->getCompetition(),
+                "previous" => $roundNumber
+            ]]);
             $next = $visitor->visitProperty($metadataNext, $arrRoundNumber);
         }
 
