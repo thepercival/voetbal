@@ -63,13 +63,14 @@ class Round implements SubscribingHandlerInterface
                 }
                 $competitor = new Competitor($association, "dummy");
                 $competitor->setId($arrPlace["competitor"]["id"]);
-                $place->setCompetitor($arrPlace["competitor"]);
+                $place->setCompetitor($competitor);
             }
         }
 
         foreach( $arrRound["qualifyGroups"] as $arrQualifyGroup ) {
 
             $qualifyGroup = new QualifyGroup( $round, $arrQualifyGroup["winnersOrLosers"] );
+            $qualifyGroup->setNumber( $arrQualifyGroup["number"] );
             $metadataConfig = new StaticPropertyMetadata('Voetbal\Round', "childRound", $arrQualifyGroup );
             $metadataConfig->setType(['name' => 'Voetbal\Round', "params" => [ "roundnumber" => $roundNumber->getNext(), "parentqualifygroup" => $qualifyGroup ]]);
             $qualifyGroup->setChildRound( $visitor->visitProperty($metadataConfig, $arrQualifyGroup ) );

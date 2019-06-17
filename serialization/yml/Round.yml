@@ -13,4 +13,5 @@ Voetbal\Round:
     poules:
       type: ArrayCollection<Voetbal\Poule>
     qualifyGroups:
+      access_type: property
       type: ArrayCollection<Voetbal\Qualify\Group>

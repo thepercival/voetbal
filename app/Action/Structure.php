@@ -15,6 +15,8 @@ use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Doctrine\ORM\EntityManager;
 use Voetbal\Structure as StructureBase;
+use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Competition;
 
 final class Structure
 {
@@ -130,20 +132,11 @@ final class Structure
             if ($competition === null) {
                 throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
+            $this->postSerialize( $structureSer->getFirstRoundNumber(), $competition );
 
             $roundNumberAsValue = 1;
             $this->repos->remove( $competition, $roundNumberAsValue );
-            // parentQualifyGroup moet erin voor parent
 
-            // @TODO kijk als in $structureSer wel een childRound staat, zoja kijken waarom deze dan niet opgeslagen wordt
-
-            // $structure = $this->service->createFromSerialized( $structureSer, $competition );
-            $rn = $structureSer->getFirstRoundNumber();
-            $rn->setCompetition($competition);
-            while ( $rn->hasNext() ) {
-                $rn = $rn->getNext();
-                $rn->setCompetition($competition);
-            }
             $roundNumber = $this->repos->customPersist($structureSer, $roundNumberAsValue);
 
 //            $planningService = new PlanningService($competition);
@@ -156,7 +149,7 @@ final class Structure
             $this->em->getConnection()->commit();
 
             return $response
-                ->withStatus(200)
+                ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize( $structureSer, 'json'));
             ;
@@ -164,6 +157,27 @@ final class Structure
         catch( \Exception $e ){
             $this->em->getConnection()->rollBack();
             return $response->withStatus( 401 )->write( $e->getMessage() );
+        }
+    }
+
+    protected function postSerialize( RoundNumber $roundNumber, Competition $competition ) {
+        $competitors = $competition->getLeague()->getAssociation()->getCompetitors();
+        $roundNumber->setCompetition($competition);
+        foreach( $roundNumber->getPlaces() as $place ) {
+            if( $place->getCompetitor() === null ) {
+                continue;
+            }
+            $foundCompetitors = $competitors->filter( function( $competitorIt ) use ($place) {
+                return $competitorIt->getId() === $place->getCompetitor()->getId();
+            });
+            if( $foundCompetitors->count() !== 1 ) {
+                continue;
+            }
+            $place->setCompetitor( $foundCompetitors->first() );
+        }
+
+        if( $roundNumber->hasNext() ) {
+            $this->postSerialize( $roundNumber->getNext(), $competition );
         }
     }
 

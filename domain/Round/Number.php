@@ -165,4 +165,15 @@ class Number
         }
         return $places;
     }
+
+    /**
+     * @return array | Competitor[]
+     */
+    public function getCompetitors(): array {
+        $competitors = [];
+        foreach( $this->getRounds() as $round ) {
+            $competitors = array_merge($competitors, $round->getCompetitors());
+        }
+        return $competitors;
+    }
 }

@@ -20,7 +20,7 @@ Voetbal\Round:
       column: winnersOrLosers
     qualifyOrderDep:  # DEPRECATED
       type: smallint
-      nullable: false
+      nullable: true
       unique: false
       column: qualifyOrder
   oneToMany:
