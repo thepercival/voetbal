@@ -11,3 +11,7 @@ Voetbal\Association:
       type: string
     parent:
       type: Voetbal\Association
+    sport:
+      type: Voetbal\Association;
+    countConfig:
+      type: Voetbal\Config\Count;

@@ -1,0 +1,24 @@
+Voetbal\Config\Count:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      type: integer
+    qualifyRule:
+      type: integer
+    winPoints:
+      type: float
+    drawPoints:
+      type: float
+    winPointsExt:
+      type: float
+    drawPointsExt:
+      type: float
+    score:
+      type: Voetbal\Config\Score
+    sport:
+      type: Voetbal\Sport
+    pointsCalculation:
+      type: integer

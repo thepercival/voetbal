@@ -6,7 +6,7 @@
  * Time: 9:53
  */
 
-namespace Voetbal\Config;
+namespace Voetbal\Config\Dep;
 
 use Voetbal\Round;
 use Voetbal\Config;

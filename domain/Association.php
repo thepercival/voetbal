@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Config\Count as CountConfig;
 
 class Association implements External\Importable // extends External\Importable
 {
@@ -46,6 +47,16 @@ class Association implements External\Importable // extends External\Importable
      * @var Competitor[] | ArrayCollection
      */
     protected $competitors;
+
+    /**
+     * @var Sport
+     */
+    protected $sport;
+
+    /**
+     * @var CountConfig
+     */
+    protected $countConfig;
 
     const MIN_LENGTH_NAME = 2;
 	const MAX_LENGTH_NAME = 20;
@@ -169,5 +180,21 @@ class Association implements External\Importable // extends External\Importable
     public function getCompetitors()
     {
         return $this->competitors;
+    }
+
+    public function getSport(): Sport {
+        return $this->sport;
+    }
+
+    public function setSport(Sport $sport ): void {
+        $this->sport = $sport;
+    }
+
+    public function getCountConfig(Sport $sport = null ): CountConfig {
+        return $this->countConfig;
+    }
+
+    public function setCountConfig(CountConfig $countConfig ) {
+        $this->countConfig = $countConfig;
     }
 }

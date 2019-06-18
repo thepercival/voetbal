@@ -6,7 +6,7 @@
  * Time: 20:28
  */
 
-namespace Voetbal\Config;
+namespace Voetbal\Config\Dep;
 
 use Voetbal\Config as ConfigBase;
 

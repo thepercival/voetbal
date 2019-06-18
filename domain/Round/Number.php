@@ -4,9 +4,11 @@ namespace Voetbal\Round;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
-use Voetbal\Config;
+use Voetbal\Config\Count as CountConfig;
+use Voetbal\Config\Planning as PlanningConfig;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Sport;
 
 class Number
 {
@@ -33,14 +35,21 @@ class Number
     /**
      * @var Config
      */
-    protected $config;
+    protected $configDep;
     /**
      * @var Round[] | ArrayCollection
      */
     protected $rounds;
+
     /**
-     * @var bool
+     * @var CountConfig[] | ArrayCollection
      */
+    protected $countConfigs;
+
+    /**
+     * @var PlanningConfig
+     */
+    protected $planningConfig;
 
     public function __construct( Competition $competition, RoundNumber $previous = null )
     {
@@ -175,5 +184,32 @@ class Number
             $competitors = array_merge($competitors, $round->getCompetitors());
         }
         return $competitors;
+    }
+
+    public function setPlanningConfig(PlanningConfig $config ) {
+        $this->planningConfig = $config;
+    }
+
+    public function getPlanningConfig(): PlanningConfig {
+        return $this->planningConfig;
+    }
+
+    /**
+     * @return ArrayCollection | CountConfig[]
+     */
+    public function getCountConfigs(): ArrayCollection {
+        return $this->countConfigs;
+    }
+
+    public function getCountConfig(Sport $sport = null): CountConfig {
+        $foundConfigs = $this->countConfigs->filter( function ($countConfig) use ( $sport ) {
+            return $countConfig->getSport() === $sport;
+        });
+        $foundConfig = $foundConfigs->first();
+        return $foundConfig !== false ? $foundConfig : null;
+    }
+
+    public function setCountConfig(CountConfig $countConfig) {
+        $this->countConfigs->add( $countConfig );
     }
 }

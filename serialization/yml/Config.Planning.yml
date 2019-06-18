@@ -1,4 +1,4 @@
-Voetbal\Config:
+Voetbal\Config\Planning:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -6,20 +6,10 @@ Voetbal\Config:
   properties:
     id:
       type: integer
-    qualifyRule:
-      type: integer
     nrOfHeadtoheadMatches:
       type: integer
-    winPoints:
-      type: float
-    drawPoints:
-      type: float
     hasExtension:
       type: bool
-    winPointsExt:
-      type: float
-    drawPointsExt:
-      type: float
     minutesPerGameExt:
       type: integer
     minutesPerGame:
@@ -30,12 +20,7 @@ Voetbal\Config:
       type: integer
     minutesAfter:
       type: integer
-    score:
-      type: Voetbal\Config\Score
     teamup:
       type: bool
-    pointsCalculation:
-      type: integer
     selfReferee:
       type: bool
-

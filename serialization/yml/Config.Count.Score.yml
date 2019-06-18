@@ -1,4 +1,4 @@
-Voetbal\Config\Score:
+Voetbal\Config\Count\Score:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method

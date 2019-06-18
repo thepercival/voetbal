@@ -13,8 +13,8 @@ Voetbal\Round\Number:
       nullable: false
       unique: false
   oneToOne:
-    config:
-      targetEntity: Voetbal\Config
+    configDep:
+      targetEntity: Voetbal\ConfigDep
       joinColumn:
         name: configid
         referencedColumnName: id

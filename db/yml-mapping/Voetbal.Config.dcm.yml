@@ -1,6 +1,6 @@
-Voetbal\Config:
+Voetbal\ConfigDep:
   type: entity
-  repositoryClass: Voetbal\Config\Repository
+  repositoryClass: Voetbal\ConfigDep\Repository
   table: roundconfigs
   id:
     id:
