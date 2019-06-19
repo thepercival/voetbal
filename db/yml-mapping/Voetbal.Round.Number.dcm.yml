@@ -14,7 +14,7 @@ Voetbal\Round\Number:
       unique: false
   oneToOne:
     configDep:
-      targetEntity: Voetbal\ConfigDep
+      targetEntity: Voetbal\Config\Dep
       joinColumn:
         name: configid
         referencedColumnName: id
@@ -34,7 +34,11 @@ Voetbal\Round\Number:
     rounds:
       targetEntity: Voetbal\Round
       mappedBy: number
-      cascade: [ persist, remove ] #eerst kijken als parentQualifyGroup toevoegen aan round helpt
+      cascade: [ persist, remove ]
+    countConfigs:
+      targetEntity: Voetbal\Config\Count
+      mappedBy: roundNumber
+      cascade: [ persist, remove ]
   manyToOne:
     competition:
       targetEntity: Voetbal\Competition

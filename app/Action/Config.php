@@ -99,8 +99,8 @@ final class Config
                 throw new \Exception("de competitie van het rondenummer is niet gelijk aan de opgegeven competitie", E_ERROR);
             }
 
-            /** @var \Voetbal\Config $configSer */
-            $configSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Config', 'json');
+            /** @var \Voetbal\Dep $configSer */
+            $configSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Dep', 'json');
             if ( $configSer === null ) {
                 throw new \Exception("er kunnen geen ronde-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }

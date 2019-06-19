@@ -8,12 +8,16 @@
 
 namespace Voetbal\Config;
 
-use Voetbal\Config\Planning\Supplier as PlanningConfigSupplier;
-use Voetbal\Config\Score as ConfigScore;
-use Voetbal\Sport;
-
 class Planning {
 
+    /**
+     * @var Planning\Supplier
+     */
+    protected $supplier;
+    /**
+     * @var int
+     */
+    protected $id;
     /**
      * @var int
      */

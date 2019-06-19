@@ -1,0 +1,68 @@
+Voetbal\Config\Count:
+  type: entity
+  repositoryClass: Voetbal\Config\Count\Repository
+  table: countconfigs
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    qualifyRule:
+      type: smallint
+      nullable: false
+      default: !php/const Voetbal\Ranking\Service::RULESSET_WC
+      unique: false
+    winPoints:
+      type: decimal
+      precision: 3
+      scale: 1
+      nullable: false
+      unique: false
+    drawPoints:
+      type: decimal
+      precision: 3
+      scale: 1
+      nullable: false
+      unique: false
+    winPointsExt:
+      type: decimal
+      precision: 3
+      scale: 1
+      nullable: false
+      unique: false
+    drawPointsExt:
+      type: decimal
+      precision: 3
+      scale: 1
+      nullable: false
+      unique: false
+    pointsCalculation:
+      type: smallint
+      nullable: true
+      unique: false
+  oneToOne:
+    score:
+      targetEntity: Voetbal\Config\Count\Score
+      joinColumn:
+        name: scoreid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
+      cascade: [ persist, remove ]
+  manyToOne:
+    supplier:
+      targetEntity: Voetbal\Round\Number
+      inversedBy: countConfigs
+      joinColumn:
+        name: roundnumberid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
+    sport:
+      targetEntity: Voetbal\Sport
+      joinColumn:
+        name: sportid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE

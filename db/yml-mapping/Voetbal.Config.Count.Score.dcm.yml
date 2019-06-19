@@ -1,8 +1,7 @@
-Voetbal\Config\Score:
+Voetbal\Config\Count\Score:
   type: entity
-  # update roundscoreconfigs set roundconfigid = (select id from roundconfigs where roundid = roundscoreconfigs.roundid )
-  repositoryClass: Voetbal\Config\Score\Repository
-  table: roundscoreconfigs
+  repositoryClass: Voetbal\Config\Count\Score\Repository
+  table: countscoreconfigs
   id:
     id:
       type: integer
@@ -12,7 +11,7 @@ Voetbal\Config\Score:
     name:
       type: string
       nullable: false
-      length: !php/const Voetbal\Config\Score::MAX_LENGTH_NAME
+      length: !php/const Voetbal\Config\Count\Score::MAX_LENGTH_NAME
       unique: false
     direction:
       type: smallint
@@ -22,18 +21,17 @@ Voetbal\Config\Score:
       type: smallint
       nullable: false
       unique: false
-  manyToOne:
-    configDep:
-      targetEntity: Voetbal\Config
-      inversedBy: scoresDep
-      joinColumn:
-        name: roundconfigid
-        referencedColumnName: id
-        nullable: true
-        onDelete: CASCADE
+    iddep:
+      type: integer
+      nullable: false
+      unique: false
+    roundconfigiddep:
+      type: integer
+      nullable: false
+      unique: false
   oneToOne:
     parent:
-      targetEntity: Voetbal\Config\Score
+      targetEntity: Voetbal\Config\Count\Score
       inversedBy: child
       joinColumn:
         name: parentid
@@ -41,7 +39,7 @@ Voetbal\Config\Score:
         nullable: true
         onDelete: CASCADE
     child:
-      targetEntity: Voetbal\Config\Score
+      targetEntity: Voetbal\Config\Count\Score
       mappedBy: parent
       cascade: [ persist, remove ]
   uniqueConstraints:

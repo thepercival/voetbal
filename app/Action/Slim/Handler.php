@@ -142,7 +142,7 @@ class Handler
             $action = new Voetbal\App\Action\Config(
                 $voetbalservice->getService(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
-                $voetbalservice->getService(Voetbal\Config::class),
+                $voetbalservice->getService(Voetbal\Dep::class),
                 $serializer
             );
         } elseif ($resourceType === 'places') {

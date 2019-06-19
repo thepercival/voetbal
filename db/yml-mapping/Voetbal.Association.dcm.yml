@@ -38,3 +38,11 @@ Voetbal\Association:
         name: parentid
         referencedColumnName: id
         onDelete: CASCADE
+    sport:
+      targetEntity: Voetbal\Sport
+      joinColumn:
+        name: sportid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
+      cascade: [ persist ]

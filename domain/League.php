@@ -30,7 +30,7 @@ class League implements External\Importable
     /**
      * @var string
      */
-    private $sport;
+    private $sportDep;
 
 	/**
 	 * @var ArrayCollection
@@ -121,24 +121,24 @@ class League implements External\Importable
     /**
      * @return string
      */
-    public function getSport()
+    public function getSportDep()
     {
-        return $this->sport;
+        return $this->sportDep;
     }
 
     /**
-     * @param string $sport
+     * @param string $sportDep
      */
-    public function setSport( $sport )
+    public function setSportDep( $sportDep )
     {
-        if ( strlen( $sport ) === 0 )
+        if ( strlen( $sportDep ) === 0 )
             throw new \InvalidArgumentException( "de sport moet gezet zijn", E_ERROR );
 
-        if ( strlen( $sport ) > static::MAX_LENGTH_SPORT ){
+        if ( strlen( $sportDep ) > static::MAX_LENGTH_SPORT ){
             throw new \InvalidArgumentException( "de sport mag maximaal ".static::MAX_LENGTH_SPORT." karakters bevatten", E_ERROR );
         }
 
-        $this->sport = $sport;
+        $this->sportDep = $sportDep;
     }
 
     /**

@@ -11,7 +11,7 @@ namespace Voetbal\Planning;
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Config;
+use Voetbal\Dep;
 use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Game;
 use Voetbal\Competition;

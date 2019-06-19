@@ -18,6 +18,9 @@ class Sport
 {
     const MIN_LENGTH_NAME = 3;
     const MAX_LENGTH_NAME = 30;
+    const MIN_LENGTH_UNITNAME = 2;
+    const MAX_LENGTH_UNITNAME = 20;
+
     /**
      * @var int
      */
@@ -81,10 +84,10 @@ class Sport
     }
 
     public function hasScoreSubUnitName(): bool {
-    return $this->scoreSubUnitName === null;
-}
+        return $this->scoreSubUnitName === null;
+    }
 
-    public function createScoreConfig(CountConfig $config ): ConfigScore {
+    /*public function createScoreConfig(CountConfig $config ): ConfigScore {
 
         $unitScoreConfig = new ConfigScore($config, null);
         $unitScoreConfig->setName($this->getScoreUnitName());
@@ -98,7 +101,7 @@ class Sport
             $subUnitScoreConfig->setMaximum(0);
         }
         return $unitScoreConfig;
-    }
+    }*/
 
     public function getTeamup(): bool {
         return $this->teamup;

@@ -53,11 +53,6 @@ class Association implements External\Importable // extends External\Importable
      */
     protected $sport;
 
-    /**
-     * @var CountConfig
-     */
-    protected $countConfig;
-
     const MIN_LENGTH_NAME = 2;
 	const MAX_LENGTH_NAME = 20;
 	const MAX_LENGTH_DESCRIPTION = 50;
@@ -188,13 +183,5 @@ class Association implements External\Importable // extends External\Importable
 
     public function setSport(Sport $sport ): void {
         $this->sport = $sport;
-    }
-
-    public function getCountConfig(Sport $sport = null ): CountConfig {
-        return $this->countConfig;
-    }
-
-    public function setCountConfig(CountConfig $countConfig ) {
-        $this->countConfig = $countConfig;
     }
 }

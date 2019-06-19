@@ -12,7 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection as CommonCollection;
 
 use Voetbal\Game\Score;
-use Voetbal\Config;
+use Voetbal\Dep;
 use Voetbal\Game\Place as GamePlace;
 use Voetbal\State;
 
@@ -447,7 +447,7 @@ class Game implements External\Importable
         return new Score\HomeAway( $home, $away);
     }
 
-    public function getConfig(): Config {
+    public function getConfig(): Dep {
         return $this->getRound()->getNumber()->getConfig();
     }
 }

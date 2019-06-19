@@ -9,7 +9,7 @@
 namespace Voetbal\Config;
 
 use Voetbal\Config\Count\Supplier as CountConfigSupplier;
-use Voetbal\Config\Score as ConfigScore;
+use Voetbal\Config\Count\Score as ConfigScore;
 use Voetbal\Sport;
 
 class Count {
@@ -52,10 +52,6 @@ class Count {
      */
     protected $score;
     /**
-     * @var ArrayCollection
-     */
-    protected $scoresDep;
-    /**
      * @var int
      */
     protected $pointsCalculation;
@@ -65,11 +61,6 @@ class Count {
     const POINTS_CALC_GAMEPOINTS = 0;
     const POINTS_CALC_SCOREPOINTS = 1;
     const POINTS_CALC_BOTH = 2;
-
-
-
-
-
 
     public function __construct( Sport $sport, Count\Supplier $supplier )
     {
@@ -83,8 +74,6 @@ class Count {
         // this.drawPointsExt = this.sport.getDefaultDrawPointsExt;
         // this.setScore(this.createScoreConfig(config));
         $this->pointsCalculation = Count::POINTS_CALC_GAMEPOINTS;
-
-        $this->scoresDep = new ArrayCollection();
     }
 
     /**

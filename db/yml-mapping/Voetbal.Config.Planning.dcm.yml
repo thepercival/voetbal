@@ -1,0 +1,47 @@
+Voetbal\Config\Planning:
+  type: entity
+  repositoryClass: Voetbal\Config\Planning\Repository
+  table: planningconfigs
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    nrOfHeadtoheadMatches:
+      type: smallint
+      nullable: false
+      unique: false
+    hasExtension:
+      type: boolean
+      nullable: false
+      unique: false
+    minutesPerGameExt:
+      type: smallint
+      nullable: false
+      unique: false
+    enableTime:
+      type: boolean
+      nullable: false
+      unique: false
+    minutesPerGame:
+      type: smallint
+      nullable: false
+      unique: false
+    minutesAfter:
+      type: smallint
+      nullable: true
+      unique: false
+      column: minutesInBetween
+    minutesBetweenGames:
+      type: smallint
+      nullable: true
+      unique: false
+    teamup:
+      type: boolean
+      nullable: true
+      unique: false
+    selfReferee:
+      type: boolean
+      nullable: true
+      unique: false

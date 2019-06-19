@@ -47,7 +47,7 @@ class Service
             return new Competition\Service();
         } elseif ($classname === Structure::class) {
             return new Structure\Service();
-        } elseif ($classname === Config::class) {
+        } elseif ($classname === Dep::class) {
             return new Config\Service();
         } elseif ($classname === Game::class) {
             return new Game\Service();

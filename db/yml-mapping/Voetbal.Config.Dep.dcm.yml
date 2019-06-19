@@ -1,6 +1,6 @@
-Voetbal\ConfigDep:
+Voetbal\Config\Dep:
   type: entity
-  repositoryClass: Voetbal\ConfigDep\Repository
+  repositoryClass: Voetbal\Config\Dep\Repository
   table: roundconfigs
   id:
     id:
@@ -78,17 +78,8 @@ Voetbal\ConfigDep:
       type: boolean
       nullable: true
       unique: false
-  oneToOne:
-    score:
-      targetEntity: Voetbal\Config\Score
-      joinColumn:
-        name: scoreid
-        referencedColumnName: id
-        nullable: true # should be false
-        onDelete: CASCADE
-      cascade: [ persist, remove ]
   oneToMany:
     scoresDep:
-      targetEntity: Voetbal\Config\Score
+      targetEntity: Voetbal\Config\Dep\Score
       mappedBy: configDep
       cascade: [ persist, remove ]

@@ -6,7 +6,7 @@
  * Time: 20:28
  */
 
-namespace Voetbal\Config\Score;
+namespace Voetbal\Config\Count\Score;
 
 
 /**

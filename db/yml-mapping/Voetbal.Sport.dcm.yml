@@ -1,0 +1,33 @@
+Voetbal\Sport:
+  type: entity
+  repositoryClass: Voetbal\Sport\Repository
+  table: sports
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    name:
+      type: string
+      length : !php/const Voetbal\Sport::MAX_LENGTH_NAME
+      unique: false
+      nullable: false
+    scoreUnitName:
+      type: string
+      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
+      unique: false
+      nullable: false
+    scoreSubUnitName:
+      type: string
+      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
+      unique: false
+      nullable: true
+    teamup:
+      type: boolean
+      unique: false
+      nullable: false
+    customId:
+      type: integer
+      unique: false
+      nullable: true

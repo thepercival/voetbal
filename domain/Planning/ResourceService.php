@@ -9,7 +9,7 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Game;
-use Voetbal\Config;
+use Voetbal\Dep;
 use Voetbal\Place;
 use Voetbal\Field;
 use League\Period\Period;
@@ -19,7 +19,7 @@ use Voetbal\Planning\Referee as PlanningReferee;
 class ResourceService
 {
     /**
-     * @var Config
+     * @var Dep
      */
     private $config;
     /**
@@ -63,7 +63,7 @@ class ResourceService
     private $nrOfPoules;
 
     public function __construct(
-        Config $config,
+        Dep $config,
         \DateTimeImmutable $dateTime
     )
     {
