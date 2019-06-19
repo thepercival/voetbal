@@ -31,3 +31,15 @@ Voetbal\Sport:
       type: integer
       unique: false
       nullable: true
+  oneToOne:
+    countConfig:
+      targetEntity: Voetbal\Config\Count
+      joinColumn:
+        name: countconfigid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
+      cascade: [ persist, remove ]
+  uniqueConstraints:
+    name_idx:
+      columns: [ name ]

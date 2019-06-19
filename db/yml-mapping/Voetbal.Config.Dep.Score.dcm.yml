@@ -11,7 +11,7 @@ Voetbal\Config\Dep\Score:
     name:
       type: string
       nullable: false
-      length: !php/const Voetbal\Config\Count\Score::MAX_LENGTH_NAME
+      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
       unique: false
     direction:
       type: smallint

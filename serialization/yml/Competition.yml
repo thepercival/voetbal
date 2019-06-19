@@ -20,6 +20,9 @@ Voetbal\Competition:
       type: ArrayCollection<Voetbal\Field>
     referees:
       type: ArrayCollection<Voetbal\Referee>
+    sports:
+      type: ArrayCollection<Voetbal\Sport>
+      read_only: true
 #  virtual_properties:
 #    hasStructure:
 #      type: bool

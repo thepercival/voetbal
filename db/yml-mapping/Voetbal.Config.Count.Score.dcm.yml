@@ -8,11 +8,6 @@ Voetbal\Config\Count\Score:
       generator:
         strategy: AUTO
   fields:
-    name:
-      type: string
-      nullable: false
-      length: !php/const Voetbal\Config\Count\Score::MAX_LENGTH_NAME
-      unique: false
     direction:
       type: smallint
       nullable: false

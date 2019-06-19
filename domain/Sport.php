@@ -8,7 +8,7 @@
 
 namespace Voetbal;
 
-use Voetbal\Config\Score as ConfigScore;
+use Voetbal\Config\Count as CountConfig;
 
 /**
  * Class Sport
@@ -45,6 +45,10 @@ class Sport
      * @var int
      */
     private $customId;
+    /**
+     * @var CountConfig
+     */
+    private $countConfig;
 
     public function __construct( string $name )
     {
@@ -117,5 +121,13 @@ class Sport
 
     public function setCustomId(int $id): void {
         $this->customId = $id;
+    }
+
+    public function getCountConfig(): CountConfig {
+        return $this->countConfig;
+    }
+
+    public function setCountConfig(CountConfig $countConfig): void {
+        $this->countConfig = $countConfig;
     }
 }

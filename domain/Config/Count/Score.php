@@ -30,10 +30,6 @@ class Score
      */
     protected $child;
     /**
-     * @var string
-     */
-    protected $name;
-    /**
      * @var int
      */
     protected $direction;
@@ -44,9 +40,6 @@ class Score
 
     protected $roundconfigiddep; // DEPRECATED
     protected $iddep;  // DEPRECATED
-
-    const MIN_LENGTH_NAME = 3;
-    const MAX_LENGTH_NAME = 10;
 
     const UPWARDS = 1;
     const DOWNWARDS = 2;
@@ -137,32 +130,6 @@ class Score
     {
         $this->config = $config;
         $this->config->setScore($this);
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * @param string $name
-     */
-    public function setName( $name )
-    {
-        if ( !is_string( $name ) or strlen( $name ) < Score::MIN_LENGTH_NAME or strlen( $name ) > Score::MAX_LENGTH_NAME  ){
-            throw new \InvalidArgumentException( "de naam heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->name = $name;
-    }
-
-    public function getNameSingle(): string {
-        if ( strpos($this->getName(),'en') !== false ) {
-            return substr( $this->getName(), 0, strlen($this->getName()) - 1);
-        }
-        return substr( $this->getName(), 0, strlen($this->getName()) - 1);
     }
 
     /**

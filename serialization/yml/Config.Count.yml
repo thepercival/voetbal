@@ -18,7 +18,7 @@ Voetbal\Config\Count:
       type: float
     score:
       type: Voetbal\Config\Score
-    sport:
-      type: Voetbal\Sport
     pointsCalculation:
       type: integer
+    sportName:
+      type: string

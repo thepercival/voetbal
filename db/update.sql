@@ -4,22 +4,6 @@ ALTER TABLE rounds MODIFY numberid INT NOT NULL;
 -- draaien na doctrine-update
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;
 
-insert into countconfigs( roundnumberid, qualifyRule, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation )
-(
-	select rn.id, rc.qualifyRule, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
-);
-
-update 	countscoreconfigs sc
-				join 	roundscoreconfigs rsc on sc.iddep = rsc.id
-				join 	countscoreconfigs scp on scp.iddep = rsc.parentid
-set 		sc.parentid = scp.id
-where		rsc.parentid is not null;
-
-update 	countconfigs cc
-				join	roundnumbers rn on cc.roundnumberid = rn.id
-				join 	roundconfigs rc on rn.configid = rc.id
-set cc.scoreid = ( select csc.id from countscoreconfigs csc where csc.roundconfigiddep = rc.id and csc.parentid is null );
-
 -- all competitors without places
 delete 	c
 from 	competitors c
@@ -30,12 +14,14 @@ and 		p.id is null;
 
 delete from associations where ( select count(*) from leagues where associationid = associations.id ) = 0 and ( select count(*) from competitors where associationid = associations.id ) = 0;
 
+-- hier sporten goed toevoegen, zie putty!!!
 insert into sports( name, scoreUnitName, teamup ) (	select distinct sportDep, 'punten', true from leagues );
 
 update sports set teamup = false where name IN ('voetbal', 'volleybal', 'hockey', 'korfbal');
 
-update associations set sportid = ( select s.id from sports s join leagues l on l.sportDep = s.name where l.associationid = associations.id limit 1 );
 
+
+-- add countconfigs and countscoreconfigs for sports
 insert into countconfigs( qualifyRule, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, sportid )
 (
 	select	1,
@@ -45,8 +31,14 @@ insert into countconfigs( qualifyRule, winPoints, drawPoints, winPointsExt, draw
 					CASE name WHEN 'schaken' THEN 0.5 ELSE 1 END,
 					0,
 					id
-	from 	sports
+	from sports
 );
+
+update  sports s join countconfigs cc on cc.sportid = s.id )
+set 		s.countconfigid = cc.id;
+
+insert into countscoreconfigs( parentid, direction, maximum )
+( select x from sports where name not in )
 
 let unitName = 'punten';
 let parentUnitName;
@@ -71,6 +63,29 @@ if (parentUnitName !== undefined) {
 }
 	return this.createScoreConfigFromRoundHelper(config, unitName, RoundNumberConfigScore.UPWARDS, 0, parent);
 }
+
+update associations set sportid = ( select s.id from sports s join leagues l on l.sportDep = s.name where l.associationid = associations.id limit 1 );
+
+-- add countconfigs and countscoreconfigs for roundnumbers
+insert into countconfigs( roundnumberid, qualifyRule, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation )
+(
+	select rn.id, rc.qualifyRule, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
+);
+
+update 	countscoreconfigs sc
+				join 	roundscoreconfigs rsc on sc.iddep = rsc.id
+				join 	countscoreconfigs scp on scp.iddep = rsc.parentid
+set 		sc.parentid = scp.id
+where		rsc.parentid is not null;
+
+update 	countconfigs cc
+				join	roundnumbers rn on cc.roundnumberid = rn.id
+				join 	roundconfigs rc on rn.configid = rc.id
+set cc.scoreid = ( select csc.id from countscoreconfigs csc where csc.roundconfigiddep = rc.id and csc.parentid is null );
+
+
+
+
 
 
 

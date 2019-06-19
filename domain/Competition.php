@@ -253,4 +253,14 @@ class Competition implements External\Importable
         });
         return array_shift( $fields );
     }
+
+    /**
+     * @return array
+     */
+    public function getSports(): array
+    {
+        return array_map( function( $field ) {
+            return $field->getSport();
+        }, $this->getFields()->toArray() );
+    }
 }

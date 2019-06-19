@@ -1,4 +1,4 @@
-Voetbal\Association:
+Voetbal\Sport:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -7,9 +7,11 @@ Voetbal\Association:
       type: int
     name:
       type: string
-    description:
+    scoreUnitName:
       type: string
-    parent:
-      type: Voetbal\Association
-    sport:
-      type: Voetbal\Association;
+    scoreSubUnitName:
+      type: string
+    customId:
+      type: int
+    countConfig:
+      type: Voetbal\Config\Count;
