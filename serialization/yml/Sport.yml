@@ -14,4 +14,4 @@ Voetbal\Sport:
     customId:
       type: int
     countConfig:
-      type: Voetbal\CountConfig
+      type: Voetbal\Sport\CountConfig

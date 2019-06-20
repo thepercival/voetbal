@@ -16,6 +16,6 @@ Voetbal\Round\Number:
       access_type: property
       type: Voetbal\Round\Number
     countConfigs:
-      type: ArrayCollection<Voetbal\CountConfig>
+      type: ArrayCollection<Voetbal\Sport\CountConfig>
     planningConfig:
       type: Voetbal\Planning\Config

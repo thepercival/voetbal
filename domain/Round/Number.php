@@ -5,13 +5,13 @@ namespace Voetbal\Round;
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
-use Voetbal\CountConfig;
+use Voetbal\Sport\CountConfig;
 use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport;
 use Voetbal\Config\Dep as ConfigDep;
-use Voetbal\CountConfig\Supplier as CountConfigSupplier;
+use Voetbal\Sport\CountConfig\Supplier as CountConfigSupplier;
 use Voetbal\Planning\Config\Supplier as PlanningConfigSupplier;
 
 class Number implements CountConfigSupplier, PlanningConfigSupplier

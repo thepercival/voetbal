@@ -6,9 +6,9 @@
  * Time: 9:53
  */
 
-namespace Voetbal\CountConfig;
+namespace Voetbal\Sport\CountConfig;
 
-use Voetbal\CountConfig as CountConfigBase;
+use Voetbal\Sport\CountConfig as CountConfigBase;
 
 class Score
 {

@@ -12,6 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
 
 use Voetbal\Game\Score;
 use Voetbal\Game\Place as GamePlace;
+use Voetbal\Sport\CountConfig;
 
 class Game implements External\Importable
 {

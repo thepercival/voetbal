@@ -23,9 +23,9 @@ use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Qualify\Rule\Service as QualifyRuleService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Qualify\Group\Service as QualifyGroupService;
-use Voetbal\CountConfig\Score as CountConfigScore;
+use Voetbal\Sport\CountConfig\Score as CountConfigScore;
 use Voetbal\Planning\Config as PlanningConfig;
-use Voetbal\CountConfig;
+use Voetbal\Sport\CountConfig;
 
 class Service {
 
@@ -547,51 +547,6 @@ class Service {
     }
 }
 
-
-
-//class Service
-//{
-//    /**
-//     * @var RoundNumberService
-//     */
-//    protected $roundNumberService;
-//    /**
-//     * @var RoundNumberRepository
-//     */
-//    protected $roundNumberRepos;
-//    /**
-//     * @var RoundService
-//     */
-//    protected $roundService;
-//    /**
-//     * @var RoundRepository
-//     */
-//    protected $roundRepos;
-//    /**
-//    * @var ConfigService
-//    */
-//    protected $configService;
-//
-//    public function __construct(
-//        RoundNumberService $roundNumberService, RoundNumberRepository $roundNumberRepos,
-//        RoundService $roundService, RoundRepository $roundRepos,
-//        ConfigService $configService )
-//    {
-//        $this->roundNumberService = $roundNumberService;
-//        $this->roundNumberRepos = $roundNumberRepos;
-//        $this->roundService = $roundService;
-//        $this->roundRepos = $roundRepos;
-//        $this->configService = $configService;
-//    }
-//
-//    public function create(Competition $competition, ConfigOptions $configOptions,
-//        int $nrOfPlaces, int $nrOfPoules): StructureBase
-//    {
-//        $firstRoundNumber = $this->roundNumberService->create( $competition, $configOptions );
-//        $rootRound =  $this->roundService->createByOptions($firstRoundNumber, 0, $nrOfPlaces, $nrOfPoules);
-//        return new StructureBase( $firstRoundNumber, $rootRound );
-//    }
-//
 //    public function createFromSerialized( StructureBase $structureSer, Competition $competition ): StructureBase
 //    {
 //        if( count( $this->roundNumberRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
@@ -645,34 +600,3 @@ class Service {
 //    {
 //        return $this->createFromSerialized( $structure, $competition );
 //    }
-//
-//    public function getStructure( Competition $competition ): ?StructureBase
-//    {
-//        $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition), array("id" => "asc"));
-//        $firstRoundNumber = $this->structureRoundNumbers($roundNumbers);
-//        if ( $firstRoundNumber === null ) {
-//            return null;
-//        }
-//        return new StructureBase($firstRoundNumber, $firstRoundNumber->getRounds()->first());
-//    }
-//
-//    protected function structureRoundNumbers( array $roundNumbers, RoundNumber $roundNumberToFind = null ): ?RoundNumber
-//    {
-//        $foundRoundNumbers = array_filter( $roundNumbers, function( $roundNumberIt ) use ($roundNumberToFind) {
-//            return $roundNumberIt->getPrevious() === $roundNumberToFind;
-//        });
-//        $foundRoundNumber = reset( $foundRoundNumbers );
-//        if( $foundRoundNumber === false ) {
-//            return null;
-//        }
-//        if( $roundNumberToFind !== null ) {
-//            $roundNumberToFind->setNext($foundRoundNumber);
-//        }
-//        $index = array_search( $foundRoundNumber, $roundNumbers);
-//        if( $index !== false ) {
-//            unset($roundNumbers[$index]);
-//        }
-//        $this->structureRoundNumbers( $roundNumbers, $foundRoundNumber );
-//        return $foundRoundNumber;
-//    }
-//}

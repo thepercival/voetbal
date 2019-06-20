@@ -122,19 +122,35 @@ update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_
 update associations set sportid = ( select s.id from sports s join leagues l on l.sportDep = s.name where l.associationid = associations.id limit 1 );
 
 -- add countconfigs and countscoreconfigs for roundnumbers
-insert into countconfigs( roundnumberid, qualifyRule, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation )
-(
-	select rn.id, rc.qualifyRule, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
-);
+insert into countconfigs( roundnumberid, qualifyRule, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, sportid )
+	(
+		select rn.id, rc.qualifyRule, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation, a.sportid
+		from roundnumbers rn
+					 join roundconfigs rc on rn.configid = rc.id
+					 join competitions c on c.id = rn.competitionid
+					 join leagues l on l.id = c.leagueid
+					 join associations a on a.id = l.associationid
+	);
+
 update 	countscoreconfigs sc
 				join 	roundscoreconfigs rsc on sc.iddep = rsc.id
 				join 	countscoreconfigs scp on scp.iddep = rsc.parentid
 set 		sc.parentid = scp.id
 where		rsc.parentid is not null;
+
 update 	countconfigs cc
 				join	roundnumbers rn on cc.roundnumberid = rn.id
 				join 	roundconfigs rc on rn.configid = rc.id
 set cc.scoreid = ( select csc.id from countscoreconfigs csc where csc.roundconfigiddep = rc.id and csc.parentid is null );
+
+-- add sport to field
+update fields f
+  join competitions c on c.id = f.competitionid
+  join roundnumbers rn on rn.competitionid = c.id and rn.number = 1
+  join countconfigs cc on cc.roundnumberid = rn.id
+set f.sportid = cc.sportid;
+
+
 
 -- @TODO!!
 

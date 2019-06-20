@@ -1,6 +1,6 @@
-Voetbal\CountConfig:
+Voetbal\Sport\CountConfig:
   type: entity
-  repositoryClass: Voetbal\CountConfig\Repository
+  repositoryClass: Voetbal\Sport\CountConfig\Repository
   table: countconfigs
   id:
     id:
@@ -43,7 +43,7 @@ Voetbal\CountConfig:
       unique: false
   oneToOne:
     score:
-      targetEntity: Voetbal\CountConfig\Score
+      targetEntity: Voetbal\Sport\CountConfig\Score
       joinColumn:
         name: scoreid
         referencedColumnName: id

@@ -10,3 +10,5 @@ Voetbal\Field:
       type: integer
     name:
       type: string
+    sport:
+      type: Voetbal\Sport

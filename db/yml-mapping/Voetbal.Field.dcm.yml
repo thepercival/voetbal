@@ -27,3 +27,10 @@ Voetbal\Field:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
+    sport:
+      targetEntity: Voetbal\Sport
+      joinColumn:
+        name: sportid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE

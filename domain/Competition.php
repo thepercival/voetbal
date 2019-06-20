@@ -255,12 +255,25 @@ class Competition implements External\Importable
     }
 
     /**
-     * @return array
+     * @return array | Sport[]
      */
     public function getSports(): array
     {
         return array_map( function( $field ) {
             return $field->getSport();
         }, $this->getFields()->toArray() );
+    }
+
+    /**
+     * @return Sport
+     */
+    public function getSport( int $sportId ): ?Sport
+    {
+        foreach( $this->getFields() as $field ) {
+            if( $field->getSport()->getId() === $sportId ) {
+                return $field->getSport();
+            }
+        }
+        return null;
     }
 }

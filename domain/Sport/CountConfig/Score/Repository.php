@@ -6,12 +6,12 @@
  * Time: 20:28
  */
 
-namespace Voetbal\CountConfig;
+namespace Voetbal\Sport\CountConfig\Score;
 
 
 /**
  * Class Repository
- * @package Voetbal\Config\Score
+ * @package Voetbal\Sport\CountConfig
  */
 class Repository extends \Voetbal\Repository
 {

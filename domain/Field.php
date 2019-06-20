@@ -18,21 +18,22 @@ class Field
      * @var int
      */
     private $id;
-
     /**
      * @var string
      */
     private $name;
-
     /**
      * @var int
      */
     protected $number;
-
     /**
      * @var Competition
      */
     private $competition;
+    /**
+     * @var Sport
+     */
+    private $sport;
 
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 3;
@@ -120,5 +121,21 @@ class Field
             $competition->getFields()->add($this) ;
         }
         $this->competition = $competition;
+    }
+
+    /**
+     * @return Sport
+     */
+    public function getSport()
+    {
+        return $this->sport;
+    }
+
+    /**
+     * @param Sport $sport
+     */
+    private function setSport( Sport $sport )
+    {
+        $this->sport = $sport;
     }
 }

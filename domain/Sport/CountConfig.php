@@ -6,16 +6,17 @@
  * Time: 15:18
  */
 
-namespace Voetbal;
+namespace Voetbal\Sport;
 
-use Voetbal\CountConfig\Supplier as CountConfigSupplier;
-use Voetbal\CountConfig\Score as ConfigScore;
+use Voetbal\Sport\CountConfig\Supplier as CountConfigSupplier;
+use Voetbal\Sport\CountConfig\Score as ConfigScore;
 use Voetbal\Ranking\Service as RankingService;
+use Voetbal\Sport as SportBase;
 
 class CountConfig {
 
     /**
-     * @var Sport
+     * @var SportBase
      */
     protected $sport;
     /**
@@ -42,7 +43,6 @@ class CountConfig {
      * @var double
      */
     protected $winPointsExt;
-
     /**
      * @var double
      */
@@ -62,7 +62,7 @@ class CountConfig {
     const POINTS_CALC_SCOREPOINTS = 1;
     const POINTS_CALC_BOTH = 2;
 
-    public function __construct( Sport $sport, CountConfigSupplier $supplier )
+    public function __construct( SportBase $sport, CountConfigSupplier $supplier )
     {
         $this->sport = $sport;
         $this->supplier = $supplier;
@@ -227,9 +227,9 @@ class CountConfig {
     }
 
     /**
-     * @return Sport
+     * @return SportBase
      */
-    public function getSport(): Sport
+    public function getSport(): SportBase
     {
         return $this->sport;
     }

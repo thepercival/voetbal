@@ -139,13 +139,13 @@ class Handler
                 $serializer
             );
         } elseif ($resourceType === 'countconfigs') {
-            $action = new Voetbal\App\Action\CountConfig(
-                $voetbalservice->getService(Voetbal\Structure::class),
+            $action = new Voetbal\App\Action\Sport\CountConfig(
+                $voetbalservice->getRepository(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'planningconfigs') {
-            $action = new Voetbal\App\Action\CountConfig(
+            $action = new Voetbal\App\Action\Planning\Config(
                 $voetbalservice->getService(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer

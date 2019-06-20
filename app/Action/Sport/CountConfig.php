@@ -6,19 +6,18 @@
  * Time: 12:35
  */
 
-namespace Voetbal\App\Action;
+namespace Voetbal\App\Action\Sport;
 
 use JMS\Serializer\Serializer;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\Config\Service as ConfigService;
+use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
 final class CountConfig
 {
     /**
-     * @var StructureService
+     * @var StructureRepository
      */
-    protected $structureService;
+    protected $structureRepos;
     /**
      * @var CompetitionRepository
      */
@@ -30,12 +29,12 @@ final class CountConfig
     protected $serializer;
 
     public function __construct(
-        StructureService $structureService,
+        StructureRepository $structureRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
     )
     {
-        $this->structureService = $structureService;
+        $this->structureRepos = $structureRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
@@ -85,27 +84,32 @@ final class CountConfig
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            $structure = $this->structureService->getStructure( $competition ); // to init next/previous
-            $roundNumber = $structure->getRoundNumberById( (int) $request->getParam("roundnumberid") );
+            $structure = $this->structureRepos->getStructure( $competition ); // to init next/previous
+            $roundNumber = $structure->getRoundNumber( (int) $request->getParam("roundnumber") );
             if ( $roundNumber === null ) {
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
-            if ( $roundNumber->getCompetition() !== $competition ) {
-                throw new \Exception("de competitie van het rondenummer is niet gelijk aan de opgegeven competitie", E_ERROR);
+
+            /** @var \Voetbal\Sport\CountConfig $configSer */
+            $countConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\CountConfig', 'json');
+            if ( $countConfigSer === null ) {
+                throw new \Exception("er zijn geen sport-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            /** @var \Voetbal\Dep $configSer */
-            $configSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Dep', 'json');
-            if ( $configSer === null ) {
-                throw new \Exception("er kunnen geen ronde-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
-            }
-
-            $this->configService->updateFromSerialized( $roundNumber, $configSer, false );
+            $sport = $competition->getSport( (int) $request->getParam("sportid") );
+            $countConfig = $roundNumber->getCountConfig( $sport );
+            $countConfig->setQualifyRule( $countConfigSer->getQualifyRule() );
+            $countConfig->setWinPoints( $countConfigSer->getWinPoints() );
+            $countConfig->setDrawPoints( $countConfigSer->getDrawPoints() );
+            $countConfig->setWinPointsExt( $countConfigSer->getWinPointsExt() );
+            $countConfig->setDrawPointsExt( $countConfigSer->getDrawPointsExt() );
+            $countConfig->setPointsCalculation( $countConfigSer->getPointsCalculation() );
+            $this->countConfigRepository->save($countConfig);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $roundNumber->getConfig(), 'json'));
+                ->write($this->serializer->serialize( $countConfig, 'json'));
             ;
         }
         catch( \Exception $e ){

@@ -6,9 +6,9 @@
  * Time: 15:29
  */
 
-namespace Voetbal\CountConfig;
+namespace Voetbal\Sport\CountConfig;
 
-use Voetbal\CountConfig as CountConfigBase;
+use Voetbal\Sport\CountConfig as CountConfigBase;
 use Voetbal\Sport;
 
 interface Supplier {

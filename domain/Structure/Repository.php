@@ -8,7 +8,7 @@
 
 namespace Voetbal\Structure;
 
-use Voetbal\Structure;
+use Voetbal\Structure as StructureBase;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Competition;
 use Doctrine\ORM\EntityManagerInterface;
@@ -30,7 +30,7 @@ class Repository
         $this->em = $em;
     }
 
-    public function customPersist(Structure $structure, int $roundNumberValue = null): RoundNumber
+    public function customPersist(StructureBase $structure, int $roundNumberValue = null): RoundNumber
     {
         $conn = $this->em->getConnection();
         $conn->beginTransaction();
@@ -61,6 +61,37 @@ class Repository
             $this->customPersistHelper($roundNumber->getNext());
         }
     }
+
+    public function getStructure( Competition $competition ): ?StructureBase
+    {
+        $firstRoundNumber = $this->findRoundNumber( $competition, 1 );
+        // $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition), array("id" => "asc"));
+        // $firstRoundNumber = $this->structureRoundNumbers($roundNumbers);
+        if ( $firstRoundNumber === null ) {
+            return null;
+        }
+        return new StructureBase($firstRoundNumber, $firstRoundNumber->getRounds()->first());
+    }
+//
+//    protected function structureRoundNumbers( array $roundNumbers, RoundNumber $roundNumberToFind = null ): ?RoundNumber
+//    {
+//        $foundRoundNumbers = array_filter( $roundNumbers, function( $roundNumberIt ) use ($roundNumberToFind) {
+//            return $roundNumberIt->getPrevious() === $roundNumberToFind;
+//        });
+//        $foundRoundNumber = reset( $foundRoundNumbers );
+//        if( $foundRoundNumber === false ) {
+//            return null;
+//        }
+//        if( $roundNumberToFind !== null ) {
+//            $roundNumberToFind->setNext($foundRoundNumber);
+//        }
+//        $index = array_search( $foundRoundNumber, $roundNumbers);
+//        if( $index !== false ) {
+//            unset($roundNumbers[$index]);
+//        }
+//        $this->structureRoundNumbers( $roundNumbers, $foundRoundNumber );
+//        return $foundRoundNumber;
+//    }
 
     /**
      * @param Competition $competition
