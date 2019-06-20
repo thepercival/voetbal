@@ -19,17 +19,20 @@ use Voetbal\Poule;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Poule\Horizontal\Creator as HorizontolPouleCreator;
 use Voetbal\Poule\Horizontal\Service as HorizontalPouleService;
-use Voetbal\Config\Service as ConfigService;
+use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Qualify\Rule\Service as QualifyRuleService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Qualify\Group\Service as QualifyGroupService;
+use Voetbal\CountConfig\Score as CountConfigScore;
+use Voetbal\Planning\Config as PlanningConfig;
+use Voetbal\CountConfig;
 
 class Service {
 
     /**
-     * @var ConfigService
+     * @var PlanningConfigService
      */
-    private $configService;
+    private $planningConfigService;
     /**
      * @var CompetitorRange
      */
@@ -38,12 +41,14 @@ class Service {
     public function __construct( CompetitorRange $competitorRange = null )
     {
         $this->competitorRange = $competitorRange;
-        $this->configService = new ConfigService();
+        $this->planningConfigService = new PlanningConfigService();
     }
 
     public function create(Competition $competition, int $nrOfPlaces, int $nrOfPoules = null): StructureBase {
         $firstRoundNumber = new RoundNumber($competition);
-        $this->configService->createDefault($firstRoundNumber);
+        $countConfig = $competition->getLeague()->getAssociation()->getSport()->getCountConfig();
+        $firstRoundNumber->getCountConfigs()->add( $countConfig );
+        $this->planningConfigService->createDefault($firstRoundNumber);
         $rootRound = new Round($firstRoundNumber, null);
         $nrOfPoulesToAdd = $nrOfPoules ? $nrOfPoules : $this->getDefaultNrOfPoules($nrOfPlaces);
         $this->updateRound($rootRound, $nrOfPlaces, $nrOfPoulesToAdd);
@@ -388,8 +393,54 @@ class Service {
 
     public function createRoundNumber(Round $parentRound ): RoundNumber {
         $roundNumber = $parentRound->getNumber()->createNext();
-        $this->configService->createFromPrevious($roundNumber);
+        $this->createConfigsFromPrevious($roundNumber);
         return $roundNumber;
+    }
+
+    private function createConfigsFromPrevious(RoundNumber $roundNumber) {
+        $this->createCountConfigsFromPrevious($roundNumber);
+        $this->createPlanningConfigFromPrevious($roundNumber);
+    }
+
+    private function createCountConfigsFromPrevious(RoundNumber $roundNumber) {
+        $previousConfig = $roundNumber->getPrevious()->getCountConfig();
+        $config = new CountConfig($previousConfig->getSport(), $roundNumber);
+        $config->setQualifyRule($previousConfig->getQualifyRule());
+        $config->setWinPoints($previousConfig->getWinPoints());
+        $config->setDrawPoints($previousConfig->getDrawPoints());
+        $config->setWinPointsExt($previousConfig->getWinPointsExt());
+        $config->setDrawPointsExt($previousConfig->getDrawPointsExt());
+        $config->setPointsCalculation($previousConfig->getPointsCalculation());
+        $this->createScoreConfigFromPrevious($config, $previousConfig->getScore());
+    }
+
+    protected function createScoreConfigFromPrevious(CountConfig $config, CountConfigScore $previousScoreConfig) {
+        $newScoreConfig = new CountConfigScore($config, null);
+        $newScoreConfig->setDirection($previousScoreConfig->getDirection());
+        $newScoreConfig->setMaximum($previousScoreConfig->getMaximum());
+
+        $previousSubScoreConfig = $previousScoreConfig->getChild();
+        if ( $previousSubScoreConfig ) {
+            $newSubScoreConfig = new CountConfigScore($config, $newScoreConfig);
+            $newSubScoreConfig->setDirection($previousSubScoreConfig->getDirection());
+            $newSubScoreConfig->setMaximum($previousSubScoreConfig->getMaximum());
+        }
+        return $newScoreConfig;
+    }
+
+    private function createPlanningConfigFromPrevious(RoundNumber $roundNumber ): PlanningConfig {
+        $previousConfig = $roundNumber->getPrevious()->getPlanningConfig();
+        $config = new PlanningConfig($roundNumber);
+        $config->setNrOfHeadtoheadMatches($previousConfig->getNrOfHeadtoheadMatches());
+        $config->setHasExtension($previousConfig->getHasExtension());
+        $config->setMinutesPerGameExt($previousConfig->getMinutesPerGameExt());
+        $config->setEnableTime($previousConfig->getEnableTime());
+        $config->setMinutesPerGame($previousConfig->getMinutesPerGame());
+        $config->setMinutesBetweenGames($previousConfig->getMinutesBetweenGames());
+        $config->setMinutesAfter($previousConfig->getMinutesAfter());
+        $config->setTeamup($previousConfig->getTeamup());
+        $config->setSelfReferee($previousConfig->getSelfReferee());
+        return $config;
     }
 
     private function refillRound(Round $round, int $nrOfPlaces, int $nrOfPoules): ?Round {

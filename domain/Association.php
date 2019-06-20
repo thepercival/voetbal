@@ -9,7 +9,6 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Config\Count as CountConfig;
 
 class Association implements External\Importable // extends External\Importable
 {

@@ -1,6 +1,6 @@
-Voetbal\Config\Planning:
+Voetbal\Planning\Config:
   type: entity
-  repositoryClass: Voetbal\Config\Planning\Repository
+  repositoryClass: Voetbal\Planning\Config\Repository
   table: planningconfigs
   id:
     id:

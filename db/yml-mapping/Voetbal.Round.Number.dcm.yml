@@ -36,7 +36,7 @@ Voetbal\Round\Number:
       mappedBy: number
       cascade: [ persist, remove ]
     countConfigs:
-      targetEntity: Voetbal\Config\Count
+      targetEntity: Voetbal\CountConfig
       mappedBy: roundNumber
       cascade: [ persist, remove ]
   manyToOne:

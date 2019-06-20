@@ -87,7 +87,7 @@ class Horizontal {
     public function setQualifyGroup(?QualifyGroup $qualifyGroup) {
 
         // this is done in horizontalpouleservice
-        // if( this.qualifyGroup != undefined ){ // remove from old round
+        // if( this.qualifyGroup != null ){ // remove from old round
         //     var index = this.qualifyGroup.getHorizontalPoules().indexOf(this);
         //     if (index > -1) {
         //         this.round.getHorizontalPoules().splice(index, 1);
@@ -120,7 +120,7 @@ class Horizontal {
     }
 
     public function hasPlace(Place $place): bool {
-        return $this->getPlaces()->exists( function( $placeIt ) use ($place) { return $placeIt === $place; } );
+        return array_search( $place, $this->getPlaces() ) !== false;
     }
 
     // next(): Poule {

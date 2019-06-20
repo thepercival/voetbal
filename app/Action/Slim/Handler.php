@@ -138,11 +138,16 @@ class Handler
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
-        } elseif ($resourceType === 'configs') {
-            $action = new Voetbal\App\Action\Config(
+        } elseif ($resourceType === 'countconfigs') {
+            $action = new Voetbal\App\Action\CountConfig(
                 $voetbalservice->getService(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
-                $voetbalservice->getService(Voetbal\Dep::class),
+                $serializer
+            );
+        } elseif ($resourceType === 'planningconfigs') {
+            $action = new Voetbal\App\Action\CountConfig(
+                $voetbalservice->getService(Voetbal\Structure::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'places') {

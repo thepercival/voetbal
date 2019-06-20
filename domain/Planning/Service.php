@@ -9,9 +9,7 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Dep;
 use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Game;
 use Voetbal\Competition;
@@ -54,11 +52,11 @@ class Service
     protected function createHelper( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array
     {
         $games = [];
-        $config = $roundNumber->getConfig();
+        $config = $roundNumber->getPlanningConfig();
         foreach ($roundNumber->getPoules() as $poule) {
             $gameGenerator = new GameGenerator($poule);
             $gameRounds = $gameGenerator->generate($config->getTeamup());
-            $nrOfHeadtoheadMatches = $roundNumber->getConfig()->getNrOfHeadtoheadMatches();
+            $nrOfHeadtoheadMatches = $config->getNrOfHeadtoheadMatches();
             for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
                 $reverseHomeAway = ($headtohead % 2) === 0;
                 $headToHeadNumber = ($headtohead - 1) * count($gameRounds);
@@ -80,7 +78,7 @@ class Service
     }
 
     public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
-        if ($roundNumber->getConfig()->getEnableTime() === false) {
+        if ($roundNumber->getPlanningConfig()->getEnableTime() === false) {
             return false;
         }
         if ($roundNumber->hasPrevious() ) {
@@ -108,7 +106,7 @@ class Service
         $referees = $this->getReferees($roundNumber);
         $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $dateTime, $fields, $referees);
         if ($nextDateTime !== null) {
-            return $nextDateTime->modify("+" . $roundNumber->getConfig()->getMinutesAfter() . " minutes");
+            return $nextDateTime->modify("+" . $roundNumber->getPlanningConfig()->getMinutesAfter() . " minutes");
         }
         return $nextDateTime;
     }
@@ -118,7 +116,7 @@ class Service
      * @return array | PlanningReferee[]
      */
     protected function getReferees(RoundNumber $roundNumber): array {
-        if ($roundNumber->getConfig()->getSelfReferee()) {
+        if ($roundNumber->getPlanningConfig()->getSelfReferee()) {
             return array_map( function( $place ) {
                 $x = new PlanningReferee(null, $place);
                 return $x;
@@ -143,10 +141,11 @@ class Service
         array $referees): \DateTimeImmutable
     {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $resourceService = new ResourceService($roundNumber->getConfig(), $dateTime);
+        $resourceService = new ResourceService($roundNumber->getPlanningConfig(), $dateTime);
         $resourceService->setBlockedPeriod($this->blockedPeriod);
         $resourceService->setFields($fields);
         $resourceService->setReferees($referees);
+        $resourceService->setNrOfPoules(count($roundNumber->getPoules()));
         return $resourceService->assign($games);
     }
 
@@ -155,7 +154,7 @@ class Service
             return $roundNumber->getCompetition()->getStartDateTime();
         }
         $previousEndDateTime = $this->calculateEndDateTime($roundNumber->getPrevious());
-        $aPreviousConfig = $roundNumber->getPrevious()->getConfig();
+        $aPreviousConfig = $roundNumber->getPrevious()->getPlanningConfig();
         return $this->addMinutes($previousEndDateTime, $aPreviousConfig->getMinutesAfter());
     }
 
@@ -169,7 +168,7 @@ class Service
                 }
             }
         }
-        return $this->addMinutes($mostRecentStartDateTime, $roundNumber->getConfig()->getMaximalNrOfMinutesPerGame());
+        return $this->addMinutes($mostRecentStartDateTime, $roundNumber->getPlanningConfig()->getMaximalNrOfMinutesPerGame());
     }
 
     protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {

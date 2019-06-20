@@ -12,7 +12,7 @@ use Voetbal\Poule;
 use Voetbal\Place;
 use Voetbal\Place\Combination as PlaceCombination;
 use Voetbal\Place\Combination\Number as PlaceCombinationNumber;
-use Voetbal\Dep;
+use Voetbal\Planning\Config as PlanningConfig;
 
 class GameGenerator
 {
@@ -34,7 +34,7 @@ class GameGenerator
         $gameRoundsSingle = $this->generateRRSchedule($this->poule->getPlaces()->toArray());
 
         $nrOfPoulePlaces = count($this->poule->getPlaces());
-        if ($teamUp !== true || $nrOfPoulePlaces < Dep::TEAMUP_MIN || $nrOfPoulePlaces > Dep::TEAMUP_MAX) {
+        if ($teamUp !== true || $nrOfPoulePlaces < PlanningConfig::TEAMUP_MIN || $nrOfPoulePlaces > PlanningConfig::TEAMUP_MAX) {
             return $gameRoundsSingle;
         }
 

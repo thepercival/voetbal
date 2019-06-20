@@ -9,7 +9,7 @@
 namespace Voetbal\Config\Dep;
 
 use Voetbal\Round;
-use Voetbal\Dep;
+use Voetbal\Config\Dep as ConfigDep;
 
 class Score
 {
@@ -18,13 +18,9 @@ class Score
      */
     protected $id;
     /**
-     * @var Dep
+     * @var ConfigDep
      */
     protected $configDep;
-    /**
-     * @var Dep
-     */
-    protected $config;
     /**
      * @var Score
      */

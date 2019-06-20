@@ -1,4 +1,4 @@
-Voetbal\Config\Count:
+Voetbal\CountConfig:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -17,7 +17,7 @@ Voetbal\Config\Count:
     drawPointsExt:
       type: float
     score:
-      type: Voetbal\Config\Score
+      type: Voetbal\CountConfig\Score
     pointsCalculation:
       type: integer
     sportName:

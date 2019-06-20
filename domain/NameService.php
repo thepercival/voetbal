@@ -12,6 +12,8 @@ use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Game\Place as GamePlace;
+use Voetbal\Qualify\Rule\Single as QualifyRuleSingle;
+use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
 
 class NameService
 {
@@ -92,12 +94,13 @@ class NameService
         $fromQualifyRule = $place->getFromQualifyRule();
         if ($fromQualifyRule->isMultiple()) {
             if ($longName) {
-                return $this->getHorizontalPouleName($fromQualifyRule->getFromHorizontalPoule());
+                $getHorizontalPoule = function( QualifyRuleMultiple $multipleRule ) { return $multipleRule->getFromHorizontalPoule(); };
+                return $this->getHorizontalPouleName( $getHorizontalPoule($fromQualifyRule) );
             }
             return '?' . $fromQualifyRule->getFromPlaceNumber();
         }
-
-        $fromPlace = $fromQualifyRule->getFromPlace();
+        $getFromPlace = function( QualifyRuleSingle $singleRule ) { return $singleRule->getFromPlace(); };
+        $fromPlace = $getFromPlace($fromQualifyRule);
         if ($longName !== true || $fromPlace->getPoule()->needsRanking()) {
             return $this->getPlaceName($fromPlace, false, $longName);
         }

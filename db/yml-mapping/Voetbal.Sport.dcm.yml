@@ -33,7 +33,7 @@ Voetbal\Sport:
       nullable: true
   oneToOne:
     countConfig:
-      targetEntity: Voetbal\Config\Count
+      targetEntity: Voetbal\CountConfig
       joinColumn:
         name: countconfigid
         referencedColumnName: id

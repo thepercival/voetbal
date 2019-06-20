@@ -245,7 +245,7 @@ class Round
     }
 
     public function getNrOfDropoutPlaces(): int {
-        // if (this.nrOfDropoutPlaces === undefined) {
+        // if (this.nrOfDropoutPlaces === null) {
         // @TODO performance check
         return $this->getNrOfPlaces() - $this->getNrOfPlacesChildren();
         // }

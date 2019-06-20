@@ -80,6 +80,7 @@ final class Association
 
             $association = new AssociationBase($associationSer->getName());
             $association->setDescription($associationSer->getDescription());
+            $association->setSport( $associationSer->getSport() );
             $association = $this->service->changeParent($association, $parentAssociation);
             $this->repos->save( $association );
 

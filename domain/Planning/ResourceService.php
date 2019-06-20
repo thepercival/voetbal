@@ -9,7 +9,6 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Game;
-use Voetbal\Dep;
 use Voetbal\Place;
 use Voetbal\Field;
 use League\Period\Period;
@@ -19,7 +18,7 @@ use Voetbal\Planning\Referee as PlanningReferee;
 class ResourceService
 {
     /**
-     * @var Dep
+     * @var Config
      */
     private $config;
     /**
@@ -63,17 +62,17 @@ class ResourceService
     private $nrOfPoules;
 
     public function __construct(
-        Dep $config,
+        Config $config,
         \DateTimeImmutable $dateTime
     )
     {
         $this->config = $config;
         $this->currentGameStartDate = clone $dateTime;
-        if ($this->config->getSelfReferee()) {
-            $this->nrOfPoules = count($this->config->getRoundNumber()->getPoules());
-        }
     }
 
+    public function setNrOfPoules(int $nrOfPoules) {
+        $this->nrOfPoules = $nrOfPoules;
+    }
 
     public function setBlockedPeriod(Period $blockedPeriod = null) {
         $this->blockedPeriod = $blockedPeriod;

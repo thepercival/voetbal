@@ -6,9 +6,9 @@
  * Time: 15:29
  */
 
-namespace Voetbal\Config\Planning;
+namespace Voetbal\Planning\Config;
 
-use Voetbal\Config\Planning as PlanningConfig;
+use Voetbal\Planning\Config as PlanningConfig;
 
 interface Supplier {
     public function setPlanningConfig(PlanningConfig $config);

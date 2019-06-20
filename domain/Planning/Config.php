@@ -6,12 +6,12 @@
  * Time: 15:32
  */
 
-namespace Voetbal\Config;
+namespace Voetbal\Planning;
 
-class Planning {
+class Config {
 
     /**
-     * @var Planning\Supplier
+     * @var Config\Supplier
      */
     protected $supplier;
     /**
@@ -55,12 +55,13 @@ class Planning {
      */
     protected $selfReferee;
 
+    const DEFAULTNROFHEADTOHEADMATCHES = 1;
     const DEFAULTHASEXTENSION = false;
     const DEFAULTENABLETIME = false;
     const TEAMUP_MIN = 4;
     const TEAMUP_MAX = 6;
 
-    public function __construct( Planning\Supplier $supplier )
+    public function __construct( Config\Supplier $supplier )
     {
         $this->supplier = $supplier;
         $this->supplier->setPlanningConfig($this);
@@ -270,9 +271,9 @@ class Planning {
     }
 
     /**
-     * @return Planning\Supplier
+     * @return Config\Supplier
      */
-    protected function getSupplier(): Planning\Supplier
+    protected function getSupplier(): Config\Supplier
     {
         return $this->supplier;
     }

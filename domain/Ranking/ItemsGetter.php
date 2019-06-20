@@ -81,18 +81,18 @@ class ItemsGetter {
         if ($finalScore === null) {
             return $points;
         }
-        $config = $this->round->getNumber()->getConfig();
+        $countConfig = $this->round->getNumber()->getCountConfig();
         if ($this->getGameScorePart($finalScore, $homeAway) > $this->getGameScorePart($finalScore, !$homeAway)) {
             if ($scoresMoment === Game::MOMENT_EXTRATIME) {
-                $points += $config->getWinPointsExt();
+                $points += $countConfig->getWinPointsExt();
             } else {
-                $points += $config->getWinPoints();
+                $points += $countConfig->getWinPoints();
             }
         } else if ($this->getGameScorePart($finalScore, $homeAway) === $this->getGameScorePart($finalScore, !$homeAway)) {
             if ($scoresMoment === Game::MOMENT_EXTRATIME) {
-                $points += $config->getDrawPointsExt();
+                $points += $countConfig->getDrawPointsExt();
             } else {
-                $points += $config->getDrawPoints();
+                $points += $countConfig->getDrawPoints();
             }
         }
         return $points;

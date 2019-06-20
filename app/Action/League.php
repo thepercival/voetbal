@@ -76,7 +76,6 @@ final class League
             }
 
             $league = new LeagueBase( $association, $leagueSer->getName() );
-            $league->setSport( $leagueSer->getSport() );
             $league->setAbbreviation( $leagueSer->getAbbreviation() );
             $league = $this->repos->save($league);
 

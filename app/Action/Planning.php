@@ -47,7 +47,7 @@ final class Planning
      */
     protected $em;
 
-    use Traits\PostSerialize;
+    // use Traits\PostSerialize;
 
     public function __construct(
         GameRepository $repos,

@@ -129,7 +129,7 @@ class Game implements GameImporter
 
         foreach( $competitions as $competition ) {
 
-            $structure = $this->structureService->getStructure( $competition );
+            $structure = null; // @TODO $this->structureService->getStructure( $competition );
             if( $structure === null ) {
                 $this->addNotice('structure not found for competition "' . $competition->getName() . '"');
                 return;

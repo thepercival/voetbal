@@ -14,12 +14,20 @@ and 		p.id is null;
 
 delete from associations where ( select count(*) from leagues where associationid = associations.id ) = 0 and ( select count(*) from competitors where associationid = associations.id ) = 0;
 
--- hier sporten goed toevoegen, zie putty!!!
 insert into sports( name, scoreUnitName, teamup ) (	select distinct sportDep, 'punten', true from leagues );
 
-update sports set teamup = false where name IN ('voetbal', 'volleybal', 'hockey', 'korfbal');
-
-
+update sports set customId = 1, scoreUnitName = 'sets' where name = 'badminton';
+update sports set customId = 2, teamup = false where name = 'basketbal';
+update sports set customId = 3, scoreUnitName = 'sets', scoreSubUnitName = 'legs' where name = 'darten';
+update sports set customId = 4 where name = 'e-sporten';
+update sports set customId = 5, scoreUnitName = 'goals', teamup = false where name = 'hockey';
+update sports set customId = 6, teamup = false where name = 'korfbal';
+update sports set customId = 7 where name = 'schaken';
+update sports set customId = 8, scoreUnitName = 'sets' where name = 'squash';
+update sports set customId = 9, scoreUnitName = 'sets' where name = 'tafeltennis';
+update sports set customId = 10, scoreUnitName = 'sets', scoreSubUnitName = 'games' where name = 'tennis';
+update sports set customId = 11, scoreUnitName = 'goals', teamup = false where name = 'voetbal';
+update sports set customId = 12, scoreUnitName = 'sets', teamup = false where name = 'volleybal';
 
 -- add countconfigs and countscoreconfigs for sports
 insert into countconfigs( qualifyRule, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, sportid )
@@ -34,36 +42,83 @@ insert into countconfigs( qualifyRule, winPoints, drawPoints, winPointsExt, draw
 	from sports
 );
 
-update  sports s join countconfigs cc on cc.sportid = s.id )
+-- update sports
+update  sports s join countconfigs cc on cc.sportid = s.id
 set 		s.countconfigid = cc.id;
 
+-- add countscoreconfigs
+-- select * from countconfigs cc join sports s on s.id = cc.sportid left join countscoreconfigs csc on cc.scoreid = csc.id where cc.roundnumberid is null and s.name = 'darten';
+-- select * from countscoreconfigs c where parentid = ( select cc.scoreid from countconfigs cc join sports s on s.id = cc.sportid left join countscoreconfigs csc on cc.scoreid = csc.id where cc.roundnumberid is null and s.name = 'darten' );
 insert into countscoreconfigs( parentid, direction, maximum )
-( select x from sports where name not in )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'badminton'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'badminton';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'basketbal'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'basketbal';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'darten'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'darten';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select cc.scoreid, 1, 0 from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'darten'
+	);
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'e-sporten'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'e-sporten';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'hockey'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'hockey';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'korfbal'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'korfbal';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'schaken'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'schaken';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'squash'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'squash';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'tafeltennis'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'tafeltennis';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'tennis'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'tennis';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select cc.scoreid, 1, 0 from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'tennis'
+	);
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'voetbal'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'voetbal';
+insert into countscoreconfigs( parentid, direction, maximum )
+	(
+		select null, 1, 0  from countconfigs cc join sports s on s.id = cc.sportid where cc.roundnumberid is null and s.name = 'volleybal'
+	);
+update countconfigs cc join sports s on s.id = cc.sportid set cc.scoreid = LAST_INSERT_ID() where cc.roundnumberid is null and s.name = 'volleybal';
 
-let unitName = 'punten';
-let parentUnitName;
-if (sport === SportConfig.Darts) {
-	unitName = 'legs';
-	parentUnitName = 'sets';
-}
-else if (sport === SportConfig.Tennis) {
-	unitName = 'games';
-	parentUnitName = 'sets';
-}
-else if (sport === SportConfig.Squash || sport === SportConfig.TableTennis || sport === SportConfig.Volleyball || sport === SportConfig.Badminton) {
-	parentUnitName = 'sets';
-}
-else if (sport === SportConfig.Football || sport === SportConfig.Hockey) {
-	unitName = 'goals';
-}
-/** @type {?} */
-let parent;
-if (parentUnitName !== undefined) {
-	parent = this.createScoreConfigFromRoundHelper(config, parentUnitName, RoundNumberConfigScore.UPWARDS, 0, undefined);
-}
-	return this.createScoreConfigFromRoundHelper(config, unitName, RoundNumberConfigScore.UPWARDS, 0, parent);
-}
-
+-- move league.sport to association
 update associations set sportid = ( select s.id from sports s join leagues l on l.sportDep = s.name where l.associationid = associations.id limit 1 );
 
 -- add countconfigs and countscoreconfigs for roundnumbers
@@ -71,18 +126,17 @@ insert into countconfigs( roundnumberid, qualifyRule, winPoints, drawPoints, win
 (
 	select rn.id, rc.qualifyRule, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
 );
-
 update 	countscoreconfigs sc
 				join 	roundscoreconfigs rsc on sc.iddep = rsc.id
 				join 	countscoreconfigs scp on scp.iddep = rsc.parentid
 set 		sc.parentid = scp.id
 where		rsc.parentid is not null;
-
 update 	countconfigs cc
 				join	roundnumbers rn on cc.roundnumberid = rn.id
 				join 	roundconfigs rc on rn.configid = rc.id
 set cc.scoreid = ( select csc.id from countscoreconfigs csc where csc.roundconfigiddep = rc.id and csc.parentid is null );
 
+-- @TODO!!
 
 
 

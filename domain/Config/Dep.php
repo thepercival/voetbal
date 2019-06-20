@@ -9,9 +9,8 @@
 namespace Voetbal\Config;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Config\Score;
+use Voetbal\Config\Dep\Score;
 
 class Dep
 {

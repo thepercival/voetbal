@@ -104,13 +104,19 @@ class Service {
 
         $setToPlacesAndReserve = function (QualifyRule $qualifyRule) use ($childPlace, $queue, $reservationService) {
             if ($qualifyRule->isSingle()) {
-                $reservationService->reserve($childPlace->getPoule()->getNumber(), $qualifyRule->getFromPoule());
-                $qualifyRule->setToPlace($childPlace);
+                $setToPlacesAndReserveSingle = function (QualifyRuleSingle $qualifyRuleSingle) use ($childPlace, $reservationService) {
+                    $reservationService->reserve($childPlace->getPoule()->getNumber(), $qualifyRuleSingle->getFromPoule());
+                    $qualifyRuleSingle->setToPlace($childPlace);
+                };
+                $setToPlacesAndReserveSingle($qualifyRule);
             } else {
-                $qualifyRule->addToPlace($childPlace);
-                if (!$qualifyRule->toPlacesComplete()) {
-                    $queue->add(QualifyRuleQueue::START, $qualifyRule);
-                }
+                $setToPlacesAndReserveMultiple = function (QualifyRuleMultiple $qualifyRuleMultiple) use ($childPlace, $queue) {
+                    $qualifyRuleMultiple->addToPlace($childPlace);
+                    if (!$qualifyRuleMultiple->toPlacesComplete()) {
+                        $queue->add(QualifyRuleQueue::START, $qualifyRuleMultiple);
+                    }
+                };
+                $setToPlacesAndReserveMultiple($qualifyRule);
             }
         };
 

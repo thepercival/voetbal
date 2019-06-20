@@ -4,13 +4,17 @@ namespace Voetbal\Round;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
-use Voetbal\Config\Count as CountConfig;
-use Voetbal\Config\Planning as PlanningConfig;
+use Voetbal\Competitor;
+use Voetbal\CountConfig;
+use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport;
+use Voetbal\Config\Dep as ConfigDep;
+use Voetbal\CountConfig\Supplier as CountConfigSupplier;
+use Voetbal\Planning\Config\Supplier as PlanningConfigSupplier;
 
-class Number
+class Number implements CountConfigSupplier, PlanningConfigSupplier
 {
     /**
      * @var int
@@ -33,7 +37,7 @@ class Number
      */
     protected $next;
     /**
-     * @var Config
+     * @var ConfigDep
      */
     protected $configDep;
     /**
@@ -137,14 +141,6 @@ class Number
 
     public function getARound(): Round {
         return $this->getRounds()->first();
-    }
-
-    public function getConfig(): Config {
-        return $this->config;
-    }
-
-    public function setConfig(Config $config ) {
-        $this->config = $config;
     }
 
     public function needsRanking(): bool {

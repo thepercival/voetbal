@@ -6,13 +6,13 @@
  * Time: 15:18
  */
 
-namespace Voetbal\Config;
+namespace Voetbal;
 
-use Voetbal\Config\Count\Supplier as CountConfigSupplier;
-use Voetbal\Config\Count\Score as ConfigScore;
-use Voetbal\Sport;
+use Voetbal\CountConfig\Supplier as CountConfigSupplier;
+use Voetbal\CountConfig\Score as ConfigScore;
+use Voetbal\Ranking\Service as RankingService;
 
-class Count {
+class CountConfig {
 
     /**
      * @var Sport
@@ -48,13 +48,13 @@ class Count {
      */
     protected $drawPointsExt;
     /**
-     * @var Score
-     */
-    protected $score;
-    /**
      * @var int
      */
     protected $pointsCalculation;
+    /**
+     * @var ConfigScore
+     */
+    protected $score;
 
     const DEFAULT_WINPOINTS = 3;
     const DEFAULT_DRAWPOINTS = 1;
@@ -62,18 +62,11 @@ class Count {
     const POINTS_CALC_SCOREPOINTS = 1;
     const POINTS_CALC_BOTH = 2;
 
-    public function __construct( Sport $sport, Count\Supplier $supplier )
+    public function __construct( Sport $sport, CountConfigSupplier $supplier )
     {
-        $this->setSport($sport);
+        $this->sport = $sport;
         $this->supplier = $supplier;
         $this->supplier->setCountConfig($this);
-
-        // this.winPoints = this.sport.getDefaultWinPoints();
-        // this.drawPoints = this.sport.getDefaultDrawPoints();
-        // this.winPointsExt = this.sport.getDefaultWinPointsExt();
-        // this.drawPointsExt = this.sport.getDefaultDrawPointsExt;
-        // this.setScore(this.createScoreConfig(config));
-        $this->pointsCalculation = Count::POINTS_CALC_GAMEPOINTS;
     }
 
     /**
@@ -178,7 +171,7 @@ class Count {
     }
 
     /**
-     * @return Score
+     * @return ConfigScore
      */
     public function getScore()
     {
@@ -186,9 +179,23 @@ class Count {
     }
 
     /**
-     * @param Score $score
+     * @return int
      */
-    public function setScore( Score $score)
+    public function getPointsCalculation(): int {
+        return $this->pointsCalculation;
+    }
+
+    /**
+     * @param int $pointsCalculation
+     */
+    public function setPointsCalculation(int $pointsCalculation) {
+        $this->pointsCalculation = $pointsCalculation;
+    }
+
+    /**
+     * @param ConfigScore $score
+     */
+    public function setScore( ConfigScore $score)
     {
         $this->score = $score;
     }
@@ -228,9 +235,9 @@ class Count {
     }
 
     /**
-     * @return Count\Supplier
+     * @return CountConfigSupplier
      */
-    protected function getSupplier(): Count\Supplier
+    protected function getSupplier(): CountConfigSupplier
     {
         return $this->supplier;
     }

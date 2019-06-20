@@ -8,8 +8,6 @@
 
 namespace Voetbal;
 
-use Voetbal\Config\Count as CountConfig;
-
 /**
  * Class Sport
  * @package Voetbal

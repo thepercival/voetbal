@@ -60,7 +60,7 @@ final class Game
      */
     protected $serializer;
 
-    use Traits\PostSerialize;
+    // use Traits\PostSerialize;
 
     public function __construct(
         GameService $service,

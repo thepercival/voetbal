@@ -13,7 +13,7 @@ use Voetbal\Structure\Service as StructureService;
 use Voetbal\Config\Service as ConfigService;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
-final class Config
+final class CountConfig
 {
     /**
      * @var StructureService
@@ -23,10 +23,7 @@ final class Config
      * @var CompetitionRepository
      */
     protected $competitionRepos;
-    /**
-     * @var ConfigService
-     */
-    protected $configService;
+
     /**
      * @var Serializer
      */
@@ -35,12 +32,10 @@ final class Config
     public function __construct(
         StructureService $structureService,
         CompetitionRepository $competitionRepos,
-        ConfigService $configService,
         Serializer $serializer
     )
     {
         $this->structureService = $structureService;
-        $this->configService = $configService;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }

@@ -9,12 +9,9 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection as CommonCollection;
 
 use Voetbal\Game\Score;
-use Voetbal\Dep;
 use Voetbal\Game\Place as GamePlace;
-use Voetbal\State;
 
 class Game implements External\Importable
 {
@@ -378,7 +375,7 @@ class Game implements External\Importable
 
     /**
      * @param bool|null $homeaway
-     * @return CommonCollection | GamePlace[]
+     * @return ArrayCollection | GamePlace[]
      */
     public function getPlaces( bool $homeaway = null ): ArrayCollection
     {
@@ -432,7 +429,7 @@ class Game implements External\Importable
         if( $this->getScores()->count() === 0 ) {
             return null;
         }
-        if( $this->getConfig()->getCalculateScore() === $this->getConfig()->getInputScore() ) {
+        if( $this->getCountConfig()->getCalculateScore() === $this->getCountConfig()->getInputScore() ) {
 
             return new Score\HomeAway( $this->getScores()->first()->getHome(), $this->getScores()->first()->getAway());
         }
@@ -447,7 +444,7 @@ class Game implements External\Importable
         return new Score\HomeAway( $home, $away);
     }
 
-    public function getConfig(): Dep {
-        return $this->getRound()->getNumber()->getConfig();
+    public function getCountConfig(): CountConfig {
+        return $this->getRound()->getNumber()->getCountConfig();
     }
 }

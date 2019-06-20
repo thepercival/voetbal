@@ -13,14 +13,11 @@ use Voetbal\External\System\Importer\Structure as StructureImporter;
 use Voetbal\External\System\Importer\Competition as CompetitionImporter;
 use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
 use Voetbal\Competition as Competition;
-use Voetbal\External\Competition as ExternalCompetition;
 use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
 use Voetbal\Structure\Repository as StructureRepository;
-use Voetbal\Round\Service as RoundService;
-use Voetbal\Round\Number\Service as RoundNumberService;
+use Voetbal\Structure\Service as StructureService;
 use Voetbal\Structure as StructureBase;
 use Voetbal\Round;
-use Voetbal\Config\Service as ConfigService;
 use Voetbal\External\League\Repository as ExternalLeagueRepos;
 use Voetbal\External\Season\Repository as ExternalSeasonRepos;
 use Voetbal\External\Season as ExternalSeason;
@@ -67,24 +64,14 @@ class Structure implements StructureImporter
     private $externalSeasonRepos;
 
     /**
+     * @var StructureService
+     */
+    private $structureService;
+    /**
      * @var StructureRepository
      */
     private $structureRepos;
 
-    /**
-     * @var RoundService
-     */
-    private $roundService;
-
-    /**
-     * @var RoundNumberService
-     */
-    private $roundNumberService;
-
-    /**
-     * @var ConfigService
-     */
-    private $configService;
     /**
      * @var Connection $conn;
      */
@@ -102,10 +89,8 @@ class Structure implements StructureImporter
         CompetitionImporter $competitionImporter,
         CompetitorImporter $competitorImporter,
         ExternalCompetitorRepos $externalCompetitorRepos,
+        StructureService $structureService,
         StructureRepository $structureRepository,
-        RoundService $roundService,
-        RoundNumberService $roundNumberService,
-        ConfigService $configService,
         ExternalLeagueRepos $externalLeagueRepos,
         ExternalSeasonRepos $externalSeasonRepos,
         Connection $conn,
@@ -117,10 +102,8 @@ class Structure implements StructureImporter
         $this->competitionImporter = $competitionImporter;
         $this->competitorImporter = $competitorImporter;
         $this->externalCompetitorRepos = $externalCompetitorRepos;
+        $this->structureService = $structureService;
         $this->structureRepos = $structureRepository;
-        $this->roundService = $roundService;
-        $this->roundNumberService = $roundNumberService;
-        $this->configService = $configService;
         $this->externalLeagueRepos = $externalLeagueRepos;
         $this->externalSeasonRepos = $externalSeasonRepos;
         $this->conn = $conn;
@@ -156,26 +139,30 @@ class Structure implements StructureImporter
         /** @var \stdClass $externalSystemRound */
         foreach( $externalSystemRounds as $externalSystemRound ) {
 
-            $configOptions = $this->getConfigOptions($competition->getLeague()->getSport());
-            $configOptions->setNrOfHeadtoheadMatches( $this->getNrOfHeadtoheadMatches($externalSystemRound));
-            $previousRoundNumber = $parentRound ? $parentRound->getNumber() : null;
-            $roundNumber = $this->roundNumberService->create($competition, $configOptions, $previousRoundNumber);
+//            $structure = $this->structureService->create( $competition, $externalSystemRound->places, $externalSystemRound->poules);
+//            $nrOfHeadtoheadMatches = $this->getNrOfHeadtoheadMatches($externalSystemRound);
+//            $structure->getFirstRoundNumber()->getPlanningConfig()->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
 
-            $round = $this->roundService->create(
-                $roundNumber,
-                $this->getNrOfPlacesPerPoule( $externalSystemRound->poules ),
-                $parentRound);
-            $round->setName( $externalSystemRound->name );
-
-            $this->assignCompetitors( $round, $externalSystemRound );
-
-            if( $parentRound === null ) {
-                $rootRound = $round;
-            }
-            $parentRound = $round;
+//            $configOptions = $this->getConfigOptions($competition->getLeague()->getSport());
+//            $configOptions->setNrOfHeadtoheadMatches( $this->getNrOfHeadtoheadMatches($externalSystemRound));
+//            $previousRoundNumber = $parentRound ? $parentRound->getNumber() : null;
+//            $roundNumber = $this->roundNumberService->create($competition, $configOptions, $previousRoundNumber);
+//
+//            $round = $this->roundService->create(
+//                $roundNumber,
+//                $this->getNrOfPlacesPerPoule( $externalSystemRound->poules ),
+//                $parentRound);
+//            $round->setName( $externalSystemRound->name );
+//
+//            $this->assignCompetitors( $round, $externalSystemRound );
+//
+//            if( $parentRound === null ) {
+//                $rootRound = $round;
+//            }
+//            $parentRound = $round;
         }
 
-        return new StructureBase( $rootRound->getNumber(), $rootRound);
+        return null; // new StructureBase( $rootRound->getNumber(), $rootRound);
     }
 
     protected function getNrOfPlacesPerPoule( array $poules ): array
