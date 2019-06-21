@@ -20,6 +20,7 @@ use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Voetbal\Poule;
 use Voetbal\Game as GameBase;
+use Voetbal\App\Action\PostSerialize\RefereeService as DeserializeRefereeService;
 
 final class Game
 {
@@ -59,8 +60,10 @@ final class Game
      * @var Serializer
      */
     protected $serializer;
-
-    // use Traits\PostSerialize;
+    /**
+     * @var DeserializeRefereeService
+     */
+    protected $deserializeRefereeService;
 
     public function __construct(
         GameService $service,
@@ -82,6 +85,7 @@ final class Game
         $this->refereeRepos = $refereeRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
+        $this->deserializeRefereeService = new DeserializeRefereeService();
     }
 
     public function fetchOne( $request, $response, $args)
@@ -119,7 +123,7 @@ final class Game
             }
 
             foreach( $gameSer->getPlaces() as $gamePlaceSer ){
-                $place = $poule->getPlace($gamePlaceSer->getPlaceNr());
+                $place = $poule->getPlace($gamePlaceSer->getPlace()->getNumber());
                 if ( $place === null ) {
                     throw new \Exception("er kan geen deelnemer worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
@@ -127,7 +131,10 @@ final class Game
             }
             $game = new GameBase( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber());
             $game->setPlaces($gameSer->getPlaces());
-            $refereePlace = $gameSer->getRefereePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePlaceId()) : null;
+            $refereePlace = null;
+            if ( $gameSer->getRefereePlaceId() !== null ) {
+                $refereePlace = $this->deserializeRefereeService->getPlace($roundNumber, $gameSer->getRefereePlaceId());
+            }
             $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
             $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
             $game = $this->service->editResource(

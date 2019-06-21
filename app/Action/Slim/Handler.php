@@ -105,6 +105,7 @@ class Handler
             $action = new Voetbal\App\Action\Game(
                 $voetbalservice->getService(Voetbal\Game::class),
                 $voetbalservice->getRepository(Voetbal\Game::class),
+                $voetbalservice->getRepository(Voetbal\Game\Score::class),
                 $voetbalservice->getRepository(Voetbal\Place::class),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
                 $voetbalservice->getRepository(Voetbal\Field::class),
@@ -128,7 +129,6 @@ class Handler
         } elseif ($resourceType === 'fields') {
             $action = new Voetbal\App\Action\Field(
                 $voetbalservice->getRepository(Voetbal\Field::class),
-                $voetbalservice->getService(Voetbal\Field::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
@@ -140,13 +140,15 @@ class Handler
             );
         } elseif ($resourceType === 'countconfigs') {
             $action = new Voetbal\App\Action\Sport\CountConfig(
+                $voetbalservice->getRepository(Voetbal\Sport\CountConfig::class),
                 $voetbalservice->getRepository(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'planningconfigs') {
             $action = new Voetbal\App\Action\Planning\Config(
-                $voetbalservice->getService(Voetbal\Structure::class),
+                $voetbalservice->getRepository(Voetbal\Planning\Config::class),
+                $voetbalservice->getRepository(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );

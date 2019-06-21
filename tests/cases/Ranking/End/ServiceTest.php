@@ -9,7 +9,7 @@
 namespace Voetbal\Tests\Ranking\End;
 
 include_once __DIR__ . '/../../../data/CompetitionCreator.php';
-include_once __DIR__ . '/../../../Helpers/SetScores.php';
+include_once __DIR__ . '/../../../helpers/SetScores.php';
 
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Qualify\Group as QualifyGroup;

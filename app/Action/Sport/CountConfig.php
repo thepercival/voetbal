@@ -10,6 +10,7 @@ namespace Voetbal\App\Action\Sport;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Structure\Repository as StructureRepository;
+use Voetbal\Sport\CountConfig\Repository as CountConfigRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
 final class CountConfig
@@ -22,6 +23,10 @@ final class CountConfig
      * @var CompetitionRepository
      */
     protected $competitionRepos;
+    /**
+     * @var CountConfigRepository
+     */
+    protected $repos;
 
     /**
      * @var Serializer
@@ -29,11 +34,13 @@ final class CountConfig
     protected $serializer;
 
     public function __construct(
+        CountConfigRepository $repos,
         StructureRepository $structureRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
     )
     {
+        $this->repos = $repos;
         $this->structureRepos = $structureRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
@@ -104,7 +111,7 @@ final class CountConfig
             $countConfig->setWinPointsExt( $countConfigSer->getWinPointsExt() );
             $countConfig->setDrawPointsExt( $countConfigSer->getDrawPointsExt() );
             $countConfig->setPointsCalculation( $countConfigSer->getPointsCalculation() );
-            $this->countConfigRepository->save($countConfig);
+            $this->repos->save($countConfig);
 
             return $response
                 ->withStatus(201)

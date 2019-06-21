@@ -69,7 +69,7 @@ final class Structure
             return $response->withStatus(404)->write('geen indeling gevonden voor competitie');
         }
 
-        $structure = $this->service->getStructure( $competition );
+        $structure = $this->repos->getStructure( $competition );
         // var_dump($structure); die();
 
         return $response

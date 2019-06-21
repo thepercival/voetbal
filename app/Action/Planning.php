@@ -19,6 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Voetbal\Poule;
 use Voetbal\Game;
+use Voetbal\App\Action\PostSerialize\RefereeService as DeserializeRefereeService;
 
 final class Planning
 {
@@ -46,8 +47,10 @@ final class Planning
      * @var EntityManager
      */
     protected $em;
-
-    // use Traits\PostSerialize;
+    /**
+     * @var DeserializeRefereeService
+     */
+    protected $deserializeRefereeService;
 
     public function __construct(
         GameRepository $repos,
@@ -63,6 +66,7 @@ final class Planning
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
         $this->em = $em;
+        $this->deserializeRefereeService = new DeserializeRefereeService();
     }
 
     /**
@@ -97,7 +101,10 @@ final class Planning
                     }
                     $game->addPlace( $place, $gamePlaceSer->getHomeaway() );
                 }
-                $refereePlace = $gameSer->getRefereePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePlaceId()) : null;
+                $refereePlace = null;
+                if ( $gameSer->getRefereePlaceId() !== null ) {
+                    $refereePlace = $this->deserializeRefereeService->getPlace($roundNumber, $gameSer->getRefereePlaceId());
+                }
                 $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
                 $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $this->gameService->editResource(
@@ -138,7 +145,10 @@ final class Planning
                 if ($game === null) {
                     throw new \Exception("er kan geen wedstrijd(".$gameSer->getId().") worden gevonden o.b.v. de invoergegevens", E_ERROR);
                 }
-                $refereePlace = $gameSer->getRefereePlaceId() ? $this->getPlace($roundNumber, $gameSer->getRefereePlaceId()) : null;
+                $refereePlace = null;
+                if ( $gameSer->getRefereePlaceId() !== null ) {
+                    $refereePlace = $this->deserializeRefereeService->getPlace($roundNumber, $gameSer->getRefereePlaceId());
+                }
                 $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
                 $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
                 $games[] = $this->gameService->editResource(

@@ -132,9 +132,14 @@ insert into countconfigs( roundnumberid, qualifyRule, winPoints, drawPoints, win
 					 join associations a on a.id = l.associationid
 	);
 
+insert into countscoreconfigs ( parentid, direction, maximum, iddep, roundconfigiddep )
+	(
+		select null, direction, maximum, id, roundconfigid from roundscoreconfigs
+	);
+
 update 	countscoreconfigs sc
-				join 	roundscoreconfigs rsc on sc.iddep = rsc.id
-				join 	countscoreconfigs scp on scp.iddep = rsc.parentid
+	join 	roundscoreconfigs rsc on sc.iddep = rsc.id
+																 join 	countscoreconfigs scp on scp.iddep = rsc.parentid
 set 		sc.parentid = scp.id
 where		rsc.parentid is not null;
 
@@ -150,16 +155,10 @@ update fields f
   join countconfigs cc on cc.roundnumberid = rn.id
 set f.sportid = cc.sportid;
 
+-- remove orphan competitions
+delete c from competitions c where c.id in (897, 898 ) and not exists ( select * from roundnumbers where competitionid = c.id );
 
-
--- @TODO!!
-
-
-
-
-
-
-
+-- @TODO update old structures!!
 
 -- add qualifyGroups
 insert into qualifygroups( roundid, winnersOrLosers, number, childRoundId ) -- nrOfHorizontalPoules
@@ -176,10 +175,5 @@ insert into qualifygroups( roundid, winnersOrLosers, number, childRoundId ) -- n
 -- add rounds and qualifyGroups and update rounds.parentQualifyGroup for (parent)rounds with QualifyOrder = 2
 
 
--- eerst qualifyOrder eruit en vervangen door
---
--- QualifyGroup( round, winnersOrLosers, number )
---
--- winnersOrLosers, number komt overeen met children
 
 

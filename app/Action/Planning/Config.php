@@ -9,16 +9,20 @@
 namespace Voetbal\App\Action\Planning;
 
 use JMS\Serializer\Serializer;
-use Voetbal\Structure\Service as StructureService;
-use Voetbal\Config\Service as ConfigService;
+use Voetbal\Structure\Repository as StructureRepository;
+use Voetbal\Planning\Config\Repository as PlanningConfigRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
 final class Config
 {
     /**
-     * @var StructureService
+     * @var PlanningConfigRepository
      */
-    protected $structureService;
+    protected $repos;
+    /**
+     * @var StructureRepository
+     */
+    protected $structureRepos;
     /**
      * @var CompetitionRepository
      */
@@ -29,12 +33,14 @@ final class Config
     protected $serializer;
 
     public function __construct(
-        StructureService $structureService,
+        PlanningConfigRepository $repos,
+        StructureRepository $structureRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
     )
     {
-        $this->structureService = $structureService;
+        $this->repos = $repos;
+        $this->structureRepos = $structureRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
@@ -84,27 +90,35 @@ final class Config
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            $structure = $this->structureService->getStructure( $competition ); // to init next/previous
-            $roundNumber = $structure->getRoundNumberById( (int) $request->getParam("roundnumberid") );
+            $structure = $this->structureRepos->getStructure( $competition ); // to init next/previous
+            $roundNumber = $structure->getRoundNumber( (int) $request->getParam("roundnumber") );
             if ( $roundNumber === null ) {
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
-            if ( $roundNumber->getCompetition() !== $competition ) {
-                throw new \Exception("de competitie van het rondenummer is niet gelijk aan de opgegeven competitie", E_ERROR);
+
+            /** @var \Voetbal\Sport\CountConfig $configSer */
+            $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
+            if ( $planningConfigSer === null ) {
+                throw new \Exception("er zijn geen plannings-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            /** @var \Voetbal\Dep $configSer */
-            $configSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Dep', 'json');
-            if ( $configSer === null ) {
-                throw new \Exception("er kunnen geen ronde-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
-            }
+            $planningConfig = $roundNumber->getPlanningConfig();
+            $planningConfig->setNrOfHeadtoheadMatches( $planningConfigSer->getNrOfHeadtoheadMatches() );
+            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
+            $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
+            $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );
+            $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
+            $planningConfig->setMinutesBetweenGames( $planningConfigSer->getMinutesBetweenGames() );
+            $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
+            $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
+            $planningConfig->setSelfReferee( $planningConfigSer->getSelfReferee() );
 
-            $this->configService->updateFromSerialized( $roundNumber, $configSer, false );
+            $this->repos->save($planningConfig);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $roundNumber->getConfig(), 'json'));
+                ->write($this->serializer->serialize( $planningConfig, 'json'));
             ;
         }
         catch( \Exception $e ){

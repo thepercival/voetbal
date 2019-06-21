@@ -33,8 +33,8 @@ class GameGenerator
     public function generate(bool $teamUp): array {
         $gameRoundsSingle = $this->generateRRSchedule($this->poule->getPlaces()->toArray());
 
-        $nrOfPoulePlaces = count($this->poule->getPlaces());
-        if ($teamUp !== true || $nrOfPoulePlaces < PlanningConfig::TEAMUP_MIN || $nrOfPoulePlaces > PlanningConfig::TEAMUP_MAX) {
+        $nrOfPlaces = count($this->poule->getPlaces());
+        if ($teamUp !== true || $nrOfPlaces < PlanningConfig::TEAMUP_MIN || $nrOfPlaces > PlanningConfig::TEAMUP_MAX) {
             return $gameRoundsSingle;
         }
 
@@ -65,7 +65,7 @@ class GameGenerator
 
         $games = $this->flattenGameRounds($gameRoundsTmp);
 
-        $totalNrOfCombinations = $this->getTotalNrOfCombinations($nrOfPoulePlaces);
+        $totalNrOfCombinations = $this->getTotalNrOfCombinations($nrOfPlaces);
         if ($totalNrOfCombinations !== count($games)) {
             throw new \Exception('not correct permu', E_ERROR);
         }
@@ -78,12 +78,12 @@ class GameGenerator
         $nrOfGames = 0;
         while (count($uniqueGames) > 0 ) {
             $game = array_shift($uniqueGames);
-            if ($this->isPoulePlaceInRoundGame($gameRound->getCombinations(), $game)) {
+            if ($this->isPlaceInRoundGame($gameRound->getCombinations(), $game)) {
                 $uniqueGames[] = $game;
                 continue;
             }
             $gameRound->addCombination($game); $nrOfGames++;
-            if (((count($gameRound->getCombinations()) * 4) + 4) > $nrOfPoulePlaces) {
+            if (((count($gameRound->getCombinations()) * 4) + 4) > $nrOfPlaces) {
                 $gameRound = new GameRound($gameRound->getNumber() + 1, []);
                 $gameRounds[] = $gameRound;
             }
@@ -118,8 +118,8 @@ class GameGenerator
         return $uniqueGames;
     }
 
-    protected function getTotalNrOfCombinations(int $nrOfPoulePlaces): int{
-        return $this->above($nrOfPoulePlaces, 2) * $this->above($nrOfPoulePlaces - 2, 2);
+    protected function getTotalNrOfCombinations(int $nrOfPlaces): int{
+        return $this->above($nrOfPlaces, 2) * $this->above($nrOfPlaces - 2, 2);
     }
 
     protected function above(int $top, int $bottom): int {
@@ -140,8 +140,8 @@ class GameGenerator
      * @return array | PlaceCombination[]
      */
     protected function getCombinationsWithOut(array $team): array {
-        $opponents = array_filter($this->poule->getPlaces()->toArray(), function($poulePlaceIt ) use ($team) {
-            return count(array_filter($team, function($poulePlace ) use ($poulePlaceIt) { return $poulePlace === $poulePlaceIt; } )) === 0;
+        $opponents = array_filter($this->poule->getPlaces()->toArray(), function($placeIt ) use ($team) {
+            return count(array_filter($team, function($place ) use ($placeIt ) { return $place === $placeIt ; } )) === 0;
         });
         return $this->flattenGameRounds($this->generateRRSchedule( $opponents ) );
     }
@@ -161,7 +161,7 @@ class GameGenerator
      * @param PlaceCombination $game
      * @return bool
      */
-    protected function isPoulePlaceInRoundGame(array $gameRoundCombinations, PlaceCombination $game): bool {
+    protected function isPlaceInRoundGame(array $gameRoundCombinations, PlaceCombination $game): bool {
         foreach ( $gameRoundCombinations as $combination ) {
             if( $combination->hasOverlap($game)) {
                 return true;

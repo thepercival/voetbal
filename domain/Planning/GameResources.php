@@ -34,7 +34,7 @@ class GameResources
         $this->referees = [];
     }
 
-    public function getPouleplace( Place $place )
+    public function getPlace( Place $place )
     {
         if( array_key_exists($place->getId(), $this->places ) === false ){
             return null;
@@ -42,7 +42,7 @@ class GameResources
         return $this->places[$place->getId()];
     }
 
-    public function addPoulePlace( Place $place ) {
+    public function addPlace( Place $place ) {
         $this->places[$place->getId()] = $place;
     }
     

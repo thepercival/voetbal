@@ -134,7 +134,7 @@ class Field
     /**
      * @param Sport $sport
      */
-    private function setSport( Sport $sport )
+    public function setSport( Sport $sport )
     {
         $this->sport = $sport;
     }
