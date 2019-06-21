@@ -20,6 +20,7 @@ Voetbal\Sport\CountConfig:
       type: Voetbal\Sport\CountConfig\Score
     pointsCalculation:
       type: integer
-    sportId:
+  virtual_properties:
+    getSportId:
       type: integer
-      read_only: true
+      serialized_name: sportId

@@ -6,11 +6,9 @@ Voetbal\Sport\CountConfig\Score:
   properties:
     id:
       type: integer
-    name:
-      type: string
     direction:
       type: integer
     maximum:
       type: integer
-    parent:
+    child:
       type: Voetbal\Sport\CountConfig\Score

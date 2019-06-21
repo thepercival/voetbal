@@ -233,6 +233,14 @@ class CountConfig {
     {
         return $this->sport;
     }
+    /**
+     * @return int
+     */
+    public function getSportId(): int
+    {
+        return $this->sport->getId();
+    }
+
 
     /**
      * @return CountConfigSupplier
