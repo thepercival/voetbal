@@ -64,7 +64,7 @@ class Sport
     }
 
     public function getName(): string {
-        $this->name;
+        return $this->name;
     }
 
     public function setName(string $name): void {
@@ -79,7 +79,7 @@ class Sport
         $this->scoreUnitName = $name;
     }
 
-    public function getScoreSubUnitName(): string {
+    public function getScoreSubUnitName(): ?string {
         return $this->scoreSubUnitName;
     }
 
@@ -115,7 +115,7 @@ class Sport
         $this->teamup = $teamup;
     }
 
-    public function getCustomId(): int {
+    public function getCustomId(): ?int {
         return $this->customId;
     }
 

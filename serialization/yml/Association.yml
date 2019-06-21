@@ -12,4 +12,4 @@ Voetbal\Association:
     parent:
       type: Voetbal\Association
     sport:
-      type: Voetbal\Association;
+      type: Voetbal\Sport
