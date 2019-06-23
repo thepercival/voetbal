@@ -5,16 +5,16 @@ namespace Voetbal\Round;
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
-use Voetbal\Sport\CountConfig;
+use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport;
 use Voetbal\Config\Dep as ConfigDep;
-use Voetbal\Sport\CountConfig\Supplier as CountConfigSupplier;
+use Voetbal\Sport\Config\Supplier as SportConfigSupplier;
 use Voetbal\Planning\Config\Supplier as PlanningConfigSupplier;
 
-class Number implements CountConfigSupplier, PlanningConfigSupplier
+class Number implements SportConfigSupplier, PlanningConfigSupplier
 {
     /**
      * @var int
@@ -46,9 +46,9 @@ class Number implements CountConfigSupplier, PlanningConfigSupplier
     protected $rounds;
 
     /**
-     * @var CountConfig[] | ArrayCollection
+     * @var SportConfig[] | ArrayCollection
      */
-    protected $countConfigs;
+    protected $sportConfigs;
 
     /**
      * @var PlanningConfig
@@ -191,21 +191,21 @@ class Number implements CountConfigSupplier, PlanningConfigSupplier
     }
 
     /**
-     * @return ArrayCollection | CountConfig[]
+     * @return ArrayCollection | SportConfig[]
      */
-    public function getCountConfigs(): ArrayCollection {
-        return $this->countConfigs;
+    public function getSportConfigs(): ArrayCollection {
+        return $this->sportConfigs;
     }
 
-    public function getCountConfig(Sport $sport = null): CountConfig {
-        $foundConfigs = $this->countConfigs->filter( function ($countConfig) use ( $sport ) {
-            return $countConfig->getSport() === $sport;
+    public function getSportConfig(Sport $sport = null): SportConfig {
+        $foundConfigs = $this->sportConfigs->filter( function ($sportConfig) use ( $sport ) {
+            return $sportConfig->getSport() === $sport;
         });
         $foundConfig = $foundConfigs->first();
         return $foundConfig !== false ? $foundConfig : null;
     }
 
-    public function setCountConfig(CountConfig $countConfig) {
-        $this->countConfigs->add( $countConfig );
+    public function setSportConfig(SportConfig $sportConfig) {
+        $this->sportConfigs->add( $sportConfig );
     }
 }

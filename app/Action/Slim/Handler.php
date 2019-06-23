@@ -138,9 +138,9 @@ class Handler
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
-        } elseif ($resourceType === 'countconfigs') {
-            $action = new Voetbal\App\Action\Sport\CountConfig(
-                $voetbalservice->getRepository(Voetbal\Sport\CountConfig::class),
+        } elseif ($resourceType === 'sportconfigs') {
+            $action = new Voetbal\App\Action\Sport\Config(
+                $voetbalservice->getRepository(Voetbal\Sport\Config::class),
                 $voetbalservice->getRepository(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer

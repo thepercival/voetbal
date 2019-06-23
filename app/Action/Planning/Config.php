@@ -96,7 +96,7 @@ final class Config
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Sport\CountConfig $configSer */
+            /** @var \Voetbal\Planning\Config $configSer */
             $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
             if ( $planningConfigSer === null ) {
                 throw new \Exception("er zijn geen plannings-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);

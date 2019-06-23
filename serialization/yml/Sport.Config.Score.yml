@@ -1,4 +1,4 @@
-Voetbal\Sport\CountConfig\Score:
+Voetbal\Sport\Config\Score:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -11,4 +11,4 @@ Voetbal\Sport\CountConfig\Score:
     maximum:
       type: integer
     child:
-      type: Voetbal\Sport\CountConfig\Score
+      type: Voetbal\Sport\Config\Score

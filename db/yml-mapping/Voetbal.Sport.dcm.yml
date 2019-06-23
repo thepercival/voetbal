@@ -13,14 +13,18 @@ Voetbal\Sport:
       length : !php/const Voetbal\Sport::MAX_LENGTH_NAME
       unique: false
       nullable: false
-    scoreUnitName:
-      type: string
-      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
-      unique: false
-      nullable: false
-    scoreSubUnitName:
-      type: string
-      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
+#    scoreUnitName:
+#      type: string
+#      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
+#      unique: false
+#      nullable: true
+#    scoreSubUnitName:
+#      type: string
+#      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
+#      unique: false
+#      nullable: true
+    nrOfGameCompetitors:
+      type: int
       unique: false
       nullable: true
     teamup:
@@ -32,10 +36,10 @@ Voetbal\Sport:
       unique: false
       nullable: true
   oneToOne:
-    countConfig:
-      targetEntity: Voetbal\Sport\CountConfig
+    sportConfig:
+      targetEntity: Voetbal\Sport\Config
       joinColumn:
-        name: countconfigid
+        name: configid
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE

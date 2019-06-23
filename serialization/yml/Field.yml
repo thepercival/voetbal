@@ -10,5 +10,7 @@ Voetbal\Field:
       type: integer
     name:
       type: string
-    sport:
-      type: Voetbal\Sport
+  virtual_properties:
+    getSportId:
+      type: integer
+      serialized_name: sportId

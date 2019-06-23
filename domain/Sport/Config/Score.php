@@ -6,9 +6,9 @@
  * Time: 9:53
  */
 
-namespace Voetbal\Sport\CountConfig;
+namespace Voetbal\Sport\Config;
 
-use Voetbal\Sport\CountConfig as CountConfigBase;
+use Voetbal\Sport\Config as SportConfigBase;
 
 class Score
 {
@@ -17,9 +17,9 @@ class Score
      */
     protected $id;
     /**
-     * @var CountConfigBase
+     * @var SportConfigBase
      */
-    protected $countConfig;
+    protected $sportConfig;
     /**
      * @var Score
      */
@@ -36,10 +36,6 @@ class Score
      * @var int
      */
     protected $maximum;
-    /**
-     * @var CountConfigBase
-     */
-    protected $config;
 
     protected $roundconfigiddep; // DEPRECATED
     protected $iddep;  // DEPRECATED
@@ -47,9 +43,9 @@ class Score
     const UPWARDS = 1;
     const DOWNWARDS = 2;
 
-    public function __construct( CountConfigBase $config, Score $parent = null )
+    public function __construct( SportConfigBase $config, Score $parent = null )
     {
-        $this->setConfig( $config );
+        $this->setSportConfig( $config );
         $this->setParent( $parent );
     }
 
@@ -119,20 +115,20 @@ class Score
     }
 
     /**
-     * @return CountConfigBase
+     * @return SportConfigBase
      */
-    public function getConfig()
+    public function getSportConfig()
     {
-        return $this->config;
+        return $this->sportConfig;
     }
 
     /**
-     * @param CountConfigBase $config
+     * @param SportConfigBase $config
      */
-    protected function setConfig( CountConfigBase $config )
+    protected function setSportConfig( SportConfigBase $config )
     {
-        $this->config = $config;
-        $this->config->setScore($this);
+        $this->sportConfig = $config;
+        $this->sportConfig->setScore($this);
     }
 
     /**

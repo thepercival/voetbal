@@ -76,23 +76,24 @@ class ItemsGetter {
         return $items;
     }
 
-    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoresMoment): int {
+    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game ): int {
         $points = 0;
         if ($finalScore === null) {
             return $points;
         }
-        $countConfig = $this->round->getNumber()->getCountConfig();
+        $scoresMoment = $game->getScoresMoment();
+        $config = $game->getSportConfig();
         if ($this->getGameScorePart($finalScore, $homeAway) > $this->getGameScorePart($finalScore, !$homeAway)) {
             if ($scoresMoment === Game::MOMENT_EXTRATIME) {
-                $points += $countConfig->getWinPointsExt();
+                $points += $config->getWinPointsExt();
             } else {
-                $points += $countConfig->getWinPoints();
+                $points += $config->getWinPoints();
             }
         } else if ($this->getGameScorePart($finalScore, $homeAway) === $this->getGameScorePart($finalScore, !$homeAway)) {
             if ($scoresMoment === Game::MOMENT_EXTRATIME) {
-                $points += $countConfig->getDrawPointsExt();
+                $points += $config->getDrawPointsExt();
             } else {
-                $points += $countConfig->getDrawPoints();
+                $points += $config->getDrawPoints();
             }
         }
         return $points;

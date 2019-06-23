@@ -1,6 +1,6 @@
-Voetbal\Sport\CountConfig\Score:
+Voetbal\Sport\Config\Score:
   type: entity
-  repositoryClass: Voetbal\Sport\CountConfig\Score\Repository
+  repositoryClass: Voetbal\Sport\Config\Score\Repository
   table: countscoreconfigs
   id:
     id:
@@ -26,7 +26,7 @@ Voetbal\Sport\CountConfig\Score:
       unique: false
   oneToOne:
     parent:
-      targetEntity: Voetbal\Sport\CountConfig\Score
+      targetEntity: Voetbal\Sport\Config\Score
       inversedBy: child
       joinColumn:
         name: parentid
@@ -34,7 +34,7 @@ Voetbal\Sport\CountConfig\Score:
         nullable: true
         onDelete: CASCADE
     child:
-      targetEntity: Voetbal\Sport\CountConfig\Score
+      targetEntity: Voetbal\Sport\Config\Score
       mappedBy: parent
       cascade: [ persist, remove ]
   uniqueConstraints:

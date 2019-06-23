@@ -8,7 +8,7 @@
 
 namespace Voetbal;
 
-use Voetbal\Sport\CountConfig;
+use Voetbal\Sport\Config;
 
 /**
  * Class Sport
@@ -46,9 +46,9 @@ class Sport
      */
     private $customId;
     /**
-     * @var CountConfig
+     * @var Config
      */
-    private $countConfig;
+    private $config;
 
     public function __construct( string $name )
     {
@@ -91,22 +91,6 @@ class Sport
         return $this->scoreSubUnitName === null;
     }
 
-    /*public function createScoreConfig(CountConfig $config ): ConfigScore {
-
-        $unitScoreConfig = new ConfigScore($config, null);
-        $unitScoreConfig->setName($this->getScoreUnitName());
-        $unitScoreConfig->setDirection(ConfigScore::UPWARDS);
-        $unitScoreConfig->setMaximum(0);
-
-        if ( $this->hasScoreSubUnitName() ) {
-            $subUnitScoreConfig = new ConfigScore($config, $unitScoreConfig);
-            $subUnitScoreConfig->setName($this->getScoreSubUnitName());
-            $subUnitScoreConfig->setDirection(ConfigScore::UPWARDS);
-            $subUnitScoreConfig->setMaximum(0);
-        }
-        return $unitScoreConfig;
-    }*/
-
     public function getTeamup(): bool {
         return $this->teamup;
     }
@@ -123,11 +107,11 @@ class Sport
         $this->customId = $id;
     }
 
-    public function getCountConfig(): CountConfig {
-        return $this->countConfig;
+    public function getConfig(): Config {
+        return $this->config;
     }
 
-    public function setCountConfig(CountConfig $countConfig): void {
-        $this->countConfig = $countConfig;
+    public function setConfig(Config $config): void {
+        $this->config = $config;
     }
 }

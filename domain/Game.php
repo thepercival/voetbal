@@ -12,7 +12,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
 
 use Voetbal\Game\Score;
 use Voetbal\Game\Place as GamePlace;
-use Voetbal\Sport\CountConfig;
+use Voetbal\Sport\Config as SportConfig;
 
 class Game implements External\Importable
 {
@@ -430,8 +430,8 @@ class Game implements External\Importable
         if( $this->getScores()->count() === 0 ) {
             return null;
         }
-        if( $this->getCountConfig()->getCalculateScore() === $this->getCountConfig()->getInputScore() ) {
-
+        $config = $this->getSportConfig();
+        if( $config->getCalculateScore() === $config->getInputScore() ) {
             return new Score\HomeAway( $this->getScores()->first()->getHome(), $this->getScores()->first()->getAway());
         }
         $home = 0; $away = 0;
@@ -445,7 +445,7 @@ class Game implements External\Importable
         return new Score\HomeAway( $home, $away);
     }
 
-    public function getCountConfig(): CountConfig {
-        return $this->getRound()->getNumber()->getCountConfig();
+    public function getSportConfig(): SportConfig {
+        return $this->getRound()->getNumber()->getSportConfig( $this->getField()->getSport() );
     }
 }

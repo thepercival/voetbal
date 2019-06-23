@@ -8,19 +8,19 @@
 
 namespace Voetbal\Sport;
 
-use Voetbal\Sport\CountConfig\Supplier as CountConfigSupplier;
-use Voetbal\Sport\CountConfig\Score as ConfigScore;
+use Voetbal\Sport\Config\Supplier as SportConfigSupplier;
+use Voetbal\Sport\Config\Score as ConfigScore;
 use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Sport as SportBase;
 
-class CountConfig {
+class Config {
 
     /**
      * @var SportBase
      */
     protected $sport;
     /**
-     * @var CountConfigSupplier
+     * @var SportConfigSupplier
      */
     protected $supplier;
     /**
@@ -62,11 +62,11 @@ class CountConfig {
     const POINTS_CALC_SCOREPOINTS = 1;
     const POINTS_CALC_BOTH = 2;
 
-    public function __construct( SportBase $sport, CountConfigSupplier $supplier )
+    public function __construct( SportBase $sport, SportConfigSupplier $supplier )
     {
         $this->sport = $sport;
         $this->supplier = $supplier;
-        $this->supplier->setCountConfig($this);
+        $this->supplier->setSportConfig($this);
     }
 
     /**
@@ -243,9 +243,9 @@ class CountConfig {
 
 
     /**
-     * @return CountConfigSupplier
+     * @return SportConfigSupplier
      */
-    protected function getSupplier(): CountConfigSupplier
+    protected function getSupplier(): SportConfigSupplier
     {
         return $this->supplier;
     }

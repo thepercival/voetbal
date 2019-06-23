@@ -11,5 +11,3 @@ Voetbal\Association:
       type: string
     parent:
       type: Voetbal\Association
-    sport:
-      type: Voetbal\Sport

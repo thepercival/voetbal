@@ -10,10 +10,10 @@ namespace Voetbal\App\Action\Sport;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Structure\Repository as StructureRepository;
-use Voetbal\Sport\CountConfig\Repository as CountConfigRepository;
+use Voetbal\Sport\Config\Repository as SportConfigRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
-final class CountConfig
+final class Config
 {
     /**
      * @var StructureRepository
@@ -24,7 +24,7 @@ final class CountConfig
      */
     protected $competitionRepos;
     /**
-     * @var CountConfigRepository
+     * @var SportConfigRepository
      */
     protected $repos;
 
@@ -34,7 +34,7 @@ final class CountConfig
     protected $serializer;
 
     public function __construct(
-        CountConfigRepository $repos,
+        SportConfigRepository $repos,
         StructureRepository $structureRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
@@ -97,26 +97,26 @@ final class CountConfig
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Sport\CountConfig $configSer */
-            $countConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\CountConfig', 'json');
-            if ( $countConfigSer === null ) {
+            /** @var \Voetbal\Sport\Config $configSer */
+            $sportConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\Config', 'json');
+            if ( $sportConfigSer === null ) {
                 throw new \Exception("er zijn geen sport-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
             $sport = $competition->getSport( (int) $request->getParam("sportid") );
-            $countConfig = $roundNumber->getCountConfig( $sport );
-            $countConfig->setQualifyRule( $countConfigSer->getQualifyRule() );
-            $countConfig->setWinPoints( $countConfigSer->getWinPoints() );
-            $countConfig->setDrawPoints( $countConfigSer->getDrawPoints() );
-            $countConfig->setWinPointsExt( $countConfigSer->getWinPointsExt() );
-            $countConfig->setDrawPointsExt( $countConfigSer->getDrawPointsExt() );
-            $countConfig->setPointsCalculation( $countConfigSer->getPointsCalculation() );
-            $this->repos->save($countConfig);
+            $sportConfig = $roundNumber->getSportConfig( $sport );
+            $sportConfig->setQualifyRule( $sportConfigSer->getQualifyRule() );
+            $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
+            $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
+            $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
+            $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
+            $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
+            $this->repos->save($sportConfig);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $countConfig, 'json'));
+                ->write($this->serializer->serialize( $sportConfig, 'json'));
             ;
         }
         catch( \Exception $e ){

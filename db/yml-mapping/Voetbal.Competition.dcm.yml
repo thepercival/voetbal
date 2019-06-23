@@ -61,6 +61,17 @@ Voetbal\Competition:
               referencedColumnName: id
               nullable: false
             cascade: [ persist ]
+    manyToMany:
+        sports:
+            targetEntity: Voetbal\Sport
+            joinTable:
+              name: competitionsports
+              joinColumns:
+                competitionid:
+                  referencedColumnName: id
+              inverseJoinColumns:
+                sportid:
+                  referencedColumnName: id
     uniqueConstraints:
         main_u_idx:
             columns: [ leagueid, seasonid ]

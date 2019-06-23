@@ -13,5 +13,5 @@ Voetbal\Sport:
       type: string
     customId:
       type: int
-    countConfig:
-      type: Voetbal\Sport\CountConfig
+    nrOfGameCompetitors:
+      type: number

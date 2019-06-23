@@ -23,9 +23,7 @@ use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Qualify\Rule\Service as QualifyRuleService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Qualify\Group\Service as QualifyGroupService;
-use Voetbal\Sport\CountConfig\Score as CountConfigScore;
-use Voetbal\Planning\Config as PlanningConfig;
-use Voetbal\Sport\CountConfig;
+use Voetbal\Sport\Config\Service as SportConfigService;
 
 class Service {
 
@@ -46,8 +44,8 @@ class Service {
 
     public function create(Competition $competition, int $nrOfPlaces, int $nrOfPoules = null): StructureBase {
         $firstRoundNumber = new RoundNumber($competition);
-        $countConfig = $competition->getLeague()->getAssociation()->getSport()->getCountConfig();
-        $firstRoundNumber->getCountConfigs()->add( $countConfig );
+        $sportConfigService = new SportConfigService();
+        foreach( $competition->getSports() as $sport ) { $sportConfigService->createDefault( $sport, $firstRoundNumber ); }
         $this->planningConfigService->createDefault($firstRoundNumber);
         $rootRound = new Round($firstRoundNumber, null);
         $nrOfPoulesToAdd = $nrOfPoules ? $nrOfPoules : $this->getDefaultNrOfPoules($nrOfPlaces);
@@ -393,55 +391,9 @@ class Service {
 
     public function createRoundNumber(Round $parentRound ): RoundNumber {
         $roundNumber = $parentRound->getNumber()->createNext();
-        $this->createConfigsFromPrevious($roundNumber);
         return $roundNumber;
     }
 
-    private function createConfigsFromPrevious(RoundNumber $roundNumber) {
-        $this->createCountConfigsFromPrevious($roundNumber);
-        $this->createPlanningConfigFromPrevious($roundNumber);
-    }
-
-    private function createCountConfigsFromPrevious(RoundNumber $roundNumber) {
-        $previousConfig = $roundNumber->getPrevious()->getCountConfig();
-        $config = new CountConfig($previousConfig->getSport(), $roundNumber);
-        $config->setQualifyRule($previousConfig->getQualifyRule());
-        $config->setWinPoints($previousConfig->getWinPoints());
-        $config->setDrawPoints($previousConfig->getDrawPoints());
-        $config->setWinPointsExt($previousConfig->getWinPointsExt());
-        $config->setDrawPointsExt($previousConfig->getDrawPointsExt());
-        $config->setPointsCalculation($previousConfig->getPointsCalculation());
-        $this->createScoreConfigFromPrevious($config, $previousConfig->getScore());
-    }
-
-    protected function createScoreConfigFromPrevious(CountConfig $config, CountConfigScore $previousScoreConfig) {
-        $newScoreConfig = new CountConfigScore($config, null);
-        $newScoreConfig->setDirection($previousScoreConfig->getDirection());
-        $newScoreConfig->setMaximum($previousScoreConfig->getMaximum());
-
-        $previousSubScoreConfig = $previousScoreConfig->getChild();
-        if ( $previousSubScoreConfig ) {
-            $newSubScoreConfig = new CountConfigScore($config, $newScoreConfig);
-            $newSubScoreConfig->setDirection($previousSubScoreConfig->getDirection());
-            $newSubScoreConfig->setMaximum($previousSubScoreConfig->getMaximum());
-        }
-        return $newScoreConfig;
-    }
-
-    private function createPlanningConfigFromPrevious(RoundNumber $roundNumber ): PlanningConfig {
-        $previousConfig = $roundNumber->getPrevious()->getPlanningConfig();
-        $config = new PlanningConfig($roundNumber);
-        $config->setNrOfHeadtoheadMatches($previousConfig->getNrOfHeadtoheadMatches());
-        $config->setHasExtension($previousConfig->getHasExtension());
-        $config->setMinutesPerGameExt($previousConfig->getMinutesPerGameExt());
-        $config->setEnableTime($previousConfig->getEnableTime());
-        $config->setMinutesPerGame($previousConfig->getMinutesPerGame());
-        $config->setMinutesBetweenGames($previousConfig->getMinutesBetweenGames());
-        $config->setMinutesAfter($previousConfig->getMinutesAfter());
-        $config->setTeamup($previousConfig->getTeamup());
-        $config->setSelfReferee($previousConfig->getSelfReferee());
-        return $config;
-    }
 
     private function refillRound(Round $round, int $nrOfPlaces, int $nrOfPoules): ?Round {
         if ($nrOfPlaces <= 0) {
