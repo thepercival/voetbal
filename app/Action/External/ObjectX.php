@@ -7,7 +7,7 @@
  */
 
 
-namespace Voetbal\App\Action\External;
+namespace VoetbalApp\Action\External;
 
 use JMS\Serializer\Serializer;
 use Voetbal\External\Object\Service as ExternalObjectService;

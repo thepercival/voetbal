@@ -6,7 +6,7 @@
  * Time: 16:00
  */
 
-namespace Voetbal\App\Action\PostSerialize;
+namespace VoetbalApp\Action\PostSerialize;
 
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Place;
