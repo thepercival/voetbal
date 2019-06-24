@@ -6,7 +6,7 @@
  * Time: 20:37
  */
 
-namespace Voetbal\Appx\Action;
+namespace Voetbal\App\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Game\Service as GameService;
@@ -20,7 +20,7 @@ use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal;
 use Voetbal\Poule;
 use Voetbal\Game as GameBase;
-use Voetbal\Appx\Action\PostSerialize\RefereeService as DeserializeRefereeService;
+use Voetbal\App\Action\PostSerialize\RefereeService as DeserializeRefereeService;
 
 final class Game
 {

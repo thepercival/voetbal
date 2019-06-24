@@ -6,7 +6,7 @@
  * Time: 12:06
  */
 
-namespace Voetbal\Appx;
+namespace Voetbal\App;
 
 use Symfony\Component\Yaml\Yaml;
 use Doctrine\ORM\Mapping\Driver\YamlDriver as DoctrineYamlDriver;

@@ -6,7 +6,7 @@
  * Time: 9:04
  */
 
-namespace Voetbal\Appx\Action\Slim;
+namespace Voetbal\App\Action\Slim;
 
 use Voetbal;
 use Slim\Container as SlimContainer;
@@ -74,7 +74,7 @@ class ExternalHandler
         $action = null;
         if ( $resourceType === 'systems' ){
             $service = new Voetbal\External\System\Service( $systemRepos );
-            $action = new Voetbal\Appx\Action\External\System($service, $systemRepos, $serializer);
+            $action = new Voetbal\App\Action\External\System($service, $systemRepos, $serializer);
         }
         else {
             $importableclassname = $this->getImportableClassFromResource($resourceType);
@@ -83,7 +83,7 @@ class ExternalHandler
             $classname =  $this->getClassFromResource($resourceType);
             $objectRepository = $voetbalservice->getRepository($classname);
 
-            $action = new Voetbal\Appx\Action\External\ObjectX( $objectRepository, $importableRepos, $systemRepos, $serializer);
+            $action = new Voetbal\App\Action\External\ObjectX( $objectRepository, $importableRepos, $systemRepos, $serializer);
         }
         if ( $action === null ) {
             throw new \Exception('geen actie gevonden voor '.$resourceType, E_ERROR);

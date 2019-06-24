@@ -6,7 +6,7 @@
  * Time: 21:49
  */
 
-namespace Voetbal\Appx\Action;
+namespace Voetbal\App\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Season\Repository as SeasonRepository;

@@ -6,7 +6,7 @@
  * Time: 14:04
  */
 
-namespace Voetbal\Appx\Action;
+namespace Voetbal\App\Action;
 
 use Doctrine\ORM\EntityManager;
 use JMS\Serializer\Serializer;
@@ -19,7 +19,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Voetbal\Poule;
 use Voetbal\Game;
-use Voetbal\Appx\Action\PostSerialize\RefereeService as DeserializeRefereeService;
+use Voetbal\App\Action\PostSerialize\RefereeService as DeserializeRefereeService;
 
 final class Planning
 {

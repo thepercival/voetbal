@@ -31,7 +31,7 @@ $container['em'] = function ($c) {
         $settings['meta']['proxy_dir'],
 		$settings['meta']['cache']
 	);
-	$config->setMetadataDriverImpl( new Voetbal\Appx\YamlDriver( $settings['meta']['entity_path'] ));
+	$config->setMetadataDriverImpl( new Voetbal\App\YamlDriver( $settings['meta']['entity_path'] ));
 
 	$em = Doctrine\ORM\EntityManager::create($settings['connection'], $config);
     // $em->getConnection()->setAutoCommit(false);

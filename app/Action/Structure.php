@@ -6,7 +6,7 @@
  * Time: 14:02
  */
 
-namespace Voetbal\Appx\Action;
+namespace Voetbal\App\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Structure\Service as StructureService;
