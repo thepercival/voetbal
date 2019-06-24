@@ -6,7 +6,7 @@
  * Time: 22:48
  */
 
-namespace Voetbal\App\Action\Slim;
+namespace Voetbal\Appx\Action\Slim;
 
 use Voetbal;
 use \Slim\Container as SlimContainer;
@@ -66,26 +66,26 @@ class Handler
 
         $action = null;
         if ($resourceType === 'associations') {
-            $action = new Voetbal\App\Action\Association(
+            $action = new Voetbal\Appx\Action\Association(
                 $voetbalservice->getService(Voetbal\Association::class),
                 $voetbalservice->getRepository(Voetbal\Association::class),
                 $serializer);
         } elseif ($resourceType === 'competitors') {
-            $action = new Voetbal\App\Action\Competitor(
+            $action = new Voetbal\Appx\Action\Competitor(
                 $voetbalservice->getRepository(Voetbal\Competitor::class),
                 $voetbalservice->getRepository(Voetbal\Association::class),
                 $serializer);
         } elseif ($resourceType === 'seasons') {
-            $action = new Voetbal\App\Action\Season(
+            $action = new Voetbal\Appx\Action\Season(
                 $voetbalservice->getRepository(Voetbal\Season::class),
                 $serializer);
         } elseif ($resourceType === 'leagues') {
-            $action = new Voetbal\App\Action\League(
+            $action = new Voetbal\Appx\Action\League(
                 $voetbalservice->getRepository(Voetbal\League::class),
                 $voetbalservice->getRepository(Voetbal\Association::class),
                 $serializer);
         } elseif ($resourceType === 'competitions') {
-            $action = new Voetbal\App\Action\Competition(
+            $action = new Voetbal\Appx\Action\Competition(
                 $voetbalservice->getService(Voetbal\Competition::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $voetbalservice->getRepository(Voetbal\League::class),
@@ -102,7 +102,7 @@ class Handler
 //            );
 //        }
         elseif ($resourceType === 'games') {
-            $action = new Voetbal\App\Action\Game(
+            $action = new Voetbal\Appx\Action\Game(
                 $voetbalservice->getService(Voetbal\Game::class),
                 $voetbalservice->getRepository(Voetbal\Game::class),
                 $voetbalservice->getRepository(Voetbal\Game\Score::class),
@@ -113,47 +113,47 @@ class Handler
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer);
         } elseif ($resourceType === 'structures') {
-            $action = new Voetbal\App\Action\Structure(
+            $action = new Voetbal\Appx\Action\Structure(
                 $voetbalservice->getService(Voetbal\Structure::class),
                 $voetbalservice->getStructureRepository(),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer, $em
             );
         } elseif ($resourceType === 'planning') {
-            $action = new Voetbal\App\Action\Planning(
+            $action = new Voetbal\Appx\Action\Planning(
                 $voetbalservice->getRepository(Voetbal\Game::class),
                 $voetbalservice->getService(Voetbal\Game::class),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer, $em);
         } elseif ($resourceType === 'fields') {
-            $action = new Voetbal\App\Action\Field(
+            $action = new Voetbal\Appx\Action\Field(
                 $voetbalservice->getRepository(Voetbal\Field::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'referees') {
-            $action = new Voetbal\App\Action\Referee(
+            $action = new Voetbal\Appx\Action\Referee(
                 $voetbalservice->getRepository(Voetbal\Referee::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'sportconfigs') {
-            $action = new Voetbal\App\Action\Sport\Config(
+            $action = new Voetbal\Appx\Action\Sport\Config(
                 $voetbalservice->getRepository(Voetbal\Sport\Config::class),
                 $voetbalservice->getRepository(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'planningconfigs') {
-            $action = new Voetbal\App\Action\Planning\Config(
+            $action = new Voetbal\Appx\Action\Planning\Config(
                 $voetbalservice->getRepository(Voetbal\Planning\Config::class),
                 $voetbalservice->getRepository(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'places') {
-            $action = new Voetbal\App\Action\Place(
+            $action = new Voetbal\Appx\Action\Place(
                 $voetbalservice->getRepository(Voetbal\Place::class),
                 $voetbalservice->getRepository(Voetbal\Competitor::class),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
