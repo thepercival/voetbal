@@ -32,23 +32,23 @@ class Sport
     /**
      * @var string
      */
-    private $scoreUnitName;
+    // private $scoreUnitName;
     /**
      * @var string
      */
-    private $scoreSubUnitName;
+    // private $scoreSubUnitName;
     /**
      * @var bool
      */
-    private $teamup;
+    private $team;
     /**
      * @var int
      */
     private $customId;
     /**
-     * @var Config
+     * @var int
      */
-    private $config;
+    private $nrOfGameCompetitors;
 
     public function __construct( string $name )
     {
@@ -71,32 +71,32 @@ class Sport
         $this->name = $name;
     }
 
-    public function getScoreUnitName(): string {
-        return $this->scoreUnitName;
+//    public function getScoreUnitName(): string {
+//        return $this->scoreUnitName;
+//    }
+//
+//    public function setScoreUnitName(string $name): void {
+//        $this->scoreUnitName = $name;
+//    }
+//
+//    public function getScoreSubUnitName(): ?string {
+//        return $this->scoreSubUnitName;
+//    }
+//
+//    public function setScoreSubUnitName(string $name): void {
+//        $this->scoreSubUnitName = $name;
+//    }
+//
+//    public function hasScoreSubUnitName(): bool {
+//        return $this->scoreSubUnitName === null;
+//    }
+
+    public function getTeam(): bool {
+        return $this->team;
     }
 
-    public function setScoreUnitName(string $name): void {
-        $this->scoreUnitName = $name;
-    }
-
-    public function getScoreSubUnitName(): ?string {
-        return $this->scoreSubUnitName;
-    }
-
-    public function setScoreSubUnitName(string $name): void {
-        $this->scoreSubUnitName = $name;
-    }
-
-    public function hasScoreSubUnitName(): bool {
-        return $this->scoreSubUnitName === null;
-    }
-
-    public function getTeamup(): bool {
-        return $this->teamup;
-    }
-
-    public function setTeamup(bool $teamup): void {
-        $this->teamup = $teamup;
+    public function setTeam(bool $team): void {
+        $this->team = $team;
     }
 
     public function getCustomId(): ?int {
@@ -107,11 +107,11 @@ class Sport
         $this->customId = $id;
     }
 
-    public function getConfig(): Config {
-        return $this->config;
+    public function getNrOfGameCompetitors(): ?int {
+        return $this->nrOfGameCompetitors;
     }
 
-    public function setConfig(Config $config): void {
-        $this->config = $config;
+    public function setNrOfGameCompetitors(int $nrOfGameCompetitors): void {
+        $this->nrOfGameCompetitors = $nrOfGameCompetitors;
     }
 }

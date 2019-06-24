@@ -69,6 +69,7 @@ Voetbal\Competition:
               joinColumns:
                 competitionid:
                   referencedColumnName: id
+                  onDelete: CASCADE
               inverseJoinColumns:
                 sportid:
                   referencedColumnName: id

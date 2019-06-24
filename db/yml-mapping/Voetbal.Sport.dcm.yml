@@ -24,10 +24,10 @@ Voetbal\Sport:
 #      unique: false
 #      nullable: true
     nrOfGameCompetitors:
-      type: int
+      type: integer
       unique: false
-      nullable: true
-    teamup:
+      nullable: false
+    team:
       type: boolean
       unique: false
       nullable: false
@@ -35,15 +35,6 @@ Voetbal\Sport:
       type: integer
       unique: false
       nullable: true
-  oneToOne:
-    sportConfig:
-      targetEntity: Voetbal\Sport\Config
-      joinColumn:
-        name: configid
-        referencedColumnName: id
-        nullable: true
-        onDelete: CASCADE
-      cascade: [ persist, remove ]
   uniqueConstraints:
     name_idx:
       columns: [ name ]

@@ -7,11 +7,13 @@ Voetbal\Sport:
       type: int
     name:
       type: string
-    scoreUnitName:
-      type: string
-    scoreSubUnitName:
-      type: string
+#    scoreUnitName:
+#      type: string
+#    scoreSubUnitName:
+#      type: string
+    team:
+      type: bool
     customId:
       type: int
     nrOfGameCompetitors:
-      type: number
+      type: int

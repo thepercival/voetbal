@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use \Doctrine\ORM\PersistentCollection;
 use Voetbal\Ranking\Service as RankingService;
 
 class Competition implements External\Importable
@@ -54,6 +55,11 @@ class Competition implements External\Importable
     private $referees;
 
     /**
+     * @var PersistentCollection
+     */
+    private $sports;
+
+    /**
      * @var ArrayCollection
      */
     private $fields;
@@ -73,6 +79,7 @@ class Competition implements External\Importable
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();
         $this->fields = new ArrayCollection();
+        $this->sports = new PersistentCollection();
     }
 
 	/**
@@ -259,21 +266,14 @@ class Competition implements External\Importable
      */
     public function getSports(): array
     {
-        return array_map( function( $field ) {
-            return $field->getSport();
-        }, $this->getFields()->toArray() );
+        return $this->sports->toArray();
     }
 
     /**
-     * @return Sport
+     * @return ArrayCollection | Sport[]
      */
-    public function getSport( int $sportId ): ?Sport
+    public function setSports(PersistentCollection $sports)
     {
-        foreach( $this->getFields() as $field ) {
-            if( $field->getSport()->getId() === $sportId ) {
-                return $field->getSport();
-            }
-        }
-        return null;
+        $this->sports = $sports;
     }
 }

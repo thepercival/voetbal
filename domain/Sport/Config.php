@@ -52,6 +52,11 @@ class Config {
      */
     protected $pointsCalculation;
     /**
+     * @var int
+     */
+    protected $nrOfGameCompetitors;
+
+    /**
      * @var ConfigScore
      */
     protected $score;
@@ -233,6 +238,7 @@ class Config {
     {
         return $this->sport;
     }
+
     /**
      * @return int
      */

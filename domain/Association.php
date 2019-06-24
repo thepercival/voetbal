@@ -47,11 +47,6 @@ class Association implements External\Importable // extends External\Importable
      */
     protected $competitors;
 
-    /**
-     * @var Sport
-     */
-    protected $sport;
-
     const MIN_LENGTH_NAME = 2;
 	const MAX_LENGTH_NAME = 20;
 	const MAX_LENGTH_DESCRIPTION = 50;
@@ -174,13 +169,5 @@ class Association implements External\Importable // extends External\Importable
     public function getCompetitors()
     {
         return $this->competitors;
-    }
-
-    public function getSport(): Sport {
-        return $this->sport;
-    }
-
-    public function setSport(Sport $sport ): void {
-        $this->sport = $sport;
     }
 }

@@ -2,6 +2,7 @@ Voetbal\Competition:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
+  custom_accessor_order: [sports, fields]
 
   properties:
     id:
@@ -16,12 +17,9 @@ Voetbal\Competition:
       type: Voetbal\Season
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
+    sports:
+      type: array<Voetbal\Sport>
     fields:
       type: ArrayCollection<Voetbal\Field>
     referees:
       type: ArrayCollection<Voetbal\Referee>
-    sports:
-      type: ArrayCollection<Voetbal\Sport>
-#  virtual_properties:
-#    hasStructure:
-#      type: bool

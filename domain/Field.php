@@ -132,6 +132,14 @@ class Field
     }
 
     /**
+     * @return int
+     */
+    public function getSportId(): int
+    {
+        return $this->sport->getId();
+    }
+
+    /**
      * @param Sport $sport
      */
     public function setSport( Sport $sport )

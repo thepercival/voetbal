@@ -1,7 +1,7 @@
 Voetbal\Sport\Config\Score:
   type: entity
   repositoryClass: Voetbal\Sport\Config\Score\Repository
-  table: countscoreconfigs
+  table: sportconfigscores
   id:
     id:
       type: integer
