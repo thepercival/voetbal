@@ -61,6 +61,15 @@ set cc.scoreid = ( select csc.id from sportconfigscores csc where csc.roundconfi
 -- add sport to field
 update fields f join competitionsports cs on cs.competitionid = f.competitionid set f.sportid = cs.sportid;
 
+-- add planningconfigs
+insert into planningconfigs( nrOfHeadtoheadMatches,hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, rniddep )
+(
+	select rc.nrOfHeadtoheadMatches, rc.hasExtension, rc.minutesPerGameExt, rc.enableTime, rc.minutesPerGame, rc.minutesInBetween, rc.minutesBetweenGames, rc.teamup, rc.selfReferee, rn.id
+	from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
+);
+
+update roundnumbers set planningConfigId = ( select id from planningconfigs where rniddep = roundnumbers.id );
+
 -- remove orphan competitions
 delete c from competitions c where c.id in (897, 898 ) and not exists ( select * from roundnumbers where competitionid = c.id );
 

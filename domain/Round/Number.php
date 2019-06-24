@@ -2,6 +2,7 @@
 
 namespace Voetbal\Round;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
@@ -60,6 +61,7 @@ class Number implements SportConfigSupplier, PlanningConfigSupplier
         $this->competition = $competition;
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
+        $this->sportConfigs = new ArrayCollection();
     }
 
     /**
@@ -182,18 +184,25 @@ class Number implements SportConfigSupplier, PlanningConfigSupplier
         return $competitors;
     }
 
+    public function getPlanningConfig(): ?PlanningConfig {
+        return $this->planningConfig;
+    }
+
     public function setPlanningConfig(PlanningConfig $config ) {
         $this->planningConfig = $config;
     }
 
-    public function getPlanningConfig(): PlanningConfig {
-        return $this->planningConfig;
+    public function getValidPlanningConfig(): PlanningConfig {
+        if ($this->planningConfig !== null ) {
+            return $this->planningConfig;
+        }
+        return $this->getPrevious()->getValidPlanningConfig();
     }
 
     /**
-     * @return ArrayCollection | SportConfig[]
+     * @return Collection | SportConfig[]
      */
-    public function getSportConfigs(): ArrayCollection {
+    public function getSportConfigs(): Collection {
         return $this->sportConfigs;
     }
 
@@ -207,5 +216,12 @@ class Number implements SportConfigSupplier, PlanningConfigSupplier
 
     public function setSportConfig(SportConfig $sportConfig) {
         $this->sportConfigs->add( $sportConfig );
+    }
+
+    /**
+     * @param ArrayCollection | SportConfig[] $sportConfigs
+     */
+    public function setSportConfigs(ArrayCollection $sportConfigs) {
+        $this->sportConfigs = $sportConfigs;
     }
 }

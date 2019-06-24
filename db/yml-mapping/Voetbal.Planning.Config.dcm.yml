@@ -45,3 +45,7 @@ Voetbal\Planning\Config:
       type: boolean
       nullable: true
       unique: false
+    rniddep: # DEPRECATED
+      type: integer
+      nullable: true
+      unique: false

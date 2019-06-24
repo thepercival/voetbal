@@ -340,7 +340,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $this->assertSame($nameService->getRefereeName($game, false),'CDK');
             $this->assertSame($nameService->getRefereeName($game, true),'Co Du');
 
-            $rootRound->getNumber()->getPlanningConfig()->setSelfReferee(true);
+            $rootRound->getNumber()->getValidPlanningConfig()->setSelfReferee(true);
             // @TODO implements planningservice with sports!!
 //            $planningService->create($rootRound->getNumber());
 //

@@ -9,6 +9,7 @@
 namespace VoetbalApp\Action\Slim;
 
 use Voetbal;
+use VoetbalApp;
 use \Slim\Container as SlimContainer;
 
 class Handler

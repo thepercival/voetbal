@@ -79,7 +79,7 @@ class Competition implements External\Importable
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();
         $this->fields = new ArrayCollection();
-        $this->sports = new PersistentCollection();
+        $this->sports = new ArrayCollection();
     }
 
 	/**

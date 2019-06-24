@@ -55,6 +55,8 @@ class Config {
      */
     protected $selfReferee;
 
+    protected $rniddep;  // DEPRECATED
+
     const DEFAULTNROFHEADTOHEADMATCHES = 1;
     const DEFAULTHASEXTENSION = false;
     const DEFAULTENABLETIME = false;

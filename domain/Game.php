@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 use Voetbal\Game\Score;
 use Voetbal\Game\Place as GamePlace;
@@ -376,9 +377,9 @@ class Game implements External\Importable
 
     /**
      * @param bool|null $homeaway
-     * @return ArrayCollection | GamePlace[]
+     * @return Collection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null ): ArrayCollection
+    public function getPlaces( bool $homeaway = null ): Collection
     {
         if ($homeaway === null) {
             return $this->places;

@@ -16,11 +16,11 @@ Voetbal\Sport\Config\Score:
       type: smallint
       nullable: false
       unique: false
-    iddep:
+    iddep: # DEPRECATED
       type: integer
       nullable: true
       unique: false
-    roundconfigiddep:
+    roundconfigiddep: # DEPRECATED
       type: integer
       nullable: true
       unique: false

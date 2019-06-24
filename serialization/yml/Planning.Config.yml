@@ -1,4 +1,4 @@
-Voetbal\Planning\Config\:
+Voetbal\Planning\Config:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method

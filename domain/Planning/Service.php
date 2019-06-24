@@ -52,7 +52,7 @@ class Service
     protected function createHelper( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array
     {
         $games = [];
-        $config = $roundNumber->getPlanningConfig();
+        $config = $roundNumber->getValidPlanningConfig();
         foreach ($roundNumber->getPoules() as $poule) {
             $gameGenerator = new GameGenerator($poule);
             $gameRounds = $gameGenerator->generate($config->getTeamup());
@@ -78,7 +78,7 @@ class Service
     }
 
     public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
-        if ($roundNumber->getPlanningConfig()->getEnableTime() === false) {
+        if ($roundNumber->getValidPlanningConfig()->getEnableTime() === false) {
             return false;
         }
         if ($roundNumber->hasPrevious() ) {
@@ -106,7 +106,7 @@ class Service
         $referees = $this->getReferees($roundNumber);
         $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $dateTime, $fields, $referees);
         if ($nextDateTime !== null) {
-            return $nextDateTime->modify("+" . $roundNumber->getPlanningConfig()->getMinutesAfter() . " minutes");
+            return $nextDateTime->modify("+" . $roundNumber->getValidPlanningConfig()->getMinutesAfter() . " minutes");
         }
         return $nextDateTime;
     }
@@ -116,7 +116,7 @@ class Service
      * @return array | PlanningReferee[]
      */
     protected function getReferees(RoundNumber $roundNumber): array {
-        if ($roundNumber->getPlanningConfig()->getSelfReferee()) {
+        if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
             return array_map( function( $place ) {
                 $x = new PlanningReferee(null, $place);
                 return $x;
@@ -141,7 +141,7 @@ class Service
         array $referees): \DateTimeImmutable
     {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $resourceService = new ResourceService($roundNumber->getPlanningConfig(), $dateTime);
+        $resourceService = new ResourceService($roundNumber->getValidPlanningConfig(), $dateTime);
         $resourceService->setBlockedPeriod($this->blockedPeriod);
         $resourceService->setFields($fields);
         $resourceService->setReferees($referees);
@@ -154,7 +154,7 @@ class Service
             return $roundNumber->getCompetition()->getStartDateTime();
         }
         $previousEndDateTime = $this->calculateEndDateTime($roundNumber->getPrevious());
-        $aPreviousConfig = $roundNumber->getPrevious()->getPlanningConfig();
+        $aPreviousConfig = $roundNumber->getPrevious()->getValidPlanningConfig();
         return $this->addMinutes($previousEndDateTime, $aPreviousConfig->getMinutesAfter());
     }
 
@@ -168,7 +168,7 @@ class Service
                 }
             }
         }
-        return $this->addMinutes($mostRecentStartDateTime, $roundNumber->getPlanningConfig()->getMaximalNrOfMinutesPerGame());
+        return $this->addMinutes($mostRecentStartDateTime, $roundNumber->getValidPlanningConfig()->getMaximalNrOfMinutesPerGame());
     }
 
     protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {

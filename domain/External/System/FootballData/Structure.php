@@ -141,7 +141,7 @@ class Structure implements StructureImporter
 
 //            $structure = $this->structureService->create( $competition, $externalSystemRound->places, $externalSystemRound->poules);
 //            $nrOfHeadtoheadMatches = $this->getNrOfHeadtoheadMatches($externalSystemRound);
-//            $structure->getFirstRoundNumber()->getPlanningConfig()->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
+//            $structure->getFirstRoundNumber()->getValidPlanningConfig()->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
 
 //            $configOptions = $this->getConfigOptions($competition->getLeague()->getSport());
 //            $configOptions->setNrOfHeadtoheadMatches( $this->getNrOfHeadtoheadMatches($externalSystemRound));

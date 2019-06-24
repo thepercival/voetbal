@@ -12,5 +12,6 @@ use Voetbal\Planning\Config as PlanningConfig;
 
 interface Supplier {
     public function setPlanningConfig(PlanningConfig $config);
-    public function getPlanningConfig(): PlanningConfig;
+    public function getPlanningConfig(): ?PlanningConfig;
+    public function getValidPlanningConfig(): PlanningConfig;
 }

@@ -30,6 +30,14 @@ Voetbal\Round\Number:
         onDelete: CASCADE
       # fetch: EAGER
       cascade: [ remove ] # persist removed
+    planningConfig:
+      targetEntity: Voetbal\Planning\Config
+      joinColumn:
+        name: planningConfigid
+        referencedColumnName: id
+        nullable: true # should be false
+        onDelete: CASCADE
+      cascade: [ persist, remove ]
   oneToMany:
     rounds:
       targetEntity: Voetbal\Round
@@ -37,7 +45,7 @@ Voetbal\Round\Number:
       cascade: [ persist, remove ]
     sportConfigs:
       targetEntity: Voetbal\Sport\Config
-      mappedBy: roundNumber
+      mappedBy: supplier
       cascade: [ persist, remove ]
   manyToOne:
     competition:
