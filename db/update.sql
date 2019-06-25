@@ -14,7 +14,7 @@ and 		p.id is null;
 
 delete from associations where ( select count(*) from leagues where associationid = associations.id ) = 0 and ( select count(*) from competitors where associationid = associations.id ) = 0;
 
-insert into sports( name, nrOfGameCompetitors, team ) (	select distinct sportDep, 2, false from leagues );
+insert into sports( name, team ) (	select distinct sportDep, false from leagues );
 
 update sports set customId = 1 where name = 'badminton';
 update sports set customId = 2, team = true where name = 'basketbal';
@@ -34,9 +34,9 @@ insert into competitionsports( competitionid, sportid )
 	( select c.id, s.id from competitions c join leagues l on l.id = c.leagueid join sports s on s.name = l.sportDep );
 
 -- add sportconfigs and sportconfigscores for roundnumbers
-insert into sportconfigs( roundnumberid, qualifyRule, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, sportid )
+insert into sportconfigs( roundnumberid, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, nrOfGameCompetitors, sportid )
 	(
-		select rn.id, rc.qualifyRule, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation, cs.sportid
+		select rn.id, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation, 2, cs.sportid
 		from roundnumbers rn
 					 join roundconfigs rc on rn.configid = rc.id
 					 join competitionsports cs on cs.competitionid = rn.competitionid

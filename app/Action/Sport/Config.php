@@ -105,7 +105,6 @@ final class Config
 
             $sport = $competition->getSport( (int) $request->getParam("sportid") );
             $sportConfig = $roundNumber->getSportConfig( $sport );
-            $sportConfig->setQualifyRule( $sportConfigSer->getQualifyRule() );
             $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
             $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
             $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );

@@ -11,18 +11,11 @@ namespace Voetbal\Sport\Config;
 use Voetbal\Sport;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Sport\CustomId as SportCustomId;
-use Voetbal\Ranking\Service as RankingService;
-//import { SportConfigScore } from '../config/score';
-//import { SportConfigSupplier } from '../config/supplier';
-//import { Sport } from '../../sport';
-//import { SportCustomId } from '../../sport/customid';
-//import { RankingService } from '../../ranking/service';
 
 class Service {
 
     public function createDefault( Sport $sport, Supplier $supplier ): SportConfig {
         $config = new SportConfig($sport, $supplier);
-        $config->setQualifyRule(RankingService::RULESSET_WC);
         $config->setWinPoints($this->getDefaultWinPoints($sport));
         $config->setDrawPoints($this->getDefaultDrawPoints($sport));
         $config->setWinPointsExt($this->getDefaultWinPointsExt($sport));
@@ -64,7 +57,6 @@ class Service {
 
     public function copy( SportConfig $sourceConfig, Supplier $newSupplier ): SportConfig {
         $newConfig = new SportConfig($sourceConfig->getSport(), $newSupplier);
-        $newConfig->setQualifyRule($sourceConfig->getQualifyRule());
         $newConfig->setWinPoints($sourceConfig->getWinPoints());
         $newConfig->setDrawPoints($sourceConfig->getDrawPoints());
         $newConfig->setWinPointsExt($sourceConfig->getWinPointsExt());

@@ -6,8 +6,6 @@ Voetbal\Sport\Config:
   properties:
     id:
       type: integer
-    qualifyRule:
-      type: integer
     winPoints:
       type: float
     drawPoints:
@@ -20,6 +18,8 @@ Voetbal\Sport\Config:
       type: Voetbal\Sport\Config\Score
     pointsCalculation:
       type: integer
+    nrOfGameCompetitors:
+      type: int
   virtual_properties:
     getSportId:
       type: integer

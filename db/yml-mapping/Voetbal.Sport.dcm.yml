@@ -23,10 +23,6 @@ Voetbal\Sport:
 #      length: !php/const Voetbal\Sport::MAX_LENGTH_UNITNAME
 #      unique: false
 #      nullable: true
-    nrOfGameCompetitors:
-      type: integer
-      unique: false
-      nullable: false
     team:
       type: boolean
       unique: false

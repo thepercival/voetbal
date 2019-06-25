@@ -15,5 +15,3 @@ Voetbal\Sport:
       type: bool
     customId:
       type: int
-    nrOfGameCompetitors:
-      type: int

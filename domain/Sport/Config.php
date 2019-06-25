@@ -28,10 +28,6 @@ class Config {
      */
     protected $id;
     /**
-     * @var int
-     */
-    protected $qualifyRule;
-    /**
      * @var double
      */
     protected $winPoints;
@@ -90,25 +86,6 @@ class Config {
     public function setId(int $id = null)
     {
         $this->id = $id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getQualifyRule()
-    {
-        return $this->qualifyRule;
-    }
-
-    /**
-     * @param int $qualifyRule
-     */
-    public function setQualifyRule( int $qualifyRule)
-    {
-        if ( $qualifyRule < RankingService::RULESSET_WC or $qualifyRule > RankingService::RULESSET_EC) {
-            throw new \InvalidArgumentException("de kwalificatieregel heeft een onjuiste waarde", E_ERROR);
-        }
-        $this->qualifyRule = $qualifyRule;
     }
 
     /**
@@ -195,6 +172,14 @@ class Config {
      */
     public function setPointsCalculation(int $pointsCalculation) {
         $this->pointsCalculation = $pointsCalculation;
+    }
+
+    public function getNrOfGameCompetitors(): ?int {
+        return $this->nrOfGameCompetitors;
+    }
+
+    public function setNrOfGameCompetitors(int $nrOfGameCompetitors): void {
+        $this->nrOfGameCompetitors = $nrOfGameCompetitors;
     }
 
     /**

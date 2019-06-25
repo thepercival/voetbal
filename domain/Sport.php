@@ -45,10 +45,6 @@ class Sport
      * @var int
      */
     private $customId;
-    /**
-     * @var int
-     */
-    private $nrOfGameCompetitors;
 
     public function __construct( string $name )
     {
@@ -105,13 +101,5 @@ class Sport
 
     public function setCustomId(int $id): void {
         $this->customId = $id;
-    }
-
-    public function getNrOfGameCompetitors(): ?int {
-        return $this->nrOfGameCompetitors;
-    }
-
-    public function setNrOfGameCompetitors(int $nrOfGameCompetitors): void {
-        $this->nrOfGameCompetitors = $nrOfGameCompetitors;
     }
 }

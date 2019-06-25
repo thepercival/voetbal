@@ -8,11 +8,6 @@ Voetbal\Sport\Config:
       generator:
         strategy: AUTO
   fields:
-    qualifyRule:
-      type: smallint
-      nullable: false
-      default: !php/const Voetbal\Ranking\Service::RULESSET_WC
-      unique: false
     winPoints:
       type: decimal
       precision: 3
@@ -41,6 +36,10 @@ Voetbal\Sport\Config:
       type: smallint
       nullable: true
       unique: false
+    nrOfGameCompetitors:
+      type: integer
+      unique: false
+      nullable: false
   oneToOne:
     score:
       targetEntity: Voetbal\Sport\Config\Score
