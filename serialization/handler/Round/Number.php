@@ -61,9 +61,9 @@ class Number implements SubscribingHandlerInterface
 //            $roundNumber->setId($arrRoundNumber["id"]);
 //        }
 
-        $metadataConfig = new StaticPropertyMetadata('Voetbal\Dep', "config", $arrRoundNumber["config"] );
+        $metadataConfig = new StaticPropertyMetadata('Voetbal\Planning\Config', "config", $arrRoundNumber["planningConfig"] );
         $metadataConfig->setType(['name' => 'Voetbal\Dep', "params" => [ "roundnumber" => $roundNumber]]);
-        $roundNumber->setConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
+        $roundNumber->setPlanningConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
 
         if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null )
         {

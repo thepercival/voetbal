@@ -153,6 +153,20 @@ class Handler
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
+        } elseif ($resourceType === 'sportplanningconfigs') {
+            $action = new VoetbalApp\Action\Sport\PlanningConfig(
+                $voetbalservice->getRepository(Voetbal\Sport\PlanningConfig::class),
+                $voetbalservice->getRepository(Voetbal\Structure::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $serializer
+            );
+        } elseif ($resourceType === 'sportscoreconfigs') {
+            $action = new VoetbalApp\Action\Sport\ScoreConfig(
+                $voetbalservice->getRepository(Voetbal\Sport\ScoreConfig::class),
+                $voetbalservice->getRepository(Voetbal\Structure::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $serializer
+            );
         } elseif ($resourceType === 'places') {
             $action = new VoetbalApp\Action\Place(
                 $voetbalservice->getRepository(Voetbal\Place::class),

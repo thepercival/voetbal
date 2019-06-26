@@ -2,7 +2,7 @@ Voetbal\Competition:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
-  custom_accessor_order: [sports, fields]
+  custom_accessor_order: [sportConfigs, fields]
 
   properties:
     id:
@@ -17,8 +17,8 @@ Voetbal\Competition:
       type: Voetbal\Season
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
-    sports:
-      type: array<Voetbal\Sport>
+    sportConfigs:
+      type: array<Voetbal\Sport\Config>
     fields:
       type: ArrayCollection<Voetbal\Field>
     referees:

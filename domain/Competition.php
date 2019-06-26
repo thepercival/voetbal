@@ -9,8 +9,10 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use \Doctrine\Common\Collections\Collection;
 use \Doctrine\ORM\PersistentCollection;
 use Voetbal\Ranking\Service as RankingService;
+use Voetbal\Sport\Config as SportConfig;
 
 class Competition implements External\Importable
 {
@@ -55,9 +57,9 @@ class Competition implements External\Importable
     private $referees;
 
     /**
-     * @var PersistentCollection
+     * @var ArrayCollection
      */
-    private $sports;
+    private $sportConfigs;
 
     /**
      * @var ArrayCollection
@@ -79,7 +81,7 @@ class Competition implements External\Importable
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();
         $this->fields = new ArrayCollection();
-        $this->sports = new ArrayCollection();
+        $this->sportConfigs = new ArrayCollection();
     }
 
 	/**
@@ -261,19 +263,32 @@ class Competition implements External\Importable
         return array_shift( $fields );
     }
 
-    /**
-     * @return array | Sport[]
-     */
-    public function getSports(): array
-    {
-        return $this->sports->toArray();
-    }
+//
+//
+//    /**
+//     * @return ArrayCollection | Sport[]
+//     */
+//    public function setSportConfigs(ArrayCollection $sportConfigs)
+//    {
+//        $this->sportConfigs = $sportConfigs;
+//    }
 
     /**
-     * @return ArrayCollection | Sport[]
+     * @return Collection | SportConfig[]
      */
-    public function setSports(PersistentCollection $sports)
-    {
-        $this->sports = $sports;
+    public function getSportConfigs(): Collection {
+        return $this->sportConfigs;
+    }
+
+    public function getSportConfig(Sport $sport = null): SportConfig {
+        $foundConfigs = $this->sportConfigs->filter( function ($sportConfig) use ( $sport ) {
+            return $sportConfig->getSport() === $sport;
+        });
+        $foundConfig = $foundConfigs->first();
+        return $foundConfig !== false ? $foundConfig : null;
+    }
+
+    public function setSportConfig(SportConfig $sportConfig) {
+        $this->sportConfigs->add( $sportConfig );
     }
 }

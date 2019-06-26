@@ -35,6 +35,11 @@ Voetbal\Competition:
             mappedBy: competition
             fetch: EXTRA_LAZY
             cascade: [ remove ]
+        sportConfigs:
+            targetEntity: Voetbal\Sport\Config
+            mappedBy: competition
+            fetch: EXTRA_LAZY
+            cascade: [ remove ]
         fields:
             targetEntity: Voetbal\Field
             mappedBy: competition
@@ -61,18 +66,6 @@ Voetbal\Competition:
               referencedColumnName: id
               nullable: false
             cascade: [ persist ]
-    manyToMany:
-        sports:
-            targetEntity: Voetbal\Sport
-            joinTable:
-              name: competitionsports
-              joinColumns:
-                competitionid:
-                  referencedColumnName: id
-                  onDelete: CASCADE
-              inverseJoinColumns:
-                sportid:
-                  referencedColumnName: id
     uniqueConstraints:
         main_u_idx:
             columns: [ leagueid, seasonid ]

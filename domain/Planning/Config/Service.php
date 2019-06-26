@@ -14,7 +14,6 @@ class Service
 {
     public function createDefault( Supplier $supplier ): PlanningConfig {
         $config = new PlanningConfig($supplier);
-        $config->setNrOfHeadtoheadMatches(PlanningConfig::DEFAULTNROFHEADTOHEADMATCHES);
         $config->setHasExtension(PlanningConfig::DEFAULTHASEXTENSION);
         $config->setMinutesPerGameExt(0);
         $config->setEnableTime(PlanningConfig::DEFAULTENABLETIME);

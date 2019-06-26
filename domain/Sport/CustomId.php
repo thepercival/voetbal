@@ -7,7 +7,7 @@
  */
 namespace Voetbal\Sport;
 
-class CustomId {
+abstract class CustomId {
     const Badminton = 1;
     const Basketball = 2;
     const Darts = 3;

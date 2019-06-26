@@ -15,7 +15,9 @@ Voetbal\Round\Number:
       # when serializing first call all next because of
       access_type: property
       type: Voetbal\Round\Number
-    sportConfigs:
-      type: ArrayCollection<Voetbal\Sport\Config>
+    sportScoreConfigs:
+      type: ArrayCollection<Voetbal\Sport\ScoreConfig>
+    sportPlanningConfigs:
+      type: ArrayCollection<Voetbal\Sport\PlanningConfig>
     planningConfig:
       type: Voetbal\Planning\Config

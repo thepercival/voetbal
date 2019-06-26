@@ -6,8 +6,6 @@ Voetbal\Planning\Config:
   properties:
     id:
       type: integer
-    nrOfHeadtoheadMatches:
-      type: integer
     hasExtension:
       type: bool
     minutesPerGameExt:

@@ -8,10 +8,6 @@ Voetbal\Planning\Config:
       generator:
         strategy: AUTO
   fields:
-    nrOfHeadtoheadMatches:
-      type: smallint
-      nullable: false
-      unique: false
     hasExtension:
       type: boolean
       nullable: false

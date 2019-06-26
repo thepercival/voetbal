@@ -1,4 +1,4 @@
-Voetbal\Sport\Config\Score:
+Voetbal\Sport\PlanningConfig:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
@@ -6,9 +6,7 @@ Voetbal\Sport\Config\Score:
   properties:
     id:
       type: integer
-    direction:
-      type: integer
-    maximum:
+    nrOfHeadtoheadMatches:
       type: integer
     child:
-      type: Voetbal\Sport\Config\Score
+      type: Voetbal\Sport\PlanningConfig

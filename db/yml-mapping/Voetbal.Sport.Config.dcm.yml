@@ -40,21 +40,12 @@ Voetbal\Sport\Config:
       type: integer
       unique: false
       nullable: false
-  oneToOne:
-    score:
-      targetEntity: Voetbal\Sport\Config\Score
-      joinColumn:
-        name: scoreid
-        referencedColumnName: id
-        nullable: true
-        onDelete: CASCADE
-      cascade: [ persist, remove ]
   manyToOne:
-    supplier:
-      targetEntity: Voetbal\Round\Number
+    competition:
+      targetEntity: Voetbal\Competition
       inversedBy: sportConfigs
       joinColumn:
-        name: roundnumberid
+        name: competitionid
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE

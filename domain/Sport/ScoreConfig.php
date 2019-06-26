@@ -6,20 +6,25 @@
  * Time: 9:53
  */
 
-namespace Voetbal\Sport\Config;
+namespace Voetbal\Sport;
 
-use Voetbal\Sport\Config as SportConfigBase;
+use Voetbal\Sport as SportBase;
+use Voetbal\Round\Number as RoundNumber;
 
-class Score
+class ScoreConfig
 {
     /**
      * @var int
      */
     protected $id;
     /**
-     * @var SportConfigBase
+     * @var SportBase
      */
-    protected $sportConfig;
+    protected $sport;
+    /**
+     * @var RoundNumber
+     */
+    protected $roundNumber;
     /**
      * @var Score
      */
@@ -43,9 +48,10 @@ class Score
     const UPWARDS = 1;
     const DOWNWARDS = 2;
 
-    public function __construct( SportConfigBase $config, Score $parent = null )
+    public function __construct( SportBase $sport, RoundNumber $roundNumber, ScoreConfig $parent = null )
     {
-        $this->setSportConfig( $config );
+        $this->setSport( $sport );
+        $this->setRoundNumber( $roundNumber );
         $this->setParent( $parent );
     }
 
@@ -115,20 +121,36 @@ class Score
     }
 
     /**
-     * @return SportConfigBase
+     * @return SportBase
      */
-    public function getSportConfig()
+    public function getSport()
     {
-        return $this->sportConfig;
+        return $this->sport;
     }
 
     /**
-     * @param SportConfigBase $config
+     * @param SportBase $sport
      */
-    protected function setSportConfig( SportConfigBase $config )
+    protected function setSport( SportBase $sport )
     {
-        $this->sportConfig = $config;
-        $this->sportConfig->setScore($this);
+        $this->sport = $sport;
+    }
+
+    /**
+     * @return RoundNumber
+     */
+    public function getRoundNumber()
+    {
+        return $this->roundNumber;
+    }
+
+    /**
+     * @param RoundNumber $sport
+     */
+    protected function setRoundNumber( RoundNumber $roundNumber )
+    {
+        $this->roundNumber = $roundNumber;
+        $this->roundNumber->setSportScoreConfig($this);
     }
 
     /**

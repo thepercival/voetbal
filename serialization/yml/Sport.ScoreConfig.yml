@@ -1,0 +1,14 @@
+Voetbal\Sport\ScoreConfig:
+  exclusion_policy: ALL
+  exclude: false
+  access_type: public_method
+
+  properties:
+    id:
+      type: integer
+    direction:
+      type: integer
+    maximum:
+      type: integer
+    child:
+      type: Voetbal\Sport\ScoreConfig

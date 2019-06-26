@@ -19,10 +19,6 @@ class Config {
      */
     protected $id;
     /**
-     * @var int
-     */
-    protected $nrOfHeadtoheadMatches;
-    /**
      * @var bool
      */
     protected $hasExtension;
@@ -57,7 +53,6 @@ class Config {
 
     protected $rniddep;  // DEPRECATED
 
-    const DEFAULTNROFHEADTOHEADMATCHES = 1;
     const DEFAULTHASEXTENSION = false;
     const DEFAULTENABLETIME = false;
     const TEAMUP_MIN = 4;
@@ -85,25 +80,6 @@ class Config {
     public function setId(int $id = null)
     {
         $this->id = $id;
-    }
-
-    /**
-     * @return int
-     */
-    public function getNrOfHeadtoheadMatches()
-    {
-        return $this->nrOfHeadtoheadMatches;
-    }
-
-    /**
-     * @param int $nrOfHeadtoheadMatches
-     */
-    public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
-    {
-        if (!is_int($nrOfHeadtoheadMatches)) {
-            throw new \InvalidArgumentException("het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR);
-        }
-        $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
     }
 
     /**

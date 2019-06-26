@@ -8,7 +8,6 @@
 
 namespace Voetbal\Sport;
 
-use Voetbal\Sport\Config\Supplier as SportConfigSupplier;
 use Voetbal\Sport\Config\Score as ConfigScore;
 use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Sport as SportBase;
@@ -20,9 +19,9 @@ class Config {
      */
     protected $sport;
     /**
-     * @var SportConfigSupplier
+     * @var Competition
      */
-    protected $supplier;
+    protected $competition;
     /**
      * @var int
      */
@@ -52,22 +51,17 @@ class Config {
      */
     protected $nrOfGameCompetitors;
 
-    /**
-     * @var ConfigScore
-     */
-    protected $score;
-
     const DEFAULT_WINPOINTS = 3;
     const DEFAULT_DRAWPOINTS = 1;
     const POINTS_CALC_GAMEPOINTS = 0;
     const POINTS_CALC_SCOREPOINTS = 1;
     const POINTS_CALC_BOTH = 2;
 
-    public function __construct( SportBase $sport, SportConfigSupplier $supplier )
+    public function __construct( SportBase $sport, Competition $competition )
     {
         $this->sport = $sport;
-        $this->supplier = $supplier;
-        $this->supplier->setSportConfig($this);
+        $this->competition = $competition;
+        $this->competition->setSportConfig($this);
     }
 
     /**
@@ -153,14 +147,6 @@ class Config {
     }
 
     /**
-     * @return ConfigScore
-     */
-    public function getScore()
-    {
-        return $this->score;
-    }
-
-    /**
      * @return int
      */
     public function getPointsCalculation(): int {
@@ -180,14 +166,6 @@ class Config {
 
     public function setNrOfGameCompetitors(int $nrOfGameCompetitors): void {
         $this->nrOfGameCompetitors = $nrOfGameCompetitors;
-    }
-
-    /**
-     * @param ConfigScore $score
-     */
-    public function setScore( ConfigScore $score)
-    {
-        $this->score = $score;
     }
 
     /**
@@ -225,19 +203,10 @@ class Config {
     }
 
     /**
-     * @return int
+     * @return Competition
      */
-    public function getSportId(): int
+    protected function getCompetition(): Competition
     {
-        return $this->sport->getId();
-    }
-
-
-    /**
-     * @return SportConfigSupplier
-     */
-    protected function getSupplier(): SportConfigSupplier
-    {
-        return $this->supplier;
+        return $this->competition;
     }
 }
