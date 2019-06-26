@@ -9,11 +9,12 @@
 namespace Voetbal\Planning\Config;
 
 use Voetbal\Planning\Config as PlanningConfig;
+use Voetbal\Round\Number as RoundNumber;
 
 class Service
 {
-    public function createDefault( Supplier $supplier ): PlanningConfig {
-        $config = new PlanningConfig($supplier);
+    public function createDefault( RoundNumber $roundNumber ): PlanningConfig {
+        $config = new PlanningConfig($roundNumber);
         $config->setHasExtension(PlanningConfig::DEFAULTHASEXTENSION);
         $config->setMinutesPerGameExt(0);
         $config->setEnableTime(PlanningConfig::DEFAULTENABLETIME);

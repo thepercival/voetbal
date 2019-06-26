@@ -8,12 +8,14 @@
 
 namespace Voetbal\Planning;
 
+use Voetbal\Round\Number as RoundNumber;
+
 class Config {
 
     /**
-     * @var Config\Supplier
+     * @var RoundNumber
      */
-    protected $supplier;
+    protected $roundNumber;
     /**
      * @var int
      */
@@ -58,10 +60,10 @@ class Config {
     const TEAMUP_MIN = 4;
     const TEAMUP_MAX = 6;
 
-    public function __construct( Config\Supplier $supplier )
+    public function __construct( RoundNumber $roundNumber )
     {
-        $this->supplier = $supplier;
-        $this->supplier->setPlanningConfig($this);
+        $this->roundNumber = $roundNumber;
+        $this->roundNumber->setPlanningConfig($this);
     }
 
     /**
@@ -249,10 +251,10 @@ class Config {
     }
 
     /**
-     * @return Config\Supplier
+     * @return RoundNumber
      */
-    protected function getSupplier(): Config\Supplier
+    protected function getRoundNumber(): RoundNumber
     {
-        return $this->supplier;
+        return $this->roundNumber;
     }
 }

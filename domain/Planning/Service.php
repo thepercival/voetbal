@@ -53,27 +53,28 @@ class Service
     {
         $games = [];
         $config = $roundNumber->getValidPlanningConfig();
-        foreach ($roundNumber->getPoules() as $poule) {
-            $gameGenerator = new GameGenerator($poule);
-            $gameRounds = $gameGenerator->generate($config->getTeamup());
-            $nrOfHeadtoheadMatches = $config->getNrOfHeadtoheadMatches();
-            for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
-                $reverseHomeAway = ($headtohead % 2) === 0;
-                $headToHeadNumber = ($headtohead - 1) * count($gameRounds);
-                foreach ($gameRounds as $gameRound ) {
-                    $subNumber = 1;
-                    foreach( $gameRound->getCombinations() as $combination ) {
-                        $game = new Game( $poule,  $headToHeadNumber + $gameRound->getNumber(), $subNumber ++);
-                        $game->setPlaces(new ArrayCollection($combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/)));
-                        $games[] = $game;
-                    }
-                }
-            }
-        }
-        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
-        if ($roundNumber->hasNext()) {
-            $games = array_merge( $games, $this->createHelper($roundNumber->getNext(), $startNextRound) );
-        }
+        var_dump('@TODO'); die();
+//        foreach ($roundNumber->getPoules() as $poule) {
+//            $gameGenerator = new GameGenerator($poule);
+//            $gameRounds = $gameGenerator->generate($config->getTeamup());
+//            $nrOfHeadtoheadMatches = $config->getNrOfHeadtoheadMatches();
+//            for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
+//                $reverseHomeAway = ($headtohead % 2) === 0;
+//                $headToHeadNumber = ($headtohead - 1) * count($gameRounds);
+//                foreach ($gameRounds as $gameRound ) {
+//                    $subNumber = 1;
+//                    foreach( $gameRound->getCombinations() as $combination ) {
+//                        $game = new Game( $poule,  $headToHeadNumber + $gameRound->getNumber(), $subNumber ++);
+//                        $game->setPlaces(new ArrayCollection($combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/)));
+//                        $games[] = $game;
+//                    }
+//                }
+//            }
+//        }
+//        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+//        if ($roundNumber->hasNext()) {
+//            $games = array_merge( $games, $this->createHelper($roundNumber->getNext(), $startNextRound) );
+//        }
         return $games;
     }
 

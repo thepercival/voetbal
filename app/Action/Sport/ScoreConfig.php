@@ -103,20 +103,20 @@ final class ScoreConfig
                 throw new \Exception("er zijn geen sport-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $sport = $competition->getSport( (int) $request->getParam("sportid") );
-            $sportConfig = $roundNumber->getSportConfig( $sport );
-            $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
-            $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
-            $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
-            $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
-            $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
-            $this->repos->save($sportConfig);
-
-            return $response
-                ->withStatus(201)
-                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $sportConfig, 'json'));
-            ;
+//            $sport = $competition->getSport( (int) $request->getParam("sportid") );
+//            $sportConfig = $roundNumber->getSportScoreConfig( $sport );
+//            $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
+//            $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
+//            $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
+//            $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
+//            $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
+//            $this->repos->save($sportConfig);
+//
+//            return $response
+//                ->withStatus(201)
+//                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+//                ->write($this->serializer->serialize( $sportConfig, 'json'));
+//            ;
         }
         catch( \Exception $e ){
             return $response->withStatus(422 )->write( $e->getMessage() );

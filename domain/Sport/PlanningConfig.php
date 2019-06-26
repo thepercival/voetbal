@@ -83,7 +83,7 @@ class PlanningConfig
     }
 
     /**
-     * @param RoundNumber $sport
+     * @param RoundNumber $roundNumber
      */
     protected function setRoundNumber( RoundNumber $roundNumber )
     {

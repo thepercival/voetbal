@@ -6,19 +6,15 @@
  * Time: 12:35
  */
 
-namespace VoetbalApp\Action\Planning;
+namespace VoetbalApp\Action\Sport;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Structure\Repository as StructureRepository;
-use Voetbal\Planning\Config\Repository as PlanningConfigRepository;
+use Voetbal\Sport\Config\Repository as SportConfigRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
-final class Config
+final class PlanningConfig
 {
-    /**
-     * @var PlanningConfigRepository
-     */
-    protected $repos;
     /**
      * @var StructureRepository
      */
@@ -28,12 +24,17 @@ final class Config
      */
     protected $competitionRepos;
     /**
+     * @var SportConfigRepository
+     */
+    protected $repos;
+
+    /**
      * @var Serializer
      */
     protected $serializer;
 
     public function __construct(
-        PlanningConfigRepository $repos,
+        SportConfigRepository $repos,
         StructureRepository $structureRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
@@ -96,29 +97,26 @@ final class Config
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Planning\Config $configSer */
-            $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
-            if ( $planningConfigSer === null ) {
-                throw new \Exception("er zijn geen plannings-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
+            /** @var \Voetbal\Sport\Config $configSer */
+            $sportConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\Config', 'json');
+            if ( $sportConfigSer === null ) {
+                throw new \Exception("er zijn geen sport-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $planningConfig = $roundNumber->getPlanningConfig();
-            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
-            $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
-            $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );
-            $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
-            $planningConfig->setMinutesBetweenGames( $planningConfigSer->getMinutesBetweenGames() );
-            $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
-            $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
-            $planningConfig->setSelfReferee( $planningConfigSer->getSelfReferee() );
-
-            $this->repos->save($planningConfig);
-
-            return $response
-                ->withStatus(201)
-                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $planningConfig, 'json'));
-            ;
+//            $sport = $competition->getSport( (int) $request->getParam("sportid") );
+//            $sportConfig = $roundNumber->getSportScoreConfig( $sport );
+//            $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
+//            $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
+//            $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
+//            $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
+//            $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
+//            $this->repos->save($sportConfig);
+//
+//            return $response
+//                ->withStatus(201)
+//                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+//                ->write($this->serializer->serialize( $sportConfig, 'json'));
+//            ;
         }
         catch( \Exception $e ){
             return $response->withStatus(422 )->write( $e->getMessage() );

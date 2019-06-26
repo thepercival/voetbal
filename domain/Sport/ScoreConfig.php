@@ -26,11 +26,11 @@ class ScoreConfig
      */
     protected $roundNumber;
     /**
-     * @var Score
+     * @var ScoreConfig
      */
     protected $parent;
     /**
-     * @var Score
+     * @var ScoreConfig
      */
     protected $child;
     /**
@@ -74,7 +74,7 @@ class ScoreConfig
     }
 
     /**
-     * @return Score
+     * @return ScoreConfig
      */
     public function getParent()
     {
@@ -82,9 +82,9 @@ class ScoreConfig
     }
 
     /**
-     * @param Score $scoreConfig
+     * @param ScoreConfig $scoreConfig
      */
-    public function setParent( Score $scoreConfig = null )
+    public function setParent( ScoreConfig $scoreConfig = null )
     {
         $this->parent = $scoreConfig;
         if( $this->parent !== null ) {
@@ -93,7 +93,7 @@ class ScoreConfig
     }
 
     /**
-     * @return Score
+     * @return ScoreConfig
      */
     public function getChild()
     {
@@ -101,15 +101,15 @@ class ScoreConfig
     }
 
     /**
-     * @param Score $scoreConfig
+     * @param ScoreConfig $scoreConfig
      */
-    public function setChild( Score $scoreConfig = null )
+    public function setChild( ScoreConfig $scoreConfig = null )
     {
         $this->child = $scoreConfig;
     }
 
     /**
-     * @return Score
+     * @return ScoreConfig
      */
     public function getRoot()
     {
@@ -145,7 +145,7 @@ class ScoreConfig
     }
 
     /**
-     * @param RoundNumber $sport
+     * @param RoundNumber $roundNumber
      */
     protected function setRoundNumber( RoundNumber $roundNumber )
     {
@@ -166,7 +166,7 @@ class ScoreConfig
      */
     public function setDirection( $direction )
     {
-        if ( $direction !== Score::UPWARDS and $direction !== Score::DOWNWARDS ) {
+        if ( $direction !== ScoreConfig::UPWARDS and $direction !== ScoreConfig::DOWNWARDS ) {
             throw new \InvalidArgumentException( "de richting heeft een onjuiste waarde", E_ERROR );
         }
         $this->direction = $direction;

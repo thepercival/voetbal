@@ -11,6 +11,7 @@ namespace Voetbal\Ranking;
 use Voetbal\Game ;
 use Voetbal\Game\Score as GameScore;
 use Voetbal\Game\Score\HomeAway as GameScoreHomeAway;
+use Voetbal\Sport\ScoreConfig\Service as SportScoreConfigService;
 use Voetbal\Place;
 use Voetbal\Round;
 use Voetbal\Ranking\RoundItem\Unranked as UnrankedRoundItem;
@@ -27,11 +28,16 @@ class ItemsGetter {
      * @var int
      */
     private $gameStates;
+    /**
+     * @var SportScoreConfigService
+     */
+    private $sportScoreConfigService;
 
     public function __construct(Round $round, int $gameStates )
     {
         $this->round = $round;
         $this->gameStates = $gameStates;
+        $this->sportScoreConfigService = new SportScoreConfigService();
     }
 
     protected static function getIndex(Place $place ): string {
@@ -51,7 +57,7 @@ class ItemsGetter {
             if (($game->getState() & $this->gameStates) === 0) {
                 continue;
             }
-            $finalScore = $game->getFinalScore();
+            $finalScore = $this->sportScoreConfigService->getFinal($game);
             foreach( [Game::HOME, Game::AWAY] as $homeAway ) {
                 $points = $this->getNrOfPoints($finalScore, $homeAway, $game->getScoresMoment());
                 $scored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED, false);

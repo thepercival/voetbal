@@ -8,12 +8,7 @@
 
 namespace Voetbal\Config\Dep;
 
-use Voetbal\Dep as ConfigBase;
-use Voetbal\SportConfig as VoetbalConfig;
-use Voetbal\Ranking\Service as RankingService;
-use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Dep;
-use Voetbal\Config\Score as ConfigScore;
 use Voetbal\SportConfig;
 
 

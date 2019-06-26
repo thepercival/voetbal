@@ -8,9 +8,8 @@
 
 namespace Voetbal\Sport;
 
-use Voetbal\Sport\Config\Score as ConfigScore;
-use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Sport as SportBase;
+use Voetbal\Competition;
 
 class Config {
 
@@ -166,32 +165,6 @@ class Config {
 
     public function setNrOfGameCompetitors(int $nrOfGameCompetitors): void {
         $this->nrOfGameCompetitors = $nrOfGameCompetitors;
-    }
-
-    /**
-     * @return ConfigScore
-     */
-    public function getInputScore(): ConfigScore
-    {
-        $parentScoreConfig = $this->getScore();
-        $childScoreConfig = $parentScoreConfig->getChild();
-        while ($childScoreConfig !== null && ( $childScoreConfig->getMaximum() > 0 || $parentScoreConfig->getMaximum() === 0 )) {
-            $parentScoreConfig = $childScoreConfig;
-            $childScoreConfig = $childScoreConfig->getChild();
-        }
-        return $parentScoreConfig;
-    }
-
-    /**
-     * @return ConfigScore
-     */
-    public function getCalculateScore(): ConfigScore
-    {
-        $score = $this->getScore();
-        while ($score->getMaximum() === 0 && $score->getChild() !== null) {
-            $score = $score->getChild();
-        }
-        return $score;
     }
 
     /**

@@ -291,4 +291,12 @@ class Competition implements External\Importable
     public function setSportConfig(SportConfig $sportConfig) {
         $this->sportConfigs->add( $sportConfig );
     }
+
+    public function hasMultipleSportConfigs(): bool {
+        return $this->sportConfigs->count() > 1;
+    }
+
+    public function getFirstSportConfig(): SportConfig {
+        return $this->sportConfigs[0];
+    }
 }

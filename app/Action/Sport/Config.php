@@ -91,11 +91,6 @@ final class Config
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            $structure = $this->structureRepos->getStructure( $competition ); // to init next/previous
-            $roundNumber = $structure->getRoundNumber( (int) $request->getParam("roundnumber") );
-            if ( $roundNumber === null ) {
-                throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
-            }
 
             /** @var \Voetbal\Sport\Config $configSer */
             $sportConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\Config', 'json');
@@ -104,7 +99,7 @@ final class Config
             }
 
             $sport = $competition->getSport( (int) $request->getParam("sportid") );
-            $sportConfig = $roundNumber->getSportConfig( $sport );
+            $sportConfig = $competition->getSportConfig( $sport );
             $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
             $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
             $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );

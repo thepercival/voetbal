@@ -426,27 +426,19 @@ class Game implements External\Importable
         return null;
     }
 
-    public function getFinalScore(): ?Score\HomeAway
-    {
-        if( $this->getScores()->count() === 0 ) {
-            return null;
+    public function getSportConfig(): SportConfig {
+        $field = $this->getField();
+        if ( $field === null ) {
+            return $this->getRound()->getNumber()->getCompetition()->getFirstSportConfig();
         }
-        $config = $this->getSportConfig();
-        if( $config->getCalculateScore() === $config->getInputScore() ) {
-            return new Score\HomeAway( $this->getScores()->first()->getHome(), $this->getScores()->first()->getAway());
-        }
-        $home = 0; $away = 0;
-        foreach( $this->getScores() as $score ) {
-            if( $score->getHome() > $score->getAway() ) {
-                $home++;
-            } else if( $score->getHome() < $score->getAway() ) {
-                $away++;
-            }
-        }
-        return new Score\HomeAway( $home, $away);
+        return $this->getRound()->getNumber()->getCompetition()->getSportConfig( $field->getSport() );
     }
 
-    public function getSportConfig(): SportConfig {
-        return $this->getRound()->getNumber()->getSportConfig( $this->getField()->getSport() );
+    public function getSportScoreConfig() {
+        $field = $this->getField();
+        if ( $field === null ) {
+            return $this->getRound()->getNumber()->getFirstSportScoreConfig();
+        }
+        return $this->getRound()->getNumber()->getSportScoreConfig( $field->getSport() );
     }
 }

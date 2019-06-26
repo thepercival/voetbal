@@ -207,7 +207,7 @@ class Number
     }
 
     public function getFirstSportPlanningConfig(): SportPlanningConfig {
-        return this.sportPlanningConfigs[0];
+        return $this->sportPlanningConfigs[0];
     }
 
     /**
@@ -218,11 +218,11 @@ class Number
     }
 
     public function getSportPlanningConfig(Sport $sport = null ): SportPlanningConfig {
-        $sportPlanningConfig = $this->sportPlanningConfigs->find( function($sportPlanningConfigIt) use ($sport){
+        $foundSportPlanningConfigs = $this->sportPlanningConfigs->filter( function($sportPlanningConfigIt) use ($sport){
             return $sportPlanningConfigIt->getSport() === $sport;
         });
-        if ( $sportPlanningConfig !== null) {
-            return $sportPlanningConfig;
+        if ( $foundSportPlanningConfigs->count() > 0) {
+            return $foundSportPlanningConfigs->first();
         }
         return $this->getPrevious()->getSportPlanningConfig( $sport );
     }
@@ -247,11 +247,11 @@ class Number
     }
 
     public function getSportScoreConfig(Sport $sport = null ): SportScoreConfig {
-        $sportScoreConfig = $this->sportScoreConfigs->find( function($sportScoreConfigIt) use ($sport){
+        $sportScoreConfigs = $this->sportScoreConfigs->filter( function($sportScoreConfigIt) use ($sport){
             return $sportScoreConfigIt->getSport() === $sport;
         });
-        if ( $sportScoreConfig !== null ) {
-            return $sportScoreConfig;
+        if ( $sportScoreConfigs->count() > 0 ) {
+            return $sportScoreConfigs->first();
         }
         return $this->getPrevious()->getSportScoreConfig( $sport );
     }

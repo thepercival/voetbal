@@ -9,7 +9,9 @@
 namespace Voetbal\Sport\ScoreConfig;
 
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
+use Voetbal\Game\Score\HomeAway as GameScoreHomeAway;
 use Voetbal\Sport;
+use Voetbal\Game;
 use Voetbal\Sport\CustomId as SportCustomId;
 use Voetbal\Round\Number as RoundNumber;
 
@@ -28,109 +30,101 @@ class Service {
     }
 
     public function copy(Sport $sport, RoundNumber $roundNumber, SportScoreConfig $sourceConfig) {
-        $newConfig = new SportScoreConfig($sport, $roundNumber);
-        $newConfig->setNrOfHeadtoheadMatches($sourceConfig->getNrOfHeadtoheadMatches());
-    }
-
-    public function isDefault( SportScoreConfig $config ): bool {
-        return $config->getNrOfHeadtoheadMatches() === SportScoreConfig::DEFAULTNROFHEADTOHEADMATCHES;
-    }
-
-    public function areEqual( SportScoreConfig $configA, SportScoreConfig $configB ): bool {
-        return $configA->getNrOfHeadtoheadMatches() === $configB->getNrOfHeadtoheadMatches();
-    }
-
-
-
-}
-
-copy(sport: Sport, roundNumber: RoundNumber, sourceScoreConfig: SportScoreConfig) {
-    const newScoreConfig = new SportScoreConfig(sport, roundNumber, undefined);
-    newScoreConfig.setDirection(sourceScoreConfig.getDirection());
-    newScoreConfig.setMaximum(sourceScoreConfig.getMaximum());
-    const previousSubScoreConfig = sourceScoreConfig.getChild();
-    if ( previousSubScoreConfig ) {
-        const newSubScoreConfig = new SportScoreConfig(sport, roundNumber, newScoreConfig);
-        newSubScoreConfig.setDirection(previousSubScoreConfig.getDirection());
-        newSubScoreConfig.setMaximum(previousSubScoreConfig.getMaximum());
-    }
-}
-
-    isDefault( sportScoreConfig: SportScoreConfig ): boolean {
-    if ( sportScoreConfig.getDirection() !== SportScoreConfig.UPWARDS
-        || sportScoreConfig.getMaximum() !== 0
-    ) {
-        return false;
-    }
-    if ( sportScoreConfig.getChild() === undefined ) {
-        return true;
-    }
-    return this.isDefault( sportScoreConfig.getChild() );
-}
-
-    areEqual( sportScoreConfigA: SportScoreConfig, sportScoreConfigB: SportScoreConfig ): boolean {
-    if ( sportScoreConfigA.getDirection() !== sportScoreConfigB.getDirection()
-        || sportScoreConfigA.getMaximum() !== sportScoreConfigB.getMaximum()
-    ) {
-        return false;
-    }
-    if ( sportScoreConfigA.getChild() !== undefined && sportScoreConfigB.getChild() !== undefined ) {
-        return this.areEqual( sportScoreConfigA.getChild(), sportScoreConfigB.getChild() );
-    }
-    return sportScoreConfigA.getChild() === sportScoreConfigB.getChild();
-}
-
-    getInput(rootSportScoreConfig: SportScoreConfig): SportScoreConfig {
-    let childScoreConfig = rootSportScoreConfig.getChild();
-        while (childScoreConfig !== undefined && (childScoreConfig.getMaximum() > 0 || rootSportScoreConfig.getMaximum() === 0)) {
-            rootSportScoreConfig = childScoreConfig;
-            childScoreConfig = childScoreConfig.getChild();
+        $newScoreConfig = new SportScoreConfig($sport, $roundNumber, null);
+        $newScoreConfig->setDirection($sourceConfig->getDirection());
+        $newScoreConfig->setMaximum($sourceConfig->getMaximum());
+        $previousSubScoreConfig = $sourceConfig->getChild();
+        if ( $previousSubScoreConfig ) {
+            $newSubScoreConfig = new SportScoreConfig($sport, $roundNumber, $newScoreConfig);
+            $newSubScoreConfig->setDirection($previousSubScoreConfig->getDirection());
+            $newSubScoreConfig->setMaximum($previousSubScoreConfig->getMaximum());
         }
-        return rootSportScoreConfig;
     }
 
-    getCalculate(rootSportScoreConfig: SportScoreConfig): SportScoreConfig {
-    while (rootSportScoreConfig.getMaximum() === 0 && rootSportScoreConfig.getChild() !== undefined) {
-        rootSportScoreConfig = rootSportScoreConfig.getChild();
+    public function isDefault( SportScoreConfig $sportScoreConfig ): bool {
+        if ( $sportScoreConfig->getDirection() !== SportScoreConfig::UPWARDS
+            || $sportScoreConfig->getMaximum() !== 0
+        ) {
+            return false;
+        }
+        if ( $sportScoreConfig->getChild() === null ) {
+            return true;
+        }
+        return $this->isDefault( $sportScoreConfig->getChild() );
     }
-    return rootSportScoreConfig;
-}
 
-    hasMultipleScores(rootSportScoreConfig: SportScoreConfig): boolean {
-    return rootSportScoreConfig.getChild() !== undefined;
-}
+    public function areEqual( SportScoreConfig $sportScoreConfigA, SportScoreConfig $sportScoreConfigB ): bool {
+        if ( $sportScoreConfigA->getDirection() !== $sportScoreConfigB->getDirection()
+            || $sportScoreConfigA->getMaximum() !== $sportScoreConfigB->getMaximum()
+        ) {
+            return false;
+        }
+        if ( $sportScoreConfigA->getChild() !== null && $sportScoreConfigB->getChild() !== null ) {
+            return $this->areEqual( $sportScoreConfigA->getChild(), $sportScoreConfigB->getChild() );
+        }
+        return $sportScoreConfigA->getChild() === $sportScoreConfigB->getChild();
+    }
 
-    getFinal(game: Game, sub?: boolean): GameScoreHomeAway {
-    if (game.getScores().length === 0) {
-        return undefined;
+    /**
+     * @return SportScoreConfig
+     */
+    public function getInput(SportScoreConfig $rootSportScoreConfig): SportScoreConfig
+    {
+        $childScoreConfig = $rootSportScoreConfig->getChild();
+        while ($childScoreConfig !== null && ( $childScoreConfig->getMaximum() > 0 || $rootSportScoreConfig->getMaximum() === 0 )) {
+            $rootSportScoreConfig = $childScoreConfig;
+            $childScoreConfig = $childScoreConfig->getChild();
+        }
+        return $rootSportScoreConfig;
     }
-    if (sub === true) {
-        return this.getSubScore(game);
+
+    /**
+     * @return SportScoreConfig
+     */
+    public function getCalculate(SportScoreConfig $rootSportScoreConfig): SportScoreConfig
+    {
+        while ($rootSportScoreConfig->getMaximum() === 0 && $rootSportScoreConfig->getChild() !== null) {
+            $rootSportScoreConfig = $rootSportScoreConfig->getChild();
+        }
+        return $rootSportScoreConfig;
     }
-    let home = game.getScores()[0].getHome();
-        let away = game.getScores()[0].getAway();
-        const sportScoreConfig = game.getSportScoreConfig();
-        if (this.getCalculate(sportScoreConfig) !== this.getInput(sportScoreConfig)) {
-            home = 0;
-            away = 0;
-            game.getScores().forEach(score => {
-                if (score.getHome() > score.getAway()) {
-                    home++;
-                } else if (score.getHome() < score.getAway()) {
-                    away++;
+
+    public function hasMultipleScores(SportScoreConfig $rootSportScoreConfig): bool {
+        return $rootSportScoreConfig->getChild() !== null;
+    }
+
+    public function getFinal(Game $game, bool $sub = null): ?GameScoreHomeAway {
+        if ($game->getScores()->count() === 0) {
+            return null;
+        }
+        if ($sub === true) {
+            return $this->getSubScore($game);
+        }
+        $home = $game->getScores()->first()->getHome();
+        $away = $game->getScores()->first()->getAway();
+        $sportScoreConfig = $game->getSportScoreConfig();
+        if ($this->getCalculate($sportScoreConfig) !== $this->getInput($sportScoreConfig)) {
+            $home = 0;
+            $away = 0;
+            foreach( $game->getScores() as $score ) {
+                if ($score->getHome() > $score->getAway()) {
+                    $home++;
+                } else if ($score->getHome() < $score->getAway()) {
+                    $away++;
                 }
-            });
+            }
         }
-        return new GameScoreHomeAway(home, away);
+        return new GameScoreHomeAway($home, $away);
     }
 
-    private getSubScore(game: Game): GameScoreHomeAway {
-    let home = 0;
-        let away = 0;
-        game.getScores().forEach(score => {
-        home += score.getHome();
-        away += score.getAway();
-    });
-        return new GameScoreHomeAway(home, away);
+    private function getSubScore(Game $game): GameScoreHomeAway {
+        $home = 0;
+        $away = 0;
+        foreach( $game->getScores() as $score ) {
+            $home += $score->getHome();
+            $away += $score->getAway();
+        }
+        return new GameScoreHomeAway($home, $away);
     }
 }
+

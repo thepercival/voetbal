@@ -45,7 +45,9 @@ class Service {
     public function create(Competition $competition, int $nrOfPlaces, int $nrOfPoules = null): StructureBase {
         $firstRoundNumber = new RoundNumber($competition);
         $sportConfigService = new SportConfigService();
-        foreach( $competition->getSports() as $sport ) { $sportConfigService->createDefault( $sport, $firstRoundNumber ); }
+        foreach( $competition->getSportConfigs() as $sportConfig ) {
+            $sportConfigService->createDefault( $sportConfig->getSport(), $firstRoundNumber );
+        }
         $this->planningConfigService->createDefault($firstRoundNumber);
         $rootRound = new Round($firstRoundNumber, null);
         $nrOfPoulesToAdd = $nrOfPoules ? $nrOfPoules : $this->getDefaultNrOfPoules($nrOfPlaces);

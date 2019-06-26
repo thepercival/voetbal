@@ -11,17 +11,17 @@ namespace Voetbal\Sport\Config;
 use Voetbal\Sport;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Sport\CustomId as SportCustomId;
+use Voetbal\Competition;
 
 class Service {
 
-    public function createDefault( Sport $sport, Supplier $supplier ): SportConfig {
-        $config = new SportConfig($sport, $supplier);
+    public function createDefault( Sport $sport, Competition $competition ): SportConfig {
+        $config = new SportConfig($sport, $competition);
         $config->setWinPoints($this->getDefaultWinPoints($sport));
         $config->setDrawPoints($this->getDefaultDrawPoints($sport));
         $config->setWinPointsExt($this->getDefaultWinPointsExt($sport));
         $config->setDrawPointsExt($this->getDefaultDrawPointsExt($sport));
         $config->setPointsCalculation(SportConfig::POINTS_CALC_GAMEPOINTS);
-        $this->createDefaultScore($config);
         return $config;
     }
 
@@ -41,41 +41,14 @@ class Service {
         return $sport->getCustomId() === SportCustomId::Chess ? 1 : 0.5;
     }
 
-    protected function createDefaultScore(SportConfig $config ) {
-        $scoreConfig = new Score($config, null);
-        $scoreConfig->setDirection(Score::UPWARDS);
-        $scoreConfig->setMaximum(0);
-
-        $sport = $config->getSport();
-        if ( $sport->getCustomId() === SportCustomId::Darts || $sport->getCustomId() === SportCustomId::Tennis ) {
-            $subScoreConfig = new Score($config, $scoreConfig);
-            $subScoreConfig->setDirection(Score::UPWARDS);
-            $subScoreConfig->setMaximum(0);
-        }
-        return $scoreConfig;
-    }
-
-    public function copy( SportConfig $sourceConfig, Supplier $newSupplier ): SportConfig {
-        $newConfig = new SportConfig($sourceConfig->getSport(), $newSupplier);
+    public function copy( SportConfig $sourceConfig, Competition $newCompetition ): SportConfig {
+        $newConfig = new SportConfig($sourceConfig->getSport(), $newCompetition);
         $newConfig->setWinPoints($sourceConfig->getWinPoints());
         $newConfig->setDrawPoints($sourceConfig->getDrawPoints());
         $newConfig->setWinPointsExt($sourceConfig->getWinPointsExt());
         $newConfig->setDrawPointsExt($sourceConfig->getDrawPointsExt());
         $newConfig->setPointsCalculation($sourceConfig->getPointsCalculation());
-        $this->copyScore($newConfig, $sourceConfig->getScore());
         return $newConfig;
-    }
-
-    protected function copyScore(SportConfig $config, Score $sourceScoreConfig ) {
-        $newScoreConfig = new Score($config, null);
-        $newScoreConfig->setDirection($sourceScoreConfig->getDirection());
-        $newScoreConfig->setMaximum($sourceScoreConfig->getMaximum());
-        $previousSubScoreConfig = $sourceScoreConfig->getChild();
-        if ( $previousSubScoreConfig ) {
-            $newSubScoreConfig = new Score($config, $newScoreConfig);
-            $newSubScoreConfig->setDirection($previousSubScoreConfig->getDirection());
-            $newSubScoreConfig->setMaximum($previousSubScoreConfig->getMaximum());
-        }
     }
 }
 
