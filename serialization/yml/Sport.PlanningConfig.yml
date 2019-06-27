@@ -8,5 +8,7 @@ Voetbal\Sport\PlanningConfig:
       type: integer
     nrOfHeadtoheadMatches:
       type: integer
-    child:
-      type: Voetbal\Sport\PlanningConfig
+  virtual_properties:
+    getSportId:
+      type: integer
+      serialized_name: sportId

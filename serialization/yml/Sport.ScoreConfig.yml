@@ -12,3 +12,7 @@ Voetbal\Sport\ScoreConfig:
       type: integer
     child:
       type: Voetbal\Sport\ScoreConfig
+  virtual_properties:
+    getSportId:
+      type: integer
+      serialized_name: sportId

@@ -75,6 +75,14 @@ class PlanningConfig
     }
 
     /**
+     * @return int
+     */
+    public function getSportId(): int
+    {
+        return $this->sport->getId();
+    }
+
+    /**
      * @return RoundNumber
      */
     public function getRoundNumber()

@@ -129,6 +129,14 @@ class ScoreConfig
     }
 
     /**
+     * @return int
+     */
+    public function getSportId(): int
+    {
+        return $this->sport->getId();
+    }
+
+    /**
      * @param SportBase $sport
      */
     protected function setSport( SportBase $sport )
