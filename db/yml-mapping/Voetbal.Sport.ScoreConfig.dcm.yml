@@ -37,6 +37,22 @@ Voetbal\Sport\ScoreConfig:
       targetEntity: Voetbal\Sport\ScoreConfig
       mappedBy: parent
       cascade: [ persist, remove ]
+  manyToOne:
+    roundNumber:
+      targetEntity: Voetbal\Round\Number
+      inversedBy: sportScoreConfigs
+      joinColumn:
+        name: roundnumberid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
+    sport:
+      targetEntity: Voetbal\Sport
+      joinColumn:
+        name: sportid
+        referencedColumnName: id
+        nullable: true
+        onDelete: CASCADE
   uniqueConstraints:
-    number_u_idx:
-      columns: [ parentid ]
+    number_u1_idx:
+      columns: [ roundnumberid, sportid, parentid ]

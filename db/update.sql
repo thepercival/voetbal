@@ -29,46 +29,54 @@ update sports set customId = 10 where name = 'tennis';
 update sports set customId = 11, team = true where name = 'voetbal';
 update sports set customId = 12, team = true where name = 'volleybal';
 
--- move league.sport to competitionsports
-insert into competitionsports( competitionid, sportid )
-	( select c.id, s.id from competitions c join leagues l on l.id = c.leagueid join sports s on s.name = l.sportDep );
+-- add sportconfigs for competition
+insert into sportconfigs( competitionid, sportid, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, nrOfGameCompetitors )
+    (
+        select 	c.id, s.id, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation, 2
+        from 	competitions c
+                    join leagues l on l.id = c.leagueid
+                    join sports s on s.name = l.sportDep
+                    join roundnumbers rn on c.id = rn.competitionid and rn.number = 1
+                    join roundconfigs rc on rc.id = rn.configid
+    );
 
--- add sportconfigs and sportconfigscores for roundnumbers
-insert into sportconfigs( roundnumberid, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, nrOfGameCompetitors, sportid )
-	(
-		select rn.id, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation, 2, cs.sportid
-		from roundnumbers rn
-					 join roundconfigs rc on rn.configid = rc.id
-					 join competitionsports cs on cs.competitionid = rn.competitionid
-	);
+-- add sportscoreconfigs for roundnumbers
+insert into sportscoreconfigs ( roundnumberid, sportid, direction, maximum, parentid, iddep )
+    (
+        select 	rn.id, s.id, rsc.direction, rsc.direction, null, rsc.id
+        from    roundscoreconfigs rsc
+                    join roundconfigs rc on rc.id = rsc.roundconfigid
+                    join roundnumbers rn on rc.id = rn.configid
+                    join competitions c on c.id = rn.competitionid
+                    join leagues l on l.id = c.leagueid
+                    join sports s on s.name = l.sportDep
+    );
+update 	sportscoreconfigs ssc
+        join 	roundscoreconfigs rsc on ssc.iddep = rsc.id
+        join 	sportscoreconfigs scp on scp.iddep = rsc.parentid
+set 	ssc.parentid = scp.id
+where	rsc.parentid is not null;
 
-insert into sportconfigscores ( parentid, direction, maximum, iddep, roundconfigiddep )
-	(
-		select null, direction, maximum, id, roundconfigid from roundscoreconfigs
-	);
+-- add planningconfigs to roundnumber
+insert into planningconfigs( hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, rniddep )
+    (
+        select rc.hasExtension, rc.minutesPerGameExt, rc.enableTime, rc.minutesPerGame, rc.minutesInBetween, rc.minutesBetweenGames, rc.teamup, rc.selfReferee, rn.id
+        from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
+    );
+update roundnumbers set planningconfigid = ( select id from planningconfigs where rniddep = roundnumbers.id );
 
-update 	sportconfigscores sc
-	join 	roundscoreconfigs rsc on sc.iddep = rsc.id
-																 join 	sportconfigscores scp on scp.iddep = rsc.parentid
-set 		sc.parentid = scp.id
-where		rsc.parentid is not null;
-
-update 	sportconfigs cc
-				join	roundnumbers rn on cc.roundnumberid = rn.id
-				join 	roundconfigs rc on rn.configid = rc.id
-set cc.scoreid = ( select csc.id from sportconfigscores csc where csc.roundconfigiddep = rc.id and csc.parentid is null );
+-- add sportplanningconfigs for roundnumbers
+insert into sportplanningconfigs ( roundnumberid, sportid, nrOfHeadtoheadMatches )
+    (
+        select  rn.id, s.id, rc.nrOfHeadtoheadMatches
+        from    roundnumbers rn join roundconfigs rc on rn.configid = rc.id
+                                join competitions c on c.id = rn.competitionid
+                                join leagues l on l.id = c.leagueid
+                                join sports s on s.name = l.sportDep
+    );
 
 -- add sport to field
-update fields f join competitionsports cs on cs.competitionid = f.competitionid set f.sportid = cs.sportid;
-
--- add planningconfigs
-insert into planningconfigs( nrOfHeadtoheadMatches,hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, rniddep )
-(
-	select rc.nrOfHeadtoheadMatches, rc.hasExtension, rc.minutesPerGameExt, rc.enableTime, rc.minutesPerGame, rc.minutesInBetween, rc.minutesBetweenGames, rc.teamup, rc.selfReferee, rn.id
-	from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
-);
-
-update roundnumbers set planningConfigId = ( select id from planningconfigs where rniddep = roundnumbers.id );
+update fields f join sportconfigs sc on sc.competitionid = f.competitionid set f.sportid = sc.sportid;
 
 -- remove orphan competitions
 delete c from competitions c where c.id in (897, 898 ) and not exists ( select * from roundnumbers where competitionid = c.id );

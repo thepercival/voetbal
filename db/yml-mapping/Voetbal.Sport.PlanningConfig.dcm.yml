@@ -19,7 +19,7 @@ Voetbal\Sport\PlanningConfig:
   manyToOne:
     roundNumber:
       targetEntity: Voetbal\Round\Number
-      inversedBy: sportConfigs
+      inversedBy: sportPlanningConfigs
       joinColumn:
         name: roundnumberid
         referencedColumnName: id
@@ -34,4 +34,4 @@ Voetbal\Sport\PlanningConfig:
         onDelete: CASCADE
   uniqueConstraints:
     number_u_idx:
-      columns: [ parentid ]
+      columns: [ roundnumberid, sportid ]
