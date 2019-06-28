@@ -17,6 +17,7 @@ Voetbal\Sport\Config:
     pointsCalculation:
       type: integer
     nrOfGameCompetitors:
-      type: int
+      type: integer
     sport:
       type: Voetbal\Sport
+      access_type: property

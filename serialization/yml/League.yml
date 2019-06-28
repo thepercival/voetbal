@@ -10,7 +10,5 @@ Voetbal\League:
       type: string
     abbreviation:
       type: string
-    sport:
-      type: string
     association:
       type: Voetbal\Association

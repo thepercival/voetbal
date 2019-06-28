@@ -18,7 +18,8 @@ Voetbal\Competition:
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
     sportConfigs:
-      type: array<Voetbal\Sport\Config>
+      type: ArrayCollection<Voetbal\Sport\Config>
+      read_only: true
     fields:
       type: ArrayCollection<Voetbal\Field>
     referees:

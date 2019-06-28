@@ -8,6 +8,7 @@
 namespace Voetbal\Sport;
 
 abstract class CustomId {
+    const Min = 1;
     const Badminton = 1;
     const Basketball = 2;
     const Darts = 3;
@@ -20,5 +21,6 @@ abstract class CustomId {
     const Tennis = 10;
     const Football = 11;
     const Voleyball = 12;
+    const Max = 12;
 }
 

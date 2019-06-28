@@ -141,9 +141,9 @@ class Handler
             );
         } elseif ($resourceType === 'sportconfigs') {
             $action = new VoetbalApp\Action\Sport\Config(
-                $voetbalservice->getRepository(Voetbal\Sport\Config::class),
-                $voetbalservice->getRepository(Voetbal\Structure::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
+                $voetbalservice->getRepository(Voetbal\Sport\Config::class),
+                $voetbalservice->getRepository(Voetbal\Sport::class),
                 $serializer
             );
         } elseif ($resourceType === 'planningconfigs') {

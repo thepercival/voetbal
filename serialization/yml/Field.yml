@@ -14,3 +14,6 @@ Voetbal\Field:
     getSportId:
       type: integer
       serialized_name: sportId
+    setSportId:
+      type: integer
+      serialized_name: sportId
