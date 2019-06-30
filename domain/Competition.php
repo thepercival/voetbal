@@ -300,7 +300,7 @@ class Competition implements External\Importable
         return $this->sportConfigs[0];
     }
 
-    public function getSportConfigByName( Sport $sport): ?SportConfig
+    public function getSportConfigBySport( Sport $sport): ?SportConfig
     {
         foreach( $this->getSportConfigs() as $sportConfig ) {
             if( $sportConfig->getSport() === $sport) {

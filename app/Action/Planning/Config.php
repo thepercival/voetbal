@@ -12,6 +12,7 @@ use JMS\Serializer\Serializer;
 use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\Planning\Config\Repository as PlanningConfigRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
+use Voetbal\Planning\Config as PlanningConfig;
 
 final class Config
 {
@@ -59,17 +60,38 @@ final class Config
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
             /** @var \Voetbal\Planning\Config $configSer */
-            $configSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
-            if ( $configSer === null ) {
-                throw new \Exception("er kunnen geen ronde-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+            $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
+            if ( $planningConfigSer === null ) {
+                throw new \Exception("er kunnen geen plannings-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
             $roundNumberAsValue = (int) $request->getParam("roundnumber");
             if ( $roundNumberAsValue === 0 ) {
                 throw new \Exception("geen rondenummer opgegeven", E_ERROR);
             }
-            $structure = $this->structureService->getStructure( $competition );
+            $structure = $this->structureRepos->getStructure( $competition );
             $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
-            $this->configService->updateFromSerialized( $roundNumber, $configSer, true );
+            if ( $roundNumber === null ) {
+                throw new \Exception("geen rondenummer gevonden", E_ERROR);
+            }
+            if ( $roundNumber->getPlanningConfig() !== null ) {
+                throw new \Exception("er is al een planningconfiguratie aanwezig", E_ERROR);
+            }
+
+
+            // $this->rremov($roundNumber->getNext());
+
+            $planningConfig = new PlanningConfig( $roundNumber );
+            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
+            $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
+            $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
+            $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );
+            $planningConfig->setMinutesBetweenGames( $planningConfigSer->getMinutesBetweenGames() );
+            $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
+            $planningConfig->setSelfReferee( $planningConfigSer->getSelfReferee() );
+            $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
+
+            // het verwijderen van planningconfig gebeurd vanuit het roundnumber
+            $this->repos->save($planningConfig);
 
             return $response
                 ->withStatus(201)
@@ -81,6 +103,18 @@ final class Config
             return $response->withStatus(422 )->write( $e->getMessage() );
         }
     }
+//
+//    private function save( PlanningConfig $planningConfig ) {
+//        $this->repos->save($planningConfig);
+//        while ( $roundNumber->hasNext() ) {
+//            $roundNumber = $roundNumber->getNext()
+//        }
+//    }
+//    while( $roundNumber->hasNext() ) {
+//
+//}
+//remove previous planning config
+
 
     public function edit( $request, $response, $args )
     {
@@ -101,8 +135,11 @@ final class Config
             if ( $planningConfigSer === null ) {
                 throw new \Exception("er zijn geen plannings-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
-
             $planningConfig = $roundNumber->getPlanningConfig();
+            if ( $planningConfig === null ) {
+                throw new \Exception("er zijn geen plannings-instellingen gevonden om te wijzigen", E_ERROR);
+            }
+
             $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
             $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
             $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );

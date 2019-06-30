@@ -72,7 +72,7 @@ final class Config
                 ->write($this->serializer->serialize( $object, 'json'));
             ;
         }
-        return $response->withStatus(404)->write('geen bond met het opgegeven id gevonden');
+        return $response->withStatus(404)->write('geen sportconfiguratie met het opgegeven id gevonden');
     }
 
     public function add( $request, $response, $args )
@@ -84,22 +84,19 @@ final class Config
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
             /** @var \Voetbal\Sport\Config $sportConfigSer */
-            $x = $request->getParsedBody();
             $sportConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\Config', 'json');
             if ( $sportConfigSer === null ) {
-                throw new \Exception("er kunnen geen ronde-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
+                throw new \Exception("er kunnen geen sportconfiguratie-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
-            $sportSer = $sportConfigSer->getSport();
-            if( $sportSer->getCustomId() !== null && ( $sportSer->getCustomId() >= SportCustomId::Min && $sportSer->getCustomId() <= SportCustomId::Max ) ) {
-                throw new \Exception("de sport-customid is al in gebruik", E_ERROR);
-            }
-            if( $competition->getSportConfigByName( $sportSer ) !== null ) {
-                throw new \Exception("er is al een sportconfiguratie met dezelfde sport", E_ERROR);
-            }
-            $sport = $this->sportRepos->findOneBy( ["name" => $sportSer->getName() ] );
+            $sport = $this->sportRepos->find( $sportConfigSer->getSportIdSer() );
             if ( $sport === null ) {
-                $sport = $this->sportRepos->save($sportSer);
+                throw new \Exception("de sport van de configuratie kan niet gevonden worden", E_ERROR);
             }
+            $sport = $competition->getSportConfigBySport( $sport );
+            if ( $sport !== null ) {
+                throw new \Exception("de sport wordt al gebruikt binnen de competitie", E_ERROR);
+            }
+
             $sportConfig = new SportConfig( $sport, $competition );
             $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
             $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
@@ -134,9 +131,13 @@ final class Config
             if ( $sportConfigSer === null ) {
                 throw new \Exception("er zijn geen sport-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
-            $sportConfig = $competition->getSportConfigByName( $sportConfigSer->getSport() );
+            $sport = $this->sportRepos->find( $sportConfigSer->getSportIdSer() );
+            if ( $sport === null ) {
+                throw new \Exception("de sport van de configuratie kan niet gevonden worden", E_ERROR);
+            }
+            $sportConfig = $competition->getSportConfigBySport( $sport );
             if( $sportConfig === null ) {
-                throw new \Exception("de sport is niet gevonden bij de competitie", E_ERROR);
+                throw new \Exception("de sportconfig is niet gevonden bij de competitie", E_ERROR);
             }
             $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
             $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
@@ -172,7 +173,7 @@ final class Config
             if( $competition->getSportConfigByName( $sportConfig ) === null ) {
                 throw new \Exception("de sport is niet gevonden bij de competitie", E_ERROR);
             }
-            $this->repos->customRemove($sportConfig);
+            $this->repos->customRemove($sportConfig, $this->sportRepos);
             return $response->withStatus(204);
         }
         catch( \Exception $e ){

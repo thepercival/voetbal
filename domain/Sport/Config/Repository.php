@@ -21,7 +21,6 @@ class Repository extends \Voetbal\Repository
     {
         $sport = $sportConfig->getSport();
         $this->remove($sportConfig);
-        $this->flush();
 
         if ( $this->findOneBy( ["sport" => $sport ] ) === null ) {
             $sportRepos->remove($sport);

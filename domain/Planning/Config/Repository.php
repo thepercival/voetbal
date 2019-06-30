@@ -12,4 +12,10 @@ namespace Voetbal\Planning\Config;
 class Repository extends \Voetbal\Repository
 {
 
+//    public function customSave()
+//    {
+//        doe transactie en sla op
+//
+//    $this->removeFrom($roundNumber->getNext());
+//    }
 }

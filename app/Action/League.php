@@ -77,6 +77,7 @@ final class League
 
             $league = new LeagueBase( $association, $leagueSer->getName() );
             $league->setAbbreviation( $leagueSer->getAbbreviation() );
+            $league->setSportDep('deprecated');
             $league = $this->repos->save($league);
 
             return $response

@@ -18,6 +18,9 @@ Voetbal\Sport\Config:
       type: integer
     nrOfGameCompetitors:
       type: integer
-    sport:
-      type: Voetbal\Sport
-      access_type: property
+    sportIdSer:
+      type: integer
+      serialized_name: sportId
+      access_type: public_method
+      accessor:
+        getter: getSportIdForSer

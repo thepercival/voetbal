@@ -39,6 +39,28 @@ final class Field
         $this->serializer = $serializer;
     }
 
+    public function fetch( $request, $response, $args)
+    {
+        $objects = $this->repos->findAll();
+        return $response
+            ->withHeader('Content-Type', 'application/json;charset=utf-8')
+            ->write( $this->serializer->serialize( $objects, 'json') );
+        ;
+
+    }
+
+    public function fetchOne( $request, $response, $args)
+    {
+        $object = $this->repos->find($args['id']);
+        if ($object) {
+            return $response
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $object, 'json'));
+            ;
+        }
+        return $response->withStatus(404)->write('geen scheidsrechter met het opgegeven id gevonden');
+    }
+
     public function add($request, $response, $args)
     {
         $sErrorMessage = null;

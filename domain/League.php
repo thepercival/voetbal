@@ -119,14 +119,6 @@ class League implements External\Importable
     }
 
     /**
-     * @return string
-     */
-    public function getSportDep()
-    {
-        return $this->sportDep;
-    }
-
-    /**
      * @param string $sportDep
      */
     public function setSportDep( $sportDep )

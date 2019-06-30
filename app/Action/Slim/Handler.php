@@ -66,7 +66,13 @@ class Handler
         $em = $this->container->get('em');
 
         $action = null;
-        if ($resourceType === 'associations') {
+        if ( $resourceType === 'sports' ){
+             $action = new VoetbalApp\Action\Sport(
+                $voetbalservice->getRepository(Voetbal\Sport::class),
+                $voetbalservice->getRepository(Voetbal\Competition::class),
+                $serializer
+            );
+        } elseif ($resourceType === 'associations') {
             $action = new VoetbalApp\Action\Association(
                 $voetbalservice->getService(Voetbal\Association::class),
                 $voetbalservice->getRepository(Voetbal\Association::class),
@@ -94,14 +100,6 @@ class Handler
                 $serializer
             );
         }
-//        elseif ( $resourceType === 'rounds' ){
-//             $action = new VoetbalApp\Action\Old(
-//                $voetbalservice->getService(Voetbal\Round::class),
-//                $voetbalservice->getRepository(Voetbal\Round::class),
-//                $voetbalservice->getRepository(Voetbal\Competition::class),
-//                $serializer
-//            );
-//        }
         elseif ($resourceType === 'games') {
             $action = new VoetbalApp\Action\Game(
                 $voetbalservice->getService(Voetbal\Game::class),

@@ -10,10 +10,9 @@ Voetbal\Field:
       type: integer
     name:
       type: string
-  virtual_properties:
-    getSportId:
+    sportIdSer:
       type: integer
       serialized_name: sportId
-    setSportId:
-      type: integer
-      serialized_name: sportId
+      access_type: public_method
+      accessor:
+        getter: getSportIdForSer
