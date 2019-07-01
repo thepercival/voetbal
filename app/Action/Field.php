@@ -74,16 +74,20 @@ final class Field
             if ($competition === null) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-
             $fieldsWithSameName = $competition->getFields()->filter( function( $fieldIt ) use ( $fieldSer ) {
                 return $fieldIt->getName() === $fieldSer->getName() || $fieldIt->getNumber() === $fieldSer->getNumber();
             });
             if( !$fieldsWithSameName->isEmpty() ) {
                 throw new \Exception("het veldnummer \"".$fieldSer->getNumber()."\" of de veldnaam \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
             }
+            $sport = $competition->getSportBySportId( $fieldSer->getSportIdSer() );
+            if ( $sport === null ) {
+                throw new \Exception("de sport kan niet gevonden worden", E_ERROR);
+            }
 
             $field = new FieldBase( $competition, $fieldSer->getNumber() );
             $field->setName( $fieldSer->getName() );
+            $field->setSport( $sport );
 
             $this->repos->save( $field );
             return $response
@@ -119,13 +123,13 @@ final class Field
 
             $this->repos->save( $field );
             return $response
-                ->withStatus(200)
+                ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($field, 'json'));
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
-        return $response->withStatus(400)->write($sErrorMessage);
+        return $response->withStatus(401)->write($sErrorMessage);
     }
 
     public function remove($request, $response, $args)
@@ -153,7 +157,7 @@ final class Field
             throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
         if ($field->getCompetition() !== $competition) {
-            throw new \Exception("de competitie van de scheidsrechter komt niet overeen met de verstuurde competitie",
+            throw new \Exception("de competitie van het veld komt niet overeen met de verstuurde competitie",
                 E_ERROR);
         }
         return $field;
