@@ -309,4 +309,11 @@ class Competition implements External\Importable
         }
         return null;
     }
+
+    /**
+     * @return Collection | Sport[]
+     */
+    public function getSports(): Collection {
+        return $this->sportConfigs->map( function ($sportConfig) { return $sportConfig->getSport(); });
+    }
 }

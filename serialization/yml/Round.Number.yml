@@ -17,7 +17,9 @@ Voetbal\Round\Number:
       type: Voetbal\Round\Number
     sportScoreConfigs:
       type: ArrayCollection<Voetbal\Sport\ScoreConfig>
+      read_only: true #temperarily
     sportPlanningConfigs:
       type: ArrayCollection<Voetbal\Sport\PlanningConfig>
+      read_only: true #temperarily
     planningConfig:
       type: Voetbal\Planning\Config

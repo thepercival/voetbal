@@ -211,9 +211,9 @@ class Number
     }
 
     /**
-     * @return ArrayCollection | SportPlanningConfig[]
+     * @return Collection | SportPlanningConfig[]
      */
-    public function getSportPlanningConfigs(): ArrayCollection {
+    public function getSportPlanningConfigs(): Collection {
         return $this->sportPlanningConfigs;
     }
 
@@ -240,9 +240,9 @@ class Number
     }
 
     /**
-     * @return ArrayCollection | SportScoreConfig[]
+     * @return Collection | SportScoreConfig[]
      */
-    public function getSportScoreConfigs(): ArrayCollection {
+    public function getSportScoreConfigs(): Collection {
         return $this->sportScoreConfigs;
     }
 
