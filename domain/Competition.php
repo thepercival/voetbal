@@ -280,7 +280,7 @@ class Competition implements External\Importable
         return $this->sportConfigs;
     }
 
-    public function getSportConfig(Sport $sport = null): SportConfig {
+    public function getSportConfig(Sport $sport = null): ?SportConfig {
         $foundConfigs = $this->sportConfigs->filter( function ($sportConfig) use ( $sport ) {
             return $sportConfig->getSport() === $sport;
         });
