@@ -92,7 +92,7 @@ final class Config
             if ( $sport === null ) {
                 throw new \Exception("de sport van de configuratie kan niet gevonden worden", E_ERROR);
             }
-            if ( $competition->getSportConfigBySport( $sport ) !== null ) {
+            if ( $competition->getSportConfig( $sport ) !== null ) {
                 throw new \Exception("de sport wordt al gebruikt binnen de competitie", E_ERROR);
             }
 
@@ -134,7 +134,7 @@ final class Config
             if ( $sport === null ) {
                 throw new \Exception("de sport van de configuratie kan niet gevonden worden", E_ERROR);
             }
-            $sportConfig = $competition->getSportConfigBySport( $sport );
+            $sportConfig = $competition->getSportConfig( $sport );
             if( $sportConfig === null ) {
                 throw new \Exception("de sportconfig is niet gevonden bij de competitie", E_ERROR);
             }
