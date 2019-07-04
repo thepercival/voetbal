@@ -54,7 +54,7 @@ final class Sport
 
     public function fetchOne( $request, $response, $args)
     {
-        $object = $this->repos->find($args['id']);
+        $object = $this->repos->findOneBy( ["customId" => $args['id'] ] );
         if ($object) {
             return $response
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')

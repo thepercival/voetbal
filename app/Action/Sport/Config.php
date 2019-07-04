@@ -169,7 +169,7 @@ final class Config
             if( $sportConfig === null ) {
                 throw new \Exception("de sportconfig is niet gevonden", E_ERROR);
             }
-            if( $competition->getSportConfigByName( $sportConfig ) === null ) {
+            if( $competition->getSportConfig( $sportConfig->getSport() ) === null ) {
                 throw new \Exception("de sport is niet gevonden bij de competitie", E_ERROR);
             }
             $this->repos->customRemove($sportConfig, $this->sportRepos);

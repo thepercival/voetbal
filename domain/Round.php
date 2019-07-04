@@ -417,7 +417,7 @@ class Round
         return State::Created;
     }
 
-    public function isStarted(): bool
+    public function hasBegun(): bool
     {
         return $this->getState() > State::Created;
     }

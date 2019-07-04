@@ -181,7 +181,7 @@ class Config {
     /**
      * @return Competition
      */
-    protected function getCompetition(): Competition
+    public function getCompetition(): Competition
     {
         return $this->competition;
     }
