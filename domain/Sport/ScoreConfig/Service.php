@@ -12,7 +12,7 @@ use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 use Voetbal\Game\Score\HomeAway as GameScoreHomeAway;
 use Voetbal\Sport;
 use Voetbal\Game;
-use Voetbal\Sport\CustomId as SportCustomId;
+use Voetbal\Sport\Custom as SportCustom;
 use Voetbal\Round\Number as RoundNumber;
 
 class Service {
@@ -21,7 +21,7 @@ class Service {
         $sportScoreConfig = new SportScoreConfig($sport, $roundNumber);
         $sportScoreConfig->setDirection(SportScoreConfig::UPWARDS);
         $sportScoreConfig->setMaximum(0);
-        if ( $sport->getCustomId() === SportCustomId::Darts || $sport->getCustomId() === SportCustomId::Tennis ) {
+        if ( $sport->getCustomId() === SportCustom::Darts || $sport->getCustomId() === SportCustom::Tennis ) {
             $subScoreConfig = new SportScoreConfig($sport, $roundNumber, $sportScoreConfig);
             $subScoreConfig->setDirection(SportScoreConfig::UPWARDS);
             $subScoreConfig->setMaximum(0);

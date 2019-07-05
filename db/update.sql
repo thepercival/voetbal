@@ -81,6 +81,13 @@ update fields f join sportconfigs sc on sc.competitionid = f.competitionid set f
 -- remove orphan competitions
 delete c from competitions c where c.id in (897, 898 ) and not exists ( select * from roundnumbers where competitionid = c.id );
 
+-- add at least one field to a competition, @TODO do a recalc of the planning!!
+insert into fields( competitionid, number, name, sportid )
+  (
+    select id, 1, '1', ( select sp.sportid from sportconfigs sp where sp.competitionid = competitions.id )
+    from competitions where not exists( select * from fields where competitionid = competitions.id )
+  );
+
 -- @TODO update old structures!!
 
 -- add qualifyGroups

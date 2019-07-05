@@ -499,6 +499,15 @@ class Service {
         }
         return 8;
     }
+
+    public function copy( StructureBase $structure, Competition $competition )
+    {
+        throw new \Exception('not impl struct yet', E_ERROR );
+
+        // creating and copying can maybe be the same?
+        // check action to compare
+        // return $this->structureService->createFromSerialized( $structure, $competition );
+    }
 }
 
 //    public function createFromSerialized( StructureBase $structureSer, Competition $competition ): StructureBase
@@ -550,7 +559,3 @@ class Service {
 //        return $newRound;
 //    }
 //
-//    public function copy( StructureBase $structure, Competition $competition )
-//    {
-//        return $this->createFromSerialized( $structure, $competition );
-//    }
