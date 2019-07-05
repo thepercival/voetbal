@@ -502,60 +502,55 @@ class Service {
 
     public function copy( StructureBase $structure, Competition $competition )
     {
-        throw new \Exception('not impl struct yet', E_ERROR );
-
-        // creating and copying can maybe be the same?
-        // check action to compare
-        // return $this->structureService->createFromSerialized( $structure, $competition );
+        return $this->createFromSerialized( $structure, $competition );
     }
-}
 
-//    public function createFromSerialized( StructureBase $structureSer, Competition $competition ): StructureBase
-//    {
-//        if( count( $this->roundNumberRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
-//            throw new \Exception("er kan voor deze competitie geen indeling worden aangemaakt, omdat deze al bestaan", E_ERROR);
+    protected function createFromSerialized( StructureBase $structureSer, Competition $competition ): StructureBase
+    {
+        if( count( $this->roundNumberRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
+            throw new \Exception("er kan voor deze competitie geen indeling worden aangemaakt, omdat deze al bestaan", E_ERROR);
+        }
+//        if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
+//            throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
 //        }
-////        if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
-////            throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
-////        }
-//
-//        $firstRoundNumber = null; $rootRound = null;
-//        {
-//            $previousRoundNumber = null;
-//            foreach( $structureSer->getRoundNumbers() as $roundNumberSer ) {
-//                $roundNumber = $this->roundNumberService->create(
-//                    $competition,
-//                    $roundNumberSer->getConfig()->getOptions(),
-//                    $previousRoundNumber
-//                );
-//                if( $previousRoundNumber === null ) {
-//                    $firstRoundNumber = $roundNumber;
-//                }
-//                $previousRoundNumber = $roundNumber;
-//            }
-//        }
-//
-//        $rootRound = $this->createRoundFromSerialized( $firstRoundNumber, $structureSer->getRootRound() );
-//        return new StructureBase( $firstRoundNumber, $rootRound );
-//    }
-//
-//    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, QualifyGroup $parentQualifyGroup = null ): Round
-//    {
-//        $newRound = $this->roundService->createFromSerialized(
-//            $roundNumber,
-//            $roundSerialized->getPoules()->toArray(),
-//            $parentQualifyGroup
-//        );
-//
-//        foreach( $roundSerialized->getQualifyGroups() as $qualifyGroupSerialized ) {
-//            $qualifyGroup = new QualifyGroup( $newRound );
-//            $qualifyGroup->setWinnersOrLosers( $qualifyGroupSerialized->getWinnersOrLosers() );
-//            $qualifyGroup->setNumber( $qualifyGroupSerialized->getNumber() );
-//            // $qualifyGroup->setNrOfHorizontalPoules( $qualifyGroupSerialized->getNrOfHorizontalPoules() );
-//
-//            $this->createRoundFromSerialized( $roundNumber->getNext(), $qualifyGroupSerialized->getChildRound(), $qualifyGroup );
-//        }
-//
-//        return $newRound;
-//    }
-//
+
+        $firstRoundNumber = null; $rootRound = null;
+        {
+            $previousRoundNumber = null;
+            foreach( $structureSer->getRoundNumbers() as $roundNumberSer ) {
+                $roundNumber = $this->roundNumberService->create(
+                    $competition,
+                    $roundNumberSer->getConfig()->getOptions(),
+                    $previousRoundNumber
+                );
+                if( $previousRoundNumber === null ) {
+                    $firstRoundNumber = $roundNumber;
+                }
+                $previousRoundNumber = $roundNumber;
+            }
+        }
+
+        $rootRound = $this->createRoundFromSerialized( $firstRoundNumber, $structureSer->getRootRound() );
+        return new StructureBase( $firstRoundNumber, $rootRound );
+    }
+
+    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, QualifyGroup $parentQualifyGroup = null ): Round
+    {
+        $newRound = $this->roundService->createFromSerialized(
+            $roundNumber,
+            $roundSerialized->getPoules()->toArray(),
+            $parentQualifyGroup
+        );
+
+        foreach( $roundSerialized->getQualifyGroups() as $qualifyGroupSerialized ) {
+            $qualifyGroup = new QualifyGroup( $newRound );
+            $qualifyGroup->setWinnersOrLosers( $qualifyGroupSerialized->getWinnersOrLosers() );
+            $qualifyGroup->setNumber( $qualifyGroupSerialized->getNumber() );
+            // $qualifyGroup->setNrOfHorizontalPoules( $qualifyGroupSerialized->getNrOfHorizontalPoules() );
+
+            $this->createRoundFromSerialized( $roundNumber->getNext(), $qualifyGroupSerialized->getChildRound(), $qualifyGroup );
+        }
+
+        return $newRound;
+    }
+
