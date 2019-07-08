@@ -58,6 +58,7 @@ class Config {
     const POINTS_CALC_GAMEPOINTS = 0;
     const POINTS_CALC_SCOREPOINTS = 1;
     const POINTS_CALC_BOTH = 2;
+    const DEFAULT_NROFGAMECOMPETITORS = 2;
 
     public function __construct( SportBase $sport, Competition $competition )
     {

@@ -263,15 +263,13 @@ class Competition implements External\Importable
         return array_shift( $fields );
     }
 
-//
-//
-//    /**
-//     * @return ArrayCollection | Sport[]
-//     */
-//    public function setSportConfigs(ArrayCollection $sportConfigs)
-//    {
-//        $this->sportConfigs = $sportConfigs;
-//    }
+    /**
+     * @return ArrayCollection | Sport[]
+     */
+    public function setSportConfigs(ArrayCollection $sportConfigs)
+    {
+        $this->sportConfigs = $sportConfigs;
+    }
 
     /**
      * @return Collection | SportConfig[]

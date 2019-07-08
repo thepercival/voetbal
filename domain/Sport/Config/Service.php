@@ -22,6 +22,7 @@ class Service {
         $config->setWinPointsExt($this->getDefaultWinPointsExt($sport));
         $config->setDrawPointsExt($this->getDefaultDrawPointsExt($sport));
         $config->setPointsCalculation(SportConfig::POINTS_CALC_GAMEPOINTS);
+        $config->setNrOfGameCompetitors( SportConfig::DEFAULT_NROFGAMECOMPETITORS );
         return $config;
     }
 
@@ -41,13 +42,14 @@ class Service {
         return $sport->getCustomId() === SportCustom::Chess ? 1 : 0.5;
     }
 
-    public function copy( SportConfig $sourceConfig, Competition $newCompetition ): SportConfig {
-        $newConfig = new SportConfig($sourceConfig->getSport(), $newCompetition);
+    public function copy( SportConfig $sourceConfig, Competition $newCompetition, Sport $sport ): SportConfig {
+        $newConfig = new SportConfig($sport, $newCompetition);
         $newConfig->setWinPoints($sourceConfig->getWinPoints());
         $newConfig->setDrawPoints($sourceConfig->getDrawPoints());
         $newConfig->setWinPointsExt($sourceConfig->getWinPointsExt());
         $newConfig->setDrawPointsExt($sourceConfig->getDrawPointsExt());
         $newConfig->setPointsCalculation($sourceConfig->getPointsCalculation());
+        $newConfig->setNrOfGameCompetitors( $sourceConfig->getNrOfGameCompetitors() );
         return $newConfig;
     }
 }

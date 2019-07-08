@@ -49,6 +49,8 @@ class Service
             return new Structure\Service();
         } elseif ($classname === Game::class) {
             return new Game\Service();
+        } elseif ($classname === Sport\Config::class) {
+            return new Sport\Config\Service();
         }
         throw new \Exception("class " . $classname . " not supported to create service", E_ERROR);
     }

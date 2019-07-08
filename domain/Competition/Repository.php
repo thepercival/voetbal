@@ -17,17 +17,17 @@ class Repository extends \Voetbal\Repository
 {
     public function customPersist( Competition $competition )
     {
-        // $fieldRepos = $this->_em->getRepository(Field::class);
         foreach ($competition->getFields() as $field) {
-            //$fieldRepos->getEntityManager()->persist($field);
             $this->_em->persist($field);
         }
-
-        // $refereeRepos = $this->_em->getRepository(Referee::class);
         foreach ($competition->getReferees() as $referee) {
-            // $refereeRepos->saveFromJSON($referee, $competition);
             $this->_em->persist($referee);
         }
+
+        foreach ($competition->getSportConfigs() as $sportConfig) {
+            $this->_em->persist($sportConfig);
+        }
+
         $this->_em->persist($competition);
     }
 
