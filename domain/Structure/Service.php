@@ -25,7 +25,8 @@ use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Qualify\Group\Service as QualifyGroupService;
 use Voetbal\Sport\Config\Service as SportConfigService;
 
-class Service {
+class Service
+{
 
     /**
      * @var PlanningConfigService
@@ -36,17 +37,18 @@ class Service {
      */
     private $competitorRange;
 
-    public function __construct( CompetitorRange $competitorRange = null )
+    public function __construct(CompetitorRange $competitorRange = null)
     {
         $this->competitorRange = $competitorRange;
         $this->planningConfigService = new PlanningConfigService();
     }
 
-    public function create(Competition $competition, int $nrOfPlaces, int $nrOfPoules = null): StructureBase {
+    public function create(Competition $competition, int $nrOfPlaces, int $nrOfPoules = null): StructureBase
+    {
         $firstRoundNumber = new RoundNumber($competition);
         $sportConfigService = new SportConfigService();
-        foreach( $competition->getSportConfigs() as $sportConfig ) {
-            $sportConfigService->createDefault( $sportConfig->getSport(), $firstRoundNumber );
+        foreach ($competition->getSportConfigs() as $sportConfig) {
+            $sportConfigService->createDefault($sportConfig->getSport(), $firstRoundNumber);
         }
         $this->planningConfigService->createDefault($firstRoundNumber);
         $rootRound = new Round($firstRoundNumber, null);
@@ -57,18 +59,21 @@ class Service {
         return $structure;
     }
 
-    public function removePlaceFromRootRound(Round $round) {
+    public function removePlaceFromRootRound(Round $round)
+    {
         // console.log('removePoulePlace for round ' + round.getNumberAsValue());
         $nrOfPlaces = $round->getNrOfPlaces();
         if ($nrOfPlaces === $round->getNrOfPlacesChildren()) {
-            throw new \Exception('de deelnemer kan niet verwijderd worden, omdat alle deelnemer naar de volgende ronde gaan', E_ERROR);
+            throw new \Exception('de deelnemer kan niet verwijderd worden, omdat alle deelnemer naar de volgende ronde gaan',
+                E_ERROR);
         }
         $newNrOfPlaces = $nrOfPlaces - 1;
         if ($this->competitorRange && $newNrOfPlaces < $this->competitorRange->min) {
             throw new \Exception('er moeten minimaal ' . $this->competitorRange->min . ' deelnemers zijn', E_ERROR);
         }
         if (($newNrOfPlaces / $round->getPoules()->count()) < 2) {
-            throw new \Exception('Er kan geen deelnemer verwijderd worden. De minimale aantal deelnemers per poule is 2.', E_ERROR);
+            throw new \Exception('Er kan geen deelnemer verwijderd worden. De minimale aantal deelnemers per poule is 2.',
+                E_ERROR);
         }
 
         $this->updateRound($round, $newNrOfPlaces, $round->getPoules()->count());
@@ -78,7 +83,8 @@ class Service {
         $structure->setStructureNumbers();
     }
 
-    public function addPlaceToRootRound(Round $round): Place {
+    public function addPlaceToRootRound(Round $round): Place
+    {
         $newNrOfPlaces = $round->getNrOfPlaces() + 1;
         if ($this->competitorRange && $newNrOfPlaces > $this->competitorRange->max) {
             throw new \Exception('er mogen maximaal ' . $this->competitorRange->max . ' deelnemers meedoen', E_ERROR);
@@ -93,7 +99,8 @@ class Service {
         return $round->getFirstPlace(QualifyGroup::LOSERS);
     }
 
-       public function removePoule(Round $round, bool $modifyNrOfPlaces = null) {
+    public function removePoule(Round $round, bool $modifyNrOfPlaces = null)
+    {
         $poules = $round->getPoules();
         if ($poules->count() <= 1) {
             throw new \Exception('er moet minimaal 1 poule overblijven', E_ERROR);
@@ -102,7 +109,8 @@ class Service {
         $newNrOfPlaces = $round->getNrOfPlaces() - ($modifyNrOfPlaces ? $lastPoule->getPlaces()->count() : 0);
 
         if ($newNrOfPlaces < $round->getNrOfPlacesChildren()) {
-            throw new \Exception('de poule kan niet verwijderd worden, omdat er te weinig deelnemers overblijven om naar de volgende ronde gaan', E_ERROR );
+            throw new \Exception('de poule kan niet verwijderd worden, omdat er te weinig deelnemers overblijven om naar de volgende ronde gaan',
+                E_ERROR);
         }
 
         $this->updateRound($round, $newNrOfPlaces, $poules->count() - 1);
@@ -116,7 +124,8 @@ class Service {
         $structure->setStructureNumbers();
     }
 
-    public function addPoule(Round $round, bool $modifyNrOfPlaces = null): Poule {
+    public function addPoule(Round $round, bool $modifyNrOfPlaces = null): Poule
+    {
         $poules = $round->getPoules();
         $lastPoule = $poules[$poules->count() - 1];
         $newNrOfPlaces = $round->getNrOfPlaces() + ($modifyNrOfPlaces ? $lastPoule->getPlaces()->count() : 0);
@@ -137,7 +146,8 @@ class Service {
         return $newPoules[$newPoules->count() - 1];
     }
 
-    public function removeQualifier(Round $round, int $winnersOrLosers) {
+    public function removeQualifier(Round $round, int $winnersOrLosers)
+    {
 
         $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
         $borderQualifyGroup = $round->getBorderQualifyGroup($winnersOrLosers);
@@ -153,22 +163,25 @@ class Service {
         $structure->setStructureNumbers();
     }
 
-    public function addQualifiers(Round $round, int $winnersOrLosers, int $nrOfQualifiers ) {
+    public function addQualifiers(Round $round, int $winnersOrLosers, int $nrOfQualifiers)
+    {
 
-        if ( $round->getBorderQualifyGroup($winnersOrLosers) === null  ) {
-            if( $nrOfQualifiers < 2) {
-                throw new \Exception("Voeg miniaal 2 gekwalificeerden toe", E_ERROR );
+        if ($round->getBorderQualifyGroup($winnersOrLosers) === null) {
+            if ($nrOfQualifiers < 2) {
+                throw new \Exception("Voeg miniaal 2 gekwalificeerden toe", E_ERROR);
             }
             $nrOfQualifiers--;
         }
-        for( $qualifier = 0 ; $qualifier < $nrOfQualifiers ; $qualifier++ ) {
+        for ($qualifier = 0; $qualifier < $nrOfQualifiers; $qualifier++) {
             $this->addQualifier($round, $winnersOrLosers);
         }
     }
 
-    public function addQualifier(Round $round, int $winnersOrLosers) {
+    public function addQualifier(Round $round, int $winnersOrLosers)
+    {
         if ($round->getNrOfPlacesChildren() >= $round->getNrOfPlaces()) {
-            throw new \Exception('er mogen maximaal ' . $round->getNrOfPlacesChildren() . ' deelnemers naar de volgende ronde', E_ERROR);
+            throw new \Exception('er mogen maximaal ' . $round->getNrOfPlacesChildren() . ' deelnemers naar de volgende ronde',
+                E_ERROR);
         }
         $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
         $newNrOfPlaces = $nrOfPlaces + ($nrOfPlaces === 0 ? 2 : 1);
@@ -182,7 +195,8 @@ class Service {
         $structure->setStructureNumbers();
     }
 
-    public function isQualifyGroupSplittable(HorizontalPoule $previous, HorizontalPoule $current ): bool {
+    public function isQualifyGroupSplittable(HorizontalPoule $previous, HorizontalPoule $current): bool
+    {
         if (!$previous->getQualifyGroup() || $previous->getQualifyGroup() !== $current->getQualifyGroup()) {
             return false;
         }
@@ -192,9 +206,10 @@ class Service {
         return true;
     }
 
-    public function splitQualifyGroup(QualifyGroup $qualifyGroup, HorizontalPoule $pouleOne, HorizontalPoule $pouleTwo ) {
+    public function splitQualifyGroup(QualifyGroup $qualifyGroup, HorizontalPoule $pouleOne, HorizontalPoule $pouleTwo)
+    {
         if (!$this->isQualifyGroupSplittable($pouleOne, $pouleTwo)) {
-            throw new \Exception('de kwalificatiegroepen zijn niet splitsbaar', E_ERROR );
+            throw new \Exception('de kwalificatiegroepen zijn niet splitsbaar', E_ERROR);
         }
         $round = $qualifyGroup->getRound();
 
@@ -215,14 +230,16 @@ class Service {
         $structure->setStructureNumbers();
     }
 
-    public function areQualifyGroupsMergable(QualifyGroup $previous, QualifyGroup $current ): bool {
+    public function areQualifyGroupsMergable(QualifyGroup $previous, QualifyGroup $current): bool
+    {
         return ($previous !== null && $current !== null && $previous->getWinnersOrLosers() !== QualifyGroup::DROPOUTS
             && $previous->getWinnersOrLosers() === $current->getWinnersOrLosers() && $previous !== $current);
     }
 
-    public function mergeQualifyGroups(QualifyGroup $qualifyGroupOne, QualifyGroup $qualifyGroupTwo) {
+    public function mergeQualifyGroups(QualifyGroup $qualifyGroupOne, QualifyGroup $qualifyGroupTwo)
+    {
         if (!$this->areQualifyGroupsMergable($qualifyGroupOne, $qualifyGroupTwo)) {
-            throw new \Exception('de kwalificatiegroepen zijn niet te koppelen', E_ERROR );
+            throw new \Exception('de kwalificatiegroepen zijn niet te koppelen', E_ERROR);
         }
         $round = $qualifyGroupOne->getRound();
         $winnersOrLosers = $qualifyGroupOne->getWinnersOrLosers();
@@ -244,9 +261,10 @@ class Service {
         $structure->setStructureNumbers();
     }
 
-    public function updateRound(Round $round, int $newNrOfPlaces, int $newNrOfPoules ) {
+    public function updateRound(Round $round, int $newNrOfPlaces, int $newNrOfPoules)
+    {
 
-        if ($round->getNrOfPlaces() === $newNrOfPlaces && $newNrOfPoules === $round->getPoules()->count() ) {
+        if ($round->getNrOfPlaces() === $newNrOfPlaces && $newNrOfPoules === $round->getPoules()->count()) {
             return;
         }
         $this->refillRound($round, $newNrOfPlaces, $newNrOfPoules);
@@ -254,12 +272,12 @@ class Service {
         $horizontalPouleService = new HorizontalPouleService($round);
         $horizontalPouleService->recreate();
 
-        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
+        foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
             $nrOfPlacesWinnersOrLosers = $round->getNrOfPlacesChildren($winnersOrLosers);
-                // als aantal plekken minder wordt, dan is nieuwe aantal plekken max. aantal plekken van de ronde
-                if ($nrOfPlacesWinnersOrLosers > $newNrOfPlaces) {
-                    $nrOfPlacesWinnersOrLosers = $newNrOfPlaces;
-                }
+            // als aantal plekken minder wordt, dan is nieuwe aantal plekken max. aantal plekken van de ronde
+            if ($nrOfPlacesWinnersOrLosers > $newNrOfPlaces) {
+                $nrOfPlacesWinnersOrLosers = $newNrOfPlaces;
+            }
             $this->updateQualifyGroups($round, $winnersOrLosers, $nrOfPlacesWinnersOrLosers);
         }
 
@@ -267,7 +285,8 @@ class Service {
         $qualifyRuleService->recreateTo();
     }
 
-    protected function updateQualifyGroups(Round $round, int $winnersOrLosers, int $newNrOfPlacesChildren) {
+    protected function updateQualifyGroups(Round $round, int $winnersOrLosers, int $newNrOfPlacesChildren)
+    {
         $roundNrOfPlaces = $round->getNrOfPlaces();
         if ($newNrOfPlacesChildren > $roundNrOfPlaces) {
             $newNrOfPlacesChildren = $roundNrOfPlaces;
@@ -276,7 +295,12 @@ class Service {
         if ($roundNrOfPlaces < 4 && $newNrOfPlacesChildren >= 2) {
             $newNrOfPlacesChildren = 0;
         }
-        $getNewQualifyGroup = function(ArrayCollection $removedQualifyGroups) use ($round,$winnersOrLosers,&$newNrOfPlacesChildren) : HorizontolPouleCreator {
+        $getNewQualifyGroup = function (ArrayCollection $removedQualifyGroups) use (
+            $round,
+            $winnersOrLosers,
+            &
+            $newNrOfPlacesChildren
+        ) : HorizontolPouleCreator {
             $qualifyGroup = $removedQualifyGroups->first();
             $nrOfQualifiers = 0;
             if ($qualifyGroup === false) {
@@ -297,14 +321,16 @@ class Service {
                 }
                 if ($nrOfQualifiers > $newNrOfPlacesChildren) {
                     $nrOfQualifiers = $newNrOfPlacesChildren;
-                } else if ($nrOfQualifiers < $newNrOfPlacesChildren && $removedQualifyGroups->count() === 0) {
-                    $nrOfQualifiers = $newNrOfPlacesChildren;
+                } else {
+                    if ($nrOfQualifiers < $newNrOfPlacesChildren && $removedQualifyGroups->count() === 0) {
+                        $nrOfQualifiers = $newNrOfPlacesChildren;
+                    }
                 }
                 if ($newNrOfPlacesChildren - $nrOfQualifiers === 1) {
                     $nrOfQualifiers = $newNrOfPlacesChildren;
                 }
             }
-            return new HorizontolPouleCreator( $qualifyGroup, $nrOfQualifiers );
+            return new HorizontolPouleCreator($qualifyGroup, $nrOfQualifiers);
         };
 
         $horizontalPoulesCreators = [];
@@ -317,10 +343,10 @@ class Service {
             $horizontalPoulesCreators[] = $horizontalPoulesCreator;
             $newNrOfPlacesChildren -= $horizontalPoulesCreator->nrOfQualifiers;
         }
-        $horPoules = array_slice( $round->getHorizontalPoules($winnersOrLosers), 0);
+        $horPoules = array_slice($round->getHorizontalPoules($winnersOrLosers), 0);
         $this->updateQualifyGroupsHorizontalPoules($horPoules, $horizontalPoulesCreators);
 
-        foreach( $horizontalPoulesCreators as $creator ) {
+        foreach ($horizontalPoulesCreators as $creator) {
             $newNrOfPoules = $this->calculateNewNrOfPoules($creator->qualifyGroup, $creator->nrOfQualifiers);
             $this->updateRound($creator->qualifyGroup->getChildRound(), $creator->nrOfQualifiers, $newNrOfPoules);
         }
@@ -331,18 +357,21 @@ class Service {
      * @param array $roundHorizontalPoules | HorizontolPoule[]
      * @param array $horizontalPoulesCreators | HorizontolPoulesCreator[]
      */
-    protected function updateQualifyGroupsHorizontalPoules(array $roundHorizontalPoules, array $horizontalPoulesCreators ) {
-        foreach( $horizontalPoulesCreators as $creator ) {
+    protected function updateQualifyGroupsHorizontalPoules(
+        array $roundHorizontalPoules,
+        array $horizontalPoulesCreators
+    ) {
+        foreach ($horizontalPoulesCreators as $creator) {
             $horizontalPoules = &$creator->qualifyGroup->getHorizontalPoules();
             $horizontalPoules = [];
             $qualifiersAdded = 0;
             while ($qualifiersAdded < $creator->nrOfQualifiers) {
-                $roundHorizontalPoule = array_shift( $roundHorizontalPoules );
+                $roundHorizontalPoule = array_shift($roundHorizontalPoules);
                 $roundHorizontalPoule->setQualifyGroup($creator->qualifyGroup);
                 $qualifiersAdded += count($roundHorizontalPoule->getPlaces());
             }
         }
-        foreach( $roundHorizontalPoules as $roundHorizontalPoule ) {
+        foreach ($roundHorizontalPoules as $roundHorizontalPoule) {
             $roundHorizontalPoule->setQualifyGroup(null);
         }
     }
@@ -353,13 +382,14 @@ class Service {
      * @param Round $round
      * @param array $removedQualifyGroups
      */
-    protected function cleanupRemovedQualifyGroups(Round $round, array $removedQualifyGroups) {
+    protected function cleanupRemovedQualifyGroups(Round $round, array $removedQualifyGroups)
+    {
         $nextRoundNumber = $round->getNumber()->getNext();
         if ($nextRoundNumber === null) {
             return;
         }
-        foreach( $removedQualifyGroups as $removedQualifyGroup ) {
-            foreach( $removedQualifyGroup->getHorizontalPoules() as $horizontalPoule ) {
+        foreach ($removedQualifyGroups as $removedQualifyGroup) {
+            foreach ($removedQualifyGroup->getHorizontalPoules() as $horizontalPoule) {
                 $horizontalPoule->setQualifyGroup(null);
             }
             $nextRoundNumber->getRounds()->removeElement($removedQualifyGroup->getChildRound());
@@ -369,7 +399,8 @@ class Service {
         }
     }
 
-    public function calculateNewNrOfPoules(QualifyGroup $parentQualifyGroup, int $newNrOfPlaces): int {
+    public function calculateNewNrOfPoules(QualifyGroup $parentQualifyGroup, int $newNrOfPlaces): int
+    {
 
         $round = $parentQualifyGroup->getChildRound();
         $oldNrOfPlaces = $round ? $round->getNrOfPlaces() : $parentQualifyGroup->getNrOfPlaces();
@@ -391,19 +422,21 @@ class Service {
         return $oldNrOfPoules;
     }
 
-    public function createRoundNumber(Round $parentRound ): RoundNumber {
+    public function createRoundNumber(Round $parentRound): RoundNumber
+    {
         $roundNumber = $parentRound->getNumber()->createNext();
         return $roundNumber;
     }
 
 
-    private function refillRound(Round $round, int $nrOfPlaces, int $nrOfPoules): ?Round {
+    private function refillRound(Round $round, int $nrOfPlaces, int $nrOfPoules): ?Round
+    {
         if ($nrOfPlaces <= 0) {
             return null;
         }
 
         if ((($nrOfPlaces / $nrOfPoules) < 2)) {
-            throw new \Exception('De minimale aantal deelnemers per poule is 2.', E_ERROR );
+            throw new \Exception('De minimale aantal deelnemers per poule is 2.', E_ERROR);
         }
         $round->getPoules()->clear();
 
@@ -415,18 +448,20 @@ class Service {
             }
             $nrOfPlaces -= $nrOfPlacesToAdd;
             $nrOfPoules--;
-            }
+        }
         return $round;
     }
 
-    protected function getRoot(Round $round ): Round {
+    protected function getRoot(Round $round): Round
+    {
         if (!$round->isRoot()) {
             return $this->getRoot($round->getParent());
         }
         return $round;
     }
 
-    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules): int {
+    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules): int
+    {
         $nrOfPlaceLeft = ($nrOfPlaces % $nrOfPoules);
         if ($nrOfPlaceLeft === 0) {
             return $nrOfPlaces / $nrOfPoules;
@@ -434,123 +469,140 @@ class Service {
         return (($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules) + 1;
     }
 
-    public function getDefaultNrOfPoules(int $nrOfPlaces): int {
+    public function getDefaultNrOfPoules(int $nrOfPlaces): int
+    {
         $min = $this->competitorRange ? $this->competitorRange->min : 2;
         $max = $this->competitorRange ? $this->competitorRange->max : null;
-        if($nrOfPlaces < $min ) {
+        if ($nrOfPlaces < $min) {
             throw new \Exception('Het aantal deelnemers moet minimaal ' . $min . ' zijn', E_ERROR);
-        } else if ( $max && $nrOfPlaces > $max) {
-            throw new \Exception('Het aantal deelnemers mag maximaal ' . $max . 'zijn', E_ERROR);
+        } else {
+            if ($max && $nrOfPlaces > $max) {
+                throw new \Exception('Het aantal deelnemers mag maximaal ' . $max . 'zijn', E_ERROR);
+            }
         }
-        switch ( $nrOfPlaces) {
+        switch ($nrOfPlaces) {
             case 2:
             case 3:
             case 4:
             case 5:
-            case 7:  {
-                return 1;
-            }
+            case 7:
+                {
+                    return 1;
+                }
             case 6:
             case 8:
             case 10:
-            case 11: {
-                return 2;
-            }
+            case 11:
+                {
+                    return 2;
+                }
             case 9:
             case 12:
             case 13:
             case 14:
-            case 15: {
-                return 3;
-            }
+            case 15:
+                {
+                    return 3;
+                }
             case 16:
             case 17:
             case 18:
-            case 19: {
-                return 4;
-            }
+            case 19:
+                {
+                    return 4;
+                }
             case 20:
             case 21:
             case 22:
             case 23:
-            case 25: {
-                return 5;
-            }
+            case 25:
+                {
+                    return 5;
+                }
             case 24:
             case 26:
             case 29:
             case 30:
             case 33:
             case 34:
-            case 36: {
-                return 6;
-            }
+            case 36:
+                {
+                    return 6;
+                }
             case 28:
             case 31:
             case 35:
             case 37:
             case 38:
-            case 39: {
-                return 7;
-            }
-            case 27: {
-                return 9;
-            }
+            case 39:
+                {
+                    return 7;
+                }
+            case 27:
+                {
+                    return 9;
+                }
         }
         return 8;
     }
 
-    public function copy( StructureBase $structure, Competition $competition )
+    public function copy(StructureBase $structure, Competition $competition)
     {
-        return $this->createFromSerialized( $structure, $competition );
+        // return $this->createFromSerialized($structure, $competition);
     }
 
-    protected function createFromSerialized( StructureBase $structureSer, Competition $competition ): StructureBase
-    {
-        if( count( $this->roundNumberRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
-            throw new \Exception("er kan voor deze competitie geen indeling worden aangemaakt, omdat deze al bestaan", E_ERROR);
-        }
-//        if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
-//            throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
+//    protected function createFromSerialized(StructureBase $structureSer, Competition $competition): StructureBase
+//    {
+//        if (count($this->roundNumberRepos->findBy(array("competition" => $competition))) > 0) {
+//            throw new \Exception("er kan voor deze competitie geen indeling worden aangemaakt, omdat deze al bestaan",
+//                E_ERROR);
 //        }
-
-        $firstRoundNumber = null; $rootRound = null;
-        {
-            $previousRoundNumber = null;
-            foreach( $structureSer->getRoundNumbers() as $roundNumberSer ) {
-                $roundNumber = $this->roundNumberService->create(
-                    $competition,
-                    $roundNumberSer->getConfig()->getOptions(),
-                    $previousRoundNumber
-                );
-                if( $previousRoundNumber === null ) {
-                    $firstRoundNumber = $roundNumber;
-                }
-                $previousRoundNumber = $roundNumber;
-            }
-        }
-
-        $rootRound = $this->createRoundFromSerialized( $firstRoundNumber, $structureSer->getRootRound() );
-        return new StructureBase( $firstRoundNumber, $rootRound );
-    }
-
-    private function createRoundFromSerialized( RoundNumber $roundNumber, Round $roundSerialized, QualifyGroup $parentQualifyGroup = null ): Round
-    {
-        $newRound = $this->roundService->createFromSerialized(
-            $roundNumber,
-            $roundSerialized->getPoules()->toArray(),
-            $parentQualifyGroup
-        );
-
-        foreach( $roundSerialized->getQualifyGroups() as $qualifyGroupSerialized ) {
-            $qualifyGroup = new QualifyGroup( $newRound );
-            $qualifyGroup->setWinnersOrLosers( $qualifyGroupSerialized->getWinnersOrLosers() );
-            $qualifyGroup->setNumber( $qualifyGroupSerialized->getNumber() );
-            // $qualifyGroup->setNrOfHorizontalPoules( $qualifyGroupSerialized->getNrOfHorizontalPoules() );
-
-            $this->createRoundFromSerialized( $roundNumber->getNext(), $qualifyGroupSerialized->getChildRound(), $qualifyGroup );
-        }
-
-        return $newRound;
-    }
-
+////        if( count( $this->roundRepos->findBy( array( "competition" => $competition ) ) ) > 0 ) {
+////            throw new \Exception("er kan voor deze competitie geen ronde worden aangemaakt, omdat deze al bestaan", E_ERROR);
+////        }
+//
+//        $firstRoundNumber = null;
+//        $rootRound = null;
+//        {
+//            $previousRoundNumber = null;
+//            foreach ($structureSer->getRoundNumbers() as $roundNumberSer) {
+//                $roundNumber = $this->roundNumberService->create(
+//                    $competition,
+//                    $roundNumberSer->getConfig()->getOptions(),
+//                    $previousRoundNumber
+//                );
+//                if ($previousRoundNumber === null) {
+//                    $firstRoundNumber = $roundNumber;
+//                }
+//                $previousRoundNumber = $roundNumber;
+//            }
+//        }
+//
+//        $rootRound = $this->createRoundFromSerialized($firstRoundNumber, $structureSer->getRootRound());
+//        return new StructureBase($firstRoundNumber, $rootRound);
+//    }
+//
+//    private function createRoundFromSerialized(
+//        RoundNumber $roundNumber,
+//        Round $roundSerialized,
+//        QualifyGroup $parentQualifyGroup = null
+//    ): Round {
+//        $newRound = $this->roundService->createFromSerialized(
+//            $roundNumber,
+//            $roundSerialized->getPoules()->toArray(),
+//            $parentQualifyGroup
+//        );
+//
+//        foreach ($roundSerialized->getQualifyGroups() as $qualifyGroupSerialized) {
+//            $qualifyGroup = new QualifyGroup($newRound);
+//            $qualifyGroup->setWinnersOrLosers($qualifyGroupSerialized->getWinnersOrLosers());
+//            $qualifyGroup->setNumber($qualifyGroupSerialized->getNumber());
+//            // $qualifyGroup->setNrOfHorizontalPoules( $qualifyGroupSerialized->getNrOfHorizontalPoules() );
+//
+//            $this->createRoundFromSerialized($roundNumber->getNext(), $qualifyGroupSerialized->getChildRound(),
+//                $qualifyGroup);
+//        }
+//
+//        return $newRound;
+//    }
+}
