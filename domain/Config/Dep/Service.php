@@ -8,7 +8,6 @@
 
 namespace Voetbal\Config\Dep;
 
-use Voetbal\Dep;
 use Voetbal\SportConfig;
 
 
