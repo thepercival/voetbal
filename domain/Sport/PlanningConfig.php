@@ -28,11 +28,11 @@ class PlanningConfig
     /**
      * @var int
      */
-    protected $nrOfHeadtoheadMatches;
+    protected $nrOfGames;
 
     protected $iddep;  // DEPRECATED
 
-    const DEFAULTNROFHEADTOHEADMATCHES = 1;
+    const DEFAULTNROFGAMES = 1;
 
     public function __construct( SportBase $sport, RoundNumber $roundNumber )
     {
@@ -102,19 +102,19 @@ class PlanningConfig
     /**
      * @return int
      */
-    public function getNrOfHeadtoheadMatches()
+    public function getNrOfGames()
     {
-        return $this->nrOfHeadtoheadMatches;
+        return $this->nrOfGames;
     }
 
     /**
-     * @param int $nrOfHeadtoheadMatches
+     * @param int $nrOfGames
      */
-    public function setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches )
+    public function setNrOfGames( $nrOfGames )
     {
-        if (!is_int($nrOfHeadtoheadMatches)) {
-            throw new \InvalidArgumentException("het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR);
+        if (!is_int($nrOfGames)) {
+            throw new \InvalidArgumentException("het aantal wedstrijden per sport heeft een onjuiste waarde", E_ERROR);
         }
-        $this->nrOfHeadtoheadMatches = $nrOfHeadtoheadMatches;
+        $this->nrOfGames = $nrOfGames;
     }
 }

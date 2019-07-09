@@ -172,10 +172,10 @@ class Structure implements StructureImporter
         }, $poules );
     }
 
-    protected function getNrOfHeadtoheadMatches( $externalSystemRound ): int
+    protected function getNrOfHeadtohead( $externalSystemRound ): int
     {
         $firstPoule = reset($externalSystemRound->poules);
-        return $firstPoule->nrOfHeadtoheadMatches;
+        return $firstPoule->nrOfHeadtohead;
     }
 
     /**

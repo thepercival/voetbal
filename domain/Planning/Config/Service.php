@@ -10,6 +10,7 @@ namespace Voetbal\Planning\Config;
 
 use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 
 class Service
 {
@@ -27,6 +28,7 @@ class Service
         $config->setMinutesAfter($this->getDefaultMinutesAfter());
         $config->setTeamup(false);
         $config->setSelfReferee(false);
+        $config->setNrOfHeadtohead(PlanningConfig::DEFAULTNROFHEADTOHEAD);
         return $config;
     }
 

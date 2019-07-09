@@ -15,21 +15,21 @@ use Voetbal\Round\Number as RoundNumber;
 class Service {
 
     public function createDefault(Sport $sport, RoundNumber $roundNumber ) {
-        $sportPlanningConfig = new SportPlanningConfig($sport, $roundNumber);
-        $sportPlanningConfig->setNrOfHeadtoheadMatches(SportPlanningConfig::DEFAULTNROFHEADTOHEADMATCHES);
-        return $sportPlanningConfig;
+        $config = new SportPlanningConfig($sport, $roundNumber);
+        $config->setNrOfGames(SportPlanningConfig::DEFAULTNROFGAMES);
+        return $config;
     }
 
     public function copy(Sport $sport, RoundNumber $roundNumber, SportPlanningConfig $sourceConfig) {
         $newConfig = new SportPlanningConfig($sport, $roundNumber);
-        $newConfig->setNrOfHeadtoheadMatches($sourceConfig->getNrOfHeadtoheadMatches());
+        $newConfig->setNrOfGames($sourceConfig->getNrOfGames());
     }
 
     public function isDefault( SportPlanningConfig $config ): bool {
-        return $config->getNrOfHeadtoheadMatches() === SportPlanningConfig::DEFAULTNROFHEADTOHEADMATCHES;
+        return $config->getNrOfGames() === SportPlanningConfig::DEFAULTNROFGAMES;
     }
 
     public function areEqual( SportPlanningConfig $configA, SportPlanningConfig $configB ): bool {
-        return $configA->getNrOfHeadtoheadMatches() === $configB->getNrOfHeadtoheadMatches();
+        return $configA->getNrOfGames() === $configB->getNrOfGames();
     }
 }

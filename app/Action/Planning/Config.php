@@ -59,7 +59,7 @@ final class Config
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            /** @var \Voetbal\Planning\Config $configSer */
+            /** @var \Voetbal\Planning\Config $planningConfigSer */
             $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
             if ( $planningConfigSer === null ) {
                 throw new \Exception("er kunnen geen plannings-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
@@ -89,6 +89,7 @@ final class Config
             $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
             $planningConfig->setSelfReferee( $planningConfigSer->getSelfReferee() );
             $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
+            $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
 
             // het verwijderen van planningconfig gebeurd vanuit het roundnumber
             $this->repos->save($planningConfig);
@@ -130,7 +131,7 @@ final class Config
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Planning\Config $configSer */
+            /** @var \Voetbal\Planning\Config $planningConfigSer */
             $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
             if ( $planningConfigSer === null ) {
                 throw new \Exception("er zijn geen plannings-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
@@ -148,6 +149,7 @@ final class Config
             $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
             $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
             $planningConfig->setSelfReferee( $planningConfigSer->getSelfReferee() );
+            $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
 
             $this->repos->save($planningConfig);
 

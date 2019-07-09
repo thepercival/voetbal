@@ -22,3 +22,5 @@ Voetbal\Planning\Config:
       type: bool
     selfReferee:
       type: bool
+    nrOfHeadtohead:
+      type: integer

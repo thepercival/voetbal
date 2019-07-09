@@ -60,11 +60,11 @@ class Service
 //            $nrOfHeadtoheadMatches = $config->getNrOfHeadtoheadMatches();
 //            for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
 //                $reverseHomeAway = ($headtohead % 2) === 0;
-//                $headToHeadNumber = ($headtohead - 1) * count($gameRounds);
+//                $headtoheadNumber = ($headtohead - 1) * count($gameRounds);
 //                foreach ($gameRounds as $gameRound ) {
 //                    $subNumber = 1;
 //                    foreach( $gameRound->getCombinations() as $combination ) {
-//                        $game = new Game( $poule,  $headToHeadNumber + $gameRound->getNumber(), $subNumber ++);
+//                        $game = new Game( $poule,  $headtoheadNumber + $gameRound->getNumber(), $subNumber ++);
 //                        $game->setPlaces(new ArrayCollection($combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/)));
 //                        $games[] = $game;
 //                    }

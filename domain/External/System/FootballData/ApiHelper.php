@@ -206,7 +206,7 @@ class ApiHelper
 
             $nrOfGamesPerGameRound = ( $nrOfPlaces - ( $nrOfPlaces % 2 ) ) / 2;
             $nrOfGameRounds = ( $nrOfGames / $nrOfGamesPerGameRound );
-            $poule->nrOfHeadtoheadMatches = $nrOfGameRounds / ( $nrOfPlaces - 1 );
+            $poule->nrOfHeadtohead = $nrOfGameRounds / ( $nrOfPlaces - 1 );
         }
     }
 

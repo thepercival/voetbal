@@ -32,7 +32,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $planningService = new PlanningService($competition);
         $firstRoundNumber = $structure->getFirstRoundNumber();
-        $firstRoundNumber->getConfig()->setNrOfHeadtoheadMatches(2);
+        $firstRoundNumber->getConfig()->setNrOfHeadtohead(2);
         $planningService->create($firstRoundNumber, $competition->getStartDateTime());
         $games = $planningService->getGamesForRoundNumber($firstRoundNumber, Game::ORDER_BYNUMBER);
         $this->assertSame(count($games),12);
@@ -53,7 +53,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertSameGame($games[11],$roundNr,$subNr, [2], [4]); $roundNr++; $subNr = 1;
     }
 
-    public function testFourPoulePlacesTeamupHeadToHeadTwo()
+    public function testFourPoulePlacesTeamupHeadtoheadTwo()
     {
         $serializer = getSerializer();
 
@@ -69,7 +69,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $planningService = new PlanningService($competition);
         $firstRoundNumber = $structure->getFirstRoundNumber();
-        $firstRoundNumber->getConfig()->setNrOfHeadtoheadMatches(2);
+        $firstRoundNumber->getConfig()->setNrOfHeadtohead(2);
         $firstRoundNumber->getConfig()->setTeamup(true);
         $planningService->create($firstRoundNumber, $competition->getStartDateTime());
         $games = $planningService->getGamesForRoundNumber($firstRoundNumber, Game::ORDER_BYNUMBER);

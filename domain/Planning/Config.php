@@ -52,6 +52,10 @@ class Config {
      * @var bool
      */
     protected $selfReferee;
+    /**
+     * @var int
+     */
+    protected $nrOfHeadtohead;
 
     protected $rniddep;  // DEPRECATED
 
@@ -59,6 +63,7 @@ class Config {
     const DEFAULTENABLETIME = false;
     const TEAMUP_MIN = 4;
     const TEAMUP_MAX = 6;
+    const DEFAULTNROFHEADTOHEAD = 1;
 
     public function __construct( RoundNumber $roundNumber )
     {
@@ -244,6 +249,25 @@ class Config {
             throw new \InvalidArgumentException("zelf-scheidsrechter-ja/nee heeft een onjuiste waarde", E_ERROR);
         }
         $this->selfReferee = $selfReferee;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNrOfHeadtohead()
+    {
+        return $this->nrOfHeadtohead;
+    }
+
+    /**
+     * @param int $nrOfHeadtohead
+     */
+    public function setNrOfHeadtohead( $nrOfHeadtohead )
+    {
+        if (!is_int($nrOfHeadtohead)) {
+            throw new \InvalidArgumentException("het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->nrOfHeadtohead = $nrOfHeadtohead;
     }
 
     public function getNrOfCompetitorsPerGame(): int {
