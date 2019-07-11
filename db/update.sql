@@ -58,17 +58,17 @@ set 	ssc.parentid = scp.id
 where	rsc.parentid is not null;
 
 -- add planningconfigs to roundnumber
-insert into planningconfigs( hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, rniddep )
+insert into planningconfigs( hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, nrOfHeadtohead, rniddep )
     (
-        select rc.hasExtension, rc.minutesPerGameExt, rc.enableTime, rc.minutesPerGame, rc.minutesInBetween, rc.minutesBetweenGames, rc.teamup, rc.selfReferee, rn.id
+        select rc.hasExtension, rc.minutesPerGameExt, rc.enableTime, rc.minutesPerGame, rc.minutesInBetween, rc.minutesBetweenGames, rc.teamup, rc.selfReferee, rc.nrOfHeadtoheadMatches, rn.id
         from roundnumbers rn join roundconfigs rc on rn.configid = rc.id
     );
 update roundnumbers set planningconfigid = ( select id from planningconfigs where rniddep = roundnumbers.id );
 
 -- add sportplanningconfigs for roundnumbers
-insert into sportplanningconfigs ( roundnumberid, sportid, nrOfHeadtohead )
+insert into sportplanningconfigs ( roundnumberid, sportid, nrOfGames )
     (
-        select  rn.id, s.id, rc.nrOfHeadtoheadMatches
+        select  rn.id, s.id, 1
         from    roundnumbers rn join roundconfigs rc on rn.configid = rc.id
                                 join competitions c on c.id = rn.competitionid
                                 join leagues l on l.id = c.leagueid

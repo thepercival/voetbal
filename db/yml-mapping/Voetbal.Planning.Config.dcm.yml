@@ -41,6 +41,10 @@ Voetbal\Planning\Config:
       type: boolean
       nullable: true
       unique: false
+    nrOfHeadtohead:
+      type: smallint
+      nullable: false
+      unique: false
     rniddep: # DEPRECATED
       type: integer
       nullable: true
