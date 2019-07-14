@@ -66,7 +66,7 @@ insert into planningconfigs( hasExtension,minutesPerGameExt,enableTime,minutesPe
 update roundnumbers set planningconfigid = ( select id from planningconfigs where rniddep = roundnumbers.id );
 
 -- add sportplanningconfigs for roundnumbers
-insert into sportplanningconfigs ( roundnumberid, sportid, nrOfGames )
+insert into sportplanningconfigs ( roundnumberid, sportid, minNrOfGames )
     (
         select  rn.id, s.id, 1
         from    roundnumbers rn join roundconfigs rc on rn.configid = rc.id

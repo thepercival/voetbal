@@ -16,20 +16,20 @@ class Service {
 
     public function createDefault(Sport $sport, RoundNumber $roundNumber ) {
         $config = new SportPlanningConfig($sport, $roundNumber);
-        $config->setNrOfGames(SportPlanningConfig::DEFAULTNROFGAMES);
+        $config->setMinNrOfGames(SportPlanningConfig::DEFAULTNROFGAMES);
         return $config;
     }
 
     public function copy(Sport $sport, RoundNumber $roundNumber, SportPlanningConfig $sourceConfig) {
         $newConfig = new SportPlanningConfig($sport, $roundNumber);
-        $newConfig->setNrOfGames($sourceConfig->getNrOfGames());
+        $newConfig->setMinNrOfGames($sourceConfig->getMinNrOfGames());
     }
 
     public function isDefault( SportPlanningConfig $config ): bool {
-        return $config->getNrOfGames() === SportPlanningConfig::DEFAULTNROFGAMES;
+        return $config->getMinNrOfGames() === SportPlanningConfig::DEFAULTNROFGAMES;
     }
 
     public function areEqual( SportPlanningConfig $configA, SportPlanningConfig $configB ): bool {
-        return $configA->getNrOfGames() === $configB->getNrOfGames();
+        return $configA->getMinNrOfGames() === $configB->getMinNrOfGames();
     }
 }

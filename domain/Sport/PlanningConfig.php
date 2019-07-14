@@ -28,7 +28,7 @@ class PlanningConfig
     /**
      * @var int
      */
-    protected $nrOfGames;
+    protected $minNrOfGames;
 
     protected $iddep;  // DEPRECATED
 
@@ -102,19 +102,19 @@ class PlanningConfig
     /**
      * @return int
      */
-    public function getNrOfGames()
+    public function getMinNrOfGames()
     {
-        return $this->nrOfGames;
+        return $this->minNrOfGames;
     }
 
     /**
-     * @param int $nrOfGames
+     * @param int $minNrOfGames
      */
-    public function setNrOfGames( $nrOfGames )
+    public function setMinNrOfGames( $minNrOfGames )
     {
-        if (!is_int($nrOfGames)) {
-            throw new \InvalidArgumentException("het aantal wedstrijden per sport heeft een onjuiste waarde", E_ERROR);
+        if (!is_int($minNrOfGames)) {
+            throw new \InvalidArgumentException("het minimum aantal wedstrijden per sport heeft een onjuiste waarde", E_ERROR);
         }
-        $this->nrOfGames = $nrOfGames;
+        $this->minNrOfGames = $minNrOfGames;
     }
 }
