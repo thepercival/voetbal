@@ -49,7 +49,7 @@ class Config {
     /**
      * @var int
      */
-    protected $nrOfGameCompetitors;
+    protected $nrOfGamePlaces;
 
     use SportIdSer;
 
@@ -58,7 +58,7 @@ class Config {
     const POINTS_CALC_GAMEPOINTS = 0;
     const POINTS_CALC_SCOREPOINTS = 1;
     const POINTS_CALC_BOTH = 2;
-    const DEFAULT_NROFGAMECOMPETITORS = 2;
+    const DEFAULT_NROFGAMEPLACES = 2;
 
     public function __construct( SportBase $sport, Competition $competition )
     {
@@ -163,12 +163,12 @@ class Config {
         $this->pointsCalculation = $pointsCalculation;
     }
 
-    public function getNrOfGameCompetitors(): ?int {
-        return $this->nrOfGameCompetitors;
+    public function getNrOfGamePlaces(): ?int {
+        return $this->nrOfGamePlaces;
     }
 
-    public function setNrOfGameCompetitors(int $nrOfGameCompetitors): void {
-        $this->nrOfGameCompetitors = $nrOfGameCompetitors;
+    public function setNrOfGamePlaces(int $nrOfGamePlaces): void {
+        $this->nrOfGamePlaces = $nrOfGamePlaces;
     }
 
     /**

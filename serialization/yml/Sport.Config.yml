@@ -16,7 +16,7 @@ Voetbal\Sport\Config:
       type: float
     pointsCalculation:
       type: integer
-    nrOfGameCompetitors:
+    nrOfGamePlaces:
       type: integer
     sportIdSer:
       type: integer

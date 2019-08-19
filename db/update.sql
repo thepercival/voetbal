@@ -30,7 +30,7 @@ update sports set customId = 11, team = true where name = 'voetbal';
 update sports set customId = 12, team = true where name = 'volleybal';
 
 -- add sportconfigs for competition
-insert into sportconfigs( competitionid, sportid, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, nrOfGameCompetitors )
+insert into sportconfigs( competitionid, sportid, winPoints, drawPoints, winPointsExt, drawPointsExt, pointsCalculation, nrOfGamePlaces )
     (
         select 	c.id, s.id, rc.winPoints, rc.drawPoints, rc.winPointsExt, rc.drawPointsExt, rc.pointsCalculation, 2
         from 	competitions c

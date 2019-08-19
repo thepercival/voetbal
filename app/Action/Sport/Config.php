@@ -102,7 +102,7 @@ final class Config
             $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
             $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
             $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
-            $sportConfig->setNrOfGameCompetitors( $sportConfigSer->getNrOfGameCompetitors() );
+            $sportConfig->setNrOfGamePlaces( $sportConfigSer->getNrOfGamePlaces() );
             $this->repos->save($sportConfig);
 
             return $response
@@ -143,7 +143,7 @@ final class Config
             $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
             $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
             $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
-            $sportConfig->setNrOfGameCompetitors( $sportConfigSer->getNrOfGameCompetitors() );
+            $sportConfig->setNrOfGamePlaces( $sportConfigSer->getNrOfGamePlaces() );
             $this->repos->save($sportConfig);
 
             return $response

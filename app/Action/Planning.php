@@ -95,7 +95,7 @@ final class Planning
             foreach ($gamesSer as $gameSer) {
                 $game = new Game( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber() );
                 foreach( $gameSer->getPlaces() as $gamePlaceSer ){
-                    $place = $poule->getPlace($gamePlaceSer->getePlaceNr());
+                    $place = $poule->getPlace($gamePlaceSer->getPlaceNr());
                     if ( $place === null ) {
                         throw new \Exception("er kan geen deelnemer worden gevonden o.b.v. de invoergegevens", E_ERROR);
                     }
