@@ -64,34 +64,16 @@ class Repository
 
     public function getStructure( Competition $competition ): ?StructureBase
     {
-        $firstRoundNumber = $this->findRoundNumber( $competition, 1 );
-        // $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition), array("id" => "asc"));
-        // $firstRoundNumber = $this->structureRoundNumbers($roundNumbers);
-        if ( $firstRoundNumber === null ) {
-            return null;
+        $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
+        $roundNumbers = $roundNumberRepos->findBy(array("competition" => $competition), array("number" => "asc"));
+        $roundNumber = reset($roundNumbers);
+        while( $nextRoundNumber = next($roundNumbers) ) {
+            $roundNumber->setNext($nextRoundNumber);
+            $roundNumber = $nextRoundNumber;
         }
+        $firstRoundNumber = reset($roundNumbers);
         return new StructureBase($firstRoundNumber, $firstRoundNumber->getRounds()->first());
     }
-//
-//    protected function structureRoundNumbers( array $roundNumbers, RoundNumber $roundNumberToFind = null ): ?RoundNumber
-//    {
-//        $foundRoundNumbers = array_filter( $roundNumbers, function( $roundNumberIt ) use ($roundNumberToFind) {
-//            return $roundNumberIt->getPrevious() === $roundNumberToFind;
-//        });
-//        $foundRoundNumber = reset( $foundRoundNumbers );
-//        if( $foundRoundNumber === false ) {
-//            return null;
-//        }
-//        if( $roundNumberToFind !== null ) {
-//            $roundNumberToFind->setNext($foundRoundNumber);
-//        }
-//        $index = array_search( $foundRoundNumber, $roundNumbers);
-//        if( $index !== false ) {
-//            unset($roundNumbers[$index]);
-//        }
-//        $this->structureRoundNumbers( $roundNumbers, $foundRoundNumber );
-//        return $foundRoundNumber;
-//    }
 
     /**
      * @param Competition $competition

@@ -102,6 +102,15 @@ class Number
         $this->next = null;
     }
 
+    /**
+     * voor serialization
+     *
+     * @param Number $roundNumber
+     */
+    public function setNext( RoundNumber $roundNumber ) {
+        $this->next = $roundNumber;
+    }
+
     public function hasPrevious(): bool {
         return $this->previous !== null;
     }
