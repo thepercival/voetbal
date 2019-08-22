@@ -34,3 +34,6 @@ Voetbal\Field:
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE
+  uniqueConstraints:
+    main_nr_idx:
+      columns: [ competitionid, number ]

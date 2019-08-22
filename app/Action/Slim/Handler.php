@@ -128,6 +128,7 @@ class Handler
         } elseif ($resourceType === 'fields') {
             $action = new VoetbalApp\Action\Field(
                 $voetbalservice->getRepository(Voetbal\Field::class),
+                $voetbalservice->getRepository(Voetbal\Sport::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );

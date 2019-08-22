@@ -10,7 +10,8 @@ namespace VoetbalApp\Action;
 
 use JMS\Serializer\Serializer;
 use Voetbal\Field\Repository as FieldRepository;
-use Voetbal\Field\Service as FieldService;
+use Voetbal\Sport\Repository as SportRepository;
+// use Voetbal\Field\Service as FieldService;
 use Voetbal\Competition\Repository as CompetitionRepos;
 use Voetbal\Field as FieldBase;
 
@@ -20,6 +21,10 @@ final class Field
      * @var FieldRepository
      */
     protected $repos;
+    /**
+     * @var SportRepository
+     */
+    protected $sportRepos;
     /**
      * @var CompetitionRepos
      */
@@ -31,10 +36,12 @@ final class Field
 
     public function __construct(
         FieldRepository $repos,
+        SportRepository $sportRepos,
         CompetitionRepos $competitionRepos,
         Serializer $serializer
     ) {
         $this->repos = $repos;
+        $this->sportRepos= $sportRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
     }
@@ -80,7 +87,7 @@ final class Field
             if( !$fieldsWithSameName->isEmpty() ) {
                 throw new \Exception("het veldnummer \"".$fieldSer->getNumber()."\" of de veldnaam \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
             }
-            $sport = $competition->getSportBySportId( $fieldSer->getSportIdSer() );
+            $sport = $this->sportRepos->find($fieldSer->getSportIdSer());
             if ( $sport === null ) {
                 throw new \Exception("de sport kan niet gevonden worden", E_ERROR);
             }
@@ -119,7 +126,12 @@ final class Field
                 throw new \Exception("het veld \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
             }
 
+            $sport = $this->sportRepos->find($fieldSer->getSportIdSer());
+            if ( $sport === null ) {
+                throw new \Exception("de sport kan niet gevonden worden", E_ERROR);
+            }
             $field->setName( $fieldSer->getName() );
+            $field->setSport( $sport );
 
             $this->repos->save( $field );
             return $response
