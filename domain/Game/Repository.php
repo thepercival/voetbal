@@ -66,11 +66,11 @@ class Repository extends \Voetbal\Repository
      * @param Competitor $homeCompetitor
      * @param Competitor $awayCompetitor
      * @param Competition $competition
-     * @param null $gameStates
+     * @param int|null $gameStates
      * @return mixed| GameBase[]
      * @throws \Exception
      */
-    public function findByExt( Competitor $homeCompetitor, Competitor $awayCompetitor, Competition $competition, $gameStates = null)
+    public function findByExt( Competitor $homeCompetitor, Competitor $awayCompetitor, Competition $competition, int $gameStates = null)
     {
         $exprHome = $this->getEM()->getExpressionBuilder();
         $exprAway = $this->getEM()->getExpressionBuilder();

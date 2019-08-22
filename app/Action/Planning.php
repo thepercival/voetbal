@@ -169,13 +169,6 @@ final class Planning
 
     protected function getPoule( int $pouleId, int $competitionId ): Poule
     {
-        if ( $pouleId === null ) {
-            throw new \Exception("het poule-id is niet meegegeven", E_ERROR);
-        }
-        if ( $competitionId === null ) {
-            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
-        }
-
         $poule = $this->pouleRepos->find($pouleId);
         if ( $poule === null ) {
             throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);

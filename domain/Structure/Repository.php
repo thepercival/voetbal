@@ -11,7 +11,7 @@ namespace Voetbal\Structure;
 use Voetbal\Structure as StructureBase;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Competition;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManager;
 use Voetbal\Round\Number\Repository as RoundNumberRepository;
 
 /**
@@ -21,11 +21,11 @@ use Voetbal\Round\Number\Repository as RoundNumberRepository;
 class Repository
 {
     /**
-     * @var EntityManagerInterface
+     * @var EntityManager
      */
     protected $em;
 
-    public function __construct(EntityManagerInterface $em)
+    public function __construct(EntityManager $em)
     {
         $this->em = $em;
     }

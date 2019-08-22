@@ -119,11 +119,8 @@ class Config {
     /**
      * @param int $minutesBetweenGames
      */
-    public function setMinutesBetweenGames($minutesBetweenGames)
+    public function setMinutesBetweenGames(int $minutesBetweenGames)
     {
-        if ($minutesBetweenGames !== null and !is_int($minutesBetweenGames)) {
-            throw new \InvalidArgumentException("het aantal-minuten-tussen-wedstrijden heeft een onjuiste waarde", E_ERROR);
-        }
         $this->minutesBetweenGames = $minutesBetweenGames;
     }
 
@@ -138,11 +135,8 @@ class Config {
     /**
      * @param int $minutesAfter
      */
-    public function setMinutesAfter($minutesAfter)
+    public function setMinutesAfter(int $minutesAfter)
     {
-        if ($minutesAfter !== null and !is_int($minutesAfter)) {
-            throw new \InvalidArgumentException("het aantal minuten pauze na de ronde heeft een onjuiste waarde", E_ERROR);
-        }
         $this->minutesAfter = $minutesAfter;
     }
 
@@ -166,11 +160,8 @@ class Config {
     /**
      * @param int $minutesPerGame
      */
-    public function setMinutesPerGame($minutesPerGame)
+    public function setMinutesPerGame(int $minutesPerGame)
     {
-        if ($minutesPerGame !== null and !is_int($minutesPerGame)) {
-            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd heeft een onjuiste waarde", E_ERROR);
-        }
         $this->minutesPerGame = $minutesPerGame;
     }
 
@@ -205,11 +196,8 @@ class Config {
     /**
      * @param int $minutesPerGameExt
      */
-    public function setMinutesPerGameExt($minutesPerGameExt)
+    public function setMinutesPerGameExt(int $minutesPerGameExt)
     {
-        if ($minutesPerGameExt !== null and !is_int($minutesPerGameExt)) {
-            throw new \InvalidArgumentException("het aantal-minuten-per-wedstrijd-extratijd heeft een onjuiste waarde", E_ERROR);
-        }
         $this->minutesPerGameExt = $minutesPerGameExt;
     }
 

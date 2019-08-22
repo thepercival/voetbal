@@ -190,9 +190,9 @@ class Round
         if( $winnersOrLosers === null ) {
             return clone $this->qualifyGroups;
         }
-        return $this->qualifyGroups->filter( function( $qualifyGroup ) use ($winnersOrLosers) {
+        return new ArrayCollection( $this->qualifyGroups->filter( function( $qualifyGroup ) use ($winnersOrLosers) {
            return $qualifyGroup->getWinnersOrLosers() === $winnersOrLosers;
-        });
+        })->toArray());
     }
 
     public function addQualifyGroup(QualifyGroup $qualifyGroup ) {
@@ -231,7 +231,7 @@ class Round
 //        });
 //    }
 
-    public function getQualifyGroup(int $winnersOrLosers, int $qualifyGroupNumber): QualifyGroup {
+    public function getQualifyGroup(int $winnersOrLosers, int $qualifyGroupNumber): ?QualifyGroup {
         $qualifyGroup = $this->getQualifyGroups($winnersOrLosers)->filter(function( $qualifyGroup ) use ($qualifyGroupNumber) {
             return $qualifyGroup->getNumber() === $qualifyGroupNumber;
         })->last();
@@ -303,9 +303,9 @@ class Round
     }
 
     /**
-     * @return Round
+     * @return ?Round
      */
-    public function getParent()
+    public function getParent(): ?Round
     {
         return $this->getParentQualifyGroup() ? $this->getParentQualifyGroup()->getRound() : null;
     }
@@ -313,7 +313,7 @@ class Round
     /**
      * @return QualifyGroup
      */
-    public function getParentQualifyGroup()
+    public function getParentQualifyGroup(): ?QualifyGroup
     {
         return $this->parentQualifyGroup;
     }

@@ -67,7 +67,8 @@ class Service
         $round->removeQualifyGroup($secondQualifyGroup);
         $this->renumber($round, $firstQualifyGroup->getWinnersOrLosers());
 
-        array_splice( $secondQualifyGroup->getHorizontalPoules(), $idx, 1);
+        $horizontalPoules = $secondQualifyGroup->getHorizontalPoules();
+        array_splice( $horizontalPoules, $idx, 1);
 
         $removedPoules = $secondQualifyGroup->getHorizontalPoules();
         foreach( $removedPoules as $removedPoule ) {
@@ -75,25 +76,25 @@ class Service
         }
     }
 
-    public function getLosersReversed( ArrayCollection $qualifyGroups ) {
-
-        uasort( $qualifyGroups, function( QualifyGroup $qualifyGroupA, QualifyGroup $qualifyGroupB) {
-            if ($qualifyGroupA->getWinnersOrLosers() < $qualifyGroupB->getWinnersOrLosers()) {
-                return 1;
-            }
-            if ($qualifyGroupA->getWinnersOrLosers() > $qualifyGroupB->getWinnersOrLosers()) {
-                return -1;
-            }
-            if ( $qualifyGroupA->getNumber() < $qualifyGroupB->getNumber()) {
-                return ( $qualifyGroupA->getWinnersOrLosers() === QualifyGroup::WINNERS ) ? 1 : -1;
-            }
-            if ($qualifyGroupA->getNumber() > $qualifyGroupB->getNumber()) {
-                return ( $qualifyGroupA->getWinnersOrLosers() === QualifyGroup::WINNERS ) ? -1 : 1;
-            }
-            return 0;
-        });
-        return $qualifyGroups;
-    }
+//    public function getLosersReversed( ArrayCollection $qualifyGroups ) {
+//
+//        uasort( $qualifyGroups, function( QualifyGroup $qualifyGroupA, QualifyGroup $qualifyGroupB) {
+//            if ($qualifyGroupA->getWinnersOrLosers() < $qualifyGroupB->getWinnersOrLosers()) {
+//                return 1;
+//            }
+//            if ($qualifyGroupA->getWinnersOrLosers() > $qualifyGroupB->getWinnersOrLosers()) {
+//                return -1;
+//            }
+//            if ( $qualifyGroupA->getNumber() < $qualifyGroupB->getNumber()) {
+//                return ( $qualifyGroupA->getWinnersOrLosers() === QualifyGroup::WINNERS ) ? 1 : -1;
+//            }
+//            if ($qualifyGroupA->getNumber() > $qualifyGroupB->getNumber()) {
+//                return ( $qualifyGroupA->getWinnersOrLosers() === QualifyGroup::WINNERS ) ? -1 : 1;
+//            }
+//            return 0;
+//        });
+//        return $qualifyGroups;
+//    }
 
     protected function renumber(Round $round, int $winnersOrLosers) {
         $number = 1;

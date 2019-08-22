@@ -88,7 +88,7 @@ class Referee
     }
 
     /**
-     * @param string $initials
+     * @param string|null $initials
      */
     public function setInitials( $initials )
     {

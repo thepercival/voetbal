@@ -115,10 +115,9 @@ final class Game
             $roundNumber = $poule->getRound()->getNumber();
             $competition = $roundNumber->getCompetition();
 
-            /** @var \Voetbal\Game $gameSer */
+            /** @var \Voetbal\Game|false $gameSer */
             $gameSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Game', 'json');
-
-            if ( $gameSer === null ) {
+            if ( $gameSer === false ) {
                 throw new \Exception("er kan geen wedstrijd worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -157,10 +156,9 @@ final class Game
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
 
-            /** @var \Voetbal\Game $game */
+            /** @var \Voetbal\Game|false $game */
             $gameSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Game', 'json');
-
-            if ( $gameSer === null ) {
+            if ( $gameSer === false ) {
                 throw new \Exception("er kan geen wedstrijd worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -193,13 +191,6 @@ final class Game
 
     protected function getPoule( int $pouleId, int $competitionId ): Poule
     {
-        if ( $pouleId === null ) {
-            throw new \Exception("het poule-id is niet meegegeven", E_ERROR);
-        }
-        if ( $competitionId === null ) {
-            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
-        }
-
         $poule = $this->pouleRepos->find($pouleId);
         if ( $poule === null ) {
             throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);

@@ -48,19 +48,19 @@ class Game implements External\Importable
     private $startDateTime;
 
     /**
-     * @var Referee
+     * @var ?Referee
      */
     protected $referee;
     protected $refereeInitials; // for serialization, not used
 
     /**
-     * @var Place
+     * @var ?Place
      */
     protected $refereePlace;
     protected $refereePlaceId; // for serialization, not used
 
     /**
-     * @var Field
+     * @var ?Field
      */
     protected $field;
     protected $fieldNr; // for serialization, not used
@@ -210,9 +210,9 @@ class Game implements External\Importable
     }
 
     /**
-     * @return \DateTimeImmutable
+     * @return ?\DateTimeImmutable
      */
-    public function getStartDateTime()
+    public function getStartDateTime(): ?\DateTimeImmutable
     {
         return $this->startDateTime;
     }
@@ -245,9 +245,9 @@ class Game implements External\Importable
     }
 
     /**
-     * @return Referee
+     * @return ?Referee
      */
-    public function getReferee()
+    public function getReferee(): ?Referee
     {
         return $this->referee;
     }
@@ -277,9 +277,9 @@ class Game implements External\Importable
     }
 
     /**
-     * @return Place
+     * @return ?Place
      */
-    public function getRefereePlace()
+    public function getRefereePlace(): ?Place
     {
         return $this->refereePlace;
     }
@@ -309,9 +309,9 @@ class Game implements External\Importable
     }
 
     /**
-     * @return Field
+     * @return ?Field
      */
-    public function getField()
+    public function getField(): ?Field
     {
         return $this->field;
     }
@@ -351,11 +351,8 @@ class Game implements External\Importable
     /**
      * @param int $scoresMoment
      */
-    public function setScoresMoment($scoresMoment)
+    public function setScoresMoment(int $scoresMoment)
     {
-        if ($scoresMoment === null or !is_int($scoresMoment)) {
-            throw new \InvalidArgumentException("het score-moment heeft een onjuiste waarde", E_ERROR);
-        }
         $this->scoresMoment = $scoresMoment;
     }
 
@@ -377,14 +374,18 @@ class Game implements External\Importable
 
     /**
      * @param bool|null $homeaway
-     * @return Collection | GamePlace[]
+     * @return ArrayCollection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null ): Collection
+    public function getPlaces( bool $homeaway = null )
     {
         if ($homeaway === null) {
             return $this->places;
         }
-        return $this->places->filter( function( $gamePlace ) use ( $homeaway ) { return $gamePlace->getHomeaway() === $homeaway; });
+        return new ArrayCollection(
+            $this->places->filter( function( $gamePlace ) use ( $homeaway ) {
+                return $gamePlace->getHomeaway() === $homeaway;
+            })->toArray()
+        );
     }
 
     /**

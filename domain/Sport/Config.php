@@ -126,7 +126,7 @@ class Config {
     }
 
     /**
-     * @param int $winPointsExt
+     * @param double $winPointsExt
      */
     public function setWinPointsExt($winPointsExt)
     {
@@ -142,7 +142,7 @@ class Config {
     }
 
     /**
-     * @param int $drawPointsExt
+     * @param double $drawPointsExt
      */
     public function setDrawPointsExt($drawPointsExt)
     {

@@ -123,9 +123,9 @@ final class Structure
     {
         $this->em->getConnection()->beginTransaction();
         try {
-            /** @var \Voetbal\Structure $structureSer */
+            /** @var \Voetbal\Structure|false $structureSer */
             $structureSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
-            if ( $structureSer === null ) {
+            if ( $structureSer === false ) {
                 throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
             $competition = $this->competitionRepos->find( (int) $args['id'] );

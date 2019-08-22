@@ -94,12 +94,20 @@ class NameService
         $fromQualifyRule = $place->getFromQualifyRule();
         if ($fromQualifyRule->isMultiple()) {
             if ($longName) {
-                $getHorizontalPoule = function( QualifyRuleMultiple $multipleRule ) { return $multipleRule->getFromHorizontalPoule(); };
+                /**
+                 * @param QualifyRuleMultiple $multipleRule
+                 * @return mixed
+                 */
+                $getHorizontalPoule = function( $multipleRule ) { return $multipleRule->getFromHorizontalPoule(); };
                 return $this->getHorizontalPouleName( $getHorizontalPoule($fromQualifyRule) );
             }
             return '?' . $fromQualifyRule->getFromPlaceNumber();
         }
-        $getFromPlace = function( QualifyRuleSingle $singleRule ) { return $singleRule->getFromPlace(); };
+        /**
+         * @param QualifyRuleSingle $singleRule
+         * @return mixed
+         */
+        $getFromPlace = function( $singleRule ) { return $singleRule->getFromPlace(); };
         $fromPlace = $getFromPlace($fromQualifyRule);
         if ($longName !== true || $fromPlace->getPoule()->needsRanking()) {
             return $this->getPlaceName($fromPlace, false, $longName);

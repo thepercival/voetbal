@@ -96,6 +96,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
 
     public function getCompetitionImporter() : CompetitionImporter
     {
+        // $competitionRepository =
         return new FootballDataCompetitionImporter(
             $this->getExternalSystem(),
             $this->getApiHelper(),

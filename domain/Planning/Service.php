@@ -11,6 +11,7 @@ namespace Voetbal\Planning;
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning\Referee as PlanningReferee;
+use Voetbal\Place;
 use Voetbal\Game;
 use Voetbal\Competition;
 use League\Period\Period;
@@ -104,8 +105,10 @@ class Service
     protected function rescheduleHelper(RoundNumber $roundNumber, \DateTimeImmutable $pStartDateTime = null): \DateTimeImmutable {
         $dateTime = ($pStartDateTime !== null) ? clone $pStartDateTime : null;
         $fields = $this->competition->getFields()->toArray();
-        $referees = $this->getReferees($roundNumber);
-        $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $dateTime, $fields, $referees);
+        $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
+        $referees = $this->competition->getReferees()->toArray();
+        $refereePlaces = $this->getRefereePlaces($roundNumber, $games);
+        $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $dateTime, $fields, $referees, $refereePlaces);
         if ($nextDateTime !== null) {
             return $nextDateTime->modify("+" . $roundNumber->getValidPlanningConfig()->getMinutesAfter() . " minutes");
         }
@@ -114,39 +117,39 @@ class Service
 
     /**
      * @param RoundNumber $roundNumber
-     * @return array | PlanningReferee[]
+     * @param array|Game[] $games
+     * @return array|Place[]
      */
-    protected function getReferees(RoundNumber $roundNumber): array {
-        if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
-            return array_map( function( $place ) {
-                $x = new PlanningReferee(null, $place);
-                return $x;
-            }, $roundNumber->getPlaces() );
+    protected function getRefereePlaces(RoundNumber $roundNumber, array $games): array {
+        $nrOfPlacesToFill = $roundNumber->getNrOfPlaces();
+        $placesRet = [];
+
+        while (count($placesRet) < $nrOfPlacesToFill) {
+            $game = array_shift($games);
+            $placesGame = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+
+            foreach( $placesGame as $placeGame ) {
+                if ( count( array_filter( $placesRet, function( $placeIt ) use ($placeGame) { return $placeGame === $placeIt; } ) ) === 0 ) {
+                    array_unshift( $placesRet, $placeGame );
+                }
+            }
         }
-        return $this->competition->getReferees()->map( function( $referee ) {
-            return new PlanningReferee($referee, null);
-        })->toArray();
+        return $placesRet;
     }
 
-    /**
-     * @param RoundNumber $roundNumber
-     * @param \DateTimeImmutable $dateTime
-     * @param array | \Voetbal\Field[] $fields
-     * @param array | \Voetbal\Referee[] $referees
-     * @return \DateTimeImmutable
-     */
     protected function assignResourceBatchToGames(
         RoundNumber $roundNumber,
         \DateTimeImmutable $dateTime,
         array $fields,
-        array $referees): \DateTimeImmutable
+        array $referees,
+        array $refereePlaces): \DateTimeImmutable
     {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $resourceService = new ResourceService($roundNumber->getValidPlanningConfig(), $dateTime);
+        $resourceService = new Resource\Service($roundNumber, $dateTime);
         $resourceService->setBlockedPeriod($this->blockedPeriod);
         $resourceService->setFields($fields);
         $resourceService->setReferees($referees);
-        $resourceService->setNrOfPoules(count($roundNumber->getPoules()));
+        $resourceService->setRefereePlaces($refereePlaces);
         return $resourceService->assign($games);
     }
 

@@ -133,16 +133,18 @@ class Competition implements CompetitionImporter
 
         if ($externalCompetition === null) { // add and create structure
             $this->conn->beginTransaction();
+            /** @var \Voetbal\League $league */
+            $league = $externalLeague->getImportableObject();
+            /** @var \Voetbal\Season $season */
+            $season = $externalSeason->getImportableObject();
             try {
-                $league = $externalLeague->getImportableObject();
-                $season = $externalSeason->getImportableObject();
                 $competition = $this->createHelper($league, $season, $externalSystemCompetition->id);
                 $this->conn->commit();
             } catch (\Exception $e) {
                 $fncGetMessage = function( League $league, Season $season ) {
                     return 'competition for league "' . $league->getName() . '" and season "' . $season->getName() . '" could not be created: ';
                 };
-                $this->addError( $fncGetMessage( $externalLeague->getImportableObject(), $externalSeason->getImportableObject() ). $e->getMessage());
+                $this->addError( $fncGetMessage( $league, $season ). $e->getMessage());
                 $this->conn->rollBack();
             }
         } // else {

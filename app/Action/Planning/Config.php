@@ -59,9 +59,9 @@ final class Config
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            /** @var \Voetbal\Planning\Config $planningConfigSer */
+            /** @var \Voetbal\Planning\Config|false $planningConfigSer */
             $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
-            if ( $planningConfigSer === null ) {
+            if ( $planningConfigSer === false ) {
                 throw new \Exception("er kunnen geen plannings-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
             $roundNumberAsValue = (int) $request->getParam("roundnumber");
@@ -131,9 +131,9 @@ final class Config
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Planning\Config $planningConfigSer */
+            /** @var \Voetbal\Planning\Config|false $planningConfigSer */
             $planningConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Planning\Config', 'json');
-            if ( $planningConfigSer === null ) {
+            if ( $planningConfigSer === false ) {
                 throw new \Exception("er zijn geen plannings-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
             $planningConfig = $roundNumber->getPlanningConfig();

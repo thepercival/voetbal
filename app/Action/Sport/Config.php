@@ -83,9 +83,9 @@ final class Config
             if ( $competition === null ) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            /** @var \Voetbal\Sport\Config $sportConfigSer */
+            /** @var \Voetbal\Sport\Config|false $sportConfigSer */
             $sportConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\Config', 'json');
-            if ( $sportConfigSer === null ) {
+            if ( $sportConfigSer === false ) {
                 throw new \Exception("er kunnen geen sportconfiguratie-instellingen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
             $sport = $this->sportRepos->find( $sportConfigSer->getSportIdSer() );
@@ -125,9 +125,9 @@ final class Config
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Sport\Config $sportConfigSer */
+            /** @var \Voetbal\Sport\Config|false $sportConfigSer */
             $sportConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\Config', 'json');
-            if ( $sportConfigSer === null ) {
+            if ( $sportConfigSer === false ) {
                 throw new \Exception("er zijn geen sport-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
             $sport = $this->sportRepos->find( $sportConfigSer->getSportIdSer() );

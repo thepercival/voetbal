@@ -91,9 +91,9 @@ final class Competition
                 throw new \Exception("er kan geen seizoen worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            /** @var \Voetbal\Competition $competitionSer */
+            /** @var \Voetbal\Competition|false $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
-            if ( $competitionSer === null ) {
+            if ( $competitionSer === false ) {
                 throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -119,9 +119,9 @@ final class Competition
     public function edit( $request, $response, $args)
     {
         try {
-            /** @var \Voetbal\Competition $competitionSer */
+            /** @var \Voetbal\Competition|false $competitionSer */
             $competitionSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competition', 'json');
-            if ( $competitionSer === null ) {
+            if ( $competitionSer === false ) {
                 throw new \Exception("er kan competitieseizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 

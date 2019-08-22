@@ -30,6 +30,11 @@ class Place
     protected $number;
 
     /**
+     * @var string
+     */
+    protected $locationId;
+
+    /**
      * @var int
      */
     protected $penaltyPoints;
@@ -74,6 +79,7 @@ class Place
         $this->setPoule( $poule );
         $this->setNumber( $number );
         $this->setPenaltyPoints( 0 );
+        $this->locationId = $poule->getRound()->getNumberAsValue() . '.' . $poule->getNumber() . '.' . $number;
     }
 
     /**
@@ -187,9 +193,9 @@ class Place
     }
 
     /**
-     * @return Competitor
+     * @return ?Competitor
      */
-    public function getCompetitor()
+    public function getCompetitor(): ?Competitor
     {
         return $this->competitor;
     }
@@ -257,5 +263,12 @@ class Place
 
     public function getLocation(): Place\Location {
         return new Place\Location($this->getPoule()->getNumber(), $this->getNumber());
+    }
+
+    /**
+     * within roundnumber
+     */
+    public function getLocationId(): string {
+        return $this->locationId;
     }
 }

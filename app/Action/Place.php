@@ -58,9 +58,9 @@ final class Place
         try {
             $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
 
-            /** @var \Voetbal\Place $placeSer */
+            /** @var \Voetbal\Place|false $placeSer */
             $placeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Place', 'json');
-            if ( $placeSer === null ) {
+            if ( $placeSer === false ) {
                 throw new \Exception("er kan geen pouleplek worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
             $place = $this->repos->find($placeSer->getId());
@@ -85,13 +85,6 @@ final class Place
 
     protected function getPoule( int $pouleId, int $competitionId ): Poule
     {
-        if ( $pouleId === null ) {
-            throw new \Exception("het poule-id is niet meegegeven", E_ERROR);
-        }
-        if ( $competitionId === null ) {
-            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
-        }
-
         $poule = $this->pouleRepos->find($pouleId);
         if ( $poule === null ) {
             throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);

@@ -12,6 +12,8 @@ use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport;
+use Voetbal\Sport\Config as SportConfig;
+use Voetbal\State;
 use Voetbal\Config\Dep as ConfigDep;
 
 class Number
@@ -33,7 +35,7 @@ class Number
      */
     protected $previous;
     /**
-     * @var RoundNumber
+     * @var ?RoundNumber
      */
     protected $next;
     /**
@@ -105,7 +107,7 @@ class Number
     /**
      * voor serialization
      *
-     * @param Number $roundNumber
+     * @param RoundNumber $roundNumber
      */
     public function setNext( RoundNumber $roundNumber ) {
         $this->next = $roundNumber;
@@ -166,6 +168,52 @@ class Number
         return false;
     }
 
+    public function getState(): int {
+        $allRoundsFinished = true;
+        foreach( $this->getRounds() as $round ) {
+            if( $round->getState() === State::Finished) {
+                continue;
+            }
+            $allRoundsFinished = false;
+            break;
+        }
+        if( $allRoundsFinished ) {
+            return State::Finished;
+        }
+        $someRoundsNotCreated = false;
+        foreach( $this->getRounds() as $round ) {
+            if( $round->getState() === State::Created) {
+                continue;
+            }
+            $someRoundsNotCreated = true;
+            break;
+        }
+        if( $someRoundsNotCreated ) {
+            return State::InProgress;
+        }
+        return State::Created;
+    }
+
+    public function hasBegun(): bool {
+        foreach( $this->getRounds() as $round ) {
+            if( $round->hasBegun() ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return ArrayCollection|SportConfig[]
+     */
+    public function getSportConfigs(): ArrayCollection {
+        return $this->getCompetition()->getSportConfigs();
+    }
+
+    public function getSportConfig( Sport $sport): SportConfig {
+        return $this->getCompetition()->getSportConfig($sport);
+    }
+
     public function getPoules(): array {
         $poules = [];
         foreach( $this->getRounds() as $round ) {
@@ -183,6 +231,14 @@ class Number
             $places = array_merge( $places, $poule->getPlaces()->toArray());
         }
         return $places;
+    }
+
+    public function getNrOfPlaces(): int {
+        $nrOfPlaces = 0;
+        foreach( $this->getPoules() as $poule ) {
+            $nrOfPlaces += $poule->getPlaces()->count();
+        }
+        return $nrOfPlaces;
     }
 
     /**
@@ -212,7 +268,7 @@ class Number
     }
 
     public function hasMultipleSportPlanningConfigs(): bool {
-        return $this->sportPlanningConfigs->count() >> 1;
+        return $this->sportPlanningConfigs->count() > 1;
     }
 
     public function getFirstSportPlanningConfig(): SportPlanningConfig {

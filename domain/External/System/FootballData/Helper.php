@@ -18,7 +18,7 @@ trait Helper {
 
     public function getExternalLeague( League $league ): ?ExternalLeague {
         $externalLeague = $this->externalLeagueRepos->findOneByImportable( $this->externalSystemBase, $league );
-        if( $externalLeague === null or strlen($externalLeague->getExternalId()) === null ) {
+        if( $externalLeague === null or strlen($externalLeague->getExternalId()) === 0 ) {
             $this->addNotice('for league "'.$league->getName().'" there is no external object found' );
             return null;
         }
@@ -27,7 +27,7 @@ trait Helper {
 
     public function getExternalSeason( Season $season ): ?ExternalSeason {
         $externalSeason = $this->externalSeasonRepos->findOneByImportable( $this->externalSystemBase, $season );
-        if( $externalSeason === null or strlen($externalSeason->getExternalId()) === null ) {
+        if( $externalSeason === null or strlen($externalSeason->getExternalId()) === 0 ) {
             $this->addNotice('for season "'.$season->getName().'" there is no external object found' );
             return null;
         }

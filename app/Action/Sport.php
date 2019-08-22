@@ -67,9 +67,9 @@ final class Sport
     public function add( $request, $response, $args )
     {
         try {
-            /** @var SportBase $sportSer */
+            /** @var SportBase|false $sportSer */
             $sportSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport', 'json');
-            if ( $sportSer === null ) {
+            if ( $sportSer === false ) {
                 throw new \Exception("er is geen sport gevonden", E_ERROR);
             }
 

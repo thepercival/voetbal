@@ -167,9 +167,9 @@ class Poule
     }
 
     /**
-     * @return Place
+     * @return ?Place
      */
-    public function getPlace( $number )
+    public function getPlace( $number ): ?Place
     {
         $places = array_filter( $this->getPlaces()->toArray(), function( $place ) use ( $number ) {
             return $place->getNumber() === $number;

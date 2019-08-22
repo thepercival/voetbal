@@ -144,7 +144,7 @@ class Group
     /**
      * @return Round
      */
-    public function getChildRound()
+    public function getChildRound(): Round
     {
         return $this->childRound;
     }

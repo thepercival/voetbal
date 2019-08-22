@@ -87,11 +87,8 @@ class Association implements External\Importable // extends External\Importable
 	/**
 	 * @param string $name
 	 */
-	public function setName( $name )
+	public function setName( string $name )
 	{
-		if ( $name === null ) {
-			throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
-        }
 		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
 			throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
 		}

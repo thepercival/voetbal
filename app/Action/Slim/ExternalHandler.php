@@ -86,9 +86,6 @@ class ExternalHandler
 
             $action = new VoetbalApp\Action\External\ObjectX( $objectRepository, $importableRepos, $systemRepos, $serializer);
         }
-        if ( $action === null ) {
-            throw new \Exception('geen actie gevonden voor '.$resourceType, E_ERROR);
-        }
         return $action;
     }
 

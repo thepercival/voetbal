@@ -8,14 +8,13 @@
 
 namespace Voetbal;
 
-use Voetbal\Sport\Config;
-
 /**
  * Class Sport
  * @package Voetbal
  */
 class Sport
 {
+    const TEMPDEFAULT = 2;
     const MIN_LENGTH_NAME = 3;
     const MAX_LENGTH_NAME = 30;
     const MIN_LENGTH_UNITNAME = 2;

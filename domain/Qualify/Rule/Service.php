@@ -102,7 +102,10 @@ class Service {
 
     private function connectPlaceWithRule(Place $childPlace, QualifyRuleQueue $queue, int $startEnd, QualifyReservationService $reservationService) {
 
-        $setToPlacesAndReserve = function (QualifyRule $qualifyRule) use ($childPlace, $queue, $reservationService) {
+        /**
+         * @param QualifyRuleSingle|QualifyRuleMultiple $qualifyRule
+         */
+        $setToPlacesAndReserve = function ($qualifyRule) use ($childPlace, $queue, $reservationService) {
             if ($qualifyRule->isSingle()) {
                 $setToPlacesAndReserveSingle = function (QualifyRuleSingle $qualifyRuleSingle) use ($childPlace, $reservationService) {
                     $reservationService->reserve($childPlace->getPoule()->getNumber(), $qualifyRuleSingle->getFromPoule());

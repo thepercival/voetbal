@@ -72,9 +72,9 @@ final class Field
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\Field $fieldSer */
+            /** @var \Voetbal\Field|false $fieldSer */
             $fieldSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Field', 'json');
-            if ($fieldSer === null) {
+            if ($fieldSer === false) {
                 throw new \Exception("er kan geen veld worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
             $competition = $this->competitionRepos->find((int)$request->getParam("competitionid"));
@@ -112,9 +112,9 @@ final class Field
         $sErrorMessage = null;
         try {
             $field = $this->getField((int)$args["id"], (int)$request->getParam("competitionid"));
-            /** @var \Voetbal\Field $fieldSer */
+            /** @var \Voetbal\Field|false $fieldSer */
             $fieldSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Field', 'json');
-            if ($fieldSer === null) {
+            if ($fieldSer === false) {
                 throw new \Exception("het veld kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
@@ -157,9 +157,6 @@ final class Field
 
     protected function getField(int $id, int $competitionId): FieldBase
     {
-        if ($competitionId === null) {
-            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
-        }
         $field = $this->repos->find($id);
         if ($field === null) {
             throw new \Exception("het veld kon niet gevonden worden o.b.v. de invoer", E_ERROR);

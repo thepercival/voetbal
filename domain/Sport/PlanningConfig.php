@@ -117,4 +117,9 @@ class PlanningConfig
         }
         $this->minNrOfGames = $minNrOfGames;
     }
+
+    public function getNrOfGamePlaces(bool $teamup): int {
+        $nrOfGamePlaces = $this->roundNumber->getSportConfig($this->getSport())->getNrOfGamePlaces();
+        return $teamup ? $nrOfGamePlaces * 2 : $nrOfGamePlaces;
+    }
 }

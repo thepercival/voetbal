@@ -64,9 +64,9 @@ final class League
 	public function add( $request, $response, $args)
 	{
         try {
-            /** @var \Voetbal\League $leagueSer */
+            /** @var \Voetbal\League|false $leagueSer */
             $leagueSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\League', 'json');
-            if ( $leagueSer === null ) {
+            if ( $leagueSer === false ) {
                 throw new \Exception("er kan geen competitie worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -95,9 +95,9 @@ final class League
 	{
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\League $leagueSer */
+            /** @var \Voetbal\League|false $leagueSer */
             $leagueSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\League', 'json');
-            if ( $leagueSer === null ) {
+            if ( $leagueSer === false ) {
                 throw new \Exception("er kan geen competitie worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 

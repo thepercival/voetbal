@@ -272,9 +272,9 @@ class Competition implements External\Importable
     }
 
     /**
-     * @return Collection | SportConfig[]
+     * @return ArrayCollection | SportConfig[]
      */
-    public function getSportConfigs(): Collection {
+    public function getSportConfigs(): ArrayCollection {
         return $this->sportConfigs;
     }
 

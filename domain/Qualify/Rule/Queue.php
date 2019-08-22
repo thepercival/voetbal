@@ -53,9 +53,12 @@ class Queue {
         if( ($nrOfPoules % 2) === 0 || $nrOfPoules < 3) {
             return;
         }
-        $lastItem = $this->qualifyRules[count($this->qualifyRules)-1];
-        if( $lastItem && $lastItem->isMultiple() ) {
-            return;
+
+        if( !empty($this->qualifyRules) ) {
+            $lastItem = $this->qualifyRules[count($this->qualifyRules)-1];
+            if( $lastItem->isMultiple() ) {
+                return;
+            }
         }
         $index = (count($this->qualifyRules) - 1) - ( ( ( $nrOfPoules + 1 ) / 2 ) - 1 );
         $x = array_splice($this->qualifyRules, $index, 1);

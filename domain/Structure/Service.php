@@ -33,7 +33,7 @@ class Service
      */
     private $planningConfigService;
     /**
-     * @var CompetitorRange
+     * @var ?CompetitorRange
      */
     private $competitorRange;
 
@@ -48,7 +48,7 @@ class Service
         $firstRoundNumber = new RoundNumber($competition);
         $sportConfigService = new SportConfigService();
         foreach ($competition->getSportConfigs() as $sportConfig) {
-            $sportConfigService->createDefault($sportConfig->getSport(), $firstRoundNumber);
+            $sportConfigService->addToRoundNumber($sportConfig, $firstRoundNumber);
         }
         $this->planningConfigService->createDefault($firstRoundNumber);
         $rootRound = new Round($firstRoundNumber, null);
@@ -232,7 +232,7 @@ class Service
 
     public function areQualifyGroupsMergable(QualifyGroup $previous, QualifyGroup $current): bool
     {
-        return ($previous !== null && $current !== null && $previous->getWinnersOrLosers() !== QualifyGroup::DROPOUTS
+        return ($previous->getWinnersOrLosers() !== QualifyGroup::DROPOUTS
             && $previous->getWinnersOrLosers() === $current->getWinnersOrLosers() && $previous !== $current);
     }
 
@@ -401,10 +401,8 @@ class Service
 
     public function calculateNewNrOfPoules(QualifyGroup $parentQualifyGroup, int $newNrOfPlaces): int
     {
-
-        $round = $parentQualifyGroup->getChildRound();
-        $oldNrOfPlaces = $round ? $round->getNrOfPlaces() : $parentQualifyGroup->getNrOfPlaces();
-        $oldNrOfPoules = $round ? $round->getPoules()->count() : $this->getDefaultNrOfPoules($oldNrOfPlaces);
+        $oldNrOfPlaces = $parentQualifyGroup->getChildRound()->getNrOfPlaces();
+        $oldNrOfPoules = $parentQualifyGroup->getChildRound()->getPoules()->count();
 
         if ($oldNrOfPoules === 0) {
             return 1;
@@ -466,7 +464,7 @@ class Service
         if ($nrOfPlaceLeft === 0) {
             return $nrOfPlaces / $nrOfPoules;
         }
-        return (($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules) + 1;
+        return ((int)(($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules)) + 1;
     }
 
     public function getDefaultNrOfPoules(int $nrOfPlaces): int

@@ -95,7 +95,7 @@ class ScoreConfig
     /**
      * @return ScoreConfig
      */
-    public function getChild()
+    public function getChild(): ?ScoreConfig
     {
         return $this->child;
     }
@@ -172,7 +172,7 @@ class ScoreConfig
     /**
      * @param int $direction
      */
-    public function setDirection( $direction )
+    public function setDirection( int $direction )
     {
         if ( $direction !== ScoreConfig::UPWARDS and $direction !== ScoreConfig::DOWNWARDS ) {
             throw new \InvalidArgumentException( "de richting heeft een onjuiste waarde", E_ERROR );
@@ -191,11 +191,8 @@ class ScoreConfig
     /**
      * @param int $maximum
      */
-    public function setMaximum( $maximum )
+    public function setMaximum( int $maximum )
     {
-        if ( $maximum !== null and !is_int( $maximum ) ){
-            throw new \InvalidArgumentException( "het maximum heeft een onjuiste waarde", E_ERROR );
-        }
         $this->maximum = $maximum;
     }
 }

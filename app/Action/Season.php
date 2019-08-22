@@ -54,10 +54,9 @@ final class Season
 	public function add( $request, $response, $args)
 	{
         try {
-            /** @var \Voetbal\Season $seasonSer */
+            /** @var \Voetbal\Season|false $seasonSer */
             $seasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Season', 'json');
-
-            if ( $seasonSer === null ) {
+            if ( $seasonSer === false ) {
                 throw new \Exception("er kan geen seizoen worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -82,10 +81,9 @@ final class Season
 	public function edit( $request, $response, $args)
 	{
         try {
-            /** @var \Voetbal\Season $seasonSer */
+            /** @var \Voetbal\Season|false $seasonSer */
             $seasonSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Season', 'json');
-
-            if ( $seasonSer === null ) {
+            if ( $seasonSer === false ) {
                 throw new \Exception("er kan geen seizoen worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 

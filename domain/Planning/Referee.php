@@ -15,11 +15,11 @@ use Voetbal\Game;
 class Referee
 {
     /**
-     * @var RefereeBase
+     * @var ?RefereeBase
      */
     private $referee;
     /**
-     * @var Place
+     * @var ?Place
      */
     private $place;
 

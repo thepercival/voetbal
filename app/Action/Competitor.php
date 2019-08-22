@@ -79,9 +79,9 @@ final class Competitor
                 throw new \Exception("er kan geen bond worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-            /** @var \Voetbal\Competitor $competitorSer */
+            /** @var \Voetbal\Competitor|false $competitorSer */
             $competitorSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Competitor', 'json');
-            if ( $competitorSer === null ) {
+            if ( $competitorSer === false ) {
                 throw new \Exception("er kan geen deelnemer worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -106,9 +106,9 @@ final class Competitor
         try {
             $competitor = $this->getCompetitor( $args['id'], (int) $request->getParam("associationid") );
 
-            /** @var \Voetbal\Competitor $competitorSer */
+            /** @var \Voetbal\Competitor|false $competitorSer */
             $competitorSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Competitor', 'json');
-            if ( $competitorSer === null ) {
+            if ( $competitorSer === false ) {
                 throw new \Exception("de deelnemer kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 

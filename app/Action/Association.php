@@ -61,10 +61,9 @@ final class Association
 	public function add( $request, $response, $args)
 	{
         try {
-            /** @var \Voetbal\Association $associationSer */
-            $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
-                'Voetbal\Association', 'json');
-            if ($associationSer === null) {
+            /** @var \Voetbal\Association|false $associationSer */
+            $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),'Voetbal\Association', 'json');
+            if ($associationSer === false) {
                 throw new \Exception("er kan geen bond worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -98,9 +97,9 @@ final class Association
 	{
         try {
 
-            /** @var \Voetbal\Association $associationSer */
+            /** @var \Voetbal\Association|false $associationSer */
             $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
-            if ( $associationSer === null ) {
+            if ( $associationSer === false ) {
                 throw new \Exception("er kan geen bond worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 

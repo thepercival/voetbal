@@ -8,12 +8,32 @@
 
 namespace Voetbal\Sport\Config;
 
+use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport;
+use Voetbal\Sport as SportBase;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Sport\Custom as SportCustom;
+use Voetbal\Sport\ScoreConfig\Service as ScoreConfigService;
+use Voetbal\Sport\PlanningConfig\Service as PlanningConfigService;
 use Voetbal\Competition;
+use Voetbal\Structure;
 
 class Service {
+
+    /**
+     * @var ScoreConfigService
+     */
+    protected $scoreConfigService;
+    /**
+     * @var PlanningConfigService
+     */
+    protected $planningConfigService;
+
+    public function __construct()
+    {
+        $this->scoreConfigService = new ScoreConfigService();
+        $this->planningConfigService = new PlanningConfigService();
+    }
 
     public function createDefault( Sport $sport, Competition $competition ): SportConfig {
         $config = new SportConfig($sport, $competition);
@@ -26,19 +46,19 @@ class Service {
         return $config;
     }
 
-    protected function getDefaultWinPoints( Sport $sport ): int {
+    protected function getDefaultWinPoints( Sport $sport ): float {
         return $sport->getCustomId() === SportCustom::Chess ? 3 : 1;
     }
 
-    protected function getDefaultDrawPoints( Sport $sport ): int {
+    protected function getDefaultDrawPoints( Sport $sport ): float {
         return $sport->getCustomId() === SportCustom::Chess ? 1 : 0.5;
     }
 
-    protected function getDefaultWinPointsExt( Sport $sport ): int {
+    protected function getDefaultWinPointsExt( Sport $sport ): float {
         return $sport->getCustomId() === SportCustom::Chess ? 2 : 1;
     }
 
-    protected function getDefaultDrawPointsExt( Sport $sport ): int {
+    protected function getDefaultDrawPointsExt( Sport $sport ): float {
         return $sport->getCustomId() === SportCustom::Chess ? 1 : 0.5;
     }
 
@@ -51,5 +71,65 @@ class Service {
         $newConfig->setPointsCalculation($sourceConfig->getPointsCalculation());
         $newConfig->setNrOfGamePlaces( $sourceConfig->getNrOfGamePlaces() );
         return $newConfig;
+    }
+
+    public function addToRoundNumber(SportConfig $config, RoundNumber $firstRoundNumber) {
+        $this->scoreConfigService->createDefault($config->getSport(), $firstRoundNumber);
+        $this->planningConfigService->createDefault($config->getSport(), $firstRoundNumber);
+    }
+
+    public function remove(SportConfig $config, Structure $structure ) {
+        $competition = $config->getCompetition();
+        $sportConfigs = $competition->getSportConfigs();
+        $sportConfigs->removeElement($config);
+
+        $sport = $config->getSport();
+        $fields = $competition->getFields();
+        $sportFields = $fields->filter( function( $fieldIt ) use ( $sport ) {
+            return $fieldIt->getSport() === $sport;
+        });
+        $sportFields->forAll( function( $fieldIt ) use ($competition) { $competition->getFields()->removeElement($fieldIt); });
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        while ($roundNumber) {
+            $planningConfigs = $roundNumber->getSportPlanningConfigs();
+
+            $planningConfigs->filter( function( $planningConfigIt ) use ( $sport ) {
+                return $planningConfigIt->getSport() === $sport;
+            })->forAll( function( $planningConfigIt ) use ( $planningConfigs ) {
+                return $planningConfigs->removeElement($planningConfigIt);
+            });
+
+            $scoreConfigs = $roundNumber->getSportScoreConfigs();
+            $scoreConfigs->filter( function( $scoreConfigIt ) use ( $sport ) {
+                return $scoreConfigIt->getSport() === $sport;
+            })->forAll( function( $scoreConfigIt ) use ( $scoreConfigs ) {
+                return $scoreConfigs->removeElement($scoreConfigIt);
+            });
+
+            $roundNumber = $roundNumber->getNext();
+        }
+    }
+
+    public function isDefault(SportConfig $sportConfig): bool {
+        $sport = $sportConfig->getSport();
+        return ($sportConfig->getWinPoints() !== $this->getDefaultWinPoints($sport)
+            || $sportConfig->getDrawPoints() !== $this->getDefaultDrawPoints($sport)
+            || $sportConfig->getWinPointsExt() !== $this->getDefaultWinPointsExt($sport)
+            || $sportConfig->getDrawPointsExt() !== $this->getDefaultDrawPointsExt($sport)
+            || $sportConfig->getPointsCalculation() !== SportConfig::POINTS_CALC_GAMEPOINTS
+            || $sportConfig->getNrOfGamePlaces() !== SportConfig::DEFAULT_NROFGAMEPLACES
+        );
+    }
+
+    public function areEqual(SportConfig $sportConfigA, SportConfig $sportConfigB): bool {
+        return ($sportConfigA->getSport() !== $sportConfigB->getSport()
+            || $sportConfigA->getWinPoints() !== $sportConfigB->getWinPoints()
+            || $sportConfigA->getDrawPoints() !== $sportConfigB->getDrawPoints()
+            || $sportConfigA->getWinPointsExt() !== $sportConfigB->getWinPointsExt()
+            || $sportConfigA->getDrawPointsExt() !== $sportConfigB->getDrawPointsExt()
+            || $sportConfigA->getPointsCalculation() !== $sportConfigB->getPointsCalculation()
+            || $sportConfigA->getNrOfGamePlaces() !== $sportConfigB->getNrOfGamePlaces()
+        );
     }
 }

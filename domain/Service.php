@@ -27,7 +27,11 @@ class Service
         $this->entitymanager = $entitymanager;
     }
 
-    public function getRepository($classname): VoetbalRepository
+    /**
+     * @param string $classname
+     * @return mixed
+     */
+    public function getRepository( string $classname)
     {
         return $this->getEntityManager()->getRepository($classname);
     }

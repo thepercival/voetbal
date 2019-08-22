@@ -73,9 +73,11 @@ final class Referee
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Referee $refereeSer */
-            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json', DeserializationContext::create()->setGroups($serGroups));
-            if ($refereeSer === null) {
+            $deserializationContext = DeserializationContext::create();
+            $deserializationContext->setGroups($serGroups);
+            /** @var \Voetbal\Referee|false $refereeSer */
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json', $deserializationContext);
+            if ($refereeSer === false) {
                 throw new \Exception("er kan geen scheidsrechter worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -93,10 +95,12 @@ final class Referee
 
             $this->repos->save( $referee );
 
+            $serializationContext = SerializationContext::create();
+            $serializationContext->setGroups($serGroups);
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($referee, 'json', SerializationContext::create()->setGroups($serGroups)));
+                ->write($this->serializer->serialize($referee, 'json', $serializationContext));
         } catch (\Exception $e) {
             return $response->withStatus(422)->write($e->getMessage());
         }
@@ -107,9 +111,12 @@ final class Referee
         try {
             $serGroups = ['Default','privacy'];
             $referee = $this->getReferee((int)$args["id"], (int)$request->getParam("competitionid"));
-            /** @var \Voetbal\Referee $refereeSer */
-            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json', DeserializationContext::create()->setGroups($serGroups));
-            if ($refereeSer === null) {
+
+            $deserializationContext = DeserializationContext::create();
+            $deserializationContext->setGroups($serGroups);
+            /** @var \Voetbal\Referee|false $refereeSer */
+            $refereeSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Referee', 'json', $deserializationContext);
+            if ($refereeSer === false) {
                 throw new \Exception("de scheidsrechter kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
 
@@ -128,10 +135,13 @@ final class Referee
             $referee->setInfo( $refereeSer->getInfo() );
 
             $this->repos->save( $referee );
+
+            $serializationContext = SerializationContext::create();
+            $serializationContext->setGroups($serGroups);
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($referee, 'json', SerializationContext::create()->setGroups($serGroups)));
+                ->write($this->serializer->serialize($referee, 'json', $serializationContext));
         } catch (\Exception $e) {
             return $response->withStatus(401)->write($e->getMessage());
         }
@@ -150,10 +160,6 @@ final class Referee
 
     protected function getReferee(int $id, int $competitionId): RefereeBase
     {
-        if ($competitionId === null) {
-            throw new \Exception("het competitie-id is niet meegegeven", E_ERROR);
-        }
-
         $referee = $this->repos->find($id);
         if ($referee === null) {
             throw new \Exception('de te verwijderen scheidsrechter kan niet gevonden worden', E_ERROR);

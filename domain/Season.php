@@ -48,8 +48,6 @@ class Season implements External\Importable
     {
         $this->setName( $name );
         $this->competitions = new ArrayCollection();
-        if ( $period === null )
-            throw new \InvalidArgumentException( "de periode moet gezet zijn", E_ERROR );
         $this->setPeriod( $period );
     }
 
@@ -84,9 +82,6 @@ class Season implements External\Importable
      */
     public function setName( string $name )
     {
-        if ( $name === null )
-            throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
-
         if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
             throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
         }

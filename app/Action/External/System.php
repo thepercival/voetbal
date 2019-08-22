@@ -61,10 +61,9 @@ final class System
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\System $systemSer */
+            /** @var \Voetbal\External\System|false $systemSer */
             $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\System', 'json');
-
-            if ( $systemSer === null ) {
+            if ( $systemSer === false ) {
                 throw new \Exception("er kan geen extern systeem worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
 
@@ -91,10 +90,9 @@ final class System
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\System $systemSer */
+            /** @var \Voetbal\External\System|false $systemSer */
             $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\System', 'json');
-
-            if ( $systemSer === null ) {
+            if ( $systemSer === false ) {
                 throw new \Exception("er kan geen extern systeem worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
