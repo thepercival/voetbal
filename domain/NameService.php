@@ -8,6 +8,7 @@
 
 namespace Voetbal;
 
+use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Qualify\Group as QualifyGroup;
@@ -117,15 +118,15 @@ class NameService
     }
 
     /**
-     * @param array | GamePlace[] $gamePlaces
+     * @param ArrayCollection | GamePlace[] $gamePlaces
      * @param bool $competitorName
      * @param bool $longName
      * @return string
      */
-    public function getPlacesFromName(array $gamePlaces, bool $competitorName, bool $longName): string {
-        return implode(' & ', array_map( function ( $gamePlace ) use ( $competitorName, $longName ) {
+    public function getPlacesFromName(ArrayCollection $gamePlaces, bool $competitorName, bool $longName): string {
+        return implode(' & ', $gamePlaces->map( function ( $gamePlace ) use ( $competitorName, $longName ) {
                 return $this->getPlaceFromName($gamePlace->getPlace(), $competitorName, $longName);
-            }, $gamePlaces ) );
+            })->toArray() );
     }
 
     /**
