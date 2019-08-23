@@ -48,15 +48,13 @@
     "test": [
       "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/cases/"
     ],
-    "stan": "vendor/bin/phpstan analyse --level=2 domain app tests/cases/"
+    "stan": "vendor/bin/phpstan analyse --level=5 domain app tests/cases/"
   },
-  {
-    "extra": {
-      "phpstan": {
-        "includes": [
-          "extension.neon"
-        ]
-      }
+  "extra": {
+    "phpstan": {
+      "includes": [
+        "extension.neon"
+      ]
     }
   }
 }
