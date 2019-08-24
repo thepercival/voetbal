@@ -7,9 +7,6 @@ Voetbal\Round:
   properties:
     id:
       type: integer
-    config:
-      type: Voetbal\Config
-      until_version: 1
     poules:
       type: ArrayCollection<Voetbal\Poule>
     qualifyGroups:

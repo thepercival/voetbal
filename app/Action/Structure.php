@@ -64,7 +64,7 @@ final class Structure
 
     public function fetchOne( $request, $response, $args)
     {
-        $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
+        $competition = $this->competitionRepos->find( (int) $args['id'] );
         if( $competition === null ) {
             return $response->withStatus(404)->write('geen indeling gevonden voor competitie');
         }

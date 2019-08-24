@@ -4,6 +4,7 @@ namespace Voetbal\Round;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
@@ -204,9 +205,9 @@ class Number
     }
 
     /**
-     * @return ArrayCollection|SportConfig[]
+     * @return ArrayCollection|PersistentCollection|SportConfig[]
      */
-    public function getSportConfigs(): ArrayCollection {
+    public function getSportConfigs() {
         return $this->getCompetition()->getSportConfigs();
     }
 

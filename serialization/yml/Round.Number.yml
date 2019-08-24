@@ -9,17 +9,15 @@ Voetbal\Round\Number:
     number:
       access_type: property
       type: integer
-    config:
-      type: Voetbal\Config
     next:
       # when serializing first call all next because of
       access_type: property
       type: Voetbal\Round\Number
+    planningConfig:
+      type: Voetbal\Planning\Config
     sportScoreConfigs:
       type: ArrayCollection<Voetbal\Sport\ScoreConfig>
       read_only: true #temperarily
     sportPlanningConfigs:
       type: ArrayCollection<Voetbal\Sport\PlanningConfig>
       read_only: true #temperarily
-    planningConfig:
-      type: Voetbal\Planning\Config
