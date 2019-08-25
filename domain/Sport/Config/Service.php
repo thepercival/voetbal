@@ -35,7 +35,7 @@ class Service {
         $this->planningConfigService = new PlanningConfigService();
     }
 
-    public function createDefault( Sport $sport, Competition $competition ): SportConfig {
+    public function createDefault( Sport $sport, Competition $competition, Structure $structure = null ): SportConfig {
         $config = new SportConfig($sport, $competition);
         $config->setWinPoints($this->getDefaultWinPoints($sport));
         $config->setDrawPoints($this->getDefaultDrawPoints($sport));
@@ -43,6 +43,9 @@ class Service {
         $config->setDrawPointsExt($this->getDefaultDrawPointsExt($sport));
         $config->setPointsCalculation(SportConfig::POINTS_CALC_GAMEPOINTS);
         $config->setNrOfGamePlaces( SportConfig::DEFAULT_NROFGAMEPLACES );
+        if ($structure) {
+            $this->addToStructure($config, $structure);
+        }
         return $config;
     }
 
@@ -73,9 +76,17 @@ class Service {
         return $newConfig;
     }
 
-    public function addToRoundNumber(SportConfig $config, RoundNumber $firstRoundNumber) {
-        $this->scoreConfigService->createDefault($config->getSport(), $firstRoundNumber);
-        $this->planningConfigService->createDefault($config->getSport(), $firstRoundNumber);
+    public function addToStructure(SportConfig $config, Structure $structure) {
+        $roundNumber = $structure->getFirstRoundNumber();
+        while ( $roundNumber !== null ) {
+            if ( $roundNumber->hasPrevious() === false || $roundNumber->getSportScoreConfigs()->count() > 0 ) {
+                $this->scoreConfigService->createDefault($config->getSport(), $roundNumber);
+            }
+            if ( $roundNumber->hasPrevious() === false || $roundNumber->getSportPlanningConfigs()->count() > 0 ) {
+                $this->planningConfigService->createDefault($config->getSport(), $roundNumber);
+            }
+            $roundNumber = $roundNumber->getNext();
+        }
     }
 
     public function remove(SportConfig $config, Structure $structure ) {

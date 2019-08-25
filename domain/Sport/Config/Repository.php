@@ -56,9 +56,5 @@ class Repository extends \Voetbal\Repository
             $conn->rollBack();
             throw $e;
         }
-
-
-
-
     }
 }

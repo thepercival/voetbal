@@ -140,7 +140,9 @@ class Handler
             );
         } elseif ($resourceType === 'sportconfigs') {
             $action = new VoetbalApp\Action\Sport\Config(
+                $voetbalservice->getService(Voetbal\Sport\Config::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
+                $voetbalservice->getStructureRepository(),
                 $voetbalservice->getRepository(Voetbal\Sport\Config::class),
                 $voetbalservice->getRepository(Voetbal\Sport::class),
                 $serializer

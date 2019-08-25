@@ -47,14 +47,14 @@ class Service
     {
         $firstRoundNumber = new RoundNumber($competition);
         $sportConfigService = new SportConfigService();
-        foreach ($competition->getSportConfigs() as $sportConfig) {
-            $sportConfigService->addToRoundNumber($sportConfig, $firstRoundNumber);
-        }
         $this->planningConfigService->createDefault($firstRoundNumber);
         $rootRound = new Round($firstRoundNumber, null);
         $nrOfPoulesToAdd = $nrOfPoules ? $nrOfPoules : $this->getDefaultNrOfPoules($nrOfPlaces);
         $this->updateRound($rootRound, $nrOfPlaces, $nrOfPoulesToAdd);
         $structure = new StructureBase($firstRoundNumber, $rootRound);
+        foreach ($competition->getSportConfigs() as $sportConfig) {
+            $sportConfigService->addToStructure($sportConfig, $structure);
+        }
         $structure->setStructureNumbers();
         return $structure;
     }

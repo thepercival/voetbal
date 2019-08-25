@@ -8,19 +8,32 @@
 
 namespace VoetbalApp\Action\Sport;
 
+use Voetbal\Competition;
 use Voetbal\Competition\Repository as CompetitionRepository;
+use Voetbal\Sport;
 use Voetbal\Sport\Config\Repository as SportConfigRepository;
 use Voetbal\Sport\Repository as SportRepository;
 use JMS\Serializer\Serializer;
 use Voetbal\Sport\CustomId as SportCustomId;
 use Voetbal\Sport\Config as SportConfig;
+use Voetbal\Structure;
+use Voetbal\Structure\Repository as StructureRepos;
+use Voetbal\Sport\Config\Service as SportConfigService;
 
 final class Config
 {
     /**
+     * @var SportConfigService
+     */
+    protected $service;
+    /**
      * @var CompetitionRepository
      */
     protected $competitionRepos;
+    /**
+     * @var StructureRepos
+     */
+    protected $structureRepos;
     /**
      * @var SportConfigRepository
      */
@@ -36,13 +49,17 @@ final class Config
     protected $serializer;
 
     public function __construct(
+        SportConfigService $service,
         CompetitionRepository $competitionRepos,
+        StructureRepos $structureRepos,
         SportConfigRepository $repos,
         SportRepository $sportRepos,
         Serializer $serializer
     )
     {
+        $this->service = $service;
         $this->competitionRepos = $competitionRepos;
+        $this->structureRepos = $structureRepos;
         $this->repos = $repos;
         $this->sportRepos = $sportRepos;
         $this->serializer = $serializer;
@@ -96,7 +113,8 @@ final class Config
                 throw new \Exception("de sport wordt al gebruikt binnen de competitie", E_ERROR);
             }
 
-            $sportConfig = new SportConfig( $sport, $competition );
+            $structure = $this->structureRepos->getStructure($competition);
+            $sportConfig = $this->service->createDefault( $sport, $competition, $structure );
             $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
             $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
             $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
@@ -104,6 +122,7 @@ final class Config
             $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
             $sportConfig->setNrOfGamePlaces( $sportConfigSer->getNrOfGamePlaces() );
             $this->repos->save($sportConfig);
+            $this->structureRepos->customPersist($structure);
 
             return $response
                 ->withStatus(201)
