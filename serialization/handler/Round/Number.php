@@ -14,8 +14,9 @@ use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
 use Voetbal\Round\Number as RoundNumberBase;
-
-
+use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
+use Voetbal\Sport\ScoreConfig as SportScoreConfig;
+use Voetbal\Sport;
 use Voetbal\Round\Number as RoundNumber;
 
 class Number implements SubscribingHandlerInterface
@@ -66,7 +67,20 @@ class Number implements SubscribingHandlerInterface
             $metadataConfig->setType(['name' => 'Voetbal\Planning\Config', "params" => [ "roundnumber" => $roundNumber]]);
             $roundNumber->setPlanningConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
         }
-        // zet hier ook sportscoreconfigs, CDK @TODO
+
+        foreach( $arrRoundNumber["sportPlanningConfigs"] as $arrSportPlanningConfig ) {
+            $sport = new Sport("");
+            $sport->setId($arrSportPlanningConfig["sportId"]);
+            $sportPlanningConfig = new SportPlanningConfig($sport, $roundNumber );
+            $sportPlanningConfig->setMinNrOfGames($arrSportPlanningConfig["minNrOfGames"]);
+        }
+        foreach( $arrRoundNumber["sportScoreConfigs"] as $arrSportScoreConfig ) {
+            $sport = new Sport("");
+            $sport->setId($arrSportScoreConfig["sportId"]);
+            $sportScoreConfig = new SportScoreConfig($sport, $roundNumber );
+            $sportScoreConfig->setDirection($arrSportScoreConfig["direction"]);
+            $sportScoreConfig->setMaximum($arrSportScoreConfig["maximum"]);
+        }
 
         if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null )
         {

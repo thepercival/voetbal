@@ -139,7 +139,7 @@ class ScoreConfig
     /**
      * @param SportBase $sport
      */
-    protected function setSport( SportBase $sport )
+    public function setSport( SportBase $sport )
     {
         $this->sport = $sport;
     }

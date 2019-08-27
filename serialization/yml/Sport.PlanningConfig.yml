@@ -6,7 +6,7 @@ Voetbal\Sport\PlanningConfig:
   properties:
     id:
       type: integer
-    nrOfGames:
+    minNrOfGames:
       type: integer
   virtual_properties:
     getSportId:
