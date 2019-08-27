@@ -16,6 +16,7 @@ use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 use Voetbal\Sport\PlanningConfig\Repository as SportPlanningConfigRepos;
 use Voetbal\Field;
 use Voetbal\Field\Repository as FieldRepository;
+use Voetbal\Round\Number as RoundNumber;
 
 /**
  * Class Repository
@@ -23,6 +24,27 @@ use Voetbal\Field\Repository as FieldRepository;
  */
 class Repository extends \Voetbal\Repository
 {
+    public function customAdd( SportConfig $sportConfig, RoundNumber $roundNumber )
+    {
+        $conn = $this->_em->getConnection();
+        $conn->beginTransaction();
+        try {
+            $this->save($sportConfig);
+
+            $scoreRepos = new SportScoreConfigRepos($this->_em, $this->_em->getClassMetaData(SportScoreConfig::class));
+            $scoreRepos->addObjects($sportConfig->getSport(), $roundNumber );
+
+            $planningRepos = new SportPlanningConfigRepos($this->_em, $this->_em->getClassMetaData(SportPlanningConfig::class));
+            $planningRepos->addObjects($sportConfig->getSport(), $roundNumber );
+
+            $this->_em->flush();
+            $conn->commit();
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            throw $e;
+        }
+    }
+
     public function customRemove( SportConfig $sportConfig, SportRepository $sportRepos )
     {
         $conn = $this->_em->getConnection();

@@ -8,7 +8,9 @@
 
 namespace Voetbal\Sport\ScoreConfig;
 
+use Voetbal\Sport;
 use Voetbal\Sport\Config as SportConfig;
+use Voetbal\Round\Number as RoundNumber;
 
 /**
  * Class Repository
@@ -16,6 +18,18 @@ use Voetbal\Sport\Config as SportConfig;
  */
 class Repository extends \Voetbal\Repository
 {
+    public function addObjects( Sport $sport, RoundNumber $roundNumber )
+    {
+        $sportScoreConfig = $roundNumber->getSportScoreConfig($sport);
+        if( $sportScoreConfig === null ) {
+            return;
+        }
+        $this->save($sportScoreConfig);
+        if( $roundNumber->hasNext() ) {
+            $this->addObjects($sport, $roundNumber->getNext());
+        }
+    }
+
     public function removeObjects( SportConfig $sportConfig )
     {
         $sportScoreConfigs = $this->findBySportConfig($sportConfig);

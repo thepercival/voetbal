@@ -283,7 +283,7 @@ class Number
         return $this->sportPlanningConfigs;
     }
 
-    public function getSportPlanningConfig(Sport $sport = null ): SportPlanningConfig {
+    public function getSportPlanningConfig(Sport $sport = null ): ?SportPlanningConfig {
         $foundSportPlanningConfigs = $this->sportPlanningConfigs->filter( function($sportPlanningConfigIt) use ($sport){
             return $sportPlanningConfigIt->getSport() === $sport;
         });
@@ -312,7 +312,7 @@ class Number
         return $this->sportScoreConfigs;
     }
 
-    public function getSportScoreConfig(Sport $sport = null ): SportScoreConfig {
+    public function getSportScoreConfig(Sport $sport = null ): ?SportScoreConfig {
         $sportScoreConfigs = $this->sportScoreConfigs->filter( function($sportScoreConfigIt) use ($sport){
             return $sportScoreConfigIt->getSport() === $sport;
         });

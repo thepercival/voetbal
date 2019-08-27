@@ -121,8 +121,7 @@ final class Config
             $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
             $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
             $sportConfig->setNrOfGamePlaces( $sportConfigSer->getNrOfGamePlaces() );
-            $this->repos->save($sportConfig);
-            $this->structureRepos->customPersist($structure);
+            $this->repos->customAdd($sportConfig, $structure->getFirstRoundNumber());
 
             return $response
                 ->withStatus(201)
