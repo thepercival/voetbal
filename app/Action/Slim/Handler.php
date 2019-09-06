@@ -150,7 +150,7 @@ class Handler
         } elseif ($resourceType === 'planningconfigs') {
             $action = new VoetbalApp\Action\Planning\Config(
                 $voetbalservice->getRepository(Voetbal\Planning\Config::class),
-                $voetbalservice->getRepository(Voetbal\Structure::class),
+                $voetbalservice->getStructureRepository(),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );

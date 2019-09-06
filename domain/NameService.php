@@ -45,7 +45,7 @@ class NameService
             return '?';
         }
         if ($nrOfRoundsToGo >= 1) {
-            return $this->getHtmlFractalNumber(pow(2, $nrOfRoundsToGo)) . ' finale';
+            return $this->getFractalNumber(pow(2, $nrOfRoundsToGo)) . ' finale';
         }
         // if (round.getNrOfPlaces() > 1) {
         if ($round->getNrOfPlaces() === 2 && $sameName === false) {
@@ -212,7 +212,7 @@ class NameService
         return true;
     }
 
-    private function getHtmlFractalNumber(int $number): string {
+    /*private function getHtmlFractalNumber(int $number): string {
         if ($number === 2 || $number === 4) {
             return '&frac1' . $number . ';';
         }
@@ -221,6 +221,29 @@ class NameService
 
     private function getHtmlNumber(int $number): string {
         return $number . '<sup>' . ($number === 1 ? 'st' : 'd') . 'e</sup>';
+    }*/
+
+    protected function getFractalNumber(int $number): string
+    {
+        if ($number === 2) {
+            return 'halve';
+        }
+        else if ($number === 4) {
+            return 'kwart';
+        }
+        else if ($number === 8) {
+            return 'achtste';
+        }
+        return '?';
+    }
+
+    protected function getHtmlNumber(int $number)
+    {
+        if ($number === 1) {
+            return $number . 'ste';
+        }
+        return $number . 'de';
+        // return '&frac1' . $number . ';';
     }
 
     private function getMaxDepth(Round $round): int {
@@ -272,21 +295,7 @@ class NameService
 //        return '?';
 //    }
 //
-//    public function getPouleName(Poule $poule, $withPrefix)
-//    {
-//        $previousNrOfPoules = $this->getNrOfPreviousPoules($poule);
-//        $pouleName = '';
-//        if ($withPrefix === true) {
-//            $pouleName = $poule->needsRanking() ? 'poule ' : 'wed. ';
-//        }
-//        $secondLetter = $previousNrOfPoules % 26;
-//        if ($previousNrOfPoules >= 26) {
-//            $firstLetter = ($previousNrOfPoules - $secondLetter) / 26;
-//            $pouleName .= (chr(ord('A') + ($firstLetter - 1)));
-//        }
-//        $pouleName .= (chr(ord('A') + $secondLetter));
-//        return $pouleName;
-//    }
+
 //
 //    public function getPoulePlacesFromName(array $gamePouleplaces, bool $competitorName, bool $longName = null): string {
 //        return implode( ' & ', array_map( function( $gamePoulePlace) use ( $competitorName, $longName ) {

@@ -185,59 +185,107 @@ class Service
         return $newDateTime;
     }
 
-    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array { // Game[]
+    /**
+     * @param RoundNumber $roundNumber
+     * @param int $order
+     * @return array|Game[]
+     */
+    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array {
+        $games = $roundNumber->getGames();
 
-        $rounds = $roundNumber->getRounds()->toArray();
-        if (!$roundNumber->isFirst() ) {
-            uasort( $rounds, function($r1, $r2) { return $r1->getStructureNumber() - $r2->getStructureNumber(); });
-        }
-
-        $games = [];
-        foreach( $rounds as $round ) {
-            $poules = $round->getPoules()->toArray();
-            if ($roundNumber->isFirst()) {
-                uasort($poules, function($p1, $p2) { return $p1->getNumber() - $p2->getNumber(); });
-            } else {
-                uasort($poules, function($p1, $p2) { return $p2->getNumber() - $p1->getNumber(); });
-            }
-            foreach( $poules as $poule ) {
-                $games = array_merge($games,$poule->getGames()->toArray());
-            }
-        }
-        return static::orderGames($games, $order);
-    }
-
-    public static function orderGames(array $games, int $order): array {
-        if ($order === Game::ORDER_BYNUMBER) {
-            uasort( $games, function($g1, $g2) {
-                if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
-                    return $g1->getSubNumber() - $g2->getSubNumber();
-                }
+        $orderByNumber =  function (Game $g1, Game $g2) use ($roundNumber): int  {
+            if ($g1->getRoundNumber() !== $g2->getRoundNumber()) {
                 return $g1->getRoundNumber() - $g2->getRoundNumber();
+            }
+            if ($g1->getSubNumber() !== $g2->getSubNumber()) {
+                return $g1->getSubNumber() - $g2->getSubNumber();
+            }
+            $poule1 = $g1->getPoule();
+            $poule2 = $g2->getPoule();
+            if ($poule1->getRound() === $poule2->getRound()) {
+                $resultPoule = $poule2->getNumber() - $poule1->getNumber();
+                return !$roundNumber->isFirst() ? $resultPoule : -$resultPoule;
+            }
+            $resultRound = $poule2->getRound()->getStructureNumber() - $poule1->getRound()->getStructureNumber();
+            return !$roundNumber->isFirst() ? $resultRound : -$resultRound;
+        };
+
+        if ($order === Game::ORDER_BYNUMBER) {
+            uasort( $games, function(Game $g1, Game $g2) use ($orderByNumber) {
+                return $orderByNumber($g1, $g2);
             });
-            return $games;
+        } else {
+            $enableTime = $roundNumber->getValidPlanningConfig()->getEnableTime();
+            uasort( $games, function(Game $g1, Game $g2) use ($enableTime, $orderByNumber) {
+                if ($enableTime) {
+                    if ($g1->getStartDateTime() != $g2->getStartDateTime()) {
+                        return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
+                    }
+                } else {
+                    if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
+                        return $g1->getResourceBatch() - $g2->getResourceBatch();
+                    }
+                }
+                return $orderByNumber($g1, $g2);
+            });
         }
-        uasort( $games, function($g1, $g2) {
-            if ($g1->getConfig()->getEnableTime()) {
-                if( !($g1->getStartDateTime() == $g2->getStartDateTime() ) ) {
-                    return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
-                }
-            } else {
-                if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
-                    return $g1->getResourceBatch() - $g2->getResourceBatch();
-                }
-            }
-            // like order === Game::ORDER_BYNUMBER
-            if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
-                if ($g1->getSubNumber() === $g2->getSubNumber()) {
-                    return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
-                }
-               return $g1->getSubNumber() - $g2->getSubNumber();
-            }
-            return $g1->getRoundNumber() - $g2->getRoundNumber();
-        });
         return $games;
     }
+//
+//    public function getGamesForRoundNumber(RoundNumber $roundNumber, int $order): array { // Game[]
+//
+//        $rounds = $roundNumber->getRounds()->toArray();
+//        if (!$roundNumber->isFirst() ) {
+//            uasort( $rounds, function($r1, $r2) { return $r1->getStructureNumber() - $r2->getStructureNumber(); });
+//        }
+//        $enableTime = $roundNumber->getValidPlanningConfig()->getEnableTime();
+//
+//        $games = [];
+//        foreach( $rounds as $round ) {
+//            $poules = $round->getPoules()->toArray();
+//            if ($roundNumber->isFirst()) {
+//                uasort($poules, function($p1, $p2) { return $p1->getNumber() - $p2->getNumber(); });
+//            } else {
+//                uasort($poules, function($p1, $p2) { return $p2->getNumber() - $p1->getNumber(); });
+//            }
+//            foreach( $poules as $poule ) {
+//                $games = array_merge($games,$poule->getGames()->toArray());
+//            }
+//        }
+//        return static::orderGames($games, $order);
+//    }
+//
+//    public static function orderGames(array $games, int $order): array {
+//        if ($order === Game::ORDER_BYNUMBER) {
+//            uasort( $games, function($g1, $g2) {
+//                if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
+//                    return $g1->getSubNumber() - $g2->getSubNumber();
+//                }
+//                return $g1->getRoundNumber() - $g2->getRoundNumber();
+//            });
+//            return $games;
+//        }
+//        uasort( $games, function(Game $g1,Game $g2) {
+//            if ($g1->getConfig()->getEnableTime()) {
+//                if( !($g1->getStartDateTime() == $g2->getStartDateTime() ) ) {
+//                    return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
+//                }
+//            } else {
+//                if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
+//                    return $g1->getResourceBatch() - $g2->getResourceBatch();
+//                }
+//            }
+//            // like order === Game::ORDER_BYNUMBER
+//            if ($g1->getRoundNumber() === $g2->getRoundNumber()) {
+//                if ($g1->getSubNumber() === $g2->getSubNumber()) {
+//                    return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
+//                }
+//               return $g1->getSubNumber() - $g2->getSubNumber();
+//            }
+//            return $g1->getRoundNumber() - $g2->getRoundNumber();
+//        });
+//        return $games;
+//    }
 
     public function gamesOnSameDay( RoundNumber $roundNumber ) {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_RESOURCEBATCH);

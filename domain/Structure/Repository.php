@@ -72,7 +72,9 @@ class Repository
             $roundNumber = $nextRoundNumber;
         }
         $firstRoundNumber = reset($roundNumbers);
-        return new StructureBase($firstRoundNumber, $firstRoundNumber->getRounds()->first());
+        $structure = new StructureBase($firstRoundNumber, $firstRoundNumber->getRounds()->first());
+        $structure->setStructureNumbers();
+        return $structure;
     }
 
     /**

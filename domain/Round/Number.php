@@ -15,6 +15,7 @@ use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\State;
+use Voetbal\Game;
 use Voetbal\Config\Dep as ConfigDep;
 
 class Number
@@ -224,6 +225,17 @@ class Number
     }
 
     /**
+     * @return array|Game[]
+     */
+    public function getGames(): array {
+        $games = [];
+        foreach( $this->getPoules() as $poule ) {
+            $games = array_merge( $games, $poule->getGames()->toArray());
+        }
+        return $games;
+    }
+
+    /**
      * @return array | \Voetbal\Place[]
      */
     public function getPlaces(): array {
@@ -257,7 +269,7 @@ class Number
         return $this->planningConfig;
     }
 
-    public function setPlanningConfig(PlanningConfig $config ) {
+    public function setPlanningConfig(PlanningConfig $config = null ) {
         $this->planningConfig = $config;
     }
 
@@ -312,7 +324,7 @@ class Number
         return $this->sportScoreConfigs;
     }
 
-    public function getSportScoreConfig(Sport $sport = null ): ?SportScoreConfig {
+    public function getSportScoreConfig(Sport $sport ): ?SportScoreConfig {
         $sportScoreConfigs = $this->sportScoreConfigs->filter( function($sportScoreConfigIt) use ($sport){
             return $sportScoreConfigIt->getSport() === $sport;
         });

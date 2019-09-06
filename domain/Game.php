@@ -436,10 +436,6 @@ class Game implements External\Importable
     }
 
     public function getSportScoreConfig() {
-        $field = $this->getField();
-        if ( $field === null ) {
-            return $this->getRound()->getNumber()->getFirstSportScoreConfig();
-        }
-        return $this->getRound()->getNumber()->getSportScoreConfig( $field->getSport() );
+        return $this->getRound()->getNumber()->getSportScoreConfig( $this->getField()->getSport() );
     }
 }

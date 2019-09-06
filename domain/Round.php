@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\State;
@@ -184,9 +185,9 @@ class Round
 
     /**
      * @param int $winnersOrLosers
-     * @return QualifyGroup[] | ArrayCollection
+     * @return QualifyGroup[] | ArrayCollection | PersistentCollection
      */
-    public function getQualifyGroups(int $winnersOrLosers = null): ArrayCollection {
+    public function getQualifyGroups(int $winnersOrLosers = null) {
         if( $winnersOrLosers === null ) {
             return clone $this->qualifyGroups;
         }

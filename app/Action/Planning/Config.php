@@ -13,6 +13,7 @@ use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\Planning\Config\Repository as PlanningConfigRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal\Planning\Config as PlanningConfig;
+use Voetbal\Round\Number as RoundNumber;
 
 final class Config
 {
@@ -46,11 +47,6 @@ final class Config
         $this->serializer = $serializer;
     }
 
-//    public function add( $request, $response, $args )
-//    {
-//        return $this->addDeprecated($request, $response, $args);
-//    }
-//
     public function add( $request, $response, $args )
     {
         try {
@@ -77,22 +73,20 @@ final class Config
                 throw new \Exception("er is al een planningconfiguratie aanwezig", E_ERROR);
             }
 
-
-            // $this->rremov($roundNumber->getNext());
-
             $planningConfig = new PlanningConfig( $roundNumber );
-            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
-            $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
-            $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
+            $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
             $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );
+            $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
+            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
+            $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
             $planningConfig->setMinutesBetweenGames( $planningConfigSer->getMinutesBetweenGames() );
             $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
             $planningConfig->setSelfReferee( $planningConfigSer->getSelfReferee() );
             $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
-            $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
 
-            // het verwijderen van planningconfig gebeurd vanuit het roundnumber
             $this->repos->save($planningConfig);
+
+            $this->removeNext($roundNumber);
 
             return $response
                 ->withStatus(201)
@@ -104,18 +98,6 @@ final class Config
             return $response->withStatus(422 )->write( $e->getMessage() );
         }
     }
-//
-//    private function save( PlanningConfig $planningConfig ) {
-//        $this->repos->save($planningConfig);
-//        while ( $roundNumber->hasNext() ) {
-//            $roundNumber = $roundNumber->getNext()
-//        }
-//    }
-//    while( $roundNumber->hasNext() ) {
-//
-//}
-//remove previous planning config
-
 
     public function edit( $request, $response, $args )
     {
@@ -141,17 +123,19 @@ final class Config
                 throw new \Exception("er zijn geen plannings-instellingen gevonden om te wijzigen", E_ERROR);
             }
 
-            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
-            $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
+            $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
             $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );
             $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
+            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
+            $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
             $planningConfig->setMinutesBetweenGames( $planningConfigSer->getMinutesBetweenGames() );
             $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
-            $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
             $planningConfig->setSelfReferee( $planningConfigSer->getSelfReferee() );
-            $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
+            $planningConfig->setTeamup( $planningConfigSer->getTeamup() );
 
             $this->repos->save($planningConfig);
+
+            $this->removeNext($roundNumber);
 
             return $response
                 ->withStatus(201)
@@ -161,6 +145,18 @@ final class Config
         }
         catch( \Exception $e ){
             return $response->withStatus(422 )->write( $e->getMessage() );
+        }
+    }
+
+    protected function removeNext( RoundNumber $roundNumber) {
+        while( $roundNumber->hasNext() ) {
+            $roundNumber = $roundNumber->getNext();
+            $planningConfig = $roundNumber->getPlanningConfig();
+            if( $planningConfig === null ) {
+                continue;
+            }
+            $roundNumber->setPlanningConfig( null );
+            $this->repos->remove($planningConfig);
         }
     }
 }
