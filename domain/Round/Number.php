@@ -337,4 +337,11 @@ class Number
     public function setSportScoreConfig(SportScoreConfig $sportScoreConfig ) {
         $this->sportScoreConfigs->add( $sportScoreConfig );
     }
+
+    /**
+     * @param array|SportScoreConfig[] $sportScoreConfigs
+     */
+    public function setSportScoreConfigs($sportScoreConfigs ) {
+        $this->sportScoreConfigs = $sportScoreConfigs;
+    }
 }

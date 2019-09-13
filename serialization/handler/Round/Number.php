@@ -8,16 +8,16 @@
 
 namespace Voetbal\SerializationHandler\Round;
 
+use JMS\Serializer\JsonSerializationVisitor;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
 use JMS\Serializer\GraphNavigatorInterface;
 use JMS\Serializer\Metadata\StaticPropertyMetadata;
 use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
-use Voetbal\Round\Number as RoundNumberBase;
+use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 use Voetbal\Sport;
-use Voetbal\Round\Number as RoundNumber;
 
 class Number implements SubscribingHandlerInterface
 {
@@ -27,7 +27,7 @@ class Number implements SubscribingHandlerInterface
 //            [
 //                'direction' => GraphNavigatorInterface::DIRECTION_SERIALIZATION,
 //                'format' => 'json',
-//                'type' => 'DateTime',
+//                'type' => 'Voetbal\Round\Number',
 //                'method' => 'serializeToJson',
 //            ],
             [
@@ -38,6 +38,11 @@ class Number implements SubscribingHandlerInterface
             ],
         ];
     }
+
+//    public function serializeToJson(JsonSerializationVisitor $visitor, RoundNumber $roundNumber, array $type, Context $context)
+//    {
+//        return $roundNumber;
+//    }
 
     /**
      * Previous moet gezet worden, zou ook met slechts 1 reflection-actie gedaan kunnen worden
@@ -55,7 +60,7 @@ class Number implements SubscribingHandlerInterface
         if( array_key_exists( "previous", $type["params"]) && $type["params"]["previous"] !== null ) {
             $roundNumber = $type["params"]["previous"]->createNext();
         } else {
-            $roundNumber = new RoundNumberBase( $type["params"]["competition"], null );
+            $roundNumber = new RoundNumber( $type["params"]["competition"], null );
         }
 
 //        if( array_key_exists( "id", $arrRoundNumber) ) {
