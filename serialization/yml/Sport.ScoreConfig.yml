@@ -10,7 +10,7 @@ Voetbal\Sport\ScoreConfig:
       type: integer
     maximum:
       type: integer
-    child:
+    next:
       type: Voetbal\Sport\ScoreConfig
   virtual_properties:
     getSportId:

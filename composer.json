@@ -34,7 +34,8 @@
     "psr-4": {
       "Voetbal\\": "domain/",
       "VoetbalApp\\": "app/",
-      "Voetbal\\SerializationHandler\\": "serialization/handler"
+      "Voetbal\\SerializationHandler\\": "serialization/handler",
+      "Voetbal\\SerializationSubscriberEvent\\": "serialization/subscriberevent"
     }
   },
   "autoload-dev": {

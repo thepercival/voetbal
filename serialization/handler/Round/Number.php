@@ -77,9 +77,7 @@ class Number implements SubscribingHandlerInterface
         foreach( $arrRoundNumber["sportScoreConfigs"] as $arrSportScoreConfig ) {
             $sport = new Sport("");
             $sport->setId($arrSportScoreConfig["sportId"]);
-            $sportScoreConfig = new SportScoreConfig($sport, $roundNumber );
-            $sportScoreConfig->setDirection($arrSportScoreConfig["direction"]);
-            $sportScoreConfig->setMaximum($arrSportScoreConfig["maximum"]);
+            $this->createSportScoreConfig( $arrSportScoreConfig, $sport, $roundNumber );
         }
 
         if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null )
@@ -94,6 +92,15 @@ class Number implements SubscribingHandlerInterface
         }
 
         return $roundNumber;
+    }
+
+    protected function createSportScoreConfig( array $arrConfig, Sport $sport, RoundNumber $roundNumber, SportScoreConfig $previous = null ) {
+        $config = new SportScoreConfig($sport, $roundNumber, $previous );
+        $config->setDirection($arrConfig["direction"]);
+        $config->setMaximum($arrConfig["maximum"]);
+        if( $arrConfig["next"] !== null ) {
+            $this->createSportScoreConfig( $arrConfig["next"], $sport, $roundNumber, $config );
+        }
     }
 
 

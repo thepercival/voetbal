@@ -28,11 +28,11 @@ class ScoreConfig
     /**
      * @var ScoreConfig
      */
-    protected $parent;
+    protected $previous;
     /**
      * @var ScoreConfig
      */
-    protected $child;
+    protected $next;
     /**
      * @var int
      */
@@ -48,11 +48,11 @@ class ScoreConfig
     const UPWARDS = 1;
     const DOWNWARDS = 2;
 
-    public function __construct( SportBase $sport, RoundNumber $roundNumber, ScoreConfig $parent = null )
+    public function __construct( SportBase $sport, RoundNumber $roundNumber, ScoreConfig $previous = null )
     {
         $this->setSport( $sport );
         $this->setRoundNumber( $roundNumber );
-        $this->setParent( $parent );
+        $this->setPrevious( $previous );
     }
 
     /**
@@ -76,36 +76,36 @@ class ScoreConfig
     /**
      * @return ScoreConfig
      */
-    public function getParent()
+    public function getPrevious()
     {
-        return $this->parent;
+        return $this->previous;
     }
 
     /**
      * @param ScoreConfig $scoreConfig
      */
-    public function setParent( ScoreConfig $scoreConfig = null )
+    public function setPrevious( ScoreConfig $scoreConfig = null )
     {
-        $this->parent = $scoreConfig;
-        if( $this->parent !== null ) {
-            $this->parent->setChild( $this );
+        $this->previous = $scoreConfig;
+        if( $this->previous !== null ) {
+            $this->previous->setNext( $this );
         }
     }
 
     /**
      * @return ScoreConfig
      */
-    public function getChild(): ?ScoreConfig
+    public function getNext(): ?ScoreConfig
     {
-        return $this->child;
+        return $this->next;
     }
 
     /**
      * @param ScoreConfig $scoreConfig
      */
-    public function setChild( ScoreConfig $scoreConfig = null )
+    public function setNext( ScoreConfig $scoreConfig = null )
     {
-        $this->child = $scoreConfig;
+        $this->next = $scoreConfig;
     }
 
     /**
@@ -113,7 +113,7 @@ class ScoreConfig
      */
     public function getRoot()
     {
-        $parent = $this->getParent();
+        $parent = $this->getPrevious();
         if( $parent !== null ) {
             return $parent->getRoot();
         }

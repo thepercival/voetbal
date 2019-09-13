@@ -33,7 +33,7 @@ class Service {
         $newScoreConfig = new SportScoreConfig($sport, $roundNumber, null);
         $newScoreConfig->setDirection($sourceConfig->getDirection());
         $newScoreConfig->setMaximum($sourceConfig->getMaximum());
-        $previousSubScoreConfig = $sourceConfig->getChild();
+        $previousSubScoreConfig = $sourceConfig->getNext();
         if ( $previousSubScoreConfig ) {
             $newSubScoreConfig = new SportScoreConfig($sport, $roundNumber, $newScoreConfig);
             $newSubScoreConfig->setDirection($previousSubScoreConfig->getDirection());
@@ -47,10 +47,10 @@ class Service {
         ) {
             return false;
         }
-        if ( $sportScoreConfig->getChild() === null ) {
+        if ( $sportScoreConfig->getNext() === null ) {
             return true;
         }
-        return $this->isDefault( $sportScoreConfig->getChild() );
+        return $this->isDefault( $sportScoreConfig->getNext() );
     }
 
     public function areEqual( SportScoreConfig $sportScoreConfigA, SportScoreConfig $sportScoreConfigB ): bool {
@@ -59,10 +59,10 @@ class Service {
         ) {
             return false;
         }
-        if ( $sportScoreConfigA->getChild() !== null && $sportScoreConfigB->getChild() !== null ) {
-            return $this->areEqual( $sportScoreConfigA->getChild(), $sportScoreConfigB->getChild() );
+        if ( $sportScoreConfigA->getNext() !== null && $sportScoreConfigB->getNext() !== null ) {
+            return $this->areEqual( $sportScoreConfigA->getNext(), $sportScoreConfigB->getNext() );
         }
-        return $sportScoreConfigA->getChild() === $sportScoreConfigB->getChild();
+        return $sportScoreConfigA->getNext() === $sportScoreConfigB->getNext();
     }
 
     /**
@@ -70,10 +70,10 @@ class Service {
      */
     public function getInput(SportScoreConfig $rootSportScoreConfig): SportScoreConfig
     {
-        $childScoreConfig = $rootSportScoreConfig->getChild();
+        $childScoreConfig = $rootSportScoreConfig->getNext();
         while ($childScoreConfig !== null && ( $childScoreConfig->getMaximum() > 0 || $rootSportScoreConfig->getMaximum() === 0 )) {
             $rootSportScoreConfig = $childScoreConfig;
-            $childScoreConfig = $childScoreConfig->getChild();
+            $childScoreConfig = $childScoreConfig->getNext();
         }
         return $rootSportScoreConfig;
     }
@@ -83,14 +83,14 @@ class Service {
      */
     public function getCalculate(SportScoreConfig $rootSportScoreConfig): SportScoreConfig
     {
-        while ($rootSportScoreConfig->getMaximum() === 0 && $rootSportScoreConfig->getChild() !== null) {
-            $rootSportScoreConfig = $rootSportScoreConfig->getChild();
+        while ($rootSportScoreConfig->getMaximum() === 0 && $rootSportScoreConfig->getNext() !== null) {
+            $rootSportScoreConfig = $rootSportScoreConfig->getNext();
         }
         return $rootSportScoreConfig;
     }
 
     public function hasMultipleScores(SportScoreConfig $rootSportScoreConfig): bool {
-        return $rootSportScoreConfig->getChild() !== null;
+        return $rootSportScoreConfig->getNext() !== null;
     }
 
     public function getFinal(Game $game, bool $sub = null): ?GameScoreHomeAway {

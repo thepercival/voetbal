@@ -25,17 +25,17 @@ Voetbal\Sport\ScoreConfig:
       nullable: true
       unique: false
   oneToOne:
-    parent:
+    previous:
       targetEntity: Voetbal\Sport\ScoreConfig
-      inversedBy: child
+      inversedBy: next
       joinColumn:
         name: parentid
         referencedColumnName: id
         nullable: true
         onDelete: CASCADE
-    child:
+    next:
       targetEntity: Voetbal\Sport\ScoreConfig
-      mappedBy: parent
+      mappedBy: previous
       cascade: [ persist, remove ]
   manyToOne:
     roundNumber:
