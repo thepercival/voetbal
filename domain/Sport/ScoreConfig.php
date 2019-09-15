@@ -109,6 +109,14 @@ class ScoreConfig
     }
 
     /**
+     * @return bool
+     */
+    public function hasNext(): bool
+    {
+        return $this->next !== null;
+    }
+
+    /**
      * @return ScoreConfig
      */
     public function getRoot()

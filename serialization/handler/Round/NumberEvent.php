@@ -35,15 +35,10 @@ class NumberEvent implements \JMS\Serializer\EventDispatcher\EventSubscriberInte
         /** @var RoundNumber $roundNumber */
         $roundNumber = $event->getObject();
 
-        $test = $roundNumber->getSportScoreConfigs();
-
         $roundNumber->setSportScoreConfigs(
             $roundNumber->getSportScoreConfigs()->filter( function ( $config ) {
                 return $config->getPrevious() === null;
             } )
         );
-
-    ;
-        // $roundNumber->get
     }
 }

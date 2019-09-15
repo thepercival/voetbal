@@ -9,8 +9,10 @@
 namespace VoetbalApp\Action\Sport;
 
 use JMS\Serializer\Serializer;
+use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Sport;
 use Voetbal\Structure\Repository as StructureRepository;
-use Voetbal\Sport\Config\Repository as SportConfigRepository;
+use Voetbal\Sport\ScoreConfig\Repository as SportScoreConfigRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
 
 final class ScoreConfig
@@ -24,7 +26,7 @@ final class ScoreConfig
      */
     protected $competitionRepos;
     /**
-     * @var SportConfigRepository
+     * @var SportScoreConfigRepository
      */
     protected $repos;
 
@@ -34,7 +36,7 @@ final class ScoreConfig
     protected $serializer;
 
     public function __construct(
-        SportConfigRepository $repos,
+        SportScoreConfigRepository $repos,
         StructureRepository $structureRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
@@ -46,12 +48,8 @@ final class ScoreConfig
         $this->serializer = $serializer;
     }
 
-//    public function add( $request, $response, $args )
-//    {
-//        return $this->addDeprecated($request, $response, $args);
-//    }
 //
-//    public function addDeprecated( $request, $response, $args )
+//    public function add( $request, $response, $args )
 //    {
 //        try {
 //            $competitionId = (int) $request->getParam("competitionid");
@@ -97,29 +95,48 @@ final class ScoreConfig
                 throw new \Exception("het rondenummer kan niet gevonden worden", E_ERROR);
             }
 
-            /** @var \Voetbal\Sport\Config $configSer */
-            $sportConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\Config', 'json');
-            if ( $sportConfigSer === null ) {
-                throw new \Exception("er zijn geen sport-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
+            /** @var \Voetbal\Sport\ScoreConfig|null $scoreConfigSer */
+            $scoreConfigSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Sport\ScoreConfig', 'json');
+            if ( $scoreConfigSer === null ) {
+                throw new \Exception("er zijn geen score-instellingen gevonden o.b.v. de invoergegevens", E_ERROR);
             }
 
-//            $sport = $competition->getSport( (int) $request->getParam("sportid") );
-//            $sportConfig = $roundNumber->getSportScoreConfig( $sport );
-//            $sportConfig->setWinPoints( $sportConfigSer->getWinPoints() );
-//            $sportConfig->setDrawPoints( $sportConfigSer->getDrawPoints() );
-//            $sportConfig->setWinPointsExt( $sportConfigSer->getWinPointsExt() );
-//            $sportConfig->setDrawPointsExt( $sportConfigSer->getDrawPointsExt() );
-//            $sportConfig->setPointsCalculation( $sportConfigSer->getPointsCalculation() );
-//            $this->repos->save($sportConfig);
-//
-//            return $response
-//                ->withStatus(201)
-//                ->withHeader('Content-Type', 'application/json;charset=utf-8')
-//                ->write($this->serializer->serialize( $sportConfig, 'json'));
-//            ;
+            /** @var \Voetbal\Sport\ScoreConfig|null $scoreConfig */
+            $scoreConfig = $this->repos->find( $args['id'] );
+            if ( $scoreConfig === null ) {
+                throw new \Exception("er zijn geen score-instellingen gevonden om te wijzigen", E_ERROR);
+            }
+
+            $scoreConfig->setMaximum( $scoreConfigSer->getMaximum() );
+            $this->repos->save($scoreConfig);
+            if( $scoreConfig->hasNext() && $scoreConfigSer->hasNext() ) {
+                $nextScoreConfig = $scoreConfig->getNext();
+                $nextScoreConfig->setMaximum( $scoreConfigSer->getNext()->getMaximum() );
+                $this->repos->save($nextScoreConfig);
+            }
+
+            $this->removeNext($roundNumber, $scoreConfig->getSport() );
+
+            return $response
+                ->withStatus(201)
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize( $scoreConfig, 'json'));
+            ;
         }
         catch( \Exception $e ){
             return $response->withStatus(422 )->write( $e->getMessage() );
+        }
+    }
+
+    protected function removeNext( RoundNumber $roundNumber, Sport $sport) {
+        while( $roundNumber->hasNext() ) {
+            $roundNumber = $roundNumber->getNext();
+            $scoreConfig = $roundNumber->getSportScoreConfig( $sport );
+            if( $scoreConfig === null ) {
+                continue;
+            }
+            $roundNumber->getSportScoreConfigs()->removeElement( $scoreConfig );
+            $this->repos->remove($scoreConfig);
         }
     }
 }

@@ -157,14 +157,14 @@ class Handler
         } elseif ($resourceType === 'sportplanningconfigs') {
             $action = new VoetbalApp\Action\Sport\PlanningConfig(
                 $voetbalservice->getRepository(Voetbal\Sport\PlanningConfig::class),
-                $voetbalservice->getRepository(Voetbal\Structure::class),
+                $voetbalservice->getStructureRepository(),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );
         } elseif ($resourceType === 'sportscoreconfigs') {
             $action = new VoetbalApp\Action\Sport\ScoreConfig(
                 $voetbalservice->getRepository(Voetbal\Sport\ScoreConfig::class),
-                $voetbalservice->getRepository(Voetbal\Structure::class),
+                $voetbalservice->getStructureRepository(),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer
             );

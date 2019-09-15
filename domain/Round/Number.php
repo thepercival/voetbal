@@ -318,9 +318,9 @@ class Number
     }
 
     /**
-     * @return Collection | SportScoreConfig[]
+     * @return ArrayCollection | SportScoreConfig[]
      */
-    public function getSportScoreConfigs(): Collection {
+    public function getSportScoreConfigs() {
         return $this->sportScoreConfigs;
     }
 
@@ -339,7 +339,7 @@ class Number
     }
 
     /**
-     * @param array|SportScoreConfig[] $sportScoreConfigs
+     * @param ArrayCollection|SportScoreConfig[] $sportScoreConfigs
      */
     public function setSportScoreConfigs($sportScoreConfigs ) {
         $this->sportScoreConfigs = $sportScoreConfigs;
