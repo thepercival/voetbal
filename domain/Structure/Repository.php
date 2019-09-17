@@ -8,11 +8,17 @@
 
 namespace Voetbal\Structure;
 
+use Voetbal\Poule\Horizontal\Creator as HorizontolPouleCreator;
+use Voetbal\Qualify\Rule\Service as QualifyRuleService;
+use Voetbal\Round;
 use Voetbal\Structure as StructureBase;
+use Voetbal\Structure\Service as StructureService;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Competition;
 use Doctrine\ORM\EntityManager;
 use Voetbal\Round\Number\Repository as RoundNumberRepository;
+use Voetbal\Poule\Horizontal\Service as HorizontalPouleService;
 
 /**
  * Repository
@@ -72,9 +78,50 @@ class Repository
             $roundNumber = $nextRoundNumber;
         }
         $firstRoundNumber = reset($roundNumbers);
-        $structure = new StructureBase($firstRoundNumber, $firstRoundNumber->getRounds()->first());
+        $firstRound = $firstRoundNumber->getRounds()->first();
+        $structure = new StructureBase($firstRoundNumber, $firstRound);
         $structure->setStructureNumbers();
+
+
+
+        $this->createRoundHorizontalPoules( $firstRound );
+        $this->createQualifyGroupHorizontalPoules( $firstRound );
+        $this->recreateToQualifyRules( $firstRound );
+
         return $structure;
+    }
+
+    public function createRoundHorizontalPoules( Round $round ) {
+        $horizontalPouleService = new HorizontalPouleService($round);
+        $horizontalPouleService->recreate();
+        foreach ( $round->getChildren() as $childRound ) {
+            $this->createRoundHorizontalPoules($childRound);
+        }
+    }
+
+    public function createQualifyGroupHorizontalPoules( Round $round ) {
+        $structureService = new StructureService();
+        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
+            $structureService->updateQualifyGroupsHorizontalPoules(
+                array_slice( $round->getHorizontalPoules($winnersOrLosers), 0 ),
+                array_map( function($qualifyGroup) {
+                    return new HorizontolPouleCreator($qualifyGroup, $qualifyGroup->getChildRound()->getNrOfPlaces());
+                }, $round->getQualifyGroups($winnersOrLosers)->toArray() )
+            );
+        }
+
+        foreach ( $round->getChildren() as $childRound ) {
+            $this->createQualifyGroupHorizontalPoules($childRound);
+        }
+    }
+
+    public function recreateToQualifyRules( Round $round ){
+        $qualifyRuleService = new QualifyRuleService($round);
+        $qualifyRuleService->recreateTo();
+
+        foreach ( $round->getChildren() as $childRound ) {
+            $this->recreateToQualifyRules($childRound);
+        }
     }
 
     /**
@@ -82,10 +129,11 @@ class Repository
      * @param int $roundNumberAsValue
      * @return RoundNumber|null
      */
-    public function findRoundNumber( Competition $competition, int $roundNumberAsValue ): ?RoundNumber {
-        $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
-        return $roundNumberRepos->findOneBy(array("competition" => $competition, "number" => $roundNumberAsValue));
-    }
+    // through getStructure()
+//    public function findRoundNumber( Competition $competition, int $roundNumberAsValue ): ?RoundNumber {
+//        $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
+//        return $roundNumberRepos->findOneBy(array("competition" => $competition, "number" => $roundNumberAsValue));
+//    }
 
     public function remove( Competition $competition, int $roundNumberAsValue = null )
     {

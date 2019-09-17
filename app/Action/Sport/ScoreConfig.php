@@ -71,7 +71,7 @@ final class ScoreConfig
             $structure = $this->structureRepos->getStructure( $competition );
             $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
 
-            $sport = $competition->getSportBySportId( $scoreConfigSer->getSportId() );
+            $sport = $competition->getSportBySportId( (int) $request->getParam("sportid") );
             if ( $sport === null ) {
                 throw new \Exception("de sport kon niet gevonden worden", E_ERROR);
             }

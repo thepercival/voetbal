@@ -93,6 +93,22 @@ class ScoreConfig
     }
 
     /**
+     * @return bool
+     */
+    public function hasPrevious(): bool
+    {
+        return $this->previous !== null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRoot(): bool
+    {
+        return !$this->hasPrevious();
+    }
+
+    /**
      * @return ScoreConfig
      */
     public function getNext(): ?ScoreConfig

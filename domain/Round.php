@@ -69,11 +69,11 @@ class Round
     /**
      * @var HorizontalPoule[] | array
      */
-    protected $losersHorizontalPoules ;
+    protected $losersHorizontalPoules = array();
     /**
      * @var HorizontalPoule[] | array
      */
-    protected $winnersHorizontalPoules;
+    protected $winnersHorizontalPoules = array();
     /**
      * @var int
      */
@@ -99,12 +99,13 @@ class Round
 
     public function __construct( Round\Number $roundNumber, QualifyGroup $parentQualifyGroup = null )
     {
+//        $this->winnersHorizontalPoules = array();
+//        $this->losersHorizontalPoules = array();
         $this->setNumber( $roundNumber );
         $this->poules = new ArrayCollection();
         $this->setParentQualifyGroup( $parentQualifyGroup );
         $this->qualifyGroups = new ArrayCollection();
-        $this->winnersHorizontalPoules = array();
-        $this->losersHorizontalPoules = array();
+
     }
 
     /**

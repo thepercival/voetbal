@@ -298,8 +298,7 @@ class Service
         $getNewQualifyGroup = function (ArrayCollection $removedQualifyGroups) use (
             $round,
             $winnersOrLosers,
-            &
-            $newNrOfPlacesChildren
+            &$newNrOfPlacesChildren
         ) : HorizontolPouleCreator {
             $qualifyGroup = $removedQualifyGroups->first();
             $nrOfQualifiers = 0;
@@ -357,7 +356,7 @@ class Service
      * @param array $roundHorizontalPoules | HorizontolPoule[]
      * @param array $horizontalPoulesCreators | HorizontolPoulesCreator[]
      */
-    protected function updateQualifyGroupsHorizontalPoules(
+    public function updateQualifyGroupsHorizontalPoules(
         array $roundHorizontalPoules,
         array $horizontalPoulesCreators
     ) {

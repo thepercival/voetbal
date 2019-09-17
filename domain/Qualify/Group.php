@@ -42,7 +42,7 @@ class Group
     /**
      * @var array | HorizontalPoule[]
      */
-    protected $horizontalPoules;
+    protected $horizontalPoules = [];
 
     CONST WINNERS = 1;
     CONST DROPOUTS = 2;
@@ -50,7 +50,6 @@ class Group
 
     public function __construct( Round $round, int $winnersOrLosers, int $number = null )
     {
-        $this->horizontalPoules = [];
         $this->setWinnersOrLosers($winnersOrLosers);
         if ($number === null) {
             $this->setRound( $round );

@@ -326,12 +326,29 @@ class Number
 
     public function getSportScoreConfig(Sport $sport ): ?SportScoreConfig {
         $sportScoreConfigs = $this->sportScoreConfigs->filter( function($sportScoreConfigIt) use ($sport){
-            return $sportScoreConfigIt->getSport() === $sport;
+            return $sportScoreConfigIt->isRoot() && $sportScoreConfigIt->getSport() === $sport;
         });
-        if ( $sportScoreConfigs->count() > 0 ) {
+        if ( $sportScoreConfigs->count() === 1 ) {
             return $sportScoreConfigs->first();
         }
-        return $this->getPrevious()->getSportScoreConfig( $sport );
+        return null;
+    }
+
+    public function getValidSportScoreConfig(Sport $sport ): SportScoreConfig {
+        $sportScoreConfig = $this->getSportScoreConfig($sport);
+        if ( $sportScoreConfig !== null ) {
+            return $sportScoreConfig;
+        }
+        return $this->getPrevious()->getValidSportScoreConfig( $sport );
+    }
+
+    /**
+     * @return ArrayCollection|SportScoreConfig[]
+     */
+    public function getValidSportScoreConfigs(): ArrayCollection {
+        return $this->getSportConfigs()->map( function ( $sportConfig ) {
+            return $this->getValidSportScoreConfig($sportConfig->getSport());
+        });
     }
 
     public function setSportScoreConfig(SportScoreConfig $sportScoreConfig ) {
