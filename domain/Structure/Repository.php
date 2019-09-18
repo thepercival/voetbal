@@ -72,12 +72,16 @@ class Repository
     {
         $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
         $roundNumbers = $roundNumberRepos->findBy(array("competition" => $competition), array("number" => "asc"));
+        if( count($roundNumbers) === 0 ) {
+            return null;
+        }
         $roundNumber = reset($roundNumbers);
         while( $nextRoundNumber = next($roundNumbers) ) {
             $roundNumber->setNext($nextRoundNumber);
             $roundNumber = $nextRoundNumber;
         }
         $firstRoundNumber = reset($roundNumbers);
+
         $firstRound = $firstRoundNumber->getRounds()->first();
         $structure = new StructureBase($firstRoundNumber, $firstRound);
         $structure->setStructureNumbers();
@@ -138,7 +142,11 @@ class Repository
         if( $roundNumberAsValue === null ) {
             $roundNumberAsValue = 1;
         }
-        $roundNumber = $this->getStructure($competition)->getRoundNumber( $roundNumberAsValue );
+        $structure = $this->getStructure($competition);
+        if( $structure === null ) {
+            return;
+        }
+        $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
         if( $roundNumber === null ) {
             return;
         }
