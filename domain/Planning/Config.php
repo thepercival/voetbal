@@ -23,7 +23,7 @@ class Config {
     /**
      * @var bool
      */
-    protected $hasExtension;
+    protected $hasExtensionDep;
     /**
      * @var int
      */
@@ -59,7 +59,6 @@ class Config {
 
     protected $rniddep;  // DEPRECATED
 
-    const DEFAULTHASEXTENSION = false;
     const DEFAULTENABLETIME = false;
     const TEAMUP_MIN = 4;
     const TEAMUP_MAX = 6;
@@ -103,7 +102,7 @@ class Config {
     public function setEnableTime($enableTime)
     {
         if (!is_bool($enableTime)) {
-            throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
+            throw new \InvalidArgumentException("met/zonder-tijd heeft een onjuiste waarde", E_ERROR);
         }
         $this->enableTime = $enableTime;
     }
@@ -142,11 +141,7 @@ class Config {
 
     public function getMaximalNrOfMinutesPerGame(): int
     {
-        $nrOfMinutes = $this->getMinutesPerGame();
-        if ($this->getHasExtension()) {
-            $nrOfMinutes += $this->getMinutesPerGameExt();
-        }
-        return $nrOfMinutes;
+        return $this->getMinutesPerGame() + $this->getMinutesPerGameExt();
     }
 
     /**
@@ -168,21 +163,9 @@ class Config {
     /**
      * @return bool
      */
-    public function getHasExtension()
+    public function hasExtension()
     {
-        return $this->hasExtension;
-    }
-
-    /**
-     * @param bool $hasExtension
-     */
-    public function setHasExtension($hasExtension)
-    {
-        if (!is_bool($hasExtension)) {
-            throw new \InvalidArgumentException("extra-tijd-ja/nee heeft een onjuiste waarde", E_ERROR);
-        }
-
-        $this->hasExtension = $hasExtension;
+        return $this->getMinutesPerGameExt() > 0;
     }
 
     /**

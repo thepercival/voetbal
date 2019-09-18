@@ -8,15 +8,19 @@ Voetbal\Game\Score:
       generator:
         strategy: AUTO
   fields:
-    number:
-      type: smallint
-      nullable: false
-      unique: false
     home:
       type: smallint
       nullable: false
       unique: false
     away:
+      type: smallint
+      nullable: false
+      unique: false
+    phase:
+      type: smallint
+      nullable: true
+      unique: false
+    number:
       type: smallint
       nullable: false
       unique: false

@@ -32,7 +32,7 @@ Voetbal\Game:
       type: datetime_immutable
       nullable: true
       column: startdatetime
-    scoresMoment:
+    scoresMomentDep:
       type: smallint
       nullable: true
       unique: false

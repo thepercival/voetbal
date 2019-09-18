@@ -112,7 +112,7 @@ class Structure implements StructureImporter
 
     public function createByCompetitions( array $competitions ) {
         foreach( $competitions as $competition ) {
-            if( $this->structureRepos->findRoundNumber( $competition, 1 ) !== null ) {
+            if( $this->structureRepos->getStructure( $competition )->getRoundNumber( 1 ) !== null ) {
                 continue;
             }
 

@@ -8,6 +8,7 @@
 
 namespace Voetbal\Sport;
 
+use Voetbal\Game;
 use Voetbal\Sport as SportBase;
 use Voetbal\Sport\IdSer as SportIdSer;
 use Voetbal\Competition;
@@ -139,6 +140,23 @@ class Config {
     public function getDrawPointsExt()
     {
         return $this->drawPointsExt;
+    }
+
+    public function getPointsCustom(int $result, int $phase): float {
+        if ($result === Game::RESULT_DRAW) {
+            if ($phase === Game::PHASE_REGULARTIME) {
+                return $this->getDrawPoints();
+            } else if ($phase === Game::PHASE_EXTRATIME) {
+                return $this->getDrawPointsExt();
+            }
+            return 0;
+        }
+        if ($phase === Game::PHASE_REGULARTIME) {
+            return $this->getWinPoints();
+        } else if ($phase === Game::PHASE_EXTRATIME) {
+            return $this->getWinPointsExt();
+        }
+        return 0;
     }
 
     /**

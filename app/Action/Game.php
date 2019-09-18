@@ -174,7 +174,6 @@ final class Game
 
             $game->setState( $gameSer->getState() );
             $game->setStartDateTime( $gameSer->getStartDateTime() );
-            $game->setScoresMoment( $gameSer->getScoresMoment() );
             $this->service->addScores( $game, $gameSer->getScores()->toArray() );
 
             $this->repos->save( $game );

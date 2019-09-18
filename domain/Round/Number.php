@@ -343,9 +343,9 @@ class Number
     }
 
     /**
-     * @return ArrayCollection|SportScoreConfig[]
+     * @return Collection|SportScoreConfig[]
      */
-    public function getValidSportScoreConfigs(): ArrayCollection {
+    public function getValidSportScoreConfigs(): Collection {
         return $this->getSportConfigs()->map( function ( $sportConfig ) {
             return $this->getValidSportScoreConfig($sportConfig->getSport());
         });

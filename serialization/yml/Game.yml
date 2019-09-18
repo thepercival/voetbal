@@ -26,5 +26,3 @@ Voetbal\Game:
       type: ArrayCollection<Voetbal\Game\Place>
     scores:
       type: ArrayCollection<Voetbal\Game\Score>
-    scoresMoment:
-      type: int

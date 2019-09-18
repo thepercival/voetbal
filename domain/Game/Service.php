@@ -48,7 +48,7 @@ class Service
     public function addScores( Game $game, array $newGameScores )
     {
         foreach( $newGameScores as $newGameScore ) {
-            new GameScore( $game, $newGameScore->getHome(), $newGameScore->getAway() );
+            new GameScore( $game, $newGameScore->getHome(), $newGameScore->getAway(), $newGameScore->getPhase() );
         }
     }
 }

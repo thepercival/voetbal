@@ -76,25 +76,30 @@ class Game implements External\Importable
     protected $scores;
 
     /**
+     * @var int
+     */
+    private $scoresMomentDep;
+
+    /**
      * @var GamePlace[] | ArrayCollection
      */
     protected $places;
 
-    /**
-     * @var int
-     */
-    private $scoresMoment;
+    const RESULT_HOME = 1;
+    const RESULT_DRAW = 2;
+    const RESULT_AWAY = 3;
 
     const HOME = true;
     const AWAY = false;
 
-    const MOMENT_HALFTIME = 1;
-    const MOMENT_FULLTIME = 2;
-    const MOMENT_EXTRATIME = 4;
-    const MOMENT_PENALTIES = 8;
+    const PHASE_REGULARTIME = 1;
+    const PHASE_EXTRATIME = 2;
+    const PHASE_PENALTIES = 4;
 
     const ORDER_BYNUMBER = 1;
     const ORDER_RESOURCEBATCH = 2;
+
+
 
     public function __construct( Poule $poule, $roundNumber, $subNumber )
     {
@@ -341,22 +346,6 @@ class Game implements External\Importable
     }
 
     /**
-     * @return int
-     */
-    public function getScoresMoment()
-    {
-        return $this->scoresMoment;
-    }
-
-    /**
-     * @param int $scoresMoment
-     */
-    public function setScoresMoment(int $scoresMoment)
-    {
-        $this->scoresMoment = $scoresMoment;
-    }
-
-    /**
      * @return Score[] | ArrayCollection
      */
     public function getScores()
@@ -425,6 +414,13 @@ class Game implements External\Importable
             return Game::AWAY;
         }
         return null;
+    }
+
+    public function getFinalPhase(): int {
+        if ($this->getScores()->count()  === 0) {
+            return 0;
+        }
+        return $this->getScores()->last()->getPhase();
     }
 
     public function getSportConfig(): SportConfig {

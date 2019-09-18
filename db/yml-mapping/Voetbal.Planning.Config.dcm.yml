@@ -8,10 +8,11 @@ Voetbal\Planning\Config:
       generator:
         strategy: AUTO
   fields:
-    hasExtension:
+    hasExtensionDep:
       type: boolean
       nullable: false
       unique: false
+      column: hasExtension
     minutesPerGameExt:
       type: smallint
       nullable: false

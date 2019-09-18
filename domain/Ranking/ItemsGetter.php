@@ -82,27 +82,21 @@ class ItemsGetter {
         return $items;
     }
 
-    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game ): float {
-        $points = 0;
+    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game): float {
         if ($finalScore === null) {
-            return $points;
+            return 0;
         }
-        $scoresMoment = $game->getScoresMoment();
-        $config = $game->getSportConfig();
+        return $game->getSportConfig()->getPointsCustom($this->getResult($finalScore, $homeAway), $game->getFinalPhase());
+    }
+
+    private function getResult(GameScoreHomeAway $finalScore, bool $homeAway): int {
+        if ($this->getGameScorePart($finalScore, $homeAway) === $this->getGameScorePart($finalScore, !$homeAway)) {
+            return Game::RESULT_DRAW;
+        }
         if ($this->getGameScorePart($finalScore, $homeAway) > $this->getGameScorePart($finalScore, !$homeAway)) {
-            if ($scoresMoment === Game::MOMENT_EXTRATIME) {
-                $points += $config->getWinPointsExt();
-            } else {
-                $points += $config->getWinPoints();
-            }
-        } else if ($this->getGameScorePart($finalScore, $homeAway) === $this->getGameScorePart($finalScore, !$homeAway)) {
-            if ($scoresMoment === Game::MOMENT_EXTRATIME) {
-                $points += $config->getDrawPointsExt();
-            } else {
-                $points += $config->getDrawPoints();
-            }
+            return $homeAway === Game::HOME ? Game::RESULT_HOME : Game::RESULT_AWAY;
         }
-        return $points;
+        return $homeAway === Game::HOME ? Game::RESULT_AWAY : Game::RESULT_HOME;
     }
 
     private function getNrOfUnits(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoredReceived, bool $sub): int {

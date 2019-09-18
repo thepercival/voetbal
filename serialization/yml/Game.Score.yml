@@ -6,9 +6,12 @@ Voetbal\Game\Score:
   properties:
     id:
       type: integer
-    number:
-      type: integer
+
     home:
       type: integer
     away:
+      type: integer
+    phase:
+      type: integer
+    number:
       type: integer

@@ -23,6 +23,10 @@ class Score
     /**
      * @var int
      */
+    private $phase;
+    /**
+     * @var int
+     */
     private $number;
 
     use Score\HomeAwayTrait;
@@ -30,11 +34,12 @@ class Score
     const SCORED = 1;
     const RECEIVED = 2;
 
-    public function __construct( Game $game, int $home, int $away, int $number = null )
+    public function __construct( Game $game, int $home, int $away, int $phase, int $number = null )
     {
         $this->setHome( $home );
         $this->setAway( $away );
         $this->setGame( $game );
+        $this->setPhase( $phase );
         if ($number === null) {
             $number = $game->getScores()->count();
         }
@@ -60,22 +65,6 @@ class Score
     }
 
     /**
-     * @return int
-     */
-    public function getNumber()
-    {
-        return $this->number;
-    }
-
-    /**
-     * @param int $number
-     */
-    public function setNumber($number)
-    {
-        $this->number = $number;
-    }
-
-    /**
      * @return Game
      */
     public function getGame()
@@ -92,5 +81,37 @@ class Score
             $game->getScores()->add($this) ;
         }
         $this->game = $game;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPhase()
+    {
+        return $this->phase;
+    }
+
+    /**
+     * @param int $phase
+     */
+    public function setPhase($phase)
+    {
+        $this->phase = $phase;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNumber()
+    {
+        return $this->number;
+    }
+
+    /**
+     * @param int $number
+     */
+    public function setNumber($number)
+    {
+        $this->number = $number;
     }
 }

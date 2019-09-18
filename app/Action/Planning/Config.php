@@ -77,7 +77,6 @@ final class Config
             $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
             $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );
             $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
-            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
             $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
             $planningConfig->setMinutesBetweenGames( $planningConfigSer->getMinutesBetweenGames() );
             $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );
@@ -126,7 +125,6 @@ final class Config
             $planningConfig->setNrOfHeadtohead( $planningConfigSer->getNrOfHeadtohead() );
             $planningConfig->setEnableTime( $planningConfigSer->getEnableTime() );
             $planningConfig->setMinutesPerGame( $planningConfigSer->getMinutesPerGame() );
-            $planningConfig->setHasExtension( $planningConfigSer->getHasExtension() );
             $planningConfig->setMinutesPerGameExt( $planningConfigSer->getMinutesPerGameExt() );
             $planningConfig->setMinutesBetweenGames( $planningConfigSer->getMinutesBetweenGames() );
             $planningConfig->setMinutesAfter( $planningConfigSer->getMinutesAfter() );

@@ -4,6 +4,11 @@
 -- draaien na doctrine-update
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;
 
+update gamescores set phase = 1 where gameid in ( select id from games where scoresmoment = 2 and id = gamescores.gameid );
+update gamescores set phase = 2 where gameid in ( select id from games where scoresmoment = 4 and id = gamescores.gameid );
+
+update planningconfigs set minutesPerGameExt = 0 where hasExtension = false and minutesPerGameExt > 0;
+
 -- all competitors without places
 delete 	c
 from 	competitors c

@@ -16,7 +16,6 @@ class Service
 {
     public function createDefault( RoundNumber $roundNumber ): PlanningConfig {
         $config = new PlanningConfig($roundNumber);
-        $config->setHasExtension(PlanningConfig::DEFAULTHASEXTENSION);
         $config->setMinutesPerGameExt(0);
         $config->setEnableTime(PlanningConfig::DEFAULTENABLETIME);
         $config->setMinutesPerGame(0);

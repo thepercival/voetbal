@@ -82,8 +82,6 @@ class Repository
         $structure = new StructureBase($firstRoundNumber, $firstRound);
         $structure->setStructureNumbers();
 
-
-
         $this->createRoundHorizontalPoules( $firstRound );
         $this->createQualifyGroupHorizontalPoules( $firstRound );
         $this->recreateToQualifyRules( $firstRound );
@@ -140,7 +138,7 @@ class Repository
         if( $roundNumberAsValue === null ) {
             $roundNumberAsValue = 1;
         }
-        $roundNumber = $this->findRoundNumber($competition, $roundNumberAsValue);
+        $roundNumber = $this->getStructure($competition)->getRoundNumber( $roundNumberAsValue );
         if( $roundNumber === null ) {
             return;
         }
