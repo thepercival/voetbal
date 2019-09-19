@@ -150,6 +150,10 @@ class Repository
         if( $roundNumber === null ) {
             return;
         }
+        if( $roundNumber->hasNext() ) {
+            $this->remove( $competition, $roundNumberAsValue + 1 );
+        }
+
         $this->em->remove($roundNumber);
         $this->em->flush();
     }
