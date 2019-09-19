@@ -85,18 +85,30 @@ class ItemsGetter {
     private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game): float {
         if ($finalScore === null) {
             return 0;
+        }           
+        if ($this->isWin($finalScore, $homeAway)) {
+            if ($game->getFinalPhase() === Game::PHASE_REGULARTIME) {
+                return $game->getSportConfig()->getWinPoints();
+            } else if ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
+                return $game->getSportConfig()->getWinPointsExt();
+            }
+        } else if ($this->isDraw($finalScore)) {
+            if ($game->getFinalPhase() === Game::PHASE_REGULARTIME) {
+                return $game->getSportConfig()->getDrawPoints();
+            } else if ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
+                return $game->getSportConfig()->getDrawPointsExt();
+            }
         }
-        return $game->getSportConfig()->getPointsCustom($this->getResult($finalScore, $homeAway), $game->getFinalPhase());
+        return 0;
     }
 
-    private function getResult(GameScoreHomeAway $finalScore, bool $homeAway): int {
-        if ($this->getGameScorePart($finalScore, $homeAway) === $this->getGameScorePart($finalScore, !$homeAway)) {
-            return Game::RESULT_DRAW;
-        }
-        if ($this->getGameScorePart($finalScore, $homeAway) > $this->getGameScorePart($finalScore, !$homeAway)) {
-            return $homeAway === Game::HOME ? Game::RESULT_HOME : Game::RESULT_AWAY;
-        }
-        return $homeAway === Game::HOME ? Game::RESULT_AWAY : Game::RESULT_HOME;
+    private function isWin(GameScoreHomeAway $finalScore, bool $homeAway): bool {
+        return ($finalScore->getResult() === Game::RESULT_HOME && $homeAway === Game::HOME)
+            || ($finalScore->getResult() === Game::RESULT_AWAY && $homeAway === Game::AWAY);
+    }
+
+    private function isDraw(GameScoreHomeAway $finalScore ): bool {
+        return $finalScore->getResult() === Game::RESULT_DRAW;
     }
 
     private function getNrOfUnits(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoredReceived, bool $sub): int {

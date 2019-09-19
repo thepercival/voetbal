@@ -23,7 +23,7 @@ class Config {
     /**
      * @var bool
      */
-    protected $hasExtensionDep = 0;
+    protected $hasExtensionDep = false;
     /**
      * @var int
      */

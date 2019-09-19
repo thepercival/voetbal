@@ -8,7 +8,6 @@
 
 namespace Voetbal\Game\Score;
 
-use Voetbal\Config\Score as ScoreConfig;
 use Voetbal\Game;
 
 trait HomeAwayTrait
@@ -71,4 +70,11 @@ trait HomeAwayTrait
 //    {
 //        return $homeAway === Game::HOME ? $this->getHome() : $this->getAway();
 //    }
+
+    public function getResult(): int {
+        if ($this->getHome() === $this->getAway()) {
+            return Game::RESULT_DRAW;
+        }
+        return ($this->getHome() > $this->getAway()) ? Game::RESULT_HOME : Game::RESULT_DRAW;
+    }
 }
