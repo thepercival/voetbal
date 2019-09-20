@@ -26,6 +26,10 @@ class Referee
      */
     private $id;
     /**
+     * @var int
+     */
+    private $rank;
+    /**
      * @var string
      */
     private $initials;
@@ -46,10 +50,13 @@ class Referee
      */
     private $competition;
 
-    public function __construct( Competition $competition, $initials )
+    public function __construct( Competition $competition, int $rank = null )
     {
-        $this->setInitials( $initials );
         $this->setCompetition( $competition );
+        if( $rank === null || $rank === 0 ) {
+            $rank = $competition->getReferees()->count();
+        }
+        $this->setRank( $rank );
     }
 
     /**
@@ -77,6 +84,22 @@ class Referee
     public function setId( int $id = null )
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRank(): int
+    {
+        return $this->rank;
+    }
+
+    /**
+     * @param int $rank
+     */
+    public function setRank( int $rank )
+    {
+        $this->rank = $rank;
     }
 
     /**

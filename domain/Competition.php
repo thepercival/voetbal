@@ -217,10 +217,10 @@ class Competition implements External\Importable
     /**
      * @return Referee
      */
-    public function getReferee( $initials )
+    public function getReferee( int $rank )
     {
-        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $initials ) {
-            return $referee->getInitials() === $initials;
+        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $rank ) {
+            return $referee->getRank() === $rank;
         });
         return array_shift( $referees );
     }

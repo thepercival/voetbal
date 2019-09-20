@@ -51,7 +51,7 @@ class Game implements External\Importable
      * @var ?Referee
      */
     protected $referee;
-    protected $refereeInitials; // for serialization, not used
+    protected $refereeRank; // for serialization, not used
 
     /**
      * @var ?Place
@@ -266,19 +266,19 @@ class Game implements External\Importable
     }
 
     /**
-     * @return string
+     * @return int
      */
-    public function getRefereeInitials()
+    public function getRefereeRank()
     {
-        return $this->referee ? $this->referee->getInitials() : $this->refereeInitials;
+        return $this->referee ? $this->referee->getRank() : $this->refereeRank;
     }
 
     /**
-     * @param string $refereeInitials
+     * @param int $refereeRank
      */
-    public function setRefereeInitials( string $refereeInitials = null )
+    public function setRefereeRank( int $refereeRank = null )
     {
-        $this->refereeInitials = $refereeInitials;
+        $this->refereeRank = $refereeRank;
     }
 
     /**

@@ -328,7 +328,8 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $competitor = new Competitor($competition->getLeague()->getAssociation(), 'competitor 1');
             $firstPlace->setCompetitor($competitor);
 
-            $referee = new Referee($competition, 'CDK');
+            $referee = new Referee($competition);
+            $referee->setInitials('CDK');
             $referee->setName('Co Du');
 
             $planningService = new PlanningService($competition);

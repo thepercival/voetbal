@@ -88,7 +88,8 @@ final class Referee
                 throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR );
             }
 
-            $referee = new RefereeBase( $competition, $refereeSer->getInitials() );
+            $referee = new RefereeBase( $competition, $refereeSer->getRank() );
+            $referee->setInitials($refereeSer->getInitials());
             $referee->setName($refereeSer->getName());
             $referee->setEmailaddress($refereeSer->getEmailaddress());
             $referee->setInfo($refereeSer->getInfo());
@@ -129,6 +130,7 @@ final class Referee
                 throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR );
             }
 
+            $referee->setRank( $refereeSer->getRank() );
             $referee->setInitials( $refereeSer->getInitials() );
             $referee->setName( $refereeSer->getName() );
             $referee->setEmailaddress($refereeSer->getEmailaddress());

@@ -135,7 +135,7 @@ final class Game
                 $refereePlace = $this->deserializeRefereeService->getPlace($roundNumber, $gameSer->getRefereePlaceId());
             }
             $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
-            $referee = $gameSer->getRefereeInitials() ? $competition->getReferee($gameSer->getRefereeInitials()) : null;
+            $referee = $gameSer->getRefereeRank() ? $competition->getReferee($gameSer->getRefereeRank()) : null;
             $game = $this->service->editResource(
                 $game,
                 $field, $referee, $refereePlace,

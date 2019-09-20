@@ -14,8 +14,8 @@ Voetbal\Game:
       type: int
     fieldNr:
       type: int
-    refereeInitials:
-      type: string
+    refereeRank:
+      type: int
     refereePlaceId:
       type: int
     state:

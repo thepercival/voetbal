@@ -2,7 +2,6 @@ Voetbal\Qualify\Group:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
-  custom_accessor_order: [winn, config]
 
   properties:
     id:

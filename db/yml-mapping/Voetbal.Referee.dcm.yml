@@ -13,6 +13,10 @@ Voetbal\Referee:
       nullable: false
       length: !php/const Voetbal\Referee::MAX_LENGTH_INITIALS
       unique: false
+    rank:
+      type: integer
+      nullable: true # @TODO false
+      unique: false
     name:
       type: string
       nullable: true

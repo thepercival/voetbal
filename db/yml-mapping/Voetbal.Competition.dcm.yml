@@ -31,6 +31,8 @@ Voetbal\Competition:
             fetch: EXTRA_LAZY
             cascade: [ remove ]
         referees:
+            orderBy:
+                rank: ASC
             targetEntity: Voetbal\Referee
             mappedBy: competition
             fetch: EXTRA_LAZY
