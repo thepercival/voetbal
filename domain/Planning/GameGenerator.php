@@ -13,18 +13,45 @@ use Voetbal\Place;
 use Voetbal\Place\Combination as PlaceCombination;
 use Voetbal\Place\Combination\Number as PlaceCombinationNumber;
 use Voetbal\Planning\Config as PlanningConfig;
+use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Sport\PlanningConfig\Service as SportPlanningConfigService;
 
 class GameGenerator
 {
     /**
-     * @var Poule
+     * @var SportPlanningConfigService
      */
-    protected $poule;
+    protected $sportPlanningConfigService;
 
-    public function __construct( Poule $poule )
+    public function __construct(  )
     {
-        $this->poule = $poule;
+        $this->sportPlanningConfigService = new SportPlanningConfigService();
     }
+
+    public function create(RoundNumber $roundNumber ) {
+        foreach( $roundNumber->getPoules() as $poule ) {
+            $this->createPoule($poule, $roundNumber->getValidPlanningConfig());
+        }
+    }
+
+//    protected createPoule(poule: Poule, config: PlanningConfig) {
+//        let nrOfHeadtohead = this.sportPlanningConfigService.getSufficientNrOfHeadtohead(poule);
+//        if (config.getNrOfHeadtohead() > nrOfHeadtohead) {
+//            nrOfHeadtohead = config.getNrOfHeadtohead();
+//        }
+//const gameRounds = this.createPouleGameRounds(poule, config.getTeamup());
+//for (let headtohead = 1; headtohead <= nrOfHeadtohead; headtohead++) {
+//    const reverseHomeAway = (headtohead % 2) === 0;
+//    const startGameRoundNumber = ((headtohead - 1) * gameRounds.length);
+//    gameRounds.forEach(gameRound => {
+//        let subNumber = 1;
+//                gameRound.getCombinations().forEach(combination => {
+//            const game = new Game(poule, startGameRoundNumber + gameRound.getNumber(), subNumber++);
+//            game.setPlaces(combination.getGamePlaces(game, reverseHomeAway/*, reverseCombination*/));
+//        });
+//            });
+//        }
+//    }
 
     /**
      * @param bool $teamUp

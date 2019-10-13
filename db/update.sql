@@ -4,6 +4,8 @@
 -- draaien na doctrine-update
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;
 
+update tournaments set updated = false;
+
 update gamescores set phase = 1 where gameid in ( select id from games where scoresmoment = 2 and id = gamescores.gameid );
 update gamescores set phase = 2 where gameid in ( select id from games where scoresmoment = 4 and id = gamescores.gameid );
 

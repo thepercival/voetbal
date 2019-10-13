@@ -11,7 +11,7 @@ use Voetbal\SerializationHandler\Round\Number as RoundNumberSerializationHandler
 use Voetbal\SerializationHandler\Structure as StructureSerializationHandler;
 
 $app->add(function ( $request,  $response, callable $next) use ( $container ){
-    $apiVersion = $request->getHeaderLine('X-Api-Version');
+    $apiVersion = $request->getHeaderLine('HTTP_X_API_VERSION');
     if( strlen( $apiVersion ) === 0 ) {
         $apiVersion = "1";
     }

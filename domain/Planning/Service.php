@@ -10,7 +10,6 @@ namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Place;
 use Voetbal\Game;
 use Voetbal\Competition;
@@ -18,6 +17,10 @@ use League\Period\Period;
 
 class Service
 {
+    /**
+     * @var GameGenerator
+     */
+    private $gameGenerator;
     /**
      * @var Competition
      */
@@ -29,6 +32,7 @@ class Service
 
     public function __construct( Competition $competition)
     {
+        $this->gameGenerator = new GameGenerator();
         $this->competition = $competition;
     }
 
@@ -38,45 +42,20 @@ class Service
         $this->blockedPeriod = new Period($startDateTime, $endDateTime);
     }
 
-    public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array {
-//        if( count( $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER) ) > 0 ) {
-//            throw new \Exception("cannot create games, games already exist", E_ERROR );
-//        }
+    public function getStartDateTime(): \DateTimeImmutable {
+        return $this->competition->getStartDateTime();
+}
+
+    public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ) {
         if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
             $startDateTime = $this->calculateStartDateTime($roundNumber);
         }
-
         $this->removeNumber($roundNumber);
-        return $this->createHelper($roundNumber, $startDateTime);
-    }
-
-    protected function createHelper( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ): array
-    {
-        $games = [];
-        $config = $roundNumber->getValidPlanningConfig();
-        var_dump('@TODO'); die();
-//        foreach ($roundNumber->getPoules() as $poule) {
-//            $gameGenerator = new GameGenerator($poule);
-//            $gameRounds = $gameGenerator->generate($config->getTeamup());
-//            $nrOfHeadtoheadMatches = $config->getNrOfHeadtoheadMatches();
-//            for ($headtohead = 1; $headtohead <= $nrOfHeadtoheadMatches; $headtohead++) {
-//                $reverseHomeAway = ($headtohead % 2) === 0;
-//                $headtoheadNumber = ($headtohead - 1) * count($gameRounds);
-//                foreach ($gameRounds as $gameRound ) {
-//                    $subNumber = 1;
-//                    foreach( $gameRound->getCombinations() as $combination ) {
-//                        $game = new Game( $poule,  $headtoheadNumber + $gameRound->getNumber(), $subNumber ++);
-//                        $game->setPlaces(new ArrayCollection($combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/)));
-//                        $games[] = $game;
-//                    }
-//                }
-//            }
-//        }
-//        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
-//        if ($roundNumber->hasNext()) {
-//            $games = array_merge( $games, $this->createHelper($roundNumber->getNext(), $startNextRound) );
-//        }
-        return $games;
+        $this->gameGenerator->create($roundNumber);
+        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+        if ($roundNumber->hasNext()) {
+            $this->create($roundNumber->getNext(), $startNextRound);
+        }
     }
 
     public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
