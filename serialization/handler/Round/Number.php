@@ -73,20 +73,22 @@ class Number implements SubscribingHandlerInterface
             $roundNumber->setPlanningConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
         }
 
-        foreach( $arrRoundNumber["sportPlanningConfigs"] as $arrSportPlanningConfig ) {
-            $sport = new Sport("");
-            $sport->setId($arrSportPlanningConfig["sportId"]);
-            $sportPlanningConfig = new SportPlanningConfig($sport, $roundNumber );
-            $sportPlanningConfig->setMinNrOfGames($arrSportPlanningConfig["minNrOfGames"]);
+        if( array_key_exists( "sportPlanningConfigs", $arrRoundNumber ) ) {
+            foreach( $arrRoundNumber["sportPlanningConfigs"] as $arrSportPlanningConfig ) {
+                $sport = new Sport("");
+                $sport->setId($arrSportPlanningConfig["sportId"]);
+                $sportPlanningConfig = new SportPlanningConfig($sport, $roundNumber );
+                $sportPlanningConfig->setMinNrOfGames($arrSportPlanningConfig["minNrOfGames"]);
+            }
         }
-        foreach( $arrRoundNumber["sportScoreConfigs"] as $arrSportScoreConfig ) {
-            $sport = new Sport("");
-            $sport->setId($arrSportScoreConfig["sportId"]);
-            $this->createSportScoreConfig( $arrSportScoreConfig, $sport, $roundNumber );
+        if( array_key_exists( "sportScoreConfigs", $arrRoundNumber ) ) {
+            foreach ($arrRoundNumber["sportScoreConfigs"] as $arrSportScoreConfig) {
+                $sport = new Sport("");
+                $sport->setId($arrSportScoreConfig["sportId"]);
+                $this->createSportScoreConfig($arrSportScoreConfig, $sport, $roundNumber);
+            }
         }
-
-        if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null )
-        {
+        if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null ) {
             $arrRoundNumber["next"]["previous"] = $roundNumber;
             $metadataNext = new StaticPropertyMetadata('Voetbal\Round\Number', "next", $arrRoundNumber["next"] );
             $metadataNext->setType(['name' => 'Voetbal\Round\Number', "params" => [

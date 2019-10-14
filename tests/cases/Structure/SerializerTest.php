@@ -8,6 +8,8 @@
 
 namespace Voetbal\Tests\Structure;
 
+use Voetbal\Structure\PostCreateService;
+
 include_once __DIR__ . '/Check332a.php';
 include_once __DIR__ . '/../../helpers/Serializer.php';
 //include_once __DIR__ . '/../../helpers/PostSerialize.php';
@@ -37,7 +39,7 @@ class SerializerTest extends \PHPUnit\Framework\TestCase
         }
         $competition = $serializer->deserialize($jsonEncoded, 'Voetbal\Competition', 'json');
 
-        $json_raw = file_get_contents(__DIR__ . "/../../data/structure/mapper/332a.json");
+        $json_raw = file_get_contents(__DIR__ . "/../../data/structure/332a.json");
         if($json_raw === false ) {
             throw new \Exception("structure-json not read well from file", E_ERROR);
         }
@@ -50,12 +52,9 @@ class SerializerTest extends \PHPUnit\Framework\TestCase
             throw new \Exception("structure-json not read well from file", E_ERROR);
         }
         $structure = $serializer->deserialize($jsonEncoded, 'Voetbal\Structure', 'json');
+        $postCreateService = new PostCreateService( $structure );
+        $postCreateService->create();
 
-
-
-        // let structure service inherit
         $this->check332astructure($structure);
     }
-
-
 }

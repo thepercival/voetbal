@@ -169,6 +169,7 @@ class Service {
         if ($nrOfGamesPerBatch === 0) {
             return false;
         }
+        $this->setMaxNrOfGamesInARow($nrOfGamesPerBatch);
         return $this->assignBatchHelper($games, $resources, $nrOfGamesPerBatch, new Batch());
     }
 
@@ -592,7 +593,7 @@ class Service {
         if ($nrOfRestPerBatch < 1) {
             $this->maxNrOfGamesInARow = -1;
         } else {
-            $this->maxNrOfGamesInARow = ceil($nrOfPlaces / $nrOfRestPerBatch) - 1;
+            $this->maxNrOfGamesInARow = (int) ceil($nrOfPlaces / $nrOfRestPerBatch) - 1;
             if ($nrOfPlacesPerBatch === $nrOfRestPerBatch) {
                 $this->maxNrOfGamesInARow++;
             }
