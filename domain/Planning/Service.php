@@ -124,12 +124,13 @@ class Service
         array $refereePlaces): \DateTimeImmutable
     {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $resourceService = new Resource\Service($roundNumber, $dateTime);
+        $resourceService = new Resource\Service($roundNumber);
         $resourceService->setBlockedPeriod($this->blockedPeriod);
         $resourceService->setFields($fields);
         $resourceService->setReferees($referees);
         $resourceService->setRefereePlaces($refereePlaces);
-        return $resourceService->assign($games);
+        $resourceService->assign($games, $dateTime);
+        return $this->calculateEndDateTime($roundNumber);
     }
 
     public function calculateStartDateTime(RoundNumber $roundNumber): \DateTimeImmutable {
@@ -141,8 +142,13 @@ class Service
         return $this->addMinutes($previousEndDateTime, $aPreviousConfig->getMinutesAfter());
     }
 
-    protected function calculateEndDateTime(RoundNumber $roundNumber ): \DateTimeImmutable
+    protected function calculateEndDateTime(RoundNumber $roundNumber ): ?\DateTimeImmutable
     {
+        $config = $roundNumber->getValidPlanningConfig();
+        if ($config->getEnableTime() === false) {
+            return null;
+        }
+
         $mostRecentStartDateTime = null;
         foreach( $roundNumber->getRounds() as $round ) {
             foreach( $round->getGames() as $game ) {
@@ -151,6 +157,13 @@ class Service
                 }
             }
         }
+        if ($mostRecentStartDateTime === null) {
+            return null;
+        }
+//        const endDateTime = new Date(mostRecentStartDateTime.getTime());
+//        const nrOfMinutes = config.getMaximalNrOfMinutesPerGame();
+//        endDateTime.setMinutes(endDateTime.getMinutes() + nrOfMinutes);
+//        return endDateTime;
         return $this->addMinutes($mostRecentStartDateTime, $roundNumber->getValidPlanningConfig()->getMaximalNrOfMinutesPerGame());
     }
 

@@ -2,7 +2,7 @@ Voetbal\Competition:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
-  custom_accessor_order: [sports,sportConfigs, fields]
+  custom_accessor_order: [sports,sportConfigs,fields]
 
   properties:
     id:

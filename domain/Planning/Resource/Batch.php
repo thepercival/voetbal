@@ -20,26 +20,73 @@ class Batch
      */
     private $number;
     /**
+     * @var Batch
+     */
+    private $previous;
+    /**
+     * @var Batch
+     */
+    private $next;
+    /**
      * @var array | Game[]
      */
     private $games = [];
-
     /**
      * @var array | Poule[]
      */
     private $poules = [];
-
     /**
      * @var array | Place[]
      */
     private $places = [];
 
-    public function __construct(int $number ) {
-        $this->number = $number;
+    public function __construct(Batch $previous = null ) {
+        $this->previous = $previous;
+        $this->number = $previous === null ? 1 : $previous->getNumber() + 1;;
     }
 
     public function getNumber(): int {
         return $this->number;
+    }
+
+    public function hasNext(): bool {
+        return $this->next !== null;
+    }
+
+    public function getNext(): Batch {
+        return $this->next;
+    }
+
+    public function createNext(): Batch {
+        $this->next = new Batch($this);
+        return $this->getNext();
+    }
+
+    /*public function removeNext() {
+        $this->next = null;
+    }*/
+
+    public function hasPrevious(): bool {
+        return $this->previous !== null;
+    }
+
+    public function getPrevious(): Batch {
+        return $this->previous;
+    }
+
+    public function getRoot(): Batch {
+        return $this->hasPrevious() ? $this->previous->getRoot() : $this;
+    }
+
+    public function getGamesInARow(Place $place ): int {
+        $hasPlace = $this->hasPlace($place);
+        if (!$hasPlace) {
+            return 0;
+        }
+        if (!$this->hasPrevious()) {
+            return 1;
+        }
+        return $this->getPrevious()->getGamesInARow($place) + 1;
     }
 
     public function add(Game $game ) {

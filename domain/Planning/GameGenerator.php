@@ -8,8 +8,10 @@
 
 namespace Voetbal\Planning;
 
+use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Poule;
 use Voetbal\Place;
+use Voetbal\Game;
 use Voetbal\Place\Combination as PlaceCombination;
 use Voetbal\Place\Combination\Number as PlaceCombinationNumber;
 use Voetbal\Planning\Config as PlanningConfig;
@@ -34,34 +36,37 @@ class GameGenerator
         }
     }
 
-//    protected createPoule(poule: Poule, config: PlanningConfig) {
-//        let nrOfHeadtohead = this.sportPlanningConfigService.getSufficientNrOfHeadtohead(poule);
-//        if (config.getNrOfHeadtohead() > nrOfHeadtohead) {
-//            nrOfHeadtohead = config.getNrOfHeadtohead();
-//        }
-//const gameRounds = this.createPouleGameRounds(poule, config.getTeamup());
-//for (let headtohead = 1; headtohead <= nrOfHeadtohead; headtohead++) {
-//    const reverseHomeAway = (headtohead % 2) === 0;
-//    const startGameRoundNumber = ((headtohead - 1) * gameRounds.length);
-//    gameRounds.forEach(gameRound => {
-//        let subNumber = 1;
-//                gameRound.getCombinations().forEach(combination => {
-//            const game = new Game(poule, startGameRoundNumber + gameRound.getNumber(), subNumber++);
-//            game.setPlaces(combination.getGamePlaces(game, reverseHomeAway/*, reverseCombination*/));
-//        });
-//            });
-//        }
-//    }
+    protected function createPoule(Poule $poule, PlanningConfig $config ) {
+        $nrOfHeadtohead = $this->sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
+        if ($config->getNrOfHeadtohead() > $nrOfHeadtohead) {
+            $nrOfHeadtohead = $config->getNrOfHeadtohead();
+        }
+        $gameRounds = $this->createPouleGameRounds($poule, $config->getTeamup());
+        for ($headtohead = 1; $headtohead <= $nrOfHeadtohead; $headtohead++) {
+            $reverseHomeAway = ($headtohead % 2) === 0;
+            $startGameRoundNumber = (($headtohead - 1) * count($gameRounds));
+            foreach( $gameRounds as $gameRound ) {
+                $subNumber = 1;
+                foreach( $gameRound->getCombinations() as $combination ) {
+                    $game = new Game($poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
+                    $gamePlaces = new ArrayCollection( $combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
+                    $game->setPlaces( $gamePlaces );
+                }
+            }
+        }
+    }
 
     /**
-     * @param bool $teamUp
-     * @return array | GameRound[]
+     * @param Poule $poule
+     * @param bool $teamup
+     * @return array|GameRound[]
+     * @throws \Exception
      */
-    public function generate(bool $teamUp): array {
-        $gameRoundsSingle = $this->generateRRSchedule($this->poule->getPlaces()->toArray());
+    public function createPouleGameRounds( Poule $poule, bool $teamup): array {
+        $gameRoundsSingle = $this->generateRRSchedule($poule->getPlaces()->toArray());
 
-        $nrOfPlaces = count($this->poule->getPlaces());
-        if ($teamUp !== true || $nrOfPlaces < PlanningConfig::TEAMUP_MIN || $nrOfPlaces > PlanningConfig::TEAMUP_MAX) {
+        $nrOfPlaces = count($poule->getPlaces());
+        if ($teamup !== true || $nrOfPlaces < PlanningConfig::TEAMUP_MIN || $nrOfPlaces > PlanningConfig::TEAMUP_MAX) {
             return $gameRoundsSingle;
         }
 
@@ -75,7 +80,7 @@ class GameGenerator
         $gameRoundsTmp = [];
         // teams are all possible combinations of two pouleplaces
         foreach( $teams as $team ) {
-            $opponents = $this->getCombinationsWithOut($team);
+            $opponents = $this->getCombinationsWithOut($poule, $team);
             for ($nr = 1; $nr <= count($opponents); $nr++) {
                 $filteredGameRounds = array_filter( $gameRoundsTmp, function( $gameRoundIt ) use ($nr) {
                     return $nr === $gameRoundIt->getNumber();
@@ -166,8 +171,8 @@ class GameGenerator
      * @param array | Place[] $team
      * @return array | PlaceCombination[]
      */
-    protected function getCombinationsWithOut(array $team): array {
-        $opponents = array_filter($this->poule->getPlaces()->toArray(), function($placeIt ) use ($team) {
+    protected function getCombinationsWithOut(Poule $poule, array $team): array {
+        $opponents = array_filter($poule->getPlaces()->toArray(), function($placeIt ) use ($team) {
             return count(array_filter($team, function($place ) use ($placeIt ) { return $place === $placeIt ; } )) === 0;
         });
         return $this->flattenGameRounds($this->generateRRSchedule( $opponents ) );

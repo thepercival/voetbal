@@ -8,11 +8,11 @@ class Counter {
     /**
      * @var int
      */
-    private $nrOfSports;
+    private $nrToGo = 0;
     /**
      * @var int
      */
-    private $nrOfSportsDone = 0;
+    private $nrOfGamesToGo;
     /**
      * @var array
      */
@@ -27,42 +27,38 @@ class Counter {
      * @param array $minNrOfGamesMap
      * @param array|PlanningConfig[] $sportPlanningConfigs
      */
-    public function __construct( array $minNrOfGamesMap, array $sportPlanningConfigs )
+    public function __construct( int $nrOfGamesToGo, array $minNrOfGamesMap, array $sportPlanningConfigs )
     {
+        $this->nrOfGamesToGo = $nrOfGamesToGo;
         foreach( $sportPlanningConfigs as $sportPlanningConfig ) {
             $sportId = $sportPlanningConfig->getSport()->getId();
             $this->minNrOfGamesMap[$sportId] = $minNrOfGamesMap[$sportId];
             $this->nrOfGamesDoneMap[$sportId] = 0;
+            $this->nrToGo += $this->minNrOfGamesMap[$sportId];
         }
-        $this->nrOfSports = count($sportPlanningConfigs);
     }
 
-    public function isDone(): bool {
-        if ($this->nrOfSportsDone > $this->nrOfSports) {
-            throw new \Exception('nrsportsdone cannot be greater than nrofsports,' .
-                'add PlanningResourceService.placesSportsCounter to Resources', E_ERROR );
-        }
-        return $this->nrOfSportsDone === $this->nrOfSports;
+    public function isAssignable(SportBase $sport): bool {
+        $isSportDone = $this->nrOfGamesDoneMap[$sport->getId()] >= $this->minNrOfGamesMap[$sport->getId()];
+        return ($this->nrToGo - ($isSportDone ? 0 : 1)) <= ($this->nrOfGamesToGo - 1);
     }
 
-    public function isSportDone(SportBase $sport): bool {
-        return $this->nrOfGamesDoneMap[$sport->getId()] >= $this->minNrOfGamesMap[$sport->getId()];
-    }
-
-    public function addGame(SportBase $sport) {
-        if ($this->nrOfGamesDoneMap[$sport->getId()] === null) {
+    public function addGame(SportBase $sport ) {
+        if ( array_key_exists( $sport->getId(), $this->nrOfGamesDoneMap ) === false) {
             $this->nrOfGamesDoneMap[$sport->getId()] = 0;
         }
-        $this->nrOfGamesDoneMap[$sport->getId()]++;
-        if ($this->nrOfGamesDoneMap[$sport->getId()] === $this->minNrOfGamesMap[$sport->getId()]) {
-            $this->nrOfSportsDone++;
+        if ($this->nrOfGamesDoneMap[$sport->getId()] < $this->minNrOfGamesMap[$sport->getId()]) {
+            $this->nrToGo--;
         }
+        $this->nrOfGamesDoneMap[$sport->getId()]++;
+        $this->nrOfGamesToGo--;
     }
 
-    public function removeGame(SportBase $sport) {
-    if ($this->nrOfGamesDoneMap[$sport->getId()] === $this->minNrOfGamesMap[$sport->getId()]) {
-        $this->nrOfSportsDone--;
+    public function removeGame(SportBase $sport ) {
+        $this->nrOfGamesDoneMap[$sport->getId()]--;
+        if ($this->nrOfGamesDoneMap[$sport->getId()] < $this->minNrOfGamesMap[$sport->getId()]) {
+            $this->nrToGo++;
+        }
+        $this->nrOfGamesToGo++;
     }
-    $this->nrOfGamesDoneMap[$sport->getId()]--;
-}
 }

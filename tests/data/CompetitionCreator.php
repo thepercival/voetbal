@@ -7,17 +7,41 @@
  */
 
 use Voetbal\Competition;
-use Voetbal\Association;
-use Voetbal\League;
-use Voetbal\Season;
+include_once __DIR__ . '/../helpers/Serializer.php';
 
 function createCompetition(): Competition
 {
-    $association = new Association("knvb");
-    $league = new League( $association, "my league" );
-    // $league->setSport("voetbal");
-    $season = new Season( "123", new \League\Period\Period("2018-12-17T11:33:15.710Z", "2018-12-17T11:33:15.710Z" ) );
-    $competition = new Competition( $league, $season );
-    $competition->setStartDateTime( new \DateTimeImmutable("2030-01-01T12:00:00.000Z") );
+    $serializer = getSerializer();
+
+    $json_raw = file_get_contents(__DIR__ . "/../data/competition.json");
+    if($json_raw === false ) {
+        throw new \Exception("competition-json not read well from file", E_ERROR);
+    }
+    $json = json_decode($json_raw, true);
+    if($json === false ) {
+        throw new \Exception("competition-json not read well from file", E_ERROR);
+    }
+    $jsonEncoded = json_encode($json);
+    if($jsonEncoded === false ) {
+        throw new \Exception("competition-json not read well from file", E_ERROR);
+    }
+    $competition = $serializer->deserialize($jsonEncoded, 'Voetbal\Competition', 'json');
+
+    $sportSer = $serializer->deserialize( json_encode($json["sports"][0]), 'Voetbal\Sport', 'json');
+    foreach( $competition->getSportConfigs() as $sportConfig ) {
+        $refCl = new \ReflectionClass($sportConfig);
+        $refClPropSport = $refCl->getProperty("sport");
+        $refClPropSport->setAccessible(true);
+        $refClPropSport->setValue($sportConfig, $sportSer );
+        $refClPropSport->setAccessible(false);
+    }
+
+    foreach( $competition->getFields() as $field ) {
+        $foundSports = $competition->getSports()->filter( function( $sport ) use ( $field ) {
+            return $field->getSportIdSer() === $sport->getId();
+        });
+        $field->setSport( $foundSports->first() );
+    }
+
     return $competition;
 }

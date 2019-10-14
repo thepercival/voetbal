@@ -51,7 +51,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addQualifier($losersChildRound, QualifyGroup::LOSERS);
         // not all equal
         $newSecondRoundNumberName = $nameService->getRoundNumberName($firstRoundNumber->getNext());
-        $this->assertSame($newSecondRoundNumberName, '2<sup>de</sup> ronde');
+        $this->assertSame($newSecondRoundNumberName, '2de ronde'); // '2<sup>de</sup> ronde'
     }
 
     public function testRoundName()
@@ -66,10 +66,10 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $rootRound = $structure->getRootRound();
 
             $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
-            $this->assertSame($nameService->getRoundName($rootRound), '1<sup>ste</sup> ronde');
+            $this->assertSame($nameService->getRoundName($rootRound), '1ste ronde'); // '1<sup>ste</sup> ronde'
 
             $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
-            $this->assertSame($nameService->getRoundName($rootRound), '&frac12; finale');
+            $this->assertSame($nameService->getRoundName($rootRound), 'halve finale'); // '&frac12; finale'
         }
 
         // root needs ranking
@@ -78,11 +78,11 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $structure2 = $structureService2->create($competition, 16, 4);
             $rootRound2 = $structure2->getRootRound();
 
-            $this->assertSame($nameService->getRoundName($rootRound2), '1<sup>ste</sup> ronde');
+            $this->assertSame($nameService->getRoundName($rootRound2), '1ste ronde'); // '1<sup>ste</sup> ronde'
 
             $structureService2->addQualifiers($rootRound2, QualifyGroup::WINNERS, 3);
 
-            $this->assertSame($nameService->getRoundName($rootRound2->getChild(QualifyGroup::WINNERS, 1)), '2<sup>de</sup> ronde');
+            $this->assertSame($nameService->getRoundName($rootRound2->getChild(QualifyGroup::WINNERS, 1)), '2de ronde'); // '2<sup>de</sup> ronde'
         }
     }
 
@@ -109,7 +109,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
             $structureService->addQualifiers($losersChildRound, QualifyGroup::LOSERS, 4);
 
-            $this->assertSame($nameService->getRoundName($rootRound), '&frac14; finale');
+            $this->assertSame($nameService->getRoundName($rootRound), 'kwart finale'); // '&frac14; finale'
 
             $doubleWinnersChildRound = $winnersChildRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
             $structureService->addQualifier($doubleWinnersChildRound, QualifyGroup::WINNERS);
@@ -118,10 +118,11 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $structureService->addQualifier($doubleLosersChildRound, QualifyGroup::LOSERS);
 
             $number = 8;
-            $this->assertSame($nameService->getRoundName($rootRound), '<span style="font-size: 80%"><sup>1</sup>&frasl;<sub>' . $number . '</sub></span> finale');
+            // '<span style="font-size: 80%"><sup>1</sup>&frasl;<sub>' . $number . '</sub></span> finale'
+            $this->assertSame($nameService->getRoundName($rootRound), 'achtste finale');
 
             $losersFinal = $doubleLosersChildRound->getBorderQualifyGroup(QualifyGroup::LOSERS)->getChildRound();
-            $this->assertSame($nameService->getRoundName($losersFinal), '15<sup>de</sup>/16<sup>de</sup>' . ' plaats');
+            $this->assertSame($nameService->getRoundName($losersFinal), '15de/16de' . ' plaats'); // '15<sup>de</sup>/16<sup>de</sup>'
         }
     }
 
@@ -259,110 +260,110 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $this->assertSame($nameService->getPlacesFromName($gamePlaces, false, false),'A2 & A3');
         }
     }
-
-    public function testHourizontalPouleName()
-    {
-        $nameService = new NameService();
-        $competition = createCompetition();
-
-        // basics
-        {
-            $structureService = new StructureService();
-            $structure = $structureService->create($competition, 12, 3);
-            $rootRound = $structure->getRootRound();
-
-            $firstWinnersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule),'nummers 1');
-
-            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
-            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
-
-            $firstWinnersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule2),'2 beste nummers 1');
-
-            $firstLosersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule),'2 slechtste nummers laatste');
-
-            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
-            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
-
-            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
-            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
-
-            $firstWinnersHorPoule3 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule3),'nummers 1');
-
-            $firstLosersHorPoule3 = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule3),'nummers laatste');
-
-            $secondWinnersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule),'beste nummer 2');
-
-            $secondLosersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule),'slechtste 1 na laatst');
-
-
-            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
-            $secondWinnersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule2),'2 beste nummers 2');
-
-            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
-            $secondLosersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule2),'2 slechtste nummers 1 na laatst');
-        }
-    }
-
-    public function testRefereeName()
-    {
-        $nameService = new NameService();
-        $competition = createCompetition();
-
-
-        // basics
-        {
-            $structureService = new StructureService();
-            $structure = $structureService->create($competition, 3, 1);
-            $rootRound = $structure->getRootRound();
-
-            $firstPlace = $rootRound->getFirstPlace(QualifyGroup::WINNERS);
-            $competitor = new Competitor($competition->getLeague()->getAssociation(), 'competitor 1');
-            $firstPlace->setCompetitor($competitor);
-
-            $referee = new Referee($competition);
-            $referee->setInitials('CDK');
-            $referee->setName('Co Du');
-
-            $planningService = new PlanningService($competition);
-            $planningService->create($rootRound->getNumber());
-
-            $game = $rootRound->getGames()[0];
-
-            $this->assertSame($nameService->getRefereeName($game),'CDK');
-            $this->assertSame($nameService->getRefereeName($game, false),'CDK');
-            $this->assertSame($nameService->getRefereeName($game, true),'Co Du');
-
-            $rootRound->getNumber()->getValidPlanningConfig()->setSelfReferee(true);
-            // @TODO implements planningservice with sports!!
+//
+//    public function testHourizontalPouleName()
+//    {
+//        $nameService = new NameService();
+//        $competition = createCompetition();
+//
+//        // basics
+//        {
+//            $structureService = new StructureService();
+//            $structure = $structureService->create($competition, 12, 3);
+//            $rootRound = $structure->getRootRound();
+//
+//            $firstWinnersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
+//            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule),'nummers 1');
+//
+//            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+//            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+//
+//            $firstWinnersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
+//            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule2),'2 beste nummers 1');
+//
+//            $firstLosersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[0];
+//            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule),'2 slechtste nummers laatste');
+//
+//            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+//            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+//
+//            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+//            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+//
+//            $firstWinnersHorPoule3 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
+//            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule3),'nummers 1');
+//
+//            $firstLosersHorPoule3 = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[0];
+//            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule3),'nummers laatste');
+//
+//            $secondWinnersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[1];
+//            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule),'beste nummer 2');
+//
+//            $secondLosersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[1];
+//            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule),'slechtste 1 na laatst');
+//
+//
+//            $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
+//            $secondWinnersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[1];
+//            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule2),'2 beste nummers 2');
+//
+//            $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
+//            $secondLosersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[1];
+//            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule2),'2 slechtste nummers 1 na laatst');
+//        }
+//    }
+//
+//    public function testRefereeName()
+//    {
+//        $nameService = new NameService();
+//        $competition = createCompetition();
+//
+//
+//        // basics
+//        {
+//            $structureService = new StructureService();
+//            $structure = $structureService->create($competition, 3, 1);
+//            $rootRound = $structure->getRootRound();
+//
+//            $firstPlace = $rootRound->getFirstPlace(QualifyGroup::WINNERS);
+//            $competitor = new Competitor($competition->getLeague()->getAssociation(), 'competitor 1');
+//            $firstPlace->setCompetitor($competitor);
+//
+//            $referee = new Referee($competition);
+//            $referee->setInitials('CDK');
+//            $referee->setName('Co Du');
+//
+//            $planningService = new PlanningService($competition);
 //            $planningService->create($rootRound->getNumber());
 //
-//            $gameSelf = $rootRound->getGames()[0];
+//            $game = $rootRound->getGames()[0];
 //
-//            $this->assertSame($nameService->getRefereeName($gameSelf),'competitor 1');
-//            $this->assertSame($nameService->getRefereeName($gameSelf, false),'competitor 1');
-//            $this->assertSame($nameService->getRefereeName($gameSelf, true),'competitor 1');
+//            $this->assertSame($nameService->getRefereeName($game),'CDK');
+//            $this->assertSame($nameService->getRefereeName($game, false),'CDK');
+//            $this->assertSame($nameService->getRefereeName($game, true),'Co Du');
 //
-//            $gameSelfLast = $rootRound->getGames()[2];
-//
-//            $this->assertSame($nameService->getRefereeName($gameSelfLast),'A2');
-//            $this->assertSame($nameService->getRefereeName($gameSelfLast, false),'A2');
-//            $this->assertSame($nameService->getRefereeName($gameSelfLast, true),'poule A nr. 2');
-//
-//            $gameSelfMiddle = $rootRound->getGames()[1];
-//            $gameSelfMiddle->setRefereePlace(null);
-//
-//            $this->assertSame($nameService->getRefereeName($gameSelfMiddle),null);
-//            $this->assertSame($nameService->getRefereeName($gameSelfMiddle, false),null);
-//            $this->assertSame($nameService->getRefereeName($gameSelfMiddle, true),null);
-        }
-    }
+//            $rootRound->getNumber()->getValidPlanningConfig()->setSelfReferee(true);
+//            // @TODO implements planningservice with sports!!
+////            $planningService->create($rootRound->getNumber());
+////
+////            $gameSelf = $rootRound->getGames()[0];
+////
+////            $this->assertSame($nameService->getRefereeName($gameSelf),'competitor 1');
+////            $this->assertSame($nameService->getRefereeName($gameSelf, false),'competitor 1');
+////            $this->assertSame($nameService->getRefereeName($gameSelf, true),'competitor 1');
+////
+////            $gameSelfLast = $rootRound->getGames()[2];
+////
+////            $this->assertSame($nameService->getRefereeName($gameSelfLast),'A2');
+////            $this->assertSame($nameService->getRefereeName($gameSelfLast, false),'A2');
+////            $this->assertSame($nameService->getRefereeName($gameSelfLast, true),'poule A nr. 2');
+////
+////            $gameSelfMiddle = $rootRound->getGames()[1];
+////            $gameSelfMiddle->setRefereePlace(null);
+////
+////            $this->assertSame($nameService->getRefereeName($gameSelfMiddle),null);
+////            $this->assertSame($nameService->getRefereeName($gameSelfMiddle, false),null);
+////            $this->assertSame($nameService->getRefereeName($gameSelfMiddle, true),null);
+//        }
+//    }
 }
