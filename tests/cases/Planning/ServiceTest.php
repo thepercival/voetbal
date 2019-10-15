@@ -41,13 +41,12 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                             //     || nrOfSports !== 3 || nrOfFields !== 4 || nrOfHeadtohead !== 3) {
                             //     continue;
                             // }
-
                             $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
-                            echo
-                                'nrOfCompetitors ' . $nrOfCompetitors . ', nrOfPoules ' . $nrOfPoules . ', nrOfSports ' . $nrOfSports
-                                . ', nrOfFields ' . $nrOfFields . ', nrOfHeadtohead ' . $nrOfHeadtohead
-                            . PHP_EOL;
                             if ($assertConfig !== null) {
+                                echo
+                                    'nrOfCompetitors ' . $nrOfCompetitors . ', nrOfPoules ' . $nrOfPoules . ', nrOfSports ' . $nrOfSports
+                                    . ', nrOfFields ' . $nrOfFields . ', nrOfHeadtohead ' . $nrOfHeadtohead
+                                    . PHP_EOL;
                                 $this->checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig);
                             }
                         }
@@ -220,7 +219,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertValidResourcesPerBatch($games);
         foreach( $firstRoundNumber->getPlaces() as $place ) {
             $this->assertValidGamesParticipations($place, $games, $assertConfig->nrOfPlaceGames);
-            $this->assertGamesInRow($place, $games, $assertConfig->maxNrOfGamesInARow);
+            if( $assertConfig->maxNrOfGamesInARow >= 0 ) {
+                $this->assertGamesInRow($place, $games, $assertConfig->maxNrOfGamesInARow);
+            }
         }
         $this->assertLessThan( $assertConfig->maxNrOfBatches + 1, array_pop( $games )->getResourceBatch(), 'het aantal batches moet minder zijn dan ..' );
     }
