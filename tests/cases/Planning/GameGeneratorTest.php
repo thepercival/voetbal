@@ -156,8 +156,8 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
      * @param array|GameRound[] $gameRounds
      * @param int $roundNr
      * @param int $subNr
-     * @param array|Place[] $home
-     * @param array|Place[] $away
+     * @param array|int[] $home
+     * @param array|int[] $away
      */
     protected function assertSameGame(array $gameRounds, int $roundNr, int $subNr, array $home, array $away) {
         $combination = $gameRounds[$roundNr - 1]->getCombinations()[$subNr - 1];

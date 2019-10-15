@@ -401,7 +401,7 @@ class Service {
         $fields = array_filter( $resources->getFields(), function($fieldIt ) use ($game) {
             return $this->isSportAssignable($game, $fieldIt->getSport());
         });
-        if (count($fields) === 1) {
+        if (count($fields) >= 1) {
             $field = reset($fields);
             $fieldIndex = array_search($field, $resources->getFields() );
             $removedField = $resources->removeField( $fieldIndex );

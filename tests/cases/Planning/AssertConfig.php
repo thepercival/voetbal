@@ -9,24 +9,25 @@ class AssertConfig
     /**
      * @var int
      */
-   protected $nrOfGames;
+   public $nrOfGames;
     /**
      * @var int
      */
-    protected $maxNrOfGamesInARow;
+    public $maxNrOfGamesInARow;
     /**
      * @var int
      */
-    protected $maxNrOfBatches;
+    public $maxNrOfBatches;
     /**
      * @var int
      */
-    protected $nrOfPlaceGames;
+    public $nrOfPlaceGames;
 
     public function __construct( int $nrOfGames, int $maxNrOfGamesInARow, int $maxNrOfBatches, int $nrOfPlaceGames )
     {
         $this->nrOfGames = $nrOfGames;
-        $this->setName( $name );
-        $this->setRegistered(false);
+        $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
+        $this->maxNrOfBatches = $maxNrOfBatches;
+        $this->nrOfPlaceGames = $nrOfPlaceGames;
     }
 }

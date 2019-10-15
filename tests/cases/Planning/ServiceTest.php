@@ -1,7 +1,18 @@
 <?php
 
-use Voetbal\Planning\GameGenerator;
+namespace Voetbal\Tests\Planning;
+
+include_once __DIR__ . '/../../data/CompetitionCreator.php';
+include_once __DIR__ . '/../../helpers/Console.php';
+
+use Voetbal\Field;
+use Voetbal\Game;
+use Voetbal\Place;
+use Voetbal\Sport;
 use Voetbal\Structure\Service as StructureService;
+use Voetbal\Competition;
+use Voetbal\Planning\Service as PlanningService;
+use Voetbal\Sport\Config\Service as SportConfigService;
 
 /**
  * Created by PhpStorm.
@@ -31,13 +42,13 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                             //     continue;
                             // }
 
-                            $assertConfig = getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
-//                            console.log(
-//                                'nrOfCompetitors ' + nrOfCompetitors + ', nrOfPoules ' + nrOfPoules + ', nrOfSports ' + nrOfSports
-//                                + ', nrOfFields ' + nrOfFields + ', nrOfHeadtohead ' + nrOfHeadtohead
-//                            );
+                            $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
+                            echo
+                                'nrOfCompetitors ' . $nrOfCompetitors . ', nrOfPoules ' . $nrOfPoules . ', nrOfSports ' . $nrOfSports
+                                . ', nrOfFields ' . $nrOfFields . ', nrOfHeadtohead ' . $nrOfHeadtohead
+                            . PHP_EOL;
                             if ($assertConfig !== null) {
-                                checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig);
+                                $this->checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig);
                             }
                         }
                     }
@@ -56,7 +67,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
      * @param int|null $expectedValue
      */
     protected function assertValidGamesParticipations(Place $place, array $games, int $expectedValue = null) {
-        $sportPlanningConfigService = new SportPlanningConfigService();
+        // $sportPlanningConfigService = new SportPlanningConfigService();
         $nrOfGames = 0;
         foreach( $games as $game ) {
             $nrOfSingleGameParticipations = 0;
@@ -74,7 +85,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
             }
             $this->assertLessThan( 2, $nrOfSingleGameParticipations);
         }
-        $config = $place->getRound()->getNumber()->getValidPlanningConfig();
+        // $config = $place->getRound()->getNumber()->getValidPlanningConfig();
         // const nrOfGamesPerPlace = sportPlanningConfigService.getNrOfGamesPerPlace(place.getPoule(), config.getNrOfHeadtohead());
         // expect(nrOfGamesPerPlace).to.equal(nrOfGames);
         if ($expectedValue !== null) {
@@ -89,6 +100,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
      */
     protected function assertGamesInRow(Place $place, array $games, int $maxInRow ) {
         $batches = []; $maxBatchNr = 0;
+        /** @var Game $game */
         foreach( $games as $game ) {
             if ( array_key_exists( $game->getResourceBatch(), $batches ) === false ) {
                 $batches[$game->getResourceBatch()] = false;
@@ -99,7 +111,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
             if ( array_key_exists( $game->getResourceBatch(), $batches ) ) {
                 return;
             }
-            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } )->toArray();
             $some = false;
             array_walk( $places, function( $placeIt ) use ( $place ) {
                 if( $placeIt === $place ) {
@@ -110,7 +122,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         }
         $nrOfGamesInRow = 0;
         for ($i = 1; $i <= $maxBatchNr; $i++) {
-            if ($batches[$i]) {
+            if ( array_key_exists( $i, $batches ) ) {
                 $nrOfGamesInRow++;
                 $this->assertLessThan( $maxInRow + 1, $nrOfGamesInRow);
             } else {
@@ -128,122 +140,123 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $batchResources = [];
         foreach( $games as $game ) {
             if ( array_key_exists( $game->getResourceBatch(), $batchResources ) === false ) {
-                $batchResources[$game->getResourceBatch()] = { fields: [], referees: [], places: [] };
+                $batchResources[$game->getResourceBatch()] = array( "fields" => [], "referees" => [], "places" => [] );
             }
             $batchResource = $batchResources[$game->getResourceBatch()];
-            $places = $game->getPlaces()-> map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
             if ($game->getRefereePlace() !== null) {
                 $places[] = $game->getRefereePlace();
             }
             foreach( $places as $placeIt ) {
-                expect(batchResource.places.find(place => place === placeIt)).to.equal(undefined);
-                $batchResource.places[] = $placeIt;
+                $this->assertFalse( array_search( $placeIt, $batchResource["places"] ) );
+                $batchResource["places"][] = $placeIt;
             }
-            expect(batchResource.fields.find(field => field === game.getField()), 'same field in one batch? ').to.equal(undefined);
-            batchResource.fields.push(game.getField());
-            if (game.getReferee()) {
-                expect(batchResource.referees.find(referee => referee === game.getReferee())).to.equal(undefined);
-                batchResource.referees.push(game.getReferee());
+
+            $this->assertFalse( array_search( $game->getField(), $batchResource["fields"] ), 'same field in one batch? ');
+            $batchResource["fields"][] = $game->getField();
+            if ($game->getReferee()) {
+                $this->assertFalse( array_search( $game->getReferee(), $batchResource["referees"] ), 'same referee in one batch? ');
+                $batchResource["referees"][] = $game->getReferee();
             }
         }
     }
 
     protected function addSport(Competition $competition ) {
-        $sportConfigService = new SportConfigService(new SportScoreConfigService(), new SportPlanningConfigService());
+        $sportConfigService = new SportConfigService();
         $id = count( $competition->getSportConfigs() ) + 1;
-        $sport = new Sport('sport' + id);
-        $sport.setId($id);
+        $sport = new Sport('sport' . $id);
+        $sport->setId($id);
         $sportConfigService->createDefault($sport, $competition);
         return $sport;
     }
 
+    protected function checkPlanning(
+        int $nrOfCompetitors,
+        int $nrOfPoules,
+        int $nrOfSports,
+        int $nrOfFields,
+        int $nrOfHeadtohead,
+        AssertConfig $assertConfig
+    ) {
+        $competition = createCompetition();
 
-
-protected function checkPlanning(
-    nrOfCompetitors: number,
-    nrOfPoules: number,
-    nrOfSports: number,
-    nrOfFields: number,
-    nrOfHeadtohead: number,
-    assertConfig: AssertConfig
-) {
-    const competitionMapper = getMapper('competition');
-    const competition = competitionMapper.toObject(jsonCompetition);
-    const competitionFirstSports = [];
-    for (let sportNr = 2; sportNr <= nrOfSports; sportNr++) {
-        competitionFirstSports.push(addSport(competition));
-    }
-    const competitionSports = competition.getSportConfigs().map(sportConfig => sportConfig.getSport());
-
-    let sports = [];
-    while (sports.length < nrOfFields) {
-        const init = sports.length === 0;
-        sports = sports.concat(competitionSports);
-        if (init && competitionSports.length > 1) {
-            sports.shift();
+        $competitionFirstSports = [];
+        for ($sportNr = 2; $sportNr <= $nrOfSports; $sportNr++) {
+            $competitionFirstSports[] = $this->addSport($competition);
         }
-    }
-    for (let fieldNr = 2; fieldNr <= nrOfFields; fieldNr++) {
-        const field = new Field(competition, fieldNr);
-        field.setSport(sports.shift());
+        $competitionSports = $competition->getSportConfigs()->map( function($sportConfig) { return $sportConfig->getSport(); } )->toArray();
+
+        $sports = [];
+        if( $nrOfFields > 1 ) {
+            $x = "1";
+        }
+        while (count($sports) < $nrOfFields) {
+            $init = count($sports) === 0;
+            $sports = array_merge($sports, $competitionSports);
+            if ($init && count($competitionSports) > 1) {
+                array_shift( $sports );
+            }
+        }
+        for ($fieldNr = 2; $fieldNr <= $nrOfFields; $fieldNr++) {
+            $field = new Field($competition, $fieldNr);
+            $field->setSport( array_shift($sports) );
+        }
+
+        $structureService = new StructureService();
+        $structure = $structureService->create($competition, $nrOfCompetitors, $nrOfPoules);
+        $firstRoundNumber = $structure->getFirstRoundNumber();
+        $firstRoundNumber->getValidPlanningConfig()->setNrOfHeadtohead($nrOfHeadtohead);
+
+        $planningService = new PlanningService($competition);
+
+        if ($nrOfCompetitors === 2 && $nrOfSports === 1 && $nrOfFields === 2 && $nrOfHeadtohead === 1) {
+            $x = 1;
+        }
+
+        $planningService->create($firstRoundNumber);
+        $games = $planningService->getGamesForRoundNumber($firstRoundNumber, Game::ORDER_RESOURCEBATCH);
+        consoleGames($games); echo PHP_EOL;
+        $this->assertEquals( count($games), $assertConfig->nrOfGames, 'het aantal wedstrijd voor de hele ronde komt niet overeen' );
+        $this->assertValidResourcesPerBatch($games);
+        foreach( $firstRoundNumber->getPlaces() as $place ) {
+            $this->assertValidGamesParticipations($place, $games, $assertConfig->nrOfPlaceGames);
+            $this->assertGamesInRow($place, $games, $assertConfig->maxNrOfGamesInARow);
+        }
+        $this->assertLessThan( $assertConfig->maxNrOfBatches + 1, array_pop( $games )->getResourceBatch(), 'het aantal batches moet minder zijn dan ..' );
     }
 
-    const structureService = new StructureService();
-    const structure = structureService.create(competition, nrOfCompetitors, nrOfPoules);
-    const firstRoundNumber = structure.getFirstRoundNumber();
-    firstRoundNumber.getValidPlanningConfig().setNrOfHeadtohead(nrOfHeadtohead);
+    protected function getAssertionsConfig(
+        int $nrOfCompetitors,
+        int $nrOfPoules,
+        int $nrOfSports,
+        int $nrOfFields,
+        int $nrOfHeadtohead
+    ): ?AssertConfig {
+        $competitors = [
+          2 => Variations\Config2::get()
+        ];
 
-    const planningService = new PlanningService(competition);
-
-    if (nrOfCompetitors === 2 && nrOfSports === 1 && nrOfFields === 1 && nrOfHeadtohead === 1) {
-        const x = 1;
+        if ( array_key_exists( $nrOfCompetitors, $competitors ) === false) {
+            return null;
+        }
+        $nrOfCompetitorsConfigs = $competitors[$nrOfCompetitors];
+        if ( array_key_exists( $nrOfPoules, $nrOfCompetitorsConfigs["nrOfPoules"] ) === false) {
+            return null;
+        }
+        $nrOfPoulesConfigs = $nrOfCompetitorsConfigs["nrOfPoules"][$nrOfPoules];
+        if ( array_key_exists( $nrOfSports, $nrOfPoulesConfigs["nrOfSports"]) === false) {
+            return null;
+        }
+        $nrOfSportsConfigs = $nrOfPoulesConfigs["nrOfSports"][$nrOfSports];
+        if ( array_key_exists( $nrOfFields, $nrOfSportsConfigs["nrOfFields"]) === false) {
+            return null;
+        }
+        $nrOfFieldsConfigs = $nrOfSportsConfigs["nrOfFields"][$nrOfFields];
+        if ( array_key_exists( $nrOfHeadtohead, $nrOfFieldsConfigs["nrOfHeadtohead"]) === false) {
+            return null;
+        }
+        return $nrOfFieldsConfigs["nrOfHeadtohead"][$nrOfHeadtohead];
     }
-
-    planningService.create(firstRoundNumber);
-    const games = planningService.getGamesForRoundNumber(firstRoundNumber, Game.ORDER_RESOURCEBATCH);
-    consoleGames(games); console.log('');
-    expect(games.length, 'het aantal wedstrijd voor de hele ronde komt niet overeen').to.equal(assertConfig.nrOfGames);
-    assertValidResourcesPerBatch(games);
-    firstRoundNumber.getPlaces().forEach(place => {
-        assertValidGamesParticipations(place, games, assertConfig.nrOfPlaceGames);
-        assertGamesInRow(place, games, assertConfig.maxNrOfGamesInARow);
-    });
-    expect(games.pop().getResourceBatch(), 'het aantal batches moet minder zijn dan ..').to.be.lessThan(assertConfig.maxNrOfBatches + 1);
-}
-
-protected function getAssertionsConfig(
-    nrOfCompetitors: number,
-    nrOfPoules: number,
-    nrOfSports: number,
-    nrOfFields: number,
-    nrOfHeadtohead: number
-): AssertConfig {
-    const competitors = {
-        2: poules2,
-        3: poules3,
-        4: poules4
-    };
-    if (competitors[nrOfCompetitors] === undefined) {
-        return undefined;
-    }
-    const nrOfCompetitorsConfigs = competitors[nrOfCompetitors];
-    if (nrOfCompetitorsConfigs.nrOfPoules[nrOfPoules] === undefined) {
-        return undefined;
-    }
-    const nrOfPoulesConfigs = nrOfCompetitorsConfigs.nrOfPoules[nrOfPoules];
-    if (nrOfPoulesConfigs.nrOfSports[nrOfSports] === undefined) {
-        return undefined;
-    }
-    const nrOfSportsConfigs = nrOfPoulesConfigs.nrOfSports[nrOfSports];
-    if (nrOfSportsConfigs.nrOfFields[nrOfFields] === undefined) {
-        return undefined;
-    }
-    const nrOfFieldsConfigs = nrOfSportsConfigs.nrOfFields[nrOfFields];
-    if (nrOfFieldsConfigs.nrOfHeadtohead[nrOfHeadtohead] === undefined) {
-        return undefined;
-    }
-    return nrOfFieldsConfigs.nrOfHeadtohead[nrOfHeadtohead];
-}
 
 
     // it('game creation default', () => {
