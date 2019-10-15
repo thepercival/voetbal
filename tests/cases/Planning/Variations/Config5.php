@@ -1,0 +1,122 @@
+<?php
+
+namespace Voetbal\Tests\Planning\Variations;
+
+use Voetbal\Tests\Planning\AssertConfig;
+
+class Config5
+{
+    public static function get(): array
+    {
+        return [
+            "nrOfPoules" => [
+                1 => [
+                    "nrOfSports" => [
+                        1 => [
+                            "nrOfFields" => [
+                                1 => [
+                                    "nrOfHeadtohead" => [
+                                        1 => new AssertConfig(10, 1, 10, 4),
+                                        2 => new AssertConfig(20, 1, 20, 8),
+                                        3 => new AssertConfig(30, 1, 30, 12),
+                                        4 => new AssertConfig(40, 1, 40, 16),
+                                    ]
+                                ],
+                                2 => [
+                                    "nrOfHeadtohead" => [
+                                        1 => new AssertConfig(10, 4, 5, 4),
+                                        2 => new AssertConfig(20, 4, 10, 8),
+                                        3 => new AssertConfig(30, 4, 15, 12),
+                                        4 => new AssertConfig(40, 4, 20, 16),
+                                    ]
+                                ]
+                            ]
+                        ]/*,
+                        2: {
+                            nrOfFields: {
+                                2: {
+                                    nrOfHeadtohead: {
+                                        1: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        2: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        3: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        4: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                    }
+                                },
+                                3: {
+                                    nrOfHeadtohead: {
+                                        1: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        2: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        3: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        4: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                    }
+                                },
+                                4: {
+                                    nrOfHeadtohead: {
+                                        1: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        2: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        3: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                        4: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                    }
+                                }
+                            }
+                        }*/
+                    ]
+                ],
+                2 => [
+                    "nrOfSports" => [
+                        1 => [
+                            "nrOfFields" => [
+                                1 => [
+                                    "nrOfHeadtohead" => [
+                                        1 => new AssertConfig(4, 1, 4, 1)/*,
+                                        2 => new AssertConfig(4, 1, 4, 2),
+                                        3 => new AssertConfig(6, 1, 6, 3),
+                                        4 => new AssertConfig(8, 1, 8, 4),*/
+                                    ]
+                                ],
+                                2 => [
+                                    "nrOfHeadtohead" => [
+                                        /*1 => new AssertConfig(2, -1, 1, 1),
+                                        2 => new AssertConfig(4, -1, 2, 2),
+                                        3 => new AssertConfig(6, -1, 3, 3),
+                                        4 => new AssertConfig(8, -1, 4, 4),*/
+                                    ]
+                                ]
+                            ]
+                        ]/*,
+                        2: {
+                            nrOfFields: {
+                                2: {
+                                    nrOfHeadtohead: {
+                                        1: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        2: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        3: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        4: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                    }
+                                },
+                                3: {
+                                    nrOfHeadtohead: {
+                                        1: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        2: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        3: { nrOfGames: 3, maxNrOfGamesInARow: 3, maxNrOfBatches: 3, nrOfPlaceGames: 3 },
+                                        4: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                    }
+                                },
+                                4: {
+                                    nrOfHeadtohead: {
+                                        1: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        2: { nrOfGames: 2, maxNrOfGamesInARow: 2, maxNrOfBatches: 2, nrOfPlaceGames: 2 },
+                                        3: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                        4: { nrOfGames: 4, maxNrOfGamesInARow: 4, maxNrOfBatches: 4, nrOfPlaceGames: 4 },
+                                    }
+                                }
+                            }
+                        }*/
+                    ]
+                ]
+            ]
+        ];
+    }
+}
+
+

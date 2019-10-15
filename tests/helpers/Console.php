@@ -52,24 +52,37 @@ function consolePlaces( Game $game, bool $homeAway, PlanningResourceBatch $batch
 }
 
 function consoleColor(int $number, string $content ): string {
-    /*if ($number === 1) {
-        return $colors.red(content);
+    $sColor = null;
+    if ($number === 1) {
+        $sColor = '0;31'; // red
     } else if ($number === 2) {
-        return $colors.green(content);
+        $sColor = '0;32'; // '1;32' green
     } else if ($number === 3) {
-        return $colors.blue(content);
+        $sColor = '0;34'; // blue;
     } else if ($number === 4) {
-        return $colors.yellow(content);
+        $sColor = '1;33'; // yellow
     } else if ($number === 5) {
-        return $colors.magenta(content);
+        $sColor = '0;35'; // purple
     } else if ($number === 6) {
-        return $colors.grey(content);
+        $sColor = '0;37'; // light_gray
     } else if ($number === 7) {
-        return $colors.cyan(content);
-    }*/
-    return $content;
-}
+        $sColor = '0;36'; // '1;36' // cyan
+    } else {
+        $sColor = '1;37'; // white
+    }
 
+    //    'black'] = '0;30';
+    //    'dark_gray'] = '1;30';
+    //    'green'] = ;
+    //    'light_red'] = '1;31';
+    //    'purple'] = '0;35';
+    //    'light_purple'] = '1;35';
+    //    'brown'] = '0;33';
+
+    $coloredString = "\033[" . $sColor . "m";
+    return $coloredString .  $content . "\033[0m";
+
+}
 
 function consoleString($value, int $minLength): string {
     $str = '' . $value;

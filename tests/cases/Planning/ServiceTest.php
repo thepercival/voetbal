@@ -37,10 +37,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                 for ($nrOfSports = 1; $nrOfSports <= $maxNrOfSports; $nrOfSports++) {
                     for ($nrOfFields = $nrOfSports; $nrOfFields <= $nrOfSports * 2; $nrOfFields++) {
                         for ($nrOfHeadtohead = 1; $nrOfHeadtohead <= $maxNrOfHeadtohead; $nrOfHeadtohead++) {
-                            // if (nrOfCompetitors !== 4 || nrOfPoules !== 1
-                            //     || nrOfSports !== 3 || nrOfFields !== 4 || nrOfHeadtohead !== 3) {
-                            //     continue;
-                            // }
+                             if ($nrOfCompetitors !== 5 || $nrOfPoules !== 2 || $nrOfSports !== 1 || $nrOfFields !== 1 || $nrOfHeadtohead !== 1) {
+                                 continue;
+                             }
                             $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
                             if ($assertConfig !== null) {
                                 echo
@@ -107,21 +106,22 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                     $maxBatchNr = $game->getResourceBatch();
                 }
             }
-            if ( array_key_exists( $game->getResourceBatch(), $batches ) ) {
-                return;
+            if ( $batches[$game->getResourceBatch()] === true ) {
+                continue;
             }
             $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } )->toArray();
             $some = false;
-            array_walk( $places, function( $placeIt ) use ( $place ) {
+            foreach( $places as $placeIt ) {
                 if( $placeIt === $place ) {
                     $some = true;
+                    break;
                 }
-            });
+            }
             $batches[$game->getResourceBatch()] = $some;
         }
         $nrOfGamesInRow = 0;
         for ($i = 1; $i <= $maxBatchNr; $i++) {
-            if ( array_key_exists( $i, $batches ) ) {
+            if ( array_key_exists( $i, $batches ) && $batches[$i] ) {
                 $nrOfGamesInRow++;
                 $this->assertLessThan( $maxInRow + 1, $nrOfGamesInRow);
             } else {
@@ -234,7 +234,10 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         int $nrOfHeadtohead
     ): ?AssertConfig {
         $competitors = [
-          2 => Variations\Config2::get()
+            2 => Variations\Config2::get(),
+            3 => Variations\Config3::get(),
+            4 => Variations\Config4::get(),
+            5 => Variations\Config5::get(),
         ];
 
         if ( array_key_exists( $nrOfCompetitors, $competitors ) === false) {
@@ -260,23 +263,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    // it('game creation default', () => {
-    //     const competitionMapper = getMapper('competition');
-    //     const competition = competitionMapper.toObject(jsonCompetition);
 
-    //     const structureService = new StructureService();
-    //     const structure = structureService.create(competition, 9, 3);
-    //     const firstRoundNumber = structure.getFirstRoundNumber();
-
-    //     const planningService = new PlanningService(competition);
-    //     planningService.create(firstRoundNumber);
-
-    //     expect(firstRoundNumber.getGames().length).to.equal(9);
-    //     assertValidResourcesPerBatch(firstRoundNumber.getGames());
-    //     firstRoundNumber.getPlaces().forEach(place => {
-    //         this.assertValidGamesParticipations(place, firstRoundNumber.getGames(), 2);
-    //     });
-    // });
 
     // // with one poule referee can be from same poule
     // it('self referee 1 poule of 3', () => {
@@ -650,99 +637,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     //     expect(games.pop().getResourceBatch()).to.be.lessThan(9);
     // });
 
-    // it('check datetime, 5', () => {
-    //     const competitionMapper = getMapper('competition');
-    //     const competition = competitionMapper.toObject(jsonCompetition);
-    //     const sportConfigService = new SportConfigService(new SportScoreConfigService(), new SportPlanningConfigService());
-    //     const sport2 = addSport(competition);
-    //     const field2 = new Field(competition, 2); field2.setSport(sport2);
 
-    //     const structureService = new StructureService();
-    //     const structure = structureService.create(competition, 5, 1);
-    //     const firstRoundNumber = structure.getFirstRoundNumber();
-
-    //     const planningService = new PlanningService(competition);
-    //     planningService.create(firstRoundNumber);
-
-    //     const games1 = planningService.getGamesForRoundNumber(firstRoundNumber, Game.ORDER_RESOURCEBATCH);
-    //     // consoleGames(games1);
-    //     expect(games1.length).to.equal(10);
-    //     assertValidResourcesPerBatch(games1);
-    //     firstRoundNumber.getPlaces().forEach(place => {
-    //         this.assertValidGamesParticipations(place, games1, 4);
-    //     });
-
-    //     const lastGame = games1.pop();
-    //     expect(lastGame.getResourceBatch()).to.equal(5);
-
-    //     const endDateTime = planningService.calculateEndDateTime(firstRoundNumber);
-    //     const nrOfMinutes = firstRoundNumber.getValidPlanningConfig().getMaximalNrOfMinutesPerGame();
-    //     const lastGameStartDateTime = lastGame.getStartDateTime();
-    //     lastGameStartDateTime.setMinutes(lastGameStartDateTime.getMinutes() + nrOfMinutes);
-    //     expect(lastGameStartDateTime.getTime()).to.equal(endDateTime.getTime());
-    // });
-
-
-    // /**
-    //  * time disabled
-    //  */
-    // it('time disabled 4', () => {
-    //     const competitionMapper = getMapper('competition');
-    //     const competition = competitionMapper.toObject(jsonCompetition);
-    //     const field2 = new Field(competition, 2); field2.setSport(competition.getFirstSportConfig().getSport());
-
-    //     const structureService = new StructureService();
-    //     const structure = structureService.create(competition, 4, 1);
-    //     const firstRoundNumber = structure.getFirstRoundNumber();
-    //     firstRoundNumber.getPlanningConfig().setEnableTime(false);
-
-    //     const planningService = new PlanningService(competition);
-    //     planningService.create(firstRoundNumber);
-    //     planningService.reschedule(firstRoundNumber);
-
-    //     const games = planningService.getGamesForRoundNumber(firstRoundNumber, Game.ORDER_RESOURCEBATCH);
-    //     // consoleGames(games);
-    //     expect(games.length).to.equal(6);
-
-    //     assertValidResourcesPerBatch(firstRoundNumber.getGames());
-    //     firstRoundNumber.getPlaces().forEach(place => {
-    //         this.assertValidGamesParticipations(place, firstRoundNumber.getGames(), 3);
-    //     });
-    // });
-
-    // /**
-    //  * time disabled
-    //  */
-    // it('second round losers before winners, 44', () => {
-    //     const competitionMapper = getMapper('competition');
-    //     const competition = competitionMapper.toObject(jsonCompetition);
-
-    //     const structureService = new StructureService();
-    //     const structure = structureService.create(competition, 8, 2);
-    //     const firstRoundNumber = structure.getFirstRoundNumber();
-    //     const rootRound = structure.getRootRound();
-
-    //     structureService.addQualifiers(rootRound, QualifyGroup.WINNERS, 2);
-    //     structureService.addQualifiers(rootRound, QualifyGroup.LOSERS, 2);
-
-
-    //     const planningService = new PlanningService(competition);
-    //     planningService.create(firstRoundNumber);
-    //     planningService.reschedule(firstRoundNumber);
-
-    //     const secondRoundNumber = firstRoundNumber.getNext();
-    //     planningService.reschedule(secondRoundNumber);
-    //     const games = planningService.getGamesForRoundNumber(secondRoundNumber, Game.ORDER_RESOURCEBATCH);
-
-    //     expect(games.length).to.equal(2);
-    //     // consoleGames(games);
-    //     expect(games[0].getRound().getParentQualifyGroup().getWinnersOrLosers()).to.equal(QualifyGroup.LOSERS);
-
-    //     assertValidResourcesPerBatch(secondRoundNumber.getGames());
-    //     secondRoundNumber.getPlaces().forEach(place => {
-    //         this.assertValidGamesParticipations(place, secondRoundNumber.getGames(), 1);
-    //     });
-    // });
 
 
 
