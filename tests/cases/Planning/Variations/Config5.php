@@ -16,18 +16,18 @@ class Config5
                             "nrOfFields" => [
                                 1 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(10, 1, 10, 4),
-                                        2 => new AssertConfig(20, 1, 20, 8),
-                                        3 => new AssertConfig(30, 1, 30, 12),
-                                        4 => new AssertConfig(40, 1, 40, 16),
+                                        1 => new AssertConfig(10, 1, 10, [4]),
+                                        2 => new AssertConfig(20, 1, 20, [8]),
+                                        3 => new AssertConfig(30, 1, 30, [12]),
+                                        4 => new AssertConfig(40, 1, 40, [16]),
                                     ]
                                 ],
                                 2 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(10, 4, 5, 4),
-                                        2 => new AssertConfig(20, 4, 10, 8),
-                                        3 => new AssertConfig(30, 4, 15, 12),
-                                        4 => new AssertConfig(40, 4, 20, 16),
+                                        1 => new AssertConfig(10, 4, 5, [4]),
+                                        2 => new AssertConfig(20, 4, 10, [8]),
+                                        3 => new AssertConfig(30, 4, 15, [12]),
+                                        4 => new AssertConfig(40, 4, 20, [16]),
                                     ]
                                 ]
                             ]
@@ -68,10 +68,10 @@ class Config5
                             "nrOfFields" => [
                                 1 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(4, 1, 4, 1)/*,
-                                        2 => new AssertConfig(4, 1, 4, 2),
-                                        3 => new AssertConfig(6, 1, 6, 3),
-                                        4 => new AssertConfig(8, 1, 8, 4),*/
+                                        /*1 => new AssertConfig(4, 2, 4, [1,2]),
+                                        2 => new AssertConfig(8, 2, 8, [2,4]),
+                                        3 => new AssertConfig(12, 2, 12, [3,6]),*/
+                                        4 => new AssertConfig(16, 2, 16, [4,8]),
                                     ]
                                 ],
                                 2 => [

@@ -37,7 +37,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                 for ($nrOfSports = 1; $nrOfSports <= $maxNrOfSports; $nrOfSports++) {
                     for ($nrOfFields = $nrOfSports; $nrOfFields <= $nrOfSports * 2; $nrOfFields++) {
                         for ($nrOfHeadtohead = 1; $nrOfHeadtohead <= $maxNrOfHeadtohead; $nrOfHeadtohead++) {
-                             if ($nrOfCompetitors !== 5 || $nrOfPoules !== 2 || $nrOfSports !== 1 || $nrOfFields !== 1 || $nrOfHeadtohead !== 1) {
+                             if ($nrOfCompetitors !== 5 || $nrOfPoules !== 2  /*|| $nrOfSports !== 1 || $nrOfFields !== 1 || $nrOfHeadtohead !== 1*/) {
                                  continue;
                              }
                             $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
@@ -64,7 +64,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
      * @param array|Game[] $games
      * @param int|null $expectedValue
      */
-    protected function assertValidGamesParticipations(Place $place, array $games, int $expectedValue = null) {
+    protected function assertValidGamesParticipations(Place $place, array $games, array $expectedValue ) {
         // $sportPlanningConfigService = new SportPlanningConfigService();
         $nrOfGames = 0;
         foreach( $games as $game ) {
@@ -86,9 +86,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         // $config = $place->getRound()->getNumber()->getValidPlanningConfig();
         // const nrOfGamesPerPlace = sportPlanningConfigService.getNrOfGamesPerPlace(place.getPoule(), config.getNrOfHeadtohead());
         // expect(nrOfGamesPerPlace).to.equal(nrOfGames);
-        if ($expectedValue !== null) {
-            $this->assertSame( $expectedValue, $nrOfGames, 'nrofgames for 1 place are not equal');
-        }
+
+        $this->assertNotFalse( array_search( $nrOfGames, $expectedValue ), 'nrofgames for 1 place are not equal');
+
     }
 
     /**

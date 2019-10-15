@@ -16,18 +16,18 @@ class Config2
                             "nrOfFields" => [
                                 1 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(1, -1, 1, 1),
-                                        2 => new AssertConfig(2, -1, 2, 2),
-                                        3 => new AssertConfig(3, -1, 3, 3),
-                                        4 => new AssertConfig(4, -1, 4, 4),
+                                        1 => new AssertConfig(1, -1, 1, [1]),
+                                        2 => new AssertConfig(2, -1, 2, [2]),
+                                        3 => new AssertConfig(3, -1, 3, [3]),
+                                        4 => new AssertConfig(4, -1, 4, [4]),
                                     ]
                                 ],
                                 2 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(1, -1, 1, 1),
-                                        2 => new AssertConfig(2, -1, 2, 2),
-                                        3 => new AssertConfig(3, -1, 3, 3),
-                                        4 => new AssertConfig(4, -1, 4, 4),
+                                        1 => new AssertConfig(1, -1, 1, [1]),
+                                        2 => new AssertConfig(2, -1, 2, [2]),
+                                        3 => new AssertConfig(3, -1, 3, [3]),
+                                        4 => new AssertConfig(4, -1, 4, [4]),
                                     ]
                                 ]
                             ]

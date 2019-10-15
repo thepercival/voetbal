@@ -19,11 +19,11 @@ class AssertConfig
      */
     public $maxNrOfBatches;
     /**
-     * @var int
+     * @var array
      */
     public $nrOfPlaceGames;
 
-    public function __construct( int $nrOfGames, int $maxNrOfGamesInARow, int $maxNrOfBatches, int $nrOfPlaceGames )
+    public function __construct( int $nrOfGames, int $maxNrOfGamesInARow, int $maxNrOfBatches, array $nrOfPlaceGames )
     {
         $this->nrOfGames = $nrOfGames;
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;

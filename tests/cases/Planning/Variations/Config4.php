@@ -16,18 +16,18 @@ class Config4
                             "nrOfFields" => [
                                 1 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(6, 2, 6, 3),
-                                        2 => new AssertConfig(12, 2, 12, 6),
-                                        3 => new AssertConfig(18, 2, 18, 9),
-                                        4 => new AssertConfig(24, 2, 24, 12),
+                                        1 => new AssertConfig(6, 2, 6, [3]),
+                                        2 => new AssertConfig(12, 2, 12, [6]),
+                                        3 => new AssertConfig(18, 2, 18, [9]),
+                                        4 => new AssertConfig(24, 2, 24, [12]),
                                     ]
                                 ],
                                 2 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(6, -1, 3, 3),
-                                        2 => new AssertConfig(12, -1, 6, 6),
-                                        3 => new AssertConfig(18, -1, 9, 9),
-                                        4 => new AssertConfig(24, -1, 12, 12),
+                                        1 => new AssertConfig(6, -1, 3, [3]),
+                                        2 => new AssertConfig(12, -1, 6, [6]),
+                                        3 => new AssertConfig(18, -1, 9, [9]),
+                                        4 => new AssertConfig(24, -1, 12, [12]),
                                     ]
                                 ]
                             ]
@@ -68,18 +68,18 @@ class Config4
                             "nrOfFields" => [
                                 1 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(2, 1, 2, 1),
-                                        2 => new AssertConfig(4, 1, 4, 2),
-                                        3 => new AssertConfig(6, 1, 6, 3),
-                                        4 => new AssertConfig(8, 1, 8, 4),
+                                        1 => new AssertConfig(2, 1, 2, [1]),
+                                        2 => new AssertConfig(4, 1, 4, [2]),
+                                        3 => new AssertConfig(6, 1, 6, [3]),
+                                        4 => new AssertConfig(8, 1, 8, [4]),
                                     ]
                                 ],
                                 2 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(2, -1, 1, 1),
-                                        2 => new AssertConfig(4, -1, 2, 2),
-                                        3 => new AssertConfig(6, -1, 3, 3),
-                                        4 => new AssertConfig(8, -1, 4, 4),
+                                        1 => new AssertConfig(2, -1, 1, [1]),
+                                        2 => new AssertConfig(4, -1, 2, [2]),
+                                        3 => new AssertConfig(6, -1, 3, [3]),
+                                        4 => new AssertConfig(8, -1, 4, [4]),
                                     ]
                                 ]
                             ]
