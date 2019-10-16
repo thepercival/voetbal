@@ -9,6 +9,7 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning\Config\Optimalization\Service as OptimalizationService;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Place;
 use Voetbal\Game;
@@ -29,11 +30,19 @@ class Service
      * @var Period
      */
     protected $blockedPeriod;
+    /**
+     * @var OptimalizationService
+     */
+    private $optimalizationService;
 
-    public function __construct( Competition $competition)
+    public function __construct( Competition $competition, OptimalizationService $optimalizationService = null)
     {
         $this->gameGenerator = new GameGenerator();
         $this->competition = $competition;
+        if( $optimalizationService === null ) {
+            $optimalizationService = new OptimalizationService();
+        }
+        $this->optimalizationService = $optimalizationService;
     }
 
     public function setBlockedPeriod(\DateTimeImmutable $startDateTime, int $durationInMinutes) {
@@ -124,7 +133,7 @@ class Service
         array $refereePlaces): \DateTimeImmutable
     {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $resourceService = new Resource\Service($roundNumber);
+        $resourceService = new Resource\Service($roundNumber, $this->optimalizationService );
         $resourceService->setBlockedPeriod($this->blockedPeriod);
         $resourceService->setFields($fields);
         $resourceService->setReferees($referees);

@@ -12,7 +12,7 @@ include_once __DIR__ . '/../../data/CompetitionCreator.php';
 include_once __DIR__ . '/Check332a.php';
 
 use Voetbal\Structure\Service as StructureService;
-use Voetbal\Competitor\Range as CompetitorRange;
+use Voetbal\Range;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 
@@ -42,7 +42,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultPoules()
     {
-        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structureService = new StructureService(new Range(3, 40));
 
         $this->assertSame($structureService->getDefaultNrOfPoules(3), 1);
         $this->assertSame($structureService->getDefaultNrOfPoules(40), 8);
@@ -54,7 +54,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultPoulesOutOfRange1()
     {
-        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structureService = new StructureService(new Range(3, 40));
 
         $this->expectException(\Exception::class);
         $structureService->getDefaultNrOfPoules(2);
@@ -62,7 +62,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
     public function testDefaultPoulesOutOfRange2()
     {
-        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structureService = new StructureService(new Range(3, 40));
 
         $this->expectException(\Exception::class);
         $structureService->getDefaultNrOfPoules(41);
@@ -106,7 +106,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = createCompetition();
 
-        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structureService = new StructureService(new Range(3, 40));
         $structure = $structureService->create($competition, 36, 6);
         $rootRound = $structure->getRootRound();
 
@@ -184,11 +184,11 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     }
 
 
-    public function testCompetitorRangeMinimum()
+    public function testRangeMinimum()
     {
         $competition = createCompetition();
 
-        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structureService = new StructureService(new Range(3, 40));
         $structure = $structureService->create($competition, 3, 1);
         $rootRound = $structure->getRootRound();
 
@@ -196,11 +196,11 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->removePlaceFromRootRound($rootRound);
     }
 
-    public function testCompetitorRangeMaximum()
+    public function testRangeMaximum()
     {
         $competition = createCompetition();
 
-        $structureService = new StructureService(new CompetitorRange(3, 40));
+        $structureService = new StructureService(new Range(3, 40));
         $structure = $structureService->create($competition, 40, 4);
         $rootRound = $structure->getRootRound();
 

@@ -6,7 +6,7 @@
  * Time: 15:22
  */
 
-namespace Voetbal\Competitor;
+namespace Voetbal;
 
 class Range {
     public $min;

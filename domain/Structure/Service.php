@@ -11,7 +11,7 @@ namespace Voetbal\Structure;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Competitor\Range as CompetitorRange;
+use Voetbal\Range;
 use Voetbal\Structure as StructureBase;
 use Voetbal\Competition;
 use Voetbal\Place;
@@ -33,13 +33,13 @@ class Service
      */
     private $planningConfigService;
     /**
-     * @var ?CompetitorRange
+     * @var ?Range
      */
-    private $competitorRange;
+    private $Range;
 
-    public function __construct(CompetitorRange $competitorRange = null)
+    public function __construct(Range $Range = null)
     {
-        $this->competitorRange = $competitorRange;
+        $this->Range = $Range;
         $this->planningConfigService = new PlanningConfigService();
     }
 
@@ -68,8 +68,8 @@ class Service
                 E_ERROR);
         }
         $newNrOfPlaces = $nrOfPlaces - 1;
-        if ($this->competitorRange && $newNrOfPlaces < $this->competitorRange->min) {
-            throw new \Exception('er moeten minimaal ' . $this->competitorRange->min . ' deelnemers zijn', E_ERROR);
+        if ($this->Range && $newNrOfPlaces < $this->Range->min) {
+            throw new \Exception('er moeten minimaal ' . $this->Range->min . ' deelnemers zijn', E_ERROR);
         }
         if (($newNrOfPlaces / $round->getPoules()->count()) < 2) {
             throw new \Exception('Er kan geen deelnemer verwijderd worden. De minimale aantal deelnemers per poule is 2.',
@@ -86,8 +86,8 @@ class Service
     public function addPlaceToRootRound(Round $round): Place
     {
         $newNrOfPlaces = $round->getNrOfPlaces() + 1;
-        if ($this->competitorRange && $newNrOfPlaces > $this->competitorRange->max) {
-            throw new \Exception('er mogen maximaal ' . $this->competitorRange->max . ' deelnemers meedoen', E_ERROR);
+        if ($this->Range && $newNrOfPlaces > $this->Range->max) {
+            throw new \Exception('er mogen maximaal ' . $this->Range->max . ' deelnemers meedoen', E_ERROR);
         }
 
         $this->updateRound($round, $newNrOfPlaces, $round->getPoules()->count());
@@ -129,8 +129,8 @@ class Service
         $poules = $round->getPoules();
         $lastPoule = $poules[$poules->count() - 1];
         $newNrOfPlaces = $round->getNrOfPlaces() + ($modifyNrOfPlaces ? $lastPoule->getPlaces()->count() : 0);
-        if ($modifyNrOfPlaces && $this->competitorRange && $newNrOfPlaces > $this->competitorRange->max) {
-            throw new \Exception('er mogen maximaal ' . $this->competitorRange->max . ' deelnemers meedoen', E_ERROR);
+        if ($modifyNrOfPlaces && $this->Range && $newNrOfPlaces > $this->Range->max) {
+            throw new \Exception('er mogen maximaal ' . $this->Range->max . ' deelnemers meedoen', E_ERROR);
         }
         $this->updateRound($round, $newNrOfPlaces, $poules->count() + 1);
         if (!$round->isRoot()) {
@@ -457,19 +457,20 @@ class Service
         return $round;
     }
 
-    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules): int
+    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules, bool $floor = null ): int
     {
         $nrOfPlaceLeft = ($nrOfPlaces % $nrOfPoules);
         if ($nrOfPlaceLeft === 0) {
             return $nrOfPlaces / $nrOfPoules;
         }
-        return ((int)(($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules)) + 1;
+        $nrOfPlacesPerPoule = ((int)(($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules));
+        return $floor ? $nrOfPlacesPerPoule : ($nrOfPlacesPerPoule + 1);
     }
 
     public function getDefaultNrOfPoules(int $nrOfPlaces): int
     {
-        $min = $this->competitorRange ? $this->competitorRange->min : 2;
-        $max = $this->competitorRange ? $this->competitorRange->max : null;
+        $min = $this->Range ? $this->Range->min : 2;
+        $max = $this->Range ? $this->Range->max : null;
         if ($nrOfPlaces < $min) {
             throw new \Exception('Het aantal deelnemers moet minimaal ' . $min . ' zijn', E_ERROR);
         } else {

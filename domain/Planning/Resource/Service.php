@@ -13,12 +13,12 @@ use Voetbal\Place;
 use Voetbal\Field;
 use Voetbal\Referee;
 use Voetbal\Sport;
+use Voetbal\Range;
 use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Planning\Resources as Resources;
 use Voetbal\Round\Number as RoundNumber;
 use League\Period\Period;
-use Voetbal\Game\Place as GamePlace;
-use Voetbal\Planning\Referee as PlanningReferee;
+use Voetbal\Planning\Config\Optimalization\Service as OptimalizationService;
 use Voetbal\Planning\Place as PlanningPlace;
 use Voetbal\Sport\Counter as SportCounter;
 use Voetbal\Sport\PlanningConfig\Service as SportPlanningConfigService;
@@ -60,10 +60,6 @@ class Service {
     /**
      * @var int
      */
-    private $maxNrOfGamesPerBatch;
-    /**
-     * @var int
-     */
     private $maxNrOfGamesInARow;
     /**
      * @var int
@@ -83,15 +79,16 @@ class Service {
     private $planningPlaces;
 
     /**
-     * @var array
+     * @var OptimalizationService
      */
-    private $placesSportsCounter;
+    private $optimalizationService;
 
-    public function __construct( RoundNumber $roundNumber )
+    public function __construct( RoundNumber $roundNumber, OptimalizationService $optimalizationService )
     {
         $this->roundNumber = $roundNumber;
         $this->planningConfig = $this->roundNumber->getValidPlanningConfig();
         $this->nrOfPoules = count($this->roundNumber->getPoules());
+        $this->optimalizationService = $optimalizationService;
     }
 
     public function setBlockedPeriod(Period $blockedPeriod = null) {
@@ -161,36 +158,43 @@ class Service {
     /**
      * @param array $games
      * @param Resources $resources
-     * @param int $nrOfGamesPerBatch
      * @return bool
      */
     protected function assignBatch(array $games, Resources $resources ): bool
     {
-        $this->maxNrOfGamesPerBatch = $this->getMaxNrOfGamesPerBatch(count($games));
-        while( $this->maxNrOfGamesPerBatch > 0 ) {
+        $optimalization = $this->optimalizationService->getOptimalization(
+            count($this->fields),
+            $this->planningConfig->getSelfReferee(),
+            count($this->referees),
+            count($this->roundNumber->getPoules()),
+            $this->roundNumber->getNrOfPlaces(),
+            $this->planningConfig->getTeamup()
+        );
 
-            $this->maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow($this->maxNrOfGamesPerBatch);
-            $this->maxNrOfGamesInARow = 1; zou niet zo lang mogen duren!!!
-            $this->maxNrOfGamesInARow = 2;
-            echo "trying for maxNrOfGamesPerBatch = " . $this->maxNrOfGamesPerBatch . "  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
+        $nrOfBatchGames = $optimalization->getMaxNrOfGamesPerBatch();
+        while( $nrOfBatchGames->min > 0 ) {
+
+            $this->maxNrOfGamesInARow = $optimalization->getMaxNrOfGamesInARow();
+            echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
             // die();
             $this->initPlanningPlaces();
             $resourcesTmp = new Resources( clone $resources->getDateTime(), array_slice( $resources->getFields(), 0 ) );
             $gamesTmp = array_slice($games, 0 );
-            if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $this->maxNrOfGamesPerBatch, new Batch())) {
+            if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, new Batch())) {
                 return true;
             }
-            $this->maxNrOfGamesInARow++;
-            echo "trying for maxNrOfGamesPerBatch = " . $this->maxNrOfGamesPerBatch . "  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
 
+            $this->maxNrOfGamesInARow = $optimalization->setMaxNrOfGamesInARow( ++$this->maxNrOfGamesInARow );
+            echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
+           // die();
             $this->initPlanningPlaces();
             $resourcesTmp = new Resources( clone $resources->getDateTime(), array_slice( $resources->getFields(), 0 ) );
             $gamesTmp = array_slice($games, 0 );
-            if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $this->maxNrOfGamesPerBatch, new Batch())) {
+            if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, new Batch())) {
                 return true;
             }
 
-            $this->maxNrOfGamesPerBatch--;
+            $optimalization->decreaseNrOfBatchGames();
         }
         return false;
     }
@@ -198,12 +202,15 @@ class Service {
     /**
      * @param array $games
      * @param Resources $resources
-     * @param int $nrOfGames
+     * @param Range $nrOfBatchGames
      * @param Batch $batch
      * @param int $nrOfGamesTried
      * @return bool
      */
-    protected function assignBatchHelper(array &$games, Resources $resources, int $nrOfGames, Batch $batch, int $nrOfGamesTried = 0): bool {
+    protected function assignBatchHelper(array &$games, Resources $resources, Range $nrOfBatchGames, Batch $batch, int $nrOfGamesTried = 0): bool {
+
+        // hier kijken hoe je kan bepalen als je genoegen mag nemen met range->min???
+        // mag tot range->max, maar moet tot range->min
 
         if (count($batch->getGames() ) === $nrOfGames || count($games) === 0) { // batchsuccess
             $nextBatch = $this->toNextBatch($batch, $resources);
@@ -225,13 +232,15 @@ class Service {
         $nrOfFieldsTried = 0;
         while ($nrOfFieldsTried++ < count( $resources3->getFields() ) ) {
             $nrOfGamesTriedPerField = $nrOfGamesTried;
-            // console.log('batchnr: ' + this.getConsoleString(batch.getNumber(), 2)
-            //     + ', gamesInBatch: ' + this.getConsoleString(batch.getGames().length, 2)
-            //     + ', fieldsTried: ' + this.getConsoleString(nrOfFieldsTried - 1, 1)
-            //     + ', gamesTried: ' + this.getConsoleString(nrOfGamesTriedPerField, 2)
-            //     + ', gamesPerBatch: ' + nrOfGames);
+//             echo $this->getConsoleString( $this->counter++, 10) . ' batchnr: ' . $this->getConsoleString($batch->getNumber(), 2)
+//                 . ', gamesInBatch: ' . $this->getConsoleString(count($batch->getGames()), 2)
+//                 . ', fieldsTried: ' . $this->getConsoleString($nrOfFieldsTried - 1, 1)
+//                 . ', gamesTried: ' . $this->getConsoleString($nrOfGamesTriedPerField, 2)
+//                 . ', gamesPerBatch: ' . $nrOfGames . PHP_EOL;
             $resources2 = new Resources( clone $resources3->getDateTime(), array_slice( $resources3->getFields(), 0 ) );
             {
+                // om te versnellen, zou je het maxnrinarow kunnen verhogen wanneer dezelfde configuratie al een keer is langsgekomen
+
                 $game = array_shift($games);
                 if ($this->isGameAssignable($batch, $game, $resources2)) {
                     $this->assignGame($batch, $game, $resources2);
@@ -494,157 +503,6 @@ class Service {
         return $this->planningPlaces[$place->getLocationId()];
     }
 
-    protected function getMaxNrOfGamesPerBatch(int $nrOfGames): int {
-        $maxNrOfGamesPerBatch = count($this->fields);
-
-        if (!$this->planningConfig->getSelfReferee() && count($this->referees) > 0 && count($this->referees) < $maxNrOfGamesPerBatch) {
-            $maxNrOfGamesPerBatch = count($this->referees );
-        }
-
-        $nrOfGamePlaces = $this->getNrOfGamePlaces();
-        $nrOfRoundNumberPlaces = $this->roundNumber->getNrOfPlaces();
-        $nrOfGamesSimultaneously = floor($nrOfRoundNumberPlaces / $nrOfGamePlaces);
-        // const maxNrOfGamesPerBatchPreBorder = this.maxNrOfGamesPerBatch;
-        if ($nrOfGamesSimultaneously < $maxNrOfGamesPerBatch) {
-            $maxNrOfGamesPerBatch = (int) $nrOfGamesSimultaneously;
-        }
-        return $maxNrOfGamesPerBatch;
-        // TEMPCOMMENT
-        // const ss = new StructureService();
-        // const nrOfPoulePlaces = ss.getNrOfPlacesPerPoule(this.roundNumber.getNrOfPlaces(), this.roundNumber.getPoules().length);
-        // if ((nrOfPoulePlaces - 1) === this.nrOfSports
-        //     && this.nrOfSports > 1 && this.nrOfSports === this.fields.length
-        // ) {
-        //     if (this.roundNumber.getValidPlanningConfig().getNrOfHeadtohead() === 2 ||
-        //         this.roundNumber.getValidPlanningConfig().getNrOfHeadtohead() === 3) {
-        //         this.maxNrOfGamesPerBatch = 2;
-        //     } else {
-        //         this.maxNrOfGamesPerBatch = 1; // this.roundNumber.getPoules().length;
-        //     }
-        // }
-
-        // const nrOfPlacesPerBatch = nrOfGamePlaces * this.maxNrOfGamesPerBatch;
-        // if (this.nrOfSports > 1) {
-        //     /*if (this.roundNumber.getNrOfPlaces() === nrOfPlacesPerBatch) {
-        //         this.maxNrOfGamesPerBatch--;
-        //     } else*/ if (Math.floor(this.roundNumber.getNrOfPlaces() / nrOfPlacesPerBatch) < 2) {
-        //         const sportPlanningConfigService = new SportPlanningConfigService();
-        //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
-        //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
-        //         // if (((nrOfPlacesPerBatch * nrOfHeadtothead) % this.roundNumber.getNrOfPlaces()) !== 0) {
-
-        //         if (maxNrOfGamesPerBatchPreBorder >= this.maxNrOfGamesPerBatch) {
-
-
-
-        //             if ((nrOfHeadtothead % 2) === 1) {
-        //                 const comp = this.roundNumber.getCompetition();
-        //                 if (
-        //                     (this.roundNumber.getNrOfPlaces() - 1) > comp.getSports().length
-        //                     /*|| ((this.roundNumber.getNrOfPlaces() - 1) === comp.getSports().length
-        //                         && comp.getFields().length > comp.getSports().length)*/
-        //                 ) {
-        //                     this.maxNrOfGamesPerBatch--;
-        //                 }
-        //                 // this.maxNrOfGamesPerBatch--;
-
-        //             } /*else if (this.nrOfSports === (nrOfPoulePlaces - 1)) {
-        //                 this.maxNrOfGamesPerBatch--;
-        //             }*/
-
-        //             // if ((nrOfHeadtothead * maxNrOfGamesPerBatchPreBorder) <= this.maxNrOfGamesPerBatch) {
-        //             //     this.maxNrOfGamesPerBatch--;
-        //             // }
-
-        //             /*if (maxNrOfGamesPerBatchPreBorder === this.maxNrOfGamesPerBatch
-        //                 && ((nrOfHeadtothead * maxNrOfGamesPerBatchPreBorder) === this.maxNrOfGamesPerBatch)) {
-        //                 this.maxNrOfGamesPerBatch--;
-        //             } else if (maxNrOfGamesPerBatchPreBorder > this.maxNrOfGamesPerBatch
-        //                 && ((nrOfHeadtothead * maxNrOfGamesPerBatchPreBorder) < this.maxNrOfGamesPerBatch)) {
-        //                 this.maxNrOfGamesPerBatch--;
-        //             } /*else {
-        //                 this.tryShuffledFields = true;
-        //             }*/
-        //             // nrOfPlacesPerBatch deelbaar door nrOfGames
-        //             // als wat is verschil met:
-        //             // 3v en 4d 1H2H
-        //             // 3v en 4d 2H2H deze niet heeft 12G
-        //             // 2v en 4d
-        //         }
-        //     }
-
-
-        //     // this.maxNrOfGamesPerBatch moet 1 zijn, maar er kunnen twee, dus bij meerdere sporten
-        //     // en totaal aantal deelnemers <= aantal deelnemers per batch
-        //     //      bij  2v  4d dan 4 <= 4 1H2H van 2 naar 1
-        //     //      bij 21v 44d dan 8 <= 8 1H2H van 3 naar 2
-        //     //      bij  3v  4d dan 4 <= 6 1H2H van 2 naar 1
-        //     //      bij  3v  4d dan 4 <= 6 2H2H van 2 naar 1(FOUT)
-
-        //     // if (this.fields.length === 3 && this.nrOfSports === 2) {
-        //     //     this.tryShuffledFields = true;
-        //     // }
-        // }
-        // if (this.maxNrOfGamesPerBatch < 1) {
-        //     this.maxNrOfGamesPerBatch = 1;
-        // }
-    }
-
-    protected function getNrOfGamePlaces(): int {
-        $nrOfGamePlaces = Sport::TEMPDEFAULT;
-        if ($this->planningConfig->getTeamup()) {
-            $nrOfGamePlaces *= 2;
-        }
-        if ($this->planningConfig->getSelfReferee()) {
-            $nrOfGamePlaces++;
-        }
-        return $nrOfGamePlaces;
-    }
-
-    protected function getMaxNrOfGamesInARow(int $maxNrOfGamesPerBatch) {
-        $nrOfGamePlaces = $this->getNrOfGamePlaces();
-
-        $nrOfPlaces = $this->roundNumber->getNrOfPlaces();
-        // @TODO only when all games(field->sports) have equal nrOfPlacesPerGame
-        $nrOfPlacesPerBatch = $nrOfGamePlaces * $maxNrOfGamesPerBatch;
-
-        $nrOfRestPerBatch = $nrOfPlaces - $nrOfPlacesPerBatch;
-        if ($nrOfRestPerBatch < 1) {
-            return -1;
-        }
-
-        $maxNrOfGamesInARow = (int) ceil($nrOfPlaces / $nrOfRestPerBatch) - 1;
-        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch) {
-            $maxNrOfGamesInARow++;
-        }
-        return $maxNrOfGamesInARow;
-    }
-//            if ($this->nrOfSports > 1) {
-//                if (($nrOfPlaces - 1) === $nrOfPlacesPerBatch) {
-//                    $this->maxNrOfGamesInARow++;
-//                }
-//            }
-
-            // nrOfPlacesPerBatch = 2
-            // nrOfRestPerBatch = 1
-            // nrOfPlaces = 3
-
-            // bij 3 teams en 2 teams per batch speelt ook aantal placesper
-            // if (nrOfPlacesPerBatch === nrOfRestPerBatch) {
-            //     this.maxNrOfGamesInARow++;
-            // }
-            // if (this.nrOfSports >= Math.ceil(nrOfRestPerBatch / this.fields.length)
-            //     && this.nrOfSports > 1 /*&& this.nrOfSports === this.fields.length*/) {
-            //     // this.maxNrOfGamesInARow++;
-            //     this.maxNrOfGamesInARow++;
-            //     // this.maxNrOfGamesInARow = -1;
-            // }
-        // }
-        // if (this.nrOfSports > 1) {
-        //     this.maxNrOfGamesInARow = -1;
-        // }
-        // this.maxNrOfGamesInARow = -1;
-
 
     /* time functions */
 
@@ -664,5 +522,13 @@ class Service {
             $newStartDateTime = clone $this->blockedPeriod->getEndDate();
         }
         return $newStartDateTime;
+    }
+
+    protected function getConsoleString($value, int $minLength): string {
+        $str = '' . $value;
+        while ( strlen($str) < $minLength) {
+            $str = ' ' . $str;
+        }
+        return $str;
     }
 }

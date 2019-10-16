@@ -8,6 +8,7 @@ include_once __DIR__ . '/../../helpers/Console.php';
 use Voetbal\Field;
 use Voetbal\Game;
 use Voetbal\Place;
+use Voetbal\Planning\Config\Optimalization\Service as OptimalizationService;
 use Voetbal\Sport;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Competition;
@@ -27,6 +28,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $maxNrOfCompetitors = 16;
         $maxNrOfSports = 1;
+        $optimalizationService = new OptimalizationService();
 
         for ($nrOfCompetitors = 2; $nrOfCompetitors <= $maxNrOfCompetitors; $nrOfCompetitors++) {
             $nrOfPoules = 0;
@@ -46,7 +48,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                                     'nrOfCompetitors ' . $nrOfCompetitors . ', nrOfPoules ' . $nrOfPoules . ', nrOfSports ' . $nrOfSports
                                     . ', nrOfFields ' . $nrOfFields . ', nrOfHeadtohead ' . $nrOfHeadtohead
                                     . PHP_EOL;
-                                $this->checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig);
+                                $this->checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig, $optimalizationService);
                             }
                         }
                     }
@@ -62,7 +64,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
      *
      * @param Place $place
      * @param array|Game[] $games
-     * @param int|null $expectedValue
+     * @param array|int[] $expectedValue
      */
     protected function assertValidGamesParticipations(Place $place, array $games, array $expectedValue ) {
         // $sportPlanningConfigService = new SportPlanningConfigService();
@@ -175,7 +177,8 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         int $nrOfSports,
         int $nrOfFields,
         int $nrOfHeadtohead,
-        AssertConfig $assertConfig
+        AssertConfig $assertConfig,
+        OptimalizationService $optimalizationService
     ) {
         $competition = createCompetition();
 
@@ -206,7 +209,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $firstRoundNumber->getValidPlanningConfig()->setNrOfHeadtohead($nrOfHeadtohead);
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService($competition, $optimalizationService );
 
         if ($nrOfCompetitors === 2 && $nrOfSports === 1 && $nrOfFields === 2 && $nrOfHeadtohead === 1) {
             $x = 1;
