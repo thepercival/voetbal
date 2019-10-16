@@ -28,6 +28,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $maxNrOfCompetitors = 16;
         $maxNrOfSports = 1;
+        $maxNrOfFields = 6;
         $optimalizationService = new OptimalizationService();
 
         for ($nrOfCompetitors = 2; $nrOfCompetitors <= $maxNrOfCompetitors; $nrOfCompetitors++) {
@@ -37,11 +38,11 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
             $maxNrOfHeadtohead = 4;
             while ( ((int) floor($nrOfCompetitors / ++$nrOfPoules)) >= 2) {
                 for ($nrOfSports = 1; $nrOfSports <= $maxNrOfSports; $nrOfSports++) {
-                    for ($nrOfFields = $nrOfSports; $nrOfFields <= $nrOfSports * 2; $nrOfFields++) {
+                    for ($nrOfFields = 1; $nrOfFields <= $maxNrOfFields; $nrOfFields++) {
                         for ($nrOfHeadtohead = 1; $nrOfHeadtohead <= $maxNrOfHeadtohead; $nrOfHeadtohead++) {
-                             if ($nrOfCompetitors !== 5 || $nrOfPoules !== 2  /*|| $nrOfSports !== 1 || $nrOfFields !== 1 || $nrOfHeadtohead !== 1*/) {
-                                 continue;
-                             }
+                            if ($nrOfCompetitors !== 16 /* || $nrOfPoules !== 2  || $nrOfSports !== 1 || $nrOfFields !== 2 /*|| $nrOfHeadtohead !== 1*/ ) {
+                                continue;
+                            }
                             $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
                             if ($assertConfig !== null) {
                                 echo
@@ -237,10 +238,8 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         int $nrOfHeadtohead
     ): ?AssertConfig {
         $competitors = [
-            2 => Variations\Config2::get(),
-            3 => Variations\Config3::get(),
-            4 => Variations\Config4::get(),
-            5 => Variations\Config5::get(),
+            2 => Variations\Config2::get(), 3 => Variations\Config3::get(), 4 => Variations\Config4::get(), 5 => Variations\Config5::get(),
+            16 => Variations\Config16::get(),
         ];
 
         if ( array_key_exists( $nrOfCompetitors, $competitors ) === false) {

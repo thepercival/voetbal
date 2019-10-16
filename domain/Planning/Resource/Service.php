@@ -212,7 +212,7 @@ class Service {
         // hier kijken hoe je kan bepalen als je genoegen mag nemen met range->min???
         // mag tot range->max, maar moet tot range->min
 
-        if (count($batch->getGames() ) === $nrOfGames || count($games) === 0) { // batchsuccess
+        if (count($batch->getGames() ) === $nrOfBatchGames->max || count($games) === 0) { // batchsuccess
             $nextBatch = $this->toNextBatch($batch, $resources);
             // if (batch.getNumber() < 4) {
             // console.log('batch succes: ' + batch.getNumber() + ' it(' + iteration + ')');
@@ -222,10 +222,14 @@ class Service {
             if (count($games) === 0) { // endsuccess
                 return true;
             }
-            return $this->assignBatchHelper($games, $resources, $nrOfGames, $nextBatch );
+            return $this->assignBatchHelper($games, $resources, $nrOfBatchGames, $nextBatch );
         }
         if ( count($games) === $nrOfGamesTried) {
-           return false;
+            if (count($batch->getGames() ) >= $nrOfBatchGames->min ) {
+                $nextBatch = $this->toNextBatch($batch, $resources);
+                return $this->assignBatchHelper($games, $resources, $nrOfBatchGames, $nextBatch );
+            }
+            return false;
         }
 
         $resources3 = new Resources( clone $resources->getDateTime(), array_slice( $resources->getFields(), 0 ) );
@@ -245,14 +249,14 @@ class Service {
                 if ($this->isGameAssignable($batch, $game, $resources2)) {
                     $this->assignGame($batch, $game, $resources2);
                     $copiedGames = array_slice( $games, 0 );
-                    if ($this->assignBatchHelper($copiedGames, $resources2, $nrOfGames, $batch)) {
+                    if ($this->assignBatchHelper($copiedGames, $resources2, $nrOfBatchGames, $batch)) {
                         return true;
                     }
                     $this->releaseGame($batch, $game, $resources2);
                 }
                 $games[] = $game;
             }
-            if( $this->assignBatchHelper($games, $resources3, $nrOfGames, $batch, ++$nrOfGamesTriedPerField ) ) {
+            if( $this->assignBatchHelper($games, $resources3, $nrOfBatchGames, $batch, ++$nrOfGamesTriedPerField ) ) {
                 return true;
             }
             if (!$this->tryShuffledFields) {

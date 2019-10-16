@@ -75,12 +75,12 @@ class Optimalization
     }
 
     public function getMaxNrOfGamesInARow(): int {
-        return $this->maxNrOfGamesInARow[$this->currentNrOfBatchGames->max];
+        return $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )];
     }
 
     public function setMaxNrOfGamesInARow( int $maxNrOfGamesInARow ): int {
-        $this->maxNrOfGamesInARow[$this->currentNrOfBatchGames->max] = $maxNrOfGamesInARow;
-        return $this->maxNrOfGamesInARow[$this->currentNrOfBatchGames->max];
+        $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )] = $maxNrOfGamesInARow;
+        return $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )];
     }
 
     protected function getInitialMaxNrOfBatchGames(): int {

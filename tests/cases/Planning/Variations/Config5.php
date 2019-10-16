@@ -76,10 +76,10 @@ class Config5
                                 ],
                                 2 => [
                                     "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(4, 2, 4, [1,2])/*,
-                                        2 => new AssertConfig(4, -1, 2, 2),
-                                        3 => new AssertConfig(6, -1, 3, 3),
-                                        4 => new AssertConfig(8, -1, 4, 4),*/
+                                        1 => new AssertConfig(4, 2, 4, [1,2]),
+                                        2 => new AssertConfig(8, 2, 6, [2,4]),
+                                        3 => new AssertConfig(12, 2, 9, [3,6]),
+                                        4 => new AssertConfig(16, 2, 12, [4,8]),
                                     ]
                                 ]
                             ]
