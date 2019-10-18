@@ -28,6 +28,10 @@ class Batch
      */
     private $next;
     /**
+     * @var \DateTimeImmutable
+     */
+    private $dateTime;
+    /**
      * @var array | Game[]
      */
     private $games = [];
@@ -80,6 +84,14 @@ class Batch
 
     public function getLeaf(): Batch {
         return $this->hasNext() ? $this->next->getLeaf() : $this;
+    }
+
+    public function getDateTime(): \DateTimeImmutable {
+        return $this->dateTime;
+    }
+
+    public function setDateTime( \DateTimeImmutable $dateTime) {
+        $this->dateTime = $dateTime;
     }
 
     public function getGamesInARow(Place $place ): int {

@@ -30,11 +30,14 @@ function consoleGame(Game $game, PlanningResourceBatch $batch = null) {
     $nameService = new NameService();
     $refDescr = ($game->getRefereePlace() ? $nameService->getPlaceFromName($game->getRefereePlace(), false, false) : '');
     $refNumber = $game->getRefereePlace() ? $game->getRefereePlace()->getNumber() : 0;
-    echo 'poule ' . $game->getPoule()->getNumber()
+    echo consoleColor($game->getResourceBatch(), 'batch ' . $game->getResourceBatch() ) . " " .
+        $game->getStartDateTime()->format("Y-m-d H:i") . " : "
+        // . '(' . $game->getRoundNumber(), 2 ) . consoleString( $game->getSubNumber(), 2 ) . ") "
+        . 'poule ' . $game->getPoule()->getNumber()
         . ', ' . consolePlaces($game, Game::HOME, $batch)
         . ' vs ' . consolePlaces($game, Game::AWAY, $batch)
         . ' , ref ' . consoleColor($refNumber, $refDescr)
-        . ', batch ' . $game->getResourceBatch()
+
         . ', ' . consoleColor($game->getField()->getNumber(), 'field ' . $game->getField()->getNumber())
         . ', sport ' . $game->getField()->getSport()->getName() . ($game->getField()->getSport()->getCustomId() ?
             '(' . $game->getField()->getSport()->getCustomId() . ')' : '')

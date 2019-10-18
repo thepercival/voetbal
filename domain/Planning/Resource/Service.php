@@ -66,10 +66,6 @@ class Service {
      */
     private $nrOfSports;
     /**
-     * @var int
-     */
-    private $counter = 0;
-    /**
      * @var bool
      */
     private $tryShuffledFields = false;
@@ -156,9 +152,10 @@ class Service {
         // nu gaan de games ook niet door elkaar lopen!!
         // games zijn al gesorteerd op roundnumber, subnumber, dus nu gewoon even opsplitsten
 
-        $batch = new Batch();;
+        $batch = new Batch();
+        $batch->setDateTime( $startDateTime );
         foreach( $gamesH2h as $games ) {
-            $resources = new Resources( clone $startDateTime, array_slice( $this->fields, 0 ) );
+            $resources = new Resources( array_slice( $this->fields, 0 ) );
             $batch = $this->assignBatch( $games, $resources, $batch);
             if ( $batch === null ) {
                 throw new \Exception('cannot assign resources', E_ERROR);
@@ -170,9 +167,6 @@ class Service {
         $currentBatch = null;
         $h2hgames = [];
         $firstGame = null;
-        if( $firstGame === false ) {
-            return $h2hgames;
-        }
         foreach( $orderedGames as $game ) {
             if( $firstGame === null ) {
                 $firstGame = $game;
@@ -221,7 +215,7 @@ class Service {
             echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
             // die();
             $this->initPlanningPlaces();
-            $resourcesTmp = new Resources( clone $resources->getDateTime(), array_slice( $resources->getFields(), 0 ) );
+            $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
             $gamesTmp = array_slice($games, 0 );
 
             if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
@@ -229,10 +223,10 @@ class Service {
             }
 
             $this->maxNrOfGamesInARow = $optimalization->setMaxNrOfGamesInARow( ++$this->maxNrOfGamesInARow );
-            echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
+            echo "trying2 for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
            // die();
             $this->initPlanningPlaces();
-            $resourcesTmp = new Resources( clone $resources->getDateTime(), array_slice( $resources->getFields(), 0 ) );
+            $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
             $gamesTmp = array_slice($games, 0 );
             if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
                 return  $batch->getLeaf();
@@ -253,13 +247,7 @@ class Service {
      */
     protected function assignBatchHelper(array &$games, Resources $resources, Range $nrOfBatchGames, Batch $batch, int $nrOfGamesTried = 0): bool {
 
-        // hier kijken hoe je kan bepalen als je genoegen mag nemen met range->min???
-        // mag tot range->max, maar moet tot range->min
-
         if (count($batch->getGames() ) === $nrOfBatchGames->max || count($games) === 0) { // batchsuccess
-            if( $batch->getNumber() === 4 ) {
-                $e = "w";
-            }
             $nextBatch = $this->toNextBatch($batch, $resources);
             // if (batch.getNumber() < 4) {
             // console.log('batch succes: ' + batch.getNumber() + ' it(' + iteration + ')');
@@ -283,23 +271,18 @@ class Service {
             return false;
         }
 
-        $resources3 = new Resources( clone $resources->getDateTime(), array_slice( $resources->getFields(), 0 ) );
+        $resources3 = new Resources( array_slice( $resources->getFields(), 0 ) );
         $nrOfFieldsTried = 0;
         while ($nrOfFieldsTried++ < count( $resources3->getFields() ) ) {
             $nrOfGamesTriedPerField = $nrOfGamesTried;
-//             echo $this->getConsoleString( $this->counter++, 10) . ' batchnr: ' . $this->getConsoleString($batch->getNumber(), 2)
+//             echo 'batchnr: ' . $this->getConsoleString($batch->getNumber(), 2)
 //                 . ', gamesInBatch: ' . $this->getConsoleString(count($batch->getGames()), 2)
 //                 . ', fieldsTried: ' . $this->getConsoleString($nrOfFieldsTried - 1, 1)
 //                 . ', gamesTried: ' . $this->getConsoleString($nrOfGamesTriedPerField, 2)
 //                 . ', gamesPerBatch: ' . $nrOfGames . PHP_EOL;
-            $resources2 = new Resources( clone $resources3->getDateTime(), array_slice( $resources3->getFields(), 0 ) );
+            $resources2 = new Resources( array_slice( $resources3->getFields(), 0 ) );
             {
-                // om te versnellen, zou je het maxnrinarow kunnen verhogen wanneer dezelfde configuratie al een keer is langsgekomen
-
                 $game = array_shift($games);
-                if (count($games) < 24) { // endsuccess
-                    $e = 1;
-                }
                 if ($this->isGameAssignable($batch, $game, $resources2)) {
                     $this->assignGame($batch, $game, $resources2);
                     $copiedGames = array_slice( $games, 0 );
@@ -373,8 +356,8 @@ class Service {
      */
     protected function toNextBatch(Batch $batch, Resources $resources): Batch {
         foreach( $batch->getGames() as $game ) {
-            $game->setStartDateTime(clone $resources->getDateTime());
             $game->setResourceBatch($batch->getNumber());
+            $game->setStartDateTime(clone $batch->getDateTime());
 
             // hier alle velden toevoegen die er nog niet in staan
             if ( array_search( $game->getField(), $resources->getFields() ) === false ) {
@@ -387,8 +370,9 @@ class Service {
                 $this->referees[] = $game->getReferee();
             }
         }
-        $resources->setDateTime( $this->getNextGameStartDateTime($resources->getDateTime() ) );
-        return $batch->createNext();
+        $nextBatch = $batch->createNext();
+        $nextBatch->setDateTime( $this->getNextGameStartDateTime($batch->getDateTime() ) );
+        return $nextBatch;
     }
 
     private function isGameAssignable(Batch $batch, Game $game, Resources $resources): bool {

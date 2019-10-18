@@ -6,10 +6,6 @@ use Voetbal\Field;
 
 class Resources {
     /**
-     * @var \DateTimeImmutable
-     */
-    private $dateTime;
-    /**
      * @var array|Field[]
      */
     private $fields;
@@ -18,18 +14,9 @@ class Resources {
      */
     private $fieldIndex;
 
-    public function __construct( \DateTimeImmutable $dateTime, array $fields )
+    public function __construct( array $fields )
     {
-        $this->setDateTime($dateTime);
         $this->fields = $fields;
-    }
-
-    public function getDateTime(): \DateTimeImmutable {
-        return $this->dateTime;
-    }
-
-    public function setDateTime( \DateTimeImmutable $dateTime) {
-        $this->dateTime = $dateTime;
     }
 
     /**

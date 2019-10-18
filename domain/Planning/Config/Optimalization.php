@@ -203,7 +203,7 @@ class Optimalization
 
         $structureService = new \Voetbal\Structure\Service();
         $nrOfPoulePlaces = $structureService->getNrOfPlacesPerPoule( $this->nrOfPlaces, $this->nrOfPoules );
-        if( $maxNrOfGamesInARow >= ($nrOfPoulePlaces - 1 )  ) {
+        if( $maxNrOfGamesInARow > ($nrOfPoulePlaces - 1 )  ) {
             $maxNrOfGamesInARow = ($nrOfPoulePlaces - 1 );
 
 //            kun je ook altijd berekenen voor headtohead = 1? wanneer je meerdere sporten hebt dan kan het niet
@@ -227,7 +227,7 @@ class Optimalization
 //                $maxNrOfGamesInARow *= 2;
 //            }
         }
-        $maxNrOfGamesInARow = -1;
+        // $maxNrOfGamesInARow = -1;
         return $maxNrOfGamesInARow;
     }
 

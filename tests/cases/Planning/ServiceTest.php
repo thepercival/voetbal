@@ -40,9 +40,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                 for ($nrOfSports = 1; $nrOfSports <= $maxNrOfSports; $nrOfSports++) {
                     for ($nrOfFields = 1; $nrOfFields <= $maxNrOfFields; $nrOfFields++) {
                         for ($nrOfHeadtohead = 1; $nrOfHeadtohead <= $maxNrOfHeadtohead; $nrOfHeadtohead++) {
-                            if ($nrOfCompetitors !== 16 || $nrOfPoules !== 4  || $nrOfSports !== 1 || $nrOfFields !== 6 || $nrOfHeadtohead !== 2 ) {
-                                continue;
-                            }
+//                            if ($nrOfCompetitors !== 16 || $nrOfPoules !== 4  || $nrOfSports !== 1 || $nrOfFields !== 6 || $nrOfHeadtohead !== 2 ) {
+//                                continue;
+//                            }
                             $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
                             if ($assertConfig !== null) {
                                 echo
