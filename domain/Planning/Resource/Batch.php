@@ -78,6 +78,10 @@ class Batch
         return $this->hasPrevious() ? $this->previous->getRoot() : $this;
     }
 
+    public function getLeaf(): Batch {
+        return $this->hasNext() ? $this->next->getLeaf() : $this;
+    }
+
     public function getGamesInARow(Place $place ): int {
         $hasPlace = $this->hasPlace($place);
         if (!$hasPlace) {

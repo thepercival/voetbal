@@ -31,27 +31,39 @@ class GameGenerator
     }
 
     public function create(RoundNumber $roundNumber ) {
-        foreach( $roundNumber->getPoules() as $poule ) {
-            $this->createPoule($poule, $roundNumber->getValidPlanningConfig());
+        $config = $roundNumber->getValidPlanningConfig();
+        $nrOfHeadtohead = $this->getSufficientNrOfHeadtohead($roundNumber, $config);
+        for ($headtohead = 1; $headtohead <= $nrOfHeadtohead; $headtohead++) {
+            foreach ($roundNumber->getPoules() as $poule) {
+                $this->createPoule($poule, $config, $headtohead);
+            }
         }
     }
 
-    protected function createPoule(Poule $poule, PlanningConfig $config ) {
-        $nrOfHeadtohead = $this->sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
-        if ($config->getNrOfHeadtohead() > $nrOfHeadtohead) {
-            $nrOfHeadtohead = $config->getNrOfHeadtohead();
+    protected function getSufficientNrOfHeadtohead( RoundNumber $roundNumber, PlanningConfig $config ) {
+        $nrOfHeadtohead = 0;
+        foreach( $roundNumber->getPoules() as $poule ) {
+            $newNrOfHeadtohead = $this->sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
+            if( $newNrOfHeadtohead > $nrOfHeadtohead ) {
+                $nrOfHeadtohead = $newNrOfHeadtohead;
+            }
         }
+        if ($config->getNrOfHeadtohead() > $nrOfHeadtohead) {
+             return $config->getNrOfHeadtohead();
+        }
+        return $nrOfHeadtohead;
+    }
+
+    protected function createPoule(Poule $poule, PlanningConfig $config, int $headtohead ) {
         $gameRounds = $this->createPouleGameRounds($poule, $config->getTeamup());
-        for ($headtohead = 1; $headtohead <= $nrOfHeadtohead; $headtohead++) {
-            $reverseHomeAway = ($headtohead % 2) === 0;
-            $startGameRoundNumber = (($headtohead - 1) * count($gameRounds));
-            foreach( $gameRounds as $gameRound ) {
-                $subNumber = 1;
-                foreach( $gameRound->getCombinations() as $combination ) {
-                    $game = new Game($poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
-                    $gamePlaces = new ArrayCollection( $combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
-                    $game->setPlaces( $gamePlaces );
-                }
+        $reverseHomeAway = ($headtohead % 2) === 0;
+        $startGameRoundNumber = (($headtohead - 1) * count($gameRounds));
+        foreach( $gameRounds as $gameRound ) {
+            $subNumber = 1;
+            foreach( $gameRound->getCombinations() as $combination ) {
+                $game = new Game($poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
+                $gamePlaces = new ArrayCollection( $combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
+                $game->setPlaces( $gamePlaces );
             }
         }
     }

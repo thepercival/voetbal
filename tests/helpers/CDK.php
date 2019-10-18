@@ -74,10 +74,10 @@ function addSport(Competition $competition ) {
     return $sport;
 }
 
-$assertConfig = new AssertConfig(16, 2, 16, [4,8]);
-$nrOfCompetitors = 5;
-$nrOfPoules = 2;
+$assertConfig = new AssertConfig(48, 3, 8, [6]);
+$nrOfCompetitors = 16;
+$nrOfPoules = 4;
 $nrOfSports = 1;
-$nrOfFields = 1;
-$nrOfHeadtohead = 4;
+$nrOfFields = 6;
+$nrOfHeadtohead = 2;
 checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig);

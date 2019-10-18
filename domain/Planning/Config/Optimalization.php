@@ -196,16 +196,38 @@ class Optimalization
         }
 
         $maxNrOfGamesInARow = (int) ceil($this->nrOfPlaces / $nrOfRestPerBatch) - 1;
-        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch) {
+        // 12 places per batch 16 places
+        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch && $this->nrOfPoules === 1 ) {
             $maxNrOfGamesInARow++;
         }
 
         $structureService = new \Voetbal\Structure\Service();
         $nrOfPoulePlaces = $structureService->getNrOfPlacesPerPoule( $this->nrOfPlaces, $this->nrOfPoules );
-        if( $maxNrOfGamesInARow > ($nrOfPoulePlaces - 1 )  ) {
+        if( $maxNrOfGamesInARow >= ($nrOfPoulePlaces - 1 )  ) {
             $maxNrOfGamesInARow = ($nrOfPoulePlaces - 1 );
-        }
 
+//            kun je ook altijd berekenen voor headtohead = 1? wanneer je meerdere sporten hebt dan kan het niet
+//            omdat je soms niet alle sporten binnen 1 h2h kan doen
+//            dan zou je moeten zeggen dat alle sporten binnen 1 h2h afgewerkt moeten kunnen worden
+//            dus bij 3 sporten heb je dan minimaal 4 deelnemers per poule nodig
+//            heb je acht sporten dan heb je dus minimaal een poule van 9 nodig,
+//
+//            je zou dan wel alle velden moeten gebruiken
+//            omdat je niet weet welke sport op welk veld gespeeld wordt, dan krijg je dus een andere planning!!
+
+//            je zou dan ervoor kunnen kiezen om 2 poules van 5 te doen en dan iedereen 2x tegen elkaar
+//            je pakt dan gewoon
+
+
+            //         const sportPlanningConfigService = new SportPlanningConfigService();
+            //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
+            //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
+//            $nrOfHeadtohead = 2;
+//            if( $nrOfHeadtohead > 1 ) {
+//                $maxNrOfGamesInARow *= 2;
+//            }
+        }
+        $maxNrOfGamesInARow = -1;
         return $maxNrOfGamesInARow;
     }
 
