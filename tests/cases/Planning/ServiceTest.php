@@ -29,28 +29,29 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $maxNrOfCompetitors = 40;
         $maxNrOfSports = 1;
         $maxNrOfFields = 20;
+        $maxNrOfHeadtohead = 4;
         $optimalizationService = new OptimalizationService();
 
         for ($nrOfCompetitors = 2; $nrOfCompetitors <= $maxNrOfCompetitors; $nrOfCompetitors++) {
             $nrOfPoules = 0;
             // let teamup = false;
             // let selfReferee = false;
-            $maxNrOfHeadtohead = 4;
+
             while ( ((int) floor($nrOfCompetitors / ++$nrOfPoules)) >= 2) {
                 for ($nrOfSports = 1; $nrOfSports <= $maxNrOfSports; $nrOfSports++) {
                     for ($nrOfFields = 1; $nrOfFields <= $maxNrOfFields; $nrOfFields++) {
                         for ($nrOfHeadtohead = 1; $nrOfHeadtohead <= $maxNrOfHeadtohead; $nrOfHeadtohead++) {
-                            if ($nrOfCompetitors !== 40/* || $nrOfPoules !== 1  || $nrOfSports !== 1 || $nrOfFields !== 1 || $nrOfHeadtohead !== 3*/ ) {
+                            if ($nrOfCompetitors !== 8 || $nrOfPoules > 1 || $nrOfSports !== 1 || $nrOfFields > 3 /*|| $nrOfHeadtohead !== 3*/ ) {
                                 continue;
                             }
-                            $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
-                            if ($assertConfig !== null) {
+                              $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
+//                            if ($assertConfig !== null) {
                                 echo
                                     'nrOfCompetitors ' . $nrOfCompetitors . ', nrOfPoules ' . $nrOfPoules . ', nrOfSports ' . $nrOfSports
                                     . ', nrOfFields ' . $nrOfFields . ', nrOfHeadtohead ' . $nrOfHeadtohead
                                     . PHP_EOL;
                                 $this->checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig, $optimalizationService);
-                            }
+//                            }
                         }
                     }
                 }
@@ -181,7 +182,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         int $nrOfSports,
         int $nrOfFields,
         int $nrOfHeadtohead,
-        AssertConfig $assertConfig,
+        AssertConfig $assertConfig = null,
         OptimalizationService $optimalizationService
     ) {
         $competition = createCompetition();
@@ -220,8 +221,11 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         }
 
         $planningService->create($firstRoundNumber);
+        if( $assertConfig === null ) {
+            return;
+        }
         $games = $planningService->getGamesForRoundNumber($firstRoundNumber, Game::ORDER_RESOURCEBATCH);
-        consoleGames($games); echo PHP_EOL;
+        // consoleGames($games); echo PHP_EOL;
         $this->assertEquals( count($games), $assertConfig->nrOfGames, 'het aantal wedstrijd voor de hele ronde komt niet overeen' );
         $this->assertValidResourcesPerBatch($games);
         foreach( $firstRoundNumber->getPlaces() as $place ) {

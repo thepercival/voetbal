@@ -197,7 +197,11 @@ class Optimalization
 
         $maxNrOfGamesInARow = (int) ceil($this->nrOfPlaces / $nrOfRestPerBatch) - 1;
         // 12 places per batch 16 places
-        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch && $this->nrOfPoules === 1 ) {
+//        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch && $this->nrOfPoules === 1 ) {
+//            $maxNrOfGamesInARow++;
+//        }
+
+        if ($nrOfPlacesPerBatch >= $nrOfRestPerBatch && ( $nrOfPlacesPerBatch % $nrOfRestPerBatch ) === 0 && $this->nrOfPoules === 1 ) {
             $maxNrOfGamesInARow++;
         }
 
