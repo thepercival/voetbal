@@ -293,6 +293,20 @@ class Number
      */
     public function getSportPlanningConfigs(): Collection {
         return $this->sportPlanningConfigs;
+        // hieronder staat typescript equivalent
+        // probleem in typescript , daar moet een check op voor multiple sports
+
+//        if (this.sportPlanningConfigs !== undefined) {
+//            return this.sportPlanningConfigs;
+//        }
+//        this.sportPlanningConfigs = [];
+//
+//        this.getSportConfigs().forEach(sportConfig => {
+//            const sportPlanningConfig = new SportPlanningConfig(sportConfig.getSport(), this);
+//            sportPlanningConfig.setMinNrOfGames(this.getCompetition().getNrOfFields(sportConfig.getSport()));
+//            this.sportPlanningConfigs.push(sportPlanningConfig);
+//        });
+//        return this.sportPlanningConfigs;
     }
 
     public function getSportPlanningConfig(Sport $sport = null ): ?SportPlanningConfig {

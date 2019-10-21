@@ -26,9 +26,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 {
     public function testVariations()
     {
-        $maxNrOfCompetitors = 16;
+        $maxNrOfCompetitors = 40;
         $maxNrOfSports = 1;
-        $maxNrOfFields = 8;
+        $maxNrOfFields = 20;
         $optimalizationService = new OptimalizationService();
 
         for ($nrOfCompetitors = 2; $nrOfCompetitors <= $maxNrOfCompetitors; $nrOfCompetitors++) {
@@ -40,9 +40,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                 for ($nrOfSports = 1; $nrOfSports <= $maxNrOfSports; $nrOfSports++) {
                     for ($nrOfFields = 1; $nrOfFields <= $maxNrOfFields; $nrOfFields++) {
                         for ($nrOfHeadtohead = 1; $nrOfHeadtohead <= $maxNrOfHeadtohead; $nrOfHeadtohead++) {
-//                            if ($nrOfCompetitors !== 16 || $nrOfPoules !== 4  || $nrOfSports !== 1 || $nrOfFields !== 6 || $nrOfHeadtohead !== 2 ) {
-//                                continue;
-//                            }
+                            if ($nrOfCompetitors !== 40/* || $nrOfPoules !== 1  || $nrOfSports !== 1 || $nrOfFields !== 1 || $nrOfHeadtohead !== 3*/ ) {
+                                continue;
+                            }
                             $assertConfig = $this->getAssertionsConfig($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead);
                             if ($assertConfig !== null) {
                                 echo
@@ -121,6 +121,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                 }
             }
             $batches[$game->getResourceBatch()] = $some;
+        }
+        if( $maxInRow < 0 ) {
+            return;
         }
         $nrOfGamesInRow = 0;
         for ($i = 1; $i <= $maxBatchNr; $i++) {
@@ -223,9 +226,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertValidResourcesPerBatch($games);
         foreach( $firstRoundNumber->getPlaces() as $place ) {
             $this->assertValidGamesParticipations($place, $games, $assertConfig->nrOfPlaceGames);
-            if( $assertConfig->maxNrOfGamesInARow >= 0 ) {
-                $this->assertGamesInRow($place, $games, $assertConfig->maxNrOfGamesInARow);
-            }
+            $this->assertGamesInRow($place, $games, $assertConfig->maxNrOfGamesInARow);
         }
         $this->assertLessThan( $assertConfig->maxNrOfBatches + 1, array_pop( $games )->getResourceBatch(), 'het aantal batches moet minder zijn dan ..' );
     }
@@ -239,7 +240,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     ): ?AssertConfig {
         $competitors = [
             2 => Variations\Config2::get(), 3 => Variations\Config3::get(), 4 => Variations\Config4::get(), 5 => Variations\Config5::get(),
-            8 => Variations\Config8::get(), 16 => Variations\Config16::get(),
+            8 => Variations\Config8::get(), 9 => Variations\Config9::get(), 16 => Variations\Config16::get(), 40 => Variations\Config40::get(),
         ];
 
         if ( array_key_exists( $nrOfCompetitors, $competitors ) === false) {

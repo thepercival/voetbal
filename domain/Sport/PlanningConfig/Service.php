@@ -342,10 +342,10 @@ class Service {
         $y = $this->faculty($top);
         $z = ($this->faculty($top - $bottom) * $this->faculty($bottom));
         $x = $y / $z;
-        return $x;
+        return (int) $x;
     }
 
-    protected function faculty(int $x): int {
+    protected function faculty(float $x): float {
         if ($x > 1) {
             return $this->faculty($x - 1) * $x;
         }
