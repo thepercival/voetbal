@@ -200,7 +200,7 @@ class Optimalization
 //        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch && $this->nrOfPoules === 1 ) {
 //            $maxNrOfGamesInARow++;
 //        }
-
+// @TODO CDK ADD TO TYPESCRIPT
         if ($nrOfPlacesPerBatch >= $nrOfRestPerBatch && ( $nrOfPlacesPerBatch % $nrOfRestPerBatch ) === 0 && $this->nrOfPoules === 1 ) {
             $maxNrOfGamesInARow++;
         }
