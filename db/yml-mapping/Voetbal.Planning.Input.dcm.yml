@@ -1,0 +1,34 @@
+Voetbal\Planning\Input:
+  type: entity
+  repositoryClass: Voetbal\Planning\Input\Repository
+  table: plannings
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    structureConfig:
+      type: json
+      nullable: false
+      unique: false
+    fieldConfig:
+      type: json
+      nullable: false
+      unique: false
+    nrOfReferees:
+      type: smallint
+      nullable: false
+      unique: false
+    nrOfHeadtohead:
+      type: smallint
+      nullable: false
+      unique: false
+    teamup:
+      type: boolean
+      nullable: false
+      unique: false
+    selfReferee:
+      type: boolean
+      nullable: false
+      unique: false

@@ -8,7 +8,7 @@
 
 namespace Voetbal\Planning\Config\Optimalization;
 
-use Voetbal\Planning\Config\Optimalization as ConfigOptimalization;
+use Voetbal\Planning\Config\Input as ConfigOptimalization;
 use Voetbal\Sport;
 
 class Service

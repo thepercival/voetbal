@@ -13,30 +13,6 @@ Voetbal\Planning:
       generator:
         strategy: AUTO
   fields:
-    structureConfig:
-      type: json
-      nullable: false
-      unique: false
-    fieldConfig:
-      type: json
-      nullable: false
-      unique: false
-    nrOfReferees:
-      type: smallint
-      nullable: false
-      unique: false
-    nrOfHeadtohead:
-      type: smallint
-      nullable: false
-      unique: false
-    teamup:
-      type: boolean
-      nullable: false
-      unique: false
-    selfReferee:
-      type: boolean
-      nullable: false
-      unique: false
     minNrOfBatchGames:
       type: smallint
       nullable: false
@@ -49,7 +25,33 @@ Voetbal\Planning:
       type: smallint
       nullable: false
       unique: false
+    createdDateTime:
+      type: datetime_immutable
+      nullable: false
+      unique: false
+    timeoutSeconds:
+      type: int
+      nullable: true
+      unique: false
     state:
       type: smallint
       nullable: false
       unique: false # failed, timout, success, successfinal
+  manyToOne:
+    input:
+      targetEntity: Voetbal\Planning\Input
+      joinColumn:
+        name: inputid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+      # cascade: [ persist ]
+  oneToMany:
+    games:
+      targetEntity: Voetbal\Planning\Game
+      mappedBy: planning
+      cascade: [ persist, remove ]
+  uniqueConstraints:
+    number_v_idx:
+      columns: [ inputid, minNrOfBatchGames, maxNrOfBatchGames, maxNrOfGamesInARow ]
+

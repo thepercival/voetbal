@@ -1,6 +1,6 @@
 <?php
 
-namespace Voetbal\Planning\Config;
+namespace Voetbal\Planning;
 
 use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Planning\Resource\Batch;
@@ -9,16 +9,16 @@ use Voetbal\Sport;
 use Voetbal\Range;
 use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 
-class Optimalization
+class Input
 {
     /**
-     * @var int
+     * @var array
      */
-    protected $nrOfFields;
+    protected $structureConfig;
     /**
-     * @var bool
+     * @var array
      */
-    protected $selfReferee;
+    protected $fieldConfig;
     /**
      * @var int
      */
@@ -26,62 +26,56 @@ class Optimalization
     /**
      * @var int
      */
-    protected $nrOfPoules;
-    /**
-     * @var int
-     */
-    protected $nrOfPlaces;
+    protected $nrOfHeadtohead;
     /**
      * @var bool
      */
     protected $teamup;
-
     /**
-     * @var Range
+     * @var bool
      */
-    protected $currentNrOfBatchGames;
-    /**
-     * @var array
-     */
-    protected $maxNrOfGamesInARow = [];
+    protected $selfReferee;
 
-    public function __construct( int $nrOfFields, bool $selfReferee, int $nrOfReferees, int $nrOfPoules, int $nrOfPlaces, bool $teamup ) {
-        $this->nrOfFields = $nrOfFields;
-        $this->selfReferee = $selfReferee;
+    public function __construct( array $structureConfig, array $fieldConfig, int $nrOfReferees, int $nrOfHeadtohead, bool $teamup, bool $selfReferee ) {
+        $this->structureConfig = $structureConfig;
+        $this->fieldConfig = $fieldConfig;
+
         $this->nrOfReferees = $nrOfReferees;
-        $this->nrOfPoules = $nrOfPoules;
-        $this->nrOfPlaces = $nrOfPlaces;
+        $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->teamup = $teamup;
-
-        $maxNrOfGamesPerBatch = $this->getInitialMaxNrOfBatchGames();
-        $this->currentNrOfBatchGames = new Range( $maxNrOfGamesPerBatch, $maxNrOfGamesPerBatch);
-        $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )] = $this->getInitialMaxNrOfGamesInARow( $this->currentNrOfBatchGames->max );
+        $this->selfReferee = $selfReferee;
     }
 
-    public function getMaxNrOfGamesPerBatch(): Range {
-        return $this->currentNrOfBatchGames;
+
+//    public function increase(): Input {
+//
+//    }
+
+    public function getStructureConfig(): array {
+        return $this->structureConfig;
     }
 
-    public function decreaseNrOfBatchGames(): Range {
-        $this->currentNrOfBatchGames->min--;
-        if( array_key_exists( $this->getId( $this->currentNrOfBatchGames ), $this->maxNrOfGamesInARow ) === false ) {
-            $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )] = $this->getInitialMaxNrOfGamesInARow( $this->currentNrOfBatchGames->max );
-        }
-        return $this->currentNrOfBatchGames;
+    public function getFieldConfig(): array {
+        return $this->fieldConfig;
     }
 
-    protected function getId( Range $nrOfBatchGames ): string {
-        return $nrOfBatchGames->min . "-" . $nrOfBatchGames->max;
+    public function getNrOfReferees(): int {
+        return $this->nrOfReferees;
     }
 
-    public function getMaxNrOfGamesInARow(): int {
-        return $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )];
+    public function getNrOfHeadtohead(): int {
+        return $this->nrOfHeadtohead;
     }
 
-    public function setMaxNrOfGamesInARow( int $maxNrOfGamesInARow ): int {
-        $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )] = $maxNrOfGamesInARow;
-        return $this->maxNrOfGamesInARow[$this->getId( $this->currentNrOfBatchGames )];
+    public function getTeamup(): bool {
+        return $this->teamup;
     }
+
+    public function getSelfReferee(): bool {
+        return $this->selfReferee;
+    }
+
+    // beneath is old
 
     protected function getInitialMaxNrOfBatchGames(): int {
         // $maxNrOfGamesPerBatch = count($this->fields);

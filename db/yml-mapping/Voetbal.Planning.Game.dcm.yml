@@ -1,7 +1,7 @@
-Voetbal\Planning\Detail:
+Voetbal\Planning\Game:
   type: entity
-  repositoryClass: Voetbal\Planning\Detail\Repository
-  table: planningdetails
+  repositoryClass: Voetbal\Planning\Game\Repository
+  table: planninggames
   id:
     id:
       type: integer
@@ -16,16 +16,20 @@ Voetbal\Planning\Detail:
       type: smallint
       nullable: false
       unique: false
-    batchNr:
-      type: smallint
-      nullable: false
-      unique: false
     homePlaces:
       type: string
       nullable: false
       unique: false
     awayPlaces:
       type: string
+      nullable: false
+      unique: false
+    fieldNr:
+      type: smallint
+      nullable: false
+      unique: false
+    batchNr:
+      type: smallint
       nullable: false
       unique: false
     refereePlaceNr:
@@ -36,7 +40,13 @@ Voetbal\Planning\Detail:
       type: smallint
       nullable: false
       unique: false
-    fieldNr:
-      type: smallint
-      nullable: false
-      unique: false
+  manyToOne:
+    planning:
+      targetEntity: Voetbal\Planning
+      inversedBy: games
+      joinColumn:
+        name: roundid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+      # cascade: [ persist ]
