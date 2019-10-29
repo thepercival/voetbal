@@ -1,0 +1,55 @@
+# process: maxNrOfBatchGames laten beginnen op 1
+# dan eerst maxNrOfGamesInARow verlagen totdat er een fail of een timeout is
+# daarna maxNrOfBatchGames verhogen!
+# als er niets is, moet er een sub optimale planning worden gemaakt
+
+Voetbal\Planning:
+  type: entity
+  repositoryClass: Voetbal\Planning\Repository
+  table: plannings
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    structureConfig:
+      type: json
+      nullable: false
+      unique: false
+    fieldConfig:
+      type: json
+      nullable: false
+      unique: false
+    nrOfReferees:
+      type: smallint
+      nullable: false
+      unique: false
+    nrOfHeadtohead:
+      type: smallint
+      nullable: false
+      unique: false
+    teamup:
+      type: boolean
+      nullable: false
+      unique: false
+    selfReferee:
+      type: boolean
+      nullable: false
+      unique: false
+    minNrOfBatchGames:
+      type: smallint
+      nullable: false
+      unique: false
+    maxNrOfBatchGames:
+      type: smallint
+      nullable: false
+      unique: false
+    maxNrOfGamesInARow:
+      type: smallint
+      nullable: false
+      unique: false
+    state:
+      type: smallint
+      nullable: false
+      unique: false # failed, timout, success, successfinal

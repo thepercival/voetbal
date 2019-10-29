@@ -184,7 +184,7 @@ class Optimalization
         // }
     }
 
-    protected function getInitialMaxNrOfGamesInARow(int $maxNrOfBatchGames ) {
+    protected function getInitialMaxNrOfGamesInARow(int $maxNrOfBatchGames ): int {
         $nrOfGamePlaces = $this->getNrOfGamePlaces( $this->selfReferee, $this->teamup);
 
         // @TODO only when all games(field->sports) have equal nrOfPlacesPerGame
@@ -200,10 +200,9 @@ class Optimalization
 //        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch && $this->nrOfPoules === 1 ) {
 //            $maxNrOfGamesInARow++;
 //        }
-// @TODO CDK ADD TO TYPESCRIPT
-        if ($nrOfPlacesPerBatch >= $nrOfRestPerBatch && ( $nrOfPlacesPerBatch % $nrOfRestPerBatch ) === 0 && $this->nrOfPoules === 1 ) {
-            $maxNrOfGamesInARow++;
-        }
+//        if ($nrOfPlacesPerBatch >= $nrOfRestPerBatch && ( $nrOfPlacesPerBatch % $nrOfRestPerBatch ) === 0 && $this->nrOfPoules === 1 ) {
+//            $maxNrOfGamesInARow++;
+//        }
 
         $structureService = new \Voetbal\Structure\Service();
         $nrOfPoulePlaces = $structureService->getNrOfPlacesPerPoule( $this->nrOfPlaces, $this->nrOfPoules );
@@ -232,6 +231,15 @@ class Optimalization
 //            }
         }
         // $maxNrOfGamesInARow = -1;
+
+        if ($this->nrOfPlaces === 8) {
+            if ($nrOfPlacesPerBatch >= $nrOfRestPerBatch && ($nrOfPlacesPerBatch % $nrOfRestPerBatch) === 0 && $this->nrOfPoules === 1
+                && ($this->nrOfFields % 2) === 1
+            ) {
+                $maxNrOfGamesInARow++;
+            }
+        }
+
         return $maxNrOfGamesInARow;
     }
 

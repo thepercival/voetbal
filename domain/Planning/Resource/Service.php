@@ -73,6 +73,10 @@ class Service {
      * @var array|PlanningPlace[]
      */
     private $planningPlaces;
+    /**
+     * @var Resources
+     */
+    private $successfullResources;
 
     /**
      * @var OptimalizationService
@@ -209,32 +213,29 @@ class Service {
         );
 
         $nrOfBatchGames = $optimalization->getMaxNrOfGamesPerBatch();
-        while( $nrOfBatchGames->min > 0 ) {
 
-            $this->maxNrOfGamesInARow = $optimalization->getMaxNrOfGamesInARow();
-            echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
-            // die();
-            $this->initPlanningPlaces();
-            $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
-            $gamesTmp = array_slice($games, 0 );
+        $this->maxNrOfGamesInARow = $optimalization->getMaxNrOfGamesInARow();
+        echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
+        // die();
+        $this->initPlanningPlaces();
+        $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
+        $gamesTmp = array_slice($games, 0 );
 
-            if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
-                return $batch->getLeaf();
-            }
-
-            $this->maxNrOfGamesInARow = $optimalization->setMaxNrOfGamesInARow( ++$this->maxNrOfGamesInARow );
-            echo "trying2 for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
-           // die();
-            $this->initPlanningPlaces();
-            $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
-            $gamesTmp = array_slice($games, 0 );
-            if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
-                return  $batch->getLeaf();
-            }
-
-            $optimalization->decreaseNrOfBatchGames();
+        if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
+            return $this->getActiveLeaf( $batch->getLeaf(), $nrOfBatchGames->max);
         }
+
         return null;
+    }
+
+    protected function getActiveLeaf(Batch $batch, int $nrOfBatchGames): Batch {
+        if ($batch->hasPrevious() === false) {
+            return $batch;
+        }
+        if ( count( $batch->getPrevious()->getGames() ) === $nrOfBatchGames) {
+            return $batch;
+        }
+        return $this->getActiveLeaf( $batch->getPrevious(), $nrOfBatchGames);
     }
 
     /**
@@ -255,6 +256,7 @@ class Service {
             // console.log('-------------------');
             // }
             if (count($games) === 0) { // endsuccess
+                $this->successfullResources = $resources;
                 return true;
             }
             if( $this->assignBatchHelper($games, $resources, $nrOfBatchGames, $nextBatch ) === true ) {

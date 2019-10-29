@@ -30,7 +30,7 @@ function consoleGame(Game $game, PlanningResourceBatch $batch = null) {
     $nameService = new NameService();
     $refDescr = ($game->getRefereePlace() ? $nameService->getPlaceFromName($game->getRefereePlace(), false, false) : '');
     $refNumber = $game->getRefereePlace() ? $game->getRefereePlace()->getNumber() : 0;
-    echo consoleColor($game->getResourceBatch(), 'batch ' . $game->getResourceBatch() ) . " " .
+    echo consoleColor($game->getResourceBatch() % 10, 'batch ' . $game->getResourceBatch() ) . " " .
         $game->getStartDateTime()->format("Y-m-d H:i") . " : "
         // . '(' . $game->getRoundNumber(), 2 ) . consoleString( $game->getSubNumber(), 2 ) . ") "
         . 'poule ' . $game->getPoule()->getNumber()
@@ -59,7 +59,7 @@ function consoleColor(int $number, string $content ): string {
     if ($number === 1) {
         $sColor = '0;31'; // red
     } else if ($number === 2) {
-        $sColor = '0;32'; // '1;32' green
+        $sColor = '0;32'; // green
     } else if ($number === 3) {
         $sColor = '0;34'; // blue;
     } else if ($number === 4) {
@@ -69,7 +69,11 @@ function consoleColor(int $number, string $content ): string {
     } else if ($number === 6) {
         $sColor = '0;37'; // light_gray
     } else if ($number === 7) {
-        $sColor = '0;36'; // '1;36' // cyan
+        $sColor = '0;36'; // cyan
+    } else if ($number === 8) {
+        $sColor = '1;32'; // light green
+    } else if ($number === 9) {
+        $sColor = '1;36'; // light cyan
     } else {
         $sColor = '1;37'; // white
     }

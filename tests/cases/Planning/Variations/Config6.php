@@ -4,7 +4,7 @@ namespace Voetbal\Tests\Planning\Variations;
 
 use Voetbal\Tests\Planning\AssertConfig;
 
-class Config5
+class Config6
 {
     public static function get(): array
     {
@@ -80,14 +80,6 @@ class Config5
                                         2 => new AssertConfig(8, 2, 6, [2,4]),
                                         3 => new AssertConfig(12, 2, 10, [3,6]),
                                         4 => new AssertConfig(16, 2, 13, [4,8]),
-                                    ]
-                                ],
-                                3 => [
-                                    "nrOfHeadtohead" => [
-                                        1 => new AssertConfig(4, 2, 4, [1,2])/*,
-                                        2 => new AssertConfig(8, 2, 6, [2,4]),
-                                        3 => new AssertConfig(12, 2, 10, [3,6]),
-                                        4 => new AssertConfig(16, 2, 13, [4,8]),*/
                                     ]
                                 ]
                             ]

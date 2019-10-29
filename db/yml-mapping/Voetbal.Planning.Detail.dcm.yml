@@ -1,0 +1,42 @@
+Voetbal\Planning\Detail:
+  type: entity
+  repositoryClass: Voetbal\Planning\Detail\Repository
+  table: planningdetails
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    roundNr:
+      type: smallint
+      nullable: false
+      unique: false
+    subNr:
+      type: smallint
+      nullable: false
+      unique: false
+    batchNr:
+      type: smallint
+      nullable: false
+      unique: false
+    homePlaces:
+      type: string
+      nullable: false
+      unique: false
+    awayPlaces:
+      type: string
+      nullable: false
+      unique: false
+    refereePlaceNr:
+      type: string
+      nullable: false
+      unique: false
+    refereeNr:
+      type: smallint
+      nullable: false
+      unique: false
+    fieldNr:
+      type: smallint
+      nullable: false
+      unique: false

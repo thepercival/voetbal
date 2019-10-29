@@ -244,6 +244,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     ): ?AssertConfig {
         $competitors = [
             2 => Variations\Config2::get(), 3 => Variations\Config3::get(), 4 => Variations\Config4::get(), 5 => Variations\Config5::get(),
+            6 => Variations\Config5::get(),
             8 => Variations\Config8::get(), 9 => Variations\Config9::get(), 16 => Variations\Config16::get(), 40 => Variations\Config40::get(),
         ];
 
