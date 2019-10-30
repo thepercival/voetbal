@@ -35,7 +35,6 @@ class Game
      * @var int
      */
     protected $fieldNr;
-
     /**
      * @var int
      */

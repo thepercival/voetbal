@@ -12,7 +12,7 @@ Voetbal\Planning\Input:
       type: json
       nullable: false
       unique: false
-    fieldConfig:
+    sportConfig:
       type: json
       nullable: false
       unique: false
