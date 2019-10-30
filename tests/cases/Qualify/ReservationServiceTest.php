@@ -32,7 +32,7 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
         $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService();
         $planningService->create($rootRound->getNumber());
 
         $pouleOne = $rootRound->getPoule(1);
@@ -78,7 +78,7 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
 
         $structureService->addPoule($rootRound->getChild(QualifyGroup::WINNERS, 1));
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService();
         $planningService->create($rootRound->getNumber());
 
         $pouleOne = $rootRound->getPoule(1);
@@ -165,7 +165,7 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
 
         $structureService->removePoule($rootRound->getChild(QualifyGroup::WINNERS, 1));
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService();
         $planningService->create($rootRound->getNumber());
 
         $pouleOne = $rootRound->getPoule(1);

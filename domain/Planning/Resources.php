@@ -14,6 +14,11 @@ class Resources {
      */
     private $fieldIndex;
 
+    const FIELDS = 1;
+    const REFEREES = 2;
+    const PLACES = 4;
+
+
     public function __construct( array $fields )
     {
         $this->fields = $fields;

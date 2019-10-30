@@ -1,7 +1,7 @@
 Voetbal\Planning\Input:
   type: entity
   repositoryClass: Voetbal\Planning\Input\Repository
-  table: plannings
+  table: planninginputs
   id:
     id:
       type: integer

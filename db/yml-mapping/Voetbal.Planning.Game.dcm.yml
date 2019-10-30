@@ -17,11 +17,11 @@ Voetbal\Planning\Game:
       nullable: false
       unique: false
     homePlaces:
-      type: string
+      type: json
       nullable: false
       unique: false
     awayPlaces:
-      type: string
+      type: json
       nullable: false
       unique: false
     fieldNr:
@@ -45,7 +45,7 @@ Voetbal\Planning\Game:
       targetEntity: Voetbal\Planning
       inversedBy: games
       joinColumn:
-        name: roundid
+        name: planningid
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE

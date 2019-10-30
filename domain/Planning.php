@@ -8,10 +8,16 @@
 
 namespace Voetbal;
 
-use Planning\Input;
+use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning\Input as PlanningInput;
+use Voetbal\Planning\Game as PlanningGame;
 
 class Planning
 {
+    /**
+     * @var int
+     */
+    private $id;
     /**
      * @var int
      */
@@ -37,14 +43,23 @@ class Planning
      */
     protected $state;
     /**
-     * @var Input
+     * @var PlanningInput
      */
     protected $input;
+    /**
+     * @var PlanningGame[] | ArrayCollection
+     */
+    protected $games;
 
     const STATE_FAILED = 1;
     const STATE_TIMEOUT = 2;
     const STATE_SUCCESS_PARTIAL = 4;
     const STATE_SUCCESS = 8;
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     public function getMinNrOfBatchGames(): int {
         return $this->minNrOfBatchGames;
@@ -96,11 +111,18 @@ class Planning
         $this->state = $state;
     }
 
-    public function getInput(): Input {
+    public function getInput(): PlanningInput {
         return $this->input;
     }
 
-    public function setInput( Input $input ) {
+    public function setInput( PlanningInput $input ) {
         $this->input = $input;
+    }
+
+    /**
+     * @return PlanningGame[] | ArrayCollection
+     */
+    public function getGames(): ArrayCollection {
+        return $this->games;
     }
 }

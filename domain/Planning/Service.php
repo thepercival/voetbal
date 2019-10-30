@@ -22,27 +22,15 @@ class Service
      * @var GameGenerator
      */
     private $gameGenerator;
-    /**
-     * @var Competition
-     */
-    private $competition;
+
     /**
      * @var Period
      */
     protected $blockedPeriod;
-    /**
-     * @var OptimalizationService
-     */
-    private $optimalizationService;
 
-    public function __construct( Competition $competition, OptimalizationService $optimalizationService = null)
+    public function __construct()
     {
         $this->gameGenerator = new GameGenerator();
-        $this->competition = $competition;
-        if( $optimalizationService === null ) {
-            $optimalizationService = new OptimalizationService();
-        }
-        $this->optimalizationService = $optimalizationService;
     }
 
     public function setBlockedPeriod(\DateTimeImmutable $startDateTime, int $durationInMinutes) {
@@ -51,9 +39,9 @@ class Service
         $this->blockedPeriod = new Period($startDateTime, $endDateTime);
     }
 
-    public function getStartDateTime(): \DateTimeImmutable {
-        return $this->competition->getStartDateTime();
-}
+//    public function getStartDateTime(): \DateTimeImmutable {
+//        return $this->competition->getStartDateTime();
+//}
 
     public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ) {
         if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
@@ -61,6 +49,7 @@ class Service
         }
         $this->removeNumber($roundNumber);
         $this->gameGenerator->create($roundNumber);
+
         $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
         if ($roundNumber->hasNext()) {
             $this->create($roundNumber->getNext(), $startNextRound);
@@ -91,16 +80,66 @@ class Service
     }
 
     protected function rescheduleHelper(RoundNumber $roundNumber, \DateTimeImmutable $pStartDateTime = null): \DateTimeImmutable {
+
+        $planningConfig = $roundNumber->getValidPlanningConfig();
+
+        $inputPlanning = new Input(
+            $this->getStructureConfig( $roundNumber ),
+            $this->getSportConfig( $roundNumber ),
+            $roundNumber->getCompetition()->getReferees()->count(),
+            $planningConfig->getNrOfHeadtohead(),
+            $planningConfig->getTeamup(),
+            $planningConfig->getSelfReferee()
+        );
+
         $dateTime = ($pStartDateTime !== null) ? clone $pStartDateTime : null;
-        $fields = $this->competition->getFields()->toArray();
+        $fields = $this->getFieldsUsable($roundNumber, $inputPlanning);
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $referees = $this->competition->getReferees()->toArray();
+        $referees = $roundNumber->getCompetition()->getReferees()->toArray();
         $refereePlaces = $this->getRefereePlaces($roundNumber, $games);
         $nextDateTime = $this->assignResourceBatchToGames($roundNumber, $dateTime, $fields, $referees, $refereePlaces);
         if ($nextDateTime !== null) {
-            return $nextDateTime->modify("+" . $roundNumber->getValidPlanningConfig()->getMinutesAfter() . " minutes");
+            return $nextDateTime->modify("+" . $planningConfig->getMinutesAfter() . " minutes");
         }
         return $nextDateTime;
+    }
+
+    protected function getStructureConfig( RoundNumber $roundNumber ): array {
+        $nrOfPlacesPerPoule = [];
+        foreach( $roundNumber->getPoules() as $poule ) {
+            $nrOfPlacesPerPoule[] = $poule->getPlaces()->count();
+        }
+        return $nrOfPlacesPerPoule;
+    }
+
+    /**
+     * @param RoundNumber $roundNumber
+     * @return array
+     */
+    protected function getSportConfig( RoundNumber $roundNumber ): array {
+        $sportConfigRet = [];
+        /** @var \Voetbal\Sport\Config $sportConfig */
+        foreach( $roundNumber->getSportConfigs() as $sportConfig ) {
+            $sportConfigRet = [ "nrOfFields" => $sportConfig->getNrOfFields(), "nrOfGamePlaces" => $sportConfig->getNrOfGamePlaces() ];
+        }
+       return $sportConfigRet;
+    }
+
+    public function getFieldsUsable( RoundNumber $roundNumber, Input $inputPlanning ): array {
+        $maxNrOfFieldsUsable = $this->getMaxNrOfFieldsUsable($inputPlanning);
+        $fields = $roundNumber->getCompetition()->getFields()->toArray();
+        if( count($fields) > $maxNrOfFieldsUsable ) {
+            return array_splice( $fields, 0, $maxNrOfFieldsUsable);
+        }
+        return $fields;
+    }
+
+    public function getMaxNrOfFieldsUsable( Input $inputPlanning ): int {
+        return $inputPlanning->getMaxNrOfBatchGames( Resources::REFEREES + Resources::PLACES );
+    }
+
+    public function getMaxNrOfRefereesUsable( Input $inputPlanning ): int {
+        return $inputPlanning->getMaxNrOfBatchGames( Resources::FIELDS + Resources::PLACES );
     }
 
     /**
@@ -133,7 +172,7 @@ class Service
         array $refereePlaces): \DateTimeImmutable
     {
         $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_BYNUMBER);
-        $resourceService = new Resource\Service($roundNumber, $this->optimalizationService );
+        $resourceService = new Resource\Service($roundNumber );
         $resourceService->setBlockedPeriod($this->blockedPeriod);
         $resourceService->setFields($fields);
         $resourceService->setReferees($referees);

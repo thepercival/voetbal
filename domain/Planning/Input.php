@@ -12,13 +12,17 @@ use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 class Input
 {
     /**
+     * @var int
+     */
+    private $id;
+    /**
      * @var array
      */
     protected $structureConfig;
     /**
      * @var array
      */
-    protected $fieldConfig;
+    protected $sportConfig;
     /**
      * @var int
      */
@@ -36,9 +40,9 @@ class Input
      */
     protected $selfReferee;
 
-    public function __construct( array $structureConfig, array $fieldConfig, int $nrOfReferees, int $nrOfHeadtohead, bool $teamup, bool $selfReferee ) {
+    public function __construct( array $structureConfig, array $sportConfig, int $nrOfReferees, int $nrOfHeadtohead, bool $teamup, bool $selfReferee ) {
         $this->structureConfig = $structureConfig;
-        $this->fieldConfig = $fieldConfig;
+        $this->sportConfig = $sportConfig;
 
         $this->nrOfReferees = $nrOfReferees;
         $this->nrOfHeadtohead = $nrOfHeadtohead;
@@ -46,17 +50,39 @@ class Input
         $this->selfReferee = $selfReferee;
     }
 
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
 //    public function increase(): Input {
 //
 //    }
 
+    /**
+     * $structure = [ 6, 6, 5 ];
+     *
+     * @return array
+     */
     public function getStructureConfig(): array {
         return $this->structureConfig;
     }
 
-    public function getFieldConfig(): array {
-        return $this->fieldConfig;
+    /**
+     * $sports = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
+     *
+     * @return array
+     */
+    public function getSportConfig(): array {
+        return $this->sportConfig;
+    }
+
+    public function getNrOfFields(): int {
+        $nrOfFields = 0;
+        foreach( $this->getSportConfig() as $sportConfig ) {
+            $nrOfFields += $sportConfig["nrOfFields"];
+        }
+        return $nrOfFields;
     }
 
     public function getNrOfReferees(): int {
@@ -75,205 +101,59 @@ class Input
         return $this->selfReferee;
     }
 
-    // beneath is old
-
-    protected function getInitialMaxNrOfBatchGames(): int {
-        // $maxNrOfGamesPerBatch = count($this->fields);
-        $maxNrOfGamesPerBatch = $this->nrOfFields;
-
-//        if (!$this->planningConfig->getSelfReferee() && count($this->referees) > 0 && count($this->referees) < $maxNrOfGamesPerBatch) {
-//            $maxNrOfGamesPerBatch = count($this->referees );
-//        }
-
-        if (!$this->selfReferee && $this->nrOfReferees > 0 && $this->nrOfReferees < $maxNrOfGamesPerBatch) {
-            $maxNrOfGamesPerBatch = $this->nrOfReferees;
+    public function getMaxNrOfBatchGames( int $resources = null ): int {
+        $maxNrOfBatchGames = null;
+        if( ( Resources::FIELDS & $resources ) === Resources::FIELDS || $resources === null  ) {
+            $maxNrOfBatchGames = $this->getNrOfFields();
         }
 
-        $nrOfGamePlaces = $this->getNrOfGamePlaces( $this->selfReferee, $this->teamup );
-        $nrOfRoundNumberPlaces = $this->nrOfPlaces;
-        $nrOfGamesSimultaneously = floor($nrOfRoundNumberPlaces / $nrOfGamePlaces);
-        // const maxNrOfGamesPerBatchPreBorder = this.maxNrOfGamesPerBatch;
-        if ($nrOfGamesSimultaneously < $maxNrOfGamesPerBatch) {
-            $maxNrOfGamesPerBatch = (int) $nrOfGamesSimultaneously;
-        }
-        return $maxNrOfGamesPerBatch;
-        // TEMPCOMMENT
-        // const ss = new StructureService();
-        // const nrOfPoulePlaces = ss.getNrOfPlacesPerPoule(this.roundNumber.getNrOfPlaces(), this.roundNumber.getPoules().length);
-        // if ((nrOfPoulePlaces - 1) === this.nrOfSports
-        //     && this.nrOfSports > 1 && this.nrOfSports === this.fields.length
-        // ) {
-        //     if (this.roundNumber.getValidPlanningConfig().getNrOfHeadtohead() === 2 ||
-        //         this.roundNumber.getValidPlanningConfig().getNrOfHeadtohead() === 3) {
-        //         this.maxNrOfGamesPerBatch = 2;
-        //     } else {
-        //         this.maxNrOfGamesPerBatch = 1; // this.roundNumber.getPoules().length;
-        //     }
-        // }
-
-        // const nrOfPlacesPerBatch = nrOfGamePlaces * this.maxNrOfGamesPerBatch;
-        // if (this.nrOfSports > 1) {
-        //     /*if (this.roundNumber.getNrOfPlaces() === nrOfPlacesPerBatch) {
-        //         this.maxNrOfGamesPerBatch--;
-        //     } else*/ if (Math.floor(this.roundNumber.getNrOfPlaces() / nrOfPlacesPerBatch) < 2) {
-        //         const sportPlanningConfigService = new SportPlanningConfigService();
-        //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
-        //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
-        //         // if (((nrOfPlacesPerBatch * nrOfHeadtothead) % this.roundNumber.getNrOfPlaces()) !== 0) {
-
-        //         if (maxNrOfGamesPerBatchPreBorder >= this.maxNrOfGamesPerBatch) {
-
-
-
-        //             if ((nrOfHeadtothead % 2) === 1) {
-        //                 const comp = this.roundNumber.getCompetition();
-        //                 if (
-        //                     (this.roundNumber.getNrOfPlaces() - 1) > comp.getSports().length
-        //                     /*|| ((this.roundNumber.getNrOfPlaces() - 1) === comp.getSports().length
-        //                         && comp.getFields().length > comp.getSports().length)*/
-        //                 ) {
-        //                     this.maxNrOfGamesPerBatch--;
-        //                 }
-        //                 // this.maxNrOfGamesPerBatch--;
-
-        //             } /*else if (this.nrOfSports === (nrOfPoulePlaces - 1)) {
-        //                 this.maxNrOfGamesPerBatch--;
-        //             }*/
-
-        //             // if ((nrOfHeadtothead * maxNrOfGamesPerBatchPreBorder) <= this.maxNrOfGamesPerBatch) {
-        //             //     this.maxNrOfGamesPerBatch--;
-        //             // }
-
-        //             /*if (maxNrOfGamesPerBatchPreBorder === this.maxNrOfGamesPerBatch
-        //                 && ((nrOfHeadtothead * maxNrOfGamesPerBatchPreBorder) === this.maxNrOfGamesPerBatch)) {
-        //                 this.maxNrOfGamesPerBatch--;
-        //             } else if (maxNrOfGamesPerBatchPreBorder > this.maxNrOfGamesPerBatch
-        //                 && ((nrOfHeadtothead * maxNrOfGamesPerBatchPreBorder) < this.maxNrOfGamesPerBatch)) {
-        //                 this.maxNrOfGamesPerBatch--;
-        //             } /*else {
-        //                 this.tryShuffledFields = true;
-        //             }*/
-        //             // nrOfPlacesPerBatch deelbaar door nrOfGames
-        //             // als wat is verschil met:
-        //             // 3v en 4d 1H2H
-        //             // 3v en 4d 2H2H deze niet heeft 12G
-        //             // 2v en 4d
-        //         }
-        //     }
-
-
-        //     // this.maxNrOfGamesPerBatch moet 1 zijn, maar er kunnen twee, dus bij meerdere sporten
-        //     // en totaal aantal deelnemers <= aantal deelnemers per batch
-        //     //      bij  2v  4d dan 4 <= 4 1H2H van 2 naar 1
-        //     //      bij 21v 44d dan 8 <= 8 1H2H van 3 naar 2
-        //     //      bij  3v  4d dan 4 <= 6 1H2H van 2 naar 1
-        //     //      bij  3v  4d dan 4 <= 6 2H2H van 2 naar 1(FOUT)
-
-        //     // if (this.fields.length === 3 && this.nrOfSports === 2) {
-        //     //     this.tryShuffledFields = true;
-        //     // }
-        // }
-        // if (this.maxNrOfGamesPerBatch < 1) {
-        //     this.maxNrOfGamesPerBatch = 1;
-        // }
-    }
-
-    protected function getInitialMaxNrOfGamesInARow(int $maxNrOfBatchGames ): int {
-        $nrOfGamePlaces = $this->getNrOfGamePlaces( $this->selfReferee, $this->teamup);
-
-        // @TODO only when all games(field->sports) have equal nrOfPlacesPerGame
-        $nrOfPlacesPerBatch = $nrOfGamePlaces * $maxNrOfBatchGames;
-
-        $nrOfRestPerBatch = $this->nrOfPlaces - $nrOfPlacesPerBatch;
-        if ($nrOfRestPerBatch < 1) {
-            return -1;
-        }
-
-        $maxNrOfGamesInARow = (int) ceil($this->nrOfPlaces / $nrOfRestPerBatch) - 1;
-        // 12 places per batch 16 places
-//        if ($nrOfPlacesPerBatch === $nrOfRestPerBatch && $this->nrOfPoules === 1 ) {
-//            $maxNrOfGamesInARow++;
-//        }
-//        if ($nrOfPlacesPerBatch >= $nrOfRestPerBatch && ( $nrOfPlacesPerBatch % $nrOfRestPerBatch ) === 0 && $this->nrOfPoules === 1 ) {
-//            $maxNrOfGamesInARow++;
-//        }
-
-        $structureService = new \Voetbal\Structure\Service();
-        $nrOfPoulePlaces = $structureService->getNrOfPlacesPerPoule( $this->nrOfPlaces, $this->nrOfPoules );
-        if( $maxNrOfGamesInARow > ($nrOfPoulePlaces - 1 )  ) {
-            $maxNrOfGamesInARow = ($nrOfPoulePlaces - 1 );
-
-//            kun je ook altijd berekenen voor headtohead = 1? wanneer je meerdere sporten hebt dan kan het niet
-//            omdat je soms niet alle sporten binnen 1 h2h kan doen
-//            dan zou je moeten zeggen dat alle sporten binnen 1 h2h afgewerkt moeten kunnen worden
-//            dus bij 3 sporten heb je dan minimaal 4 deelnemers per poule nodig
-//            heb je acht sporten dan heb je dus minimaal een poule van 9 nodig,
-//
-//            je zou dan wel alle velden moeten gebruiken
-//            omdat je niet weet welke sport op welk veld gespeeld wordt, dan krijg je dus een andere planning!!
-
-//            je zou dan ervoor kunnen kiezen om 2 poules van 5 te doen en dan iedereen 2x tegen elkaar
-//            je pakt dan gewoon
-
-
-            //         const sportPlanningConfigService = new SportPlanningConfigService();
-            //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
-            //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
-//            $nrOfHeadtohead = 2;
-//            if( $nrOfHeadtohead > 1 ) {
-//                $maxNrOfGamesInARow *= 2;
-//            }
-        }
-        // $maxNrOfGamesInARow = -1;
-
-        if ($this->nrOfPlaces === 8) {
-            if ($nrOfPlacesPerBatch >= $nrOfRestPerBatch && ($nrOfPlacesPerBatch % $nrOfRestPerBatch) === 0 && $this->nrOfPoules === 1
-                && ($this->nrOfFields % 2) === 1
-            ) {
-                $maxNrOfGamesInARow++;
+        if( ( Resources::REFEREES & $resources ) === Resources::REFEREES || $resources === null  ) {
+            if( $this->getSelfReferee() === false && $this->getNrOfReferees() > 0
+                && ( $this->getNrOfReferees() < $maxNrOfBatchGames || $maxNrOfBatchGames === null ) ) {
+                $maxNrOfBatchGames = $this->getNrOfReferees();
             }
         }
 
-        return $maxNrOfGamesInARow;
+        if( ( Resources::PLACES & $resources ) === Resources::PLACES || $resources === null  ) {
+            $nrOfGamesSimultaneously = $this->getNrOfGamesSimultaneously( $this->structureConfig );
+            if( $nrOfGamesSimultaneously < $maxNrOfBatchGames || $maxNrOfBatchGames === null ) {
+                $maxNrOfBatchGames = $nrOfGamesSimultaneously;
+            }
+        }
+        return $maxNrOfBatchGames;
     }
 
-//            if ($this->nrOfSports > 1) {
-//                if (($nrOfPlaces - 1) === $nrOfPlacesPerBatch) {
-//                    $this->maxNrOfGamesInARow++;
-//                }
-//            }
+    protected function getNrOfGamesSimultaneously( array $structureConfig ): int {
 
-    // nrOfPlacesPerBatch = 2
-    // nrOfRestPerBatch = 1
-    // nrOfPlaces = 3
+        $nrOfGamePlaces = $this->getNrOfGamePlaces( $this->selfReferee, $this->teamup );
 
-    // bij 3 teams en 2 teams per batch speelt ook aantal placesper
-    // if (nrOfPlacesPerBatch === nrOfRestPerBatch) {
-    //     this.maxNrOfGamesInARow++;
-    // }
-    // if (this.nrOfSports >= Math.ceil(nrOfRestPerBatch / this.fields.length)
-    //     && this.nrOfSports > 1 /*&& this.nrOfSports === this.fields.length*/) {
-    //     // this.maxNrOfGamesInARow++;
-    //     this.maxNrOfGamesInARow++;
-    //     // this.maxNrOfGamesInARow = -1;
-    // }
-    // }
-    // if (this.nrOfSports > 1) {
-    //     this.maxNrOfGamesInARow = -1;
-    // }
-    // this.maxNrOfGamesInARow = -1;
+        $nrOfGamesSimultaneously = 0;
+        foreach( $structureConfig as $pouleNr => $nrOfPlaces ) {
+            $nrOfGamesSimultaneously += (int) floor( $nrOfPlaces / $nrOfGamePlaces );
+        }
+
+        return $nrOfGamesSimultaneously;
+    }
+
+    public function getMaxNrOfGamesInARow(): int {
+        $structureConfig = $this->getStructureConfig();
+        $nrOfPoulePlaces = reset( $structureConfig );
+        $planningService = new \Voetbal\Sport\PlanningConfig\Service();
+        return $planningService->getNrOfGamesPerPlace( $nrOfPoulePlaces, $this->getNrOfHeadtohead(), $this->getTeamup() );
+        //         const sportPlanningConfigService = new SportPlanningConfigService();
+        //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
+        //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
+        //            $nrOfHeadtohead = 2;
+        //            if( $nrOfHeadtohead > 1 ) {
+        //                $maxNrOfGamesInARow *= 2;
+        //            }
+    }
 
     protected function getNrOfGamePlaces( bool $selfReferee, bool $teamup ): int {
         $nrOfGamePlaces = Sport::TEMPDEFAULT;
         if ($teamup) {
             $nrOfGamePlaces *= 2;
         }
-//        if ($this->planningConfig->getTeamup()) {
-//            $nrOfGamePlaces *= 2;
-//        }
-//        if ($this->planningConfig->getSelfReferee()) {
-//            $nrOfGamePlaces++;
-//        }
         if ($selfReferee) {
             $nrOfGamePlaces++;
         }

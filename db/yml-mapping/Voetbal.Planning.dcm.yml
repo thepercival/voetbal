@@ -30,7 +30,7 @@ Voetbal\Planning:
       nullable: false
       unique: false
     timeoutSeconds:
-      type: int
+      type: integer
       nullable: true
       unique: false
     state:

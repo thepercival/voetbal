@@ -30,7 +30,6 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $maxNrOfSports = 1;
         $maxNrOfFields = 20;
         $maxNrOfHeadtohead = 4;
-        $optimalizationService = new OptimalizationService();
 
         for ($nrOfCompetitors = 2; $nrOfCompetitors <= $maxNrOfCompetitors; $nrOfCompetitors++) {
             $nrOfPoules = 0;
@@ -50,7 +49,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
                                     'nrOfCompetitors ' . $nrOfCompetitors . ', nrOfPoules ' . $nrOfPoules . ', nrOfSports ' . $nrOfSports
                                     . ', nrOfFields ' . $nrOfFields . ', nrOfHeadtohead ' . $nrOfHeadtohead
                                     . PHP_EOL;
-                                $this->checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig, $optimalizationService);
+                                $this->checkPlanning($nrOfCompetitors, $nrOfPoules, $nrOfSports, $nrOfFields, $nrOfHeadtohead, $assertConfig);
 //                            }
                         }
                     }
@@ -182,8 +181,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         int $nrOfSports,
         int $nrOfFields,
         int $nrOfHeadtohead,
-        AssertConfig $assertConfig = null,
-        OptimalizationService $optimalizationService
+        AssertConfig $assertConfig = null
     ) {
         $competition = createCompetition();
 
@@ -214,7 +212,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $firstRoundNumber->getValidPlanningConfig()->setNrOfHeadtohead($nrOfHeadtohead);
 
-        $planningService = new PlanningService($competition, $optimalizationService );
+        $planningService = new PlanningService();
 
         if ($nrOfCompetitors === 2 && $nrOfSports === 1 && $nrOfFields === 2 && $nrOfHeadtohead === 1) {
             $x = 1;

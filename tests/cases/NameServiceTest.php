@@ -251,7 +251,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $competitor = new Competitor($competition->getLeague()->getAssociation(), 'competitor 1');
             $firstPlace->setCompetitor($competitor);
 
-            $planningService = new PlanningService($competition);
+            $planningService = new PlanningService();
             $planningService->create($rootRound->getNumber());
 
             $game = $rootRound->getGames()[0];
@@ -333,7 +333,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $referee->setInitials('CDK');
             $referee->setName('Co Du');
 
-            $planningService = new PlanningService($competition);
+            $planningService = new PlanningService();
             $planningService->create($rootRound->getNumber());
 
             $game = $rootRound->getGames()[0];

@@ -221,11 +221,9 @@ class Service {
         return $this->getNrOfCombinations($poule->getPlaces()->count(), $config->getTeamup());
     }
 
-    public function getNrOfGamesPerPlace(Poule $poule, int $nrOfHeadtohead = null): int {
-        $nrOfPlaces = $poule->getPlaces()->count();
+    public function getNrOfGamesPerPlace(int $nrOfPlaces, int $nrOfHeadtohead, bool $teamup ): int {
         $nrOfGames = $nrOfPlaces - 1;
-        $config = $poule->getRound()->getNumber()->getValidPlanningConfig();
-        if ($config->getTeamup() === true) {
+        if ($teamup === true) {
             $nrOfGames = $this->getNrOfCombinations($nrOfPlaces, true) - $this->getNrOfCombinations($nrOfPlaces - 1, true);
         }
         return $nrOfHeadtohead ? $nrOfGames * $nrOfHeadtohead : $nrOfGames;

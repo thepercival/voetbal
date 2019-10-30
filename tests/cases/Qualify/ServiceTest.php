@@ -32,7 +32,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 2);
         $structureService->addQualifiers($rootRound, QualifyGroup::LOSERS, 2);
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService();
         $planningService->create($rootRound->getNumber());
 
         $pouleOne = $rootRound->getPoule(1);
@@ -80,7 +80,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 6);
         $rootRound = $structure->getRootRound();
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService();
         $planningService->create($rootRound->getNumber());
 
         $pouleOne = $rootRound->getPoule(1);
@@ -138,7 +138,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->removePoule($rootRound->getChild(QualifyGroup::WINNERS, 1));
         $structureService->removePoule($rootRound->getChild(QualifyGroup::LOSERS, 1));
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService();
         $planningService->create($rootRound->getNumber());
 
         $pouleOne = $rootRound->getPoule(1);
@@ -212,7 +212,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 4);
         $structureService->removePoule($rootRound->getChild(QualifyGroup::WINNERS, 1));
 
-        $planningService = new PlanningService($competition);
+        $planningService = new PlanningService();
         $planningService->create($rootRound->getNumber());
 
         $pouleOne = $rootRound->getPoule(1);

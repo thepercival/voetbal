@@ -78,17 +78,11 @@ class Service {
      */
     private $successfullResources;
 
-    /**
-     * @var OptimalizationService
-     */
-    private $optimalizationService;
-
-    public function __construct( RoundNumber $roundNumber, OptimalizationService $optimalizationService )
+    public function __construct( RoundNumber $roundNumber )
     {
         $this->roundNumber = $roundNumber;
         $this->planningConfig = $this->roundNumber->getValidPlanningConfig();
         $this->nrOfPoules = count($this->roundNumber->getPoules());
-        $this->optimalizationService = $optimalizationService;
     }
 
     public function setBlockedPeriod(Period $blockedPeriod = null) {
@@ -128,10 +122,11 @@ class Service {
         $sportPlanningConfigService = new SportPlanningConfigService();
         $sportPlanningConfigs = $this->roundNumber->getSportPlanningConfigs()->toArray();
         $this->nrOfSports = count($sportPlanningConfigs );
+        $teamup = $this->roundNumber->getValidPlanningConfig()->getTeamup();
         $this->planningPlaces = [];
         foreach( $this->roundNumber->getPoules() as $poule ) {
             $nrOfHeadtohead = $sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
-            $nrOfGamesToGo = $sportPlanningConfigService->getNrOfGamesPerPlace($poule, $nrOfHeadtohead);
+            $nrOfGamesToGo = $sportPlanningConfigService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $nrOfHeadtohead, $teamup);
 
             $sportsNrOfGames = $sportPlanningConfigService->getPlanningMinNrOfGames($poule);
             $minNrOfGamesMap = $sportPlanningConfigService->convertToMap($sportsNrOfGames);
@@ -203,27 +198,27 @@ class Service {
      */
     protected function assignBatch(array $games, Resources $resources, Batch $batch ): ?Batch
     {
-        $optimalization = $this->optimalizationService->getOptimalization(
-            count($this->fields),
-            $this->planningConfig->getSelfReferee(),
-            count($this->referees),
-            count($this->roundNumber->getPoules()),
-            $this->roundNumber->getNrOfPlaces(),
-            $this->planningConfig->getTeamup()
-        );
+//        $optimalization = $this->optimalizationService->getOptimalization(
+//            count($this->fields),
+//            $this->planningConfig->getSelfReferee(),
+//            count($this->referees),
+//            count($this->roundNumber->getPoules()),
+//            $this->roundNumber->getNrOfPlaces(),
+//            $this->planningConfig->getTeamup()
+//        );
 
-        $nrOfBatchGames = $optimalization->getMaxNrOfGamesPerBatch();
+        // $nrOfBatchGames = $optimalization->getMaxNrOfGamesPerBatch();
 
-        $this->maxNrOfGamesInARow = $optimalization->getMaxNrOfGamesInARow();
-        echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
-        // die();
-        $this->initPlanningPlaces();
-        $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
-        $gamesTmp = array_slice($games, 0 );
-
-        if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
-            return $this->getActiveLeaf( $batch->getLeaf(), $nrOfBatchGames->max);
-        }
+//        $this->maxNrOfGamesInARow = $optimalization->getMaxNrOfGamesInARow();
+//        echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
+//        // die();
+//        $this->initPlanningPlaces();
+//        $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
+//        $gamesTmp = array_slice($games, 0 );
+//
+//        if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
+//            return $this->getActiveLeaf( $batch->getLeaf(), $nrOfBatchGames->max);
+//        }
 
         return null;
     }

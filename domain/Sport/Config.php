@@ -9,6 +9,7 @@
 namespace Voetbal\Sport;
 
 use Voetbal\Game;
+use Voetbal\Sport;
 use Voetbal\Sport as SportBase;
 use Voetbal\Sport\IdSer as SportIdSer;
 use Voetbal\Competition;
@@ -186,5 +187,15 @@ class Config {
     public function getCompetition(): Competition
     {
         return $this->competition;
+    }
+
+    public function getNrOfFields(): int {
+        $nrOfFields = 0;
+        foreach( $this->getCompetition()->getFields() as $field ) {
+            if( $field->getSport() === $this->getSport() ) {
+                $nrOfFields++;
+            }
+        }
+        return $nrOfFields;
     }
 }
