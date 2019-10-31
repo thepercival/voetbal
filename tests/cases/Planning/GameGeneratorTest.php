@@ -4,18 +4,31 @@ namespace Voetbal\Tests\Planning;
 
 include_once __DIR__ . '/../../data/CompetitionCreator.php';
 
-use Voetbal\Place;
+use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning\Place as PlanningPlace;
 use Voetbal\Planning\GameRound;
 use Voetbal\Planning\GameGenerator;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\Ranking\Service as RankingService;
-use Voetbal\Referee;
+use Voetbal\Planning\Input as PlanningInput;
+use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Qualify\Group as QualifyGroup;
 
 class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 {
+    /**
+     * @var PlanningInputService
+     */
+    protected $planningInputService;
+
+    public function __construct($name = null, array $data = [], $dataName = '')
+    {
+        parent::__construct($name, $data, $dataName);
+        $this->planningInputService = new PlanningInputService();
+    }
+
     public function testOneSportAnd4()
     {
         $competition = createCompetition();
@@ -24,8 +37,10 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 4, 1);
         $firstRoundNumber = $structure->getFirstRoundNumber();
 
-        $gameGenerator = new GameGenerator();
-        $firstPoule = $structure->getRootRound()->getPoule(1);
+
+        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
+        $gameGenerator = new GameGenerator( $planningInput );
+        $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
 
         $roundNr = 1;
@@ -54,8 +69,9 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setNrOfHeadtohead(2);
 
-        $gameGenerator = new GameGenerator();
-        $gameGenerator->create($firstRoundNumber);
+        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
+        $gameGenerator = new GameGenerator( $planningInput );
+        $gameGenerator->create();
         $games = $firstRoundNumber->getGames();
         $this->assertSame(count($games), 24);
     }
@@ -70,8 +86,10 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setTeamup(true);
 
-        $gameGenerator = new GameGenerator();
-        $firstPoule = $structure->getRootRound()->getPoule(1);
+        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
+        $gameGenerator = new GameGenerator( $planningInput );
+
+        $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
 
         $roundNr = 1;
@@ -95,8 +113,10 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setTeamup(true);
 
-        $gameGenerator = new GameGenerator();
-        $firstPoule = $structure->getRootRound()->getPoule(1);
+        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
+        $gameGenerator = new GameGenerator( $planningInput );
+
+        $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
 
         // gameRounds.forEach( gameRound => {
@@ -142,8 +162,10 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setTeamup(true);
 
-        $gameGenerator = new GameGenerator();
-        $firstPoule = $structure->getRootRound()->getPoule(1);
+        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
+        $gameGenerator = new GameGenerator( $planningInput );
+
+        $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
 
         $this->assertSame( count($gameRounds), 45 );
@@ -175,11 +197,11 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
      * check if every place has the same amount of games
      * check if one place is not two times in one game
      *
-     * @param Place $place
+     * @param PlanningPlace $place
      * @param array|GameRound[] $gameRounds
      * @param int|null $expectedValue
      */
-    function assertValidGamesParticipations( Place $place, array $gameRounds, int $expectedValue = null) {
+    function assertValidGamesParticipations( PlanningPlace $place, array $gameRounds, int $expectedValue = null) {
         // const sportPlanningConfigService = new SportPlanningConfigService();
         $nrOfGames = 0;
         foreach( $gameRounds as $gameRound ) {

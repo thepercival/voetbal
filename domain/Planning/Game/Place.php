@@ -1,0 +1,125 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: coen
+ * Date: 23-1-19
+ * Time: 11:32
+ */
+
+namespace Voetbal\Planning\Game;
+
+use Voetbal\Planning\Game as PlanningGame;
+use Voetbal\Planning\Place as PlanningPlace;
+
+class Place
+{
+    /**
+     * @var int
+     */
+    protected $id;
+    /**
+     * @var PlanningGame
+     */
+    private $game;
+    /**
+     * @var PlanningPlace
+     */
+    private $place;
+    /**
+     * @var bool
+     */
+    private $homeaway;
+    /**
+     * @var int
+     */
+    private $placeNr;
+
+    public function __construct( PlanningGame $game, PlanningPlace $place, bool $homeaway )
+    {
+        $this->setGame( $game );
+        $this->setPlace( $place );
+        $this->setHomeaway( $homeaway );
+    }
+
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param int $id
+     */
+    public function setId( int $id )
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @return PlanningPlace
+     */
+    public function getPlace()
+    {
+        return $this->place;
+    }
+
+    /**
+     * @param PlanningPlace $place
+     */
+    public function setPlace( PlanningPlace $place )
+    {
+        $this->place = $place;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getHomeaway()
+    {
+        return $this->homeaway;
+    }
+
+    /**
+     * @param bool $homeaway
+     */
+    public function setHomeaway($homeaway)
+    {
+        $this->homeaway = $homeaway;
+    }
+
+    /**
+     * @return PlanningGame
+     */
+    public function getGame()
+    {
+        return $this->game;
+    }
+
+    /**
+     * @param PlanningGame $game
+     */
+    public function setGame( PlanningGame $game )
+    {
+        if ( $this->game === null and $game !== null and !$game->getPlaces()->contains( $this )){
+            $game->getPlaces()->add($this) ;
+        }
+        $this->game = $game;
+    }
+
+    public function getPlaceNr(): int
+    {
+        if( $this->getPlace() !== null ) {
+            return $this->getPlace()->getNumber();
+        }
+        return $this->placeNr;
+    }
+
+    public function setPlaceNr( int $placeNr )
+    {
+        $this->placeNr = $placeNr;
+    }
+}

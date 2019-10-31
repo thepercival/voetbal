@@ -2,6 +2,7 @@
 namespace Voetbal\Sport;
 
 use Voetbal\Competition;
+use Voetbal\Planning\Sport as PlanningSport;
 use Voetbal\Sport as SportBase;
 
 class Counter {
@@ -25,16 +26,17 @@ class Counter {
     /**
      * Counter constructor.
      * @param array $minNrOfGamesMap
-     * @param array|PlanningConfig[] $sportPlanningConfigs
+     * @param array|PlanningSport[] $planningSports
      */
-    public function __construct( int $nrOfGamesToGo, array $minNrOfGamesMap, array $sportPlanningConfigs )
+    public function __construct( int $nrOfGamesToGo, array $minNrOfGamesMap, array $planningSports )
     {
         $this->nrOfGamesToGo = $nrOfGamesToGo;
-        foreach( $sportPlanningConfigs as $sportPlanningConfig ) {
-            $sportId = $sportPlanningConfig->getSport()->getId();
-            $this->minNrOfGamesMap[$sportId] = $minNrOfGamesMap[$sportId];
-            $this->nrOfGamesDoneMap[$sportId] = 0;
-            $this->nrToGo += $this->minNrOfGamesMap[$sportId];
+        /** @var PlanningSport $planningSport */
+        foreach( $planningSports as $planningSport ) {
+            $sportNr = $planningSport->getNumber();
+            $this->minNrOfGamesMap[$sportNr] = $minNrOfGamesMap[$sportNr];
+            $this->nrOfGamesDoneMap[$sportNr] = 0;
+            $this->nrToGo += $this->minNrOfGamesMap[$sportNr];
         }
     }
 

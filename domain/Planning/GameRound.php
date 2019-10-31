@@ -8,7 +8,7 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Place\Combination as PlaceCombination;
+use Voetbal\Planning\Place\Combination as PlaceCombination;
 
 class GameRound
 {

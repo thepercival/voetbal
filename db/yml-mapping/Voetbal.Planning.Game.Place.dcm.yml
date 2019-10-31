@@ -1,0 +1,33 @@
+Voetbal\Planning\Game\Place:
+  type: entity
+  repositoryClass: Voetbal\Planning\Game\Place\Repository
+  table: planninggameplaces
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    homeaway:
+      type: boolean
+      nullable: false
+      unique: false
+  manyToOne:
+    game:
+      targetEntity: Voetbal\Planning\Game
+      inversedBy: places
+      joinColumn:
+        name: gameid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+    place:
+      targetEntity: Voetbal\PlanningPlace
+      joinColumn:
+        name: placeid
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+  uniqueConstraints:
+    number_v_idx:
+      columns: [ gameid, placeid ]

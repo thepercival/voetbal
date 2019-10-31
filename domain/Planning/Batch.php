@@ -7,11 +7,7 @@
  * Time: 11:55
  */
 
-namespace Voetbal\Planning\Resource;
-
-use Voetbal\Game;
-use Voetbal\Place;
-use Voetbal\Poule;
+namespace Voetbal\Planning;
 
 class Batch
 {
@@ -27,10 +23,6 @@ class Batch
      * @var Batch
      */
     private $next;
-    /**
-     * @var \DateTimeImmutable
-     */
-    private $dateTime;
     /**
      * @var array | Game[]
      */
@@ -84,14 +76,6 @@ class Batch
 
     public function getLeaf(): Batch {
         return $this->hasNext() ? $this->next->getLeaf() : $this;
-    }
-
-    public function getDateTime(): \DateTimeImmutable {
-        return $this->dateTime;
-    }
-
-    public function setDateTime( \DateTimeImmutable $dateTime) {
-        $this->dateTime = $dateTime;
     }
 
     public function getGamesInARow(Place $place ): int {

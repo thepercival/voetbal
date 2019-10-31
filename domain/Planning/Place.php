@@ -6,31 +6,44 @@ use Voetbal\Sport\Counter as SportCounter;
 
 class Place {
     /**
+     * @var Poule
+     */
+    protected $poule;
+    /**
      * @var int
      */
-    private $nrInARow = 0;
+    protected $number;
     /**
      * @var SportCounter
      */
     private $sportCounter;
 
-    public function __construct( SportCounter $sportCounter )
+    public function __construct( Poule $poule, int $number )
     {
-        $this->sportCounter = $sportCounter;
+        $this->poule = $poule;
+        $this->number = $number;
     }
 
     public function getSportCounter(): SportCounter {
         return $this->sportCounter;
     }
 
-    public function getNrOfGamesInARow(): int {
-        return $this->nrInARow;
+    public function setSportCounter( SportCounter $sportCounter) {
+        $this->sportCounter = $sportCounter;
     }
 
-    public function toggleGamesInARow(bool $toggle) {
-        $this->nrInARow = $this->nrInARow + ($toggle ? 1 : -1);
-        if ($this->nrInARow < 0) {
-            $this->nrInARow = 0;
-        }
+    public function getPoule(): Poule
+    {
+        return $this->poule;
+    }
+
+    public function getNumber(): int
+    {
+        return $this->number;
+    }
+
+    public function getLocation(): string {
+        return $this->poule->getNumber() . '.' . $this->number;
     }
 }
+

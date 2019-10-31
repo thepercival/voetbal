@@ -60,7 +60,7 @@ class Number
     /**
      * @var SportPlanningConfig[] | ArrayCollection
      */
-    protected $sportPlanningConfigs;
+    // protected $sportPlanningConfigs;
 
     public function __construct( Competition $competition, RoundNumber $previous = null )
     {
@@ -68,7 +68,7 @@ class Number
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
         $this->sportScoreConfigs = new ArrayCollection();
-        $this->sportPlanningConfigs = new ArrayCollection();
+        // $this->sportPlanningConfigs = new ArrayCollection();
     }
 
     /**
@@ -280,48 +280,48 @@ class Number
         return $this->getPrevious()->getValidPlanningConfig();
     }
 
-    public function hasMultipleSportPlanningConfigs(): bool {
-        return $this->sportPlanningConfigs->count() > 1;
-    }
-
-    public function getFirstSportPlanningConfig(): SportPlanningConfig {
-        return $this->sportPlanningConfigs[0];
-    }
-
-    /**
-     * @return Collection | SportPlanningConfig[]
-     */
-    public function getSportPlanningConfigs(): Collection {
-        return $this->sportPlanningConfigs;
-        // hieronder staat typescript equivalent
-        // probleem in typescript , daar moet een check op voor multiple sports
-
-//        if (this.sportPlanningConfigs !== undefined) {
-//            return this.sportPlanningConfigs;
-//        }
-//        this.sportPlanningConfigs = [];
+//    public function hasMultipleSportPlanningConfigs(): bool {
+//        return $this->sportPlanningConfigs->count() > 1;
+//    }
 //
-//        this.getSportConfigs().forEach(sportConfig => {
-//            const sportPlanningConfig = new SportPlanningConfig(sportConfig.getSport(), this);
-//            sportPlanningConfig.setMinNrOfGames(this.getCompetition().getNrOfFields(sportConfig.getSport()));
-//            this.sportPlanningConfigs.push(sportPlanningConfig);
+//    public function getFirstSportPlanningConfig(): SportPlanningConfig {
+//        return $this->sportPlanningConfigs[0];
+//    }
+//
+//    /**
+//     * @return Collection | SportPlanningConfig[]
+//     */
+//    public function getSportPlanningConfigs(): Collection {
+//        return $this->sportPlanningConfigs;
+//        // hieronder staat typescript equivalent
+//        // probleem in typescript , daar moet een check op voor multiple sports
+//
+////        if (this.sportPlanningConfigs !== undefined) {
+////            return this.sportPlanningConfigs;
+////        }
+////        this.sportPlanningConfigs = [];
+////
+////        this.getSportConfigs().forEach(sportConfig => {
+////            const sportPlanningConfig = new SportPlanningConfig(sportConfig.getSport(), this);
+////            sportPlanningConfig.setMinNrOfGames(this.getCompetition().getNrOfFields(sportConfig.getSport()));
+////            this.sportPlanningConfigs.push(sportPlanningConfig);
+////        });
+////        return this.sportPlanningConfigs;
+//    }
+
+//    public function getSportPlanningConfig(Sport $sport = null ): ?SportPlanningConfig {
+//        $foundSportPlanningConfigs = $this->sportPlanningConfigs->filter( function($sportPlanningConfigIt) use ($sport){
+//            return $sportPlanningConfigIt->getSport() === $sport;
 //        });
-//        return this.sportPlanningConfigs;
-    }
-
-    public function getSportPlanningConfig(Sport $sport = null ): ?SportPlanningConfig {
-        $foundSportPlanningConfigs = $this->sportPlanningConfigs->filter( function($sportPlanningConfigIt) use ($sport){
-            return $sportPlanningConfigIt->getSport() === $sport;
-        });
-        if ( $foundSportPlanningConfigs->count() > 0) {
-            return $foundSportPlanningConfigs->first();
-        }
-        return $this->getPrevious()->getSportPlanningConfig( $sport );
-    }
-
-    public function setSportPlanningConfig(SportPlanningConfig $sportPlanningConfig ) {
-        $this->sportPlanningConfigs->add( $sportPlanningConfig );
-    }
+//        if ( $foundSportPlanningConfigs->count() > 0) {
+//            return $foundSportPlanningConfigs->first();
+//        }
+//        return $this->getPrevious()->getSportPlanningConfig( $sport );
+//    }
+//
+//    public function setSportPlanningConfig(SportPlanningConfig $sportPlanningConfig ) {
+//        $this->sportPlanningConfigs->add( $sportPlanningConfig );
+//    }
 
     public function hasMultipleSportScoreConfigs(): bool {
         return $this->sportScoreConfigs->count() > 1;

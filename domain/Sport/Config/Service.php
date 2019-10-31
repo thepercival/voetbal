@@ -24,15 +24,10 @@ class Service {
      * @var ScoreConfigService
      */
     protected $scoreConfigService;
-    /**
-     * @var PlanningConfigService
-     */
-    protected $planningConfigService;
 
     public function __construct()
     {
         $this->scoreConfigService = new ScoreConfigService();
-        $this->planningConfigService = new PlanningConfigService();
     }
 
     public function createDefault( Sport $sport, Competition $competition, Structure $structure = null ): SportConfig {
@@ -82,9 +77,6 @@ class Service {
             if ( $roundNumber->hasPrevious() === false || $roundNumber->getSportScoreConfigs()->count() > 0 ) {
                 $this->scoreConfigService->createDefault($config->getSport(), $roundNumber);
             }
-            if ( $roundNumber->hasPrevious() === false || $roundNumber->getSportPlanningConfigs()->count() > 0 ) {
-                $this->planningConfigService->createDefault($config->getSport(), $roundNumber);
-            }
             $roundNumber = $roundNumber->getNext();
         }
     }
@@ -103,13 +95,13 @@ class Service {
         $roundNumber = $structure->getFirstRoundNumber();
 
         while ($roundNumber) {
-            $planningConfigs = $roundNumber->getSportPlanningConfigs();
-
-            $planningConfigs->filter( function( $planningConfigIt ) use ( $sport ) {
-                return $planningConfigIt->getSport() === $sport;
-            })->forAll( function( $planningConfigIt ) use ( $planningConfigs ) {
-                return $planningConfigs->removeElement($planningConfigIt);
-            });
+//            $planningConfigs = $roundNumber->getSportPlanningConfigs();
+//
+//            $planningConfigs->filter( function( $planningConfigIt ) use ( $sport ) {
+//                return $planningConfigIt->getSport() === $sport;
+//            })->forAll( function( $planningConfigIt ) use ( $planningConfigs ) {
+//                return $planningConfigs->removeElement($planningConfigIt);
+//            });
 
             $scoreConfigs = $roundNumber->getSportScoreConfigs();
             $scoreConfigs->filter( function( $scoreConfigIt ) use ( $sport ) {

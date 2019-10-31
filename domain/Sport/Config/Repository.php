@@ -34,8 +34,8 @@ class Repository extends \Voetbal\Repository
             $scoreRepos = new SportScoreConfigRepos($this->_em, $this->_em->getClassMetaData(SportScoreConfig::class));
             $scoreRepos->addObjects($sportConfig->getSport(), $roundNumber );
 
-            $planningRepos = new SportPlanningConfigRepos($this->_em, $this->_em->getClassMetaData(SportPlanningConfig::class));
-            $planningRepos->addObjects($sportConfig->getSport(), $roundNumber );
+//            $planningRepos = new SportPlanningConfigRepos($this->_em, $this->_em->getClassMetaData(SportPlanningConfig::class));
+//            $planningRepos->addObjects($sportConfig->getSport(), $roundNumber );
 
             $this->_em->flush();
             $conn->commit();
@@ -62,8 +62,8 @@ class Repository extends \Voetbal\Repository
             $scoreRepos = new SportScoreConfigRepos($this->_em, $this->_em->getClassMetaData(SportScoreConfig::class));
             $scoreRepos->removeObjects($sportConfig);
 
-            $planningRepos = new SportPlanningConfigRepos($this->_em, $this->_em->getClassMetaData(SportPlanningConfig::class));
-            $planningRepos->removeObjects($sportConfig);
+//            $planningRepos = new SportPlanningConfigRepos($this->_em, $this->_em->getClassMetaData(SportPlanningConfig::class));
+//            $planningRepos->removeObjects($sportConfig);
 
             $sport = $sportConfig->getSport();
             $this->remove($sportConfig);

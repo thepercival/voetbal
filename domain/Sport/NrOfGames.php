@@ -2,11 +2,11 @@
 
 namespace Voetbal\Sport;
 
-use Voetbal\Sport as SportBase;
+use Voetbal\Planning\Sport as PlanningSport;
 
 class NrOfGames {
     /**
-     * @var SportBase
+     * @var PlanningSport
      */
     private $sport;
     /**
@@ -14,13 +14,13 @@ class NrOfGames {
      */
     private $nrOfGames;
 
-    public function __construct( SportBase $sport, int $nrOfGames )
+    public function __construct( PlanningSport $sport, int $nrOfGames )
     {
         $this->sport = $sport;
         $this->nrOfGames = $nrOfGames;
     }
 
-    public function getSport(): SportBase {
+    public function getSport(): PlanningSport {
         return $this->sport;
     }
 

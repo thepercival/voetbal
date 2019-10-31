@@ -10,40 +10,34 @@ namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning\Config\Optimalization\Service as OptimalizationService;
-use Voetbal\Planning\Input as PlanningInput;
-use Voetbal\Range as VoetbalRange;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Place;
 use Voetbal\Game;
-use Voetbal\Planning as PlanningBase;
 use Voetbal\Competition;
 use League\Period\Period;
 
-class Service
+class ConvertService
 {
+
+
     public function __construct()
     {
-
     }
 
-    public function create( Input $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow, int $timeoutSeconds ): PlanningBase {
 
-        $planning = new PlanningBase( $input, $nrOfBatchGames, $maxNrOfGamesInARow );
-        $planning->setTimeoutSeconds( $timeoutSeconds );
 
+    public function create( Input $input ) {
         $gameGenerator = new GameGenerator( $input );
-        $gameGenerator->create( $planning );
+        $gameGenerator->create();
         $games = $input->getStructure()->getGames();
 
-        $resourceService = new Resource\Service( $planning );
-//        $resourceService->setFields($fields);
-//        $resourceService->setReferees($referees);
-//        $resourceService->setRefereePlaces($refereePlaces);
 
-        $state = $resourceService->assign($games);
-        $planning->setState( $state );
-
-        return $planning;
+//            $resourceService = new Resource\Service($roundNumber);
+//            $resourceService->setFields($fields);
+//            $resourceService->setReferees($referees);
+//            $resourceService->setRefereePlaces($refereePlaces);
+//            $resourceService->assign($games, $dateTime);
+//        }
 
         // $planningConfig = $roundNumber->getValidPlanningConfig();
 
@@ -68,15 +62,73 @@ class Service
 //        return $fields;
 //    }
 
-    public function getMaxNrOfFieldsUsable( Input $inputPlanning ): int {
-        return $inputPlanning->getMaxNrOfBatchGames( Resources::REFEREES + Resources::PLACES );
+
+
+//    /**
+//     * @param RoundNumber $roundNumber
+//     * @param array|Game[] $games
+//     * @return array|Place[]
+//     */
+//    protected function getRefereePlaces(RoundNumber $roundNumber, array $games): array {
+//        $nrOfPlacesToFill = $roundNumber->getNrOfPlaces();
+//        $placesRet = [];
+//
+//        while (count($placesRet) < $nrOfPlacesToFill) {
+//            $game = array_shift($games);
+//            $placesGame = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+//
+//            foreach( $placesGame as $placeGame ) {
+//                if ( count( array_filter( $placesRet, function( $placeIt ) use ($placeGame) { return $placeGame === $placeIt; } ) ) === 0 ) {
+//                    array_unshift( $placesRet, $placeGame );
+//                }
+//            }
+//        }
+//        return $placesRet;
+//    }
+
+
+    public function getGamesForRoundNumber(RoundNumber $roundNumber/*, int $order*/): array {
+        $games = $roundNumber->getGames();
+
+        /*$orderByNumber =  function (Game $g1, Game $g2) use ($roundNumber): int  {
+            if ($g1->getRoundNumber() !== $g2->getRoundNumber()) {
+                return $g1->getRoundNumber() - $g2->getRoundNumber();
+            }
+            if ($g1->getSubNumber() !== $g2->getSubNumber()) {
+                return $g1->getSubNumber() - $g2->getSubNumber();
+            }
+            $poule1 = $g1->getPoule();
+            $poule2 = $g2->getPoule();
+            if ($poule1->getRound() === $poule2->getRound()) {
+                $resultPoule = $poule2->getNumber() - $poule1->getNumber();
+                return !$roundNumber->isFirst() ? $resultPoule : -$resultPoule;
+            }
+            $resultRound = $poule2->getRound()->getStructureNumber() - $poule1->getRound()->getStructureNumber();
+            return !$roundNumber->isFirst() ? $resultRound : -$resultRound;
+        };
+
+        if ($order === Game::ORDER_BYNUMBER) {
+            uasort( $games, function(Game $g1, Game $g2) use ($orderByNumber) {
+                return $orderByNumber($g1, $g2);
+            });
+        } else {*/
+            // $enableTime = $roundNumber->getValidPlanningConfig()->getEnableTime();
+            uasort( $games, function(Game $g1, Game $g2) /*use ($enableTime, $orderByNumber)*/ {
+                // if ($enableTime) {
+                    if ($g1->getStartDateTime() != $g2->getStartDateTime()) {
+                        return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
+                    }
+                //}
+                /*else {
+                    if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
+                        return $g1->getResourceBatch() - $g2->getResourceBatch();
+                    }
+                } */
+                // return $orderByNumber($g1, $g2);
+            });
+        // }
+        return $games;
     }
-
-    public function getMaxNrOfRefereesUsable( Input $inputPlanning ): int {
-        return $inputPlanning->getMaxNrOfBatchGames( Resources::FIELDS + Resources::PLACES );
-    }
-
-
 
 //    public function calculateStartDateTime(RoundNumber $roundNumber): \DateTimeImmutable {
 //        if ($roundNumber->isFirst() ) {

@@ -8,26 +8,26 @@
 
 namespace Voetbal\Planning\Resource;
 
-use Voetbal\Game;
-use Voetbal\Place;
-use Voetbal\Field;
-use Voetbal\Referee;
-use Voetbal\Sport;
+use Voetbal\Planning as PlanningBase;
+use Voetbal\Planning\Game;
+use Voetbal\Planning\Referee;
+use Voetbal\Planning\Place;
+use Voetbal\Planning\Field;
+use Voetbal\Planning\Sport;
 use Voetbal\Range;
 use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Planning\Resources as Resources;
-use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Planning\Input;
 use League\Period\Period;
-use Voetbal\Planning\Config\Optimalization\Service as OptimalizationService;
-use Voetbal\Planning\Place as PlanningPlace;
 use Voetbal\Sport\Counter as SportCounter;
-use Voetbal\Sport\PlanningConfig\Service as SportPlanningConfigService;
+use Voetbal\Sport\Service as SportService;
+use Voetbal\Planning\Batch;
 
 class Service {
     /**
-     * @var RoundNumber
+     * @var PlanningBase
      */
-    private $roundNumber;
+    private $planning;
     /**
      * @var array|Referee[]
      */
@@ -48,11 +48,6 @@ class Service {
      * @var PlanningConfig
      */
     private $planningConfig;
-
-    /**
-     * @var ?Period
-     */
-    private $blockedPeriod;
     /**
      * @var int
      */
@@ -70,89 +65,127 @@ class Service {
      */
     private $tryShuffledFields = false;
     /**
-     * @var array|PlanningPlace[]
+     * @var array|Place[]
      */
-    private $planningPlaces;
+    private $places;
     /**
      * @var Resources
      */
     private $successfullResources;
 
-    public function __construct( RoundNumber $roundNumber )
+    public function __construct( PlanningBase $planning )
     {
-        $this->roundNumber = $roundNumber;
-        $this->planningConfig = $this->roundNumber->getValidPlanningConfig();
-        $this->nrOfPoules = count($this->roundNumber->getPoules());
+        // $this->roundNumber = $roundNumber;
+        $this->planning = $planning;
+        $this->nrOfPoules = $this->getInput()->getStructure()->getPoules()->count();
     }
 
-    public function setBlockedPeriod(Period $blockedPeriod = null) {
-        $this->blockedPeriod = $blockedPeriod;
+    protected function getInput(): Input {
+        return $this->planning->getInput();
+    }
+
+    protected function init( array $games ) {
+        $this->initFields();
+        $this->initReferees();
+        $this->initRefereePlaces( $games );
+        $this->initPlaces();
+    }
+
+    public function initFields() {
+        $this->fields = $this->getInput()->getFields()->toArray();
+    }
+
+    public function initReferees() {
+        $this->referees = [];
+        $nrOfReferees = $this->getInput()->getNrOfReferees();
+        for( $refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $nrOfReferees++ ) {
+            $this->referees[] = new Referee( $refereeNr );
+        }
+    }
+
+    protected function refereesEnabled(): bool {
+        return $this->getInput()->getNrOfReferees() > 0;
     }
 
     /**
-     * @param array | Field[] $fields
+     * @param array|Game[] $games
      */
-    public function setFields( array $fields) {
-        $this->fields = array_slice( $fields, 0 );
-    }
+    public function initRefereePlaces( array $games ) {
 
-    /**
-     * @param array | Referee[] $referees
-     */
-    public function setReferees(array $referees) {
-        $this->areRefereesEnabled = count($referees) > 0;
-        $this->referees = $referees;
-    }
+        $this->refereePlaces = [];
+        $nrOfPlacesToFill = $this->getInput()->getStructure()->getNrOfPlaces();
 
-    public function refereesEnabled(): bool {
-        return count($this->referees) > 0;
-    }
-
-    /**
-     * @param array|Place[] $places
-     */
-    public function setRefereePlaces(array $places) {
-        $this->refereePlaces = $places;
-    }
-
-    // het minimale aantal wedstrijden per sport moet je weten
-    // per plaats bijhouden: het aantal wedstrijden voor elke sport
-    // per plaats bijhouden: als alle sporten klaar
-    protected function initPlanningPlaces() {
-        $sportPlanningConfigService = new SportPlanningConfigService();
-        $sportPlanningConfigs = $this->roundNumber->getSportPlanningConfigs()->toArray();
-        $this->nrOfSports = count($sportPlanningConfigs );
-        $teamup = $this->roundNumber->getValidPlanningConfig()->getTeamup();
-        $this->planningPlaces = [];
-        foreach( $this->roundNumber->getPoules() as $poule ) {
-            $nrOfHeadtohead = $sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
-            $nrOfGamesToGo = $sportPlanningConfigService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $nrOfHeadtohead, $teamup);
-
-            $sportsNrOfGames = $sportPlanningConfigService->getPlanningMinNrOfGames($poule);
-            $minNrOfGamesMap = $sportPlanningConfigService->convertToMap($sportsNrOfGames);
-            /** @var Place $placeIt */
-            foreach( $poule->getPlaces() as $placeIt ) {
-                $sportCounter = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sportPlanningConfigs);
-                $this->planningPlaces[$placeIt->getLocationId()] = new PlanningPlace($sportCounter);
+        while (count($this->refereePlaces) < $nrOfPlacesToFill) {
+            $game = array_shift($games);
+            $placesGame = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+            foreach( $placesGame as $placeGame ) {
+                if ( count( array_filter( $this->refereePlaces, function( $placeIt ) use ($placeGame) { return $placeGame === $placeIt; } ) ) === 0 ) {
+                    array_unshift( $this->refereePlaces, $placeGame );
+                }
             }
         }
     }
 
     /**
-     * @param array $games
-     * @param \DateTimeImmutable $startDateTime
+     *
+     */
+    protected function initPlaces() {
+        $sportService = new SportService();
+        $sports = $this->getInput()->getSports()->toArray();
+        $this->nrOfSports = count($sports );
+        $teamup = $this->getInput()->getTeamup();
+        $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
+
+        $this->places = [];
+        foreach( $this->getInput()->getStructure()->getPoules() as $poule ) {
+            // $nrOfHeadtohead = $sportService->getSufficientNrOfHeadtohead($sports, $poule, $teamup, $nrOfHeadtohead);
+            $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $nrOfHeadtohead, $teamup);
+
+            $sportsNrOfGames = $sportService->getPlanningMinNrOfGames($sports, $poule, $teamup, $nrOfHeadtohead );
+            $minNrOfGamesMap = $sportService->convertToMap($sportsNrOfGames);
+            /** @var Place $placeIt */
+            foreach( $poule->getPlaces() as $placeIt ) {
+                $sportCounter = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sportPlanningConfigs);
+                $placeIt->setSportCounter( $sportCounter );
+                $this->places[$placeIt->getLocation()] = $placeIt;
+            }
+        }
+    }
+
+    // het minimale aantal wedstrijden per sport moet je weten
+    // per plaats bijhouden: het aantal wedstrijden voor elke sport
+    // per plaats bijhouden: als alle sporten klaar
+//    /**
+//     *
+//     */
+//    protected function initPlaces() {
+//        $sportPlanningConfigService = new SportPlanningConfigService();
+//        $sportPlanningConfigs = $this->roundNumber->getSportPlanningConfigs()->toArray();
+//        $this->nrOfSports = count($sportPlanningConfigs );
+//        $teamup = $this->getInput()->getTeamup();
+//        $this->planningPlaces = [];
+//        foreach( $this->roundNumber->getPoules() as $poule ) {
+//            $nrOfHeadtohead = $sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
+//            $nrOfGamesToGo = $sportPlanningConfigService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $nrOfHeadtohead, $teamup);
+//
+//            $sportsNrOfGames = $sportPlanningConfigService->getPlanningMinNrOfGames($poule);
+//            $minNrOfGamesMap = $sportPlanningConfigService->convertToMap($sportsNrOfGames);
+//            /** @var Place $placeIt */
+//            foreach( $poule->getPlaces() as $placeIt ) {
+//                $sportCounter = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sportPlanningConfigs);
+//                $this->planningPlaces[$placeIt->getLocationId()] = new PlanningPlace($sportCounter);
+//            }
+//        }
+//    }
+
+    /**
+     * @param array|Game[] $games
      * @throws \Exception
      */
-    public function assign(array $games, \DateTimeImmutable $startDateTime)  {
-
+    public function assign(array $games)  {
+        $this->init( $games );
         $gamesH2h = $this->getGamesByH2h( $games );
-        // wedstrijden per h2h ophalen
-        // je geeft dan de batch mee, zodat je nog wel nrofgamesinarow beschikbaar hebt!!
-        // nu gaan de games ook niet door elkaar lopen!!
-        // games zijn al gesorteerd op roundnumber, subnumber, dus nu gewoon even opsplitsten
-
         $batch = new Batch();
-        $batch->setDateTime( $startDateTime );
         foreach( $gamesH2h as $games ) {
             $resources = new Resources( array_slice( $this->fields, 0 ) );
             $batch = $this->assignBatch( $games, $resources, $batch);
@@ -163,13 +196,22 @@ class Service {
     }
 
     protected function getGamesByH2h( array $orderedGames ): array {
+        $isSameGame = function( Game $firstGame, Game $game ): bool {
+            foreach ( $firstGame->getPlaces() as $gamePlace ) {
+                if( !$game->isParticipating( $gamePlace->getPlace() ) ) {
+                    return false;
+                }
+            }
+            return true;
+        };
+
         $currentBatch = null;
         $h2hgames = [];
         $firstGame = null;
         foreach( $orderedGames as $game ) {
             if( $firstGame === null ) {
                 $firstGame = $game;
-            } else if( $this->isSameGame( $firstGame, $game ) ) {
+            } else if( $isSameGame( $firstGame, $game ) ) {
                 $h2hgames[] = $currentBatch;
                 $currentBatch = [];
                 $firstGame = $game;
@@ -182,14 +224,7 @@ class Service {
         return $h2hgames;
     }
 
-    protected function isSameGame( Game $firstGame, Game $game ): bool {
-        foreach ( $firstGame->getPlaces() as $gamePlace ) {
-            if( !$game->isParticipating( $gamePlace->getPlace() ) ) {
-                return false;
-            }
-        }
-        return true;
-    }
+
 
     /**
      * @param array $games
@@ -198,15 +233,6 @@ class Service {
      */
     protected function assignBatch(array $games, Resources $resources, Batch $batch ): ?Batch
     {
-//        $optimalization = $this->optimalizationService->getOptimalization(
-//            count($this->fields),
-//            $this->planningConfig->getSelfReferee(),
-//            count($this->referees),
-//            count($this->roundNumber->getPoules()),
-//            $this->roundNumber->getNrOfPlaces(),
-//            $this->planningConfig->getTeamup()
-//        );
-
         // $nrOfBatchGames = $optimalization->getMaxNrOfGamesPerBatch();
 
 //        $this->maxNrOfGamesInARow = $optimalization->getMaxNrOfGamesInARow();
@@ -525,42 +551,15 @@ class Service {
         return array_map( function( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
     }
 
-    protected function addNrOfGamesInARow(Batch $batch ) {
-        foreach( $this->roundNumber->getPlaces() as $place ) {
-            $this->getPlanningPlace($place)->toggleGamesInARow($batch->hasPlace($place));
-        }
-    }
-
     protected function getPlanningPlace(Place $place ): PlanningPlace {
         return $this->planningPlaces[$place->getLocationId()];
     }
 
-
-    /* time functions */
-
-    public function getNextGameStartDateTime( \DateTimeImmutable $dateTime ) {
-        $minutes = $this->planningConfig->getMaximalNrOfMinutesPerGame() + $this->planningConfig->getMinutesBetweenGames();
-        return $this->addMinutes($dateTime, $minutes);
-    }
-
-    protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {
-        $newStartDateTime = $dateTime->modify("+" . $minutes . " minutes");
-        if ($this->blockedPeriod === null ) {
-            return $newStartDateTime;
-        }
-
-        $endDateTime = $newStartDateTime->modify("+" . $this->planningConfig->getMaximalNrOfMinutesPerGame() . " minutes");
-        if( $endDateTime > $this->blockedPeriod->getStartDate() && $newStartDateTime < $this->blockedPeriod->getEndDate() ) {
-            $newStartDateTime = clone $this->blockedPeriod->getEndDate();
-        }
-        return $newStartDateTime;
-    }
-
-    protected function getConsoleString($value, int $minLength): string {
-        $str = '' . $value;
-        while ( strlen($str) < $minLength) {
-            $str = ' ' . $str;
-        }
-        return $str;
-    }
+//    protected function getConsoleString($value, int $minLength): string {
+//        $str = '' . $value;
+//        while ( strlen($str) < $minLength) {
+//            $str = ' ' . $str;
+//        }
+//        return $str;
+//    }
 }

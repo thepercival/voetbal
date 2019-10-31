@@ -2,12 +2,7 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Planning\Config as PlanningConfig;
-use Voetbal\Planning\Resource\Batch;
-use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Sport;
-use Voetbal\Range;
-use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
+use Doctrine\Common\Collections\ArrayCollection;
 
 class Input
 {
@@ -39,15 +34,27 @@ class Input
      * @var bool
      */
     protected $selfReferee;
+    /**
+     * @var Structure
+     */
+    protected $structure;
+    /**
+     * @var ArrayCollection| Sport[]
+     */
+    protected $sports;
+
 
     public function __construct( array $structureConfig, array $sportConfig, int $nrOfReferees, int $nrOfHeadtohead, bool $teamup, bool $selfReferee ) {
         $this->structureConfig = $structureConfig;
+        $this->structure = $this->convertToStructure( $structureConfig );
         $this->sportConfig = $sportConfig;
-
+        $this->sports = $this->convertToSports( $sportConfig );
         $this->nrOfReferees = $nrOfReferees;
         $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->teamup = $teamup;
         $this->selfReferee = $selfReferee;
+
+
     }
 
     public function getId(): ?int
@@ -64,23 +71,33 @@ class Input
      *
      * @return array
      */
-    public function getStructureConfig(): array {
-        return $this->structureConfig;
-    }
+//    public function getStructureConfig(): array {
+//        return $this->structureConfig;
+//    }
 
     /**
-     * $sports = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
      *
-     * @return array
+     *
+     * @return ArrayCollection
      */
-    public function getSportConfig(): array {
-        return $this->sportConfig;
+    public function getSports(): ArrayCollection {
+        return $this->sports;
+    }
+
+    public function getFields(): ArrayCollection {
+        $fields = new ArrayCollection();
+        foreach( $this->sports as $sport ) {
+            foreach( $sport->getFields() as $field ) {
+                $fields->add($field);
+            }
+        }
+        return $fields;
     }
 
     public function getNrOfFields(): int {
         $nrOfFields = 0;
-        foreach( $this->getSportConfig() as $sportConfig ) {
-            $nrOfFields += $sportConfig["nrOfFields"];
+        foreach( $this->sports as $sport ) {
+            $nrOfFields += $sport->getFields()->count();
         }
         return $nrOfFields;
     }
@@ -115,7 +132,7 @@ class Input
         }
 
         if( ( Resources::PLACES & $resources ) === Resources::PLACES || $resources === null  ) {
-            $nrOfGamesSimultaneously = $this->getNrOfGamesSimultaneously( $this->structureConfig );
+            $nrOfGamesSimultaneously = $this->getNrOfGamesSimultaneously();
             if( $nrOfGamesSimultaneously < $maxNrOfBatchGames || $maxNrOfBatchGames === null ) {
                 $maxNrOfBatchGames = $nrOfGamesSimultaneously;
             }
@@ -123,15 +140,33 @@ class Input
         return $maxNrOfBatchGames;
     }
 
-    protected function getNrOfGamesSimultaneously( array $structureConfig ): int {
-
-        $nrOfGamePlaces = $this->getNrOfGamePlaces( $this->selfReferee, $this->teamup );
-
-        $nrOfGamesSimultaneously = 0;
-        foreach( $structureConfig as $pouleNr => $nrOfPlaces ) {
-            $nrOfGamesSimultaneously += (int) floor( $nrOfPlaces / $nrOfGamePlaces );
+    /**
+     * sorteer de sporten van zo laag mogelijk NrOfGamePlaces naar zo hoog mogelijk
+     * zo wordt $nrOfGamesSimultaneously zo hoog mogelijk
+     *
+     * @return int
+     */
+    protected function getNrOfGamesSimultaneously(): int {
+        $sports = $this->getSports()->toArray();
+        uasort( $sports, function ( $sportA, $sportB ) {
+            return ($sportA->getNrOfGamePlaces() < $sportB->getNrOfGamePlaces() ) ? -1 : 1;
+        } );
+        $fields = [];
+        foreach( $sports as $sport ) {
+            $fields = array_merge( $fields, $sport->getFields()->toArray() );
         }
 
+        // er zijn meerdere poules, dus hier valt ook nog in te verbeteren
+        $nrOfPlaces = $this->structure->getNrOfPlaces();
+
+        $nrOfGamesSimultaneously = 0;
+        while ( $nrOfPlaces > 0 && count($fields) > 0  ) {
+            $field = array_shift($fields);
+            $nrOfPlaces -= $this->getNrOfGamePlaces( $field->getSport()->getNrOfGamePlaces(), $this->selfReferee, $this->teamup );;
+            if( $nrOfPlaces >= 0 ) {
+                $nrOfGamesSimultaneously++;
+            }
+        }
         return $nrOfGamesSimultaneously;
     }
 
@@ -149,8 +184,7 @@ class Input
         //            }
     }
 
-    protected function getNrOfGamePlaces( bool $selfReferee, bool $teamup ): int {
-        $nrOfGamePlaces = Sport::TEMPDEFAULT;
+    protected function getNrOfGamePlaces( int $nrOfGamePlaces, bool $selfReferee, bool $teamup ): int {
         if ($teamup) {
             $nrOfGamePlaces *= 2;
         }
@@ -158,5 +192,35 @@ class Input
             $nrOfGamePlaces++;
         }
         return $nrOfGamePlaces;
+    }
+
+    public function getStructure(): Structure {
+        return $this->structure;
+    }
+
+    protected function convertToStructure( array $structureConfig ) {
+        $structure = new Structure();
+        foreach( $structureConfig as $nrOfPlaces ) {
+            $structure->addPoule( new Poule( $this->poules->count() + 1, $nrOfPlaces ) );
+        }
+        return $structure;
+    }
+
+    /**
+     * $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
+     *
+     * @param array $sportConfig
+     * @return ArrayCollection | Sport[]
+     */
+    protected function convertToSports( array $sportConfig ): ArrayCollection {
+        $sports = new ArrayCollection();
+        foreach( $sportConfig as $sportIt ) {
+            $sport = new Sport( $sports->count() + 1, $sportIt["nrOfGamePlaces"] );
+            $sports->add( $sport );
+            for( $fieldNr = 1 ; $fieldNr <= $sportIt["nrOfFields"] ; $fieldNr++ ) {
+                new Field( $fieldNr, $sport );
+            }
+        }
+        return $sports;
     }
 }

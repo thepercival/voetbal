@@ -9,59 +9,58 @@
 namespace Voetbal\Planning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Poule;
-use Voetbal\Place;
-use Voetbal\Game;
 use Voetbal\Place\Combination as PlaceCombination;
 use Voetbal\Place\Combination\Number as PlaceCombinationNumber;
-use Voetbal\Planning\Config as PlanningConfig;
-use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Sport\PlanningConfig\Service as SportPlanningConfigService;
+use Voetbal\Planning as PlanningBase;
 
 class GameGenerator
 {
     /**
      * @var SportPlanningConfigService
      */
-    protected $sportPlanningConfigService;
+    //protected $sportPlanningConfigService;
+    /**
+     * @var Input
+     */
+    protected $input;
 
-    public function __construct(  )
+    public function __construct( Input $input )
     {
-        $this->sportPlanningConfigService = new SportPlanningConfigService();
+        $this->input = $input;
     }
 
-    public function create(RoundNumber $roundNumber ) {
-        $config = $roundNumber->getValidPlanningConfig();
-        $nrOfHeadtohead = $this->getSufficientNrOfHeadtohead($roundNumber, $config);
-        for ($headtohead = 1; $headtohead <= $nrOfHeadtohead; $headtohead++) {
-            foreach ($roundNumber->getPoules() as $poule) {
-                $this->createPoule($poule, $config, $headtohead);
+    public function create( PlanningBase $planning ) {
+        // $config = $roundNumber->getValidPlanningConfig();
+        // $nrOfHeadtohead = $this->getSufficientNrOfHeadtohead($roundNumber, $config);
+        for ($headtohead = 1; $headtohead <= $this->input->getNrOfHeadtohead(); $headtohead++) {
+            foreach ($this->input->getPoules() as $poule) {
+                $this->createPoule($planning, $poule, $headtohead);
             }
         }
     }
 
-    protected function getSufficientNrOfHeadtohead( RoundNumber $roundNumber, PlanningConfig $config ) {
-        $nrOfHeadtohead = 0;
-        foreach( $roundNumber->getPoules() as $poule ) {
-            $newNrOfHeadtohead = $this->sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
-            if( $newNrOfHeadtohead > $nrOfHeadtohead ) {
-                $nrOfHeadtohead = $newNrOfHeadtohead;
-            }
-        }
-        if ($config->getNrOfHeadtohead() > $nrOfHeadtohead) {
-             return $config->getNrOfHeadtohead();
-        }
-        return $nrOfHeadtohead;
-    }
+//    protected function getSufficientNrOfHeadtohead( RoundNumber $roundNumber, PlanningConfig $config ) {
+//        $nrOfHeadtohead = 0;
+//        foreach( $roundNumber->getPoules() as $poule ) {
+//            $newNrOfHeadtohead = $this->sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
+//            if( $newNrOfHeadtohead > $nrOfHeadtohead ) {
+//                $nrOfHeadtohead = $newNrOfHeadtohead;
+//            }
+//        }
+//        if ($config->getNrOfHeadtohead() > $nrOfHeadtohead) {
+//             return $config->getNrOfHeadtohead();
+//        }
+//        return $nrOfHeadtohead;
+//    }
 
-    protected function createPoule(Poule $poule, PlanningConfig $config, int $headtohead ) {
-        $gameRounds = $this->createPouleGameRounds($poule, $config->getTeamup());
+    protected function createPoule(PlanningBase $planning, Poule $poule, int $headtohead ) {
+        $gameRounds = $this->createPouleGameRounds($poule, $this->input->getTeamup());
         $reverseHomeAway = ($headtohead % 2) === 0;
         $startGameRoundNumber = (($headtohead - 1) * count($gameRounds));
         foreach( $gameRounds as $gameRound ) {
             $subNumber = 1;
             foreach( $gameRound->getCombinations() as $combination ) {
-                $game = new Game($poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
+                $game = new Game($planning, $poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
                 $gamePlaces = new ArrayCollection( $combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
                 $game->setPlaces( $gamePlaces );
             }
@@ -78,7 +77,7 @@ class GameGenerator
         $gameRoundsSingle = $this->generateRRSchedule($poule->getPlaces()->toArray());
 
         $nrOfPlaces = count($poule->getPlaces());
-        if ($teamup !== true || $nrOfPlaces < PlanningConfig::TEAMUP_MIN || $nrOfPlaces > PlanningConfig::TEAMUP_MAX) {
+        if ($teamup !== true || $nrOfPlaces < Config::TEAMUP_MIN || $nrOfPlaces > Config::TEAMUP_MAX) {
             return $gameRoundsSingle;
         }
 

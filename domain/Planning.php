@@ -11,6 +11,7 @@ namespace Voetbal;
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Game as PlanningGame;
+use Voetbal\Range as VoetbalRange;
 
 class Planning
 {
@@ -56,6 +57,15 @@ class Planning
     const STATE_SUCCESS_PARTIAL = 4;
     const STATE_SUCCESS = 8;
 
+    public function __construct( PlanningInput $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow )
+    {
+        $this->input = $input;
+        $this->minNrOfBatchGames = $nrOfBatchGames->min;
+        $this->maxNrOfBatchGames = $nrOfBatchGames->max;
+        $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
+        $this->games = new ArrayCollection();
+    }
+
     public function getId(): ?int
     {
         return $this->id;
@@ -65,16 +75,20 @@ class Planning
         return $this->minNrOfBatchGames;
     }
 
-    public function setMinNrOfBatchGames( int $minNrOfBatchGames ) {
-        $this->minNrOfBatchGames = $minNrOfBatchGames;
-    }
+//    public function setMinNrOfBatchGames( int $minNrOfBatchGames ) {
+//        $this->minNrOfBatchGames = $minNrOfBatchGames;
+//    }
 
     public function getMaxNrOfBatchGames(): int {
         return $this->maxNrOfBatchGames;
     }
 
-    public function setMaxNrOfBatchGames( int $maxNrOfBatchGames ) {
-        $this->maxNrOfBatchGames = $maxNrOfBatchGames;
+//    public function setMaxNrOfBatchGames( int $maxNrOfBatchGames ) {
+//        $this->maxNrOfBatchGames = $maxNrOfBatchGames;
+//    }
+
+    public function getNrOfBatchGames(): VoetbalRange {
+        return new VoetbalRange( $this->getMinNrOfBatchGames(), $this->getMaxNrOfBatchGames() );
     }
 
     public function getMaxNrOfGamesInARow(): int {
@@ -115,9 +129,9 @@ class Planning
         return $this->input;
     }
 
-    public function setInput( PlanningInput $input ) {
-        $this->input = $input;
-    }
+//    public function setInput( PlanningInput $input ) {
+//        $this->input = $input;
+//    }
 
     /**
      * @return PlanningGame[] | ArrayCollection
