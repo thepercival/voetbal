@@ -71,9 +71,18 @@ class Input
      *
      * @return array
      */
-//    public function getStructureConfig(): array {
-//        return $this->structureConfig;
-//    }
+    public function getStructureConfig(): array {
+        return $this->structureConfig;
+    }
+
+    /**
+     * $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
+     *
+     * @return array
+     */
+    public function getSportConfig(): array {
+        return $this->sportConfig;
+    }
 
     /**
      *
@@ -173,8 +182,8 @@ class Input
     public function getMaxNrOfGamesInARow(): int {
         $structureConfig = $this->getStructureConfig();
         $nrOfPoulePlaces = reset( $structureConfig );
-        $planningService = new \Voetbal\Sport\PlanningConfig\Service();
-        return $planningService->getNrOfGamesPerPlace( $nrOfPoulePlaces, $this->getNrOfHeadtohead(), $this->getTeamup() );
+        $sportService = new \Voetbal\Sport\Service();
+        return $sportService->getNrOfGamesPerPlace( $nrOfPoulePlaces, $this->getNrOfHeadtohead(), $this->getTeamup() );
         //         const sportPlanningConfigService = new SportPlanningConfigService();
         //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
         //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
@@ -201,14 +210,12 @@ class Input
     protected function convertToStructure( array $structureConfig ) {
         $structure = new Structure();
         foreach( $structureConfig as $nrOfPlaces ) {
-            $structure->addPoule( new Poule( $this->poules->count() + 1, $nrOfPlaces ) );
+            $structure->addPoule( new Poule( $structure->getPoules()->count() + 1, $nrOfPlaces ) );
         }
         return $structure;
     }
 
     /**
-     * $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
-     *
      * @param array $sportConfig
      * @return ArrayCollection | Sport[]
      */

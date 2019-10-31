@@ -2,8 +2,6 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Sport;
-
 class Field
 {
     /**

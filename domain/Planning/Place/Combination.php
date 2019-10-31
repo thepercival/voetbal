@@ -10,6 +10,7 @@ namespace Voetbal\Planning\Place;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning\Game;
+use Voetbal\Game as GameBase;
 use Voetbal\Planning\Game\Place as GamePlace;
 use Voetbal\Planning\Place;
 
@@ -75,10 +76,10 @@ class Combination
      */
     public function getGamePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/): array {
         $home = array_map( function( $homeIt ) use ($game,$reverseHomeAway){
-            return new GamePlace($game, $homeIt, $reverseHomeAway ? Game::AWAY : Game::HOME);
+            return new GamePlace($game, $homeIt, $reverseHomeAway ? GameBase::AWAY : GameBase::HOME);
         }, $this->getHome() );
         $away = array_map( function( $awayIt ) use ($game,$reverseHomeAway){
-            return new GamePlace($game, $awayIt, $reverseHomeAway ? Game::HOME : Game::AWAY);
+            return new GamePlace($game, $awayIt, $reverseHomeAway ? GameBase::HOME : GameBase::AWAY);
         }, $this->getAway() );
 
 

@@ -31,7 +31,7 @@ class Poule
 
     public function __construct( int $number, int $nrOfPlaces )
     {
-        $this->setNumber( $number );
+        $this->number = $number;
         $this->places = new ArrayCollection();
         for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ) {
             $this->places->add( new Place( $this, $placeNr) );
