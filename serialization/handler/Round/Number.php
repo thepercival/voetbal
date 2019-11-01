@@ -73,14 +73,6 @@ class Number implements SubscribingHandlerInterface
             $roundNumber->setPlanningConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
         }
 
-        if( array_key_exists( "sportPlanningConfigs", $arrRoundNumber ) ) {
-            foreach( $arrRoundNumber["sportPlanningConfigs"] as $arrSportPlanningConfig ) {
-                $sport = new Sport("");
-                $sport->setId($arrSportPlanningConfig["sportId"]);
-                $sportPlanningConfig = new SportPlanningConfig($sport, $roundNumber );
-                $sportPlanningConfig->setMinNrOfGames($arrSportPlanningConfig["minNrOfGames"]);
-            }
-        }
         if( array_key_exists( "sportScoreConfigs", $arrRoundNumber ) ) {
             foreach ($arrRoundNumber["sportScoreConfigs"] as $arrSportScoreConfig) {
                 $sport = new Sport("");

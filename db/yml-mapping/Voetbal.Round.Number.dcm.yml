@@ -47,10 +47,6 @@ Voetbal\Round\Number:
       targetEntity: Voetbal\Sport\ScoreConfig
       mappedBy: roundNumber
       cascade: [ persist, remove ]
-    sportPlanningConfigs:
-      targetEntity: Voetbal\Sport\PlanningConfig
-      mappedBy: roundNumber
-      cascade: [ persist, remove ]
   manyToOne:
     competition:
       targetEntity: Voetbal\Competition

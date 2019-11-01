@@ -9,15 +9,15 @@ class Sport
     /**
      * @var int
      */
+    private $id;
+    /**
+     * @var int
+     */
     protected $number;
     /**
      * @var int
      */
     protected $nrOfGamePlaces;
-    /**
-     * @var int
-     */
-    protected $priority;
     /**
      * @var ArrayCollection | Field[]
      */
@@ -44,20 +44,6 @@ class Sport
     public function getNrOfGamePlaces(): int
     {
         return $this->nrOfGamePlaces;
-    }
-
-
-    /**
-     * @return int
-     */
-    public function getPriority(): int
-    {
-        return $this->priority;
-    }
-
-    public function setPriority( int $priority )
-    {
-        $this->priority = $priority;
     }
 
     public function getFields(): ArrayCollection

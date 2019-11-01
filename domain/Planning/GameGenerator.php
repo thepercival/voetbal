@@ -9,8 +9,8 @@
 namespace Voetbal\Planning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Place\Combination as PlaceCombination;
-use Voetbal\Place\Combination\Number as PlaceCombinationNumber;
+use Voetbal\Planning\Place\Combination as PlaceCombination;
+use Voetbal\Planning\Place\Combination\Number as PlaceCombinationNumber;
 use Voetbal\Planning as PlanningBase;
 
 class GameGenerator
@@ -33,7 +33,7 @@ class GameGenerator
         // $config = $roundNumber->getValidPlanningConfig();
         // $nrOfHeadtohead = $this->getSufficientNrOfHeadtohead($roundNumber, $config);
         for ($headtohead = 1; $headtohead <= $this->input->getNrOfHeadtohead(); $headtohead++) {
-            foreach ($this->input->getPoules() as $poule) {
+            foreach ($this->input->getStructure()->getPoules() as $poule) {
                 $this->createPoule($planning, $poule, $headtohead);
             }
         }
@@ -62,7 +62,9 @@ class GameGenerator
             foreach( $gameRound->getCombinations() as $combination ) {
                 $game = new Game($planning, $poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
                 $gamePlaces = new ArrayCollection( $combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
-                $game->setPlaces( $gamePlaces );
+                foreach( $gamePlaces as $gamePlace ) {
+                    $game->getPlaces()->add( $gamePlace );
+                }
             }
         }
     }

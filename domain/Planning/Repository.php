@@ -107,4 +107,13 @@ class Repository extends \Voetbal\Repository
         return $query->getQuery()->getResult()->first();
     }
 
+    public function getMaxTimeoutSeconds() {
+        $query = $this->createQueryBuilder('p')
+            ->orderBy('p.timeoutSeconds', 'DESC')
+        ;
+        $query->setMaxResults(1);
+        $results = $query->getQuery()->getResult();
+        $first = reset($results);
+        return $first !== false ? $first->getTimeoutSeconds() : PlanningBase::DEFAULT_TIMEOUTSECONDS;
+    }
 }

@@ -2,8 +2,6 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Field;
-
 class Resources {
     /**
      * @var array|Field[]

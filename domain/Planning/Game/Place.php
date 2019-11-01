@@ -22,10 +22,6 @@ class Place
      */
     private $game;
     /**
-     * @var PlanningPlace
-     */
-    private $place;
-    /**
      * @var bool
      */
     private $homeaway;
@@ -33,6 +29,10 @@ class Place
      * @var int
      */
     private $placeNr;
+    /**
+     * @var PlanningPlace
+     */
+    private $place;
 
     public function __construct( PlanningGame $game, PlanningPlace $place, bool $homeaway )
     {
@@ -60,38 +60,6 @@ class Place
     }
 
     /**
-     * @return PlanningPlace
-     */
-    public function getPlace()
-    {
-        return $this->place;
-    }
-
-    /**
-     * @param PlanningPlace $place
-     */
-    public function setPlace( PlanningPlace $place )
-    {
-        $this->place = $place;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getHomeaway()
-    {
-        return $this->homeaway;
-    }
-
-    /**
-     * @param bool $homeaway
-     */
-    public function setHomeaway($homeaway)
-    {
-        $this->homeaway = $homeaway;
-    }
-
-    /**
      * @return PlanningGame
      */
     public function getGame()
@@ -110,6 +78,22 @@ class Place
         $this->game = $game;
     }
 
+    /**
+     * @return bool
+     */
+    public function getHomeaway()
+    {
+        return $this->homeaway;
+    }
+
+    /**
+     * @param bool $homeaway
+     */
+    public function setHomeaway($homeaway)
+    {
+        $this->homeaway = $homeaway;
+    }
+
     public function getPlaceNr(): int
     {
         if( $this->getPlace() !== null ) {
@@ -118,8 +102,25 @@ class Place
         return $this->placeNr;
     }
 
-    public function setPlaceNr( int $placeNr )
+//    public function setPlaceNr( int $placeNr )
+//    {
+//        $this->placeNr = $placeNr;
+//    }
+
+    /**
+     * @return PlanningPlace
+     */
+    public function getPlace(): PlanningPlace
     {
-        $this->placeNr = $placeNr;
+        return $this->place;
+    }
+
+    /**
+     * @param PlanningPlace $place
+     */
+    public function setPlace( PlanningPlace $place )
+    {
+        $this->place = $place;
+        $this->placeNr = $place->getNumber();
     }
 }

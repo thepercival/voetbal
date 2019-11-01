@@ -15,6 +15,10 @@ class Poule
     /**
      * @var int
      */
+    private $id;
+    /**
+     * @var int
+     */
     protected $number;
     /**
      * @var int

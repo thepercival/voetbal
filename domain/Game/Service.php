@@ -57,73 +57,73 @@ class Service
     }
 
 
-    public function setBlockedPeriod(\DateTimeImmutable $startDateTime, int $durationInMinutes) {
-        $endDateTime = clone $startDateTime;
-        $endDateTime->modify("+" . $durationInMinutes . " minutes");
-        $this->blockedPeriod = new Period($startDateTime, $endDateTime);
-    }
+//    public function setBlockedPeriod(\DateTimeImmutable $startDateTime, int $durationInMinutes) {
+//        $endDateTime = clone $startDateTime;
+//        $endDateTime->modify("+" . $durationInMinutes . " minutes");
+//        $this->blockedPeriod = new Period($startDateTime, $endDateTime);
+//    }
 
     /**
      * @var Period
      */
-    protected $blockedPeriod;
+   // protected $blockedPeriod;
 //    public function getStartDateTime(): \DateTimeImmutable {
 //        return $this->competition->getStartDateTime();
 //}
 
-
-    public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
-        if ($roundNumber->getValidPlanningConfig()->getEnableTime() === false) {
-            return false;
-        }
-        if ($roundNumber->hasPrevious() ) {
-            return $this->canCalculateStartDateTime($roundNumber->getPrevious());
-        }
-        return true;
-    }
-
-
-    public function reschedule( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null )
-    {
-        if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
-            $startDateTime = $this->calculateStartDateTime($roundNumber);
-        }
-
-        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
-        if ($roundNumber->hasNext()) {
-            $this->reschedule( $roundNumber->getNext(), $startNextRound );
-        }
-    }
-
-    public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ) {
-        if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
-            $startDateTime = $this->calculateStartDateTime($roundNumber);
-        }
-        $this->removeNumber($roundNumber);
-
-        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
-        if ($roundNumber->hasNext()) {
-            $this->create($roundNumber->getNext(), $startNextRound);
-        }
-    }
-
-    // get inputPlanning from roundNumber and add dates
-
-    public function gamesOnSameDay( RoundNumber $roundNumber ) {
-        $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_RESOURCEBATCH);
-        $firstGame = array_shift($games);
-        $lastGame = (count($games) === 0) ? $firstGame : array_shift($games);
-        return $this->isOnSameDay($firstGame, $lastGame);
-    }
-
-    protected function isOnSameDay(Game $gameOne, Game $gameTwo): bool {
-        $dateOne = $gameOne->getStartDateTime();
-        $dateTwo = $gameTwo->getStartDateTime();
-        if ($dateOne === null && $dateTwo === null) {
-            return true;
-        }
-        return $dateOne->format('Y-m-d') === $dateTwo->format('Y-m-d');
-    }
+//
+//    public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
+//        if ($roundNumber->getValidPlanningConfig()->getEnableTime() === false) {
+//            return false;
+//        }
+//        if ($roundNumber->hasPrevious() ) {
+//            return $this->canCalculateStartDateTime($roundNumber->getPrevious());
+//        }
+//        return true;
+//    }
+//
+//
+//    public function reschedule( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null )
+//    {
+//        if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
+//            $startDateTime = $this->calculateStartDateTime($roundNumber);
+//        }
+//
+//        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+//        if ($roundNumber->hasNext()) {
+//            $this->reschedule( $roundNumber->getNext(), $startNextRound );
+//        }
+//    }
+//
+//    public function create( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null ) {
+//        if ($startDateTime === null && $this->canCalculateStartDateTime($roundNumber)) {
+//            $startDateTime = $this->calculateStartDateTime($roundNumber);
+//        }
+//        $this->removeNumber($roundNumber);
+//
+//        $startNextRound = $this->rescheduleHelper($roundNumber, $startDateTime);
+//        if ($roundNumber->hasNext()) {
+//            $this->create($roundNumber->getNext(), $startNextRound);
+//        }
+//    }
+//
+//    // get inputPlanning from roundNumber and add dates
+//
+//    public function gamesOnSameDay( RoundNumber $roundNumber ) {
+//        $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_RESOURCEBATCH);
+//        $firstGame = array_shift($games);
+//        $lastGame = (count($games) === 0) ? $firstGame : array_shift($games);
+//        return $this->isOnSameDay($firstGame, $lastGame);
+//    }
+//
+//    protected function isOnSameDay(Game $gameOne, Game $gameTwo): bool {
+//        $dateOne = $gameOne->getStartDateTime();
+//        $dateTwo = $gameTwo->getStartDateTime();
+//        if ($dateOne === null && $dateTwo === null) {
+//            return true;
+//        }
+//        return $dateOne->format('Y-m-d') === $dateTwo->format('Y-m-d');
+//    }
 
 //    protected function removeNumber(RoundNumber $roundNumber) {
 //        $rounds = $roundNumber->getRounds();

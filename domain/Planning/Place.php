@@ -2,9 +2,13 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Sport\Counter as SportCounter;
+use Voetbal\Planning\Sport\Counter as SportCounter;
 
 class Place {
+    /**
+     * @var int
+     */
+    private $id;
     /**
      * @var Poule
      */

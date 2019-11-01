@@ -1,0 +1,28 @@
+Voetbal\Planning\Poule:
+  type: entity
+  repositoryClass: Voetbal\Planning\Poule\Repository
+  table: planningpoules
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+      column: number
+    roundNr:
+      type: smallint
+      nullable: false
+      unique: false
+  oneToMany:
+    places:
+      targetEntity: Voetbal\Planning\Game\Place
+      mappedBy: poule
+      cascade: [ persist, remove ]
+    games:
+      targetEntity: Voetbal\Planning\Game
+      mappedBy: poule
+      cascade: [ persist, remove ]

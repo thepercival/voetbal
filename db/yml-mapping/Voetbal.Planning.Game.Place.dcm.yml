@@ -12,6 +12,10 @@ Voetbal\Planning\Game\Place:
       type: boolean
       nullable: false
       unique: false
+    placeNr:
+      type: integer
+      nullable: false
+      unique: false
   manyToOne:
     game:
       targetEntity: Voetbal\Planning\Game
@@ -21,13 +25,6 @@ Voetbal\Planning\Game\Place:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    place:
-      targetEntity: Voetbal\PlanningPlace
-      joinColumn:
-        name: placeid
-        referencedColumnName: id
-        nullable: false
-        onDelete: CASCADE
   uniqueConstraints:
     number_v_idx:
-      columns: [ gameid, placeid ]
+      columns: [ gameid, homeaway, placeNr ]

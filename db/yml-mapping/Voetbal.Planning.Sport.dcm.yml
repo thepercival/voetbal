@@ -1,0 +1,19 @@
+Voetbal\Planning\Sport:
+  type: entity
+  repositoryClass: Voetbal\Planning\Sport\Repository
+  table: planningsports
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+      column: number
+  oneToMany:
+    fields:
+      targetEntity: Voetbal\Planning\Field
+      mappedBy: sport

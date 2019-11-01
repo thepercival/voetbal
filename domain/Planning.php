@@ -57,6 +57,8 @@ class Planning
     const STATE_SUCCESS_PARTIAL = 4;
     const STATE_SUCCESS = 8;
 
+    const DEFAULT_TIMEOUTSECONDS = 30;
+
     public function __construct( PlanningInput $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow )
     {
         $this->input = $input;
@@ -64,6 +66,7 @@ class Planning
         $this->maxNrOfBatchGames = $nrOfBatchGames->max;
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
         $this->games = new ArrayCollection();
+        $this->createdDateTime = new \DateTimeImmutable();
     }
 
     public function getId(): ?int

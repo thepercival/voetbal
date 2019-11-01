@@ -1,9 +1,7 @@
 <?php
-namespace Voetbal\Sport;
+namespace Voetbal\Planning\Sport;
 
-use Voetbal\Competition;
 use Voetbal\Planning\Sport as PlanningSport;
-use Voetbal\Sport as SportBase;
 
 class Counter {
     /**
@@ -40,25 +38,28 @@ class Counter {
         }
     }
 
-    public function isAssignable(SportBase $sport): bool {
-        $isSportDone = $this->nrOfGamesDoneMap[$sport->getId()] >= $this->minNrOfGamesMap[$sport->getId()];
+    public function isAssignable(PlanningSport $sport): bool {
+        $sportNr = $sport->getNumber();
+        $isSportDone = $this->nrOfGamesDoneMap[$sportNr] >= $this->minNrOfGamesMap[$sportNr];
         return ($this->nrToGo - ($isSportDone ? 0 : 1)) <= ($this->nrOfGamesToGo - 1);
     }
 
-    public function addGame(SportBase $sport ) {
-        if ( array_key_exists( $sport->getId(), $this->nrOfGamesDoneMap ) === false) {
-            $this->nrOfGamesDoneMap[$sport->getId()] = 0;
+    public function addGame(PlanningSport $sport ) {
+        $sportNr = $sport->getNumber();
+        if ( array_key_exists( $sportNr, $this->nrOfGamesDoneMap ) === false) {
+            $this->nrOfGamesDoneMap[$sportNr] = 0;
         }
-        if ($this->nrOfGamesDoneMap[$sport->getId()] < $this->minNrOfGamesMap[$sport->getId()]) {
+        if ($this->nrOfGamesDoneMap[$sportNr] < $this->minNrOfGamesMap[$sportNr]) {
             $this->nrToGo--;
         }
-        $this->nrOfGamesDoneMap[$sport->getId()]++;
+        $this->nrOfGamesDoneMap[$sportNr]++;
         $this->nrOfGamesToGo--;
     }
 
-    public function removeGame(SportBase $sport ) {
-        $this->nrOfGamesDoneMap[$sport->getId()]--;
-        if ($this->nrOfGamesDoneMap[$sport->getId()] < $this->minNrOfGamesMap[$sport->getId()]) {
+    public function removeGame(PlanningSport $sport ) {
+        $sportNr = $sport->getNumber();
+        $this->nrOfGamesDoneMap[$sportNr]--;
+        if ($this->nrOfGamesDoneMap[$sportNr] < $this->minNrOfGamesMap[$sportNr]) {
             $this->nrToGo++;
         }
         $this->nrOfGamesToGo++;

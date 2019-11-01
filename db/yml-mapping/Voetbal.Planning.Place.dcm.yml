@@ -1,0 +1,24 @@
+Voetbal\Planning\Place:
+  type: entity
+  repositoryClass: Voetbal\Planning\Place\Repository
+  table: planningplaces
+  id:
+    id:
+      type: integer
+      generator:
+        strategy: AUTO
+  fields:
+    number:
+      type: smallint
+      nullable: false
+      unique: false
+      column: number
+  manyToOne:
+    poule:
+      targetEntity: Voetbal\Planning\Poule
+      inversedBy: places
+      joinColumn:
+        name: pouleId
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE

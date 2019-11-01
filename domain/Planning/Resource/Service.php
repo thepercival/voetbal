@@ -19,9 +19,10 @@ use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Planning\Resources as Resources;
 use Voetbal\Planning\Input;
 use League\Period\Period;
-use Voetbal\Sport\Counter as SportCounter;
+use Voetbal\Planning\Sport\Counter as SportCounter;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Planning\Batch;
+use Voetbal\Planning\TimeoutException;
 
 class Service {
     /**
@@ -44,10 +45,6 @@ class Service {
      * @var array|Field[]
      */
     private $fields = [];
-    /**
-     * @var PlanningConfig
-     */
-    private $planningConfig;
     /**
      * @var int
      */
@@ -75,7 +72,6 @@ class Service {
 
     public function __construct( PlanningBase $planning )
     {
-        // $this->roundNumber = $roundNumber;
         $this->planning = $planning;
         $this->nrOfPoules = $this->getInput()->getStructure()->getPoules()->count();
     }
@@ -145,7 +141,7 @@ class Service {
             $minNrOfGamesMap = $sportService->convertToMap($sportsNrOfGames);
             /** @var Place $placeIt */
             foreach( $poule->getPlaces() as $placeIt ) {
-                $sportCounter = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sportPlanningConfigs);
+                $sportCounter = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sports);
                 $placeIt->setSportCounter( $sportCounter );
                 $this->places[$placeIt->getLocation()] = $placeIt;
             }
@@ -186,13 +182,20 @@ class Service {
         $this->init( $games );
         $gamesH2h = $this->getGamesByH2h( $games );
         $batch = new Batch();
+        $resources = new Resources( array_slice( $this->fields, 0 ) );
         foreach( $gamesH2h as $games ) {
-            $resources = new Resources( array_slice( $this->fields, 0 ) );
-            $batch = $this->assignBatch( $games, $resources, $batch);
-            if ( $batch === null ) {
-                throw new \Exception('cannot assign resources', E_ERROR);
+            try {
+                $batch = $this->assignBatch( $games, $resources, $batch);
+                if ( $batch === null ) {
+                    return PlanningBase::STATE_FAILED;
+                }
             }
+            catch( TimeoutException $e ) {
+                return PlanningBase::STATE_TIMEOUT;
+            }
+
         }
+        return PlanningBase::STATE_SUCCESS;
     }
 
     protected function getGamesByH2h( array $orderedGames ): array {
@@ -233,43 +236,32 @@ class Service {
      */
     protected function assignBatch(array $games, Resources $resources, Batch $batch ): ?Batch
     {
-        // $nrOfBatchGames = $optimalization->getMaxNrOfGamesPerBatch();
-
-//        $this->maxNrOfGamesInARow = $optimalization->getMaxNrOfGamesInARow();
-//        echo "trying for maxNrOfBatchGames = (" . $nrOfBatchGames->min . "->" . $nrOfBatchGames->max . ")  maxNrOfGamesInARow = " . $this->maxNrOfGamesInARow . PHP_EOL;
-//        // die();
-//        $this->initPlanningPlaces();
-//        $resourcesTmp = new Resources( array_slice( $resources->getFields(), 0 ) );
-//        $gamesTmp = array_slice($games, 0 );
-//
-//        if ($this->assignBatchHelper($gamesTmp, $resourcesTmp, $nrOfBatchGames, $batch)) {
-//            return $this->getActiveLeaf( $batch->getLeaf(), $nrOfBatchGames->max);
-//        }
-
+        if ($this->assignBatchHelper($games, $resources, $batch)) {
+            return $this->getActiveLeaf( $batch->getLeaf() );
+        }
         return null;
     }
 
-    protected function getActiveLeaf(Batch $batch, int $nrOfBatchGames): Batch {
+    protected function getActiveLeaf(Batch $batch): Batch {
         if ($batch->hasPrevious() === false) {
             return $batch;
         }
-        if ( count( $batch->getPrevious()->getGames() ) === $nrOfBatchGames) {
+        if ( count( $batch->getPrevious()->getGames() ) === $this->planning->getMaxNrOfBatchGames() ) {
             return $batch;
         }
-        return $this->getActiveLeaf( $batch->getPrevious(), $nrOfBatchGames);
+        return $this->getActiveLeaf( $batch->getPrevious() );
     }
 
     /**
      * @param array $games
      * @param Resources $resources
-     * @param Range $nrOfBatchGames
      * @param Batch $batch
      * @param int $nrOfGamesTried
      * @return bool
      */
-    protected function assignBatchHelper(array &$games, Resources $resources, Range $nrOfBatchGames, Batch $batch, int $nrOfGamesTried = 0): bool {
+    protected function assignBatchHelper(array &$games, Resources $resources, Batch $batch, int $nrOfGamesTried = 0): bool {
 
-        if (count($batch->getGames() ) === $nrOfBatchGames->max || count($games) === 0) { // batchsuccess
+        if (count($batch->getGames() ) === $this->planning->getMaxNrOfBatchGames() || count($games) === 0) { // batchsuccess
             $nextBatch = $this->toNextBatch($batch, $resources);
             // if (batch.getNumber() < 4) {
             // console.log('batch succes: ' + batch.getNumber() + ' it(' + iteration + ')');
@@ -280,16 +272,16 @@ class Service {
                 $this->successfullResources = $resources;
                 return true;
             }
-            if( $this->assignBatchHelper($games, $resources, $nrOfBatchGames, $nextBatch ) === true ) {
+            if( $this->assignBatchHelper($games, $resources, $nextBatch ) === true ) {
                 return true;
             }
             $r = 1;
             return false;
         }
         if ( count($games) === $nrOfGamesTried) {
-            if (count($batch->getGames() ) >= $nrOfBatchGames->min ) {
+            if (count($batch->getGames() ) >= $this->planning->getMinNrOfBatchGames() ) {
                 $nextBatch = $this->toNextBatch($batch, $resources);
-                return $this->assignBatchHelper($games, $resources, $nrOfBatchGames, $nextBatch );
+                return $this->assignBatchHelper($games, $resources, $nextBatch );
             }
             return false;
         }
@@ -309,14 +301,14 @@ class Service {
                 if ($this->isGameAssignable($batch, $game, $resources2)) {
                     $this->assignGame($batch, $game, $resources2);
                     $copiedGames = array_slice( $games, 0 );
-                    if ($this->assignBatchHelper($copiedGames, $resources2, $nrOfBatchGames, $batch)) {
+                    if ($this->assignBatchHelper($copiedGames, $resources2, $batch)) {
                         return true;
                     }
                     $this->releaseGame($batch, $game);
                 }
                 $games[] = $game;
             }
-            if( $this->assignBatchHelper($games, $resources3, $nrOfBatchGames, $batch, ++$nrOfGamesTried /*++$nrOfGamesTriedPerField*/ ) ) {
+            if( $this->assignBatchHelper($games, $resources3, $batch, ++$nrOfGamesTried /*++$nrOfGamesTriedPerField*/ ) ) {
                 return true;
             }
             if (!$this->tryShuffledFields) {
@@ -351,7 +343,7 @@ class Service {
 
     protected function assignGame(Batch $batch, Game $game, Resources $resources) {
         $this->assignField($game, $resources);
-        if (!$this->planningConfig->getSelfReferee()) {
+        if (!$this->planning->getInput()->getSelfReferee()) {
             if (count($this->referees) > 0) {
                 $this->assignReferee($game);
             }
@@ -380,7 +372,7 @@ class Service {
     protected function toNextBatch(Batch $batch, Resources $resources): Batch {
         foreach( $batch->getGames() as $game ) {
             $game->setResourceBatch($batch->getNumber());
-            $game->setStartDateTime(clone $batch->getDateTime());
+            // $game->setStartDateTime(clone $batch->getDateTime());
 
             // hier alle velden toevoegen die er nog niet in staan
             if ( array_search( $game->getField(), $resources->getFields() ) === false ) {
@@ -394,7 +386,7 @@ class Service {
             }
         }
         $nextBatch = $batch->createNext();
-        $nextBatch->setDateTime( $this->getNextGameStartDateTime($batch->getDateTime() ) );
+        // $nextBatch->setDateTime( $this->getNextGameStartDateTime($batch->getDateTime() ) );
         return $nextBatch;
     }
 
@@ -433,13 +425,13 @@ class Service {
 
     private function assignSport(Game $game, Sport $sport) {
         foreach( $this->getPlaces($game) as $placeIt ) {
-            $this->getPlanningPlace($placeIt)->getSportCounter()->addGame($sport);
+            $placeIt->getSportCounter()->addGame($sport);
         }
     }
 
     private function releaseSport(Game $game, Sport $sport) {
         foreach( $this->getPlaces($game) as $placeIt ) {
-            $this->getPlanningPlace($placeIt)->getSportCounter()->removeGame($sport);
+            $placeIt->getSportCounter()->removeGame($sport);
         }
     }
 
@@ -453,7 +445,7 @@ class Service {
     }
 
     private function isSomeRefereeAssignable(Batch $batch, Game $game = null ): bool {
-        if (!$this->planningConfig->getSelfReferee()) {
+        if (!$this->planning->getInput()->getSelfReferee()) {
             if (!$this->areRefereesEnabled) {
                 return true;
             }
@@ -483,7 +475,7 @@ class Service {
 //            }
 //            $resources->resetFieldIndex();
 //        }
-        $game->setField(null);
+        $game->emptyField();
     }
 
     private function assignField(Game $game, Resources $resources) {
@@ -501,7 +493,7 @@ class Service {
 
     private function isSportAssignable(Game $game, Sport $sport ): bool {
         foreach( $this->getPlaces($game) as $placeIt ) {
-            if( !$this->getPlanningPlace($placeIt)->getSportCounter()->isAssignable($sport) ) {
+            if( !$placeIt->getSportCounter()->isAssignable($sport) ) {
                 return false;
             };
         }
@@ -517,7 +509,7 @@ class Service {
             return;
         }
         array_unshift( $this->referees, $game->getReferee());
-        $game->setReferee(null);
+        $game->emptyReferee();
     }
 
     private function assignRefereePlace( Batch $batch, Game $game ) {
@@ -540,7 +532,7 @@ class Service {
 
     private function releaseRefereePlaces(Game $game) {
         array_unshift( $this->refereePlaces, $game->getRefereePlace());
-        $game->setRefereePlace(null);
+        $game->emptyRefereePlace();
     }
 
     /**
@@ -549,10 +541,6 @@ class Service {
      */
     protected function getPlaces(Game $game): array {
         return array_map( function( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
-    }
-
-    protected function getPlanningPlace(Place $place ): PlanningPlace {
-        return $this->planningPlaces[$place->getLocationId()];
     }
 
 //    protected function getConsoleString($value, int $minLength): string {

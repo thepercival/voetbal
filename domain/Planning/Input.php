@@ -90,12 +90,15 @@ class Input
      * @return ArrayCollection
      */
     public function getSports(): ArrayCollection {
+        if( $this->sports === null ) {
+            $this->sports = $this->convertToSports( $this->sportConfig );
+        }
         return $this->sports;
     }
 
     public function getFields(): ArrayCollection {
         $fields = new ArrayCollection();
-        foreach( $this->sports as $sport ) {
+        foreach( $this->getSports() as $sport ) {
             foreach( $sport->getFields() as $field ) {
                 $fields->add($field);
             }
@@ -105,7 +108,7 @@ class Input
 
     public function getNrOfFields(): int {
         $nrOfFields = 0;
-        foreach( $this->sports as $sport ) {
+        foreach( $this->getSports() as $sport ) {
             $nrOfFields += $sport->getFields()->count();
         }
         return $nrOfFields;
@@ -166,7 +169,7 @@ class Input
         }
 
         // er zijn meerdere poules, dus hier valt ook nog in te verbeteren
-        $nrOfPlaces = $this->structure->getNrOfPlaces();
+        $nrOfPlaces = $this->getStructure()->getNrOfPlaces();
 
         $nrOfGamesSimultaneously = 0;
         while ( $nrOfPlaces > 0 && count($fields) > 0  ) {
@@ -204,6 +207,9 @@ class Input
     }
 
     public function getStructure(): Structure {
+        if( $this->structure === null ) {
+            $this->structure = $this->convertToStructure( $this->structureConfig );
+        }
         return $this->structure;
     }
 

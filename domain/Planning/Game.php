@@ -5,6 +5,7 @@ namespace Voetbal\Planning;
 use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning\Game\Place as GamePlace;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Game as GameBase;
 
 class Game
 {
@@ -25,25 +26,25 @@ class Game
      */
     protected $poule;
     /**
-     * @var ArrayCollection | Place[]
+     * @var ArrayCollection | GamePlace[]
      */
     protected $places;
     /**
-     * @var int
+     * @var Field|null
      */
-    protected $fieldNr;
+    protected $field;
     /**
      * @var int
      */
     protected $batchNr;
     /**
-     * @var int
+     * @var Place|null
      */
-    protected $refereePlaceNr;
+    protected $refereePlace;
     /**
-     * @var int
+     * @var Referee|null
      */
-    protected $refereeNr;
+    protected $referee;
     /**
      * @var PlanningBase
      */
@@ -57,8 +58,6 @@ class Game
         $this->subNr = $subNr;
         $this->places = new ArrayCollection();
         $this->batchNr = 0;
-        $this->refereePlaceNr = 0;
-        $this->refereeNr = 0;
         $this->poule->getGames()->add( $this );
     }
 
@@ -83,14 +82,6 @@ class Game
         return $this->subNr;
     }
 
-    public function getFieldNr(): int {
-        return $this->fieldNr;
-    }
-
-    public function setFieldNr(int $fieldNr) {
-        $this->fieldNr = $fieldNr;
-    }
-
     public function getBatchNr(): int {
         return $this->batchNr;
     }
@@ -99,27 +90,47 @@ class Game
         $this->batchNr = $batchNr;
     }
 
-    public function getRefereePlaceNr(): int {
-        return $this->refereePlaceNr;
+    public function getRefereePlace(): ?Place {
+        return $this->refereePlace;
     }
 
-    public function setRefereePlaceNr( int $refereePlaceNr) {
-        $this->refereePlaceNr = $refereePlaceNr;
+    public function setRefereePlace( Place $refereePlace ) {
+        $this->refereePlace = $refereePlace;
     }
 
-    public function getRefereeNr(): int {
-        return $this->refereeNr;
+    public function emptyRefereePlace() {
+        $this->refereePlace = null;
     }
 
-    public function setRefereeNr( int $refereeNr) {
-        $this->refereeNr = $refereeNr;
+    public function getReferee(): ?Referee {
+        return $this->referee;
+    }
+
+    public function setReferee( Referee $referee) {
+        $this->referee = $referee;
+    }
+
+    public function emptyReferee() {
+        $this->referee = null;
+    }
+
+    public function getField(): Field {
+        return $this->field;
+    }
+
+    public function setField(Field $field) {
+        $this->field = $field;
+    }
+
+    public function emptyField() {
+        $this->field = null;
     }
 
     /**
      * @param bool|null $homeaway
      * @return ArrayCollection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null )
+    public function getPlaces( bool $homeaway = null ): ArrayCollection
     {
         if ($homeaway === null) {
             return $this->places;
@@ -140,7 +151,7 @@ class Game
 //    }
 
     /**
-     * @param \Voetbal\Place $place
+     * @param Place $place
      * @param bool $homeaway
      * @return GamePlace
      */
@@ -150,7 +161,7 @@ class Game
     }
 
     /**
-     * @param \Voetbal\Place $place
+     * @param Place $place
      * @param bool|null $homeaway
      * @return bool
      */
@@ -161,11 +172,11 @@ class Game
 
     public function getHomeAway(Place $place): ?bool
     {
-        if( $this->isParticipating($place, \Voetbal\Game::HOME )) {
-            return Game::HOME;
+        if( $this->isParticipating($place, GameBase::HOME )) {
+            return GameBase::HOME;
         }
-        if( $this->isParticipating($place, Game::AWAY )) {
-            return Game::AWAY;
+        if( $this->isParticipating($place, GameBase::AWAY )) {
+            return GameBase::AWAY;
         }
         return null;
     }

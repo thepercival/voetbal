@@ -27,9 +27,9 @@ class ConvertService
 
 
     public function create( Input $input ) {
-        $gameGenerator = new GameGenerator( $input );
-        $gameGenerator->create();
-        $games = $input->getStructure()->getGames();
+//        $gameGenerator = new GameGenerator( $input );
+//        $gameGenerator->create();
+//        $games = $input->getStructure()->getGames();
 
 
 //            $resourceService = new Resource\Service($roundNumber);
