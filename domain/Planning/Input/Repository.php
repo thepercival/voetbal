@@ -47,13 +47,20 @@ class Repository extends \Voetbal\Repository
         return $first !== false ? $first : null;
     }
 
-    public function getMaxTimeoutSeconds() {
-        $query = $this->createQueryBuilder('p')
-            ->orderBy('p.timeoutSeconds', 'DESC')
-        ;
-        $query->setMaxResults(1);
-        $results = $query->getQuery()->getResult();
-        $first = reset($results);
-        return $first !== false ? $first : PlanningBase::DEFAULT_TIMEOUTSECONDS;
+//    public function getMaxTimeoutSeconds() {
+//        $query = $this->createQueryBuilder('p')
+//            ->orderBy('p.timeoutSeconds', 'DESC')
+//        ;
+//        $query->setMaxResults(1);
+//        $results = $query->getQuery()->getResult();
+//        $first = reset($results);
+//        return $first !== false ? $first : PlanningBase::DEFAULT_TIMEOUTSECONDS;
+//    }
+
+    /**
+     * haal de eerste suboptimale op???
+     */
+    public function getSubOptimal() {
+
     }
 }

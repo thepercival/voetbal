@@ -35,6 +35,10 @@ class Input
      */
     protected $selfReferee;
     /**
+     * @var int
+     */
+    protected $state;
+    /**
      * @var Structure
      */
     protected $structure;
@@ -43,6 +47,9 @@ class Input
      */
     protected $sports;
 
+    const STATE_FAILED = 1;
+    const STATE_SUCCESS_PARTIAL = 2;
+    const STATE_SUCCESS = 4;
 
     public function __construct( array $structureConfig, array $sportConfig, int $nrOfReferees, int $nrOfHeadtohead, bool $teamup, bool $selfReferee ) {
         $this->structureConfig = $structureConfig;
@@ -53,8 +60,6 @@ class Input
         $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->teamup = $teamup;
         $this->selfReferee = $selfReferee;
-
-
     }
 
     public function getId(): ?int
@@ -62,9 +67,16 @@ class Input
         return $this->id;
     }
 
-//    public function increase(): Input {
-//
-//    }
+    public function increase(): Input {
+
+        do increase
+
+        $maxNrOfBatchGames = $this->getMaxNrOfBatchGames();
+        if( $nrOfBatchGames > $maxNrOfBatchGames ) {
+            return null;
+        }
+    }
+    }
 
     /**
      * $structure = [ 6, 6, 5 ];
@@ -128,6 +140,14 @@ class Input
 
     public function getSelfReferee(): bool {
         return $this->selfReferee;
+    }
+
+    public function getState(): int {
+        return $this->state;
+    }
+
+    public function setState( int $state ) {
+        $this->state = $state;
     }
 
     public function getMaxNrOfBatchGames( int $resources = null ): int {

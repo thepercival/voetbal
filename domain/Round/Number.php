@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
+use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 use Voetbal\Planning\Config as PlanningConfig;
@@ -48,6 +49,10 @@ class Number
      * @var Round[] | ArrayCollection
      */
     protected $rounds;
+    /**
+     * @var PlanningInput
+     */
+    protected $planningInput;
 
     /**
      * @var SportScoreConfig[] | ArrayCollection
@@ -279,6 +284,19 @@ class Number
         }
         return $this->getPrevious()->getValidPlanningConfig();
     }
+
+    public function getPlanningInput(): ?PlanningInput {
+        return $this->planningInput;
+    }
+
+    public function setPlanningInput( PlanningInput $input ) {
+        $this->planningInput = $input;
+    }
+
+    public function getPlanningState() {
+        return $this->getPlanningInput() ? $this->getPlanningInput()->getState() : PlanningInput::STATE_SUCCESS;
+    }
+
 
 //    public function hasMultipleSportPlanningConfigs(): bool {
 //        return $this->sportPlanningConfigs->count() > 1;

@@ -9,13 +9,12 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Planning\Config\Optimalization\Service as OptimalizationService;
+use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Range as VoetbalRange;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Place;
 use Voetbal\Game;
-use Voetbal\Planning as PlanningBase;
 use Voetbal\Competition;
 use League\Period\Period;
 
@@ -26,14 +25,14 @@ class Service
 
     }
 
-    public function create( Input $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow, int $timeoutSeconds ): PlanningBase {
+    public function createGames( PlanningBase $planning ) {
 
-        $planning = new PlanningBase( $input, $nrOfBatchGames, $maxNrOfGamesInARow );
-        $planning->setTimeoutSeconds( $timeoutSeconds );
+//        $planning = new PlanningBase( $input, $nrOfBatchGames, $maxNrOfGamesInARow );
+//        $planning->setTimeoutSeconds( $timeoutSeconds );
 
-        $gameGenerator = new GameGenerator( $input );
+        $gameGenerator = new GameGenerator( $planning->getInput() );
         $gameGenerator->create( $planning );
-        $games = $input->getStructure()->getGames();
+        $games = $planning->getInput()->getStructure()->getGames();
 
         $resourceService = new Resource\Service( $planning );
 //        $resourceService->setFields($fields);
@@ -42,6 +41,9 @@ class Service
 
         $state = $resourceService->assign($games);
         $planning->setState( $state );
+        if( $state !== PlanningBase::STATE_SUCCESS ) {
+            $planning->getGames()->clear();
+        }
 
         return $planning;
 

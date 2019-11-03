@@ -56,6 +56,7 @@ class Planning
     const STATE_TIMEOUT = 2;
     const STATE_SUCCESS_PARTIAL = 4;
     const STATE_SUCCESS = 8;
+    const STATE_PROCESSING = 16;
 
     const DEFAULT_TIMEOUTSECONDS = 30;
 

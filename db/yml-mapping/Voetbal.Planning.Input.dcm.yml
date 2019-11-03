@@ -32,3 +32,7 @@ Voetbal\Planning\Input:
       type: boolean
       nullable: false
       unique: false
+    state:
+      type: boolean
+      nullable: true
+      unique: false

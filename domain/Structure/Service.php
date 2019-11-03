@@ -425,7 +425,6 @@ class Service
         return $roundNumber;
     }
 
-
     private function refillRound(Round $round, int $nrOfPlaces, int $nrOfPoules): ?Round
     {
         if ($nrOfPlaces <= 0) {
@@ -437,16 +436,24 @@ class Service
         }
         $round->getPoules()->clear();
 
-        while ($nrOfPlaces > 0) {
-            $nrOfPlacesToAdd = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules);
+        foreach( $this->getStructureConfig( $nrOfPlaces,  $nrOfPoules ) as $nrOfPlacesToAdd ) {
             $poule = new Poule($round);
             for ($i = 0; $i < $nrOfPlacesToAdd; $i++) {
                 new Place($poule);
             }
+        }
+        return $round;
+    }
+
+    public function getStructureConfig( int $nrOfPlaces, int $nrOfPoules ): array {
+        $structureConfig = [];
+        while ($nrOfPlaces > 0) {
+            $nrOfPlacesToAdd = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules);
+            $structureConfig[] = $nrOfPlacesToAdd;
             $nrOfPlaces -= $nrOfPlacesToAdd;
             $nrOfPoules--;
         }
-        return $round;
+        return $structureConfig;
     }
 
     protected function getRoot(Round $round): Round

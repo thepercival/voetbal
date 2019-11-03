@@ -21,3 +21,7 @@ Voetbal\Round\Number:
     sportPlanningConfigs:
       type: ArrayCollection<Voetbal\Sport\PlanningConfig>
       read_only: true #temperarily
+  virtual_properties:
+    getPlanningState:
+      type: integer
+      serialized_name: planningState

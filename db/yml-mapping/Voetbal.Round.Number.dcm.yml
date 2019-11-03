@@ -33,7 +33,7 @@ Voetbal\Round\Number:
     planningConfig:
       targetEntity: Voetbal\Planning\Config
       joinColumn:
-        name: planningConfigid
+        name: planningConfigId
         referencedColumnName: id
         nullable: true # should be false
         onDelete: CASCADE
@@ -56,3 +56,9 @@ Voetbal\Round\Number:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
+    planningInput:
+      targetEntity: Voetbal\Planning\Input
+      joinColumn:
+        name: planningInputId
+        referencedColumnName: id
+        nullable: true # should be false
