@@ -33,8 +33,8 @@ Voetbal\Planning\Input:
       nullable: false
       unique: false
     state:
-      type: boolean
-      nullable: true
+      type: smallint
+      nullable: false
       unique: false
   oneToMany:
     plannings:

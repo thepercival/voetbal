@@ -32,8 +32,8 @@ class Repository extends \Voetbal\Repository
             ->andWhere('p.state = :state')
         ;
 
-        $query = $query->setParameter('structureConfig', $input->getStructureConfig() );
-        $query = $query->setParameter('sportConfig', $input->getSportConfig() );
+        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
+        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
         $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('teamup', $input->getTeamup() );
@@ -61,8 +61,8 @@ class Repository extends \Voetbal\Repository
             ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
         ;
 
-        $query = $query->setParameter('structureConfig', $input->getStructureConfig() );
-        $query = $query->setParameter('sportConfig', $input->getSportConfig() );
+        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
+        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
         $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('teamup', $input->getTeamup() );
@@ -92,8 +92,8 @@ class Repository extends \Voetbal\Repository
             ->andWhere('p.maxNrOfGamesInARow = :maxNrOfGamesInARow')
         ;
 
-        $query = $query->setParameter('structureConfig', $input->getStructureConfig() );
-        $query = $query->setParameter('sportConfig', $input->getSportConfig() );
+        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
+        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
         $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('teamup', $input->getTeamup() );
@@ -105,6 +105,10 @@ class Repository extends \Voetbal\Repository
         $query->setMaxResults(1);
 
         return $query->getQuery()->getResult()->first();
+    }
+
+    public function isProcessing(): bool {
+        return $this->count( ["state" => PlanningBase::STATE_PROCESSING ] ) > 0;
     }
 
     public function getMaxTimeoutSeconds() {

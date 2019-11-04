@@ -3,6 +3,7 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning as PlanningBase;
 
 class Input
 {
@@ -46,10 +47,15 @@ class Input
      * @var ArrayCollection| Sport[]
      */
     protected $sports;
+    /**
+     * @var ArrayCollection| PlanningBase[]
+     */
+    protected $plannings;
 
-    const STATE_FAILED = 1;
-    const STATE_SUCCESS_PARTIAL = 2;
-    const STATE_SUCCESS = 4;
+    const STATE_TOBEPROCESSED = 1;
+    const STATE_FAILED = 2;
+    const STATE_SUCCESS_PARTIAL = 4;
+    const STATE_SUCCESS = 8;
 
     public function __construct( array $structureConfig, array $sportConfig, int $nrOfReferees, int $nrOfHeadtohead, bool $teamup, bool $selfReferee ) {
         $this->structureConfig = $structureConfig;
@@ -60,6 +66,7 @@ class Input
         $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->teamup = $teamup;
         $this->selfReferee = $selfReferee;
+        $this->state = Input::STATE_TOBEPROCESSED;
     }
 
     public function getId(): ?int
@@ -243,5 +250,9 @@ class Input
             }
         }
         return $sports;
+    }
+
+    public function getPlannings(): ArrayCollection {
+        return $this->plannings;
     }
 }

@@ -11,7 +11,7 @@ update gamescores set phase = 2 where gameid in ( select id from games where sco
 
 update planningconfigs set minutesPerGameExt = 0 where hasExtension = false and minutesPerGameExt > 0;
 
-update referees set rank = ( select count(*) from referees rsub where rsub.competitionid = referees.competitionid and rsub.id < referees.id ) + 1;
+update referees r set r.rank = ( select count(*) from (select * from referees) rsub where rsub.competitionid = r.competitionid and rsub.id < r.id ) + 1;
 
 -- all competitors without places
 delete 	c

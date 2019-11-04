@@ -61,12 +61,11 @@ class Repository extends \Voetbal\Repository
     public function getFirstUnsuccessful(): ?PlanningInput {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.state <> :state')
-            ->orderBy()
+            ->orderBy('pi.id', 'ASC')
         ;
 
-        $query = $query
-            ->setParameter('state', PlanningInput::STATE_SUCCESS )
-            ->orderBy('pi.id', 'ASC');
+        $query = $query->setParameter('state', PlanningInput::STATE_SUCCESS );
+
         $query->setMaxResults(1);
 
         $results = $query->getQuery()->getResult();
