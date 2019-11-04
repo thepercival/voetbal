@@ -3,6 +3,7 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\PersistentCollection;
 use Voetbal\Planning as PlanningBase;
 
 class Input
@@ -252,7 +253,7 @@ class Input
         return $sports;
     }
 
-    public function getPlannings(): ArrayCollection {
+    public function getPlannings(): PersistentCollection {
         return $this->plannings;
     }
 }

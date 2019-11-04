@@ -126,7 +126,7 @@ class Repository extends \Voetbal\Repository
         $plannings = $input->getPlannings()->toArray(); // should be sorted by maxnrofbatchgames,
         $lastPlanning = end( $plannings );
         if( $lastPlanning === false ) {
-            return new PlanningBase( $this->getInput(), new VoetbalRange( 1, 1), $input->getMaxNrOfGamesInARow() );
+            return new PlanningBase( $input, new VoetbalRange( 1, 1), $input->getMaxNrOfGamesInARow() );
         }
         return $lastPlanning->increase();
 

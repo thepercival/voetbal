@@ -42,7 +42,7 @@ Voetbal\Planning\Input:
         maxNrOfBatchGames: ASC
         minNrOfBatchGames: ASC
         maxNrOfGamesInARow: DESC
-      targetEntity: Voetbal\Referee
+      targetEntity: Voetbal\Planning
       mappedBy: input
       fetch: EXTRA_LAZY
       cascade: [ remove ]
