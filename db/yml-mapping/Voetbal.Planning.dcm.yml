@@ -40,8 +40,9 @@ Voetbal\Planning:
   manyToOne:
     input:
       targetEntity: Voetbal\Planning\Input
+      inversedBy: plannings
       joinColumn:
-        name: inputid
+        name: inputId
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE

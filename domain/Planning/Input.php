@@ -67,17 +67,6 @@ class Input
         return $this->id;
     }
 
-    public function increase(): Input {
-
-        do increase
-
-        $maxNrOfBatchGames = $this->getMaxNrOfBatchGames();
-        if( $nrOfBatchGames > $maxNrOfBatchGames ) {
-            return null;
-        }
-    }
-    }
-
     /**
      * $structure = [ 6, 6, 5 ];
      *
@@ -203,10 +192,9 @@ class Input
     }
 
     public function getMaxNrOfGamesInARow(): int {
-        $structureConfig = $this->getStructureConfig();
-        $nrOfPoulePlaces = reset( $structureConfig );
+        $poule = $this->getStructure()->getPoule(1);
         $sportService = new \Voetbal\Sport\Service();
-        return $sportService->getNrOfGamesPerPlace( $nrOfPoulePlaces, $this->getNrOfHeadtohead(), $this->getTeamup() );
+        return $sportService->getNrOfGamesPerPlace( $poule->getPlaces()->count(), $this->getNrOfHeadtohead(), $this->getTeamup() );
         //         const sportPlanningConfigService = new SportPlanningConfigService();
         //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
         //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;

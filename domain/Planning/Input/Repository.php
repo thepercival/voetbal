@@ -57,10 +57,8 @@ class Repository extends \Voetbal\Repository
 //        return $first !== false ? $first : PlanningBase::DEFAULT_TIMEOUTSECONDS;
 //    }
 
-    /**
-     * haal de eerste suboptimale op???
-     */
-    public function getSubOptimal() {
 
+    public function getFirstUnsuccesfull() {
+        by state and only first, sort by id
     }
 }

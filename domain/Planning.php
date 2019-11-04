@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning\Input;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Game as PlanningGame;
 use Voetbal\Range as VoetbalRange;
@@ -136,6 +137,29 @@ class Planning
 //    public function setInput( PlanningInput $input ) {
 //        $this->input = $input;
 //    }
+
+    public function increase(): ?Planning {
+        $maxNrOfBatchGames = $this->getMaxNrOfGamesInARow();
+        $minNrOfBatchGames = $this->getMinNrOfGamesInARow();
+        $maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow();
+        if( $maxNrOfGamesInARow > 1 ) {
+            $maxNrOfGamesInARow--;
+        } else {
+            $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
+            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() ) {
+                $minNrOfBatchGames++;
+            } else {
+                $minNrOfBatchGames = 1;
+                if( $this->getMaxNrOfBatchGames() < $this->getInput()->getMaxNrOfBatchGames() ) {
+                    $maxNrOfBatchGames++;
+                } else {
+                    return null; // all tried
+                }
+            }
+        }
+        $range = new VoetbalRange( $minNrOfBatchGames, $maxNrOfBatchGames);
+        return new Planning( $this->getInput(), $range, $maxNrOfGamesInARow );
+    }
 
     /**
      * @return PlanningGame[] | ArrayCollection

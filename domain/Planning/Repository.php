@@ -117,21 +117,14 @@ class Repository extends \Voetbal\Repository
         return $first !== false ? $first->getTimeoutSeconds() : PlanningBase::DEFAULT_TIMEOUTSECONDS;
     }
 
-    public function createNew( Input $input ): ?PlanningBase {
+    public function createNextTry( Input $input ): ?PlanningBase {
 
         $plannings = $input->getPlannings(); // should be sorted by maxnrofbatchgames,
-        $planning = reset( $plannings );
+        $planning = end( $plannings );
         if( $planning === false ) {
             // create $input, min = 1, max = 1, $maxNrOfGamesInARow, defaulttimeout
         } else {
-            return $input->increase();
+            return $planning->increase();
         }
-
-        $maxNrOfGamesInARow = $inputPlanning->getMaxNrOfGamesInARow();
-        // loop door alle ranges van 1 t/m $maxNrOfBatchGames, waarbij maxNrOfGamesInARow = max(-1)
-        // dus ( 1-> 1 ), ( 2-> 2 ), ( 1-> 2 ), ( 3-> 3 ), ( 3-> 2 ), ( 4-> 4 )
-        // wanneer bekend is welke succes hoogste succes heeft
-        // dan maxNrOfGamesInARow verlagen, bij een fail of timeout
-        // de vorige endsuccess maken!!
     }
 }

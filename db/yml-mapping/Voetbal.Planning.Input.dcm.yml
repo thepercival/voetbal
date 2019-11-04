@@ -36,3 +36,13 @@ Voetbal\Planning\Input:
       type: boolean
       nullable: true
       unique: false
+  oneToMany:
+    plannings:
+      orderBy:
+        maxNrOfBatchGames: ASC
+        minNrOfBatchGames: ASC
+        maxNrOfGamesInARow: DESC
+      targetEntity: Voetbal\Referee
+      mappedBy: input
+      fetch: EXTRA_LAZY
+      cascade: [ remove ]
