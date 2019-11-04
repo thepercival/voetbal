@@ -119,12 +119,13 @@ class Repository extends \Voetbal\Repository
 
     public function createNextTry( Input $input ): ?PlanningBase {
 
-        $plannings = $input->getPlannings(); // should be sorted by maxnrofbatchgames,
-        $planning = end( $plannings );
-        if( $planning === false ) {
-            // create $input, min = 1, max = 1, $maxNrOfGamesInARow, defaulttimeout
-        } else {
-            return $planning->increase();
+        $plannings = $input->getPlannings()->toArray(); // should be sorted by maxnrofbatchgames,
+        $lastPlanning = end( $plannings );
+        if( $lastPlanning === false ) {
+            return new PlanningBase( $this->getInput(), new VoetbalRange( 1, 1), $input->getMaxNrOfGamesInARow() );
         }
+        return $lastPlanning->increase();
+
     }
+
 }

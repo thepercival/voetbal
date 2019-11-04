@@ -58,7 +58,19 @@ class Repository extends \Voetbal\Repository
 //    }
 
 
-    public function getFirstUnsuccesfull() {
-        by state and only first, sort by id
+    public function getFirstUnsuccessful(): ?PlanningInput {
+        $query = $this->createQueryBuilder('pi')
+            ->where('pi.state <> :state')
+            ->orderBy()
+        ;
+
+        $query = $query
+            ->setParameter('state', PlanningInput::STATE_SUCCESS )
+            ->orderBy('pi.id', 'ASC');
+        $query->setMaxResults(1);
+
+        $results = $query->getQuery()->getResult();
+        $first = reset($results);
+        return $first !== false ? $first : null;
     }
 }

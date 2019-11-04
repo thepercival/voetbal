@@ -69,6 +69,10 @@ class Service {
      * @var Resources
      */
     private $successfullResources;
+    /**
+     * @var \DateTimeImmutable
+     */
+    private $m_oTimeoutDateTime;
 
     public function __construct( PlanningBase $planning )
     {
@@ -175,10 +179,12 @@ class Service {
 //    }
 
     /**
-     * @param array|Game[] $games
-     * @throws \Exception
+     * @param array $games
+     * @return int
      */
     public function assign(array $games)  {
+        $oCurrentDateTime = new \DateTimeImmutable();
+        $this->m_oTimeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->init( $games );
         $gamesH2h = $this->getGamesByH2h( $games );
         $batch = new Batch();
@@ -227,12 +233,12 @@ class Service {
         return $h2hgames;
     }
 
-
-
     /**
      * @param array $games
      * @param Resources $resources
+     * @param Batch $batch
      * @return Batch|null
+     * @throws TimeoutException
      */
     protected function assignBatch(array $games, Resources $resources, Batch $batch ): ?Batch
     {
@@ -258,6 +264,7 @@ class Service {
      * @param Batch $batch
      * @param int $nrOfGamesTried
      * @return bool
+     * @throws TimeoutException
      */
     protected function assignBatchHelper(array &$games, Resources $resources, Batch $batch, int $nrOfGamesTried = 0): bool {
 
@@ -272,11 +279,7 @@ class Service {
                 $this->successfullResources = $resources;
                 return true;
             }
-            if( $this->assignBatchHelper($games, $resources, $nextBatch ) === true ) {
-                return true;
-            }
-            $r = 1;
-            return false;
+            return $this->assignBatchHelper($games, $resources, $nextBatch );
         }
         if ( count($games) === $nrOfGamesTried) {
             if (count($batch->getGames() ) >= $this->planning->getMinNrOfBatchGames() ) {
@@ -284,6 +287,10 @@ class Service {
                 return $this->assignBatchHelper($games, $resources, $nextBatch );
             }
             return false;
+        }
+
+        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) {
+            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
         }
 
         $resources3 = new Resources( array_slice( $resources->getFields(), 0 ) );

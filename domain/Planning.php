@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Input;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Game as PlanningGame;
@@ -69,6 +70,7 @@ class Planning
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
         $this->games = new ArrayCollection();
         $this->createdDateTime = new \DateTimeImmutable();
+        $this->timeoutSeconds = Planning::DEFAULT_TIMEOUTSECONDS;
     }
 
     public function getId(): ?int
@@ -142,11 +144,11 @@ class Planning
         $maxNrOfBatchGames = $this->getMaxNrOfGamesInARow();
         $minNrOfBatchGames = $this->getMinNrOfGamesInARow();
         $maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow();
-        if( $maxNrOfGamesInARow > 1 ) {
+        if( $maxNrOfGamesInARow > 1 && $this->getState() === Planning::STATE_SUCCESS ) {
             $maxNrOfGamesInARow--;
         } else {
             $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
-            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() ) {
+            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && $this->getState() === Planning::STATE_SUCCESS ) {
                 $minNrOfBatchGames++;
             } else {
                 $minNrOfBatchGames = 1;
