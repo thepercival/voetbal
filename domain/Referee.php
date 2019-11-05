@@ -21,6 +21,7 @@ class Referee
     const MIN_LENGTH_EMAIL = 6;
     const MAX_LENGTH_EMAIL = 100;
     const MAX_LENGTH_INFO = 200;
+    const DEFAULT_RANK = 0;
     /**
      * @var int
      */

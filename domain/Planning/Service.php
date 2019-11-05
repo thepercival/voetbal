@@ -40,8 +40,16 @@ class Service
 //        $resourceService->setRefereePlaces($refereePlaces);
 
         $state = $resourceService->assign($games);
-        if( $state !== PlanningBase::STATE_SUCCESS ) {
-            $planning->getGames()->clear();
+        if( $state === PlanningBase::STATE_FAILED || $state === PlanningBase::STATE_TIMEOUT ) {
+            foreach( $planning->getPoules() as $poule ) {
+                $poule->getGames()->clear();
+            }
+            $planning->getPoules()->clear();
+            foreach( $planning->getSports() as $sport ) {
+                $sport->getFields()->clear();
+            }
+            $planning->getSports()->clear();
+            $planning->getReferees()->clear();
         }
 
         return $state;

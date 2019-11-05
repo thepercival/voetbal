@@ -3,11 +3,12 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 class Structure
 {
     /**
-     * @var ArrayCollection | Poule[]
+     * @var Collection | Poule[]
      */
     protected $poules;
     /**
@@ -15,22 +16,25 @@ class Structure
      */
     protected $nrOfPlaces;
 
-    public function __construct( ArrayCollection $poules)
+    public function __construct( Collection $poules)
     {
-        $this->poules = $poules;
         $this->nrOfPlaces = 0;
+        $this->poules = new ArrayCollection();
+        foreach( $poules as $poule ) {
+            $this->addPoule( $poule );
+        }
     }
 
-    public function addPoule( Poule $poule )
+    protected function addPoule( Poule $poule )
     {
         $this->poules->add( $poule );
         $this->nrOfPlaces += $poule->getPlaces()->count();
     }
 
     /**
-     * @return ArrayCollection|Poule[]
+     * @return Collection|Poule[]
      */
-    public function getPoules(): ArrayCollection {
+    public function getPoules(): Collection {
         return $this->poules;
     }
 
@@ -59,12 +63,12 @@ class Structure
             if ($g1->getSubNr() !== $g2->getSubNr()) {
                 return $g1->getSubNr() - $g2->getSubNr();
             }
-            $poule1 = $g1->getPoule();
-            $poule2 = $g2->getPoule();
-            if ($poule1->getRoundNr() === $poule2->getRoundNr()) {
-                return $poule2->getNumber() - $poule1->getNumber();
-            }
-            return $poule2->getRoundNr() - $poule1->getRoundNr();
+            // $poule1 = $g1->getPoule();
+            // $poule2 = $g2->getPoule();
+            // if ($poule1->getRoundNr() === $poule2->getRoundNr()) {
+                return $g2->getPoule()->getNumber() - $g1->getPoule()->getNumber();
+            // }
+            // return $poule2->getRoundNr() - $poule1->getRoundNr();
         };
 
         $games = [];

@@ -41,7 +41,7 @@ class Input
      */
     protected $state;
     /**
-     * @var ArrayCollection| PlanningBase[]
+     * @var PersistentCollection| PlanningBase[]
      */
     protected $plannings;
 
@@ -153,22 +153,28 @@ class Input
      * @return int
      */
     protected function getNrOfGamesSimultaneously(): int {
-        $sports = $this->getSports()->toArray();
-        uasort( $sports, function ( $sportA, $sportB ) {
-            return ($sportA->getNrOfGamePlaces() < $sportB->getNrOfGamePlaces() ) ? -1 : 1;
-        } );
-        $fields = [];
-        foreach( $sports as $sport ) {
-            $fields = array_merge( $fields, $sport->getFields()->toArray() );
+
+        // default sort, sportconfig shoud not be altered
+//        uasort( $sports, function ( $sportA, $sportB ) {
+//            return ($sportA->getNrOfGamePlaces() < $sportB->getNrOfGamePlaces() ) ? -1 : 1;
+//        } );
+
+        // $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
+
+        $fieldsNrOfGamePlaces = [];
+        foreach( $this->getSportConfig() as $sport ) {
+            for( $fieldNr = 1 ; $fieldNr <= $sport["nrOfFields"] ; $fieldNr++ ) {
+                $fieldsNrOfGamePlaces[] = $sport["nrOfGamePlaces"];
+            }
         }
 
         // er zijn meerdere poules, dus hier valt ook nog in te verbeteren
         $nrOfPlaces = $this->getNrOfPlaces();
 
         $nrOfGamesSimultaneously = 0;
-        while ( $nrOfPlaces > 0 && count($fields) > 0  ) {
-            $field = array_shift($fields);
-            $nrOfPlaces -= $this->getNrOfGamePlaces( $field->getSport()->getNrOfGamePlaces(), $this->selfReferee, $this->teamup );;
+        while ( $nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0  ) {
+            $nrOfGamePlaces = array_shift($fieldsNrOfGamePlaces);
+            $nrOfPlaces -= $this->getNrOfGamePlaces( $nrOfGamePlaces, $this->selfReferee, $this->teamup );;
             if( $nrOfPlaces >= 0 ) {
                 $nrOfGamesSimultaneously++;
             }
@@ -178,9 +184,9 @@ class Input
 
     public function getMaxNrOfGamesInARow(): int {
         $structureConfig = $this->getStructureConfig();
-        $poule = reset( $structureConfig );
+        $nrOfPlaces = reset( $structureConfig );
         $sportService = new \Voetbal\Sport\Service();
-        return $sportService->getNrOfGamesPerPlace( $poule->getPlaces()->count(), $this->getNrOfHeadtohead(), $this->getTeamup() );
+        return $sportService->getNrOfGamesPerPlace( $nrOfPlaces, $this->getTeamup(), $this->getSelfReferee(), $this->getNrOfHeadtohead() );
         //         const sportPlanningConfigService = new SportPlanningConfigService();
         //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
         //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
@@ -200,7 +206,7 @@ class Input
         return $nrOfGamePlaces;
     }
 
-    public function getPlannings(): ArrayCollection {
+    public function getPlannings(): PersistentCollection {
         return $this->plannings;
     }
 

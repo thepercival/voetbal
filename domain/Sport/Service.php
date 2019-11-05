@@ -66,7 +66,7 @@ class Service {
      * @param Poule $poule
      * @return array|SportNrOfGames[]
      */
-    public function getPlanningMinNrOfGames(array $sports, Poule $poule, bool $teamup, int $nrOfHeadtohead ): array {
+    public function getPlanningMinNrOfGames(array $sports, Poule $poule, bool $teamup, bool $selfReferee, int $nrOfHeadtohead ): array {
 
         // const map = this.getDefaultMinNrOfGamesMap(roundNumber);
         // poule.getRound().getNumber().getValidPlanningConfig().getNrOfHeadtohead()
@@ -171,7 +171,7 @@ class Service {
 //            $config = $poule->getRound()->getNumber()->getValidPlanningConfig();
 //            $minNrOfGames[reset($sportPlanningConfigs)->getSport()->getId()] = $this->getNrOfGamesPerPlace($poule, $config->getNrOfHeadtohead());
 //        } else {
-//            $nrOfGames = $this->getNrOfGamesPerPoule($poule);
+//            $nrOfGames = $this->getNrOfGamesPerPoule($poule->getPlaces()->count());
 //            $nrOfGames *= $poule->getRound()->getNumber()->getValidPlanningConfig()->getNrOfHeadtohead();
 //            $nrOfGamesByConfigs = $this->getMinNrOfPouleGames($poule, $sportPlanningConfigs);
 //            $factor = $nrOfGames > $nrOfGamesByConfigs ? floor( $nrOfGames / $nrOfGamesByConfigs ) : 1;
@@ -185,14 +185,18 @@ class Service {
 //        return $minNrOfGames;
 //    }
 
-    protected function getNrOfGamesPerPoule(Poule $poule, bool $teamup ): int {
-        return $this->getNrOfCombinations($poule->getPlaces()->count(), $teamup );
+    protected function getNrOfGamesPerPoule( int $nrOfPoulePlaces, bool $teamup ): int {
+        return $this->getNrOfCombinations($nrOfPoulePlaces, $teamup );
     }
 
-    public function getNrOfGamesPerPlace(int $nrOfPlaces, int $nrOfHeadtohead, bool $teamup ): int {
-        $nrOfGames = $nrOfPlaces - 1;
+    public function getNrOfGamesPerPlace(int $nrOfPoulePlaces, bool $teamup, bool $selfReferee, int $nrOfHeadtohead ): int {
+        $nrOfGames = $nrOfPoulePlaces - 1;
         if ($teamup === true) {
-            $nrOfGames = $this->getNrOfCombinations($nrOfPlaces, true) - $this->getNrOfCombinations($nrOfPlaces - 1, true);
+            $nrOfGames = $this->getNrOfCombinations($nrOfPoulePlaces, true) - $this->getNrOfCombinations($nrOfPoulePlaces - 1, true);
+        }
+        if( $selfReferee ) {
+            $nrOfPouleGames = $this->getNrOfGamesPerPoule( $nrOfPoulePlaces, $teamup );
+            $nrOfGames += (int) floor($nrOfPouleGames / $nrOfPoulePlaces );
         }
         return $nrOfHeadtohead ? $nrOfGames * $nrOfHeadtohead : $nrOfGames;
     }

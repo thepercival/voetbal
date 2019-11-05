@@ -17,3 +17,13 @@ Voetbal\Planning\Sport:
     fields:
       targetEntity: Voetbal\Planning\Field
       mappedBy: sport
+      cascade: [ persist, remove ]
+  manyToOne:
+    planning:
+      targetEntity: Voetbal\Planning
+      inversedBy: sports
+      joinColumn:
+        name: planningId
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE

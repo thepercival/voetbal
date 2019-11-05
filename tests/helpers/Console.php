@@ -2,14 +2,14 @@
 
 use Voetbal\Game;
 use Voetbal\NameService;
-use Voetbal\Planning\Resource\Batch as PlanningResourceBatch;
+use Voetbal\Planning\Batch as PlanningBatch;
 
 function consoleBatch(PlanningResourceBatch $batch ) {
     echo '------batch ' . $batch->getNumber() . ' assigned -------------' . PHP_EOL;
     consoleBatchHelper($batch->getRoot());
 }
 
-function consoleBatchHelper(PlanningResourceBatch $batch) {
+function consoleBatchHelper(PlanningBatch $batch) {
     consoleGames($batch->getGames(), $batch);
     if ($batch->hasNext()) {
         consoleBatchHelper($batch->getNext());
@@ -20,13 +20,13 @@ function consoleBatchHelper(PlanningResourceBatch $batch) {
  * @param array|Game[] $games
  * @param PlanningResourceBatch|null $batch
  */
-function consoleGames(array $games, PlanningResourceBatch $batch = null) {
+function consoleGames(array $games, PlanningBatch $batch = null) {
     foreach( $games as $game ) {
         consoleGame($game, $batch);
     }
 }
 
-function consoleGame(Game $game, PlanningResourceBatch $batch = null) {
+function consoleGame(Game $game, PlanningBatch $batch = null) {
     $nameService = new NameService();
     $refDescr = ($game->getRefereePlace() ? $nameService->getPlaceFromName($game->getRefereePlace(), false, false) : '');
     $refNumber = $game->getRefereePlace() ? $game->getRefereePlace()->getNumber() : 0;
@@ -44,7 +44,7 @@ function consoleGame(Game $game, PlanningResourceBatch $batch = null) {
     . PHP_EOL;
 }
 
-function consolePlaces( Game $game, bool $homeAway, PlanningResourceBatch $batch = null ): string {
+function consolePlaces( Game $game, bool $homeAway, PlanningBatch $batch = null ): string {
     $nameService = new NameService();
     $placesAsArrayOfStrings = $game->getPlaces($homeAway)->map( function( $gamePlace ) use ($nameService, $batch) {
         $colorNumber = $gamePlace->getPlace()->getNumber();

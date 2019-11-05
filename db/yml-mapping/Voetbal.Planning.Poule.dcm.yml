@@ -13,13 +13,9 @@ Voetbal\Planning\Poule:
       nullable: false
       unique: false
       column: number
-    roundNr:
-      type: smallint
-      nullable: false
-      unique: false
   oneToMany:
     places:
-      targetEntity: Voetbal\Planning\Game\Place
+      targetEntity: Voetbal\Planning\Place
       mappedBy: poule
       cascade: [ persist, remove ]
     games:

@@ -22,10 +22,6 @@ class Poule
      */
     protected $number;
     /**
-     * @var int
-     */
-    protected $roundNr;
-    /**
      * @var PlanningBase
      */
     protected $planning;
@@ -51,14 +47,6 @@ class Poule
 
     public function getPlanning(): PlanningBase {
         return $this->planning;
-    }
-
-    /**
-     * @return int
-     */
-    public function getRoundNr(): int
-    {
-        return $this->roundNr;
     }
 
     /**

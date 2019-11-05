@@ -92,11 +92,7 @@ class Service {
     }
 
     public function initReferees() {
-        $this->referees = [];
-        $nrOfReferees = $this->getInput()->getNrOfReferees();
-        for( $refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $nrOfReferees++ ) {
-            $this->referees[] = new Referee( $this->planning, $refereeNr );
-        }
+        $this->referees = $this->planning->getReferees()->toArray();
     }
 
     protected function refereesEnabled(): bool {
@@ -118,7 +114,7 @@ class Service {
                 $filteredRefPlaces = array_filter( $this->refereePlaces, function( $placeIt ) use ($placeGame) {
                     return $placeGame->getNumber() === $placeIt;
                 } );
-                if ( count( $filteredRefPlaces ) === 0 ) {
+                if ( count( $filteredRefPlaces ) === 0 && count($this->refereePlaces) < $nrOfPlacesToFill ) {
                     array_unshift( $this->refereePlaces, $placeGame );
                 }
             }
@@ -133,14 +129,15 @@ class Service {
         $sports = $this->planning->getSports()->toArray();
         $this->nrOfSports = count($sports );
         $teamup = $this->getInput()->getTeamup();
+        $selfReferee = $this->getInput()->getSelfReferee();
         $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
 
         $this->places = [];
         foreach( $this->planning->getPoules() as $poule ) {
             // $nrOfHeadtohead = $sportService->getSufficientNrOfHeadtohead($sports, $poule, $teamup, $nrOfHeadtohead);
-            $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $nrOfHeadtohead, $teamup);
+            $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $teamup, false, $nrOfHeadtohead);
 
-            $sportsNrOfGames = $sportService->getPlanningMinNrOfGames($sports, $poule, $teamup, $nrOfHeadtohead );
+            $sportsNrOfGames = $sportService->getPlanningMinNrOfGames($sports, $poule, $teamup, $selfReferee, $nrOfHeadtohead );
             $minNrOfGamesMap = $sportService->convertToMap($sportsNrOfGames);
             /** @var Place $placeIt */
             foreach( $poule->getPlaces() as $placeIt ) {
@@ -200,7 +197,7 @@ class Service {
             }
 
         }
-        return PlanningBase::STATE_SUCCESS;
+        return PlanningBase::STATE_SUCCESS_PARTIAL;
     }
 
     protected function getGamesByH2h( array $orderedGames ): array {

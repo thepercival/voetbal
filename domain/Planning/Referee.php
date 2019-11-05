@@ -4,6 +4,7 @@ namespace Voetbal\Planning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Referee as RefereeBase;
 
 class Referee
 {
@@ -28,6 +29,7 @@ class Referee
     {
         $this->planning = $planning;
         $this->number = $number;
+        $this->priority = RefereeBase::DEFAULT_RANK;
     }
 
     public function getPlanning(): PlanningBase {

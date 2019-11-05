@@ -3,6 +3,7 @@
 namespace Voetbal\Planning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use \Doctrine\Common\Collections\Collection;
 use Voetbal\Planning as PlanningBase;
 
 class Sport
@@ -24,7 +25,7 @@ class Sport
      */
     protected $planning;
     /**
-     * @var ArrayCollection | Field[]
+     * @var Collection | Field[]
      */
     protected $fields;
 
@@ -56,7 +57,7 @@ class Sport
         return $this->nrOfGamePlaces;
     }
 
-    public function getFields(): ArrayCollection
+    public function getFields(): Collection
     {
         return $this->fields;
     }

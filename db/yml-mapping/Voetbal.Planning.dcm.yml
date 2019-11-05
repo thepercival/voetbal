@@ -52,6 +52,17 @@ Voetbal\Planning:
       targetEntity: Voetbal\Planning\Poule
       mappedBy: planning
       cascade: [ persist, remove ]
+      orphanRemoval: true
+    sports:
+      targetEntity: Voetbal\Planning\Sport
+      mappedBy: planning
+      cascade: [ persist, remove ]
+      orphanRemoval: true
+    referees:
+      targetEntity: Voetbal\Planning\Referee
+      mappedBy: planning
+      cascade: [ persist, remove ]
+      orphanRemoval: true
   uniqueConstraints:
     number_v_idx:
       columns: [ inputid, minNrOfBatchGames, maxNrOfBatchGames, maxNrOfGamesInARow ]

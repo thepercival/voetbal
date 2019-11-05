@@ -8,8 +8,8 @@
 
 namespace Voetbal;
 
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Field;
 use Voetbal\Planning\Input;
@@ -17,7 +17,7 @@ use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Game as PlanningGame;
 use Voetbal\Planning\Poule as PlanningPoule;
 use Voetbal\Planning\Sport as PlanningSport;
-use Voetbal\Planning\Referee as PlanningReferee;
+use Voetbal\Planning\Referee;
 use Voetbal\Planning\Poule;
 use Voetbal\Planning\Sport;
 use Voetbal\Planning\Structure;
@@ -58,15 +58,15 @@ class Planning
      */
     protected $input;
     /**
-     * @var PlanningPoule[] | ArrayCollection
+     * @var PlanningPoule[] | Collection
      */
     protected $poules;
     /**
-     * @var PlanningSport[] | ArrayCollection
+     * @var PlanningSport[] | Collection
      */
     protected $sports;
     /**
-     * @var PlanningReferee[] | ArrayCollection
+     * @var Referee[] | Collection
      */
     protected $referees;
 
@@ -84,9 +84,9 @@ class Planning
         $this->minNrOfBatchGames = $nrOfBatchGames->min;
         $this->maxNrOfBatchGames = $nrOfBatchGames->max;
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
-        $this->poules = new ArrayCollection();
-        $this->sports = new ArrayCollection();
-        $this->referees = new ArrayCollection();
+        $this->initPoules( $this->getInput()->getStructureConfig() );
+        $this->initSports( $this->getInput()->getSportConfig() );
+        $this->initReferees( $this->getInput()->getNrOfReferees() );
 
         $this->createdDateTime = new \DateTimeImmutable();
         $this->timeoutSeconds = Planning::DEFAULT_TIMEOUTSECONDS;
@@ -160,14 +160,14 @@ class Planning
 //    }
 
     public function increase(): ?Planning {
-        $maxNrOfBatchGames = $this->getMaxNrOfGamesInARow();
+        $maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow();
         $minNrOfBatchGames = $this->getMinNrOfBatchGames();
-        $maxNrOfGamesInARow = $this->getMaxNrOfBatchGames();
-        if( $maxNrOfGamesInARow > 1 && $this->getState() === Planning::STATE_SUCCESS ) {
+        $maxNrOfBatchGames = $this->getMaxNrOfBatchGames();
+        if( $maxNrOfGamesInARow > 1 && ( $this->getState() === Planning::STATE_SUCCESS || $this->getState() === Planning::STATE_SUCCESS_PARTIAL ) ) {
             $maxNrOfGamesInARow--;
         } else {
             $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
-            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && $this->getState() === Planning::STATE_SUCCESS ) {
+            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && ( $this->getState() === Planning::STATE_SUCCESS || $this->getState() === Planning::STATE_SUCCESS_PARTIAL ) ) {
                 $minNrOfBatchGames++;
             } else {
                 $minNrOfBatchGames = 1;
@@ -186,7 +186,7 @@ class Planning
         return $this->increase() === null;
     }
 
-    public function getPoules(): ArrayCollection {
+    public function getPoules(): Collection {
         return $this->poules;
 //        $structure = new Structure();
 //        foreach( $this->getInput()->getStructureConfig() as $nrOfPlaces ) {
@@ -195,26 +195,31 @@ class Planning
 //        return $structure;
     }
 
+    protected function initPoules( array $structureConfig ) {
+        $this->poules = new ArrayCollection();
+        foreach( $structureConfig as $nrOfPlaces ) {
+            $this->poules->add( new Poule( $this, $this->poules->count() + 1, $nrOfPlaces ) );
+        }
+    }
+
     public function getStructure() {
         return new Planning\Structure( $this->getPoules() );
     }
 
-    /**
-     * @return ArrayCollection
-     */
-    public function getSports(): ArrayCollection {
+    public function getSports(): Collection {
         return $this->sports;
-//        $sports = new ArrayCollection();
-//        foreach( $this->getInput()->getSportConfig() as $sportIt ) {
-//            $sport = new Sport( $this, $sports->count() + 1, $sportIt["nrOfGamePlaces"] );
-//            $sports->add( $sport );
-//            for( $fieldNr = 1 ; $fieldNr <= $sportIt["nrOfFields"] ; $fieldNr++ ) {
-//                new Field( $fieldNr, $sport );
-//            }
-//        }
-//        return $sports;
     }
 
+    protected function initSports( array $sportConfig ) {
+        $this->sports = new ArrayCollection();
+        foreach( $sportConfig as $sportIt ) {
+            $sport = new Sport( $this, $this->sports->count() + 1, $sportIt["nrOfGamePlaces"] );
+            $this->sports->add( $sport );
+            for( $fieldNr = 1 ; $fieldNr <= $sportIt["nrOfFields"] ; $fieldNr++ ) {
+                new Field( $fieldNr, $sport );
+            }
+        }
+    }
 
     public function getFields(): ArrayCollection {
         $fields = new ArrayCollection();
@@ -227,10 +232,17 @@ class Planning
     }
 
     /**
-     * @return PlanningReferee[] | ArrayCollection
+     * @return Referee[] | Collection
      */
-    public function getReferees(): ArrayCollection {
+    public function getReferees(): Collection {
         return $this->referees;
+    }
+
+    protected function initReferees( int $nrOfReferees ) {
+        $this->referees = new ArrayCollection();
+        for( $refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $refereeNr++ ) {
+            $this->referees->add( new Referee( $this, $refereeNr ) );
+        }
     }
 
     public function getGames(): ArrayCollection {

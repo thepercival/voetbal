@@ -33,14 +33,14 @@ Voetbal\Planning\Game:
       joinColumn:
         name: refereeId
         referencedColumnName: id
-        nullable: false
+        nullable: true
         onDelete: CASCADE
     refereePlace:
       targetEntity: Voetbal\Planning\Place
       joinColumn:
         name: refereePlaceId
         referencedColumnName: id
-        nullable: false
+        nullable: true
         onDelete: CASCADE
     poule:
       targetEntity: Voetbal\Planning\Poule
