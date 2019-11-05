@@ -15,9 +15,9 @@ class Structure
      */
     protected $nrOfPlaces;
 
-    public function __construct()
+    public function __construct( ArrayCollection $poules)
     {
-        $this->poules = new ArrayCollection();
+        $this->poules = $poules;
         $this->nrOfPlaces = 0;
     }
 

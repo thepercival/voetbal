@@ -74,7 +74,7 @@ class Combination
      * @param bool $reverseHomeAway
      * @return array
      */
-    public function getGamePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/): array {
+    public function createGamePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/)/*: array*/ {
         $home = array_map( function( $homeIt ) use ($game,$reverseHomeAway){
             return new GamePlace($game, $homeIt, $reverseHomeAway ? GameBase::AWAY : GameBase::HOME);
         }, $this->getHome() );
@@ -82,12 +82,13 @@ class Combination
             return new GamePlace($game, $awayIt, $reverseHomeAway ? GameBase::HOME : GameBase::AWAY);
         }, $this->getAway() );
 
-
-        if ($reverseHomeAway === true) {
-            $home = array_reverse($home);
-            $away = array_reverse($away);
-        }
-        return array_merge($home,$away);
+//        $home = $this->getHome();
+//        $away = $this->getAway();
+//        if ($reverseHomeAway === true) {
+//            $home = array_reverse($home);
+//            $away = array_reverse($away);
+//        }
+//        return array_merge($home,$away);
     }
 
     public function hasOverlap(Combination $combination ) {

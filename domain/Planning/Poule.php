@@ -9,6 +9,7 @@
 namespace Voetbal\Planning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning as PlanningBase;
 
 class Poule
 {
@@ -25,6 +26,10 @@ class Poule
      */
     protected $roundNr;
     /**
+     * @var PlanningBase
+     */
+    protected $planning;
+    /**
      * @var Place[] | ArrayCollection
      */
     protected $places;
@@ -33,14 +38,19 @@ class Poule
      */
     protected $games;
 
-    public function __construct( int $number, int $nrOfPlaces )
+    public function __construct( PlanningBase $planning, int $number, int $nrOfPlaces )
     {
+        $this->planning = $planning;
         $this->number = $number;
         $this->places = new ArrayCollection();
         for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ) {
             $this->places->add( new Place( $this, $placeNr) );
         }
         $this->games = new ArrayCollection();
+    }
+
+    public function getPlanning(): PlanningBase {
+        return $this->planning;
     }
 
     /**

@@ -52,10 +52,6 @@ class Service {
     /**
      * @var int
      */
-    private $maxNrOfGamesInARow;
-    /**
-     * @var int
-     */
     private $nrOfSports;
     /**
      * @var bool
@@ -77,7 +73,7 @@ class Service {
     public function __construct( PlanningBase $planning )
     {
         $this->planning = $planning;
-        $this->nrOfPoules = $this->getInput()->getStructure()->getPoules()->count();
+        $this->nrOfPoules = $this->planning->getPoules()->count();
     }
 
     protected function getInput(): Input {
@@ -92,14 +88,14 @@ class Service {
     }
 
     public function initFields() {
-        $this->fields = $this->getInput()->getFields()->toArray();
+        $this->fields = $this->planning->getFields()->toArray();
     }
 
     public function initReferees() {
         $this->referees = [];
         $nrOfReferees = $this->getInput()->getNrOfReferees();
         for( $refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $nrOfReferees++ ) {
-            $this->referees[] = new Referee( $refereeNr );
+            $this->referees[] = new Referee( $this->planning, $refereeNr );
         }
     }
 
@@ -113,13 +109,16 @@ class Service {
     public function initRefereePlaces( array $games ) {
 
         $this->refereePlaces = [];
-        $nrOfPlacesToFill = $this->getInput()->getStructure()->getNrOfPlaces();
+        $nrOfPlacesToFill = $this->planning->getStructure()->getNrOfPlaces();
 
         while (count($this->refereePlaces) < $nrOfPlacesToFill) {
             $game = array_shift($games);
             $placesGame = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
             foreach( $placesGame as $placeGame ) {
-                if ( count( array_filter( $this->refereePlaces, function( $placeIt ) use ($placeGame) { return $placeGame === $placeIt; } ) ) === 0 ) {
+                $filteredRefPlaces = array_filter( $this->refereePlaces, function( $placeIt ) use ($placeGame) {
+                    return $placeGame->getNumber() === $placeIt;
+                } );
+                if ( count( $filteredRefPlaces ) === 0 ) {
                     array_unshift( $this->refereePlaces, $placeGame );
                 }
             }
@@ -131,13 +130,13 @@ class Service {
      */
     protected function initPlaces() {
         $sportService = new SportService();
-        $sports = $this->getInput()->getSports()->toArray();
+        $sports = $this->planning->getSports()->toArray();
         $this->nrOfSports = count($sports );
         $teamup = $this->getInput()->getTeamup();
         $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
 
         $this->places = [];
-        foreach( $this->getInput()->getStructure()->getPoules() as $poule ) {
+        foreach( $this->planning->getPoules() as $poule ) {
             // $nrOfHeadtohead = $sportService->getSufficientNrOfHeadtohead($sports, $poule, $teamup, $nrOfHeadtohead);
             $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $nrOfHeadtohead, $teamup);
 
@@ -289,9 +288,9 @@ class Service {
             return false;
         }
 
-        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) {
-            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
-        }
+//        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) {
+//            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
+//        }
 
         $resources3 = new Resources( array_slice( $resources->getFields(), 0 ) );
         $nrOfFieldsTried = 0;
@@ -378,7 +377,7 @@ class Service {
      */
     protected function toNextBatch(Batch $batch, Resources $resources): Batch {
         foreach( $batch->getGames() as $game ) {
-            $game->setResourceBatch($batch->getNumber());
+            $game->setBatchNr($batch->getNumber());
             // $game->setStartDateTime(clone $batch->getDateTime());
 
             // hier alle velden toevoegen die er nog niet in staan
@@ -422,7 +421,7 @@ class Service {
                 return false;
             }
             $nrOfGamesInARow = $batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0;
-            if( ($nrOfGamesInARow < $this->maxNrOfGamesInARow) || $this->maxNrOfGamesInARow === -1 ) {
+            if( $nrOfGamesInARow < $this->planning->getMaxNrOfGamesInARow() ) {
                 continue;
             }
             return false;

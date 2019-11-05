@@ -48,8 +48,8 @@ Voetbal\Planning:
         onDelete: CASCADE
       # cascade: [ persist ]
   oneToMany:
-    games:
-      targetEntity: Voetbal\Planning\Game
+    poules:
+      targetEntity: Voetbal\Planning\Poule
       mappedBy: planning
       cascade: [ persist, remove ]
   uniqueConstraints:

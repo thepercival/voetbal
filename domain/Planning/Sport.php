@@ -3,6 +3,7 @@
 namespace Voetbal\Planning;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Planning as PlanningBase;
 
 class Sport
 {
@@ -19,15 +20,24 @@ class Sport
      */
     protected $nrOfGamePlaces;
     /**
+     * @var PlanningBase
+     */
+    protected $planning;
+    /**
      * @var ArrayCollection | Field[]
      */
     protected $fields;
 
-    public function __construct( int $number, int $nrOfGamePlaces )
+    public function __construct( PlanningBase $planning, int $number, int $nrOfGamePlaces )
     {
+        $this->planning = $planning;
         $this->number = $number;
         $this->nrOfGamePlaces = $nrOfGamePlaces;
         $this->fields = new ArrayCollection();
+    }
+
+    public function getPlanning(): PlanningBase {
+        return $this->planning;
     }
 
     /**

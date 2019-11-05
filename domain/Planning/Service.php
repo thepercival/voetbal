@@ -32,7 +32,7 @@ class Service
 
         $gameGenerator = new GameGenerator( $planning->getInput() );
         $gameGenerator->create( $planning );
-        $games = $planning->getInput()->getStructure()->getGames();
+        $games = $planning->getGames()->toArray();
 
         $resourceService = new Resource\Service( $planning );
 //        $resourceService->setFields($fields);
@@ -40,12 +40,11 @@ class Service
 //        $resourceService->setRefereePlaces($refereePlaces);
 
         $state = $resourceService->assign($games);
-        $planning->setState( $state );
         if( $state !== PlanningBase::STATE_SUCCESS ) {
             $planning->getGames()->clear();
         }
 
-        return $planning;
+        return $state;
 
         // $planningConfig = $roundNumber->getValidPlanningConfig();
 

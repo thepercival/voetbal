@@ -45,14 +45,8 @@ class Game
      * @var Referee|null
      */
     protected $referee;
-    /**
-     * @var PlanningBase
-     */
-    protected $planning;
 
-
-    public function __construct( PlanningBase $planning, Poule $poule, int $roundNr, int $subNr ) {
-        $this->planning = $planning;
+    public function __construct( Poule $poule, int $roundNr, int $subNr ) {
         $this->poule = $poule;
         $this->roundNr = $roundNr;
         $this->subNr = $subNr;
@@ -64,10 +58,6 @@ class Game
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getPlanning(): PlanningBase {
-        return $this->planning;
     }
 
     public function getPoule(): Poule {

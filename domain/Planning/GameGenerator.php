@@ -33,7 +33,7 @@ class GameGenerator
         // $config = $roundNumber->getValidPlanningConfig();
         // $nrOfHeadtohead = $this->getSufficientNrOfHeadtohead($roundNumber, $config);
         for ($headtohead = 1; $headtohead <= $this->input->getNrOfHeadtohead(); $headtohead++) {
-            foreach ($this->input->getStructure()->getPoules() as $poule) {
+            foreach ($planning->getStructure()->getPoules() as $poule) {
                 $this->createPoule($planning, $poule, $headtohead);
             }
         }
@@ -60,11 +60,12 @@ class GameGenerator
         foreach( $gameRounds as $gameRound ) {
             $subNumber = 1;
             foreach( $gameRound->getCombinations() as $combination ) {
-                $game = new Game($planning, $poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
-                $gamePlaces = new ArrayCollection( $combination->getGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
-                foreach( $gamePlaces as $gamePlace ) {
-                    $game->getPlaces()->add( $gamePlace );
-                }
+                $game = new Game( $poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
+                $combination->createGamePlaces($game, $reverseHomeAway/*, reverseCombination*/);
+                // $gamePlaces = new ArrayCollection( $combination->createGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
+//                foreach( $gamePlaces as $gamePlace ) {
+//                    $game->getPlaces()->add( $gamePlace );
+//                }
             }
         }
     }
