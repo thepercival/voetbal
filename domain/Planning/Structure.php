@@ -66,7 +66,7 @@ class Structure
             // $poule1 = $g1->getPoule();
             // $poule2 = $g2->getPoule();
             // if ($poule1->getRoundNr() === $poule2->getRoundNr()) {
-                return $g2->getPoule()->getNumber() - $g1->getPoule()->getNumber();
+                return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
             // }
             // return $poule2->getRoundNr() - $poule1->getRoundNr();
         };

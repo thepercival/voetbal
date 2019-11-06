@@ -196,7 +196,7 @@ class Service {
         }
         if( $selfReferee ) {
             $nrOfPouleGames = $this->getNrOfGamesPerPoule( $nrOfPoulePlaces, $teamup );
-            $nrOfGames += (int) floor($nrOfPouleGames / $nrOfPoulePlaces );
+            $nrOfGames += (int) ceil($nrOfPouleGames / $nrOfPoulePlaces );
         }
         return $nrOfHeadtohead ? $nrOfGames * $nrOfHeadtohead : $nrOfGames;
     }

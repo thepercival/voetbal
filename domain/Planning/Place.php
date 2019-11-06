@@ -28,7 +28,7 @@ class Place {
         $this->number = $number;
     }
 
-    public function getSportCounter(): SportCounter {
+    public function getSportCounter(): ?SportCounter {
         return $this->sportCounter;
     }
 

@@ -186,7 +186,11 @@ class Input
         $structureConfig = $this->getStructureConfig();
         $nrOfPlaces = reset( $structureConfig );
         $sportService = new \Voetbal\Sport\Service();
-        return $sportService->getNrOfGamesPerPlace( $nrOfPlaces, $this->getTeamup(), $this->getSelfReferee(), $this->getNrOfHeadtohead() );
+        $maxNrOfGamesInARow = $sportService->getNrOfGamesPerPlace( $nrOfPlaces, $this->getTeamup(), $this->getSelfReferee(), $this->getNrOfHeadtohead() );
+        if( !$this->getTeamup() && $maxNrOfGamesInARow > ( $nrOfPlaces * $this->getNrOfHeadtohead() ) ) {
+            $maxNrOfGamesInARow = $nrOfPlaces * $this->getNrOfHeadtohead();
+        }
+        return $maxNrOfGamesInARow;
         //         const sportPlanningConfigService = new SportPlanningConfigService();
         //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
         //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;

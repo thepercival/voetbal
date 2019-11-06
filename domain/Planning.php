@@ -84,6 +84,7 @@ class Planning
         $this->minNrOfBatchGames = $nrOfBatchGames->min;
         $this->maxNrOfBatchGames = $nrOfBatchGames->max;
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
+        $this->input->getPlannings()->add( $this );
         $this->initPoules( $this->getInput()->getStructureConfig() );
         $this->initSports( $this->getInput()->getSportConfig() );
         $this->initReferees( $this->getInput()->getNrOfReferees() );

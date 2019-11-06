@@ -83,7 +83,9 @@ class Service {
     protected function init( array $games ) {
         $this->initFields();
         $this->initReferees();
-        $this->initRefereePlaces( $games );
+        if ($this->planning->getInput()->getSelfReferee()) {
+            $this->initRefereePlaces($games);
+        }
         $this->initPlaces();
     }
 
@@ -112,7 +114,7 @@ class Service {
             $placesGame = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
             foreach( $placesGame as $placeGame ) {
                 $filteredRefPlaces = array_filter( $this->refereePlaces, function( $placeIt ) use ($placeGame) {
-                    return $placeGame->getNumber() === $placeIt;
+                    return $placeGame === $placeIt;
                 } );
                 if ( count( $filteredRefPlaces ) === 0 && count($this->refereePlaces) < $nrOfPlacesToFill ) {
                     array_unshift( $this->refereePlaces, $placeGame );
@@ -127,7 +129,7 @@ class Service {
     protected function initPlaces() {
         $sportService = new SportService();
         $sports = $this->planning->getSports()->toArray();
-        $this->nrOfSports = count($sports );
+        $multipleSports = count( $sports ) > 1;
         $teamup = $this->getInput()->getTeamup();
         $selfReferee = $this->getInput()->getSelfReferee();
         $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
@@ -141,9 +143,10 @@ class Service {
             $minNrOfGamesMap = $sportService->convertToMap($sportsNrOfGames);
             /** @var Place $placeIt */
             foreach( $poule->getPlaces() as $placeIt ) {
-                $sportCounter = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sports);
-                $placeIt->setSportCounter( $sportCounter );
                 $this->places[$placeIt->getLocation()] = $placeIt;
+                if( $multipleSports ) {
+                    $placeIt->setSportCounter( new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sports) );
+                }
             }
         }
     }
@@ -428,13 +431,17 @@ class Service {
 
     private function assignSport(Game $game, Sport $sport) {
         foreach( $this->getPlaces($game) as $placeIt ) {
-            $placeIt->getSportCounter()->addGame($sport);
+            if( $placeIt->getSportCounter() ) {
+                $placeIt->getSportCounter()->addGame($sport);
+            }
         }
     }
 
     private function releaseSport(Game $game, Sport $sport) {
         foreach( $this->getPlaces($game) as $placeIt ) {
-            $placeIt->getSportCounter()->removeGame($sport);
+            if( $placeIt->getSportCounter() ) {
+                $placeIt->getSportCounter()->removeGame($sport);
+            }
         }
     }
 
@@ -465,7 +472,9 @@ class Service {
             if ($this->nrOfPoules === 1) {
                 return true;
             }
-            return $refereePlaceIt->getPoule() !== $game->getPoule();
+            if ( $refereePlaceIt->getPoule() !== $game->getPoule() ) {
+                return true;
+            }
         }
         return false;
     }
@@ -496,7 +505,7 @@ class Service {
 
     private function isSportAssignable(Game $game, Sport $sport ): bool {
         foreach( $this->getPlaces($game) as $placeIt ) {
-            if( !$placeIt->getSportCounter()->isAssignable($sport) ) {
+            if( $placeIt->getSportCounter() && !$placeIt->getSportCounter()->isAssignable($sport) ) {
                 return false;
             };
         }

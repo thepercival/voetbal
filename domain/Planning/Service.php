@@ -32,7 +32,7 @@ class Service
 
         $gameGenerator = new GameGenerator( $planning->getInput() );
         $gameGenerator->create( $planning );
-        $games = $planning->getGames()->toArray();
+        $games = $planning->getStructure()->getGames();
 
         $resourceService = new Resource\Service( $planning );
 //        $resourceService->setFields($fields);

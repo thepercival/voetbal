@@ -18,6 +18,7 @@ Voetbal\Planning\Sport:
       targetEntity: Voetbal\Planning\Field
       mappedBy: sport
       cascade: [ persist, remove ]
+      orphanRemoval: true
   manyToOne:
     planning:
       targetEntity: Voetbal\Planning
