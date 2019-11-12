@@ -11,8 +11,10 @@ namespace Voetbal\Planning;
 use Voetbal\Range as VoetbalRange;
 use Voetbal\Competitor;
 use Voetbal\Competition;
-use Voetbal\Game as GameBase;
+use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Game as GameBase;
+use Voetbal\Round\Number\Repository as RoundNumberRepository;
 
 /**
  * Game
@@ -26,18 +28,18 @@ class Repository extends \Voetbal\Repository
             ->where('pi.structureConfig = :structureConfig')
             ->andWhere('pi.sportConfig = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
-            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
             ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')
+            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
             ->andWhere('p.state = :state')
         ;
 
         $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
         $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
-        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('teamup', $input->getTeamup() );
         $query = $query->setParameter('selfReferee', $input->getSelfReferee() );
+        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('state', PlanningBase::STATE_SUCCESS );
 
         $query->setMaxResults(1);
@@ -54,9 +56,9 @@ class Repository extends \Voetbal\Repository
             ->where('pi.structureConfig = :structureConfig')
             ->andWhere('pi.sportConfig = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
-            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
             ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')
+            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
             ->andWhere('p.minNrOfBatchGames = :minNrOfBatchGames')
             ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
         ;
@@ -64,9 +66,9 @@ class Repository extends \Voetbal\Repository
         $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
         $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
-        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('teamup', $input->getTeamup() );
         $query = $query->setParameter('selfReferee', $input->getSelfReferee() );
+        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->min );
         $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->max );
 
@@ -84,9 +86,9 @@ class Repository extends \Voetbal\Repository
             ->where('pi.structureConfig = :structureConfig')
             ->andWhere('pi.sportConfig = :sportConfig')
             ->andWhere('pi.nrOfReferees = :nrOfReferees')
-            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
             ->andWhere('pi.teamup = :teamup')
             ->andWhere('pi.selfReferee = :selfReferee')
+            ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
             ->andWhere('p.minNrOfBatchGames = :minNrOfBatchGames')
             ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
             ->andWhere('p.maxNrOfGamesInARow = :maxNrOfGamesInARow')
@@ -95,9 +97,9 @@ class Repository extends \Voetbal\Repository
         $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
         $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
         $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
-        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('teamup', $input->getTeamup() );
         $query = $query->setParameter('selfReferee', $input->getSelfReferee() );
+        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
         $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->min );
         $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->max );
         $query = $query->setParameter('maxNrOfGamesInARow', $maxNrOfGamesInARow );
@@ -109,6 +111,32 @@ class Repository extends \Voetbal\Repository
 
     public function isProcessing(): bool {
         return $this->count( ["state" => PlanningBase::STATE_PROCESSING ] ) > 0;
+    }
+
+    public function removeRoundNumber( RoundNumber $roundNumber )
+    {
+        foreach( $roundNumber->getPoules() as $poule ) {
+            $games = $poule->getGames();
+            while( $games->count() > 0 ) {
+                $game = $games->first();
+                $games->removeElement( $game );
+                $this->_em->remove($game);
+            }
+        }
+        $this->_em->flush();
+    }
+
+    public function saveRoundNumber( RoundNumber $roundNumber, bool $hasBestPlanning = null )
+    {
+        foreach( $roundNumber->getGames( GameBase::ORDER_BY_POULE) as $game ) {
+            $this->_em->persist($game);
+        }
+        if( $hasBestPlanning !== null ) {
+            $roundNumberRepos = new RoundNumberRepository($this->_em, $this->_em->getClassMetaData(RoundNumber::class));
+            $roundNumber->setHasBestPlanning( $hasBestPlanning );
+            $roundNumberRepos->save( $roundNumber );
+        }
+        $this->_em->flush();
     }
 
     public function getMaxTimeoutSeconds() {
@@ -126,6 +154,7 @@ class Repository extends \Voetbal\Repository
         $plannings = $input->getPlannings()->toArray(); // should be sorted by maxnrofbatchgames,
         $lastPlanning = end( $plannings );
         if( $lastPlanning === false ) {
+            // return new PlanningBase( $input, new VoetbalRange( 6, 6), $input->getMaxNrOfGamesInARow() ); @FREDDY
             return new PlanningBase( $input, new VoetbalRange( 1, 1), $input->getMaxNrOfGamesInARow() );
         }
         return $lastPlanning->increase();

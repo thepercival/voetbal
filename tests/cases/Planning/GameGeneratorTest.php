@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning\Place as PlanningPlace;
 use Voetbal\Planning\GameRound;
 use Voetbal\Planning\GameGenerator;
+use Voetbal\Game as GameBase;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Planning\Input as PlanningInput;
@@ -72,7 +73,7 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
         $planningInput = $this->planningInputService->convert( $firstRoundNumber );
         $gameGenerator = new GameGenerator( $planningInput );
         $gameGenerator->create();
-        $games = $firstRoundNumber->getGames();
+        $games = $firstRoundNumber->getGames( GameBase::ORDER_POULE );
         $this->assertSame(count($games), 24);
     }
 

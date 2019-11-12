@@ -29,10 +29,6 @@ class Place
      * @var bool
      */
     private $homeaway;
-    /**
-     * @var int
-     */
-    private $placeNr;
 
     public function __construct( Game $game, PlaceBase $place, bool $homeaway )
     {
@@ -112,14 +108,6 @@ class Place
 
     public function getPlaceNr(): int
     {
-        if( $this->getPlace() !== null ) {
-            return $this->getPlace()->getNumber();
-        }
-        return $this->placeNr;
-    }
-
-    public function setPlaceNr( int $placeNr )
-    {
-        $this->placeNr = $placeNr;
+        return $this->getPlace()->getNumber();
     }
 }

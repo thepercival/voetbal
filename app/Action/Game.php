@@ -128,7 +128,7 @@ final class Game
                 }
                 $gamePlaceSer->setPlace($place);
             }
-            $game = new GameBase( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber());
+            $game = new GameBase( $poule, $gameSer->getBatchNr(), $gameSer->getStartDateTime() );
             $game->setPlaces($gameSer->getPlaces());
             $refereePlace = null;
             if ( $gameSer->getRefereePlaceId() !== null ) {
@@ -136,10 +136,7 @@ final class Game
             }
             $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
             $referee = $gameSer->getRefereeRank() ? $competition->getReferee($gameSer->getRefereeRank()) : null;
-            $game = $this->service->editResource(
-                $game,
-                $field, $referee, $refereePlace,
-                $gameSer->getStartDateTime(), $gameSer->getResourceBatch() );
+            $game = $this->service->editResource( $game, $field, $referee, $refereePlace );
 
             return $response
                 ->withStatus(200)

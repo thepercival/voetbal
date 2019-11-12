@@ -72,9 +72,8 @@ class Planning
 
     const STATE_FAILED = 1;
     const STATE_TIMEOUT = 2;
-    const STATE_SUCCESS_PARTIAL = 4;
-    const STATE_SUCCESS = 8;
-    const STATE_PROCESSING = 16;
+    const STATE_SUCCESS = 4;
+    const STATE_PROCESSING = 8;
 
     const DEFAULT_TIMEOUTSECONDS = 30;
 
@@ -164,11 +163,11 @@ class Planning
         $maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow();
         $minNrOfBatchGames = $this->getMinNrOfBatchGames();
         $maxNrOfBatchGames = $this->getMaxNrOfBatchGames();
-        if( $maxNrOfGamesInARow > 1 && ( $this->getState() === Planning::STATE_SUCCESS || $this->getState() === Planning::STATE_SUCCESS_PARTIAL ) ) {
+        if( $maxNrOfGamesInARow > 1 && $this->getState() === Planning::STATE_SUCCESS ) {
             $maxNrOfGamesInARow--;
         } else {
             $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
-            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && ( $this->getState() === Planning::STATE_SUCCESS || $this->getState() === Planning::STATE_SUCCESS_PARTIAL ) ) {
+            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && $this->getState() === Planning::STATE_SUCCESS ) {
                 $minNrOfBatchGames++;
             } else {
                 $minNrOfBatchGames = 1;

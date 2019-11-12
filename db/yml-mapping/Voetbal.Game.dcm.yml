@@ -8,19 +8,9 @@ Voetbal\Game:
       generator:
         strategy: AUTO
   fields:
-    roundNumber:
+    batchNr:
       type: smallint
       nullable: false
-      unique: false
-      column: roundnumber
-    subNumber:
-      type: smallint
-      nullable: false
-      unique: false
-      column: subnumber
-    resourceBatch:
-      type: smallint
-      nullable: true
       unique: false
       column: resourcebatch
     state:
@@ -30,8 +20,8 @@ Voetbal\Game:
       column: state
     startDateTime:
       type: datetime_immutable
-      nullable: true
-      column: startdatetime
+      nullable: false
+      column: startDateTime
     scoresMomentDep:
       type: smallint
       nullable: true

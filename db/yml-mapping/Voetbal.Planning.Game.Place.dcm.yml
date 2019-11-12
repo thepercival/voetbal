@@ -12,19 +12,22 @@ Voetbal\Planning\Game\Place:
       type: boolean
       nullable: false
       unique: false
-    placeNr:
-      type: integer
-      nullable: false
-      unique: false
   manyToOne:
     game:
       targetEntity: Voetbal\Planning\Game
       inversedBy: places
       joinColumn:
-        name: gameid
+        name: gameId
+        referencedColumnName: id
+        nullable: false
+        onDelete: CASCADE
+    place:
+      targetEntity: Voetbal\Planning\Place
+      joinColumn:
+        name: placeId
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
   uniqueConstraints:
     number_v_idx:
-      columns: [ gameid, homeaway, placeNr ]
+      columns: [ gameId, placeId ]

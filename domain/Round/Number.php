@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
+use Voetbal\Game as GameBase;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
@@ -50,9 +51,9 @@ class Number
      */
     protected $rounds;
     /**
-     * @var PlanningInput
+     * @var bool
      */
-    protected $planningInput;
+    protected $hasBestPlanning;
 
     /**
      * @var SportScoreConfig[] | ArrayCollection
@@ -72,6 +73,7 @@ class Number
         $this->competition = $competition;
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
+        $this->hasBestPlanning = false;
         $this->sportScoreConfigs = new ArrayCollection();
         // $this->sportPlanningConfigs = new ArrayCollection();
     }
@@ -229,13 +231,21 @@ class Number
         return $poules;
     }
 
-    /**
-     * @return array|Game[]
-     */
-    public function getGames(): array {
+    public function getGames( int $order ): array
+    {
+//        if( $order === null ) {
+//            $order = GameBase::ORDER_BY_POULE;
+//        }
+
         $games = [];
         foreach( $this->getPoules() as $poule ) {
             $games = array_merge( $games, $poule->getGames()->toArray());
+        }
+
+        if( $order === GameBase::ORDER_BY_BATCH ) {
+            uasort( $games, function( $g1, $g2 ) {
+                return $g1->getBatchNr() - $g2->getBatchNr();
+            } );
         }
         return $games;
     }
@@ -285,18 +295,13 @@ class Number
         return $this->getPrevious()->getValidPlanningConfig();
     }
 
-    public function getPlanningInput(): ?PlanningInput {
-        return $this->planningInput;
+    public function getHasBestPlanning(): bool {
+        return $this->hasBestPlanning;
     }
 
-    public function setPlanningInput( PlanningInput $input ) {
-        $this->planningInput = $input;
+    public function setHasBestPlanning( bool $hasBestPlanning) {
+        $this->hasBestPlanning = $hasBestPlanning;
     }
-
-    public function getPlanningState() {
-        return $this->getPlanningInput() ? $this->getPlanningInput()->getState() : PlanningInput::STATE_SUCCESS;
-    }
-
 
 //    public function hasMultipleSportPlanningConfigs(): bool {
 //        return $this->sportPlanningConfigs->count() > 1;
@@ -392,5 +397,18 @@ class Number
      */
     public function setSportScoreConfigs($sportScoreConfigs ) {
         $this->sportScoreConfigs = $sportScoreConfigs;
+    }
+
+    public function getFirstStartDateTime(): \DateTimeImmutable {
+        $games = $this->getGames( GameBase::ORDER_BY_BATCH );
+        $leastRecentGame = reset(  $games );
+        return $leastRecentGame->getStartDateTime();
+    }
+
+    public function getLastStartDateTime(): \DateTimeImmutable
+    {
+        $games = $this->getGames( GameBase::ORDER_BY_BATCH );
+        $mostRecentGame = end(  $games );
+        return $mostRecentGame->getStartDateTime();
     }
 }

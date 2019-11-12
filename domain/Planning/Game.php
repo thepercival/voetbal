@@ -3,6 +3,7 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Voetbal\Planning\Game\Place as GamePlace;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Game as GameBase;
@@ -26,7 +27,7 @@ class Game
      */
     protected $poule;
     /**
-     * @var ArrayCollection | GamePlace[]
+     * @var Collection | GamePlace[]
      */
     protected $places;
     /**
@@ -118,9 +119,9 @@ class Game
 
     /**
      * @param bool|null $homeaway
-     * @return ArrayCollection | GamePlace[]
+     * @return Collection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null ): ArrayCollection
+    public function getPlaces( bool $homeaway = null ): Collection
     {
         if ($homeaway === null) {
             return $this->places;

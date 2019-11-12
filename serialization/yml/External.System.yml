@@ -5,7 +5,7 @@ Voetbal\External\System:
 
   properties:
     id:
-      type: int
+      type: integer
     name:
       type: string
     website:

@@ -4,6 +4,7 @@ namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Voetbal\Game as GameBase;
 
 class Structure
 {
@@ -54,8 +55,20 @@ class Structure
         return $this->nrOfPlaces;
     }
 
-    public function getGames(): array
+    public function getBatches(): array {
+        $games = $this->getGames( GameBase::ORDER_BY_BATCH );
+        $batches = [];
+        foreach( $games as $game ) {
+            $batches[$game->getBatchNr()-1][] = $game;
+        }
+        return $batches;
+    }
+
+    public function getGames( int $order = null ): array
     {
+        if( $order === null ) {
+            $order = GameBase::ORDER_BY_NUMBER;
+        }
         $orderByNumber = function (Game $g1, Game $g2): int {
             if ($g1->getRoundNr() !== $g2->getRoundNr()) {
                 return $g1->getRoundNr() - $g2->getRoundNr();
@@ -63,22 +76,21 @@ class Structure
             if ($g1->getSubNr() !== $g2->getSubNr()) {
                 return $g1->getSubNr() - $g2->getSubNr();
             }
-            // $poule1 = $g1->getPoule();
-            // $poule2 = $g2->getPoule();
-            // if ($poule1->getRoundNr() === $poule2->getRoundNr()) {
-                return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
-            // }
-            // return $poule2->getRoundNr() - $poule1->getRoundNr();
+            return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
         };
-
         $games = [];
         foreach( $this->getPoules() as $poule ) {
             $games = array_merge( $games, $poule->getGames()->toArray() );
         }
-        uasort($games, function (Game $g1, Game $g2) use ($orderByNumber) {
-            return $orderByNumber($g1, $g2);
-        });
-
+        if( $order === GameBase::ORDER_BY_BATCH ) {
+            uasort( $games, function( $g1, $g2 ) {
+                return $g1->getBatchNr() - $g2->getBatchNr();
+            } );
+        } else {
+            uasort($games, function (Game $g1, Game $g2) use ($orderByNumber) {
+                return $orderByNumber($g1, $g2);
+            });
+        }
         return $games;
     }
 }

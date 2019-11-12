@@ -46,4 +46,34 @@ class Service
     public function getDefaultMinutesAfter(): int {
         return 5;
     }
+
+    public function isTeamupAvailable( RoundNumber $roundNumber ) {
+        $sportConfigs = $roundNumber->getSportConfigs();
+        if( $sportConfigs->count() > 1 ) {
+            return false;
+        }
+        foreach( $sportConfigs as $sportConfig ) {
+            if( $sportConfig->getSport()->getTeam() ) {
+                return false;
+            }
+        }
+        foreach( $roundNumber->getPoules() as $poule ) {
+            if( $poule->getPlaces()->count() < PlanningConfig::TEAMUP_MIN || $poule->getPlaces()->count() > PlanningConfig::TEAMUP_MAX ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public function canTeamupBeAvailable( array $structureConfig, array $sportConfig ) {
+        if( count( $sportConfig ) > 1 ) {
+            return false;
+        }
+        foreach( $structureConfig as $nrOfPlacesPerPoule ) {
+            if( $nrOfPlacesPerPoule < PlanningConfig::TEAMUP_MIN || $nrOfPlacesPerPoule > PlanningConfig::TEAMUP_MAX ) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

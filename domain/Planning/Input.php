@@ -3,6 +3,7 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Planning as PlanningBase;
 
@@ -41,24 +42,25 @@ class Input
      */
     protected $state;
     /**
-     * @var PersistentCollection| PlanningBase[]
+     * @var Collection| PlanningBase[]
      */
     protected $plannings;
 
-    const STATE_FAILED = 1;
-    const STATE_SUCCESS_PARTIAL = 2;
-    const STATE_SUCCESS = 4;
+    const STATE_CREATED = 1;
+    const STATE_TRYING_PLANNINGS = 2;
+    const STATE_ALL_PLANNINGS_TRIED = 4;
 
-    public function __construct( array $structureConfig, array $sportConfig, int $nrOfReferees, int $nrOfHeadtohead, bool $teamup, bool $selfReferee ) {
+    public function __construct( array $structureConfig, array $sportConfig, int $nrOfReferees, bool $teamup, bool $selfReferee, int $nrOfHeadtohead ) {
         $this->structureConfig = $structureConfig;
         // $this->structure = $this->convertToStructure( $structureConfig );
         $this->sportConfig = $sportConfig;
         // $this->sports = $this->convertToSports( $sportConfig );
         $this->nrOfReferees = $nrOfReferees;
-        $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->teamup = $teamup;
         $this->selfReferee = $selfReferee;
-        $this->state = Input::STATE_FAILED;
+        $this->nrOfHeadtohead = $nrOfHeadtohead;
+        $this->state = Input::STATE_CREATED;
+        $this->plannings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -221,5 +223,15 @@ class Input
             };
         }
         return false;
+    }
+
+    public function getBestPlanning(): ?PlanningBase {
+        $plannings = array_reverse( $this->getPlannings()->toArray() );
+        foreach( $plannings as $planning ) {
+            if( $planning->getState() === PlanningBase::STATE_SUCCESS ) {
+                return $planning;
+            }
+        }
+        return null;
     }
 }

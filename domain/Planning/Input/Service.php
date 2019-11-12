@@ -10,6 +10,7 @@ namespace Voetbal\Planning\Input;
 
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Round\Number as RoundNumber;
+use Voetbal\Planning\Config\Service as PlanningConfigService;
 
 class Service
 {
@@ -18,12 +19,15 @@ class Service
 
     }
 
-    public function convert( RoundNumber $roundNumber ): PlanningInput {
+    public function get( RoundNumber $roundNumber ): PlanningInput {
         $config = $roundNumber->getValidPlanningConfig();
+        $planningConfigService = new PlanningConfigService();
+        $teamup = $config->getTeamup() ? $planningConfigService->isTeamupAvailable( $roundNumber ) : $config->getTeamup();
+
         return new PlanningInput(
             $this->getStructureConfig( $roundNumber ),  $this->getSportConfig( $roundNumber ),
-            $roundNumber->getCompetition()->getReferees()->count(), $config->getNrOfHeadtohead(),
-            $config->getTeamup(), $config->getSelfReferee()
+            $roundNumber->getCompetition()->getReferees()->count(),
+            $teamup, $config->getSelfReferee(), $config->getNrOfHeadtohead()
         );
     }
 
@@ -43,7 +47,7 @@ class Service
         $sportConfigRet = [];
         /** @var \Voetbal\Sport\Config $sportConfig */
         foreach( $roundNumber->getSportConfigs() as $sportConfig ) {
-            $sportConfigRet = [ "nrOfFields" => $sportConfig->getNrOfFields(), "nrOfGamePlaces" => $sportConfig->getNrOfGamePlaces() ];
+            $sportConfigRet[] = [ "nrOfFields" => $sportConfig->getNrOfFields(), "nrOfGamePlaces" => $sportConfig->getNrOfGamePlaces() ];
         }
         return $sportConfigRet;
     }

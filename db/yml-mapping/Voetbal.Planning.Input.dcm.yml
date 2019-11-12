@@ -20,16 +20,16 @@ Voetbal\Planning\Input:
       type: smallint
       nullable: false
       unique: false
-    nrOfHeadtohead:
-      type: smallint
-      nullable: false
-      unique: false
     teamup:
       type: boolean
       nullable: false
       unique: false
     selfReferee:
       type: boolean
+      nullable: false
+      unique: false
+    nrOfHeadtohead:
+      type: smallint
       nullable: false
       unique: false
     state:

@@ -5,8 +5,10 @@ Voetbal\Game\Place:
 
   properties:
     id:
-      type: int
-    placeNr:
-      type: int
+      type: integer
     homeaway:
       type: bool
+  virtual_properties:
+    getPlaceNr:
+      type: integer
+      serialized_name: placeNr

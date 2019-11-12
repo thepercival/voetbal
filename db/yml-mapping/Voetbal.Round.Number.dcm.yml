@@ -12,6 +12,10 @@ Voetbal\Round\Number:
       type: smallint
       nullable: false
       unique: false
+    hasBestPlanning:
+      type: smallint
+      nullable: true
+      unique: false
   oneToOne:
     configDep:
       targetEntity: Voetbal\Config\Dep
@@ -56,9 +60,3 @@ Voetbal\Round\Number:
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
-    planningInput:
-      targetEntity: Voetbal\Planning\Input
-      joinColumn:
-        name: planningInputId
-        referencedColumnName: id
-        nullable: true # should be false

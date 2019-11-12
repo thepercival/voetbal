@@ -120,8 +120,10 @@ class Handler
             );
         } elseif ($resourceType === 'planning') {
             $action = new VoetbalApp\Action\Planning(
-                $voetbalservice->getRepository(Voetbal\Game::class),
                 $voetbalservice->getService(Voetbal\Game::class),
+                $voetbalservice->getRepository(Voetbal\Planning::class),
+                $voetbalservice->getRepository(Voetbal\Planning\Input::class),
+                $voetbalservice->getStructureRepository(),
                 $voetbalservice->getRepository(Voetbal\Poule::class),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer, $em);
@@ -150,13 +152,6 @@ class Handler
         } elseif ($resourceType === 'planningconfigs') {
             $action = new VoetbalApp\Action\Planning\Config(
                 $voetbalservice->getRepository(Voetbal\Planning\Config::class),
-                $voetbalservice->getStructureRepository(),
-                $voetbalservice->getRepository(Voetbal\Competition::class),
-                $serializer
-            );
-        } elseif ($resourceType === 'sportplanningconfigs') {
-            $action = new VoetbalApp\Action\Sport\PlanningConfig(
-                $voetbalservice->getRepository(Voetbal\Sport\PlanningConfig::class),
                 $voetbalservice->getStructureRepository(),
                 $voetbalservice->getRepository(Voetbal\Competition::class),
                 $serializer

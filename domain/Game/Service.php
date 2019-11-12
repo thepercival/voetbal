@@ -29,17 +29,11 @@ class Service
      * @param Field|null $field
      * @param Referee|null $referee
      * @param Place|null $refereePlace
-     * @param \DateTimeImmutable|null $startDateTime
-     * @param int|null $resourceBatch
      * @return Game
      */
-    public function editResource( Game $game,
-        Field $field = null, Referee $referee = null, Place $refereePlace = null,
-        \DateTimeImmutable $startDateTime = null, int $resourceBatch = null )
+    public function editResource( Game $game, Field $field = null, Referee $referee = null, Place $refereePlace = null )
     {
         $game->setField($field);
-        $game->setStartDateTime($startDateTime);
-        $game->setResourceBatch($resourceBatch);
         $game->setReferee($referee);
         $game->setRefereePlace($refereePlace);
         return $game;
@@ -71,17 +65,6 @@ class Service
 //        return $this->competition->getStartDateTime();
 //}
 
-//
-//    public function canCalculateStartDateTime(RoundNumber $roundNumber): bool {
-//        if ($roundNumber->getValidPlanningConfig()->getEnableTime() === false) {
-//            return false;
-//        }
-//        if ($roundNumber->hasPrevious() ) {
-//            return $this->canCalculateStartDateTime($roundNumber->getPrevious());
-//        }
-//        return true;
-//    }
-//
 //
 //    public function reschedule( RoundNumber $roundNumber, \DateTimeImmutable $startDateTime = null )
 //    {
@@ -134,71 +117,5 @@ class Service
 //        }
 //    }
 
-    /**
-     * @param RoundNumber $roundNumber
-     * @return array|Game[]
-     */
-    public function getGamesForRoundNumber(RoundNumber $roundNumber/*, int $order*/): array {
-        $games = $roundNumber->getGames();
-
-        /*$orderByNumber =  function (Game $g1, Game $g2) use ($roundNumber): int  {
-            if ($g1->getRoundNumber() !== $g2->getRoundNumber()) {
-                return $g1->getRoundNumber() - $g2->getRoundNumber();
-            }
-            if ($g1->getSubNumber() !== $g2->getSubNumber()) {
-                return $g1->getSubNumber() - $g2->getSubNumber();
-            }
-            $poule1 = $g1->getPoule();
-            $poule2 = $g2->getPoule();
-            if ($poule1->getRound() === $poule2->getRound()) {
-                $resultPoule = $poule2->getNumber() - $poule1->getNumber();
-                return !$roundNumber->isFirst() ? $resultPoule : -$resultPoule;
-            }
-            $resultRound = $poule2->getRound()->getStructureNumber() - $poule1->getRound()->getStructureNumber();
-            return !$roundNumber->isFirst() ? $resultRound : -$resultRound;
-        };
-
-        if ($order === Game::ORDER_BYNUMBER) {
-            uasort( $games, function(Game $g1, Game $g2) use ($orderByNumber) {
-                return $orderByNumber($g1, $g2);
-            });
-        } else {*/
-        // $enableTime = $roundNumber->getValidPlanningConfig()->getEnableTime();
-        uasort( $games, function(Game $g1, Game $g2) /*use ($enableTime, $orderByNumber)*/ {
-            // if ($enableTime) {
-            if ($g1->getStartDateTime() != $g2->getStartDateTime()) {
-                return ($g1->getStartDateTime() < $g2->getStartDateTime() ? -1 : 1);
-            }
-            //}
-            /*else {
-                if ($g1->getResourceBatch() !== $g2->getResourceBatch()) {
-                    return $g1->getResourceBatch() - $g2->getResourceBatch();
-                }
-            } */
-            // return $orderByNumber($g1, $g2);
-        });
-        // }
-        return $games;
-    }
-
-    /* time functions */
-
-//    public function getNextGameStartDateTime( \DateTimeImmutable $dateTime ) {
-//        $minutes = $this->planningConfig->getMaximalNrOfMinutesPerGame() + $this->planningConfig->getMinutesBetweenGames();
-//        return $this->addMinutes($dateTime, $minutes);
-//    }
-//
-//    protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {
-//        $newStartDateTime = $dateTime->modify("+" . $minutes . " minutes");
-//        if ($this->blockedPeriod === null ) {
-//            return $newStartDateTime;
-//        }
-//
-//        $endDateTime = $newStartDateTime->modify("+" . $this->planningConfig->getMaximalNrOfMinutesPerGame() . " minutes");
-//        if( $endDateTime > $this->blockedPeriod->getStartDate() && $newStartDateTime < $this->blockedPeriod->getEndDate() ) {
-//            $newStartDateTime = clone $this->blockedPeriod->getEndDate();
-//        }
-//        return $newStartDateTime;
-//    }
 }
 

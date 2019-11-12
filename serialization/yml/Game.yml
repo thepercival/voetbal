@@ -5,21 +5,18 @@ Voetbal\Game:
 
   properties:
     id:
-      type: int
-    roundNumber:
-      type: int
-    subNumber:
-      type: int
-    resourceBatch:
-      type: int
+      type: integer
     fieldNr:
-      type: int
+      type: integer
     refereeRank:
-      type: int
+      type: integer
     refereePlaceId:
-      type: int
+      type: integer
+    batchNr:
+      type: integer
+      access_type: property # ??
     state:
-      type: int
+      type: integer
     startDateTime:
       type: DateTimeImmutable<'Y-m-d\TH:i:s.u\Z'>
     places:

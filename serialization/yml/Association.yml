@@ -4,7 +4,7 @@ Voetbal\Association:
   access_type: public_method
   properties:
     id:
-      type: int
+      type: integer
     name:
       type: string
     description:

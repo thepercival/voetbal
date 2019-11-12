@@ -21,38 +21,23 @@ class Game implements External\Importable
      * @var int
      */
     protected $id;
-
     /**
      * @var Poule
      */
     protected $poule;
-
     /**
      * @var int
      */
-    protected $roundNumber;
-
-    /**
-     * @var int
-     */
-    protected $subNumber;
-
-    /**
-     * @var int
-     */
-    protected $resourceBatch;
-
+    protected $batchNr;
     /**
      * @var \DateTimeImmutable
      */
     private $startDateTime;
-
     /**
      * @var ?Referee
      */
     protected $referee;
     protected $refereeRank; // for serialization, not used
-
     /**
      * @var ?Place
      */
@@ -81,7 +66,7 @@ class Game implements External\Importable
     private $scoresMomentDep;
 
     /**
-     * @var GamePlace[] | ArrayCollection
+     * @var GamePlace[] | Collection
      */
     protected $places;
 
@@ -96,18 +81,17 @@ class Game implements External\Importable
     const PHASE_EXTRATIME = 2;
     const PHASE_PENALTIES = 4;
 
-    const ORDER_BYNUMBER = 1;
-    const ORDER_RESOURCEBATCH = 2;
+    const ORDER_BY_BATCH = 1;
+    const ORDER_BY_POULE = 2;
+    const ORDER_BY_NUMBER = 3;
 
-
-
-    public function __construct( Poule $poule, $roundNumber, $subNumber )
+    public function __construct( Poule $poule, int $batchNr, \DateTimeImmutable $startDateTime )
     {
-        $this->setState( State::Created );
         $this->setPoule( $poule );
+        $this->batchNr = $batchNr;
+        $this->startDateTime = $startDateTime;
+        $this->setState( State::Created );
         $this->places = new ArrayCollection();
-        $this->setRoundNumber( $roundNumber );
-        $this->setSubNumber( $subNumber );
         $this->scores = new ArrayCollection();
     }
 
@@ -156,76 +140,26 @@ class Game implements External\Importable
         return $this->poule->getRound();
     }
 
-
     /**
      * @return int
      */
-    public function getRoundNumber()
+    public function getBatchNr(): int
     {
-        return $this->roundNumber;
-    }
-
-    /**
-     * @param int $roundNumber
-     */
-    public function setRoundNumber( $roundNumber )
-    {
-        if ( !is_int( $roundNumber )   ){
-            throw new \InvalidArgumentException( "het speelrondenummer heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->roundNumber = $roundNumber;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSubNumber()
-    {
-        return $this->subNumber;
-    }
-
-    /**
-     * @param int $subNumber
-     */
-    public function setSubNumber( $subNumber )
-    {
-        if ( !is_int( $subNumber )   ){
-            throw new \InvalidArgumentException( "het speelrondenummer heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->subNumber = $subNumber;
-    }
-
-    /**
-     * @return int
-     */
-    public function getResourceBatch()
-    {
-        return $this->resourceBatch;
-    }
-
-    /**
-     * @param int $resourceBatch
-     */
-    public function setResourceBatch( $resourceBatch )
-    {
-        if ( !is_int( $resourceBatch )   ){
-            throw new \InvalidArgumentException( "de resourcebatch heeft een onjuiste waarde", E_ERROR );
-        }
-        $this->resourceBatch = $resourceBatch;
-    }
-
-    /**
-     * @return ?\DateTimeImmutable
-     */
-    public function getStartDateTime(): ?\DateTimeImmutable
-    {
-        return $this->startDateTime;
+        return $this->batchNr;
     }
 
     /**
      * @return \DateTimeImmutable
      */
-    public function setStartDateTime( \DateTimeImmutable $startDateTime = null )
+    public function getStartDateTime(): \DateTimeImmutable
+    {
+        return $this->startDateTime;
+    }
+
+    /**
+     * @param \DateTimeImmutable $startDateTime
+     */
+    public function setStartDateTime( \DateTimeImmutable $startDateTime )
     {
         $this->startDateTime = $startDateTime;
     }
@@ -363,9 +297,9 @@ class Game implements External\Importable
 
     /**
      * @param bool|null $homeaway
-     * @return ArrayCollection | GamePlace[]
+     * @return Collection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null )
+    public function getPlaces( bool $homeaway = null ): Collection
     {
         if ($homeaway === null) {
             return $this->places;

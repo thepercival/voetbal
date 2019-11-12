@@ -10,15 +10,22 @@ namespace VoetbalApp\Action;
 
 use Doctrine\ORM\EntityManager;
 use JMS\Serializer\Serializer;
+use League\Period\Period;
+use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Game\Service as GameService;
-use Voetbal\Game\Repository as GameRepository;
+use Voetbal\Planning\ConvertService;
+use Voetbal\Planning\Repository as PlanningRepository;
+use Voetbal\Structure\Repository as StructureRepository;
+use Voetbal\Planning\ScheduleService;
 use Voetbal\Poule\Repository as PouleRepository;
 use Voetbal\Competition\Repository as CompetitionRepository;
-use Voetbal;
+use Voetbal\Planning\Input as PlanningInput;
+use Voetbal\Planning\Input\Service as PlanningInputService;
+use Voetbal\Planning\Input\Repository as InputRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Voetbal\Poule;
-use Voetbal\Game;
+use Voetbal\Game as GameBase;
 use VoetbalApp\Action\PostSerialize\RefereeService as DeserializeRefereeService;
 
 final class Planning
@@ -28,9 +35,17 @@ final class Planning
      */
     protected $gameService;
     /**
-     * @var GameRepository
+     * @var PlanningRepository
      */
     protected $repos;
+    /**
+     * @var InputRepository
+     */
+    protected $inputRepos;
+    /**
+     * @var StructureRepository
+     */
+    protected $structureRepos;
     /**
      * @var PouleRepository
      */
@@ -53,20 +68,44 @@ final class Planning
     protected $deserializeRefereeService;
 
     public function __construct(
-        GameRepository $repos,
         GameService $gameService,
+        PlanningRepository $repos,
+        InputRepository $inputRepos,
+        StructureRepository $structureRepos,
         PouleRepository $pouleRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer,
         EntityManager $em
     ) {
-        $this->repos = $repos;
         $this->gameService = $gameService;
+        $this->repos = $repos;
+        $this->inputRepos = $inputRepos;
+        $this->structureRepos = $structureRepos;
         $this->pouleRepos = $pouleRepos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
         $this->em = $em;
         $this->deserializeRefereeService = new DeserializeRefereeService();
+    }
+
+    public function fetch( $request, $response, $args)
+    {
+        $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
+
+        $games = $this->repos->findBy( [ "poule" => $poule ] );
+        return $response
+            ->withHeader('Content-Type', 'application/json;charset=utf-8')
+            ->write( $this->serializer->serialize( $games, 'json') );
+        ;
+    }
+
+    protected function getBlockedPeriodFromInput( $request ): ?Period {
+        if( $request->getParam('blockedperiodstart') === null || $request->getParam('blockedperiodend') === null ) {
+            return null;
+        }
+        $startDateTime = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u\Z', $request->getParam('blockedperiodstart'));
+        $endDateTime = \DateTimeImmutable::createFromFormat('Y-m-d\TH:i:s.u\Z', $request->getParam('blockedperiodend'));
+        return new Period( $startDateTime, $endDateTime );
     }
 
     /**
@@ -76,92 +115,81 @@ final class Planning
     public function add($request, $response, $args)
     {
         try {
-            $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
-            $roundNumber = $poule->getRound()->getNumber();
-            $competition = $roundNumber->getCompetition();
+            $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
+            if ($competition === null) {
+                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+            $roundNumberAsValue = (int)$request->getParam("roundnumber");
+            if ( $roundNumberAsValue === 0 ) {
+                throw new \Exception("geen rondenummer opgegeven", E_ERROR);
+            }
+            /** @var \Voetbal\Structure $structure */
+            $structure = $this->structureRepos->getStructure( $competition );
+            $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
+            $blockedPeriod = $this->getBlockedPeriodFromInput( $request );
 
-            $games = $poule->getGames();
-            while( $games->count() > 0 ) {
-                $game = $games->first();
-                $games->removeElement( $game );
-                $this->em->remove($game);
-            }
+            $this->createPlanning( $roundNumber, $blockedPeriod );
 
-            /** @var ArrayCollection<Voetbal\Game> $gamesSer */
-            $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),'ArrayCollection<Voetbal\Game>', 'json');
-            if ($gamesSer === null) {
-                throw new \Exception("er kunnen geen wedstrijden worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
-            }
-            foreach ($gamesSer as $gameSer) {
-                $game = new Game( $poule, $gameSer->getRoundNumber(), $gameSer->getSubNumber() );
-                foreach( $gameSer->getPlaces() as $gamePlaceSer ){
-                    $place = $poule->getPlace($gamePlaceSer->getPlaceNr());
-                    if ( $place === null ) {
-                        throw new \Exception("er kan geen deelnemer worden gevonden o.b.v. de invoergegevens", E_ERROR);
-                    }
-                    $game->addPlace( $place, $gamePlaceSer->getHomeaway() );
-                }
-                $refereePlace = null;
-                if ( $gameSer->getRefereePlaceId() !== null ) {
-                    $refereePlace = $this->deserializeRefereeService->getPlace($roundNumber, $gameSer->getRefereePlaceId());
-                }
-                $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
-                $referee = $gameSer->getRefereeRank() ? $competition->getReferee($gameSer->getRefereeRank()) : null;
-                $this->gameService->editResource(
-                    $game,
-                    $field, $referee, $refereePlace,
-                    $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
-                $this->em->persist($game);
-            }
-            $this->em->flush();
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize(array_values($games->toArray()), 'json'));
+                ->write($this->serializer->serialize($structure, 'json'));
         } catch (\Exception $e) {
             return $response->withStatus(422)->write($e->getMessage());
         }
     }
 
+    protected function createPlanning( RoundNumber $roundNumber, Period $blockedPeriod = null ) {
+        $this->repos->removeRoundNumber( $roundNumber );
+
+        $inputService = new PlanningInputService();
+        $defaultPlanningInput = $inputService->get( $roundNumber );
+        $planningInput = $this->inputRepos->getFromInput( $defaultPlanningInput );
+        if( $planningInput === null ) {
+            $planningInput = $this->inputRepos->save( $defaultPlanningInput );
+        }
+        $planning = $planningInput->getBestPlanning();
+        if( $planning === null ) {
+            $planning = $this->repos->createNextTry($planningInput);
+        }
+        $hasBestPlanning = ($planningInput->getState() === PlanningInput::STATE_ALL_PLANNINGS_TRIED );
+        $convertService = new ConvertService( new ScheduleService( $blockedPeriod ) );
+        $convertService->createGames( $roundNumber, $planning );
+
+        $this->repos->saveRoundNumber( $roundNumber, $hasBestPlanning );
+
+        if( $roundNumber->hasNext() ) {
+            $this->createPlanning( $roundNumber->getNext(), $blockedPeriod );
+        }
+    }
+
     /**
      * do game remove and add for multiple games
-     *
      */
     public function edit($request, $response, $args)
     {
         try {
-            $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int) $request->getParam("competitionid") );
-            $roundNumber = $poule->getRound()->getNumber();
-            $competition = $roundNumber->getCompetition();
+            $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
+            if ($competition === null) {
+                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+            }
+            $roundNumberAsValue = (int)$request->getParam("roundnumber");
+            if ( $roundNumberAsValue === 0 ) {
+                throw new \Exception("geen rondenummer opgegeven", E_ERROR);
+            }
+            /** @var \Voetbal\Structure $structure */
+            $structure = $this->structureRepos->getStructure( $competition );
+            $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
+            $blockedPeriod = $this->getBlockedPeriodFromInput( $request );
+            $scheduleService = new ScheduleService( $blockedPeriod );
+            $dates = $scheduleService->rescheduleGames( $roundNumber );
 
-            $games = [];
-            /** @var ArrayCollection<Voetbal\Game> $gamesSer */
-            $gamesSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'ArrayCollection<Voetbal\Game>', 'json');
-            if ($gamesSer === null) {
-                throw new \Exception("er kunnen geen wedstrijden worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
-            }
-            foreach ($gamesSer as $gameSer) {
-                $game = $this->repos->find($gameSer->getId());
-                if ($game === null) {
-                    throw new \Exception("er kan geen wedstrijd(".$gameSer->getId().") worden gevonden o.b.v. de invoergegevens", E_ERROR);
-                }
-                $refereePlace = null;
-                if ( $gameSer->getRefereePlaceId() !== null ) {
-                    $refereePlace = $this->deserializeRefereeService->getPlace($roundNumber, $gameSer->getRefereePlaceId());
-                }
-                $field = $gameSer->getFieldNr() ? $competition->getField($gameSer->getFieldNr()) : null;
-                $referee = $gameSer->getRefereeRank() ? $competition->getReferee($gameSer->getRefereeRank()) : null;
-                $games[] = $this->gameService->editResource(
-                    $game,
-                    $field, $referee, $refereePlace,
-                    $gameSer->getStartDateTime(), $gameSer->getResourceBatch());
-                $this->em->persist($game);
-            }
-            $this->em->flush();
+            $this->repos->saveRoundNumber( $roundNumber );
+
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($games, 'json'));;
+                ->write($this->serializer->serialize($dates, 'json'));;
         } catch (\Exception $e) {
             return $response->withStatus(422)->write($e->getMessage());
         }

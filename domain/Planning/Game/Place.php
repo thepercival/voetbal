@@ -26,10 +26,6 @@ class Place
      */
     private $homeaway;
     /**
-     * @var int
-     */
-    private $placeNr;
-    /**
      * @var PlanningPlace
      */
     private $place;
@@ -113,6 +109,5 @@ class Place
     public function setPlace( PlanningPlace $place )
     {
         $this->place = $place;
-        $this->placeNr = $place->getNumber();
     }
 }

@@ -224,8 +224,8 @@ class Game implements GameImporter
             return $game;
         }
 
-        $game->setRoundNumber( $externalSystemGame->matchday );
-        $game->setResourceBatch( $externalSystemGame->matchday );
+        // $game->setRoundNumber( $externalSystemGame->matchday );
+        // $game->setBatchNr( $externalSystemGame->matchday );
         $startDateTime = $this->apiHelper->getDate( $externalSystemGame->utcDate );
         $game->setStartDateTime( $startDateTime );
 

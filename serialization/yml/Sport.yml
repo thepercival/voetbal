@@ -4,7 +4,7 @@ Voetbal\Sport:
   access_type: public_method
   properties:
     id:
-      type: int
+      type: integer
     name:
       type: string
 #    scoreUnitName:
@@ -14,4 +14,4 @@ Voetbal\Sport:
     team:
       type: bool
     customId:
-      type: int
+      type: integer

@@ -177,15 +177,6 @@ final class Structure
         }
 
         $sports = $competition->getSports();
-        foreach( $roundNumber->getSportPlanningConfigs() as $sportPlanningConfig ) {
-            $foundSports = $sports->filter( function( $sport ) use ($sportPlanningConfig) {
-                return $sport->getId() === $sportPlanningConfig->getSport()->getId();
-            } );
-            if( $foundSports->count() !== 1 ) {
-                throw new \Exception("Er kon geen sport worden gevonden voor de configuratie", E_ERROR );
-            }
-            $sportPlanningConfig->setSport( $foundSports->first() );
-        }
         foreach( $roundNumber->getSportScoreConfigs() as $sportScoreConfig ) {
             $foundSports = $sports->filter( function( $sport ) use ($sportScoreConfig) {
                 return $sport->getId() === $sportScoreConfig->getSport()->getId();

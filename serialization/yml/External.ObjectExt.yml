@@ -5,10 +5,10 @@ Voetbal\External\ObjectExt:
 
   properties:
     id:
-      type: int
+      type: integer
     importableObjectId:
-      type: int
+      type: integer
     externalSystemId:
-      type: int
+      type: integer
     externalId:
       type: string
