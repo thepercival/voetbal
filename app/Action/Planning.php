@@ -99,6 +99,38 @@ final class Planning
         ;
     }
 
+    public function isBetterAvailable( $request, $response, $args)
+    {
+        $withNext = filter_var($request->getParam('withnext'), FILTER_VALIDATE_BOOLEAN );
+
+        $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
+        if ($competition === null) {
+            throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
+        }
+        $roundNumberAsValue = (int)$request->getParam("roundnumber");
+        if ( $roundNumberAsValue === 0 ) {
+            throw new \Exception("geen rondenummer opgegeven", E_ERROR);
+        }
+        /** @var \Voetbal\Structure $structure */
+        $structure = $this->structureRepos->getStructure( $competition );
+        $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
+
+        $planning = $roundNumber->getPlanning();
+        $isBest = $planning && $planning->isCurrentlyBest();
+        if( $withNext ) {
+            while( $isBest && $roundNumber->hasNext() ) {
+                $roundNumber = $roundNumber->getNext();
+                $planning = $roundNumber->getPlanning();
+                $isBest = $planning && $planning->isCurrentlyBest();
+            }
+        }
+
+        return $response
+            ->withHeader('Content-Type', 'application/json;charset=utf-8')
+            ->write( $this->serializer->serialize( !$isBest, 'json') );
+        ;
+    }
+
     protected function getBlockedPeriodFromInput( $request ): ?Period {
         if( $request->getParam('blockedperiodstart') === null || $request->getParam('blockedperiodend') === null ) {
             return null;
@@ -156,7 +188,7 @@ final class Planning
         $convertService = new ConvertService( new ScheduleService( $blockedPeriod ) );
         $convertService->createGames( $roundNumber, $planning );
 
-        $this->repos->saveRoundNumber( $roundNumber, $hasBestPlanning );
+        $this->repos->saveRoundNumber( $roundNumber, $planning );
 
         if( $roundNumber->hasNext() ) {
             $this->createPlanning( $roundNumber->getNext(), $blockedPeriod );

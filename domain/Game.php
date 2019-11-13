@@ -312,9 +312,9 @@ class Game implements External\Importable
     }
 
     /**
-     * @param ArrayCollection | GamePlace[] $places
+     * @param Collection | GamePlace[] $places
      */
-    public function setPlaces(ArrayCollection $places)
+    public function setPlaces(Collection $places)
     {
         $this->places = $places;
     }

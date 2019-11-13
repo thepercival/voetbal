@@ -24,3 +24,7 @@ Voetbal\Round\Number:
     hasBestPlanning:
       type: bool
       read_only: true
+  virtual_properties:
+    hasBestPlanning:
+      type: bool
+      serialized_name: hasBestPlanning

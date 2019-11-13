@@ -78,7 +78,6 @@ final class Structure
         ;
     }
 
-
     public function add( $request, $response, $args)
     {
         return $response->withStatus( 401 )->write( "only one entity can be fetched" );

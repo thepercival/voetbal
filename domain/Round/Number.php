@@ -7,8 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
+use Voetbal\Planning;
 use Voetbal\Game as GameBase;
-use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 use Voetbal\Planning\Config as PlanningConfig;
@@ -51,9 +51,9 @@ class Number
      */
     protected $rounds;
     /**
-     * @var bool
+     * @var Planning
      */
-    protected $hasBestPlanning;
+    protected $planning;
 
     /**
      * @var SportScoreConfig[] | ArrayCollection
@@ -73,7 +73,6 @@ class Number
         $this->competition = $competition;
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
-        $this->hasBestPlanning = false;
         $this->sportScoreConfigs = new ArrayCollection();
         // $this->sportPlanningConfigs = new ArrayCollection();
     }
@@ -295,12 +294,16 @@ class Number
         return $this->getPrevious()->getValidPlanningConfig();
     }
 
-    public function getHasBestPlanning(): bool {
-        return $this->hasBestPlanning;
+    public function getPlanning(): ?Planning {
+        return $this->planning;
     }
 
-    public function setHasBestPlanning( bool $hasBestPlanning) {
-        $this->hasBestPlanning = $hasBestPlanning;
+    public function setPlanning( Planning $planning) {
+        $this->planning = $planning;
+    }
+
+    public function hasBestPlanning(): bool {
+        return $this->planning && $this->planning->isBest();
     }
 
 //    public function hasMultipleSportPlanningConfigs(): bool {

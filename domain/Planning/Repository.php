@@ -126,16 +126,15 @@ class Repository extends \Voetbal\Repository
         $this->_em->flush();
     }
 
-    public function saveRoundNumber( RoundNumber $roundNumber, bool $hasBestPlanning = null )
+    public function saveRoundNumber( RoundNumber $roundNumber, PlanningBase $planning = null )
     {
         foreach( $roundNumber->getGames( GameBase::ORDER_BY_POULE) as $game ) {
             $this->_em->persist($game);
         }
-        if( $hasBestPlanning !== null ) {
-            $roundNumberRepos = new RoundNumberRepository($this->_em, $this->_em->getClassMetaData(RoundNumber::class));
-            $roundNumber->setHasBestPlanning( $hasBestPlanning );
-            $roundNumberRepos->save( $roundNumber );
+        if( $planning ) {
+            $roundNumber->setPlanning( $planning );
         }
+
         $this->_em->flush();
     }
 
