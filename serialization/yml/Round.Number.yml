@@ -21,10 +21,7 @@ Voetbal\Round\Number:
     sportPlanningConfigs:
       type: ArrayCollection<Voetbal\Sport\PlanningConfig>
       read_only: true #temperarily
-    hasBestPlanning:
-      type: bool
-      read_only: true
   virtual_properties:
-    hasBestPlanning:
-      type: bool
-      serialized_name: hasBestPlanning
+    getPlanningState:
+      type: integer
+      serialized_name: planningState

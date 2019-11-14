@@ -186,7 +186,7 @@ class Planning
         return $this->getInput()->getState() === PlanningInput::STATE_ALL_PLANNINGS_TRIED && $this->isCurrentlyBest();
     }
 
-    public function isCurrentlyBest(): bool {
+    protected function isCurrentlyBest(): bool {
         return $this->getState() === Planning::STATE_SUCCESS && $this === $this->getInput()->getBestPlanning();
     }
 

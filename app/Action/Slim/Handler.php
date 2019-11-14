@@ -30,10 +30,10 @@ class Handler
         // $this->container->get('logger')->info("default resource route get : " . $resourceType . ( $id ? '/' . $id : null ) );
 
         $resourceType = array_key_exists("resourceType", $args) ? $args["resourceType"] : null;
-        if( $resourceType === null && substr($request->getUri()->getPath(), 0, 35) === "/voetbal/planning/isbetteravailable") {
-            $action = $this->getAction('planning');
-            return $action->isBetterAvailable($request, $response, $args);
-        }
+//        if( $resourceType === null && substr($request->getUri()->getPath(), 0, 35) === "/voetbal/planning/isbetteravailable") {
+//            $action = $this->getAction('planning');
+//            return $action->isBetterAvailable($request, $response, $args);
+//        }
         $action = $this->getAction($resourceType);
         if ($action === null) {
             return $response->withStatus(404)->write('geen actie gevonden voor ' . $resourceType);

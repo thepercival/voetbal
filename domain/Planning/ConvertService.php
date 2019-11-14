@@ -68,8 +68,7 @@ class ConvertService
                 }
                 /** @var PlanningGamePlace $planningGamePlace */
                 foreach( $planningGame->getPlaces() as $planningGamePlace ) {
-                    $gamePlace = new GamePlace( $game, $this->getPlace( $planningGamePlace->getPlace() ), $planningGamePlace->getHomeaway() );
-                    $game->getPlaces()->add( $gamePlace );
+                    new GamePlace( $game, $this->getPlace( $planningGamePlace->getPlace() ), $planningGamePlace->getHomeaway() );
                 }
             }
             $gameStartDateTime = $this->scheduleService->getNextGameStartDateTime( $roundNumber->getValidPlanningConfig(), $gameStartDateTime );

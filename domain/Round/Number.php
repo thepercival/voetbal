@@ -51,7 +51,7 @@ class Number
      */
     protected $rounds;
     /**
-     * @var Planning
+     * @var Planning|null
      */
     protected $planning;
 
@@ -63,10 +63,10 @@ class Number
      * @var PlanningConfig
      */
     protected $planningConfig;
-    /**
-     * @var SportPlanningConfig[] | ArrayCollection
-     */
-    // protected $sportPlanningConfigs;
+
+    const PLANNING_ISBEST = 1;
+    const PLANNING_BEST_IS_AVAILABLE = 2;
+    const PLANNING_BEST_IS_NOT_AVAILABLE_YET = 4;
 
     public function __construct( Competition $competition, RoundNumber $previous = null )
     {
@@ -302,8 +302,15 @@ class Number
         $this->planning = $planning;
     }
 
-    public function hasBestPlanning(): bool {
-        return $this->planning && $this->planning->isBest();
+    public function getPlanningState(): int {
+        $planning = $this->getPlanning();
+        if( $planning === null || $planning->isBest() ) {
+            return Number::PLANNING_ISBEST;
+        } else if( $planning->getInput()->getState() === Planning\Input::STATE_ALL_PLANNINGS_TRIED ) {
+            return Number::PLANNING_BEST_IS_AVAILABLE;
+        } else {
+            return Number::PLANNING_BEST_IS_NOT_AVAILABLE_YET;
+        }
     }
 
 //    public function hasMultipleSportPlanningConfigs(): bool {

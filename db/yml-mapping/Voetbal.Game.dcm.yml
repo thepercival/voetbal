@@ -62,7 +62,9 @@ Voetbal\Game:
       targetEntity: Voetbal\Game\Score
       mappedBy: game
       cascade: [ persist, remove ]
+      orphanRemoval: true
     places:
       targetEntity: Voetbal\Game\Place
       mappedBy: game
       cascade: [ persist, remove ]
+      orphanRemoval: true
