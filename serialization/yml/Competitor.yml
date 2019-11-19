@@ -11,7 +11,7 @@ Voetbal\Competitor:
     abbreviation:
       type: string
     registered:
-      type: bool
+      type: boolean
     info:
       type: string
     imageUrl:

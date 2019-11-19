@@ -73,9 +73,9 @@ class Planning
     const STATE_FAILED = 1;
     const STATE_TIMEOUT = 2;
     const STATE_SUCCESS = 4;
-    const STATE_PROCESSING = 8;
 
-    const DEFAULT_TIMEOUTSECONDS = 30;
+    const DEFAULT_TIMEOUTSECONDS = 10;
+    const TIMEOUT_MULTIPLIER = 6;
 
     public function __construct( PlanningInput $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow )
     {
@@ -83,7 +83,7 @@ class Planning
         $this->minNrOfBatchGames = $nrOfBatchGames->min;
         $this->maxNrOfBatchGames = $nrOfBatchGames->max;
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
-        $this->input->getPlannings()->add( $this );
+        $this->input->addPlanning( $this );
         $this->initPoules( $this->getInput()->getStructureConfig() );
         $this->initSports( $this->getInput()->getSportConfig() );
         $this->initReferees( $this->getInput()->getNrOfReferees() );
@@ -95,6 +95,10 @@ class Planning
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function minIsMaxNrOfBatchGames(): bool {
+        return $this->getMinNrOfBatchGames() === $this->getMaxNrOfBatchGames();
     }
 
     public function getMinNrOfBatchGames(): int {
@@ -158,29 +162,6 @@ class Planning
 //    public function setInput( PlanningInput $input ) {
 //        $this->input = $input;
 //    }
-
-    public function increase(): ?Planning {
-        $maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow();
-        $minNrOfBatchGames = $this->getMinNrOfBatchGames();
-        $maxNrOfBatchGames = $this->getMaxNrOfBatchGames();
-        if( $maxNrOfGamesInARow > 1 && $this->getState() === Planning::STATE_SUCCESS ) {
-            $maxNrOfGamesInARow--;
-        } else {
-            $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
-            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && $this->getState() === Planning::STATE_SUCCESS ) {
-                $minNrOfBatchGames++;
-            } else {
-                $minNrOfBatchGames = 1;
-                if( $this->getMaxNrOfBatchGames() < $this->getInput()->getMaxNrOfBatchGames() ) {
-                    $maxNrOfBatchGames++;
-                } else {
-                    return null; // all tried
-                }
-            }
-        }
-        $range = new VoetbalRange( $minNrOfBatchGames, $maxNrOfBatchGames);
-        return new Planning( $this->getInput(), $range, $maxNrOfGamesInARow );
-    }
 
     public function isBest(): bool {
         return $this->getInput()->getState() === PlanningInput::STATE_ALL_PLANNINGS_TRIED && $this->isCurrentlyBest();

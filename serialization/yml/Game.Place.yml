@@ -7,7 +7,7 @@ Voetbal\Game\Place:
     id:
       type: integer
     homeaway:
-      type: bool
+      type: boolean
   virtual_properties:
     getPlaceNr:
       type: integer

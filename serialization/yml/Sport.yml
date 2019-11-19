@@ -12,6 +12,6 @@ Voetbal\Sport:
 #    scoreSubUnitName:
 #      type: string
     team:
-      type: bool
+      type: boolean
     customId:
       type: integer

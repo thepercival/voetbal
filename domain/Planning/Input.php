@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Range as VoetbalRange;
 
 class Input
 {
@@ -212,17 +213,19 @@ class Input
         return $nrOfGamePlaces;
     }
 
+    // should be known when creating input
+//    public function getFieldsUsable( RoundNumber $roundNumber, Input $inputPlanning ): array {
+//        $maxNrOfFieldsUsable = $inputPlanning->getMaxNrOfFieldsUsable();
+//        $fields = $roundNumber->getCompetition()->getFields()->toArray();
+//        if( count($fields) > $maxNrOfFieldsUsable ) {
+//            return array_splice( $fields, 0, $maxNrOfFieldsUsable);
+//        }
+//        return $fields;
+//    }
+
+
     public function getPlannings(): PersistentCollection {
         return $this->plannings;
-    }
-
-    public function hasPlanning( int $planningState ): bool {
-        foreach( $this->getPlannings() as $planning ) {
-            if( $planning->getState() === $planningState ) {
-                return true;
-            };
-        }
-        return false;
     }
 
     public function getBestPlanning(): ?PlanningBase {
@@ -234,4 +237,47 @@ class Input
         }
         return null;
     }
+
+    public function addPlanning( PlanningBase $planning ) {
+        $this->getPlannings()->add( $planning );
+    }
+
+//    public function createNextTry( Input $input ): ?PlanningBase {
+//
+//        $plannings = $input->getPlannings()->toArray(); // should be sorted by maxnrofbatchgames,
+//        $lastPlanning = end( $plannings );
+//        if( $lastPlanning === false ) {
+//            // return new PlanningBase( $input, new VoetbalRange( 6, 6), $input->getMaxNrOfGamesInARow() ); @FREDDY
+//            return new PlanningBase( $input, new VoetbalRange( $input->getMaxNrOfBatchGames(), $input->getMaxNrOfBatchGames()), $input->getMaxNrOfGamesInARow() );
+//        }
+//        return $lastPlanning->increase();
+//    }
+
+//    public function decreaseMaxNrOfBatchGames( Planning $planning ): ?Planning {
+//
+//        if( $planning->getMinNrOfBatchGames() === $planning->getMaxNrOfBatchGames()  )
+//        // Eerst min=max batchgames naar beneden totdat er succes is. Daarna nog kijken voor succesvolle min-max+1. Vervolgens inarow nog proberen. Pak steeds de helft totdat ..
+//
+//
+//        $maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow();
+//        $minNrOfBatchGames = $this->getMinNrOfBatchGames();
+//        $maxNrOfBatchGames = $this->getMaxNrOfBatchGames();
+//        if( $maxNrOfGamesInARow > 1 && $this->getState() === Planning::STATE_SUCCESS ) {
+//            $maxNrOfGamesInARow--;
+//        } else {
+//            $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
+//            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && $this->getState() === Planning::STATE_SUCCESS ) {
+//                $minNrOfBatchGames++;
+//            } else {
+//                $minNrOfBatchGames = 1;
+//                if( $this->getMaxNrOfBatchGames() < $this->getInput()->getMaxNrOfBatchGames() ) {
+//                    $maxNrOfBatchGames++;
+//                } else {
+//                    return null; // all tried
+//                }
+//            }
+//        }
+//        $range = new VoetbalRange( $minNrOfBatchGames, $maxNrOfBatchGames);
+//        return new Planning( $this->getInput(), $range, $maxNrOfGamesInARow );
+//    }
 }

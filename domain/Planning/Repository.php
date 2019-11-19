@@ -109,10 +109,6 @@ class Repository extends \Voetbal\Repository
         return $query->getQuery()->getResult()->first();
     }
 
-    public function isProcessing(): bool {
-        return $this->count( ["state" => PlanningBase::STATE_PROCESSING ] ) > 0;
-    }
-
     public function removeRoundNumber( RoundNumber $roundNumber )
     {
         foreach( $roundNumber->getPoules() as $poule ) {
@@ -126,38 +122,32 @@ class Repository extends \Voetbal\Repository
         $this->_em->flush();
     }
 
-    public function saveRoundNumber( RoundNumber $roundNumber, PlanningBase $planning = null )
+    public function saveRoundNumber( RoundNumber $roundNumber, bool $hasPlanning = null )
     {
         foreach( $roundNumber->getGames( GameBase::ORDER_BY_POULE) as $game ) {
             $this->_em->persist($game);
         }
-        if( $planning ) {
-            $roundNumber->setPlanning( $planning );
+        if( $hasPlanning !== null ) {
+            $roundNumber->setHasPlanning( $hasPlanning );
         }
 
         $this->_em->flush();
     }
 
-    public function getMaxTimeoutSeconds() {
+    public function getTimeout(): ?PlanningBase {
         $query = $this->createQueryBuilder('p')
-            ->orderBy('p.timeoutSeconds', 'DESC')
+            ->join("p.input", "pi")
+            ->where('p.state = :state')
+            ->orderBy('p.timeoutSeconds', 'ASC')
+            ->addOrderBy('pi.teamup', 'ASC')
+            ->addOrderBy('p.id', 'ASC')
         ;
+
+        $query = $query->setParameter('state', PlanningBase::STATE_TIMEOUT );
+
         $query->setMaxResults(1);
         $results = $query->getQuery()->getResult();
         $first = reset($results);
-        return $first !== false ? $first->getTimeoutSeconds() : PlanningBase::DEFAULT_TIMEOUTSECONDS;
+        return $first !== false ? $first : null;
     }
-
-    public function createNextTry( Input $input ): ?PlanningBase {
-
-        $plannings = $input->getPlannings()->toArray(); // should be sorted by maxnrofbatchgames,
-        $lastPlanning = end( $plannings );
-        if( $lastPlanning === false ) {
-            // return new PlanningBase( $input, new VoetbalRange( 6, 6), $input->getMaxNrOfGamesInARow() ); @FREDDY
-            return new PlanningBase( $input, new VoetbalRange( 1, 1), $input->getMaxNrOfGamesInARow() );
-        }
-        return $lastPlanning->increase();
-
-    }
-
 }

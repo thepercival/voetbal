@@ -8,7 +8,10 @@
 
 namespace Voetbal\Planning\Input;
 
+use Voetbal\Planning as PlanningBase;
+use Voetbal\Planning\Input;
 use Voetbal\Planning\Input as PlanningInput;
+use Voetbal\Range as VoetbalRange;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
 
@@ -24,10 +27,17 @@ class Service
         $planningConfigService = new PlanningConfigService();
         $teamup = $config->getTeamup() ? $planningConfigService->isTeamupAvailable( $roundNumber ) : $config->getTeamup();
 
+
+        $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
+        $selfReferee = $config->getSelfReferee() ? $planningConfigService->canSelfRefereeBeAvailable( $roundNumber->getNrOfPlaces() ) : $config->getSelfReferee();
+
+        // @TODO MULTIPLESPORTS
+        // HIER VERDER!!!!
+        $nrOfHeadtohead = $config->getNrOfHeadtohead(); // ?->getNrOfHeadtohead( $config );
+
         return new PlanningInput(
             $this->getStructureConfig( $roundNumber ),  $this->getSportConfig( $roundNumber ),
-            $roundNumber->getCompetition()->getReferees()->count(),
-            $teamup, $config->getSelfReferee(), $config->getNrOfHeadtohead()
+            $nrOfReferees, $teamup, $selfReferee, $nrOfHeadtohead
         );
     }
 

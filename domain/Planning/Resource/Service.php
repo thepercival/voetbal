@@ -74,19 +74,21 @@ class Service {
     /**
      * @var Output
      */
-    protected $output;
-
-    protected $debugMaxBatchNrFound = 0;
+    // protected $output;
+    /**
+     * @var int
+     */
+    // protected $totalNrOfGames;
 
     public function __construct( PlanningBase $planning )
     {
         $this->planning = $planning;
         $this->nrOfPoules = $this->planning->getPoules()->count();
 
-        $logger = new Logger('planning-create');
-        $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO );
-        $logger->pushHandler( $handler );
-        $this->output = new Output( $logger );
+//        $logger = new Logger('planning-create');
+//        $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO );
+//        $logger->pushHandler( $handler );
+        // $this->output = new Output( $logger );
     }
 
     protected function getInput(): Input {
@@ -111,14 +113,13 @@ class Service {
     }
 
     protected function refereesEnabled(): bool {
-        return $this->getInput()->getNrOfReferees() > 0;
+        return !$this->getInput()->getSelfReferee() && $this->getInput()->getNrOfReferees() > 0;
     }
 
     /**
      * @param array|Game[] $games
      */
     public function initRefereePlaces( array $games ) {
-
         $this->refereePlaces = [];
         $nrOfPlacesToFill = $this->planning->getStructure()->getNrOfPlaces();
 
@@ -203,6 +204,7 @@ class Service {
         $resources = new Resources( array_slice( $this->fields, 0 ) );
         foreach( $gamesH2h as $games ) { // @FREDDY comment
             try {
+                // $this->totalNrOfGames = count($games);
                 $batch = $this->assignBatch( $games, $resources, $batch);
                 if ( $batch === null ) {
                     return PlanningBase::STATE_FAILED;
@@ -324,8 +326,9 @@ class Service {
                 $game = array_shift($games);
                 if ($this->isGameAssignable($batch, $game, $resources2)) {
                     $this->assignGame($batch, $game, $resources2);
-                    $nrOfBatchGames = $batch->getTotalNrOfGames();
-//                    if( ( count($games) + $nrOfBatchGames ) < 546 ) { @FREDDY
+//                    $nrOfBatchGames = $batch->getTotalNrOfGames();
+//                    if( ( count($games) + $nrOfBatchGames ) < $this->totalNrOfGames ) { // @FREDDY
+//                        $this->output->getLogger()->info("NOT ENOUGH GAMES TO CONTINUE!!");
 //                        return false;
 //                    }
                     $copiedGames = array_slice( $games, 0 );

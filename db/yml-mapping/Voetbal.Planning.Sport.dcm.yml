@@ -12,7 +12,10 @@ Voetbal\Planning\Sport:
       type: smallint
       nullable: false
       unique: false
-      column: number
+    nrOfGamePlaces:
+      type: integer
+      unique: false
+      nullable: false
   oneToMany:
     fields:
       targetEntity: Voetbal\Planning\Field

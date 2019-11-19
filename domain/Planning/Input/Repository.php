@@ -58,6 +58,10 @@ class Repository extends \Voetbal\Repository
             $input->getNrOfHeadtohead() );
     }
 
+    public function isProcessing(): bool {
+        return $this->count( ["state" => PlanningInput::STATE_TRYING_PLANNINGS ] ) > 0;
+    }
+
 //    public function getMaxTimeoutSeconds() {
 //        $query = $this->createQueryBuilder('p')
 //            ->orderBy('p.timeoutSeconds', 'DESC')
@@ -73,7 +77,8 @@ class Repository extends \Voetbal\Repository
         $query = $this->createQueryBuilder('pi')
             ->where('pi.state <> :state')
             // ->andWhere('pi.nrOfHeadtohead = 91') // @FREDDY
-            ->orderBy('pi.id', 'ASC')
+            ->orderBy('pi.teamup', 'ASC')
+            ->addOrderBy('pi.id', 'ASC')
         ;
 
         $query = $query->setParameter('state', PlanningInput::STATE_ALL_PLANNINGS_TRIED );

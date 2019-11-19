@@ -14,6 +14,7 @@ use League\Period\Period;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Game\Service as GameService;
 use Voetbal\Planning\ConvertService;
+use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\Planning\ScheduleService;
@@ -149,14 +150,14 @@ final class Planning
             $planningInput = $this->inputRepos->save( $defaultPlanningInput );
         }
         $planning = $planningInput->getBestPlanning();
-        if( $planning === null ) {
-            $planning = $this->repos->createNextTry($planningInput);
+
+        $hasPlanning = false;
+        if( $planning !== null ) {
+            $convertService = new ConvertService(new ScheduleService($blockedPeriod));
+            $convertService->createGames($roundNumber, $planning);
+            $hasPlanning = true;
         }
-        $convertService = new ConvertService( new ScheduleService( $blockedPeriod ) );
-        $convertService->createGames( $roundNumber, $planning );
-
-        $this->repos->saveRoundNumber( $roundNumber, $planning );
-
+        $this->repos->saveRoundNumber($roundNumber, $hasPlanning);
         if( $roundNumber->hasNext() ) {
             $this->createPlanning( $roundNumber->getNext(), $blockedPeriod );
         }

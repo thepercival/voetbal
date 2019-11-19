@@ -76,4 +76,8 @@ class Service
         }
         return true;
     }
+
+    public function canSelfRefereeBeAvailable( int $nrOfPlaces ) {
+        return $nrOfPlaces > 2;
+    }
 }

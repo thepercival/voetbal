@@ -11,14 +11,14 @@ Voetbal\Planning\Config:
     minutesPerGame:
       type: integer
     enableTime:
-      type: bool
+      type: boolean
     minutesBetweenGames:
       type: integer
     minutesAfter:
       type: integer
     teamup:
-      type: bool
+      type: boolean
     selfReferee:
-      type: bool
+      type: boolean
     nrOfHeadtohead:
       type: integer

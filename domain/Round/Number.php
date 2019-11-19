@@ -51,10 +51,9 @@ class Number
      */
     protected $rounds;
     /**
-     * @var Planning|null
+     * @var bool
      */
-    protected $planning;
-
+    protected $hasPlanning;
     /**
      * @var SportScoreConfig[] | ArrayCollection
      */
@@ -64,16 +63,13 @@ class Number
      */
     protected $planningConfig;
 
-    const PLANNING_ISBEST = 1;
-    const PLANNING_BEST_IS_AVAILABLE = 2;
-    const PLANNING_BEST_IS_NOT_AVAILABLE_YET = 4;
-
     public function __construct( Competition $competition, RoundNumber $previous = null )
     {
         $this->competition = $competition;
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
         $this->sportScoreConfigs = new ArrayCollection();
+        $this->hasPlanning = true;
         // $this->sportPlanningConfigs = new ArrayCollection();
     }
 
@@ -294,23 +290,12 @@ class Number
         return $this->getPrevious()->getValidPlanningConfig();
     }
 
-    public function getPlanning(): ?Planning {
-        return $this->planning;
+    public function getHasPlanning(): bool {
+        return $this->hasPlanning;
     }
 
-    public function setPlanning( Planning $planning) {
-        $this->planning = $planning;
-    }
-
-    public function getPlanningState(): int {
-        $planning = $this->getPlanning();
-        if( $planning === null || $planning->isBest() ) {
-            return Number::PLANNING_ISBEST;
-        } else if( $planning->getInput()->getState() === Planning\Input::STATE_ALL_PLANNINGS_TRIED ) {
-            return Number::PLANNING_BEST_IS_AVAILABLE;
-        } else {
-            return Number::PLANNING_BEST_IS_NOT_AVAILABLE_YET;
-        }
+    public function setHasPlanning( bool $hasPlanning ){
+        $this->hasPlanning = $hasPlanning;
     }
 
 //    public function hasMultipleSportPlanningConfigs(): bool {
