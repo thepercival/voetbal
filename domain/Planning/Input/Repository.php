@@ -78,7 +78,7 @@ class Repository extends \Voetbal\Repository
             ->where('pi.state <> :state')
             // ->andWhere('pi.nrOfHeadtohead = 91') // @FREDDY
             ->orderBy('pi.teamup', 'ASC')
-            ->addOrderBy('pi.id', 'ASC')
+            ->addOrderBy('pi.id', 'DESC')
         ;
 
         $query = $query->setParameter('state', PlanningInput::STATE_ALL_PLANNINGS_TRIED );

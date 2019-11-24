@@ -80,6 +80,8 @@ class Service {
      */
     // protected $totalNrOfGames;
 
+    protected $debugIterations;
+
     public function __construct( PlanningBase $planning )
     {
         $this->planning = $planning;
@@ -196,6 +198,7 @@ class Service {
      * @return int
      */
     public function assign(array $games)  {
+        $this->debugIterations = 0;
         $oCurrentDateTime = new \DateTimeImmutable();
         $this->m_oTimeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->init( $games );
@@ -320,7 +323,8 @@ class Service {
         $nrOfFieldsTried = 0;
         while ($nrOfFieldsTried++ < count( $resources3->getFields() ) ) {
             $nrOfGamesTriedPerField = $nrOfGamesTried;
-
+            $this->debugIterations++;
+            // echo "iteration " . $this->debugIterations . PHP_EOL;
             $resources2 = new Resources( array_slice( $resources3->getFields(), 0 ) );
             {
                 $game = array_shift($games);

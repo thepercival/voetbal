@@ -103,9 +103,16 @@ class Service
             $this->getNextInARowDone( $lastTriedPlanning, $previousTriedPlanning ) );
     }
 
+    public function createNextNInARow( PlanningBase $planning ): PlanningBase {
+        return new PlanningBase(
+            $planning->getInput(),
+            new VoetbalRange( $planning->getMaxNrOfBatchGames(), $planning->getMaxNrOfBatchGames() ),
+            $planning->getMaxNrOfGamesInARow() - 1 );
+    }
+
     protected function nextInARowDone( PlanningBase $lastTriedPlanning, PlanningBase $previousTriedPlanning = null ): bool {
 
-        if( $lastTriedPlanning->getState() === PlanningBase::STATE_SUCCESS && $lastTriedPlanning->getMaxNrOfGamesInARow() === 1 ) {
+        if( $lastTriedPlanning->getMaxNrOfGamesInARow() === 1 ) {
             return true;
         }
 
@@ -116,7 +123,7 @@ class Service
             return true;
         }
 
-        if( $lastTriedFailed && !$previousTriedFailed && ( ($previousTriedFailed - $lastTriedFailed) === 1 ) ) {
+        if( $lastTriedFailed && !$previousTriedFailed && ( ($previousTriedPlanning->getMaxNrOfGamesInARow() - $lastTriedPlanning->getMaxNrOfGamesInARow()) === 1 ) ) {
             return true;
         }
 
@@ -128,15 +135,20 @@ class Service
         if( $lastTriedPlanning->getState() === PlanningBase::STATE_SUCCESS || $previousTriedPlanning === null ) {
             return (int) ceil( $lastTriedPlanning->getMaxNrOfGamesInARow() / 2 );
         }
-
-
-        $lastTriedFailed = ($lastTriedPlanning->getState() === PlanningBase::STATE_FAILED || $lastTriedPlanning->getState() === PlanningBase::STATE_TIMEOUT );
-        $previousTriedFailed = $previousTriedPlanning === null || ($previousTriedPlanning->getState() === PlanningBase::STATE_FAILED || $previousTriedPlanning->getState() === PlanningBase::STATE_TIMEOUT );
-
         return (int) ceil( ( $previousTriedPlanning->getMaxNrOfGamesInARow() + $lastTriedPlanning->getMaxNrOfGamesInARow() ) / 2 );
     }
 
-    protected function getOrderedPlannings( Input $input ): array {
+    public function getBestPlanning( Input $input ): ?PlanningBase {
+        $plannings = $this->getOrderedPlannings($input);
+        foreach( $plannings as $planning ) {
+            if( $planning->getState() === PlanningBase::STATE_SUCCESS ) {
+                return $planning;
+            }
+        }
+        return null;
+    }
+
+    public function getOrderedPlannings( Input $input ): array {
         $plannings = $input->getPlannings()->toArray();
         uasort( $plannings, function ( PlanningBase $first, PlanningBase $second) {
             if( $first->getMaxNrOfBatchGames() === $second->getMaxNrOfBatchGames() ) {

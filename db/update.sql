@@ -4,6 +4,8 @@
 -- update games set startdatetime = ( select c.startdatetime from poules p join rounds r on r.id = p.roundid join roundnumbers rn on rn.id = r.numberid join competitions c on c.id = rn.competitionid where p.id = games.pouleid )
 
 -- draaien na doctrine-update
+update tournaments set exported = 1 where printed = true;
+
 update roundnumbers set hasPlanning = true;
 
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;

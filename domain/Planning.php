@@ -74,8 +74,8 @@ class Planning
     const STATE_TIMEOUT = 2;
     const STATE_SUCCESS = 4;
 
-    const DEFAULT_TIMEOUTSECONDS = 10;
     const TIMEOUT_MULTIPLIER = 6;
+    const DEFAULT_TIMEOUTSECONDS = 5;
 
     public function __construct( PlanningInput $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow )
     {
@@ -89,7 +89,7 @@ class Planning
         $this->initReferees( $this->getInput()->getNrOfReferees() );
 
         $this->createdDateTime = new \DateTimeImmutable();
-        $this->timeoutSeconds = Planning::DEFAULT_TIMEOUTSECONDS;
+        $this->initTimeoutSeconds();
     }
 
     public function getId(): ?int
@@ -145,6 +145,13 @@ class Planning
 
     public function setTimeoutSeconds( int $timeoutSeconds ) {
         $this->timeoutSeconds = $timeoutSeconds;
+    }
+
+    protected function initTimeoutSeconds() {
+        $this->timeoutSeconds = PlanningBase::DEFAULT_TIMEOUTSECONDS;
+        if( $this->input->getTeamup() || max($this->input->getStructureConfig()) > 7 ) {
+            $this->timeoutSeconds *= 2;
+        }
     }
 
     public function getState(): int {

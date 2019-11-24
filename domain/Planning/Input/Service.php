@@ -8,10 +8,7 @@
 
 namespace Voetbal\Planning\Input;
 
-use Voetbal\Planning as PlanningBase;
-use Voetbal\Planning\Input;
 use Voetbal\Planning\Input as PlanningInput;
-use Voetbal\Range as VoetbalRange;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
 
@@ -60,5 +57,15 @@ class Service
             $sportConfigRet[] = [ "nrOfFields" => $sportConfig->getNrOfFields(), "nrOfGamePlaces" => $sportConfig->getNrOfGamePlaces() ];
         }
         return $sportConfigRet;
+    }
+
+    public function areEqual( PlanningInput $inputA, PlanningInput $inputB ): bool
+    {
+        return $inputA->getStructureConfig() === $inputB->getStructureConfig()
+            && $inputA->getSportConfig() === $inputB->getSportConfig()
+            && $inputA->getNrOfReferees() === $inputB->getNrOfReferees()
+            && $inputA->getTeamup() === $inputB->getTeamup()
+            && $inputA->getSelfReferee() === $inputB->getSelfReferee()
+            && $inputA->getNrOfHeadtohead() === $inputB->getNrOfHeadtohead();
     }
 }

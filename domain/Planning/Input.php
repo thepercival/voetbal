@@ -238,6 +238,16 @@ class Input
         return null;
     }
 
+    public function hasPlanning( VoetbalRange $range, int $maxNrOfGamesInARow ): ?PlanningBase {
+        $plannings = array_reverse( $this->getPlannings()->toArray() );
+        foreach( $plannings as $planning ) {
+            if( $planning->getState() === PlanningBase::STATE_SUCCESS ) {
+                return $planning;
+            }
+        }
+        return null;
+    }
+
     public function addPlanning( PlanningBase $planning ) {
         $this->getPlannings()->add( $planning );
     }

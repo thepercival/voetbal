@@ -91,12 +91,10 @@ final class Planning
 
     public function fetch( $request, $response, $args)
     {
-        $poule = $this->getPoule( (int)$request->getParam("pouleid"), (int)$request->getParam("competitionid") );
-
-        $games = $this->repos->findBy( [ "poule" => $poule ] );
+        list($structure, $roundNumber, $blockedPeriod) = $this->getFromRequest( $request );
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write( $this->serializer->serialize( $games, 'json') );
+            ->write( $this->serializer->serialize( $structure, 'json') );
         ;
     }
 
@@ -116,18 +114,7 @@ final class Planning
     public function add($request, $response, $args)
     {
         try {
-            $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
-            if ($competition === null) {
-                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-            $roundNumberAsValue = (int)$request->getParam("roundnumber");
-            if ( $roundNumberAsValue === 0 ) {
-                throw new \Exception("geen rondenummer opgegeven", E_ERROR);
-            }
-            /** @var \Voetbal\Structure $structure */
-            $structure = $this->structureRepos->getStructure( $competition );
-            $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
-            $blockedPeriod = $this->getBlockedPeriodFromInput( $request );
+            list($structure, $roundNumber, $blockedPeriod) = $this->getFromRequest( $request );
 
             $this->createPlanning( $roundNumber, $blockedPeriod );
 
@@ -169,18 +156,7 @@ final class Planning
     public function edit($request, $response, $args)
     {
         try {
-            $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
-            if ($competition === null) {
-                throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
-            }
-            $roundNumberAsValue = (int)$request->getParam("roundnumber");
-            if ( $roundNumberAsValue === 0 ) {
-                throw new \Exception("geen rondenummer opgegeven", E_ERROR);
-            }
-            /** @var \Voetbal\Structure $structure */
-            $structure = $this->structureRepos->getStructure( $competition );
-            $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
-            $blockedPeriod = $this->getBlockedPeriodFromInput( $request );
+            list($structure, $roundNumber, $blockedPeriod) = $this->getFromRequest( $request );
             $scheduleService = new ScheduleService( $blockedPeriod );
             $dates = $scheduleService->rescheduleGames( $roundNumber );
 
@@ -195,20 +171,21 @@ final class Planning
         }
     }
 
-    protected function getPoule( int $pouleId, int $competitionId ): Poule
-    {
-        $poule = $this->pouleRepos->find($pouleId);
-        if ( $poule === null ) {
-            throw new \Exception("er kan poule worden gevonden o.b.v. de invoergegevens", E_ERROR);
-        }
-        $competition = $this->competitionRepos->find($competitionId);
+    protected function getFromRequest( $request ): array {
+        /** @var \Voetbal\Competition|null $competition */
+        $competition = $this->competitionRepos->find( (int) $request->getParam("competitionid") );
         if ($competition === null) {
             throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
-        if ($poule->getRound()->getNumber()->getCompetition() !== $competition) {
-            throw new \Exception("de competitie van de poule komt niet overeen met de verstuurde competitie",
-                E_ERROR);
+        $roundNumberAsValue = (int)$request->getParam("roundnumber");
+        if ( $roundNumberAsValue === 0 ) {
+            throw new \Exception("geen rondenummer opgegeven", E_ERROR);
         }
-        return $poule;
+        /** @var \Voetbal\Structure $structure */
+        $structure = $this->structureRepos->getStructure( $competition );
+        $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
+        $blockedPeriod = $this->getBlockedPeriodFromInput( $request );
+
+        return [$structure, $roundNumber, $blockedPeriod];
     }
 }
