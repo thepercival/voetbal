@@ -92,21 +92,7 @@ class Service
 //
 //    // get inputPlanning from roundNumber and add dates
 //
-//    public function gamesOnSameDay( RoundNumber $roundNumber ) {
-//        $games = $this->getGamesForRoundNumber($roundNumber, Game::ORDER_RESOURCEBATCH);
-//        $firstGame = array_shift($games);
-//        $lastGame = (count($games) === 0) ? $firstGame : array_shift($games);
-//        return $this->isOnSameDay($firstGame, $lastGame);
-//    }
-//
-//    protected function isOnSameDay(Game $gameOne, Game $gameTwo): bool {
-//        $dateOne = $gameOne->getStartDateTime();
-//        $dateTwo = $gameTwo->getStartDateTime();
-//        if ($dateOne === null && $dateTwo === null) {
-//            return true;
-//        }
-//        return $dateOne->format('Y-m-d') === $dateTwo->format('Y-m-d');
-//    }
+
 
 //    protected function removeNumber(RoundNumber $roundNumber) {
 //        $rounds = $roundNumber->getRounds();
