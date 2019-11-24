@@ -30,16 +30,17 @@ class ScheduleService
     public function rescheduleGames( RoundNumber $roundNumber ): array {
         $gameDates = [];
         $gameStartDateTime = $this->getRoundNumberStartDateTime( $roundNumber );
+        $previousBatchNr = 1;
         $gameDates[] = $gameStartDateTime;
 
-        $previousBatchNr = null;
         /** @var Game $game */
         foreach( $roundNumber->getGames( Game::ORDER_BY_BATCH ) as $game ) {
-            $game->setStartDateTime( $gameStartDateTime );
-            if ( $previousBatchNr  !== $game->getBatchNr()) {
+           if ( $previousBatchNr !== $game->getBatchNr()) {
                 $gameStartDateTime = $this->getNextGameStartDateTime( $roundNumber->getValidPlanningConfig(), $gameStartDateTime );
                 $gameDates[] = $gameStartDateTime;
+                $previousBatchNr = $game->getBatchNr();
             }
+            $game->setStartDateTime( $gameStartDateTime );
         }
         if( $roundNumber->hasNext() ) {
             return array_merge( $gameDates, $this->rescheduleGames( $roundNumber->getNext() ) );
