@@ -43,6 +43,9 @@ class Service
         foreach( $roundNumber->getPoules() as $poule ) {
             $nrOfPlacesPerPoule[] = $poule->getPlaces()->count();
         }
+        uasort( $nrOfPlacesPerPoule, function ( int $nrOfPlacesA, int $nrOfPlacesB ) {
+            return $nrOfPlacesA > $nrOfPlacesB ? -1 : 1;
+        });
         return $nrOfPlacesPerPoule;
     }
 

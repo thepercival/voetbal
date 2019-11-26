@@ -82,10 +82,11 @@ class ConvertService
     }
 
     protected function initPoules( RoundNumber $roundNumber ) {
-        $this->poules = [];
-        foreach( $roundNumber->getPoules() as $poule ) {
-            $this->poules[] = $poule;
-        }
+        $poules = $roundNumber->getPoules();
+        uasort( $poules, function ( Poule $pouleA, Poule $pouleB ) {
+            return $pouleA->getPlaces()->count() > $pouleB->getPlaces()->count() ? -1 : 1;
+        });
+        $this->poules = array_values($poules);
     }
 
     protected function initFields( Competition $competition ) {
