@@ -27,7 +27,9 @@ class Service
 
         $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
         $selfReferee = $config->getSelfReferee() ? $planningConfigService->canSelfRefereeBeAvailable( $roundNumber->getNrOfPlaces() ) : $config->getSelfReferee();
-
+        if( $selfReferee ) {
+            $nrOfReferees = 0;
+        }
         // @TODO MULTIPLESPORTS
         // HIER VERDER!!!!
         $nrOfHeadtohead = $config->getNrOfHeadtohead(); // ?->getNrOfHeadtohead( $config );
@@ -46,7 +48,7 @@ class Service
         uasort( $nrOfPlacesPerPoule, function ( int $nrOfPlacesA, int $nrOfPlacesB ) {
             return $nrOfPlacesA > $nrOfPlacesB ? -1 : 1;
         });
-        return $nrOfPlacesPerPoule;
+        return array_values( $nrOfPlacesPerPoule );;
     }
 
     /**

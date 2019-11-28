@@ -69,12 +69,14 @@ class Seeker
             }
         }
 
-        $planning = ($planningMaxPlusOne && $planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS) ? $planningMaxPlusOne : $minIsMaxPlanning;
+        if( !($planningMaxPlusOne && $planningMaxPlusOne->getState() === PlanningBase::STATE_FAILED) ) {
+            $planning = ($planningMaxPlusOne && $planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS) ? $planningMaxPlusOne : $minIsMaxPlanning;
 
-        $planningNextInARow =  $this->planningService->createNextInARowPlanning( $planning );
-        if( $planningNextInARow !== null ) {
-            $this->processPlanning( $planningNextInARow, false );
-            return $this->processHelper( $input );
+            $planningNextInARow =  $this->planningService->createNextInARowPlanning( $planning );
+            if( $planningNextInARow !== null ) {
+                $this->processPlanning( $planningNextInARow, false );
+                return $this->processHelper( $input );
+            }
         }
 
         $input->setState( Input::STATE_ALL_PLANNINGS_TRIED );

@@ -71,11 +71,11 @@ class Service
 
     public function getPlusOnePlanning( PlanningBase $minIsMaxPlanning ): ?PlanningBase {
 
-        $plusOnePlannings = $minIsMaxPlanning->getInput()->getPlannings()->filter( function( PlanningBase $planning ) use ($minIsMaxPlanning) {
+        $plusOnePlannings = array_filter( $this->getOrderedPlannings($minIsMaxPlanning->getInput()), function( PlanningBase $planning ) use ($minIsMaxPlanning) {
             return $planning->getMinNrOfBatchGames() === $minIsMaxPlanning->getMaxNrOfBatchGames()
                 && $planning->getMaxNrOfBatchGames() === ($minIsMaxPlanning->getMaxNrOfBatchGames() + 1);
         } );
-        $plusOnePlanning = $plusOnePlannings->first();
+        $plusOnePlanning = end($plusOnePlannings);
         if( $plusOnePlanning === false ) {
             return null;
         }
@@ -92,8 +92,8 @@ class Service
     public function createNextInARowPlanning( PlanningBase $planning ): ?PlanningBase {
         $plannings = $this->getPlannings( $planning->getInput(), $planning->getNrOfBatchGames() );
 
-        $lastTriedPlanning = array_shift( $plannings);
-        $previousTriedPlanning = array_shift( $plannings);
+        $lastTriedPlanning = array_pop( $plannings);
+        $previousTriedPlanning = array_pop( $plannings);
         if( $this->nextInARowDone( $lastTriedPlanning, $previousTriedPlanning ) ) {
             return null;
         }
@@ -153,11 +153,11 @@ class Service
         uasort( $plannings, function ( PlanningBase $first, PlanningBase $second) {
             if( $first->getMaxNrOfBatchGames() === $second->getMaxNrOfBatchGames() ) {
                 if( $first->getMinNrOfBatchGames() === $second->getMinNrOfBatchGames() ) {
-                    return $first->getMaxNrOfGamesInARow() < $second->getMaxNrOfGamesInARow() ? -1 : 1;
+                    return $first->getMaxNrOfGamesInARow() > $second->getMaxNrOfGamesInARow() ? -1 : 1;
                 }
-                return $first->getMinNrOfBatchGames() > $second->getMinNrOfBatchGames() ? -1 : 1;
+                return $first->getMinNrOfBatchGames() < $second->getMinNrOfBatchGames() ? -1 : 1;
             }
-            return $first->getMaxNrOfBatchGames() > $second->getMaxNrOfBatchGames() ? -1 : 1;
+            return $first->getMaxNrOfBatchGames() < $second->getMaxNrOfBatchGames() ? -1 : 1;
         });
         return $plannings;
     }

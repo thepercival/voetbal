@@ -427,6 +427,10 @@ class Service
             $nrOfPlaces -= $nrOfPlacesToAdd;
             $nrOfPoules--;
         }
+        uasort( $structureConfig, function ( int $nrOfPlacesPouleA, int $nrOfPlacesPouleB ) {
+            return $nrOfPlacesPouleA > $nrOfPlacesPouleB ? -1 : 1;
+        });
+        $structureConfig = array_values( $structureConfig );
         return $structureConfig;
     }
 
