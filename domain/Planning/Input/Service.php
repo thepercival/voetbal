@@ -16,7 +16,6 @@ class Service
 {
     public function __construct()
     {
-
     }
 
     public function get( RoundNumber $roundNumber ): PlanningInput {
@@ -24,14 +23,16 @@ class Service
         $planningConfigService = new PlanningConfigService();
         $teamup = $config->getTeamup() ? $planningConfigService->isTeamupAvailable( $roundNumber ) : $config->getTeamup();
 
-
         $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
         $selfReferee = $config->getSelfReferee() ? $planningConfigService->canSelfRefereeBeAvailable( $roundNumber->getNrOfPlaces() ) : $config->getSelfReferee();
         if( $selfReferee ) {
             $nrOfReferees = 0;
         }
-        // @TODO MULTIPLESPORTS
-        // HIER VERDER!!!!
+        // @TODO MULTIPLESPORTS,  SORTEREN OP MEEST AANTAL VELDEN
+        // bij multiplesports bepaal eerst h2h, dan kan deze gebruikt worden!!
+        // bepalen van h2h gaat op basis van de poule met de minste deelnemers
+        // pak dus deze poule en kijk wat de h2h moet worden om alle sporten te doen, naar ratio(aantal velden)
+        // wanneer niet de config->NrOfHeadtohead wordt alsnog config->NrOfHeadtohead gebruikt
         $nrOfHeadtohead = $config->getNrOfHeadtohead(); // ?->getNrOfHeadtohead( $config );
 
         return new PlanningInput(
@@ -48,7 +49,7 @@ class Service
         uasort( $nrOfPlacesPerPoule, function ( int $nrOfPlacesA, int $nrOfPlacesB ) {
             return $nrOfPlacesA > $nrOfPlacesB ? -1 : 1;
         });
-        return array_values( $nrOfPlacesPerPoule );;
+        return array_values( $nrOfPlacesPerPoule );
     }
 
     /**
@@ -61,7 +62,10 @@ class Service
         foreach( $roundNumber->getSportConfigs() as $sportConfig ) {
             $sportConfigRet[] = [ "nrOfFields" => $sportConfig->getNrOfFields(), "nrOfGamePlaces" => $sportConfig->getNrOfGamePlaces() ];
         }
-        return $sportConfigRet;
+        uasort( $sportConfigRet, function ( array $sportA, array $sportB ) {
+            return $sportA["nrOfFields"] > $sportB["nrOfFields"] ? -1 : 1;
+        });
+        return array_values( $sportConfigRet );
     }
 
     public function areEqual( PlanningInput $inputA, PlanningInput $inputB ): bool
