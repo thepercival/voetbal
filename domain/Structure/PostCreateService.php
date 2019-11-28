@@ -39,9 +39,9 @@ class PostCreateService {
     }
 
     protected function createQualifyGroupHorizontalPoules( Round $round ) {
-        $structureService = new StructureService();
+        $horizontalPouleService = new HorizontalPouleService($round);
         foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
-            $structureService->updateQualifyGroupsHorizontalPoules(
+            $horizontalPouleService->updateQualifyGroups(
                 array_slice( $round->getHorizontalPoules($winnersOrLosers), 0 ),
                 array_map( function($qualifyGroup) {
                     return new HorizontolPouleCreator($qualifyGroup, $qualifyGroup->getChildRound()->getNrOfPlaces());

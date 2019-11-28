@@ -21,10 +21,6 @@ use Voetbal\Competition;
 final class Structure
 {
     /**
-     * @var StructureService
-     */
-    protected $service;
-    /**
      * @var StructureRepository
      */
     protected $repos;
@@ -42,14 +38,12 @@ final class Structure
     protected $em;
 
     public function __construct(
-        StructureService $service,
         StructureRepository $repos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer,
         EntityManager $em
     )
     {
-        $this->service = $service;
         $this->repos = $repos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;

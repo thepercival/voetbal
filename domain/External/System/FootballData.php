@@ -21,7 +21,10 @@ use Voetbal\External\System\FootballData\Competition as FootballDataCompetitionI
 use Voetbal\External\System\FootballData\Competitor as FootballDataCompetitorImporter;
 use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
 use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
+use Voetbal\Range as VoetbalRange;
 use Voetbal\Service as VoetbalService;
+use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\Structure\Service as StructureService;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 use Voetbal\External\System\Logger\GameLogger;
@@ -48,6 +51,10 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
      * @var array
      */
     // private $settings;
+    /**
+     * @var StructureOptions
+     */
+    protected $structureOptions;
 
     public function __construct(
         VoetbalService $voetbalService,
@@ -62,6 +69,11 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         $this->logger = $logger;
         // $this->settings = $settings;
         $this->setExternalSystem( $externalSystem );
+        $this->structureOptions = new StructureOptions(
+            new VoetbalRange(1, 32),
+            new VoetbalRange( 2, 256),
+            new VoetbalRange( 2, 30)
+        );
     }
 
     public function init() {
@@ -131,7 +143,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->getCompetitionImporter(),
             $this->getCompetitorImporter(),
             $this->voetbalService->getRepository( \Voetbal\External\Competitor::class ),
-            $this->voetbalService->getService(\Voetbal\Structure::class),
+            $this->getStructureService(),
             $this->voetbalService->getStructureRepository(),
             $this->voetbalService->getRepository( \Voetbal\External\League::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
@@ -145,7 +157,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->getApiHelper(),
             $this->voetbalService->getRepository( \Voetbal\External\League::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Season::class ),
-            $this->voetbalService->getService( \Voetbal\Structure::class ),
+            $this->getStructureService(),
             $this->voetbalService->getService( \Voetbal\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\Game::class ),
             $this->voetbalService->getRepository( \Voetbal\External\Game::class ),
@@ -153,5 +165,9 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
             $this->getCompetitorImporter(),
             $this->conn, $gameLogger
         );
+    }
+
+    protected function getStructureService(): StructureService {
+        return new StructureService( $this->structureOptions );
     }
 }

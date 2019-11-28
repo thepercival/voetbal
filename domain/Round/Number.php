@@ -238,7 +238,10 @@ class Number
         }
 
         if( $order === GameBase::ORDER_BY_BATCH ) {
-            uasort( $games, function( $g1, $g2 ) {
+            uasort( $games, function( Game $g1, Game $g2 ) {
+                if( $g1->getBatchNr() - $g2->getBatchNr() === 0 ) {
+                    return $g1->getField()->getNumber() - $g2->getField()->getNumber();
+                }
                 return $g1->getBatchNr() - $g2->getBatchNr();
             } );
         }

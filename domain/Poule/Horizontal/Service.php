@@ -125,4 +125,27 @@ class Service {
         });
         return $places;
     }
+
+    /**
+     * @param array $roundHorizontalPoules | HorizontolPoule[]
+     * @param array $horizontalPoulesCreators | HorizontolPoulesCreator[]
+     */
+    public function updateQualifyGroups(
+        array $roundHorizontalPoules,
+        array $horizontalPoulesCreators
+    ) {
+        foreach ($horizontalPoulesCreators as $creator) {
+            $horizontalPoules = &$creator->qualifyGroup->getHorizontalPoules();
+            $horizontalPoules = [];
+            $qualifiersAdded = 0;
+            while ($qualifiersAdded < $creator->nrOfQualifiers) {
+                $roundHorizontalPoule = array_shift($roundHorizontalPoules);
+                $roundHorizontalPoule->setQualifyGroup($creator->qualifyGroup);
+                $qualifiersAdded += count($roundHorizontalPoule->getPlaces());
+            }
+        }
+        foreach ($roundHorizontalPoules as $roundHorizontalPoule) {
+            $roundHorizontalPoule->setQualifyGroup(null);
+        }
+    }
 }
