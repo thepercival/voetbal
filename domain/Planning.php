@@ -203,13 +203,15 @@ class Planning
     }
 
     protected function initSports( array $sportConfig ) {
+        $fieldNr = 1;
         $this->sports = new ArrayCollection();
         foreach( $sportConfig as $sportIt ) {
             $sport = new Sport( $this, $this->sports->count() + 1, $sportIt["nrOfGamePlaces"] );
             $this->sports->add( $sport );
-            for( $fieldNr = 1 ; $fieldNr <= $sportIt["nrOfFields"] ; $fieldNr++ ) {
-                new Field( $fieldNr, $sport );
+            for( $fieldNrDelta = 0 ; $fieldNrDelta < $sportIt["nrOfFields"] ; $fieldNrDelta++ ) {
+                new Field( $fieldNr + $fieldNrDelta, $sport );
             }
+            $fieldNr += $sport->getFields()->count();
         }
     }
 

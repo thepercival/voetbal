@@ -116,6 +116,11 @@ class Service
         while (($sportService->getNrOfPouleGames($pouleNrOfPlaces, $teamup, $nrOfHeadtohead)) < $nrOfPouleGamesBySports) {
             $nrOfHeadtohead++;
         }
+        if (($sportService->getNrOfPouleGames($pouleNrOfPlaces, $teamup, $nrOfHeadtohead)) === $nrOfPouleGamesBySports) {
+            $nrOfHeadtohead++;
+        }
+        // als totaal van (sport->nrofgameplaces % nrofpouleplaces) !== 0
+        // en je komt precies uit qua headtohead, dan 1 toevoegen aan h2h
 
         if ($nrOfHeadtohead < $defaultNrOfHeadtohead) {
             return $defaultNrOfHeadtohead;

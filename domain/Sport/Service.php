@@ -206,11 +206,11 @@ class Service {
         foreach( $sportsNrFieldsGames as $sportNrFieldsGames ) {
             $minNrOfGames = $sportNrFieldsGames->getNrOfGames();
             $nrOfGamePlaces = $this->getNrOfGamePlaces($sportNrFieldsGames->getNrOfGamePlaces(), $teamup, false);
-            // nrOfPouleGames += (poule.getPlaces().length / nrOfGamePlaces) * minNrOfGames;
-            $nrOfPouleGames += ceil(($pouleNrOfPlaces / $nrOfGamePlaces) * $minNrOfGames);
+            // $nrOfPouleGames += ceil(($pouleNrOfPlaces / $nrOfGamePlaces) * $minNrOfGames);
+            $nrOfPouleGames += ($pouleNrOfPlaces / $nrOfGamePlaces) * $minNrOfGames;
         }
-        // return Math.ceil(nrOfPouleGames);
-        return $nrOfPouleGames;
+        return (int)ceil($nrOfPouleGames);
+        // return (int)$nrOfPouleGames;
     }
 
     public function getNrOfGamePlaces( int $nrOfGamePlaces, bool $teamup, bool $selfReferee ): int {

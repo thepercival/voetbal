@@ -74,10 +74,6 @@ class Service {
      * @var Output
      */
     // protected $output;
-    /**
-     * @var int
-     */
-    // protected $totalNrOfGames;
 
     protected $debugIterations;
 
@@ -103,9 +99,8 @@ class Service {
             $this->initRefereePlaces($games);
         }
         if ($this->planning->getInput()->hasMultipleSports()) {
-            $this->tryShuffledFields = false;
+            $this->tryShuffledFields = true;
         }
-        do not do games h2h
 
         $this->initPlaces();
     }
@@ -227,22 +222,28 @@ class Service {
         $oCurrentDateTime = new \DateTimeImmutable();
         $this->m_oTimeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->init( $games );
-        $gamesH2h = $this->getGamesByH2h( $games ); // @FREDDY comment
         $batch = new Batch();
         $resources = new Resources( array_slice( $this->fields, 0 ) );
-        foreach( $gamesH2h as $games ) { // @FREDDY comment
-            try {
-                // $this->totalNrOfGames = count($games);
+        try {
+            if( $this->getInput()->hasMultipleSports() ) {
                 $batch = $this->assignBatch( $games, $resources, $batch);
                 if ( $batch === null ) {
                     return PlanningBase::STATE_FAILED;
                 }
+            } else {
+                $gamesH2h = $this->getGamesByH2h( $games ); // @FREDDY comment
+                foreach( $gamesH2h as $games ) { // @FREDDY comment
+                    $batch = $this->assignBatch( $games, $resources, $batch);
+                    if ( $batch === null ) {
+                        return PlanningBase::STATE_FAILED;
+                    }
+                }
+
             }
-            catch( TimeoutException $e ) {
-                return PlanningBase::STATE_TIMEOUT;
-            }
-            // break;
-        } // @FREDDY comment
+        }
+        catch( TimeoutException $e ) {
+            return PlanningBase::STATE_TIMEOUT;
+        }
         return PlanningBase::STATE_SUCCESS;
     }
 
@@ -355,11 +356,6 @@ class Service {
                 $game = array_shift($games);
                 if ($this->isGameAssignable($batch, $game, $resources2)) {
                     $this->assignGame($batch, $game, $resources2);
-//                    $nrOfBatchGames = $batch->getTotalNrOfGames();
-//                    if( ( count($games) + $nrOfBatchGames ) < $this->totalNrOfGames ) { // @FREDDY
-//                        $this->output->getLogger()->info("NOT ENOUGH GAMES TO CONTINUE!!");
-//                        return false;
-//                    }
                     $copiedGames = array_slice( $games, 0 );
                     if ($this->assignBatchHelper($copiedGames, $resources2, $batch)) {
                         return true;
@@ -368,7 +364,7 @@ class Service {
                 }
                 $games[] = $game;
             }
-            if( $this->assignBatchHelper($games, $resources3, $batch, ++$nrOfGamesTried /*++$nrOfGamesTriedPerField*/ ) ) {
+            if( $this->assignBatchHelper($games, $resources3, $batch, /*++$nrOfGamesTried */ ++$nrOfGamesTriedPerField ) ) {
                 return true;
             }
             if (!$this->tryShuffledFields) {
