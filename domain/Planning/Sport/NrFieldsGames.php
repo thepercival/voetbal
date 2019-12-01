@@ -8,9 +8,9 @@ class NrFieldsGames extends NrFields {
      */
     private $nrOfGames;
 
-    public function __construct( int $sportNr, int $nrOfFields, int $nrOfGames )
+    public function __construct( int $sportNr, int $nrOfFields, int $nrOfGames, int $nrOfGamePlaces )
     {
-        parent::__construct( $sportNr, $nrOfFields );
+        parent::__construct( $sportNr, $nrOfFields, $nrOfGamePlaces );
         $this->nrOfGames = $nrOfGames;
     }
 

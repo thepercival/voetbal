@@ -102,6 +102,11 @@ class Service {
         if ($this->planning->getInput()->getSelfReferee()) {
             $this->initRefereePlaces($games);
         }
+        if ($this->planning->getInput()->hasMultipleSports()) {
+            $this->tryShuffledFields = false;
+        }
+        do not do games h2h
+
         $this->initPlaces();
     }
 
@@ -171,7 +176,7 @@ class Service {
      */
     protected function convertSports( array $sports ): array {
         return array_map( function( Sport $sport ) {
-            return new SportNrFields( $sport->getNumber(), $sport->getFields()->count() );
+            return new SportNrFields( $sport->getNumber(), $sport->getFields()->count(), $sport->getNrOfGamePlaces() );
         }, $sports );
     }
 

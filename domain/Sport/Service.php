@@ -13,7 +13,7 @@ use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Planning\Sport\NrFields as SportNrFields;
 
 class Service {
-    public function convertSportsNrFields( array $sportsNrFields ): array {
+    protected function convertSportsNrFields( array $sportsNrFields ): array {
         $sportsNrFieldsGames = [];
 
         /** @var SportNrFields $sportNrFields */
@@ -21,7 +21,8 @@ class Service {
             $sportsNrFieldsGames[] = new SportNrFieldsGames(
                 $sportNrFields->getSportNr(),
                 $sportNrFields->getNrOfFields(),
-                $sportNrFields->getNrOfFields()
+                $sportNrFields->getNrOfFields(),
+                $sportNrFields->getNrOfGamePlaces()
             );
         }
         return $sportsNrFieldsGames;
@@ -40,7 +41,8 @@ class Service {
             $modifiedSportsNrFieldsGames[] = new SportNrFieldsGames(
                 $sportNrFieldsGames->getSportNr(),
                 $sportNrFieldsGames->getNrOfFields(),
-                (int)($sportNrFieldsGames->getNrOfFields() / $divisor) );
+                (int)($sportNrFieldsGames->getNrOfFields() / $divisor),
+                $sportNrFieldsGames->getNrOfGamePlaces() );
         }
         return $modifiedSportsNrFieldsGames;
     }
@@ -203,8 +205,7 @@ class Service {
         /** @var SportNrFieldsGames $sportNrFieldsGames */
         foreach( $sportsNrFieldsGames as $sportNrFieldsGames ) {
             $minNrOfGames = $sportNrFieldsGames->getNrOfGames();
-            hier moet ik de nrOfGamePlacesWeten
-            $nrOfGamePlaces = $this->getNrOfGamePlaces($pouleNrOfPlaces, $teamup, false);
+            $nrOfGamePlaces = $this->getNrOfGamePlaces($sportNrFieldsGames->getNrOfGamePlaces(), $teamup, false);
             // nrOfPouleGames += (poule.getPlaces().length / nrOfGamePlaces) * minNrOfGames;
             $nrOfPouleGames += ceil(($pouleNrOfPlaces / $nrOfGamePlaces) * $minNrOfGames);
         }

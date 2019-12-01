@@ -140,7 +140,7 @@ class Service
     protected function convertSportConfig( array $sportsConfigs ): array {
         $sportNr = 1;
         return array_map( function( $sportConfig ) use ( &$sportNr ) {
-            return new SportNrFields( $sportNr++, $sportConfig["nrOfFields"] );
+            return new SportNrFields( $sportNr++, $sportConfig["nrOfFields"], $sportConfig["nrOfGamePlaces"] );
         }, $sportsConfigs );
     }
 }
