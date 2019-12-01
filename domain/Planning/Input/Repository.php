@@ -73,19 +73,37 @@ class Repository extends \Voetbal\Repository
 //    }
 
 
+    /**
+     *  select 	id, state, createdAt, createdBy,
+        (select count(*) from planninginputs pisub where pisub.createdBy = planninginputs.createdBy and pisub.createdAt > planninginputs.createdAt and pisub.state = 4 ) as moreRecentSuccesses
+        from planninginputs
+        where 	state <> 4
+        order by moreRecentSuccesses, createdAt  DESC;
+     */
     public function getFirstUnsuccessful(): ?PlanningInput {
+
+        $moreRecentSuccesses = $this->createQueryBuilder('pisub')
+            ->select('count(pisub)')
+            ->where('pisub.state = ' . PlanningInput::STATE_ALL_PLANNINGS_TRIED)
+            ->andWhere('pisub.createdBy = pi.createdBy')
+            ->andWhere('pisub.createdAt > pi.createdAt')
+        ;
+        $dqlMoreRecentSuccesses = $moreRecentSuccesses->getDQL();
+
         $query = $this->createQueryBuilder('pi')
+            ->addSelect('(' . $dqlMoreRecentSuccesses . ') AS HIDDEN moreRecentSuccesses')
             ->where('pi.state <> :state')
             // ->andWhere('pi.nrOfHeadtohead = 91') // @FREDDY
-            ->orderBy('pi.teamup', 'ASC')
-            ->addOrderBy('pi.id', 'DESC')
+            ->orderBy('moreRecentSuccesses', 'ASC')
+            ->addOrderBy('pi.createdAt', 'DESC')
         ;
-
-        $query = $query->setParameter('state', PlanningInput::STATE_ALL_PLANNINGS_TRIED );
+        $query->setParameter('state', PlanningInput::STATE_ALL_PLANNINGS_TRIED );
 
         $query->setMaxResults(1);
 
         $results = $query->getQuery()->getResult();
+
+        // echo( $query->getQuery()->getSQL()); die();
         $first = reset($results);
         return $first !== false ? $first : null;
     }

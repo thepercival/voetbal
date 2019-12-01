@@ -127,10 +127,12 @@ class Seeker
     }
 
     protected function inputToString( Input $planningInput ): string {
-        return 'structure [' . implode( '|', $planningInput->getStructureConfig()) . ']'
-            . ', sports ' . count( $planningInput->getSportConfig())
+        $sports = array_map( function( array $sportConfig ) {
+            return '{"nrOfFields:"' . $sportConfig["nrOfFields"] . ',"nrOfGamePlaces":' . $sportConfig["nrOfGamePlaces"] . "}";
+        }, $planningInput->getSportConfig());
+        return 'id '.$planningInput->getId().' => structure [' . implode( '|', $planningInput->getStructureConfig()) . ']'
+            . ', sports [' . implode(',', $sports ) . ']'
             . ', referees ' . $planningInput->getNrOfReferees()
-            . ', fields ' . $planningInput->getNrOfFields()
             . ', teamup ' . ( $planningInput->getTeamup() ? '1' : '0' )
             . ', selfRef ' . ( $planningInput->getSelfReferee() ? '1' : '0' )
             . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();

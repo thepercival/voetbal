@@ -39,20 +39,6 @@ class GameGenerator
         }
     }
 
-//    protected function getSufficientNrOfHeadtohead( RoundNumber $roundNumber, PlanningConfig $config ) {
-//        $nrOfHeadtohead = 0;
-//        foreach( $roundNumber->getPoules() as $poule ) {
-//            $newNrOfHeadtohead = $this->sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
-//            if( $newNrOfHeadtohead > $nrOfHeadtohead ) {
-//                $nrOfHeadtohead = $newNrOfHeadtohead;
-//            }
-//        }
-//        if ($config->getNrOfHeadtohead() > $nrOfHeadtohead) {
-//             return $config->getNrOfHeadtohead();
-//        }
-//        return $nrOfHeadtohead;
-//    }
-
     protected function createPoule(PlanningBase $planning, Poule $poule, int $headtohead ) {
         $gameRounds = $this->createPouleGameRounds($poule, $this->input->getTeamup());
         $reverseHomeAway = ($headtohead % 2) === 0;
@@ -62,10 +48,6 @@ class GameGenerator
             foreach( $gameRound->getCombinations() as $combination ) {
                 $game = new Game( $poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
                 $combination->createGamePlaces($game, $reverseHomeAway/*, reverseCombination*/);
-                // $gamePlaces = new ArrayCollection( $combination->createGamePlaces($game, $reverseHomeAway/*, reverseCombination*/) );
-//                foreach( $gamePlaces as $gamePlace ) {
-//                    $game->getPlaces()->add( $gamePlace );
-//                }
             }
         }
     }

@@ -11,6 +11,9 @@ namespace Voetbal\Planning\Input;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
+use Voetbal\Planning\Sport\NrFields as SportNrFields;
+use Voetbal\Sport\Service as SportService;
+use Voetbal\Poule;
 
 class Service
 {
@@ -28,15 +31,16 @@ class Service
         if( $selfReferee ) {
             $nrOfReferees = 0;
         }
-        // @TODO MULTIPLESPORTS,  SORTEREN OP MEEST AANTAL VELDEN
-        // bij multiplesports bepaal eerst h2h, dan kan deze gebruikt worden!!
-        // bepalen van h2h gaat op basis van de poule met de minste deelnemers
-        // pak dus deze poule en kijk wat de h2h moet worden om alle sporten te doen, naar ratio(aantal velden)
-        // wanneer niet de config->NrOfHeadtohead wordt alsnog config->NrOfHeadtohead gebruikt
-        $nrOfHeadtohead = $config->getNrOfHeadtohead(); // ?->getNrOfHeadtohead( $config );
 
+        $sportConfig = $this->getSportConfig( $roundNumber );
+        $multipleSports = count( $sportConfig ) > 1;
+
+        $nrOfHeadtohead = $config->getNrOfHeadtohead();
+        if( $multipleSports ) {
+            $nrOfHeadtohead = $this->getSufficientNrOfHeadtoheadByRoundNumber( $roundNumber, $sportConfig );
+        }
         return new PlanningInput(
-            $this->getStructureConfig( $roundNumber ),  $this->getSportConfig( $roundNumber ),
+            $this->getStructureConfig( $roundNumber ),  $sportConfig,
             $nrOfReferees, $teamup, $selfReferee, $nrOfHeadtohead
         );
     }
@@ -76,5 +80,67 @@ class Service
             && $inputA->getTeamup() === $inputB->getTeamup()
             && $inputA->getSelfReferee() === $inputB->getSelfReferee()
             && $inputA->getNrOfHeadtohead() === $inputB->getNrOfHeadtohead();
+    }
+
+    /**
+     * @param RoundNumber $roundNumber
+     * @param array $sportConfig
+     * @return int
+     */
+    public function getSufficientNrOfHeadtoheadByRoundNumber( RoundNumber $roundNumber, array $sportConfig ): int {
+        $config = $roundNumber->getValidPlanningConfig();
+        $poule = $this->getSmallestPoule( $roundNumber );
+        $pouleNrOfPlaces = $poule->getPlaces()->count();
+        return $this->getSufficientNrOfHeadtohead( $config->getNrOfHeadtohead(), $pouleNrOfPlaces, $config->getTeamup(), $config->getSelfReferee(), $sportConfig );
+    }
+
+    /**
+     * @param int $defaultNrOfHeadtohead
+     * @param int $pouleNrOfPlaces
+     * @param bool $teamup
+     * @param bool $selfReferee
+     * @param array $sportConfig
+     * @return int
+     */
+    public function getSufficientNrOfHeadtohead( int $defaultNrOfHeadtohead, int $pouleNrOfPlaces, bool $teamup, bool $selfReferee, array $sportConfig ): int {
+
+        $sportService = new SportService();
+        $nrOfHeadtohead = $defaultNrOfHeadtohead;
+    //    $nrOfHeadtohead = $roundNumber->getValidPlanningConfig()->getNrOfHeadtohead();
+    //        sporten zijn nu planningsporten, maar voor de berekening heb ik alleen een array
+    //        zodra de berekening is gedaan hoef je daarna bij het bepalen van het aantal games
+    //        niet meer te kijken als je het aantal velden kan verkleinen!
+        $sportsNrFields = $this->convertSportConfig( $sportConfig );
+        $sportsNrFieldsGames = $sportService->getPlanningMinNrOfGames($sportsNrFields, $pouleNrOfPlaces, $teamup, $selfReferee, $nrOfHeadtohead);
+        $nrOfPouleGamesBySports = $sportService->getNrOfPouleGamesBySports($pouleNrOfPlaces, $sportsNrFieldsGames, $teamup, $selfReferee);
+        while (($sportService->getNrOfPouleGames($pouleNrOfPlaces, $teamup, $nrOfHeadtohead)) < $nrOfPouleGamesBySports) {
+            $nrOfHeadtohead++;
+        }
+
+        if ($nrOfHeadtohead < $defaultNrOfHeadtohead) {
+            return $defaultNrOfHeadtohead;
+        }
+        return $nrOfHeadtohead;
+    }
+
+    protected function getSmallestPoule( RoundNumber $roundNumber ): Poule {
+        $smallestPoule = null;
+        foreach( $roundNumber->getPoules() as $poule ) {
+            if( $smallestPoule === null || $poule->getPlaces()->count() < $smallestPoule->getPlaces()->count() ) {
+                $smallestPoule = $poule;
+            }
+        }
+        return $smallestPoule;
+    }
+
+    /**
+     * @param array $sportsConfigs
+     * @return array|SportNrFields[]
+     */
+    protected function convertSportConfig( array $sportsConfigs ): array {
+        $sportNr = 1;
+        return array_map( function( $sportConfig ) use ( &$sportNr ) {
+            return new SportNrFields( $sportNr++, $sportConfig["nrOfFields"] );
+        }, $sportsConfigs );
     }
 }

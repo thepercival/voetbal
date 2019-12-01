@@ -36,6 +36,14 @@ Voetbal\Planning\Input:
       type: smallint
       nullable: false
       unique: false
+    createdAt:
+      type: datetime_immutable
+      unique: false
+      nullable: false
+    createdBy:
+      type: smallint
+      nullable: true
+      unique: false
   oneToMany:
     plannings:
       orderBy:

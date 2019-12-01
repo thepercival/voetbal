@@ -14,12 +14,11 @@ use Voetbal\Planning\Referee;
 use Voetbal\Planning\Place;
 use Voetbal\Planning\Field;
 use Voetbal\Planning\Sport;
-use Voetbal\Range;
-use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Planning\Resources as Resources;
 use Voetbal\Planning\Input;
-use League\Period\Period;
 use Voetbal\Planning\Sport\Counter as SportCounter;
+use Voetbal\Planning\Sport\NrFields as SportNrFields;
+use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Planning\Batch;
 use Voetbal\Planning\Output;
@@ -145,26 +144,47 @@ class Service {
     protected function initPlaces() {
         $sportService = new SportService();
         $sports = $this->planning->getSports()->toArray();
-        $multipleSports = count( $sports ) > 1;
         $teamup = $this->getInput()->getTeamup();
         $selfReferee = $this->getInput()->getSelfReferee();
         $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
 
         $this->places = [];
         foreach( $this->planning->getPoules() as $poule ) {
-            // $nrOfHeadtohead = $sportService->getSufficientNrOfHeadtohead($sports, $poule, $teamup, $nrOfHeadtohead);
-            $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $teamup, false, $nrOfHeadtohead);
-
-            $sportsNrOfGames = $sportService->getPlanningMinNrOfGames($sports, $poule, $teamup, $selfReferee, $nrOfHeadtohead );
-            $minNrOfGamesMap = $sportService->convertToMap($sportsNrOfGames);
+            $pouleNrOfPlaces = $poule->getPlaces()->count();
+            $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($pouleNrOfPlaces, $teamup, false, $nrOfHeadtohead);
+            $sportsNrFields = $this->convertSports($sports);
+            $sportsNrFieldsGames = $sportService->getPlanningMinNrOfGames($sportsNrFields, $pouleNrOfPlaces, $teamup, $selfReferee, $nrOfHeadtohead );
+            $minNrOfGamesMap = $this->convertToMap($sportsNrFieldsGames);
             /** @var Place $placeIt */
             foreach( $poule->getPlaces() as $placeIt ) {
                 $this->places[$placeIt->getLocation()] = $placeIt;
-                if( $multipleSports ) {
+                if( $this->getInput()->hasMultipleSports() ) {
                     $placeIt->setSportCounter( new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sports) );
                 }
             }
         }
+    }
+
+    /**
+     * @param array $sports|Sport[]
+     * @return array|SportNrFields[]
+     */
+    protected function convertSports( array $sports ): array {
+        return array_map( function( Sport $sport ) {
+            return new SportNrFields( $sport->getNumber(), $sport->getFields()->count() );
+        }, $sports );
+    }
+
+    /**
+     * @param array|SportNrFieldsGames[] $sportsNrFieldsGames
+     * @return array
+     */
+    protected function convertToMap(array $sportsNrFieldsGames): array {
+        $minNrOfGamesMap = [];
+        foreach( $sportsNrFieldsGames as $sportNrFieldsGames ) {
+            $minNrOfGamesMap[$sportNrFieldsGames->getSportNr()] = $sportNrFieldsGames->getNrOfGames();
+        }
+        return $minNrOfGamesMap;
     }
 
     // het minimale aantal wedstrijden per sport moet je weten

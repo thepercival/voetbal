@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Range as VoetbalRange;
+use Voetbal\Sport\Service as SportService;
 
 class Input
 {
@@ -43,6 +44,14 @@ class Input
      */
     protected $state;
     /**
+     * @var \DateTimeImmutable
+     */
+    protected $createdAt;
+    /**
+     * @var int
+     */
+    protected $createdBy;
+    /**
      * @var Collection| PlanningBase[]
      */
     protected $plannings;
@@ -62,6 +71,7 @@ class Input
         $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->state = Input::STATE_CREATED;
         $this->plannings = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -93,6 +103,10 @@ class Input
      */
     public function getSportConfig(): array {
         return $this->sportConfig;
+    }
+
+    public function hasMultipleSports(): bool {
+        return count($this->sportConfig) > 1;
     }
 
     public function getNrOfFields(): int {
@@ -157,6 +171,8 @@ class Input
      */
     protected function getNrOfGamesSimultaneously(): int {
 
+        $sportService = new SportService();
+
         // default sort, sportconfig shoud not be altered
 //        uasort( $sports, function ( $sportA, $sportB ) {
 //            return ($sportA->getNrOfGamePlaces() < $sportB->getNrOfGamePlaces() ) ? -1 : 1;
@@ -177,7 +193,7 @@ class Input
         $nrOfGamesSimultaneously = 0;
         while ( $nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0  ) {
             $nrOfGamePlaces = array_shift($fieldsNrOfGamePlaces);
-            $nrOfPlaces -= $this->getNrOfGamePlaces( $nrOfGamePlaces, $this->selfReferee, $this->teamup );;
+            $nrOfPlaces -= $sportService->getNrOfGamePlaces( $nrOfGamePlaces, $this->teamup, $this->selfReferee );;
             if( $nrOfPlaces >= 0 ) {
                 $nrOfGamesSimultaneously++;
             }
@@ -201,16 +217,6 @@ class Input
         //            if( $nrOfHeadtohead > 1 ) {
         //                $maxNrOfGamesInARow *= 2;
         //            }
-    }
-
-    protected function getNrOfGamePlaces( int $nrOfGamePlaces, bool $selfReferee, bool $teamup ): int {
-        if ($teamup) {
-            $nrOfGamePlaces *= 2;
-        }
-        if ($selfReferee) {
-            $nrOfGamePlaces++;
-        }
-        return $nrOfGamePlaces;
     }
 
     // should be known when creating input
