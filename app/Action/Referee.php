@@ -145,7 +145,7 @@ final class Referee
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($referee, 'json', $serializationContext));
         } catch (\Exception $e) {
-            return $response->withStatus(401)->write($e->getMessage());
+            return $response->withStatus(404)->write($e->getMessage());
         }
     }
 

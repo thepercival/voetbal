@@ -56,12 +56,12 @@ class Counter {
         $this->nrOfGamesToGo--;
     }
 
-    public function removeGame(PlanningSport $sport ) {
-        $sportNr = $sport->getNumber();
-        $this->nrOfGamesDoneMap[$sportNr]--;
-        if ($this->nrOfGamesDoneMap[$sportNr] < $this->minNrOfGamesMap[$sportNr]) {
-            $this->nrToGo++;
-        }
-        $this->nrOfGamesToGo++;
-    }
+//    public function removeGame(PlanningSport $sport ) {
+//        $sportNr = $sport->getNumber();
+//        $this->nrOfGamesDoneMap[$sportNr]--;
+//        if ($this->nrOfGamesDoneMap[$sportNr] < $this->minNrOfGamesMap[$sportNr]) {
+//            $this->nrToGo++;
+//        }
+//        $this->nrOfGamesToGo++;
+//    }
 }

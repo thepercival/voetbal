@@ -109,7 +109,6 @@ final class Field
 
     public function edit($request, $response, $args)
     {
-        $sErrorMessage = null;
         try {
             $field = $this->getField((int)$args["id"], (int)$request->getParam("competitionid"));
             /** @var \Voetbal\Field|false $fieldSer */
@@ -120,7 +119,7 @@ final class Field
 
             $competition = $field->getCompetition();
             $fieldsWithSameName = $competition->getFields()->filter( function( $fieldIt ) use ( $fieldSer, $field ) {
-                return $field->getName() === $fieldSer->getName() && $field !== $fieldIt;
+                return $fieldIt->getName() === $fieldSer->getName() && $field !== $fieldIt;
             });
             if( !$fieldsWithSameName->isEmpty() ) {
                 throw new \Exception("het veld \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
@@ -139,9 +138,9 @@ final class Field
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($field, 'json'));
         } catch (\Exception $e) {
-            $sErrorMessage = $e->getMessage();
+            return $response->withStatus(404)->write($e->getMessage());
         }
-        return $response->withStatus(401)->write($sErrorMessage);
+
     }
 
     public function remove($request, $response, $args)

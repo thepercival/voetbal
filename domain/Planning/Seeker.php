@@ -69,7 +69,7 @@ class Seeker
             }
         }
 
-        if( !($planningMaxPlusOne && $planningMaxPlusOne->getState() === PlanningBase::STATE_FAILED) ) {
+        if( !($planningMaxPlusOne && $planningMaxPlusOne->getState() !== PlanningBase::STATE_SUCCESS) ) {
             $planning = ($planningMaxPlusOne && $planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS) ? $planningMaxPlusOne : $minIsMaxPlanning;
 
             $planningNextInARow =  $this->planningService->createNextInARowPlanning( $planning );
@@ -104,7 +104,7 @@ class Seeker
             $planning->setTimeoutSeconds($planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER);
             $this->planningRepos->save( $planning );
         }
-        $output = '   ' . $this->planningToString( $planning, $timeout ) . " trying .. ";
+        $this->logger->info( '   ' . $this->planningToString( $planning, $timeout ) . " trying .. ");
         try {
             $planningService = new Service();
             $newState = $planningService->createGames( $planning );
@@ -114,9 +114,9 @@ class Seeker
             $stateDescription = $planning->getState() === PlanningBase::STATE_FAILED ? "failed" :
                 ( $planning->getState() === PlanningBase::STATE_TIMEOUT ? "timeout(".$planning->getTimeoutSeconds().")" : "success" );
 
-            $this->logger->info( $output . " => " . $stateDescription );
+            $this->logger->info( '   ' . '   ' .  " => " . $stateDescription );
         } catch( \Exception $e ) {
-            $this->logger->error( $output . " => " . $e->getMessage() );
+            $this->logger->info( '   ' . '   ' .  " => " . $e->getMessage() );
         }
 
 //    if( $planning->getState() === Planning::STATE_SUCCESS ) {

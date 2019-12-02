@@ -171,7 +171,7 @@ final class Config
             ;
         }
         catch( \Exception $e ){
-            return $response->withStatus(401)->write( $e->getMessage() );
+            return $response->withStatus(404)->write( $e->getMessage() );
         }
     }
 

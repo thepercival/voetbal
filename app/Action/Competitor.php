@@ -124,7 +124,7 @@ final class Competitor
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
                 ->write($this->serializer->serialize($competitor, 'json'));
         } catch (\Exception $e) {
-            $response->withStatus(401)->write($e->getMessage());
+            $response->withStatus(404)->write($e->getMessage());
         }
     }
 

@@ -139,7 +139,7 @@ class Service
     }
 
     public function getBestPlanning( Input $input ): ?PlanningBase {
-        $plannings = $this->getOrderedPlannings($input);
+        $plannings = array_reverse( $this->getOrderedPlannings($input) );
         foreach( $plannings as $planning ) {
             if( $planning->getState() === PlanningBase::STATE_SUCCESS ) {
                 return $planning;

@@ -42,6 +42,7 @@ Voetbal\Round\Number:
         nullable: true # should be false
         onDelete: CASCADE
       cascade: [ persist, remove ]
+      fetch: EAGER
   oneToMany:
     rounds:
       targetEntity: Voetbal\Round

@@ -17,23 +17,11 @@ class Place {
      * @var int
      */
     protected $number;
-    /**
-     * @var SportCounter
-     */
-    private $sportCounter;
 
     public function __construct( Poule $poule, int $number )
     {
         $this->poule = $poule;
         $this->number = $number;
-    }
-
-    public function getSportCounter(): ?SportCounter {
-        return $this->sportCounter;
-    }
-
-    public function setSportCounter( SportCounter $sportCounter) {
-        $this->sportCounter = $sportCounter;
     }
 
     public function getPoule(): Poule

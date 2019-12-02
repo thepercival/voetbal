@@ -73,7 +73,7 @@ class Service {
     /**
      * @var Output
      */
-    // protected $output;
+    protected $output;
 
     protected $debugIterations;
 
@@ -82,10 +82,10 @@ class Service {
         $this->planning = $planning;
         $this->nrOfPoules = $this->planning->getPoules()->count();
 
-//        $logger = new Logger('planning-create');
-//        $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO );
-//        $logger->pushHandler( $handler );
-        // $this->output = new Output( $logger );
+        $logger = new Logger('planning-create');
+        $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO );
+        $logger->pushHandler( $handler );
+        $this->output = new Output( $logger );
     }
 
     protected function getInput(): Input {
@@ -98,11 +98,9 @@ class Service {
         if ($this->planning->getInput()->getSelfReferee()) {
             $this->initRefereePlaces($games);
         }
-        if ($this->planning->getInput()->hasMultipleSports()) {
-            $this->tryShuffledFields = true;
-        }
-
-        $this->initPlaces();
+//        if ($this->planning->getInput()->hasMultipleSports()) {
+//            $this->tryShuffledFields = true;
+//        }
     }
 
     public function initFields() {
@@ -141,28 +139,27 @@ class Service {
     /**
      *
      */
-    protected function initPlaces() {
+    protected function getSportCounters(): array {
         $sportService = new SportService();
         $sports = $this->planning->getSports()->toArray();
         $teamup = $this->getInput()->getTeamup();
         $selfReferee = $this->getInput()->getSelfReferee();
         $nrOfHeadtohead = $this->getInput()->getNrOfHeadtohead();
 
-        $this->places = [];
+        $sportCounters = [];
         foreach( $this->planning->getPoules() as $poule ) {
             $pouleNrOfPlaces = $poule->getPlaces()->count();
             $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($pouleNrOfPlaces, $teamup, false, $nrOfHeadtohead);
             $sportsNrFields = $this->convertSports($sports);
-            $sportsNrFieldsGames = $sportService->getPlanningMinNrOfGames($sportsNrFields, $pouleNrOfPlaces, $teamup, $selfReferee, $nrOfHeadtohead );
-            $minNrOfGamesMap = $this->convertToMap($sportsNrFieldsGames);
+            // $sportsNrFieldsGames = $sportService->getPlanningMinNrOfGames($sportsNrFields, $pouleNrOfPlaces, $teamup, $selfReferee, $nrOfHeadtohead );
+            // hier moet de $sportsNrFieldsGames puur berekent worden op basis van aantal sporten
+            $minNrOfGamesMap = $this->convertToMap($sportsNrFields/*$sportsNrFieldsGames*/);
             /** @var Place $placeIt */
             foreach( $poule->getPlaces() as $placeIt ) {
-                $this->places[$placeIt->getLocation()] = $placeIt;
-                if( $this->getInput()->hasMultipleSports() ) {
-                    $placeIt->setSportCounter( new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sports) );
-                }
+                $sportCounters[$placeIt->getLocation()] = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sports );
             }
         }
+        return $sportCounters;
     }
 
     /**
@@ -176,13 +173,14 @@ class Service {
     }
 
     /**
-     * @param array|SportNrFieldsGames[] $sportsNrFieldsGames
+     * @param array|SportNrFields[] $sportsNrFields
      * @return array
      */
-    protected function convertToMap(array $sportsNrFieldsGames): array {
+    protected function convertToMap(array $sportsNrFields): array {
         $minNrOfGamesMap = [];
-        foreach( $sportsNrFieldsGames as $sportNrFieldsGames ) {
-            $minNrOfGamesMap[$sportNrFieldsGames->getSportNr()] = $sportNrFieldsGames->getNrOfGames();
+        /** @var SportNrFields $sportNrFields */
+        foreach( $sportsNrFields as $sportNrFields ) {
+            $minNrOfGamesMap[$sportNrFields->getSportNr()] = $sportNrFields->getNrOfFields();
         }
         return $minNrOfGamesMap;
     }
@@ -223,14 +221,16 @@ class Service {
         $this->m_oTimeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->init( $games );
         $batch = new Batch();
-        $resources = new Resources( array_slice( $this->fields, 0 ) );
+
         try {
             if( $this->getInput()->hasMultipleSports() ) {
+                $resources = new Resources( $this->fields, $this->getSportCounters() );
                 $batch = $this->assignBatch( $games, $resources, $batch);
                 if ( $batch === null ) {
                     return PlanningBase::STATE_FAILED;
                 }
             } else {
+                $resources = new Resources( $this->fields );
                 $gamesH2h = $this->getGamesByH2h( $games ); // @FREDDY comment
                 foreach( $gamesH2h as $games ) { // @FREDDY comment
                     $batch = $this->assignBatch( $games, $resources, $batch);
@@ -316,12 +316,13 @@ class Service {
 //            if( $batch->getNumber() > $this->debugMaxBatchNrFound ) {
 //                $this->debugMaxBatchNrFound = $batch->getNumber();
 //                $this->output->getLogger()->info("max nr found is " . $batch->getNumber() );
-//                $this->output->consoleBatch( $batch );
+//            $this->output->consoleBatch( $batch );
 //                // die();
 //            }
 
             if (count($games) === 0) { // endsuccess
                 $this->successfullResources = $resources;
+                $this->output->consoleBatch( $batch );
                 return true;
             }
             return $this->assignBatchHelper($games, $resources, $nextBatch );
@@ -341,17 +342,17 @@ class Service {
             return false;
         }
 
-        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
-            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
-        }
+//        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
+//            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
+//        }
 
-        $resources3 = new Resources( array_slice( $resources->getFields(), 0 ) );
+        $resources3 = new Resources( $resources->getFields(), $resources->getSportCounters() );
         $nrOfFieldsTried = 0;
         while ($nrOfFieldsTried++ < count( $resources3->getFields() ) ) {
             $nrOfGamesTriedPerField = $nrOfGamesTried;
             $this->debugIterations++;
             // echo "iteration " . $this->debugIterations . PHP_EOL;
-            $resources2 = new Resources( array_slice( $resources3->getFields(), 0 ) );
+            $resources2 = new Resources( $resources3->getFields(), $resources3->getSportCounters() );
             {
                 $game = array_shift($games);
                 if ($this->isGameAssignable($batch, $game, $resources2)) {
@@ -386,12 +387,12 @@ class Service {
             $this->assignRefereePlace($batch, $game);
         }
         $batch->add($game);
-        $this->assignSport($game, $game->getField()->getSport());
+        $resources->assignSport($game, $game->getField()->getSport() );
     }
 
     protected function releaseGame(Batch $batch, Game $game) {
         $batch->remove($game);
-        $this->releaseSport($game, $game->getField()->getSport());
+        // $this->releaseSport($game, $game->getField()->getSport());
         $this->releaseField($game);
         $this->releaseReferee($game);
         if ($game->getRefereePlace()) {
@@ -473,25 +474,9 @@ class Service {
         return true;
     }
 
-    private function assignSport(Game $game, Sport $sport) {
-        foreach( $this->getPlaces($game) as $placeIt ) {
-            if( $placeIt->getSportCounter() ) {
-                $placeIt->getSportCounter()->addGame($sport);
-            }
-        }
-    }
-
-    private function releaseSport(Game $game, Sport $sport) {
-        foreach( $this->getPlaces($game) as $placeIt ) {
-            if( $placeIt->getSportCounter() ) {
-                $placeIt->getSportCounter()->removeGame($sport);
-            }
-        }
-    }
-
     private function isSomeFieldAssignable(Game $game, Resources $resources): bool {
         foreach( $resources->getFields() as $fieldIt ) {
-           if( $this->isSportAssignable($game, $fieldIt->getSport()) ) {
+           if( $resources->isSportAssignable($game, $fieldIt->getSport()) ) {
                 return true;
            }
         }
@@ -535,8 +520,8 @@ class Service {
     }
 
     private function assignField(Game $game, Resources $resources) {
-        $fields = array_filter( $resources->getFields(), function($fieldIt ) use ($game) {
-            return $this->isSportAssignable($game, $fieldIt->getSport());
+        $fields = array_filter( $resources->getFields(), function($fieldIt ) use ($game, $resources) {
+            return $resources->isSportAssignable($game, $fieldIt->getSport());
         });
         if (count($fields) >= 1) {
             $field = reset($fields);
@@ -545,15 +530,6 @@ class Service {
             $resources->setFieldIndex( $fieldIndex );
             $game->setField($removedField);
         }
-    }
-
-    private function isSportAssignable(Game $game, Sport $sport ): bool {
-        foreach( $this->getPlaces($game) as $placeIt ) {
-            if( $placeIt->getSportCounter() && !$placeIt->getSportCounter()->isAssignable($sport) ) {
-                return false;
-            };
-        }
-        return true;
     }
 
     private function assignReferee(Game $game ) {

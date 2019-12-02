@@ -117,10 +117,13 @@ class Service
             $nrOfHeadtohead++;
         }
         if (($sportService->getNrOfPouleGames($pouleNrOfPlaces, $teamup, $nrOfHeadtohead)) === $nrOfPouleGamesBySports) {
-            $nrOfHeadtohead++;
+            $nrOfGamePlaces = array_sum( array_map( function( SportNrFields $sportNrFields ) {
+                return $sportNrFields->getNrOfFields() * $sportNrFields->getNrOfGamePlaces();
+            }, $sportsNrFields ) );
+            if( ($nrOfGamePlaces % $pouleNrOfPlaces) !== 0) {
+                $nrOfHeadtohead++;
+            }
         }
-        // als totaal van (sport->nrofgameplaces % nrofpouleplaces) !== 0
-        // en je komt precies uit qua headtohead, dan 1 toevoegen aan h2h
 
         if ($nrOfHeadtohead < $defaultNrOfHeadtohead) {
             return $defaultNrOfHeadtohead;

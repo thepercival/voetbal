@@ -2,6 +2,8 @@
 
 namespace Voetbal\Planning;
 
+use Voetbal\Planning\Sport\Counter as SportCounter;
+
 class Resources {
     /**
      * @var array|Field[]
@@ -11,15 +13,25 @@ class Resources {
      * @var int|null
      */
     private $fieldIndex;
+    /**
+     * @var array|SportCounter[]
+     */
+    private $sportCounters;
 
     const FIELDS = 1;
     const REFEREES = 2;
     const PLACES = 4;
 
 
-    public function __construct( array $fields )
+    /**
+     * Resources constructor.
+     * @param array|Field[] $fields
+     * @param array|SportCounter[]|null $sportCounters
+     */
+    public function __construct( array $fields, array $sportCounters = null )
     {
         $this->fields = $fields;
+        $this->sportCounters = $sportCounters;
     }
 
     /**
@@ -75,5 +87,45 @@ class Resources {
 
     public function resetFieldIndex() {
         $this->fieldIndex = null;
+    }
+
+    /**
+     * @return array|SportCounter[]|null
+     */
+    public function getSportCounters(): ?array {
+        return $this->sportCounters;
+    }
+
+    public function assignSport(Game $game, Sport $sport) {
+        if( $this->sportCounters === null ) {
+            return;
+        }
+        foreach( $this->getPlaces($game) as $placeIt ) {
+            $this->getSportCounter( $placeIt )->addGame($sport);
+        }
+    }
+
+    public function isSportAssignable(Game $game, Sport $sport ): bool {
+        if( $this->sportCounters === null ) {
+            return true;
+        }
+        foreach( $this->getPlaces($game) as $placeIt ) {
+            if( !$this->getSportCounter( $placeIt )->isAssignable($sport) ) {
+                return false;
+            };
+        }
+        return true;
+    }
+
+    protected function getSportCounter(Place $place): SportCounter {
+        return $this->sportCounters[$place->getLocation()];
+    }
+
+    /**
+     * @param Game $game
+     * @return array|Place[]
+     */
+    protected function getPlaces(Game $game): array {
+        return array_map( function( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
     }
 }

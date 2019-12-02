@@ -451,7 +451,7 @@ class Service
         if ($floor) {
             return (int)floor((($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules));
         }
-        return (int)ceil((($nrOfPlaces - $nrOfPlaceLeft) / $nrOfPoules));
+        return (int)ceil((($nrOfPlaces + ($nrOfPoules - $nrOfPlaceLeft)) / $nrOfPoules));
     }
 
     protected function checkRanges(int $nrOfPlaces, int $nrOfPoules = null) {
