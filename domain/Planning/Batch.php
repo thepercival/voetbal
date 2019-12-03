@@ -45,6 +45,7 @@ class Batch
         $this->games = [];
         // $this->poules = [];
         // $this->places = [];
+        $this->next = null;
     }
 
     public function getNumber(): int {

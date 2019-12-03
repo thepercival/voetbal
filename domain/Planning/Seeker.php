@@ -41,8 +41,28 @@ class Seeker
     }
 
     public function process( Input $input ) {
-        $this->logger->info( 'processing input: ' . $this->inputToString( $input ) . " .." );
-        $this->processHelper( $input );
+        try {
+            $this->logger->info( 'processing input: ' . $this->inputToString( $input ) . " .." );
+            $this->processHelper( $input );
+        } catch( \Exception $e ) {
+            $this->logger->error( '   ' . '   ' .  " => " . $e->getMessage() );
+        }
+    }
+
+    public function processTimeout( PlanningBase $planning )
+    {
+        try {
+            $this->processPlanning($planning, true);
+            if ($planning->getState() === PlanningBase::STATE_SUCCESS && $planning->getMaxNrOfGamesInARow() > 1) {
+                if (!$planning->getInput()->hasPlanning($planning->getNrOfBatchGames(), $planning->getMaxNrOfGamesInARow() - 1)) {
+                    $nextPlanning = $this->planningService->createNextNInARow($planning);
+                    $nextPlanning->setState(PlanningBase::STATE_TIMEOUT);
+                    $this->planningRepos->save($nextPlanning);
+                }
+            }
+        } catch( \Exception $e ) {
+            $this->logger->error( '   ' . '   ' .  " => " . $e->getMessage() );
+        }
     }
 
     protected function processHelper( Input $input ) {
@@ -84,17 +104,7 @@ class Seeker
         $this->logger->info( '   update state => STATE_ALL_PLANNINGS_TRIED' );
     }
 
-    public function processTimeout( PlanningBase $planning )
-    {
-        $this->processPlanning( $planning, true );
-        if( $planning->getState() === PlanningBase::STATE_SUCCESS && $planning->getMaxNrOfGamesInARow() > 1 ) {
-            if( !$planning->getInput()->hasPlanning( $planning->getNrOfBatchGames(), $planning->getMaxNrOfGamesInARow() - 1 ) ) {
-                $nextPlanning = $this->planningService->createNextNInARow( $planning );
-                $nextPlanning->setState( PlanningBase::STATE_TIMEOUT );
-                $this->planningRepos->save( $nextPlanning );
-            }
-        }
-    }
+
 
     protected function processPlanning( PlanningBase $planning, bool $timeout )
     {
@@ -105,30 +115,32 @@ class Seeker
             $this->planningRepos->save( $planning );
         }
         $this->logger->info( '   ' . $this->planningToString( $planning, $timeout ) . " trying .. ");
-        try {
-            $planningService = new Service();
-            $newState = $planningService->createGames( $planning );
-            $planning->setState( $newState );
-            $this->planningRepos->save( $planning );
 
-            $stateDescription = $planning->getState() === PlanningBase::STATE_FAILED ? "failed" :
-                ( $planning->getState() === PlanningBase::STATE_TIMEOUT ? "timeout(".$planning->getTimeoutSeconds().")" : "success" );
-
-            $this->logger->info( '   ' . '   ' .  " => " . $stateDescription );
-        } catch( \Exception $e ) {
-            $this->logger->info( '   ' . '   ' .  " => " . $e->getMessage() );
+        $planningService = new Service();
+        $newState = $planningService->createGames( $planning );
+        $planning->setState( $newState );
+        $this->planningRepos->save( $planning );
+        if( $planning->getMaxNrOfBatchGames() === 1 && $planning->getState() !== PlanningBase::STATE_SUCCESS
+        && $planning->getMaxNrOfGamesInARow() === $planning->getInput()->getMaxNrOfGamesInARow() ) {
+            throw new \Exception('this planning shoud always be successful', E_ERROR);
         }
 
-//    if( $planning->getState() === Planning::STATE_SUCCESS ) {
-//        $sortedGames = $planning->getStructure()->getGames( GameBase::ORDER_BY_BATCH );
-//        $planningOutput = new Voetbal\Planning\Output( $logger );
-//        $planningOutput->consoleGames( $sortedGames );
-//    }
+        $stateDescription = $planning->getState() === PlanningBase::STATE_FAILED ? "failed" :
+            ( $planning->getState() === PlanningBase::STATE_TIMEOUT ? "timeout(".$planning->getTimeoutSeconds().")" : "success" );
+
+        $this->logger->info( '   ' . '   ' .  " => " . $stateDescription );
+
+//      if( $planning->getState() === Planning::STATE_SUCCESS ) {
+//           $sortedGames = $planning->getStructure()->getGames( GameBase::ORDER_BY_BATCH );
+//           $planningOutput = new Voetbal\Planning\Output( $logger );
+//           $planningOutput->consoleGames( $sortedGames );
+//      }
     }
 
     protected function inputToString( Input $planningInput ): string {
         $sports = array_map( function( array $sportConfig ) {
-            return '{"nrOfFields:"' . $sportConfig["nrOfFields"] . ',"nrOfGamePlaces":' . $sportConfig["nrOfGamePlaces"] . "}";
+            // return '{"nrOfFields:"' . $sportConfig["nrOfFields"] . ',"nrOfGamePlaces":' . $sportConfig["nrOfGamePlaces"] . "}";
+            return '' . $sportConfig["nrOfFields"] ;
         }, $planningInput->getSportConfig());
         return 'id '.$planningInput->getId().' => structure [' . implode( '|', $planningInput->getStructureConfig()) . ']'
             . ', sports [' . implode(',', $sports ) . ']'

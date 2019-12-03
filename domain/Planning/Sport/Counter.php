@@ -23,19 +23,18 @@ class Counter {
 
     /**
      * Counter constructor.
-     * @param array $minNrOfGamesMap
-     * @param array|PlanningSport[] $planningSports
+     * @param array|int[] $minNrOfGamesMap
+     * @param array|int[] $nrOfGamesDoneMap
      */
-    public function __construct( int $nrOfGamesToGo, array $minNrOfGamesMap, array $planningSports )
+    public function __construct( int $nrOfGamesToGo, array $minNrOfGamesMap, array $nrOfGamesDoneMap, int $nrToGo = null )
     {
         $this->nrOfGamesToGo = $nrOfGamesToGo;
-        /** @var PlanningSport $planningSport */
-        foreach( $planningSports as $planningSport ) {
-            $sportNr = $planningSport->getNumber();
-            $this->minNrOfGamesMap[$sportNr] = $minNrOfGamesMap[$sportNr];
-            $this->nrOfGamesDoneMap[$sportNr] = 0;
-            $this->nrToGo += $this->minNrOfGamesMap[$sportNr];
+        $this->minNrOfGamesMap = $minNrOfGamesMap;
+        if( $nrToGo === null ) {
+            $nrToGo = array_sum($this->minNrOfGamesMap);
         }
+        $this->nrToGo = $nrToGo;
+        $this->nrOfGamesDoneMap = $nrOfGamesDoneMap;
     }
 
     public function isAssignable(PlanningSport $sport): bool {
@@ -54,6 +53,14 @@ class Counter {
         }
         $this->nrOfGamesDoneMap[$sportNr]++;
         $this->nrOfGamesToGo--;
+    }
+
+    public function test() {
+        $this->nrToGo = 77;
+    }
+//
+    public function copy(): Counter {
+        return new Counter( $this->nrOfGamesToGo, $this->minNrOfGamesMap, $this->nrOfGamesDoneMap, $this->nrToGo );
     }
 
 //    public function removeGame(PlanningSport $sport ) {

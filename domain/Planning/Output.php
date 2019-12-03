@@ -22,11 +22,11 @@ class Output
         return $this->logger;
     }
 
-    public function consoleBatch( Batch $batch ) {
+    public function consoleBatch( Batch $batch, string $title ) {
 //        if( $batch->getNumber() > 2 ) {
 //            return;
 //        }
-        $this->logger->info( '------batch ' . $batch->getNumber() . ' assigned -------------' );
+        $this->logger->info( '------batch ' . $batch->getNumber() . ' ' . $title . ' -------------' );
         $this->consoleBatchHelper($batch->getRoot());
     }
 

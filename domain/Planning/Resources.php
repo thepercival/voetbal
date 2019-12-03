@@ -17,6 +17,10 @@ class Resources {
      * @var array|SportCounter[]
      */
     private $sportCounters;
+    /**
+     * @var array|int[]
+     */
+    private $sportTimes;
 
     const FIELDS = 1;
     const REFEREES = 2;
@@ -27,11 +31,19 @@ class Resources {
      * Resources constructor.
      * @param array|Field[] $fields
      * @param array|SportCounter[]|null $sportCounters
+     * @param array|int[]|null $sportTimes
      */
-    public function __construct( array $fields, array $sportCounters = null )
+    public function __construct( array $fields, array $sportCounters = null, array $sportTimes = null )
     {
         $this->fields = $fields;
         $this->sportCounters = $sportCounters;
+        if( $sportTimes === null && $sportCounters !== null ) {
+            /** @var Field $field */
+            foreach( $fields as $field ) {
+                $sportTimes[$field->getSport()->getNumber()] = 0;
+            }
+        }
+        $this->sportTimes = $sportTimes;
     }
 
     /**
@@ -71,22 +83,25 @@ class Resources {
         return reset( $removedFields );
     }
 
+    public function orderFields() {
+        uasort( $this->fields, function( Field $fieldA, Field $fieldB ) {
+            $this->sportTimes[$fieldA->getSport()->getNumber() ] > $this->sportTimes[$fieldB->getSport()->getNumber() ] ? -1 : 1;
+        } );
+        $r = 1;
+    }
+
     /**
      * @return int
      */
-    public function getFieldIndex(): int {
+    public function getFieldIndex(): ?int {
         return $this->fieldIndex;
     }
 
     /**
      * @param int $fieldIndex
      */
-    public function setFieldIndex( int $fieldIndex) {
+    public function setFieldIndex( int $fieldIndex = null) {
         $this->fieldIndex = $fieldIndex;
-    }
-
-    public function resetFieldIndex() {
-        $this->fieldIndex = null;
     }
 
     /**
@@ -100,6 +115,7 @@ class Resources {
         if( $this->sportCounters === null ) {
             return;
         }
+        $this->sportTimes[$sport->getNumber()]++;
         foreach( $this->getPlaces($game) as $placeIt ) {
             $this->getSportCounter( $placeIt )->addGame($sport);
         }
@@ -127,5 +143,18 @@ class Resources {
      */
     protected function getPlaces(Game $game): array {
         return array_map( function( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
+    }
+
+    public function copy(): Resources {
+        $newSportCounters = null;
+        if ( $this->getSportCounters() !== null ) {
+            $newSportCounters = [];
+            foreach( $this->getSportCounters() as $location => $sportCounter ) {
+                $newSportCounters[$location] = $sportCounter->copy();
+            }
+        }
+        $resources = new Resources( $this->getFields(), $newSportCounters, $this->sportTimes );
+        $resources->setFieldIndex( $this->getFieldIndex() );
+        return $resources;
     }
 }
