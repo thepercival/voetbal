@@ -120,7 +120,8 @@ class Service
             $nrOfGamePlaces = array_sum( array_map( function( SportNrFields $sportNrFields ) {
                 return $sportNrFields->getNrOfFields() * $sportNrFields->getNrOfGamePlaces();
             }, $sportsNrFields ) );
-            if( ($nrOfGamePlaces % $pouleNrOfPlaces) !== 0) {
+            if( ($nrOfGamePlaces % $pouleNrOfPlaces) !== 0
+                && ( $pouleNrOfPlaces % 2 ) !== 0  /* $pouleNrOfPlaces 1 van beide niet deelbaar door 2 */ ) {
                 $nrOfHeadtohead++;
             }
         }

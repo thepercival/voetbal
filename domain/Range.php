@@ -20,4 +20,8 @@ class Range {
         $this->min = $min;
         $this->max = $max;
     }
+
+    public function difference(): int {
+        return $this->max - $this->min;
+    }
 }

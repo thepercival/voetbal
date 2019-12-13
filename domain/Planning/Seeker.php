@@ -89,7 +89,14 @@ class Seeker
             }
         }
 
-        if( !($planningMaxPlusOne && $planningMaxPlusOne->getState() !== PlanningBase::STATE_SUCCESS) ) {
+        /** $minIsMaxPlanning bestaat altijd, dit bepaalt eindsucces */
+        if(
+                ( !$planningMaxPlusOne && ($minIsMaxPlanning->getState() === PlanningBase::STATE_SUCCESS) )
+            ||
+                ( $planningMaxPlusOne && ($planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS) )
+            ||
+                ( $planningMaxPlusOne && ($planningMaxPlusOne->getState() !== PlanningBase::STATE_SUCCESS) && ($minIsMaxPlanning->getState() === PlanningBase::STATE_SUCCESS) )
+        ) {
             $planning = ($planningMaxPlusOne && $planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS) ? $planningMaxPlusOne : $minIsMaxPlanning;
 
             $planningNextInARow =  $this->planningService->createNextInARowPlanning( $planning );
@@ -103,8 +110,6 @@ class Seeker
         $this->inputRepos->save( $input );
         $this->logger->info( '   update state => STATE_ALL_PLANNINGS_TRIED' );
     }
-
-
 
     protected function processPlanning( PlanningBase $planning, bool $timeout )
     {

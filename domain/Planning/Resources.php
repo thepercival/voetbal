@@ -14,6 +14,10 @@ class Resources {
      */
     private $fieldIndex;
     /**
+     * @var int
+     */
+    private $nrOfFieldSwitches;
+    /**
      * @var array|SportCounter[]
      */
     private $sportCounters;
@@ -44,6 +48,7 @@ class Resources {
             }
         }
         $this->sportTimes = $sportTimes;
+        $this->nrOfFieldSwitches = 0;
     }
 
     /**
@@ -58,6 +63,13 @@ class Resources {
      */
     public function addField( Field $field ) {
         $this->fields[] = $field;
+    }
+
+    /**
+     * @param array|Field[] $fields
+     */
+    public function setFields( array $fields ) {
+        $this->fields = $fields;
     }
 
     /**
@@ -90,6 +102,46 @@ class Resources {
         $r = 1;
     }
 
+    public function switchFields(): bool {
+        return false;
+        if( ++$this->nrOfFieldSwitches >= count($this->fields) ) {
+            return false;
+        }
+        array_push( $this->fields, array_shift($this->fields) );
+        return true;
+//        $newFields = [];
+//        for( $i = 0 ; $i < count($fields) ; $i++ ) {
+//            $newFields[] = $fields;
+//            array_push( $fields, array_shift($fields) );
+//        }
+//        return $newFields;
+//
+//        return [$fields];
+//        $fieldCombinations = [];
+//        $pc_permute = function($items, $perms = array()) use (&$pc_permute, &$fieldCombinations) {
+//            if (empty($items)) {
+//                $fieldCombinations[] = $perms;
+//            }
+//            for ($i = count($items) - 1; $i >= 0; --$i) {
+//                $newitems = $items;
+//                $newperms = $perms;
+//                list($foo) = array_splice($newitems, $i, 1);
+//                array_unshift($newperms, $foo);
+//                $pc_permute($newitems, $newperms);
+//            }
+//        };
+//        $pc_permute($fields);
+//        return $fieldCombinations;
+    }
+
+    public function getGameNrOfSportsToGo( Game $game ): int {
+        $gameNrToGo = 0;
+        foreach( $this->getPlaces($game) as $place ) {
+            $gameNrToGo += $this->getSportCounter($place)->getNrOfSportsToGo();
+        }
+        return $gameNrToGo;
+    }
+
     /**
      * @return int
      */
@@ -102,6 +154,20 @@ class Resources {
      */
     public function setFieldIndex( int $fieldIndex = null) {
         $this->fieldIndex = $fieldIndex;
+    }
+
+    /**
+     * @return int
+     */
+    public function getNrOfFieldSwitches(): ?int {
+        return $this->nrOfFieldSwitches;
+    }
+
+    /**
+     * @param int $nrOfFieldSwitches
+     */
+    public function setNrOfFieldSwitches( int $nrOfFieldSwitches ) {
+        $this->nrOfFieldSwitches = $nrOfFieldSwitches;
     }
 
     /**
@@ -133,7 +199,7 @@ class Resources {
         return true;
     }
 
-    protected function getSportCounter(Place $place): SportCounter {
+    public function getSportCounter(Place $place): SportCounter {
         return $this->sportCounters[$place->getLocation()];
     }
 
@@ -155,6 +221,7 @@ class Resources {
         }
         $resources = new Resources( $this->getFields(), $newSportCounters, $this->sportTimes );
         $resources->setFieldIndex( $this->getFieldIndex() );
+        $resources->setNrOfFieldSwitches( $this->getNrOfFieldSwitches() );
         return $resources;
     }
 }

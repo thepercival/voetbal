@@ -57,26 +57,29 @@ class Output
         return true;
     }
 
-    protected function consoleGame(Game $game, Batch $batch = null) {
+    public function consoleGame(Game $game, Batch $batch = null, string $prefix = null) {
         $useColors = $this->useColors();
-        $refDescr = ($game->getRefereePlace() ? $game->getRefereePlace()->getLocation() : '');
-        $refNumber = $useColors ? ($game->getRefereePlace() ? $game->getRefereePlace()->getNumber() : 0 ) : -1;
+        $refDescr = ($game->getRefereePlace() ? $game->getRefereePlace()->getLocation() : ($game->getReferee() ? $game->getReferee()->getNumber() : ''));
+        $refNumber = ($useColors ? ($game->getRefereePlace() ? $game->getRefereePlace()->getNumber() : ($game->getReferee() ? $game->getReferee()->getNumber() : 0)) : -1);
         $batchColor = $useColors ? ($game->getBatchNr() % 10) : -1;
-        $fieldColor = $useColors ? $game->getField()->getNumber() : -1;
-        $this->logger->info( $this->consoleColor($batchColor, 'batch ' . $game->getBatchNr() ) . " " .
+        $field = $game->getField();
+        $fieldNr = $field ? $field->getNumber() : -1;
+        $fieldColor = $useColors ? $fieldNr : -1;
+        $this->logger->info(
+            ($prefix ? $prefix : '').
+            $this->consoleColor($batchColor, 'batch ' . $game->getBatchNr() ) . " " .
             // . '(' . $game->getRoundNumber(), 2 ) . consoleString( $game->getSubNumber(), 2 ) . ") "
             'poule ' . $game->getPoule()->getNumber()
             . ', ' . $this->consolePlaces($game, GameBase::HOME, $batch)
             . ' vs ' . $this->consolePlaces($game, GameBase::AWAY, $batch)
-            . ' , ref ' . $this->consoleColor($refNumber, $refDescr)
-
-            . ', ' . $this->consoleColor($fieldColor, 'field ' . $game->getField()->getNumber())
-            . ', sport ' . $game->getField()->getSport()->getNumber()
+            . ' , ' . $this->consoleColor($refNumber, 'ref ' . $refDescr)
+            . ', ' . $this->consoleColor($fieldColor, 'field ' . $fieldNr)
+            . ', sport ' . ($field ? $game->getField()->getSport()->getNumber(): -1)
         );
     }
 
     protected function consolePlaces( Game $game, bool $homeAway, Batch $batch = null ): string {
-        $useColors = $this->useColors();
+        $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $placesAsArrayOfStrings = $game->getPlaces($homeAway)->map( function( $gamePlace ) use ($useColors, $batch) {
             $colorNumber = $useColors ? $gamePlace->getPlace()->getNumber() : -1;
             $gamesInARow = $batch ? ('(' . $batch->getGamesInARow($gamePlace->getPlace()) . ')') : '';

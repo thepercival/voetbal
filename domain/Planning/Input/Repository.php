@@ -93,6 +93,7 @@ class Repository extends \Voetbal\Repository
         $query = $this->createQueryBuilder('pi')
             ->addSelect('(' . $dqlMoreRecentSuccesses . ') AS HIDDEN moreRecentSuccesses')
             ->where('pi.state <> :state')
+            // ->andWhere("pi.structureConfig = '[4]'")
             // ->andWhere('pi.nrOfHeadtohead = 91') // @FREDDY
             ->orderBy('moreRecentSuccesses', 'ASC')
             ->addOrderBy('pi.createdAt', 'DESC')

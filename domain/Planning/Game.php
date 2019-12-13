@@ -105,7 +105,7 @@ class Game
         $this->referee = null;
     }
 
-    public function getField(): Field {
+    public function getField(): ?Field {
         return $this->field;
     }
 

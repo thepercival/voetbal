@@ -40,10 +40,6 @@ class Service {
      */
     private $refereePlaces;
     /**
-     * @var bool
-     */
-    private $areRefereesEnabled = false;
-    /**
      * @var array|Field[]
      */
     private $fields = [];
@@ -223,6 +219,10 @@ class Service {
      * @return int
      */
     public function assign(array $games)  {
+//        if( $this->planning->getMaxNrOfBatchGames() !== 2 || $this->planning->getMinNrOfBatchGames() !== 2 ) {
+//            return PlanningBase::STATE_FAILED;
+//        }
+
         $this->debugIterations = 0;
         $oCurrentDateTime = new \DateTimeImmutable();
         $this->m_oTimeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
@@ -292,7 +292,8 @@ class Service {
      */
     protected function assignBatch(array $games, Resources $resources, Batch $batch ): ?Batch
     {
-        if ($this->assignBatchHelper($games, $resources, $batch)) {
+        // $this->output->consoleGames( $games ); die();
+        if ($this->assignBatchHelper($games, $resources, $batch, $this->planning->getMaxNrOfBatchGames() )) {
             return $this->getActiveLeaf( $batch->getLeaf() );
         }
         return null;
@@ -308,6 +309,14 @@ class Service {
         return $this->getActiveLeaf( $batch->getPrevious() );
     }
 
+    //// uasort( $games, function( Game $gameA, Game $gameB ) use ( $continueResources6 ) {
+////                $this->output->consoleGame( $gameA, null, 'gameA: ' );
+////                $this->output->consoleGame( $gameB, null, 'gameB: ' );
+//                $nrOfSportsToGoA = $continueResources6->getGameNrOfSportsToGo($gameA);
+//                $nrOfSportsToGoB = $continueResources6->getGameNrOfSportsToGo($gameB);
+//                return $nrOfSportsToGoA >= $nrOfSportsToGoB ? -1 : 1;
+//            });
+
     /**
      * @param array $games
      * @param Resources $resources
@@ -316,85 +325,72 @@ class Service {
      * @return bool
      * @throws TimeoutException
      */
-    protected function assignBatchHelper(array &$games, Resources $resources, Batch $batch, int $nrOfGamesTried = 0): bool {
-        // console hier op 1 regel, aantala games, batchnr en resources
-        if (count($batch->getGames() ) === $this->planning->getMaxNrOfBatchGames() || count($games) === 0) { // batchsuccess
-            $continueResources6 = $resources->copy();
-            $nextBatch = $this->toNextBatch($batch, $continueResources6);
-
-//            if( $batch->getNumber() === 10 ) {
-//////                $this->debugMaxBatchNrFound = $batch->getNumber();
-//////                $this->output->getLogger()->info("max nr found is " . $batch->getNumber() );
-//                    $this->output->consoleBatch( $batch, 'assigned' );
-//////                // die();
-//            }
-
+    protected function assignBatchHelper(array $games, Resources $resources, Batch $batch, int $maxNrOfBatchGames, int $nrOfGamesTried = 0): bool {
+        if (count($batch->getGames() ) === $maxNrOfBatchGames || count($games) === 0) { // batchsuccess
+            $nextBatch = $this->toNextBatch($batch, $resources);
+//            $this->output->consoleBatch( $batch, 'assigned' );
             if (count($games) === 0) { // endsuccess
-                $this->successfullResources = $continueResources6;
-                $this->output->consoleBatch( $batch, ' final' );
+                $mem = $this->convert(memory_get_usage(true)); // 123 kb
+                $this->output->consoleBatch( $batch, ' final ('.(++$this->debugIterations).' : '.$mem.')' );
                 return true;
             }
-            return $this->assignBatchHelper($games, $continueResources6, $nextBatch );
+            return $this->assignBatchHelper($games, $resources, $nextBatch, $maxNrOfBatchGames, 0/*count($games)*/ );
         }
-        if ( count($games) === $nrOfGamesTried) {
-            if (count($batch->getGames() ) >= $this->planning->getMinNrOfBatchGames() ) {
-                $continueResources4 = $resources->copy();
-                $nextBatch = $this->toNextBatch($batch, $continueResources4);
-                return $this->assignBatchHelper($games, $continueResources4, $nextBatch );
-            }
-//            if( count( $batch->getPlaces() ) > 0 ) {
-//                echo implode( ",", array_map( function( $place ) { return $place->getNumber(); }, $batch->getPlaces() ) ) . PHP_EOL;
-//
-//            } else {
-//                echo "current batch is " . $batch->getNumber() . "(".count($batch->getGames())." games) failed with " . count($games) . " games left and " . $nrOfGamesTried ." tried" . PHP_EOL;
-//            }
-            $batch->reset();
-            if( $batch->hasPrevious() ) {
-                if( $batch->getPrevious()->getNumber() === 6 ) {
-                    $e = 2;
-                }
-                $this->output->consoleBatch( $batch->getPrevious(), 'reverted to' );
-            }
-            return false;
-        }
+
+        // welke wedstrijden hoef je niet in een andere volgorde te proberen per batch
+        // die via maxgamesinarow niet meer mogen
+
+        // per game ook alle games filteren die al in de vorige games zitten
+
+
 
         if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
             throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
         }
 
-        $resourcesWhile = $resources->copy();
-        $nrOfFieldsTried = 0;
-        while ($nrOfFieldsTried++ < count( $resourcesWhile->getFields() ) ) {
-            $nrOfGamesTriedPerField = $nrOfGamesTried;
-            $this->debugIterations++;
-            // echo "iteration " . $this->debugIterations . PHP_EOL;
+//  $this->debugIterations++;
+//  echo "iteration " . $this->debugIterations . " (27489) (".$this->convert(memory_get_usage(true))." / ".ini_get('memory_limit').")" . PHP_EOL;
 
-            $resourcesAssign = $resourcesWhile->copy();
-            {
-                $game = array_shift($games);
-                if ($this->isGameAssignable($batch, $game, $resourcesAssign)) {
-                    // $continueResources3 = $newResources->copy();
-                    $this->assignGame($batch, $game, $resourcesAssign);
-                    $copiedGames = array_slice( $games, 0 );
-                    // $continueResources33 = $continueResources3->copy();
-                    if ($this->assignBatchHelper($copiedGames, $resourcesAssign/*$continueResources33*/, $batch)) {
-                        return true;
-                    }
-                    $this->releaseGame($batch, $game);
-                }
-                $games[] = $game;
-            }
-            $resourcesAssign2 = $resourcesWhile->copy();
-            if( $this->assignBatchHelper($games, $resourcesAssign2, $batch, ++$nrOfGamesTried/*++$nrOfGamesTriedPerField*/ ) ) {
+        if( $nrOfGamesTried === count($games) || (count($games) < ($maxNrOfBatchGames - count($batch->getGames()))) ) {
+            return false;
+        }
+        $game = array_shift($games);
+        if ($this->isGameAssignable($batch, $game, $resources)) {
+            $resourcesAssign = $resources->copy();
+            $this->assignGame($batch, $game, $resourcesAssign);
+            // verwijder alle games die in $game zitten
+            // m
+            if ($this->assignBatchHelper($games, $resourcesAssign, $batch, $maxNrOfBatchGames )) {
                 return true;
             }
-           // if (!$this->tryShuffledFields) {
-                return false;
-           // }
-            $resourcesWhile->addField( $resourcesWhile->shiftField() );
+            $this->releaseGame($batch, $game);
+        }
+        $games[] = $game;
+        if( $this->assignBatchHelper($games, $resources->copy(), $batch, $maxNrOfBatchGames, ++$nrOfGamesTried ) ) {
+            return true;
         }
 
+        // tijdelijk uit
+        $resourcesSwitchFields = $resources->copy();
+        while( $resourcesSwitchFields->switchFields() ) {
+            if( $this->assignBatchHelper($games, $resourcesSwitchFields, $batch, $maxNrOfBatchGames ) ) {
+                return true;
+            }
+        }
+
+        if ($maxNrOfBatchGames === $this->planning->getMaxNrOfBatchGames() && $this->planning->getNrOfBatchGames()->difference() > 0 ) {
+            if( $this->assignBatchHelper($games, $resources->copy(), $batch, $maxNrOfBatchGames - 1 ) ) {
+                return true;
+            }
+        }
+        // batch->reset(); ???
         return false;
+    }
+
+    protected function convert($size)
+    {
+        $unit=array('b','kb','mb','gb','tb','pb');
+        return @round($size/pow(1024,($i=floor(log($size,1024)))),2).' '.$unit[$i];
     }
 
     protected function assignGame(Batch $batch, Game $game, Resources $resources) {
@@ -506,7 +502,7 @@ class Service {
 
     private function isSomeRefereeAssignable(Batch $batch, Game $game = null ): bool {
         if (!$this->planning->getInput()->getSelfReferee()) {
-            if (!$this->areRefereesEnabled) {
+            if (!$this->refereesEnabled()) {
                 return true;
             }
             return count($this->referees) > 0;

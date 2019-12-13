@@ -54,3 +54,22 @@ Voetbal\Planning\Input:
       mappedBy: input
       fetch: EXTRA_LAZY
       cascade: [ remove ]
+  indexes:
+#    structureConfig_idx:
+#      columns: [ structureConfig ]
+#    sportConfig_idx:
+#      columns: [ sportConfig ]
+    nrOfReferees_idx:
+      columns: [ nrOfReferees ]
+    teamup_idx:
+      columns: [ teamup ]
+    selfReferee_idx:
+      columns: [ selfReferee ]
+    nrOfHeadtohead_idx:
+      columns: [ nrOfHeadtohead ]
+    state_idx:
+      columns: [ state ]
+    createdAt_idx:
+      columns: [ createdAt ]
+    createdBy_idx:
+      columns: [ createdBy ]

@@ -1,7 +1,7 @@
 -- draaien voor doctrine-update
 -- ALTER TABLE rounds MODIFY numberid INT NOT NULL;
 
--- update games set startdatetime = ( select c.startdatetime from poules p join rounds r on r.id = p.roundid join roundnumbers rn on rn.id = r.numberid join competitions c on c.id = rn.competitionid where p.id = games.pouleid )
+-- update games set startdatetime = ( select c.startdatetime from poules p join rounds r on r.id = p.roundid join roundnumbers rn on rn.id = r.numberid join competitions c on c.id = rn.competitionid where p.id = games.pouleid ) where startdatetime is null;
 
 -- draaien na doctrine-update
 update tournaments set exported = 1 where printed = true;
@@ -93,7 +93,21 @@ insert into fields( competitionid, number, name, sportid )
     from competitions where not exists( select * from fields where competitionid = competitions.id )
   );
 
--- @TODO update old structures!!
+
+-- update old structures, qualifyorder=2 handmatig
+-- zou zo moeten werken,
+insert into qualifygroups( roundid, winnersOrLosers, number ) (
+    select 	parentid, winnersOrLosers, 1
+    from 	rounds
+    where 	parentid is not null
+      and	qualifyOrder = 1
+);
+
+update rounds set parentQualifyId = ( select id from qualifygroups where qualifygroups.roundid = rounds.parentid && qualifygroups.winnersOrLosers = rounds.winnersOrLosers ) where parentid is not null and qualifyOrder = 1;
+
+update tournaments set updated = true where competitionid not in (
+    select rn.competitionid from rounds r join roundnumbers rn on rn.id = r.numberid where qualifyOrder = 2
+);
 
 -- add qualifyGroups
 -- insert into qualifygroups( roundid, winnersOrLosers, number, childRoundId ) -- nrOfHorizontalPoules

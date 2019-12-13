@@ -149,9 +149,9 @@ class Planning
 
     protected function initTimeoutSeconds() {
         $this->timeoutSeconds = PlanningBase::DEFAULT_TIMEOUTSECONDS;
-        if( $this->input->getTeamup() || max($this->input->getStructureConfig()) > 7 ) {
-            $this->timeoutSeconds *= 2;
-        }
+//        if( $this->input->getTeamup() || max($this->input->getStructureConfig()) > 7 || $this->input->hasMultipleSports() ) {
+//            $this->timeoutSeconds *= 6;
+//        }
     }
 
     public function getState(): int {

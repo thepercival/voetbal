@@ -37,10 +37,10 @@ Voetbal\Qualify\Group:
       targetEntity: Voetbal\Round
       mappedBy: qualifyGroups
       joinColumn:
-        name: roundid
+        name: roundId
         referencedColumnName: id
         nullable: false
         onDelete: CASCADE
   uniqueConstraints:
     number_u_idx:
-      columns: [ roundid, winnersOrLosers, number ]
+      columns: [ roundId, winnersOrLosers, number ]
