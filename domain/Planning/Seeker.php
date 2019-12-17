@@ -51,7 +51,7 @@ class Seeker
                 $gcdDbInput = $this->inputRepos->getFromInput( $gcdInput );
                 if( $gcdDbInput === null ) {
                     $this->logger->info( '   gcd not found in db, now creating ..' );
-                    $this->inputRepos->save( $gcdDbInput );
+                    $gcdDbInput = $this->inputRepos->save( $gcdInput );
                 }
                 $this->process( $gcdDbInput );
                 return $this->processByGCD( $input, $gcdDbInput );
@@ -63,23 +63,45 @@ class Seeker
     }
 
     protected function processByGCD( Input $input, Input $gcdInput ) {
-
         // haal gcd op vanuit $input
         $gcd = $this->inputService->getGCD( $input );
 
         // maak planning
-        $bestGCDPlanning = $this->planningService->getBestPlanning( $gcdInput );
-        $planning = new PlanningBase( $input, $bestGCDPlanning->getNrOfBatchGames(), $bestGCDPlanning->getMaxNrOfGamesInARow() );
+        $gcdPlanning = $this->planningService->getBestPlanning( $gcdInput );
+        $planning = new PlanningBase( $input, $gcdPlanning->getNrOfBatchGames(), $gcdPlanning->getMaxNrOfGamesInARow() );
 
-        // loop door de gcd in en kopieer alles van gcdInput naar input
-        for( $iteration = 1 ; $iteration <= $gcd ; $iteration++ ) {
-            // games per iteration do some multiplying...
-            $gcdInput games
+        for( $iteration = 0 ; $iteration < $gcd ; $iteration++ ) {
+            foreach( $gcdPlanning->getGames() as $gcdGame ) {
+                $pouleNr = ( $iteration * $gcdPlanning->getPoules()->count() ) + $gcdGame->getPoule()->getNumber();
+                $poule = $planning->getPoule( $pouleNr );
+
+                $game = new Game( $poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr() );
+                $game->setBatchNr( $gcdGame->getBatchNr() );
+
+                if( $gcdGame->getReferee() ) {
+                    $refereeNr = ( $iteration * $gcdInput->getNrOfReferees() ) + $gcdGame->getReferee()->getNumber();
+                    $game->setReferee( $planning->getReferee( $refereeNr ) );
+                }
+                $fieldNr = ( $iteration * $gcdInput->getNrOfFields() ) + $gcdGame->getField()->getNumber();
+                $game->setField( $planning->getField( $fieldNr ) );
+
+                if( $gcdGame->getRefereePlace() ) {
+                    $refereePouleNr = $gcdGame->getRefereePlace()->getPoule()->getNumber();
+                    $refereePoule = $planning->getPoule( $refereePouleNr );
+                    $refereePlace = $refereePoule->getPlace( $gcdGame->getRefereePlace()->getNumber() );
+                    $game->setRefereePlace( $refereePlace );
+                }
+
+                foreach( $gcdGame->getPlaces() as $gcdGamePlace ) {
+                    $place = $poule->getPlace( $gcdGamePlace->getPlace()->getNumber() );
+                    $gamePlace = new Game\Place( $game, $place, $gcdGamePlace->getHomeAway() );
+                }
+            }
         }
 
-
         // $this->logger->info( '   ' . $this->planningToString( $planning, $timeout ) . " timeout => " . $planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER  );
-        $planning->setTimeoutSeconds($bestGCDPlanning->getTimeoutSeconds());
+        $planning->setState( $gcdPlanning->getState() );
+        $planning->setTimeoutSeconds(-1);
         $this->planningRepos->save( $planning );
 
         $input->setState( Input::STATE_ALL_PLANNINGS_TRIED );

@@ -62,8 +62,9 @@ class Service
     }
 
     public function getGCDInput( PlanningInput $input ): PlanningInput {
-        list($structureConfig, $sportConfig, $nrOfReferees) = $this->reduceByGCD(
-            $input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees()
+        $gcd = $this->getGCDRaw( $input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees() );
+        list($structureConfig, $sportConfig, $nrOfReferees) = $this->modifyByGCD(
+            $gcd, $input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees()
         );
         return new PlanningInput(
             $structureConfig,  $sportConfig,
@@ -71,12 +72,18 @@ class Service
         );
     }
 
-    public function reduceByGCD( array $structureConfig, array $sportConfig, int $nrOfReferees )
+    public function getReverseGCDInput( PlanningInput $input, int $reverseGCD ): PlanningInput {
+        list($structureConfig, $sportConfig, $nrOfReferees) = $this->modifyByGCD(
+            1 / $reverseGCD, $input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees()
+        );
+        return new PlanningInput(
+            $structureConfig,  $sportConfig,
+            $nrOfReferees, $input->getTeamup(), $input->getSelfReferee(), $input->getNrOfHeadtohead()
+        );
+    }
+
+    public function modifyByGCD( float $gcd, array $structureConfig, array $sportConfig, int $nrOfReferees )
     {
-        $gcd = $this->getGCDRaw( $structureConfig, $sportConfig, $nrOfReferees );
-        if( $gcd <= 1 ) {
-            return [$structureConfig, $sportConfig, $nrOfReferees];
-        }
         $nrOfPoulesByNrOfPlaces = $this->getNrOfPoulesByNrOfPlaces( $structureConfig );
         // divide with gcd
         foreach( $nrOfPoulesByNrOfPlaces as $nrOfPlaces => $nrOfPoules ) {
@@ -91,9 +98,9 @@ class Service
         }
 
         for( $i = 0 ; $i < count($sportConfig) ; $i++ ) {
-            $sportConfig[$i]["nrOfFields"] /= $gcd;
+            $sportConfig[$i]["nrOfFields"] = (int)($sportConfig[$i]["nrOfFields"]/$gcd);
         }
-        $nrOfReferees /= $gcd;
+        $nrOfReferees = (int)($nrOfReferees / $gcd);
 
         return [$retStrucureConfig, $sportConfig, $nrOfReferees];
     }

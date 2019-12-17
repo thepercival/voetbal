@@ -187,6 +187,15 @@ class Planning
 //        return $structure;
     }
 
+    public function getPoule( int $pouleNr ): ?Poule {
+        foreach( $this->getPoules() as $poule ) {
+            if( $poule->getNumber() === $pouleNr ) {
+                return $poule;
+            }
+        }
+        return null;
+    }
+
     protected function initPoules( array $structureConfig ) {
         $this->poules = new ArrayCollection();
         foreach( $structureConfig as $nrOfPlaces ) {
@@ -215,14 +224,24 @@ class Planning
         }
     }
 
-    public function getFields(): ArrayCollection {
+    public function getFields(): ArrayCollection
+    {
         $fields = new ArrayCollection();
-        foreach( $this->getSports() as $sport ) {
-            foreach( $sport->getFields() as $field ) {
+        foreach ($this->getSports() as $sport) {
+            foreach ($sport->getFields() as $field) {
                 $fields->add($field);
             }
         }
         return $fields;
+    }
+        
+    public function getField( int $fieldNr ): ?Field {
+        foreach( $this->getFields() as $field ) {
+            if( $field->getNumber() === $fieldNr ) {
+                return $field;
+            }
+        }
+        return null;
     }
 
     /**
@@ -237,6 +256,15 @@ class Planning
         for( $refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $refereeNr++ ) {
             $this->referees->add( new Referee( $this, $refereeNr ) );
         }
+    }
+
+    public function getReferee( int $refereeNr ): ?Referee {
+        foreach( $this->getReferees() as $referee ) {
+            if( $referee->getNumber() === $refereeNr ) {
+                return $referee;
+            }
+        }
+        return null;
     }
 
     public function getGames(): ArrayCollection {

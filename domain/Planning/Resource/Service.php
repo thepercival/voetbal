@@ -335,9 +335,9 @@ class Service {
             });
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0 );
         }
-//        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
-//            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
-//        }
+        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
+            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
+        }
 
         if( $nrOfGamesTried === count($gamesForBatch) ) {
             return false;
@@ -362,20 +362,18 @@ class Service {
             return true;
         }
 
-        // tijdelijk uit
-//        $resourcesSwitchFields = $resources->copy();
-//        while( $resourcesSwitchFields->switchFields() ) {
-//            if( $this->assignBatchHelper($games, $gamesForBatch, $resourcesSwitchFields, $batch, $maxNrOfBatchGames ) ) {
-//                return true;
-//            }
-//        }
-//
-//        if ($maxNrOfBatchGames === $this->planning->getMaxNrOfBatchGames() && $this->planning->getNrOfBatchGames()->difference() > 0 ) {
-//            if( $this->assignBatchHelper($games, $gamesForBatch, $resources->copy(), $batch, $maxNrOfBatchGames - 1 ) ) {
-//                return true;
-//            }
-//        }
-        // batch->reset(); ???
+        $resourcesSwitchFields = $resources->copy();
+        while( $resourcesSwitchFields->switchFields() ) {
+            if( $this->assignBatchHelper($games, $gamesForBatch, $resourcesSwitchFields, $batch, $maxNrOfBatchGames ) ) {
+                return true;
+            }
+        }
+
+        if ($maxNrOfBatchGames === $this->planning->getMaxNrOfBatchGames() && $this->planning->getNrOfBatchGames()->difference() > 0 ) {
+            if( $this->assignBatchHelper($games, $gamesForBatch, $resources->copy(), $batch, $maxNrOfBatchGames - 1 ) ) {
+                return true;
+            }
+        }
         return false;
     }
 
