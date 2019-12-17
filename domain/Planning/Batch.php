@@ -41,12 +41,12 @@ class Batch
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;;
     }
 
-    public function reset() {
-        $this->games = [];
-        // $this->poules = [];
-        // $this->places = [];
-        $this->next = null;
-    }
+//    public function reset() {
+//        $this->games = [];
+//        // $this->poules = [];
+//        // $this->places = [];
+//        $this->next = null;
+//    }
 
     public function getNumber(): int {
         return $this->number;
