@@ -3,10 +3,11 @@
 namespace Voetbal\Planning;
 
 use Monolog\Logger;
-use Voetbal\Planning\Service as PlanningInputService;
+use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Planning\Input\Repository as PlanningInputRepository;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Range as VoetbalRange;
 
 class Seeker
 {
@@ -43,10 +44,69 @@ class Seeker
     public function process( Input $input ) {
         try {
             $this->logger->info( 'processing input: ' . $this->inputToString( $input ) . " .." );
+
+            if( $this->inputService->hasGCD( $input ) ) {
+                $this->logger->info( '   gcd found ..' );
+                $gcdInput = $this->inputService->getGCDInput( $input );
+                $gcdDbInput = $this->inputRepos->getFromInput( $gcdInput );
+                if( $gcdDbInput === null ) {
+                    $this->logger->info( '   gcd not found in db, now creating ..' );
+                    $gcdDbInput = $this->inputRepos->save( $gcdInput );
+                }
+                $this->process( $gcdDbInput );
+                return $this->processByGCD( $input, $gcdDbInput );
+            }
             $this->processHelper( $input );
         } catch( \Exception $e ) {
             $this->logger->error( '   ' . '   ' .  " => " . $e->getMessage() );
         }
+    }
+
+    protected function processByGCD( Input $input, Input $gcdInput ) {
+        // haal gcd op vanuit $input
+        $gcd = $this->inputService->getGCD( $input );
+
+        // maak planning
+        $gcdPlanning = $this->planningService->getBestPlanning( $gcdInput );
+        $planning = new PlanningBase( $input, $gcdPlanning->getNrOfBatchGames(), $gcdPlanning->getMaxNrOfGamesInARow() );
+
+        for( $iteration = 0 ; $iteration < $gcd ; $iteration++ ) {
+            foreach( $gcdPlanning->getGames() as $gcdGame ) {
+                $pouleNr = ( $iteration * $gcdPlanning->getPoules()->count() ) + $gcdGame->getPoule()->getNumber();
+                $poule = $planning->getPoule( $pouleNr );
+
+                $game = new Game( $poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr() );
+                $game->setBatchNr( $gcdGame->getBatchNr() );
+
+                if( $gcdGame->getReferee() ) {
+                    $refereeNr = ( $iteration * $gcdInput->getNrOfReferees() ) + $gcdGame->getReferee()->getNumber();
+                    $game->setReferee( $planning->getReferee( $refereeNr ) );
+                }
+                $fieldNr = ( $iteration * $gcdInput->getNrOfFields() ) + $gcdGame->getField()->getNumber();
+                $game->setField( $planning->getField( $fieldNr ) );
+
+                if( $gcdGame->getRefereePlace() ) {
+                    $refereePouleNr = $gcdGame->getRefereePlace()->getPoule()->getNumber();
+                    $refereePoule = $planning->getPoule( $refereePouleNr );
+                    $refereePlace = $refereePoule->getPlace( $gcdGame->getRefereePlace()->getNumber() );
+                    $game->setRefereePlace( $refereePlace );
+                }
+
+                foreach( $gcdGame->getPlaces() as $gcdGamePlace ) {
+                    $place = $poule->getPlace( $gcdGamePlace->getPlace()->getNumber() );
+                    $gamePlace = new Game\Place( $game, $place, $gcdGamePlace->getHomeAway() );
+                }
+            }
+        }
+
+        // $this->logger->info( '   ' . $this->planningToString( $planning, $timeout ) . " timeout => " . $planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER  );
+        $planning->setState( $gcdPlanning->getState() );
+        $planning->setTimeoutSeconds(-1);
+        $this->planningRepos->save( $planning );
+
+        $input->setState( Input::STATE_ALL_PLANNINGS_TRIED );
+        $this->inputRepos->save( $input );
+        $this->logger->info( '   update state => STATE_ALL_PLANNINGS_TRIED' );
     }
 
     public function processTimeout( PlanningBase $planning )
@@ -137,14 +197,13 @@ class Seeker
 
 //      if( $planning->getState() === Planning::STATE_SUCCESS ) {
 //           $sortedGames = $planning->getStructure()->getGames( GameBase::ORDER_BY_BATCH );
-//           $planningOutput = new Voetbal\Planning\Output( $logger );
+//           $planningOutput = new Voetbal\Planning\Output( $this->logger );
 //           $planningOutput->consoleGames( $sortedGames );
 //      }
     }
 
     protected function inputToString( Input $planningInput ): string {
         $sports = array_map( function( array $sportConfig ) {
-            // return '{"nrOfFields:"' . $sportConfig["nrOfFields"] . ',"nrOfGamePlaces":' . $sportConfig["nrOfGamePlaces"] . "}";
             return '' . $sportConfig["nrOfFields"] ;
         }, $planningInput->getSportConfig());
         return 'id '.$planningInput->getId().' => structure [' . implode( '|', $planningInput->getStructureConfig()) . ']'
@@ -165,8 +224,3 @@ class Seeker
         return $output;
     }
 }
-
-
-
-
-

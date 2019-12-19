@@ -11,8 +11,18 @@ namespace Voetbal\Sport;
 use Voetbal\Sport as SportBase;
 use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Planning\Sport\NrFields as SportNrFields;
+use Voetbal\Math as VoetbalMath;
 
 class Service {
+    /**
+     * @var VoetbalMath
+     */
+    protected $math;
+
+    public function __construct() {
+        $this->math = new VoetbalMath();
+    }
+
     protected function convertSportsNrFields( array $sportsNrFields ): array {
         $sportsNrFieldsGames = [];
 
@@ -111,7 +121,7 @@ class Service {
         }
         $commonDivisors = [];
         for ($i = 0; $i < count($nrOfFieldsPerSport) - 1; $i++) {
-            $commonDivisorsIt = $this->getCommonDivisors($nrOfFieldsPerSport[$i], $nrOfFieldsPerSport[$i + 1]);
+            $commonDivisorsIt = $this->math->getCommonDivisors($nrOfFieldsPerSport[$i], $nrOfFieldsPerSport[$i + 1]);
             if (count($commonDivisors) === 0) {
                 $commonDivisors = $commonDivisorsIt;
             } else {
@@ -121,35 +131,6 @@ class Service {
             }
         }
         return $commonDivisors;
-    }
-
-    /**
-     * @param int $a
-     * @param int $b
-     * @return array|int[]
-     */
-    protected function getCommonDivisors( int $a, int $b): array {
-        $gcd = function ( int $x, int $y) use (&$gcd): int {
-            if (!$y) {
-                return $x;
-            }
-            return $gcd($y, $x % $y);
-        };
-        return array_reverse( $this->getDivisors($gcd($a, $b)));
-    }
-
-    /**
-     * @param int $number
-     * @return array|int[]
-     */
-    protected function getDivisors(int $number): array {
-        $divisors = [];
-        for ($currentDivisor = 1; $currentDivisor <= $number; $currentDivisor++) {
-            if ($number % $currentDivisor === 0) {
-                $divisors[] = $currentDivisor;
-            }
-        }
-        return $divisors;
     }
 
     public function getNrOfPouleGames(int $nrOfPlaces, bool $teamup, int $nrOfHeadtohead): int {
@@ -253,7 +234,7 @@ class Service {
 
     public function getNrOfCombinations(int $nrOfPlaces, bool $teamup): int {
         if ($teamup === false) {
-            return $this->above($nrOfPlaces, SportBase::TEMPDEFAULT);
+            return $this->math->above($nrOfPlaces, SportBase::TEMPDEFAULT);
         }
         // const nrOfPlacesPerGame = Sport.TEMPDEFAULT * 2;
 
@@ -270,22 +251,5 @@ class Service {
             return 15; // perm = 5 ronden = 3
         }
         return 45; // perm = 45 ronden = 1
-    }
-
-    protected function above(int $top, int $bottom): int {
-        // if (bottom > top) {
-        //     return 0;
-        // }
-        $y = $this->faculty($top);
-        $z = ($this->faculty($top - $bottom) * $this->faculty($bottom));
-        $x = $y / $z;
-        return (int) $x;
-    }
-
-    protected function faculty(float $x): float {
-        if ($x > 1) {
-            return $this->faculty($x - 1) * $x;
-        }
-        return 1;
     }
 }

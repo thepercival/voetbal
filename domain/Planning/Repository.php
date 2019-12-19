@@ -138,6 +138,7 @@ class Repository extends \Voetbal\Repository
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
             ->where('p.state = :state')
+            ->andWhere('p.timeoutSeconds > 0')
             ->orderBy('p.timeoutSeconds', 'ASC')
             ->addOrderBy('pi.teamup', 'ASC')
             ->addOrderBy('p.id', 'ASC')
