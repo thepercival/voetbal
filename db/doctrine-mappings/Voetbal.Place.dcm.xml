@@ -6,7 +6,7 @@
     </id>
     <field name="name" column="name" type="string" length="10" nullable="true" unique="false"/>
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
-    <field name="penaltyPoints" column="penaltyPoints" nullable="false" unique="false">
+    <field name="penaltyPoints" column="penaltyPoints" type="smallint" nullable="false" unique="false">
       <options>
         <option name="default">0</option>
       </options>

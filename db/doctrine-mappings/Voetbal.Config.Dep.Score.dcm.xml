@@ -4,12 +4,7 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
-    <field name="qualifyRule" column="qualifyRule" type="smallint" nullable="false" unique="false">
-      <options>
-        <option name="default">1</option> <!-- Voetbal\Ranking\Service::RULESSET_WC -->
-      </options>
-    </field>
-    <field name="name" column="name" type="string" length="20" nullable="true" unique="false"/>
+    <field name="name" column="name" type="string" length="20" nullable="false" unique="false"/>
     <field name="direction" column="direction" type="smallint" nullable="false" unique="false"/>
     <field name="maximum" column="maximum" type="smallint" nullable="false" unique="false"/>
     <many-to-one field="configDep" target-entity="Voetbal\Config\Dep" inversed-by="scoresDep">

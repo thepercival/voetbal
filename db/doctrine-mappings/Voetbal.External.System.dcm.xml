@@ -8,8 +8,7 @@
     <field name="website" column="website" type="string" length="255" nullable="true" unique="false"/>
     <field name="username" column="username" type="string" length="50" nullable="true" unique="false"/>
     <field name="password" column="password" type="string" length="50" nullable="true" unique="false"/>
-    <field name="apiurl" column="apiurl" type="string" length="50" nullable="true" unique="false"/>
-    <field name="name" column="name" type="string" length="255" nullable="true" unique="false"/>
+    <field name="apiurl" column="apiurl" type="string" length="255" nullable="true" unique="false"/>
     <field name="apikey" column="apikey" type="string" length="255" nullable="true" unique="false"/>
   </entity>
 </doctrine-mapping>

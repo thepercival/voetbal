@@ -7,11 +7,6 @@
     <field name="roundNr" column="roundNr" type="smallint" nullable="false" unique="false"/>
     <field name="subNr" column="subNr" type="smallint" nullable="false" unique="false"/>
     <field name="batchNr" column="batchNr" type="smallint" nullable="false" unique="false"/>
-    <many-to-one field="planning" target-entity="Voetbal\Planning" inversed-by="games">
-      <join-columns>
-        <join-column name="planningId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
-      </join-columns>
-    </many-to-one>
     <many-to-one field="field" target-entity="Voetbal\Planning\Field">
       <join-columns>
         <join-column name="fieldId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>

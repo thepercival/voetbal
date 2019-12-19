@@ -17,8 +17,5 @@
     </many-to-one>
     <one-to-many field="competitions" target-entity="Voetbal\Competition" mapped-by="league"/>
     <one-to-many field="externals" target-entity="Voetbal\External\League" mapped-by="importableObject"/>
-    <unique-constraints>
-      <unique-constraint columns="leagueid,seasonid" name="main_u_idx" />
-    </unique-constraints>
   </entity>
 </doctrine-mapping>

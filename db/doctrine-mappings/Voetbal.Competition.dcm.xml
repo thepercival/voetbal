@@ -19,12 +19,12 @@
         <join-column name="leagueid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
-    <many-to-one field="season" target-entity="Voetbal\Season" inversed-by="seasons">
+    <many-to-one field="season" target-entity="Voetbal\Season" inversed-by="competitions">
       <cascade>
         <cascade-persist/>
       </cascade>
       <join-columns>
-        <join-column name="seasonid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+        <join-column name="seasonid" referenced-column-name="id" nullable="false" on-delete="RESTRICT"/>
       </join-columns>
     </many-to-one>
     <one-to-many field="roundNumbers" target-entity="Voetbal\Round\Number" mapped-by="competition" fetch="EXTRA_LAZY" >

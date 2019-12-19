@@ -4,11 +4,9 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
-    <field name="roundNumber" column="roundnumber" type="smallint" nullable="false" unique="false"/>
-    <field name="subNumber" column="subnumber" type="smallint" nullable="false" unique="false"/>
-    <field name="resourceBatch" column="resourcebatch" type="smallint" nullable="true" unique="false"/>
+    <field name="batchNr" column="resourcebatch" type="smallint" nullable="false" unique="false"/>
     <field name="state" column="state" type="smallint" nullable="false" unique="false"/>
-    <field name="startDateTime" column="startdatetime" type="datetime_immutable" nullable="true" unique="false"/>
+    <field name="startDateTime" column="startDateTime" type="datetime_immutable" nullable="false" unique="false"/>
     <field name="scoresMomentDep" column="scoresmoment" type="smallint" nullable="true" unique="false"/>
     <many-to-one field="poule" target-entity="Voetbal\Poule" inversed-by="games">
       <join-columns>
