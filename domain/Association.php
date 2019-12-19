@@ -38,14 +38,9 @@ class Association implements External\Importable // extends External\Importable
     protected $children;
 
     /**
-     * @var Competition[] | ArrayCollection
+     * @var League[] | ArrayCollection
      */
-    protected $competitions;
-
-    /**
-     * @var Competitor[] | ArrayCollection
-     */
-    protected $competitors;
+    protected $leagues;
 
     const MIN_LENGTH_NAME = 2;
 	const MAX_LENGTH_NAME = 20;
@@ -57,8 +52,7 @@ class Association implements External\Importable // extends External\Importable
     {
         $this->setName( $name );
         $this->children = new ArrayCollection();
-        $this->competitions = new ArrayCollection();
-        $this->competitors = new ArrayCollection();
+        $this->leagues = new ArrayCollection();
     }
 
 	/**
@@ -153,18 +147,10 @@ class Association implements External\Importable // extends External\Importable
     }
 
     /**
-     * @return Competition[] | ArrayCollection
+     * @return League[] | ArrayCollection
      */
-    public function getCompetitions()
+    public function getLeagues()
     {
-        return $this->competitions;
-    }
-
-    /**
-     * @return Competitor[] | ArrayCollection
-     */
-    public function getCompetitors()
-    {
-        return $this->competitors;
+        return $this->leagues;
     }
 }
