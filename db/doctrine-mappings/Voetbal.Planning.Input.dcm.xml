@@ -11,8 +11,8 @@
     <field name="teamup" column="teamup" type="boolean" nullable="false" unique="false"/>
     <field name="selfReferee" column="selfReferee" type="boolean" nullable="false" unique="false"/>
     <field name="state" column="state" type="smallint" nullable="false" unique="false"/>
-    <field name="subNr" column="subNr" type="smallint" nullable="false" unique="false"/>
-    <field name="batchNr" column="batchNr" type="smallint" nullable="false" unique="false"/>
+    <field name="createdAt" column="createdAt" type="datetime_immutable" nullable="false" unique="false"/>
+    <field name="createdBy" column="createdBy" type="smallint" nullable="true" unique="false"/>
     <one-to-many field="plannings" target-entity="Voetbal\Planning" mapped-by="input" fetch="EXTRA_LAZY">
       <cascade>
         <cascade-remove/>
@@ -23,5 +23,14 @@
         <order-by-field name="maxNrOfGamesInARow" direction="DESC" />
       </order-by>
     </one-to-many>
+    <indexes>
+      <index columns="nrOfReferees"/>
+      <index columns="teamup"/>
+      <index columns="selfReferee"/>
+      <index columns="nrOfHeadtohead"/>
+      <index columns="state"/>
+      <index columns="createdAt"/>
+      <index columns="createdBy"/>
+    </indexes>
   </entity>
 </doctrine-mapping>

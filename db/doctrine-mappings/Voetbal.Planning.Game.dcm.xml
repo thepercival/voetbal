@@ -32,6 +32,11 @@
         <join-column name="pouleId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
-    <one-to-many field="places" target-entity="Voetbal\Planning\Game\Place" mapped-by="game"/>
+    <one-to-many field="places" target-entity="Voetbal\Planning\Game\Place" mapped-by="game">
+      <cascade>
+        <cascade-persist/>
+        <cascade-remove/>
+      </cascade>
+    </one-to-many>
   </entity>
 </doctrine-mapping>
