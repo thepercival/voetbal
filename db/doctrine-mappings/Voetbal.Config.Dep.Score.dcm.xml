@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Voetbal\Config\Dep\Score" table="roundscoreconfigs" repository-class="Voetbal\Config\Dep\Score\Repository">
+    <id name="id" type="integer" column="id">
+      <generator strategy="AUTO"/>
+    </id>
+    <field name="qualifyRule" column="qualifyRule" type="smallint" nullable="false" unique="false">
+      <options>
+        <option name="default">1</option> <!-- Voetbal\Ranking\Service::RULESSET_WC -->
+      </options>
+    </field>
+    <field name="name" column="name" type="string" length="20" nullable="true" unique="false"/>
+    <field name="direction" column="direction" type="smallint" nullable="false" unique="false"/>
+    <field name="maximum" column="maximum" type="smallint" nullable="false" unique="false"/>
+    <many-to-one field="configDep" target-entity="Voetbal\Config\Dep" inversed-by="scoresDep">
+      <join-columns>
+        <join-column name="roundconfigid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <one-to-one field="parent" target-entity="Voetbal\Config\Dep\Score" inversed-by="child">
+      <join-column name="parentid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+    </one-to-one>
+    <one-to-one field="child" target-entity="Voetbal\Config\Dep\Score" mapped-by="parent">
+      <join-column name="parentid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+    </one-to-one>
+    <unique-constraints>
+      <unique-constraint columns="parentid" name="number_u_idx" />
+    </unique-constraints>
+  </entity>
+</doctrine-mapping>

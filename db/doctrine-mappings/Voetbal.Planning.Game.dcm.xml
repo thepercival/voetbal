@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Voetbal\Planning\Game" table="planninggames" repository-class="Voetbal\Planning\Game\Repository">
+    <id name="id" type="integer" column="id">
+      <generator strategy="AUTO"/>
+    </id>
+    <field name="roundNr" column="roundNr" type="smallint" nullable="false" unique="false"/>
+    <field name="subNr" column="subNr" type="smallint" nullable="false" unique="false"/>
+    <field name="batchNr" column="batchNr" type="smallint" nullable="false" unique="false"/>
+    <many-to-one field="planning" target-entity="Voetbal\Planning" inversed-by="games">
+      <join-columns>
+        <join-column name="planningId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="field" target-entity="Voetbal\Planning\Field">
+      <join-columns>
+        <join-column name="fieldId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="referee" target-entity="Voetbal\Planning\Referee">
+      <join-columns>
+        <join-column name="refereeId" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="refereePlace" target-entity="Voetbal\Planning\Place">
+      <join-columns>
+        <join-column name="refereePlaceId" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="poule" target-entity="Voetbal\Planning\Poule">
+      <join-columns>
+        <join-column name="pouleId" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <one-to-many field="places" target-entity="Voetbal\Planning\Game\Place" mapped-by="game"/>
+  </entity>
+</doctrine-mapping>

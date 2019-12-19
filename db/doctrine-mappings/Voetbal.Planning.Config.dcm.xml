@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Voetbal\Planning\Config" table="planningconfigs" repository-class="Voetbal\Planning\Config\Repository">
+    <id name="id" type="integer" column="id">
+      <generator strategy="AUTO"/>
+    </id>
+    <field name="qualifyRule" column="qualifyRule" type="smallint" nullable="false" unique="false">
+      <options>
+        <option name="default">1</option> <!-- Voetbal\Ranking\Service::RULESSET_WC -->
+      </options>
+    </field>
+    <field name="hasExtensionDep" column="hasExtension" type="boolean" nullable="false" unique="false"/>
+    <field name="rniddep" column="rniddep" type="integer" nullable="true" unique="false"/>
+    <field name="enableTime" column="enableTime" type="boolean" nullable="false" unique="false"/>
+    <field name="minutesPerGame" column="minutesPerGame" type="smallint" nullable="false" unique="false"/>
+    <field name="minutesPerGameExt" column="minutesPerGameExt" type="smallint" nullable="false" unique="false"/>
+    <field name="minutesAfter" column="minutesInBetween" type="smallint" nullable="true" unique="false"/>
+    <field name="minutesBetweenGames" column="minutesBetweenGames" type="smallint" nullable="true" unique="false"/>
+    <field name="pointsCalculation" column="pointsCalculation" type="smallint" nullable="true" unique="false"/>
+    <field name="teamup" column="teamup" type="boolean" nullable="true" unique="false"/>
+    <field name="selfReferee" column="selfReferee" type="boolean" nullable="true" unique="false"/>
+    <field name="nrOfHeadtohead" column="nrOfHeadtohead" type="smallint" nullable="false" unique="false"/>
+  </entity>
+</doctrine-mapping>

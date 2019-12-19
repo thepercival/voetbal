@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<doctrine-mapping xmlns="http://doctrine-project.org/schemas/orm/doctrine-mapping" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://doctrine-project.org/schemas/orm/doctrine-mapping http://doctrine-project.org/schemas/orm/doctrine-mapping.xsd">
+  <entity name="Voetbal\Field" table="fields" repository-class="Voetbal\Field\Repository">
+    <id name="id" type="integer" column="id">
+      <generator strategy="AUTO"/>
+    </id>
+    <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
+    <field name="name" column="name" type="string" length="3" nullable="true" unique="false"/>
+    <many-to-one field="competition" target-entity="Voetbal\Competition" inversed-by="fields">
+      <join-columns>
+        <join-column name="competitionid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <many-to-one field="sport" target-entity="Voetbal\Sport">
+      <join-columns>
+        <join-column name="sportid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+      </join-columns>
+    </many-to-one>
+    <unique-constraints>
+      <unique-constraint columns="competitionid,number" name="main_nr_idx" />
+    </unique-constraints>
+  </entity>
+</doctrine-mapping>
