@@ -32,7 +32,7 @@ return [
         'doctrine' => [
             'meta' => [
                 'entity_path' => [
-                    __DIR__ . '/../db/yml-mapping'
+                    __DIR__ . '/../db/doctrine-mappings'
                 ],
                 'dev_mode' => ( getenv('ENVIRONMENT') === "development" ),
                 'proxy_dir' => null,
