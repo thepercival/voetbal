@@ -1,7 +1,0 @@
-insert into planninginputs(structureConfig, sportConfig, nrOfReferees, teamup, selfReferee, nrOfHeadtohead, state )
-values ( '[14]', '[{"nrOfFields":6,"nrOfGamePlaces":2}]', 0, false, false, 6, 1 );
-
-delete from plannings where inputId in ( select id from planninginputs where structureConfig = '[14]' and nrOfHeadtohead = 6 );
-update plannings set state = 1 where inputId in ( select id from planninginputs where structureConfig = '[14]' and nrOfHeadtohead = 6 );
-
-uncomment @FREDDY

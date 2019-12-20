@@ -8,10 +8,17 @@
 
 namespace Voetbal;
 
-use \Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\ClassMetadata;
 
 class Repository extends EntityRepository
 {
+    public function __construct(EntityManagerInterface $em, ClassMetadata $class)
+    {
+        return parent::__construct($em, $class);
+    }
+
 	public function save( $object )
 	{
         try{
