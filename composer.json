@@ -17,7 +17,7 @@
     "php": ">=7.3",
     "vlucas/phpdotenv": "^4.1",
     "league/period": "^4.9",
-    "doctrine/orm": "^2.7",
+    "doctrine/orm": "2.6",
     "jms/serializer": "^3.4",
     "monolog/monolog": "^2.0",
     "guzzlehttp/guzzle": "^6.5",
