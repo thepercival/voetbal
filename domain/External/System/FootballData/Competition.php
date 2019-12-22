@@ -182,10 +182,10 @@ class Competition implements CompetitionImporter
     }
 
     private function addNotice( $msg ) {
-        $this->logger->addNotice( $this->externalSystemBase->getName() . " : " . $msg );
+        $this->logger->notice( $this->externalSystemBase->getName() . " : " . $msg );
     }
 
     private function addError( $msg ) {
-        $this->logger->addError( $this->externalSystemBase->getName() . " : " . $msg );
+        $this->logger->error( $this->externalSystemBase->getName() . " : " . $msg );
     }
 }

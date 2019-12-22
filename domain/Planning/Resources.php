@@ -104,11 +104,11 @@ class Resources {
 
     public function switchFields(): bool {
         return false;
-        if( ++$this->nrOfFieldSwitches >= count($this->fields) ) {
+        /*if( ++$this->nrOfFieldSwitches >= count($this->fields) ) {
             return false;
         }
         array_push( $this->fields, array_shift($this->fields) );
-        return true;
+        return true;*/
 //        $newFields = [];
 //        for( $i = 0 ; $i < count($fields) ; $i++ ) {
 //            $newFields[] = $fields;

@@ -16,7 +16,7 @@ class Repository extends EntityRepository
 {
     public function __construct(EntityManagerInterface $em, ClassMetadata $class)
     {
-        return parent::__construct($em, $class);
+        parent::__construct($em, $class);
     }
 
 	public function save( $object )

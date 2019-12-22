@@ -101,9 +101,6 @@ class Season implements External\Importable
         return $this->startDateTime;
     }
 
-    /**
-     * @return \DateTimeImmutable
-     */
     public function setStartDateTime( \DateTimeImmutable $startDateTime )
     {
         $this->startDateTime = $startDateTime;
@@ -117,9 +114,6 @@ class Season implements External\Importable
         return $this->endDateTime;
     }
 
-    /**
-     * @return \DateTimeImmutable
-     */
     public function setEndDateTime( \DateTimeImmutable $endDateTime )
     {
         $this->endDateTime = $endDateTime;

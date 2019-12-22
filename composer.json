@@ -51,7 +51,7 @@
     "test": [
       "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/cases/"
     ],
-    "stan": "vendor/bin/phpstan analyse --level=5 domain app tests/cases/"
+    "stan": "vendor/bin/phpstan analyse --level=5 domain tests/cases/"
   },
   "extra": {
     "phpstan": {

@@ -126,32 +126,32 @@ class Game implements GameImporter
     }
 
     public function createByCompetitions( array $competitions ) {
-
-        foreach( $competitions as $competition ) {
-
-            $structure = null; // @TODO $this->structureService->getStructure( $competition );
-            if( $structure === null ) {
-                $this->addNotice('structure not found for competition "' . $competition->getName() . '"');
-                return;
-            }
-            $structure->setQualifyRules();
-
-            list( $externalLeague, $externalSeason ) = $this->getExternalsForCompetition( $competition );
-            if( $externalLeague === null || $externalSeason === null ) {
-                continue;
-            }
-            $this->conn->beginTransaction();
-            try {
-                $this->createFromExternalSystemGames( $competition, $structure, $externalLeague, $externalSeason );
-                $this->editGames($structure, $externalLeague, $externalSeason);
-                $this->conn->commit();
-            } catch( \Exception $error ) {
-                $this->addError('game could not be created: ' . $error->getMessage() );
-                $this->conn->rollBack();
-                continue;
-            }
-
-        }
+throw new \Exception("createByCompetitions should be added again", E_ERROR );
+//        foreach( $competitions as $competition ) {
+//
+//            $structure = null; // @TODO $this->structureService->getStructure( $competition );
+//            if( $structure === null ) {
+//                $this->addNotice('structure not found for competition "' . $competition->getName() . '"');
+//                return;
+//            }
+//            $structure->setQualifyRules();
+//
+//            list( $externalLeague, $externalSeason ) = $this->getExternalsForCompetition( $competition );
+//            if( $externalLeague === null || $externalSeason === null ) {
+//                continue;
+//            }
+//            $this->conn->beginTransaction();
+//            try {
+//                $this->createFromExternalSystemGames( $competition, $structure, $externalLeague, $externalSeason );
+//                $this->editGames($structure, $externalLeague, $externalSeason);
+//                $this->conn->commit();
+//            } catch( \Exception $error ) {
+//                $this->addError('game could not be created: ' . $error->getMessage() );
+//                $this->conn->rollBack();
+//                continue;
+//            }
+//
+//        }
     }
 
     private function createFromExternalSystemGames( Competition $competition, Structure $structure, $externalLeague, $externalSeason ) {
@@ -320,10 +320,10 @@ class Game implements GameImporter
 
     private function addNotice( $msg ) {
         // could add url, because is logger is gamelogger
-        $this->logger->addNotice( $this->externalSystemBase->getName() . " : " . $msg );
+        $this->logger->notice( $this->externalSystemBase->getName() . " : " . $msg );
     }
 
     private function addError( $msg ) {
-        $this->logger->addError( $this->externalSystemBase->getName() . " : " . $msg );
+        $this->logger->error( $this->externalSystemBase->getName() . " : " . $msg );
     }
 }

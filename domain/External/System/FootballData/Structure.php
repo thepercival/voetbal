@@ -185,37 +185,36 @@ class Structure implements StructureImporter
      */
     protected function assignCompetitors( Round $round, \stdClass $externalSystemRound ) {
 
-        $poules = $round->getPoules();
-        $pouleIt = $poules->getIterator();
+        $poules = $round->getPoules()->toArray();
+        $poule = reset( $poules );
 
         foreach( $externalSystemRound->poules as $externalSystemPoule ) {
-            if( $pouleIt->valid() === false ) {
+            if( $poule === false ) {
                 throw new \Exception("not enough poules", E_ERROR );
             }
-            $poule = $pouleIt->current();
-            $placeIt = $poule->getPlaces()->getIterator();
+            $places = $poule->getPlaces()->toArray();
+            $place = reset( $places );
             foreach( $externalSystemPoule->places as $externalCompetitorId ) {
-                if( $placeIt->valid() === false ) {
+                if( $place === false ) {
                     throw new \Exception("not enough places", E_ERROR );
                 }
-                $place = $placeIt->current();
                 $competitorExternalId = null;
                 $competitor = $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $externalCompetitorId );
                 if( $competitor === null ) {
                     throw new \Exception("cannot assign competitors: no competitor for externalid ".$competitorExternalId." and ".$this->externalSystemBase->getName(), E_ERROR );
                 }
                 $place->setCompetitor($competitor);
-                $placeIt->next();
+                $place = next($places);
             }
-            $pouleIt->next();
+            $poule = next($poules);
         }
     }
 
     private function addNotice( $msg ) {
-        $this->logger->addNotice( $this->externalSystemBase->getName() . " : " . $msg );
+        $this->logger->notice( $this->externalSystemBase->getName() . " : " . $msg );
     }
 
     private function addError( $msg ) {
-        $this->logger->addError( $this->externalSystemBase->getName() . " : " . $msg );
+        $this->logger->error( $this->externalSystemBase->getName() . " : " . $msg );
     }
 }

@@ -230,7 +230,7 @@ class Input
 //    }
 
 
-    public function getPlannings(): PersistentCollection {
+    public function getPlannings(): Collection {
         return $this->plannings;
     }
 

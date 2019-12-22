@@ -26,7 +26,7 @@ class ScoreConfig
      */
     protected $roundNumber;
     /**
-     * @var ScoreConfig
+     * @var ScoreConfig|null
      */
     protected $previous;
     /**
@@ -76,7 +76,7 @@ class ScoreConfig
     /**
      * @return ScoreConfig
      */
-    public function getPrevious()
+    public function getPrevious(): ?ScoreConfig
     {
         return $this->previous;
     }
