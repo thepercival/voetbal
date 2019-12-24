@@ -12,6 +12,7 @@
       </join-columns>
     </many-to-one>
     <one-to-many field="children" target-entity="Voetbal\Association" mapped-by="parent" />
+    <one-to-many field="competitors" target-entity="Voetbal\Competitor" mapped-by="assocation" />
     <one-to-many field="leagues" target-entity="Voetbal\League" mapped-by="association" />
     <one-to-many field="externals" target-entity="Voetbal\External\Association" mapped-by="importableObject" />
   </entity>
