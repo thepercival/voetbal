@@ -27,6 +27,9 @@ trait IdSer {
      */
     public function getSportIdSer(): int
     {
+        if( $this->sport !== null && $this->sportIdSer === null ) {
+            return $this->getSportIdForSer();
+        }
         return $this->sportIdSer;
     }
 
