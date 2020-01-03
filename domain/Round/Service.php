@@ -61,17 +61,7 @@
 //        return $round;
 //    }
 //
-//    public function createFromSerialized(
-//        Number $roundNumber,
-//        array $poulesSer,
-//        QualifyGroup $parentQualifyGroup = null ): Round
-//    {
-//        $round = new Round($roundNumber, $parentQualifyGroup);
-//        foreach( $poulesSer as $pouleSer ) {
-//            $this->pouleService->createFromSerialized( $round, $pouleSer->getNumber(), $pouleSer->getPlaces()->toArray() );
-//        }
-//        return $round;
-//    }
+
 //
 //    public function createByOptions(
 //        RoundNumber $roundNumber,

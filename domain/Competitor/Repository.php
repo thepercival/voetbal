@@ -8,6 +8,7 @@
 
 namespace Voetbal\Competitor;
 
+use Voetbal\Competitor as CompetitorBase;
 use Voetbal\External\Importable\Repository as ImportableRepository;
 
 /**
@@ -16,5 +17,8 @@ use Voetbal\External\Importable\Repository as ImportableRepository;
  */
 class Repository extends \Voetbal\Repository implements ImportableRepository
 {
-
+    public function find($id, $lockMode = null, $lockVersion = null): ?CompetitorBase
+    {
+        return $this->_em->find($this->_entityName, $id, $lockMode, $lockVersion);
+    }
 }

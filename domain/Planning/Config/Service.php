@@ -31,6 +31,23 @@ class Service
         return $config;
     }
 
+    public function copy( PlanningConfig $planningConfig, RoundNumber $roundNumber ) {
+        $newPlanningConfig = new PlanningConfig( $roundNumber );
+
+        $newPlanningConfig->setMinutesPerGameExt($planningConfig->getMinutesPerGameExt());
+        $newPlanningConfig->setEnableTime($planningConfig->getEnableTime());
+        $newPlanningConfig->setMinutesPerGame($planningConfig->getMinutesPerGame());
+        $newPlanningConfig->setMinutesBetweenGames($planningConfig->getMinutesBetweenGames());
+        $newPlanningConfig->setMinutesAfter($planningConfig->getMinutesAfter());
+        $newPlanningConfig->setEnableTime($planningConfig->getEnableTime());
+        $newPlanningConfig->setMinutesPerGame($planningConfig->getMinutesPerGame());
+        $newPlanningConfig->setMinutesBetweenGames($planningConfig->getMinutesBetweenGames());
+        $newPlanningConfig->setMinutesAfter($planningConfig->getMinutesAfter());
+        $newPlanningConfig->setTeamup($planningConfig->getTeamup());
+        $newPlanningConfig->setSelfReferee($planningConfig->getSelfReferee());
+        $newPlanningConfig->setNrOfHeadtohead($planningConfig->getNrOfHeadtohead());
+    }
+
     public function getDefaultMinutesPerGame(): int {
         return 20;
     }

@@ -30,20 +30,13 @@ class Repository
         $this->em = $em;
     }
 
-    public function customPersist(StructureBase $structure, int $roundNumberValue = null): RoundNumber
+    public function removeAndAdd(Competition $competition, StructureBase $newStructure, int $roundNumberValue = null): RoundNumber
     {
         $conn = $this->em->getConnection();
         $conn->beginTransaction();
         try {
-            $roundNumber = $structure->getRoundNumber( $roundNumberValue ? $roundNumberValue : 1);
-            if( $roundNumber === null ) {
-                throw new \Exception("rondenummer " . $roundNumberValue . " kon niet gevonden worden", E_ERROR);
-            }
-            foreach( $roundNumber->getRounds() as $round ) {
-                $this->em->persist($round);
-            }
-            $this->customPersistHelper($roundNumber);
-
+            $this->remove( $competition, $roundNumberValue );
+            $roundNumber = $this->add( $newStructure, $roundNumberValue);
 
             $this->em->flush();
             $conn->commit();
@@ -54,12 +47,32 @@ class Repository
         }
     }
 
+    public function add(StructureBase $structure, int $roundNumberValue = null): RoundNumber
+    {
+        $roundNumber = $structure->getRoundNumber( $roundNumberValue ? $roundNumberValue : 1);
+        if( $roundNumber === null ) {
+            throw new \Exception("rondenummer " . $roundNumberValue . " kon niet gevonden worden", E_ERROR);
+        }
+        $this->customPersistHelper( $roundNumber );
+        return $roundNumber;
+    }
+
     protected function customPersistHelper(RoundNumber $roundNumber)
     {
+        foreach( $roundNumber->getRounds() as $round ) {
+            $this->em->persist($round);
+        }
         $this->em->persist($roundNumber);
         if( $roundNumber->hasNext() ) {
             $this->customPersistHelper($roundNumber->getNext());
         }
+    }
+
+    public function hasStructure( Competition $competition ): bool
+    {
+        $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
+        $roundNumbers = $roundNumberRepos->findBy(array("competition" => $competition) );
+        return count($roundNumbers) > 0;
     }
 
     public function getStructure( Competition $competition ): ?StructureBase

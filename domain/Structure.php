@@ -46,6 +46,9 @@ class Structure
         return $getLastRoundNumber($this->getFirstRoundNumber());
     }
 
+    /**
+     * @return array|RoundNumber[]
+     */
     public function getRoundNumbers(): array {
         $roundNumbers = [];
         $roundNumber = $this->getFirstRoundNumber();

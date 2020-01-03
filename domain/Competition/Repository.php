@@ -2,9 +2,6 @@
 
 namespace Voetbal\Competition;
 
-use Voetbal\Association;
-use Voetbal\Field;
-use Voetbal\Referee;
 use Voetbal\Competition;
 use Voetbal\League;
 use Voetbal\Season;
@@ -15,6 +12,11 @@ use Voetbal\Season;
  */
 class Repository extends \Voetbal\Repository
 {
+    public function find($id, $lockMode = null, $lockVersion = null): ?Competition
+    {
+        return $this->_em->find($this->_entityName, $id, $lockMode, $lockVersion);
+    }
+
     public function customPersist( Competition $competition )
     {
         foreach ($competition->getFields() as $field) {

@@ -15,7 +15,12 @@ use Voetbal\Competitor;
 
 class Service
 {
-    public function createCompetitorsFromRound(Round $rootRound, Association $association)
+    /**
+     * @param Round $rootRound
+     * @param Association $association
+     * @return array|Competitor[]
+     */
+    public function createCompetitorsFromRound(Round $rootRound, Association $association): array
     {
         $competitors = [];
         $places = $rootRound->getPlaces();

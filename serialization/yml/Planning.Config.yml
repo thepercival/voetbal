@@ -2,19 +2,18 @@ Voetbal\Planning\Config:
   exclusion_policy: ALL
   exclude: false
   access_type: public_method
-
   properties:
     id:
       type: integer
-    minutesPerGameExt:
-      type: integer
-    minutesPerGame:
-      type: integer
     enableTime:
       type: boolean
-    minutesBetweenGames:
+    minutesPerGame:
+      type: integer
+    minutesPerGameExt:
       type: integer
     minutesAfter:
+      type: integer
+    minutesBetweenGames:
       type: integer
     teamup:
       type: boolean
