@@ -51,19 +51,19 @@ class Referee
      */
     private $competition;
 
-    public function __construct( Competition $competition, int $rank = null )
+    public function __construct(Competition $competition, int $rank = null)
     {
-        $this->setCompetition( $competition );
-        if( $rank === null || $rank === 0 ) {
+        $this->setCompetition($competition);
+        if ($rank === null || $rank === 0) {
             $rank = $competition->getReferees()->count();
         }
-        $this->setRank( $rank );
+        $this->setRank($rank);
     }
 
     /**
      * @param Competition $competition
      */
-    private function setCompetition( Competition $competition )
+    private function setCompetition(Competition $competition)
     {
         $this->competition = $competition;
         $this->competition->getReferees()->add($this);
@@ -82,7 +82,7 @@ class Referee
     /**
      * @param int $id
      */
-    public function setId( int $id = null )
+    public function setId(int $id = null)
     {
         $this->id = $id;
     }
@@ -98,7 +98,7 @@ class Referee
     /**
      * @param int $rank
      */
-    public function setRank( int $rank )
+    public function setRank(int $rank)
     {
         $this->rank = $rank;
     }
@@ -114,16 +114,21 @@ class Referee
     /**
      * @param string|null $initials
      */
-    public function setInitials( $initials )
+    public function setInitials($initials)
     {
-        if ( $initials === null ) {
-            throw new \InvalidArgumentException( "de initialen moet gezet zijn", E_ERROR );
+        if ($initials === null) {
+            throw new \InvalidArgumentException("de initialen moet gezet zijn", E_ERROR);
         }
-        if ( strlen( $initials ) < static::MIN_LENGTH_INITIALS or strlen( $initials ) > static::MAX_LENGTH_INITIALS ){
-            throw new \InvalidArgumentException( "de initialen moet minimaal ".static::MIN_LENGTH_INITIALS." karakter bevatten en mag maximaal ".static::MAX_LENGTH_INITIALS." karakters bevatten", E_ERROR );
+        if (strlen($initials) < static::MIN_LENGTH_INITIALS or strlen($initials) > static::MAX_LENGTH_INITIALS) {
+            throw new \InvalidArgumentException(
+                "de initialen moet minimaal " . static::MIN_LENGTH_INITIALS . " karakter bevatten en mag maximaal " . static::MAX_LENGTH_INITIALS . " karakters bevatten",
+                E_ERROR
+            );
         }
-        if(!ctype_alnum($initials)){
-            throw new \InvalidArgumentException( "de initialen (".$initials.") mag alleen cijfers en letters bevatten", E_ERROR );
+        if (!ctype_alnum($initials)) {
+            throw new \InvalidArgumentException(
+                "de initialen (" . $initials . ") mag alleen cijfers en letters bevatten", E_ERROR
+            );
         }
         $this->initials = $initials;
     }
@@ -139,13 +144,18 @@ class Referee
     /**
      * @param string $name
      */
-    public function setName( $name )
+    public function setName($name)
     {
-        if ( $name !== null && ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ) ){
-            throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+        if ($name !== null && (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME)) {
+            throw new \InvalidArgumentException(
+                "de naam moet minimaal " . static::MIN_LENGTH_NAME . " karakters bevatten en mag maximaal " . static::MAX_LENGTH_NAME . " karakters bevatten",
+                E_ERROR
+            );
         }
-        if( $name !== null && !preg_match('/^[a-z0-9 .\-]+$/i', $name)){
-            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
+        if ($name !== null && !preg_match('/^[a-z0-9 .\-]+$/i', $name)) {
+            throw new \InvalidArgumentException(
+                "de naam (" . $name . ") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR
+            );
         }
         $this->name = $name;
     }
@@ -161,11 +171,14 @@ class Referee
     /**
      * @param string $emailaddress
      */
-    public function setEmailaddress( $emailaddress )
+    public function setEmailaddress($emailaddress)
     {
-        if( strlen( $emailaddress ) > 0 ) {
+        if (strlen($emailaddress) > 0) {
             if (strlen($emailaddress) < static::MIN_LENGTH_EMAIL or strlen($emailaddress) > static::MAX_LENGTH_EMAIL) {
-                throw new \InvalidArgumentException("het emailadres moet minimaal " . static::MIN_LENGTH_EMAIL . " karakters bevatten en mag maximaal " . static::MAX_LENGTH_EMAIL . " karakters bevatten", E_ERROR);
+                throw new \InvalidArgumentException(
+                    "het emailadres moet minimaal " . static::MIN_LENGTH_EMAIL . " karakters bevatten en mag maximaal " . static::MAX_LENGTH_EMAIL . " karakters bevatten",
+                    E_ERROR
+                );
             }
 
             if (!filter_var($emailaddress, FILTER_VALIDATE_EMAIL)) {
@@ -186,10 +199,10 @@ class Referee
     /**
      * @param string $info
      */
-    public function setInfo( $info )
+    public function setInfo($info)
     {
-        if ( strlen( $info ) > static::MAX_LENGTH_INFO ){
-            $info = substr( $info, 0, static::MAX_LENGTH_INFO );
+        if (strlen($info) > static::MAX_LENGTH_INFO) {
+            $info = substr($info, 0, static::MAX_LENGTH_INFO);
         }
         $this->info = $info;
     }
