@@ -120,7 +120,7 @@ class Referee
             throw new \InvalidArgumentException( "de initialen moet gezet zijn", E_ERROR );
         }
         if ( strlen( $initials ) < static::MIN_LENGTH_INITIALS or strlen( $initials ) > static::MAX_LENGTH_INITIALS ){
-            throw new \InvalidArgumentException( "de initialen moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+            throw new \InvalidArgumentException( "de initialen moet minimaal ".static::MIN_LENGTH_INITIALS." karakter bevatten en mag maximaal ".static::MAX_LENGTH_INITIALS." karakters bevatten", E_ERROR );
         }
         if(!ctype_alnum($initials)){
             throw new \InvalidArgumentException( "de initialen (".$initials.") mag alleen cijfers en letters bevatten", E_ERROR );
