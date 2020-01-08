@@ -33,8 +33,12 @@ class ScheduleService
         $previousBatchNr = 1;
         $gameDates[] = $gameStartDateTime;
 
+        $games = $roundNumber->getGames( Game::ORDER_BY_BATCH );
+        if( count($games) === 0 ) {
+            throw new \Exception("roundnumber has no games", E_ERROR );
+        }
         /** @var Game $game */
-        foreach( $roundNumber->getGames( Game::ORDER_BY_BATCH ) as $game ) {
+        foreach( $games as $game ) {
            if ( $previousBatchNr !== $game->getBatchNr()) {
                 $gameStartDateTime = $this->getNextGameStartDateTime( $roundNumber->getValidPlanningConfig(), $gameStartDateTime );
                 $gameDates[] = $gameStartDateTime;

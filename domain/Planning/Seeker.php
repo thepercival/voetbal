@@ -2,7 +2,7 @@
 
 namespace Voetbal\Planning;
 
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Planning\Input\Repository as PlanningInputRepository;
@@ -12,7 +12,7 @@ use Voetbal\Range as VoetbalRange;
 class Seeker
 {
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
     /**
@@ -32,7 +32,7 @@ class Seeker
      */
     protected $planningService;
 
-    public function __construct( Logger $logger, PlanningInputRepository $inputRepos, PlanningRepository $planningRepos )
+    public function __construct( LoggerInterface $logger, PlanningInputRepository $inputRepos, PlanningRepository $planningRepos )
     {
         $this->logger = $logger;
         $this->inputService = new PlanningInputService();

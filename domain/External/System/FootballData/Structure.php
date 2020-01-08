@@ -123,7 +123,7 @@ class Structure implements StructureImporter
             $this->conn->beginTransaction();
             try {
                 $structure = $this->create( $competition, $externalLeague, $externalSeason );
-                $this->structureRepos->customPersist($structure);
+                $this->structureRepos->add($structure);
                 $this->conn->commit();
             } catch( \Exception $e ) {
                 $this->addError('for competition '.$competition->getName(). ' structure could not be created: ' . $e->getMessage() );
