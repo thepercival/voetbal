@@ -424,7 +424,10 @@ class Service {
             if ($game->getReferee()) {
                 $this->referees[] = $game->getReferee();
             }
-            array_splice( $games, array_search( $game, $games), 1);
+            $gameFound = array_search( $game, $games, true );
+            if( $gameFound !== false ) {
+                array_splice( $games, $gameFound, 1);
+            }
         }
         // $resources->orderFields();
         $nextBatch = $batch->createNext();

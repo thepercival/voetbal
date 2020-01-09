@@ -73,11 +73,11 @@ class Structure implements StructureImporter
     private $structureRepos;
 
     /**
-     * @var Connection $conn;
+     * @var Connection $conn ;
      */
     private $conn;
     /**
-     * @var Logger $logger;
+     * @var Logger $logger ;
      */
     private $logger;
 
@@ -95,8 +95,7 @@ class Structure implements StructureImporter
         ExternalSeasonRepos $externalSeasonRepos,
         Connection $conn,
         Logger $logger
-    )
-    {
+    ) {
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
         $this->competitionImporter = $competitionImporter;
@@ -110,35 +109,39 @@ class Structure implements StructureImporter
         $this->logger = $logger;
     }
 
-    public function createByCompetitions( array $competitions ) {
-        foreach( $competitions as $competition ) {
-            if( $this->structureRepos->getStructure( $competition )->getRoundNumber( 1 ) !== null ) {
+    public function createByCompetitions(array $competitions)
+    {
+        foreach ($competitions as $competition) {
+            if ($this->structureRepos->getStructure($competition)->getRoundNumber(1) !== null) {
                 continue;
             }
 
-            list( $externalLeague, $externalSeason ) = $this->getExternalsForCompetition( $competition );
-            if( $externalLeague === null || $externalSeason === null ) {
+            list($externalLeague, $externalSeason) = $this->getExternalsForCompetition($competition);
+            if ($externalLeague === null || $externalSeason === null) {
                 continue;
             }
             $this->conn->beginTransaction();
             try {
-                $structure = $this->create( $competition, $externalLeague, $externalSeason );
+                $structure = $this->create($competition, $externalLeague, $externalSeason);
                 $this->structureRepos->add($structure);
                 $this->conn->commit();
-            } catch( \Exception $e ) {
-                $this->addError('for competition '.$competition->getName(). ' structure could not be created: ' . $e->getMessage() );
+            } catch (\Exception $e) {
+                $this->addError(
+                    'for competition ' . $competition->getName() . ' structure could not be created: ' . $e->getMessage(
+                    )
+                );
                 $this->conn->rollBack();
             }
         }
     }
 
-    protected function create( Competition $competition, ExternalLeague $externalLeague, ExternalSeason $externalSeason )
+    protected function create(Competition $competition, ExternalLeague $externalLeague, ExternalSeason $externalSeason)
     {
-        $parentRound = null; $rootRound = null;
+        $parentRound = null;
+        $rootRound = null;
         $externalSystemRounds = $this->apiHelper->getRounds($externalLeague, $externalSeason);
         /** @var \stdClass $externalSystemRound */
-        foreach( $externalSystemRounds as $externalSystemRound ) {
-
+        foreach ($externalSystemRounds as $externalSystemRound) {
 //            $structure = $this->structureService->create( $competition, $externalSystemRound->places, $externalSystemRound->poules);
 //            $nrOfHeadtoheadMatches = $this->getNrOfHeadtoheadMatches($externalSystemRound);
 //            $structure->getFirstRoundNumber()->getValidPlanningConfig()->setNrOfHeadtoheadMatches( $nrOfHeadtoheadMatches );
@@ -165,14 +168,17 @@ class Structure implements StructureImporter
         return null; // new StructureBase( $rootRound->getNumber(), $rootRound);
     }
 
-    protected function getNrOfPlacesPerPoule( array $poules ): array
+    protected function getNrOfPlacesPerPoule(array $poules): array
     {
-        return array_map( function( $poule ) {
-            return count($poule->places);
-        }, $poules );
+        return array_map(
+            function ($poule) {
+                return count($poule->places);
+            },
+            $poules
+        );
     }
 
-    protected function getNrOfHeadtohead( $externalSystemRound ): int
+    protected function getNrOfHeadtohead($externalSystemRound): int
     {
         $firstPoule = reset($externalSystemRound->poules);
         return $firstPoule->nrOfHeadtohead;
@@ -183,25 +189,31 @@ class Structure implements StructureImporter
      * @param \stdClass $externalSystemRound
      * @throws \Exception
      */
-    protected function assignCompetitors( Round $round, \stdClass $externalSystemRound ) {
-
+    protected function assignCompetitors(Round $round, \stdClass $externalSystemRound)
+    {
         $poules = $round->getPoules()->toArray();
-        $poule = reset( $poules );
+        $poule = reset($poules);
 
-        foreach( $externalSystemRound->poules as $externalSystemPoule ) {
-            if( $poule === false ) {
-                throw new \Exception("not enough poules", E_ERROR );
+        foreach ($externalSystemRound->poules as $externalSystemPoule) {
+            if ($poule === false) {
+                throw new \Exception("not enough poules", E_ERROR);
             }
             $places = $poule->getPlaces()->toArray();
-            $place = reset( $places );
-            foreach( $externalSystemPoule->places as $externalCompetitorId ) {
-                if( $place === false ) {
-                    throw new \Exception("not enough places", E_ERROR );
+            $place = reset($places);
+            foreach ($externalSystemPoule->places as $externalCompetitorId) {
+                if ($place === false) {
+                    throw new \Exception("not enough places", E_ERROR);
                 }
                 $competitorExternalId = null;
-                $competitor = $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $externalCompetitorId );
-                if( $competitor === null ) {
-                    throw new \Exception("cannot assign competitors: no competitor for externalid ".$competitorExternalId." and ".$this->externalSystemBase->getName(), E_ERROR );
+                $competitor = $this->externalCompetitorRepos->findImportable(
+                    $this->externalSystemBase,
+                    $externalCompetitorId
+                );
+                if ($competitor === null) {
+                    throw new \Exception(
+                        "cannot assign competitors: no competitor for externalid " . $competitorExternalId . " and " . $this->externalSystemBase->getName(
+                        ), E_ERROR
+                    );
                 }
                 $place->setCompetitor($competitor);
                 $place = next($places);
@@ -210,11 +222,13 @@ class Structure implements StructureImporter
         }
     }
 
-    private function addNotice( $msg ) {
-        $this->logger->notice( $this->externalSystemBase->getName() . " : " . $msg );
+    private function addNotice($msg)
+    {
+        $this->logger->notice($this->externalSystemBase->getName() . " : " . $msg);
     }
 
-    private function addError( $msg ) {
-        $this->logger->error( $this->externalSystemBase->getName() . " : " . $msg );
+    private function addError($msg)
+    {
+        $this->logger->error($this->externalSystemBase->getName() . " : " . $msg);
     }
 }
