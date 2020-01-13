@@ -36,14 +36,6 @@ class Service {
      */
     private $referees;
     /**
-     * @var array|Place[]
-     */
-    private $refereePlaces;
-    /**
-     * @var array|Field[]
-     */
-    private $fields = [];
-    /**
      * @var int
      */
     private $nrOfPoules;
@@ -90,18 +82,10 @@ class Service {
     }
 
     protected function init( array $games ) {
-        $this->initFields();
         $this->initReferees();
-        if ($this->planning->getInput()->getSelfReferee()) {
-            $this->initRefereePlaces($games);
-        }
         if ($this->planning->getInput()->hasMultipleSports()) {
             $this->tryShuffledFields = true;
         }
-    }
-
-    public function initFields() {
-        $this->fields = $this->planning->getFields()->toArray();
     }
 
     public function initReferees() {
@@ -110,27 +94,6 @@ class Service {
 
     protected function refereesEnabled(): bool {
         return !$this->getInput()->getSelfReferee() && $this->getInput()->getNrOfReferees() > 0;
-    }
-
-    /**
-     * @param array|Game[] $games
-     */
-    public function initRefereePlaces( array $games ) {
-        $this->refereePlaces = [];
-        $nrOfPlacesToFill = $this->planning->getStructure()->getNrOfPlaces();
-
-        while (count($this->refereePlaces) < $nrOfPlacesToFill) {
-            $game = array_shift($games);
-            $placesGame = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
-            foreach( $placesGame as $placeGame ) {
-                $filteredRefPlaces = array_filter( $this->refereePlaces, function( $placeIt ) use ($placeGame) {
-                    return $placeGame === $placeIt;
-                } );
-                if ( count( $filteredRefPlaces ) === 0 && count($this->refereePlaces) < $nrOfPlacesToFill ) {
-                    array_unshift( $this->refereePlaces, $placeGame );
-                }
-            }
-        }
     }
 
     /**
@@ -188,6 +151,30 @@ class Service {
         return $minNrOfGamesMap;
     }
 
+    /**
+     * @param array|Game[] $games
+     * @return array|Place[]
+     */
+    public function getRefereePlaces( array $games ): array {
+        $refereePlaces = [];
+        $nrOfPlacesToFill = $this->planning->getStructure()->getNrOfPlaces();
+
+        while (count($refereePlaces) < $nrOfPlacesToFill) {
+            $game = array_shift($games);
+            $placesGame = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+            foreach( $placesGame as $placeGame ) {
+                $filteredRefPlaces = array_filter( $refereePlaces, function( $placeIt ) use ($placeGame) {
+                    return $placeGame === $placeIt;
+                } );
+                if ( count( $filteredRefPlaces ) === 0 && count($refereePlaces) < $nrOfPlacesToFill ) {
+                    $refereePlaces[] = $placeGame;
+                }
+            }
+        }
+        return $refereePlaces;
+    }
+
+
     // het minimale aantal wedstrijden per sport moet je weten
     // per plaats bijhouden: het aantal wedstrijden voor elke sport
     // per plaats bijhouden: als alle sporten klaar
@@ -226,14 +213,16 @@ class Service {
         $batch = new Batch();
 
         try {
+            $fields = $this->planning->getFields()->toArray();
+            $refereePlaces = $this->getRefereePlaces($games);
             if( $this->getInput()->hasMultipleSports() ) {
-                $resources = new Resources( $this->fields, $this->getSportCounters() );
+                $resources = new Resources( $fields, $refereePlaces, $this->getSportCounters() );
                 $batch = $this->assignBatch( $games, $resources, $batch);
                 if ( $batch === null ) {
                     return PlanningBase::STATE_FAILED;
                 }
             } else {
-                $resources = new Resources( $this->fields );
+                $resources = new Resources( $fields, $refereePlaces );
                 $gamesH2h = $this->getGamesByH2h( $games ); // @FREDDY comment
                 foreach( $gamesH2h as $games ) { // @FREDDY comment
                     $batch = $this->assignBatch( $games, $resources, $batch);
@@ -326,8 +315,8 @@ class Service {
         {
             $nextBatch = $this->toNextBatch($batch, $resources, $games);
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
-//                $mem = $this->convert(memory_get_usage(true)); // 123 kb
-//                $this->output->consoleBatch( $batch, ' final ('.($this->debugIterations).' : '.$mem.')' );
+                $mem = $this->convert(memory_get_usage(true)); // 123 kb
+                $this->output->consoleBatch( $batch, ' final ('.($this->debugIterations).' : '.$mem.')' );
                 return true;
             }
             $gamesForBatchTmp = array_filter( $games, function( Game $game ) use ($nextBatch) {
@@ -335,9 +324,9 @@ class Service {
             });
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0 );
         }
-        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
-            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
-        }
+//        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
+//            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
+//        }
 
         if( $nrOfGamesTried === count($gamesForBatch) ) {
             return false;
@@ -390,7 +379,7 @@ class Service {
                 $this->assignReferee($game);
             }
         } else {
-            $this->assignRefereePlace($batch, $game);
+            $this->assignRefereePlace($batch, $resources, $game);
         }
         $batch->add($game);
         $resources->assignSport($game, $game->getField()->getSport() );
@@ -402,7 +391,7 @@ class Service {
         $this->releaseField($game);
         $this->releaseReferee($game);
         if ($game->getRefereePlace()) {
-            $this->releaseRefereePlaces($game);
+            $this->releaseRefereePlace($game);
         }
     }
 
@@ -418,8 +407,8 @@ class Service {
             if ( array_search( $game->getField(), $resources->getFields() ) === false ) {
                 $resources->addField( $game->getField() );
             }
-            if ($game->getRefereePlace()) {
-                $this->refereePlaces[] = $game->getRefereePlace();
+            if ( array_search( $game->getRefereePlace(), $resources->getRefereePlaces() ) === false ) {
+                $resources->addRefereePlace( $game->getRefereePlace() );
             }
             if ($game->getReferee()) {
                 $this->referees[] = $game->getReferee();
@@ -429,7 +418,9 @@ class Service {
                 array_splice( $games, $gameFound, 1);
             }
         }
-        // $resources->orderFields();
+        if( $this->getInput()->getSelfReferee()) {
+            $resources->orderRefereePlaces();
+        }
         $nextBatch = $batch->createNext();
         return $nextBatch;
     }
@@ -438,7 +429,7 @@ class Service {
         if (!$this->isSomeFieldAssignable($game, $resources)) {
             return false;
         }
-        if (!$this->isSomeRefereeAssignable($batch, $game)) {
+        if (!$this->isSomeRefereeAssignable($batch, $resources, $game)) {
             return false;
         }
         return $this->areAllPlacesAssignable($batch, $game);
@@ -500,7 +491,7 @@ class Service {
         return false;
     }
 
-    private function isSomeRefereeAssignable(Batch $batch, Game $game = null ): bool {
+    private function isSomeRefereeAssignable(Batch $batch, Resources $resources, Game $game = null ): bool {
         if (!$this->planning->getInput()->getSelfReferee()) {
             if (!$this->refereesEnabled()) {
                 return true;
@@ -508,10 +499,10 @@ class Service {
             return count($this->referees) > 0;
         }
         if ($game === null) {
-            return count($this->refereePlaces) > 0;
+            return count($resources->getRefereePlaces()) > 0;
         }
 
-        foreach( $this->refereePlaces as $refereePlaceIt ) {
+        foreach( $resources->getRefereePlaces() as $refereePlaceIt ) {
             if ($game->isParticipating($refereePlaceIt) || $batch->isParticipating($refereePlaceIt)) {
                 continue;
             }
@@ -561,9 +552,9 @@ class Service {
         $game->emptyReferee();
     }
 
-    private function assignRefereePlace( Batch $batch, Game $game ) {
+    private function assignRefereePlace( Batch $batch, Resources $resources, Game $game ) {
         $nrOfPoules = $this->nrOfPoules;
-        $refereePlaces = array_filter( $this->refereePlaces, function( $refereePlaceIt ) use ($batch, $game, $nrOfPoules)  {
+        $refereePlaces = array_filter( $resources->getRefereePlaces(), function( $refereePlaceIt ) use ($batch, $game, $nrOfPoules)  {
             if ($game->isParticipating($refereePlaceIt) || $batch->isParticipating($refereePlaceIt)) {
                 return false;
             }
@@ -572,15 +563,17 @@ class Service {
             }
             return $refereePlaceIt->getPoule() !== $game->getPoule();
         });
-        if (count($refereePlaces) > 0) {
+        if (count($refereePlaces) >= 1) {
             $refereePlace = reset($refereePlaces);
-            $removedRefereePlace = array_splice( $this->refereePlaces, array_search($refereePlace, $this->refereePlaces ), 1);
-            $game->setRefereePlace(array_pop($removedRefereePlace));
+            $refereePlaceIndex = array_search($refereePlace, $resources->getRefereePlaces() );
+            $removedRefereePlace = $resources->removeRefereePlace( $refereePlaceIndex );
+            // $resources->setRefereePlaceIndex( $refereePlaceIndex );
+            $game->setRefereePlace($removedRefereePlace);
         }
     }
 
-    private function releaseRefereePlaces(Game $game) {
-        array_unshift( $this->refereePlaces, $game->getRefereePlace());
+    private function releaseRefereePlace(Game $game) {
+        // array_unshift( $this->refereePlaces, $game->getRefereePlace());
         $game->emptyRefereePlace();
     }
 

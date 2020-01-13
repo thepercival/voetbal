@@ -276,4 +276,14 @@ class Planning
         }
         return $games;
     }
+
+    public function getPlaces(): ArrayCollection {
+        $places = new ArrayCollection();
+        foreach( $this->getPoules() as $poule ) {
+            foreach( $poule->getPlaces() as $place ) {
+                $places->add($place);
+            }
+        }
+        return $places;
+    }
 }

@@ -135,6 +135,9 @@ class Batch
         $places = [];
         foreach( $this->games as $game ) {
             $placesFromGame = array_map( function ( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
+            if( $game->getRefereePlace() ) {
+                $placesFromGame[] = $game->getRefereePlace();
+            }
             $places = array_merge( $places, $placesFromGame );
         }
         return $places;

@@ -25,19 +25,28 @@ class Resources {
      * @var array|int[]
      */
     private $sportTimes;
+    /**
+     * @var array|Place[]
+     */
+    private $refereePlaces;
+    /**
+     * @var array|int[]
+     */
+    private $refereePlaceCounter;
 
     const FIELDS = 1;
     const REFEREES = 2;
     const PLACES = 4;
 
-
     /**
      * Resources constructor.
      * @param array|Field[] $fields
+     * @param array|Place[] $refereePlaces
      * @param array|SportCounter[]|null $sportCounters
+     * @param array|int[] $refereePlaceCounter
      * @param array|int[]|null $sportTimes
      */
-    public function __construct( array $fields, array $sportCounters = null, array $sportTimes = null )
+    public function __construct( array $fields, array $refereePlaces, array $sportCounters = null, array $refereePlaceCounter = null, array $sportTimes = null )
     {
         $this->fields = $fields;
         $this->sportCounters = $sportCounters;
@@ -47,8 +56,16 @@ class Resources {
                 $sportTimes[$field->getSport()->getNumber()] = 0;
             }
         }
+        if( $refereePlaceCounter === null ) {
+            /** @var Place $refereePlace */
+            foreach( $refereePlaces as $refereePlace ) {
+                $refereePlaceCounter[$refereePlace->getLocation()] = 0;
+            }
+        }
+        $this->refereePlaceCounter = $refereePlaceCounter;
         $this->sportTimes = $sportTimes;
         $this->nrOfFieldSwitches = 0;
+        $this->refereePlaces = $refereePlaces;
     }
 
     /**
@@ -99,7 +116,6 @@ class Resources {
         uasort( $this->fields, function( Field $fieldA, Field $fieldB ) {
             $this->sportTimes[$fieldA->getSport()->getNumber() ] > $this->sportTimes[$fieldB->getSport()->getNumber() ] ? -1 : 1;
         } );
-        $r = 1;
     }
 
     public function switchFields(): bool {
@@ -204,6 +220,40 @@ class Resources {
     }
 
     /**
+     * @return array|Place[]
+     */
+    public function getRefereePlaces(): array {
+        return $this->refereePlaces;
+    }
+
+    /**
+     * @return Place
+     */
+    public function removeRefereePlace( int $refereePlaceIndex ): Place {
+        $removedRefereePlaces = array_splice( $this->refereePlaces, $refereePlaceIndex, 1);
+        $refereePlace = reset( $removedRefereePlaces );
+        $this->refereePlaceCounter[$refereePlace->getLocation()]++;
+        return $refereePlace;
+    }
+
+    /**
+     * @param Place $refereePlace
+     */
+    public function addRefereePlace( Place $refereePlace ) {
+        $this->refereePlaces[] = $refereePlace;
+    }
+
+    public function orderRefereePlaces() {
+        uasort( $this->refereePlaces, function( Place $placeA, Place $placeB ) {
+            return $this->refereePlaceCounter[$placeA->getLocation()] > $this->refereePlaceCounter[$placeB->getLocation()] ? 1 : -1;
+        } );
+    }
+
+    public function getRefereePlaceCounter() {
+        return $this->refereePlaceCounter;
+    }
+
+    /**
      * @param Game $game
      * @return array|Place[]
      */
@@ -219,7 +269,7 @@ class Resources {
                 $newSportCounters[$location] = $sportCounter->copy();
             }
         }
-        $resources = new Resources( $this->getFields(), $newSportCounters, $this->sportTimes );
+        $resources = new Resources( $this->getFields(), $this->getRefereePlaces(), $newSportCounters, $this->getRefereePlaceCounter(), $this->sportTimes );
         $resources->setFieldIndex( $this->getFieldIndex() );
         $resources->setNrOfFieldSwitches( $this->getNrOfFieldSwitches() );
         return $resources;
