@@ -13,24 +13,24 @@ use \Doctrine\Common\Collections\ArrayCollection;
 class Association implements External\Importable // extends External\Importable
 {
     /**
-	 * @var int
-	 */
-	protected $id;
-	/**
-	 * @var string
-	 */
+     * @var int
+     */
+    protected $id;
+    /**
+     * @var string
+     */
     protected $name;
-	/**
-	 * @var string
-	 */
+    /**
+     * @var string
+     */
     protected $description;
-	/**
-	 * @var Association
-	 */
+    /**
+     * @var Association
+     */
     protected $parent;
-	/**
-	 * @var ArrayCollection
-	 */
+    /**
+     * @var ArrayCollection
+     */
     protected $children;
     /**
      * @var League[] | ArrayCollection
@@ -42,79 +42,84 @@ class Association implements External\Importable // extends External\Importable
     protected $competitors;
 
     const MIN_LENGTH_NAME = 2;
-	const MAX_LENGTH_NAME = 20;
-	const MAX_LENGTH_DESCRIPTION = 50;
+    const MAX_LENGTH_NAME = 20;
+    const MAX_LENGTH_DESCRIPTION = 50;
 
     use External\ImportableTrait;
 
-    public function __construct( $name )
+    public function __construct($name)
     {
-        $this->setName( $name );
+        $this->setName($name);
         $this->children = new ArrayCollection();
         $this->leagues = new ArrayCollection();
         $this->competitors = new ArrayCollection();
     }
 
-	/**
-	 * Get id
-	 *
-	 * @return int
-	 */
-	public function getId(): ?int
-	{
-		return $this->id;
-	}
+    /**
+     * Get id
+     *
+     * @return int
+     */
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
 
     /**
      * @param int $id
      */
-    public function setId( int $id = null )
+    public function setId(int $id = null)
     {
         $this->id = $id;
     }
 
-	public function getName()
+    public function getName()
     {
         return $this->name;
     }
 
-	/**
-	 * @param string $name
-	 */
-	public function setName( string $name )
-	{
-		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-			throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
-		}
+    /**
+     * @param string $name
+     */
+    public function setName(string $name)
+    {
+        if (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException(
+                "de naam moet minimaal " . static::MIN_LENGTH_NAME . " karakters bevatten en mag maximaal " . static::MAX_LENGTH_NAME . " karakters bevatten",
+                E_ERROR
+            );
+        }
 
-		$this->name = $name;
-	}
+        $this->name = $name;
+    }
 
-	/**
-	 * @return string
-	 */
+    /**
+     * @return string
+     */
     public function getDescription()
     {
         return $this->description;
     }
 
-	/**
-	 * @param string $description
-	 */
-    public function setDescription( $description = null )
+    /**
+     * @param string $description
+     */
+    public function setDescription($description = null)
     {
-        if ( strlen( $description ) === 0 && $description !== null ){
+        if (strlen($description) === 0 && $description !== null) {
             $description = null;
         }
-    	if ( strlen( $description ) > static::MAX_LENGTH_DESCRIPTION ){
-		    throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_DESCRIPTION." karakters bevatten", E_ERROR );
-	    }
+        if (strlen($description) > static::MAX_LENGTH_DESCRIPTION) {
+            throw new \InvalidArgumentException(
+                "de omschrijving mag maximaal " . static::MAX_LENGTH_DESCRIPTION . " karakters bevatten", E_ERROR
+            );
+        }
         $this->description = $description;
     }
 
-	/**
-	 * @return Association
-	 */
+    /**
+     * @return Association
+     */
     public function getParent()
     {
         return $this->parent;
@@ -124,23 +129,23 @@ class Association implements External\Importable // extends External\Importable
      * @param Association|null $parent
      * @throws \Exception
      */
-    public function setParent( Association $parent = null )
+    public function setParent(Association $parent = null)
     {
-	    if ( $parent === $this ){
-		    throw new \Exception( "de parent-bond mag niet zichzelf zijn", E_ERROR );
-	    }
-	    if ( $this->parent !== null && $this->parent->getChildren() !== null ){
+        if ($parent === $this) {
+            throw new \Exception("de parent-bond mag niet zichzelf zijn", E_ERROR);
+        }
+        if ($this->parent !== null && $this->parent->getChildren() !== null) {
             $this->parent->getChildren()->removeElement($this);
         }
         $this->parent = $parent;
-        if ( $this->parent !== null && $this->parent->getChildren() !== null ){
+        if ($this->parent !== null && $this->parent->getChildren() !== null) {
             $this->parent->getChildren()->add($this);
         }
     }
 
-	/**
-	 * @return ArrayCollection
-	 */
+    /**
+     * @return ArrayCollection
+     */
     public function getChildren()
     {
         return $this->children;
