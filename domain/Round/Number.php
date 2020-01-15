@@ -69,8 +69,7 @@ class Number
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
         $this->sportScoreConfigs = new ArrayCollection();
-        $this->hasPlanning = true;
-        // $this->sportPlanningConfigs = new ArrayCollection();
+        $this->hasPlanning = false;
     }
 
     /**
@@ -152,6 +151,9 @@ class Number
         return ($this->getPrevious() === null);
     }
 
+    /**
+     * @return ArrayCollection|Round[]
+     */
     public function getRounds() {
         if( $this->rounds === null ) {
             $this->rounds = new ArrayCollection();
@@ -272,6 +274,7 @@ class Number
      */
     public function getCompetitors(): array {
         $competitors = [];
+        /** @var Round $round */
         foreach( $this->getRounds() as $round ) {
             $competitors = array_merge($competitors, $round->getCompetitors());
         }

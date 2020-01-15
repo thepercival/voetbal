@@ -188,6 +188,9 @@ class Competitor implements External\Importable
      */
     public function setAssociation( Association $association )
     {
+        if ( !$association->getCompetitors()->contains( $this )){
+            $association->getCompetitors()->add($this) ;
+        }
         $this->association = $association;
     }
 }

@@ -38,13 +38,12 @@ class PlanningCreator
         }
         $planning = $planningInput->getBestPlanning();
 
-        $hasPlanning = false;
-        if( $planning !== null ) {
-            $convertService = new ConvertService(new ScheduleService($blockedPeriod));
-            $convertService->createGames($roundNumber, $planning);
-            $hasPlanning = true;
+        if( $planning === null ) {
+            return;
         }
-        $this->planningRepos->saveRoundNumber($roundNumber, $hasPlanning);
+        $convertService = new ConvertService(new ScheduleService($blockedPeriod));
+        $convertService->createGames($roundNumber, $planning);
+        $this->planningRepos->saveRoundNumber($roundNumber, true);
         if( $roundNumber->hasNext() ) {
             $this->create( $roundNumber->getNext(), $blockedPeriod );
         }
