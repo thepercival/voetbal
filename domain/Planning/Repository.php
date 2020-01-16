@@ -119,6 +119,9 @@ class Repository extends \Voetbal\Repository
                 $this->_em->remove($game);
             }
         }
+        $roundNumber->setHasPlanning( false );
+        $this->_em->persist($roundNumber);
+
         $this->_em->flush();
     }
 

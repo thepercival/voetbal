@@ -28,16 +28,35 @@ class PlanningCreator
     }
 
     public function create( RoundNumber $roundNumber, Period $blockedPeriod = null ) {
-        $this->planningRepos->removeRoundNumber( $roundNumber );
+        $this->removeRoundNumber( $roundNumber );
+        $this->createInputRecursive( $roundNumber );
+        $this->createRecursive( $roundNumber, $blockedPeriod );
+    }
 
+    public function removeRoundNumber( RoundNumber $roundNumber ) {
+        $this->planningRepos->removeRoundNumber( $roundNumber );
+        if( $roundNumber->hasNext() ) {
+            $this->removeRoundNumber( $roundNumber->getNext() );
+        }
+    }
+
+    protected function createInputRecursive( RoundNumber $roundNumber ) {
         $inputService = new PlanningInputService();
         $defaultPlanningInput = $inputService->get( $roundNumber );
         $planningInput = $this->inputRepos->getFromInput( $defaultPlanningInput );
         if( $planningInput === null ) {
             $planningInput = $this->inputRepos->save( $defaultPlanningInput );
         }
-        $planning = $planningInput->getBestPlanning();
+        if( $roundNumber->hasNext() ) {
+            $this->createInputRecursive( $roundNumber->getNext() );
+        }
+    }
 
+    protected function createRecursive( RoundNumber $roundNumber, Period $blockedPeriod = null ) {
+        $inputService = new PlanningInputService();
+        $defaultPlanningInput = $inputService->get( $roundNumber );
+        $planningInput = $this->inputRepos->getFromInput( $defaultPlanningInput );
+        $planning = $planningInput->getBestPlanning();
         if( $planning === null ) {
             return;
         }
@@ -45,7 +64,7 @@ class PlanningCreator
         $convertService->createGames($roundNumber, $planning);
         $this->planningRepos->saveRoundNumber($roundNumber, true);
         if( $roundNumber->hasNext() ) {
-            $this->create( $roundNumber->getNext(), $blockedPeriod );
+            $this->createRecursive( $roundNumber->getNext(), $blockedPeriod );
         }
     }
 }
