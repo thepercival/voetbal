@@ -91,7 +91,7 @@ class Number
     }
 
     public function hasNext(): bool {
-        return $this->next !== null;
+        return $this->getNext() !== null;
     }
 
     public function getNext(): ?RoundNumber {

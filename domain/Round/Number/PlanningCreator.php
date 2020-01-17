@@ -28,9 +28,22 @@ class PlanningCreator
     }
 
     public function create( RoundNumber $roundNumber, Period $blockedPeriod = null ) {
+        if( $roundNumber->hasPrevious() && $this->allRoundNumbersHavePlanning( $roundNumber->getPrevious() ) === false ) {
+            return;
+        }
         $this->removeRoundNumber( $roundNumber );
         $this->createInputRecursive( $roundNumber );
         $this->createRecursive( $roundNumber, $blockedPeriod );
+    }
+
+    protected function allRoundNumbersHavePlanning( RoundNumber $roundNumber ): bool {
+        if( $roundNumber->getHasPlanning() === false ) {
+            return false;
+        }
+        if( $roundNumber->hasPrevious() === false ) {
+            return true;
+        }
+        return $this->allRoundNumbersHavePlanning( $roundNumber->getPrevious() );
     }
 
     public function removeRoundNumber( RoundNumber $roundNumber ) {

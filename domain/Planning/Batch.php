@@ -128,16 +128,10 @@ class Batch
 //        }
     }
 
-    public function getPlaces(/*Game $game*/): array {
-//        if( $game === null ) {
-//            return $this->places;
-//        }
+    protected function getPlaces(): array {
         $places = [];
         foreach( $this->games as $game ) {
             $placesFromGame = array_map( function ( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
-            if( $game->getRefereePlace() ) {
-                $placesFromGame[] = $game->getRefereePlace();
-            }
             $places = array_merge( $places, $placesFromGame );
         }
         return $places;
@@ -165,14 +159,6 @@ class Batch
     public function getGames(): array {
         return $this->games;
     }
-
-    public function getNrOfPlaces(): int {
-        return count($this->getPlaces());
-}
-
-//    public function getNrOfPoules(): int {
-//        return count($this->poules);
-//    }
 
     /**
      * @param array|Place[] $places

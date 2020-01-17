@@ -430,8 +430,6 @@ class Service
             if (count($this->referees) > 0) {
                 $this->assignReferee($game);
             }
-        } else {
-            $this->assignRefereePlace($batch, $resources, $game);
         }
         $batch->add($game);
         $resources->assignSport($game, $game->getField()->getSport());
@@ -455,6 +453,11 @@ class Service
      */
     protected function toNextBatch(Batch $batch, Resources $resources, array &$games): Batch
     {
+        // HIER DE REFEREEPLACES TOEKENNEN EN AANVULLEN
+        // ZODAT ER IIG VAN ELKE REFEREE 1 VOORKOMEN IS
+            // $this->assignRefereePlace($batch, $resources, $game);
+
+
         foreach ($batch->getGames() as $game) {
             $game->setBatchNr($batch->getNumber());
             // hier alle velden toevoegen die er nog niet in staan
@@ -504,6 +507,19 @@ class Service
      */
     private function areAllPlacesAssignable(Batch $batch, Game $game, bool $checkGamesInARow = true): bool
     {
+        $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
+        foreach( $this->getPlaces($game) as $place ) {
+            if( $batch->hasPlace($place) ) {
+                return false;
+            }
+            $nrOfGamesInARow = $batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0;
+            if( $nrOfGamesInARow < $maxNrOfGamesInARow || $maxNrOfGamesInARow === -1 ) {
+                continue;
+            }
+            return false;
+        }
+        return true;
+
 //        $nrOfPlacesNotInBatch = 0; @FREDDY
 //        foreach( $this->getPlaces($game) as $place ) {
 //            if (!$batch->hasPlace($place)) {
@@ -521,13 +537,6 @@ class Service
 //            }
 //        }
 //        return true;
-
-        foreach ($this->getPlaces($game) as $place) {
-            if ($batch->hasPlace($place)) {
-                return false;
-            }
-        }
-        return true;
     }
 
 
@@ -621,8 +630,10 @@ class Service
         $game->emptyReferee();
     }
 
-    private function assignRefereePlace(Batch $batch, Resources $resources, Game $game)
+    private function assignRefereePlaces(Batch $batch, Resources $resources )
     {
+        HIER DUS TOEKENNEN ALS ONDERDEEL VAN TONEXTBATCH
+    AANVULLEN GEBEURD MISSCHIEN ERGENS ANDERS OF MISSCHIEN JUIST MOOI EN SNEL OM IN 1 KEER HIER TE DOEN!!
         $nrOfPoules = $this->nrOfPoules;
         $refereePlaces = array_filter(
             $resources->getRefereePlaces(),

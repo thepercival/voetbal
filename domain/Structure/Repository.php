@@ -24,10 +24,16 @@ class Repository
      * @var EntityManager
      */
     protected $em;
+    /**
+     * @var RoundNumberRepository
+     */
+    protected $roundNumberRepos;
+
 
     public function __construct(EntityManager $em)
     {
         $this->em = $em;
+        $this->roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
     }
 
     public function removeAndAdd(Competition $competition, StructureBase $newStructure, int $roundNumberValue = null): RoundNumber
@@ -70,15 +76,14 @@ class Repository
 
     public function hasStructure( Competition $competition ): bool
     {
-        $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
-        $roundNumbers = $roundNumberRepos->findBy(array("competition" => $competition) );
+
+        $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition) );
         return count($roundNumbers) > 0;
     }
 
     public function getStructure( Competition $competition ): ?StructureBase
     {
-        $roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
-        $roundNumbers = $roundNumberRepos->findBy(array("competition" => $competition), array("number" => "asc"));
+        $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition), array("number" => "asc"));
         if( count($roundNumbers) === 0 ) {
             return null;
         }
@@ -97,6 +102,23 @@ class Repository
         $postCreateService->create();
 
         return $structure;
+    }
+
+    /**
+     * @param array $filter
+     * @return array|StructureBase[]
+     */
+    public function getStructures( array $filter ): array {
+        $structures = [];
+
+        $roundNumbers = $this->roundNumberRepos->findBy($filter, array("number" => "asc"));
+        foreach( $roundNumbers as $roundNumber ) {
+            if( array_key_exists($roundNumber->getCompetition()->getId(), $structures ) ) {
+                continue;
+            }
+            $structures[$roundNumber->getCompetition()->getId()] = $this->getStructure( $roundNumber->getCompetition() );
+        }
+        return $structures;
     }
 
     public function remove( Competition $competition, int $roundNumberAsValue = null )
