@@ -10,7 +10,6 @@ namespace Voetbal\Planning\Resource;
 
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Game;
-use Voetbal\Planning\Referee;
 use Voetbal\Planning\Place;
 use Voetbal\Planning\Field;
 use Voetbal\Planning\Sport;
@@ -33,10 +32,6 @@ class Service
      */
     private $planning;
     /**
-     * @var array|Referee[]
-     */
-    private $referees;
-    /**
      * @var int
      */
     private $nrOfPoules;
@@ -52,10 +47,6 @@ class Service
      * @var array|Place[]
      */
     private $places;
-    /**
-     * @var Resources
-     */
-    private $successfullResources;
     /**
      * @var \DateTimeImmutable
      */
@@ -83,22 +74,11 @@ class Service
         return $this->planning->getInput();
     }
 
-    protected function init(array $games)
+    protected function init()
     {
-        $this->initReferees();
         if ($this->planning->getInput()->hasMultipleSports()) {
             $this->tryShuffledFields = true;
         }
-    }
-
-    public function initReferees()
-    {
-        $this->referees = $this->planning->getReferees()->toArray();
-    }
-
-    protected function refereesEnabled(): bool
-    {
-        return !$this->getInput()->getSelfReferee() && $this->getInput()->getNrOfReferees() > 0;
     }
 
     /**
@@ -169,64 +149,6 @@ class Service
     }
 
     /**
-     * @param array|Game[] $games
-     * @return array|Place[]
-     */
-    public function getRefereePlaces(array $games): array
-    {
-        $refereePlaces = [];
-        $nrOfPlacesToFill = $this->planning->getStructure()->getNrOfPlaces();
-
-        while (count($refereePlaces) < $nrOfPlacesToFill) {
-            $game = array_shift($games);
-            $placesGame = $game->getPlaces()->map(
-                function ($gamePlace) {
-                    return $gamePlace->getPlace();
-                }
-            );
-            foreach ($placesGame as $placeGame) {
-                $filteredRefPlaces = array_filter(
-                    $refereePlaces,
-                    function ($placeIt) use ($placeGame) {
-                        return $placeGame === $placeIt;
-                    }
-                );
-                if (count($filteredRefPlaces) === 0 && count($refereePlaces) < $nrOfPlacesToFill) {
-                    $refereePlaces[] = $placeGame;
-                }
-            }
-        }
-        return $refereePlaces;
-    }
-
-
-    // het minimale aantal wedstrijden per sport moet je weten
-    // per plaats bijhouden: het aantal wedstrijden voor elke sport
-    // per plaats bijhouden: als alle sporten klaar
-//    /**
-//     *
-//     */
-//    protected function initPlaces() {
-//        $sportPlanningConfigService = new SportPlanningConfigService();
-//        $sportPlanningConfigs = $this->roundNumber->getSportPlanningConfigs()->toArray();
-//        $this->nrOfSports = count($sportPlanningConfigs );
-//        $teamup = $this->getInput()->getTeamup();
-//        $this->planningPlaces = [];
-//        foreach( $this->roundNumber->getPoules() as $poule ) {
-//            $nrOfHeadtohead = $sportPlanningConfigService->getSufficientNrOfHeadtohead($poule);
-//            $nrOfGamesToGo = $sportPlanningConfigService->getNrOfGamesPerPlace($poule->getPlaces()->count(), $nrOfHeadtohead, $teamup);
-//
-//            $sportsNrOfGames = $sportPlanningConfigService->getPlanningMinNrOfGames($poule);
-//            $minNrOfGamesMap = $sportPlanningConfigService->convertToMap($sportsNrOfGames);
-//            /** @var Place $placeIt */
-//            foreach( $poule->getPlaces() as $placeIt ) {
-//                $sportCounter = new SportCounter($nrOfGamesToGo, $minNrOfGamesMap, $sportPlanningConfigs);
-//                $this->planningPlaces[$placeIt->getLocationId()] = new PlanningPlace($sportCounter);
-//            }
-//        }
-//    }
-
-    /**
      * @param array $games
      * @return int
      */
@@ -235,20 +157,19 @@ class Service
         $this->debugIterations = 0;
         $oCurrentDateTime = new \DateTimeImmutable();
         $this->m_oTimeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
-        $this->init($games);
+        $this->init();
         $batch = new Batch();
 
         try {
             $fields = $this->planning->getFields()->toArray();
-            $refereePlaces = $this->getRefereePlaces($games);
             if ($this->getInput()->hasMultipleSports()) {
-                $resources = new Resources($fields, $refereePlaces, $this->getSportCounters());
+                $resources = new Resources($fields, $this->getSportCounters());
                 $batch = $this->assignBatch($games, $resources, $batch);
                 if ($batch === null) {
                     return PlanningBase::STATE_FAILED;
                 }
             } else {
-                $resources = new Resources($fields, $refereePlaces);
+                $resources = new Resources($fields);
                 $gamesH2h = $this->getGamesByH2h($games); // @FREDDY comment
                 foreach ($gamesH2h as $games) { // @FREDDY comment
                     $batch = $this->assignBatch($games, $resources, $batch);
@@ -257,6 +178,14 @@ class Service
                     }
                 }
             }
+            $rootBatch = $batch->getRoot();
+            $refereePlaceService = new RefereePlaceService( $this->planning );
+            $refereePlaceService->assign( $rootBatch );
+            $refereeService = new RefereeService( $this->planning );
+            $refereeService->assign( $rootBatch );
+
+            $mem = $this->convert(memory_get_usage(true)); // 123 kb
+            $this->output->consoleBatch($rootBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
         } catch (TimeoutException $e) {
             return PlanningBase::STATE_TIMEOUT;
         }
@@ -352,8 +281,6 @@ class Service
         {
             $nextBatch = $this->toNextBatch($batch, $resources, $games);
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
-                $mem = $this->convert(memory_get_usage(true)); // 123 kb
-                $this->output->consoleBatch($batch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
                 return true;
             }
             $gamesForBatchTmp = array_filter(
@@ -426,11 +353,6 @@ class Service
     protected function assignGame(Batch $batch, Game $game, Resources $resources)
     {
         $this->assignField($game, $resources);
-        if (!$this->planning->getInput()->getSelfReferee()) {
-            if (count($this->referees) > 0) {
-                $this->assignReferee($game);
-            }
-        }
         $batch->add($game);
         $resources->assignSport($game, $game->getField()->getSport());
     }
@@ -440,10 +362,6 @@ class Service
         $batch->remove($game);
         // $this->releaseSport($game, $game->getField()->getSport());
         $this->releaseField($game);
-        $this->releaseReferee($game);
-        if ($game->getRefereePlace()) {
-            $this->releaseRefereePlace($game);
-        }
     }
 
     /**
@@ -453,33 +371,16 @@ class Service
      */
     protected function toNextBatch(Batch $batch, Resources $resources, array &$games): Batch
     {
-        // HIER DE REFEREEPLACES TOEKENNEN EN AANVULLEN
-        // ZODAT ER IIG VAN ELKE REFEREE 1 VOORKOMEN IS
-            // $this->assignRefereePlace($batch, $resources, $game);
-
-
         foreach ($batch->getGames() as $game) {
             $game->setBatchNr($batch->getNumber());
             // hier alle velden toevoegen die er nog niet in staan
             if (array_search($game->getField(), $resources->getFields()) === false) {
                 $resources->addField($game->getField());
             }
-            if ($this->getInput()->getSelfReferee() && array_search(
-                    $game->getRefereePlace(),
-                    $resources->getRefereePlaces()
-                ) === false) {
-                $resources->addRefereePlace($game->getRefereePlace());
-            }
-            if ($game->getReferee()) {
-                $this->referees[] = $game->getReferee();
-            }
             $gameFound = array_search($game, $games, true);
             if ($gameFound !== false) {
                 array_splice($games, $gameFound, 1);
             }
-        }
-        if ($this->getInput()->getSelfReferee()) {
-            $resources->orderRefereePlaces();
         }
         $nextBatch = $batch->createNext();
         return $nextBatch;
@@ -488,9 +389,6 @@ class Service
     private function isGameAssignable(Batch $batch, Game $game, Resources $resources): bool
     {
         if (!$this->isSomeFieldAssignable($game, $resources)) {
-            return false;
-        }
-        if (!$this->isSomeRefereeAssignable($batch, $resources, $game)) {
             return false;
         }
         return $this->areAllPlacesAssignable($batch, $game);
@@ -561,32 +459,6 @@ class Service
         return false;
     }
 
-    private function isSomeRefereeAssignable(Batch $batch, Resources $resources, Game $game = null): bool
-    {
-        if (!$this->planning->getInput()->getSelfReferee()) {
-            if (!$this->refereesEnabled()) {
-                return true;
-            }
-            return count($this->referees) > 0;
-        }
-        if ($game === null) {
-            return count($resources->getRefereePlaces()) > 0;
-        }
-
-        foreach ($resources->getRefereePlaces() as $refereePlaceIt) {
-            if ($game->isParticipating($refereePlaceIt) || $batch->isParticipating($refereePlaceIt)) {
-                continue;
-            }
-            if ($this->nrOfPoules === 1) {
-                return true;
-            }
-            if ($refereePlaceIt->getPoule() !== $game->getPoule()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private function releaseField(Game $game/*, Resources $resources*/)
     {
 //        if ($resources->getFieldIndex() !== null) {
@@ -616,52 +488,6 @@ class Service
         }
     }
 
-    private function assignReferee(Game $game)
-    {
-        $game->setReferee(array_shift($this->referees));
-    }
-
-    private function releaseReferee(Game $game)
-    {
-        if ($game->getReferee() === null) {
-            return;
-        }
-        array_unshift($this->referees, $game->getReferee());
-        $game->emptyReferee();
-    }
-
-    private function assignRefereePlaces(Batch $batch, Resources $resources )
-    {
-        HIER DUS TOEKENNEN ALS ONDERDEEL VAN TONEXTBATCH
-    AANVULLEN GEBEURD MISSCHIEN ERGENS ANDERS OF MISSCHIEN JUIST MOOI EN SNEL OM IN 1 KEER HIER TE DOEN!!
-        $nrOfPoules = $this->nrOfPoules;
-        $refereePlaces = array_filter(
-            $resources->getRefereePlaces(),
-            function ($refereePlaceIt) use ($batch, $game, $nrOfPoules) {
-                if ($game->isParticipating($refereePlaceIt) || $batch->isParticipating($refereePlaceIt)) {
-                    return false;
-                }
-                if ($nrOfPoules === 1) {
-                    return true;
-                }
-                return $refereePlaceIt->getPoule() !== $game->getPoule();
-            }
-        );
-        if (count($refereePlaces) >= 1) {
-            $refereePlace = reset($refereePlaces);
-            $refereePlaceIndex = array_search($refereePlace, $resources->getRefereePlaces());
-            $removedRefereePlace = $resources->removeRefereePlace($refereePlaceIndex);
-            // $resources->setRefereePlaceIndex( $refereePlaceIndex );
-            $game->setRefereePlace($removedRefereePlace);
-        }
-    }
-
-    private function releaseRefereePlace(Game $game)
-    {
-        // array_unshift( $this->refereePlaces, $game->getRefereePlace());
-        $game->emptyRefereePlace();
-    }
-
     /**
      * @param Game $game
      * @return array|Place[]
@@ -675,12 +501,4 @@ class Service
             $game->getPlaces()->toArray()
         );
     }
-
-//    protected function getConsoleString($value, int $minLength): string {
-//        $str = '' . $value;
-//        while ( strlen($str) < $minLength) {
-//            $str = ' ' . $str;
-//        }
-//        return $str;
-//    }
 }
