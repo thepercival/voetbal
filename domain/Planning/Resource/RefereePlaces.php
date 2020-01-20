@@ -3,60 +3,62 @@
 namespace Voetbal\Planning\Resource;
 
 use Voetbal\Planning\Place;
-use Voetbal\Planning\Game;
+use Voetbal\Planning\Poule;
 
-class RefereePlaces {
+abstract class RefereePlaces implements \IteratorAggregate {
+    /**
+     * @var array|Poule[]
+     */
+    protected $poules;
     /**
      * @var array|Place[]
      */
-    private $refereePlaces;
-    /**
-     * @var array|int[]
-     */
-    private $refereePlaceCounter;
+    protected $refereePlaces;
 
-    public function __construct( array $refereePlaces, array $refereePlaceCounter = null )
+    public function __construct( array $poules )
     {
-        if( $refereePlaceCounter === null ) {
-            /** @var Place $refereePlace */
-            foreach( $refereePlaces as $refereePlace ) {
-                $refereePlaceCounter[$refereePlace->getLocation()] = 0;
-            }
+        $this->poules = $poules;
+        $this->refereePlaces = [];
+        foreach( $poules as $poule ) {
+            $this->fill();
         }
-        $this->refereePlaceCounter = $refereePlaceCounter;
-        $this->refereePlaces = $refereePlaces;
     }
 
-    /**
-     * @return array|Place[]
-     */
-    public function getRefereePlaces(): array {
-        return $this->refereePlaces;
+    protected function fill( Poule $poule = null ) {
+        foreach( $this->poules as $pouleIt ) {
+            if( $poule !== null && $poule !== $pouleIt ) {
+                continue;
+            }
+            $this->refereePlaces = array_merge( $this->refereePlaces, $pouleIt->getPlaces()->toArray() );
+        }
     }
 
-    /**
-     * @return Place
-     */
-    public function removeRefereePlace( int $refereePlaceIndex ): Place {
-        $removedRefereePlaces = array_splice( $this->refereePlaces, $refereePlaceIndex, 1);
-        $refereePlace = reset( $removedRefereePlaces );
-        $this->refereePlaceCounter[$refereePlace->getLocation()]++;
-        return $refereePlace;
+    public function count( Poule $poule = null ): int {
+        if( $poule === null ) {
+            return count( $this->refereePlaces );
+        }
+        return count( array_filter( $this->refereePlaces, function( Place $refereePlace ) use ( $poule) {
+            return $refereePlace->getPoule() === $poule ;
+        } ) );
     }
 
-    public function getRefereePlaceCounter() {
-        return $this->refereePlaceCounter;
+    public function shift() {
+        return array_shift( $this->refereePlaces );
     }
 
-    /**
-     * @param Game $game
-     * @return array|Place[]
-     */
-    protected function getPlaces(Game $game): array {
-        return array_map( function( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
+    public function push( Place $refereePlace ): int {
+        return array_push( $this->refereePlaces, $refereePlace );
     }
 
-    public function copy(): RefereePlaces {
-        return new RefereePlaces( $this->getRefereePlaces(), $this->getRefereePlaceCounter() );
+    abstract public function remove( Place $refereePlace );
+
+    public function __clone()
+    {
+        // $this->refereePlaces = $this->refereePlaces;
+    }
+
+    public function getIterator()
+    {
+        return new \ArrayIterator( $this->refereePlaces );
     }
 }

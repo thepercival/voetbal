@@ -54,16 +54,21 @@ class RefereePlaceService
         if( $this->getInput()->getSelfReferee() === false ) {
             return;
         }
-        $refereePlaces = $this->planning->getPlaces()->toArray();
-        if( !$this->assignBatch( $batch, $batch->getGames(), new RefereePlaces( $refereePlaces ) ) ) {
+        $refereePlaces = $this->getRefereePlaces( $this->planning->getPoules()->toArray() );
+        if( !$this->assignBatch( $batch, $batch->getGames(), $refereePlaces ) ) {
             throw new \Exception('not all refereeplaces could be assigned', E_ERROR);
         };
     }
 
-//    bij assignen toekennen aan game en verwijderen uit resources
-//    bij releasegame, scheidsrechter uit wedstrijd halen(niet uit resources)
+    protected function getRefereePlaces(array $poules ): RefereePlaces
+    {
+        if( count($poules) === 2 ) {
+            return new RefereePlaces\TwoPoules( $poules );
+        }
+        return new RefereePlaces\MultiplePoules( $poules );
+    }
 
-    protected function assignBatch(Batch $batch, array $batchGames, RefereePlaces $refereePlaces, int $nrOfGamesTried = 0): bool {
+    protected function assignBatch(Batch $batch, array $batchGames, RefereePlaces $refereePlaces): bool {
         if (count($batchGames) === 0 ) // batchsuccess
         {
             if( $batch->hasNext() === false ) { // endsuccess
@@ -72,154 +77,35 @@ class RefereePlaceService
             $nextBatch = $batch->getNext();
             return $this->assignBatch($nextBatch, $nextBatch->getGames(), $refereePlaces );
         }
-        if ($nrOfGamesTried === count($batchGames)) {
-            return false;
-        }
 
         $game = array_shift($batchGames);
-        if ($this->isGameAssignable($batch, $game, $refereePlaces)) {
-            $refereePlacesAssign = $refereePlaces->copy();
-            $gamesForBatchTmp = array_filter(
-                $batchGames,
-                function (Game $game) use ($batch) {
-                    return $this->areAllPlacesAssignable($batch, $game);
+        foreach( $refereePlaces as $refereePlace ) {
+            if ($this->isRefereePlaceAssignable($batch, $game, $refereePlace )) {
+                $refereePlacesAssign = clone $refereePlaces;
+                $this->assignRefereePlace( $game, $refereePlace, $refereePlacesAssign );
+                if ($this->assignBatch($batch, $batchGames, $refereePlacesAssign)) {
+                    return true;
                 }
-            );
-            $this->assignGame($batch, $game, $refereePlacesAssign);
-            if ($this->assignBatch($batch, $gamesForBatchTmp, $refereePlacesAssign )) {
-                return true;
-            }
-            $this->releaseGame($batch, $game);
-        }
-        array_push($batchGames, $game);
-        return $this->assignBatch(
-            $batch,
-            $batchGames,
-            $refereePlaces->copy(),
-            ++$nrOfGamesTried
-        );
-    }
-
-    protected function assignGame(Batch $batch, Game $game, RefereePlaces $refereePlaces)
-    {
-        $batch->add($game);
-        $this->assignRefereePlace( $batch, $game, $refereePlaces );
-    }
-
-    protected function releaseGame(Batch $batch, Game $game)
-    {
-        $batch->remove($game);
-        if ($game->getRefereePlace()) {
-            $this->releaseRefereePlace($game);
-        }
-    }
-
-    private function isGameAssignable(Batch $batch, Game $game, RefereePlaces $refereePlaces): bool
-    {
-        return $this->isSomeRefereePlaceAssignable($batch, $refereePlaces, $game);
-    }
-
-    /**
-     * de wedstrijd is assignbaar als
-     * 1 alle plekken, van een wedstrijd, nog niet in de batch
-     * 2 alle plekken, van een wedstrijd, de sport nog niet vaak genoeg gedaan heeft of alle sporten al gedaan
-     *
-     * @param Batch $batch
-     * @param Game $game
-     * @return bool
-     */
-    private function areAllPlacesAssignable(Batch $batch, Game $game, bool $checkGamesInARow = true): bool
-    {
-        $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
-        foreach( $this->getPlaces($game) as $place ) {
-            if( $batch->hasPlace($place) ) {
-                return false;
-            }
-            $nrOfGamesInARow = $batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0;
-            if( $nrOfGamesInARow < $maxNrOfGamesInARow || $maxNrOfGamesInARow === -1 ) {
-                continue;
-            }
-            return false;
-        }
-        return true;
-
-//        $nrOfPlacesNotInBatch = 0; @FREDDY
-//        foreach( $this->getPlaces($game) as $place ) {
-//            if (!$batch->hasPlace($place)) {
-//                $nrOfPlacesNotInBatch++;
-//            }
-//        }
-//        $enoughPlacesFree = ( ($batch->getNrOfPlaces() + $nrOfPlacesNotInBatch) <= 4 );
-//
-//        foreach( $this->getPlaces($game) as $place ) {
-//            if( !$batch->hasPlace($place) && !$enoughPlacesFree ) {
-//                return false;
-//            }
-//            if( $batch->getNrOfGames($place) === 3 ) {
-//                return false;
-//            }
-//        }
-//        return true;
-    }
-
-
-
-    private function isSomeRefereePlaceAssignable(Batch $batch, RefereePlaces $refereePlaces, Game $game): bool
-    {
-        foreach ($refereePlaces->getRefereePlaces() as $refereePlaceIt) {
-            if ($game->isParticipating($refereePlaceIt) || $batch->isParticipating($refereePlaceIt)) {
-                continue;
-            }
-            if ($this->hasOnePoule) {
-                return true;
-            }
-            if ($refereePlaceIt->getPoule() !== $game->getPoule()) {
-                return true;
+                $game->emptyRefereePlace();
             }
         }
         return false;
     }
 
-    private function assignRefereePlace(Batch $batch, Game $game,  RefereePlaces $refereePlaces )
+    private function isRefereePlaceAssignable(Batch $batch, Game $game, Place $refereePlace): bool
     {
-        $foundRefereePlaces = array_filter(
-            $refereePlaces->getRefereePlaces(),
-            function ($refereePlaceIt) use ($batch, $game ) {
-                if ($game->isParticipating($refereePlaceIt) || $batch->isParticipating($refereePlaceIt)) {
-                    return false;
-                }
-                if ($this->hasOnePoule) {
-                    return true;
-                }
-                return $refereePlaceIt->getPoule() !== $game->getPoule();
-            }
-        );
-        $refereePlace = reset($foundRefereePlaces);
-        if( $refereePlace === false ) {
-            return;
+        if ($game->isParticipating($refereePlace) || $batch->isParticipating($refereePlace)) {
+            return false;
         }
-        $refereePlaceIndex = array_search($refereePlace, $refereePlaces->getRefereePlaces());
-        $removedRefereePlace = $refereePlaces->removeRefereePlace($refereePlaceIndex);
-        $game->setRefereePlace($removedRefereePlace);
+        if ($this->hasOnePoule) {
+            return true;
+        }
+        return $refereePlace->getPoule() !== $game->getPoule();
     }
 
-    private function releaseRefereePlace(Game $game)
+    private function assignRefereePlace(Game $game, Place $refereePlace, RefereePlaces $refereePlaces )
     {
-        // array_unshift( $this->refereePlaces, $game->getRefereePlace());
-        $game->emptyRefereePlace();
-    }
-
-    /**
-     * @param Game $game
-     * @return array|Place[]
-     */
-    protected function getPlaces(Game $game): array
-    {
-        return array_map(
-            function ($gamePlace) {
-                return $gamePlace->getPlace();
-            },
-            $game->getPlaces()->toArray()
-        );
+        $game->setRefereePlace($refereePlace);
+        $refereePlaces->remove( $refereePlace );
     }
 }
