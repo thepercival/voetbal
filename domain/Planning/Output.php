@@ -27,7 +27,7 @@ class Output
 //            return;
 //        }
         $this->logger->info( '------batch ' . $batch->getNumber() . ' ' . $title . ' -------------' );
-        $this->consoleBatchHelper($batch->getRoot());
+        $this->consoleBatchHelper($batch->getFirst());
     }
 
     protected function consoleBatchHelper( Batch $batch) {

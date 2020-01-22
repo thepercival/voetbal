@@ -85,13 +85,6 @@ class Seeker
                 $fieldNr = ( $iteration * $gcdInput->getNrOfFields() ) + $gcdGame->getField()->getNumber();
                 $game->setField( $planning->getField( $fieldNr ) );
 
-                if( $gcdGame->getRefereePlace() ) {
-                    $refereePouleNr = $gcdGame->getRefereePlace()->getPoule()->getNumber();
-                    $refereePoule = $planning->getPoule( $refereePouleNr );
-                    $refereePlace = $refereePoule->getPlace( $gcdGame->getRefereePlace()->getNumber() );
-                    $game->setRefereePlace( $refereePlace );
-                }
-
                 foreach( $gcdGame->getPlaces() as $gcdGamePlace ) {
                     $place = $poule->getPlace( $gcdGamePlace->getPlace()->getNumber() );
                     $gamePlace = new Game\Place( $game, $place, $gcdGamePlace->getHomeAway() );

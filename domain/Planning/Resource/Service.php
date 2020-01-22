@@ -178,14 +178,12 @@ class Service
                     }
                 }
             }
-            $rootBatch = $batch->getRoot();
-            $refereePlaceService = new RefereePlaceService( $this->planning );
-            $refereePlaceService->assign( $rootBatch );
+            $firstBatch = $batch->getFirst();
             $refereeService = new RefereeService( $this->planning );
-            $refereeService->assign( $rootBatch );
+            $refereeService->assign( $firstBatch );
 
             $mem = $this->convert(memory_get_usage(true)); // 123 kb
-            $this->output->consoleBatch($rootBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
+            $this->output->consoleBatch($firstBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
         } catch (TimeoutException $e) {
             return PlanningBase::STATE_TIMEOUT;
         }

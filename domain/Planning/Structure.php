@@ -55,15 +55,22 @@ class Structure
         return $this->nrOfPlaces;
     }
 
-    public function getBatches(): array {
+    public function getFirstBatch(): Batch {
         $games = $this->getGames( GameBase::ORDER_BY_BATCH );
-        $batches = [];
+        $batch = new Batch();
         foreach( $games as $game ) {
-            $batches[$game->getBatchNr()-1][] = $game;
+            if( $game->getBatchNr() === ( $batch->getNumber() + 1 ) ) {
+                $batch = $batch->createNext();
+            }
+            $batch->add( $game );
         }
-        return $batches;
+        return $batch->getFirst();
     }
 
+    /**
+     * @param int|null $order
+     * @return array|Game[]
+     */
     public function getGames( int $order = null ): array
     {
         if( $order === null ) {

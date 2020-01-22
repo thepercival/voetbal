@@ -198,6 +198,9 @@ class Input
                 $nrOfGamesSimultaneously++;
             }
         }
+        if( $nrOfGamesSimultaneously === 0 ) {
+            $nrOfGamesSimultaneously = 1;
+        }
         return $nrOfGamesSimultaneously;
     }
 

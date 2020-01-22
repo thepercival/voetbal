@@ -27,26 +27,11 @@ class Batch
      * @var array | Game[]
      */
     private $games = [];
-    /**
-     * @var array | Poule[]
-     */
-    // private $poules = [];
-    /**
-     * @var array | Place[]
-     */
-    // private $places = [];
 
     public function __construct(Batch $previous = null ) {
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;;
     }
-
-//    public function reset() {
-//        $this->games = [];
-//        // $this->poules = [];
-//        // $this->places = [];
-//        $this->next = null;
-//    }
 
     public function getNumber(): int {
         return $this->number;
@@ -77,8 +62,8 @@ class Batch
         return $this->previous;
     }
 
-    public function getRoot(): Batch {
-        return $this->hasPrevious() ? $this->previous->getRoot() : $this;
+    public function getFirst(): Batch {
+        return $this->hasPrevious() ? $this->previous->getFirst() : $this;
     }
 
     public function getLeaf(): Batch {
@@ -98,34 +83,10 @@ class Batch
 
     public function add(Game $game ) {
         $this->games[] = $game;
-
-//        if (count( array_filter( $this->poules, function( $pouleIt ) use ($game) { return $game->getPoule() === $pouleIt; } ) ) === 0){
-//            $this->poules[] = $game->getPoule();
-//        }
-//
-//        foreach( $this->getPlaces($game) as $place ) {
-//            if (count( array_filter( $this->places, function( $placeIt ) use ($place) { return $place === $placeIt; } ) ) === 0){
-//                $this->places[] = $place;
-//            }
-//        }
-//        if ($game->getRefereePlace()) {
-//            $this->places[] = $game->getRefereePlace();
-//        }
     }
 
     public function remove( Game $game) {
         array_splice( $this->games, array_search( $game, $this->games), 1);
-
-//        if ( count( array_filter( $this->games, function( $gameIt ) use ($game) { return $gameIt->getPoule() === $game->getPoule(); } ) ) === 0 ) {
-//            array_splice( $this->poules, array_search( $game->getPoule(), $this->poules), 1);
-//        }
-//
-//        foreach( $this->getPlaces($game) as $placeIt ) {
-//            array_splice( $this->places, array_search( $placeIt, $this->places), 1);
-//        }
-//        if ($game->getRefereePlace()) {
-//            array_splice( $this->places, array_search( $game->getRefereePlace(), $this->places), 1);
-//        }
     }
 
     protected function getPlaces(): array {
@@ -181,13 +142,6 @@ class Batch
         }
         return false;
     }
-
-    /*public function getLastAssignedRefereePlace(): ?Place {
-        if (count($this->games) === 0) {
-            return null;
-        }
-        return end($this->games)->getRefereePlace();
-    }*/
 
     public function isParticipating(Place $place ): bool {
         foreach( $this->games as $game ) {

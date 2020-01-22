@@ -57,6 +57,9 @@ class Service
     }
 
     public function hasGCD( PlanningInput $input ): bool {
+        if( $input->getSelfReferee() ) {
+            return false;
+        }
         $gcd = $this->getGCDRaw( $input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees() );
         return $gcd > 1;
     }

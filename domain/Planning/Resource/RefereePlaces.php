@@ -19,9 +19,7 @@ abstract class RefereePlaces implements \IteratorAggregate {
     {
         $this->poules = $poules;
         $this->refereePlaces = [];
-        foreach( $poules as $poule ) {
-            $this->fill();
-        }
+        $this->fill();
     }
 
     protected function fill( Poule $poule = null ) {
