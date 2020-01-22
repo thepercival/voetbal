@@ -39,7 +39,7 @@ class RefereeService
         if( $this->refereesEnabled() === false ) {
             return false;
         }
-        $this->assignBatch($batch, $this->planning->getReferees()->toArray() );
+        $this->assignBatch($batch->getLeaf(), $this->planning->getReferees()->toArray() );
     }
 
     protected function assignBatch( Batch $batch, array $referees)
@@ -50,8 +50,8 @@ class RefereeService
             $game->setReferee( $referee );
             array_push($referees, $referee);
         }
-        if( $batch->hasNext() ) {
-            $this->assignBatch( $batch->getNext(), $referees );
+        if( $batch->hasPrevious() ) {
+            $this->assignBatch( $batch->getPrevious(), $referees );
         }
     }
 }
