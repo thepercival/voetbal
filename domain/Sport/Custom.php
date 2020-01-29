@@ -20,7 +20,7 @@ abstract class Custom {
     const TableTennis = 9;
     const Tennis = 10;
     const Football = 11;
-    const Voleyball = 12;
+    const Volleyball = 12;
     const Baseball = 13;
     const Max = 13;
 
@@ -37,7 +37,7 @@ abstract class Custom {
             Custom::TableTennis,
             Custom::Tennis,
             Custom::Football,
-            Custom::Voleyball,
+            Custom::Volleyball,
             Custom::Baseball
         ];
     }

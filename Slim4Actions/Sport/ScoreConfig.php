@@ -82,10 +82,12 @@ final class ScoreConfig
             $scoreConfig = new SportScoreConfig( $sport, $roundNumber, null );
             $scoreConfig->setDirection( SportScoreConfig::UPWARDS );
             $scoreConfig->setMaximum( $scoreConfigSer->getMaximum() );
+            $scoreConfig->setEnabled( $scoreConfigSer->getEnabled() );
             if( $scoreConfigSer->hasNext() ) {
                 $nextScoreConfig = new SportScoreConfig( $sport, $roundNumber, $scoreConfig );
                 $nextScoreConfig->setDirection( SportScoreConfig::UPWARDS );
                 $nextScoreConfig->setMaximum( $scoreConfigSer->getNext()->getMaximum() );
+                $nextScoreConfig->setEnabled( $scoreConfigSer->getNext()->getEnabled() );
             }
 
             $this->repos->save($scoreConfig);
@@ -130,10 +132,12 @@ final class ScoreConfig
             }
 
             $scoreConfig->setMaximum( $scoreConfigSer->getMaximum() );
+            $scoreConfig->setEnabled( $scoreConfigSer->getEnabled() );
             $this->repos->save($scoreConfig);
             if( $scoreConfig->hasNext() && $scoreConfigSer->hasNext() ) {
                 $nextScoreConfig = $scoreConfig->getNext();
                 $nextScoreConfig->setMaximum( $scoreConfigSer->getNext()->getMaximum() );
+                $nextScoreConfig->setEnabled( $scoreConfigSer->getNext()->getEnabled() );
                 $this->repos->save($nextScoreConfig);
             }
 

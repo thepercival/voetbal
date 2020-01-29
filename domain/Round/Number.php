@@ -363,8 +363,8 @@ class Number
     }
 
     public function getSportScoreConfig(Sport $sport ): ?SportScoreConfig {
-        $sportScoreConfigs = $this->sportScoreConfigs->filter( function($sportScoreConfigIt) use ($sport){
-            return $sportScoreConfigIt->isRoot() && $sportScoreConfigIt->getSport() === $sport;
+        $sportScoreConfigs = $this->sportScoreConfigs->filter( function(SportScoreConfig $sportScoreConfigIt) use ($sport){
+            return $sportScoreConfigIt->isFirst() && $sportScoreConfigIt->getSport() === $sport;
         });
         if ( $sportScoreConfigs->count() === 1 ) {
             return $sportScoreConfigs->first();

@@ -19,7 +19,8 @@ use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
 class NameService
 {
 
-    public function getWinnersLosersDescription(int $winnersOrLosers, bool $multiple = false): string {
+    public function getWinnersLosersDescription(int $winnersOrLosers, bool $multiple = false): string
+    {
         $description = $winnersOrLosers === QualifyGroup::WINNERS ? 'winnaar' : ($winnersOrLosers === QualifyGroup::LOSERS ? 'verliezer' : '');
         return (($multiple && ($description !== '')) ? $description . 's' : $description);
     }
@@ -28,14 +29,16 @@ class NameService
      *  als allemaal dezelfde naam dan geef die naam
      * als verschillde namen geef dan xde ronde met tooltip van de namen
      */
-    public function getRoundNumberName(RoundNumber $roundNumber ): string {
+    public function getRoundNumberName(RoundNumber $roundNumber): string
+    {
         if ($this->roundsHaveSameName($roundNumber)) {
             return $this->getRoundName($roundNumber->getARound(), true);
         }
         return $this->getHtmlNumber($roundNumber->getNumber()) . ' ronde';
     }
 
-    public function getRoundName(Round $round, bool $sameName = false): string {
+    public function getRoundName(Round $round, bool $sameName = false): string
+    {
         if ($this->roundAndParentsNeedsRanking($round) || !$this->childRoundsHaveEqualDepth($round)) {
             return $this->getHtmlNumber($round->getNumberAsValue()) . ' ronde';
         }
@@ -55,7 +58,8 @@ class NameService
         return 'finale';
     }
 
-    public function getPouleName(Poule $poule, bool $withPrefix): string {
+    public function getPouleName(Poule $poule, bool $withPrefix): string
+    {
         $pouleName = '';
         if ($withPrefix === true) {
             $pouleName = $poule->needsRanking() ? 'poule ' : 'wed. ';
@@ -71,7 +75,8 @@ class NameService
     }
 
 
-    public function getPlaceName(Place $place, $competitorName = false, $longName = false): string {
+    public function getPlaceName(Place $place, $competitorName = false, $longName = false): string
+    {
         if ($competitorName === true && $place->getCompetitor() !== null) {
             return $place->getCompetitor()->getName();
         }
@@ -82,7 +87,8 @@ class NameService
         return $name . $place->getNumber();
     }
 
-    public function getPlaceFromName(Place $place, bool $competitorName, bool $longName = false): string {
+    public function getPlaceFromName(Place $place, bool $competitorName, bool $longName = false): string
+    {
         if ($competitorName === true && $place->getCompetitor() !== null) {
             return $place->getCompetitor()->getName();
         }
@@ -99,8 +105,10 @@ class NameService
                  * @param QualifyRuleMultiple $multipleRule
                  * @return mixed
                  */
-                $getHorizontalPoule = function( $multipleRule ) { return $multipleRule->getFromHorizontalPoule(); };
-                return $this->getHorizontalPouleName( $getHorizontalPoule($fromQualifyRule) );
+                $getHorizontalPoule = function ($multipleRule) {
+                    return $multipleRule->getFromHorizontalPoule();
+                };
+                return $this->getHorizontalPouleName($getHorizontalPoule($fromQualifyRule));
             }
             return '?' . $fromQualifyRule->getFromPlaceNumber();
         }
@@ -108,13 +116,17 @@ class NameService
          * @param QualifyRuleSingle $singleRule
          * @return mixed
          */
-        $getFromPlace = function( $singleRule ) { return $singleRule->getFromPlace(); };
+        $getFromPlace = function ($singleRule) {
+            return $singleRule->getFromPlace();
+        };
         $fromPlace = $getFromPlace($fromQualifyRule);
         if ($longName !== true || $fromPlace->getPoule()->needsRanking()) {
             return $this->getPlaceName($fromPlace, false, $longName);
         }
-        $name = $this->getWinnersLosersDescription($fromPlace->getNumber() === 1 ? QualifyGroup::WINNERS : QualifyGroup::LOSERS);
-        return $name . ' ' .$this->getPouleName($fromPlace->getPoule(), false);
+        $name = $this->getWinnersLosersDescription(
+            $fromPlace->getNumber() === 1 ? QualifyGroup::WINNERS : QualifyGroup::LOSERS
+        );
+        return $name . ' ' . $this->getPouleName($fromPlace->getPoule(), false);
     }
 
     /**
@@ -123,10 +135,16 @@ class NameService
      * @param bool $longName
      * @return string
      */
-    public function getPlacesFromName(Collection $gamePlaces, bool $competitorName, bool $longName): string {
-        return implode(' & ', $gamePlaces->map( function ( $gamePlace ) use ( $competitorName, $longName ) {
-                return $this->getPlaceFromName($gamePlace->getPlace(), $competitorName, $longName);
-            })->toArray() );
+    public function getPlacesFromName(Collection $gamePlaces, bool $competitorName, bool $longName): string
+    {
+        return implode(
+            ' & ',
+            $gamePlaces->map(
+                function ($gamePlace) use ($competitorName, $longName) {
+                    return $this->getPlaceFromName($gamePlace->getPlace(), $competitorName, $longName);
+                }
+            )->toArray()
+        );
     }
 
     /**
@@ -139,7 +157,8 @@ class NameService
      * @param HorizontalPoule $horizontalPoule
      * @return string
      */
-    public function getHorizontalPouleName(HorizontalPoule $horizontalPoule ): string {
+    public function getHorizontalPouleName(HorizontalPoule $horizontalPoule): string
+    {
         if ($horizontalPoule->getQualifyGroup() === null) {
             return 'nummers ' . $horizontalPoule->getNumber();
         }
@@ -160,7 +179,8 @@ class NameService
         return $name;
     }
 
-    public function getRefereeName(Game $game, bool $longName = null): string {
+    public function getRefereeName(Game $game, bool $longName = null): string
+    {
         if ($game->getReferee() !== null) {
             return $longName ? $game->getReferee()->getName() : $game->getReferee()->getInitials();
         }
@@ -170,27 +190,29 @@ class NameService
         return '';
     }
 
-    protected function childRoundsHaveEqualDepth(Round $round ): bool {
+    protected function childRoundsHaveEqualDepth(Round $round): bool
+    {
         if ($round->getQualifyGroups()->count() === 1) {
             return false;
         }
 
         $depthAll = null;
-        foreach( $round->getQualifyGroups() as $qualifyGroup ) {
+        foreach ($round->getQualifyGroups() as $qualifyGroup) {
             $qualifyGroupMaxDepth = $this->getMaxDepth($qualifyGroup->getChildRound());
             if ($depthAll === null) {
                 $depthAll = $qualifyGroupMaxDepth;
             }
-            if( $depthAll !== $qualifyGroupMaxDepth ) {
+            if ($depthAll !== $qualifyGroupMaxDepth) {
                 return false;
             }
         }
         return true;
     }
 
-    private function roundsHaveSameName(RoundNumber $roundNumber ): bool {
+    private function roundsHaveSameName(RoundNumber $roundNumber): bool
+    {
         $roundNameAll = null;
-        foreach( $roundNumber->getRounds() as $round ) {
+        foreach ($roundNumber->getRounds() as $round) {
             $roundName = $this->getRoundName($round, true);
             if ($roundNameAll === null) {
                 $roundNameAll = $roundName;
@@ -202,7 +224,8 @@ class NameService
         return true;
     }
 
-    private function roundAndParentsNeedsRanking(Round $round ): bool {
+    private function roundAndParentsNeedsRanking(Round $round): bool
+    {
         if (!$round->needsRanking()) {
             return false;
         }
@@ -227,11 +250,9 @@ class NameService
     {
         if ($number === 2) {
             return 'halve';
-        }
-        else if ($number === 4) {
+        } elseif ($number === 4) {
             return 'kwart';
-        }
-        else if ($number === 8) {
+        } elseif ($number === 8) {
             return 'achtste';
         }
         return '?';
@@ -246,9 +267,10 @@ class NameService
         // return '&frac1' . $number . ';';
     }
 
-    private function getMaxDepth(Round $round): int {
+    private function getMaxDepth(Round $round): int
+    {
         $biggestMaxDepth = 0;
-        foreach( $round->getChildren() as $child ) {
+        foreach ($round->getChildren() as $child) {
             $maxDepth = 1 + $this->getMaxDepth($child);
             if ($maxDepth > $biggestMaxDepth) {
                 $biggestMaxDepth = $maxDepth;
@@ -275,21 +297,21 @@ class NameService
 //        $nrOfRoundsToGo = $this->getNrOfRoundsToGo($round);
 //        if ($nrOfRoundsToGo >= 2 && $nrOfRoundsToGo <= 5) {
 //            return $this->getFractalNumber(pow(2, $nrOfRoundsToGo)) . ' finale';
-//        } /*else if ($nrOfRoundsToGo === 1) {
+//        } /*elseif ($nrOfRoundsToGo === 1) {
 //            if (count($round->getPoulePlaces()) === 2 && $sameName === false) {
 //                $rankedPlace = $this->getRankedPlace($round);
 //                return $this->getHtmlNumber($rankedPlace) . '/' . $this->getHtmlNumber($rankedPlace + 1) . ' plaats';
 //            }
 //            return 'finale';
-//        } */else if ($nrOfRoundsToGo === 1 && $this->aChildRoundHasMultiplePlacesPerPoule($round)) {
+//        } */elseif ($nrOfRoundsToGo === 1 && $this->aChildRoundHasMultiplePlacesPerPoule($round)) {
 //            return $this->getFractalNumber(pow(2, $nrOfRoundsToGo)) . ' finale';
-//        } else if ($nrOfRoundsToGo === 1 || ($nrOfRoundsToGo === 0 && count($round->getPoulePlaces()) > 1)) {
+//        } elseif ($nrOfRoundsToGo === 1 || ($nrOfRoundsToGo === 0 && count($round->getPoulePlaces()) > 1)) {
 //            if (count($round->getPoulePlaces()) === 2 && $sameName === false) {
 //                $rankedPlace = $this->getRankedPlace($round);
 //                return $this->getHtmlNumber($rankedPlace) . '/' . $this->getHtmlNumber($rankedPlace + 1) . ' plaats';
 //            }
 //            return 'finale';
-//        }else if ($nrOfRoundsToGo === 0) {
+//        }elseif ($nrOfRoundsToGo === 0) {
 //            return $this->getWinnersLosersDescription($round->getWinnersOrLosers());
 //        }
 //        return '?';
@@ -352,10 +374,10 @@ class NameService
 //        if ($number === 2) {
 //            return 'halve';
 //        }
-//        else if ($number === 4) {
+//        elseif ($number === 4) {
 //            return 'kwart';
 //        }
-//        else if ($number === 8) {
+//        elseif ($number === 8) {
 //            return 'achtste';
 //        }
 //        return '?';
@@ -506,7 +528,7 @@ class NameService
         $nrOfChildPoules = 0;
         if ($round->getNumber() > $roundNumber) {
             return $nrOfChildPoules;
-        } else if ($round->getNumber() === $roundNumber) {
+        } elseif ($round->getNumber() === $roundNumber) {
             return $round->getPoules()->count();
         }
 

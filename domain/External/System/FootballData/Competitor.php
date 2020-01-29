@@ -62,11 +62,11 @@ class Competitor implements CompetitorImporter
      */
     private $externalObjectRepos;
     /**
-     * @var Connection $conn;
+     * @var Connection $conn ;
      */
     private $conn;
     /**
-     * @var Logger $logger;
+     * @var Logger $logger ;
      */
     private $logger;
     /**
@@ -86,8 +86,7 @@ class Competitor implements CompetitorImporter
         ExternalSeasonRepos $externalSeasonRepos,
         Connection $conn,
         Logger $logger
-    )
-    {
+    ) {
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
         $this->service = $service;
@@ -103,31 +102,36 @@ class Competitor implements CompetitorImporter
         $this->onlyAdd = false;
     }
 
-    public function onlyAdd() {
+    public function onlyAdd()
+    {
         $this->onlyAdd = true;
     }
 
-    public function createByCompetitions( array $competitions ) {
-        foreach( $competitions as $competition ) {
+    public function createByCompetitions(array $competitions)
+    {
+        foreach ($competitions as $competition) {
             $association = $competition->getLeague()->getAssociation();
-            list( $externalLeague, $externalSeason ) = $this->getExternalsForCompetition( $competition );
-            if( $externalLeague === null || $externalSeason === null ) {
+            list($externalLeague, $externalSeason) = $this->getExternalsForCompetition($competition);
+            if ($externalLeague === null || $externalSeason === null) {
                 continue;
             }
-            $externalSystemCompetitors = $this->apiHelper->getCompetitors( $externalLeague, $externalSeason );
-            foreach( $externalSystemCompetitors as $externalSystemCompetitor ) {
+            $externalSystemCompetitors = $this->apiHelper->getCompetitors($externalLeague, $externalSeason);
+            foreach ($externalSystemCompetitors as $externalSystemCompetitor) {
                 $externalId = $externalSystemCompetitor->id;
-                $externalCompetitor = $this->externalObjectRepos->findOneByExternalId( $this->externalSystemBase, $externalId );
+                $externalCompetitor = $this->externalObjectRepos->findOneByExternalId(
+                    $this->externalSystemBase,
+                    $externalId
+                );
                 $this->conn->beginTransaction();
                 try {
-                    if( $externalCompetitor === null ) {
+                    if ($externalCompetitor === null) {
                         $this->create($association, $externalSystemCompetitor);
-                    } else if( $this->onlyAdd !== true ) {
-                        $this->update( $externalCompetitor->getImportableObject(), $externalSystemCompetitor );
+                    } elseif ($this->onlyAdd !== true) {
+                        $this->update($externalCompetitor->getImportableObject(), $externalSystemCompetitor);
                     }
                     $this->conn->commit();
-                } catch( \Exception $error ) {
-                    $this->addError('competitor could not be created: ' . $error->getMessage() );
+                } catch (\Exception $error) {
+                    $this->addError('competitor could not be created: ' . $error->getMessage());
                     $this->conn->rollBack();
                     continue;
                 }
@@ -135,37 +139,37 @@ class Competitor implements CompetitorImporter
         }
     }
 
-    public function create( Association $association, $externalSystemObject )
+    public function create(Association $association, $externalSystemObject)
     {
         $competitor = $this->repos->findOneBy(["association" => $association, "name" => $externalSystemObject->name]);
-        if ( $competitor === null ) {
-            $competitor = new \Voetbal\Competitor( $association, $externalSystemObject->name );
-            $abb = strtolower( substr( trim( $externalSystemObject->shortName ), 0, CompetitorBase::MAX_LENGTH_ABBREVIATION ) );
+        if ($competitor === null) {
+            $competitor = new \Voetbal\Competitor($association, $externalSystemObject->name);
+            $abb = strtolower(
+                substr(trim($externalSystemObject->shortName), 0, CompetitorBase::MAX_LENGTH_ABBREVIATION)
+            );
             $competitor->setAbbreviation($abb);
             $competitor->setImageUrl($externalSystemObject->crestUrl);
             $this->repos->save($competitor);
         }
-        $this->createExternal( $competitor, $externalSystemObject->id );
-
+        $this->createExternal($competitor, $externalSystemObject->id);
     }
 
-    public function update( CompetitorBase $competitor, $externalSystemObject )
+    public function update(CompetitorBase $competitor, $externalSystemObject)
     {
         $competitor->setName($externalSystemObject->name);
-        $abb = strtolower( substr( trim( $externalSystemObject->shortName ), 0, CompetitorBase::MAX_LENGTH_ABBREVIATION ) );
+        $abb = strtolower(substr(trim($externalSystemObject->shortName), 0, CompetitorBase::MAX_LENGTH_ABBREVIATION));
         $competitor->setAbbreviation($abb);
         $competitor->setImageUrl($externalSystemObject->crestUrl);
         $this->repos->save($competitor);
-
     }
 
-    protected function createExternal( CompetitorBase $competitor, $externalId )
+    protected function createExternal(CompetitorBase $competitor, $externalId)
     {
-        $externalCompetitor = $this->externalObjectRepos->findOneByExternalId (
+        $externalCompetitor = $this->externalObjectRepos->findOneByExternalId(
             $this->externalSystemBase,
             $externalId
         );
-        if( $externalCompetitor !== null ) {
+        if ($externalCompetitor !== null) {
             return;
         }
         $this->externalObjectService->create(
@@ -175,11 +179,13 @@ class Competitor implements CompetitorImporter
         );
     }
 
-    private function addNotice( $msg ) {
-        $this->logger->notice( $this->externalSystemBase->getName() . " : " . $msg );
+    private function addNotice($msg)
+    {
+        $this->logger->notice($this->externalSystemBase->getName() . " : " . $msg);
     }
 
-    private function addError( $msg ) {
-        $this->logger->error( $this->externalSystemBase->getName() . " : " . $msg );
+    private function addError($msg)
+    {
+        $this->logger->error($this->externalSystemBase->getName() . " : " . $msg);
     }
 }

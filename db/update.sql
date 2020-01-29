@@ -10,6 +10,8 @@ update roundnumbers set hasPlanning = true;
 
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;
 
+delete from roundscoreconfigs where direction = 2;
+
 update tournaments set updated = false;
 
 update gamescores set phase = 1 where gameid in ( select id from games where scoresmoment = 2 and id = gamescores.gameid );
@@ -58,7 +60,7 @@ insert into sportconfigs( competitionid, sportid, winPoints, drawPoints, winPoin
 -- add sportscoreconfigs for roundnumbers
 insert into sportscoreconfigs ( roundnumberid, sportid, direction, maximum, parentid, iddep )
     (
-        select 	rn.id, s.id, rsc.direction, rsc.direction, null, rsc.id
+        select 	rn.id, s.id, rsc.direction, rsc.maximum, null, rsc.id
         from    roundscoreconfigs rsc
                     join roundconfigs rc on rc.id = rsc.roundconfigid
                     join roundnumbers rn on rc.id = rn.configid
