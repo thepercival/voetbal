@@ -10,10 +10,7 @@ use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
 
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Poule;
-use Voetbal\Place;
-use Voetbal\Competitor;
-use Voetbal\Qualify\Group as QualifyGroup;
+use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 
 class NumberEvent implements \JMS\Serializer\EventDispatcher\EventSubscriberInterface
 {
@@ -36,8 +33,8 @@ class NumberEvent implements \JMS\Serializer\EventDispatcher\EventSubscriberInte
         $roundNumber = $event->getObject();
 
         $roundNumber->setSportScoreConfigs(
-            $roundNumber->getSportScoreConfigs()->filter( function ( $config ) {
-                return $config->getPrevious() === null;
+            $roundNumber->getSportScoreConfigs()->filter( function ( SportScoreConfig $config ) {
+                return $config->isFirst();
             } )
         );
     }

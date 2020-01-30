@@ -15,12 +15,16 @@ Voetbal\Round\Number:
       type: Voetbal\Round\Number
     planningConfig:
       type: Voetbal\Planning\Config
-    sportScoreConfigs:
-      type: ArrayCollection<Voetbal\Sport\ScoreConfig>
-      read_only: true #temperarily
-    sportPlanningConfigs:
-      type: ArrayCollection<Voetbal\Sport\PlanningConfig>
-      read_only: true #temperarily
+#    sportScoreConfigs:
+#      type: ArrayCollection<Voetbal\Sport\ScoreConfig>
+#      read_only: true #temperarily
+#    sportPlanningConfigs:
+#      type: ArrayCollection<Voetbal\Sport\PlanningConfig>
+#      read_only: true #temperarily
     hasPlanning:
       type: boolean
       read_only: true
+  virtual_properties:
+    getFirstSportScoreConfigs:
+      type: ArrayCollection<Voetbal\Sport\ScoreConfig>
+      serialized_name: sportScoreConfigs

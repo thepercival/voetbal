@@ -406,6 +406,15 @@ class Number
         return $leastRecentGame->getStartDateTime();
     }
 
+    /**
+     * @return ArrayCollection|SportScoreConfig[]
+     */
+    public function getFirstSportScoreConfigs(): ArrayCollection {
+        return $this->getSportScoreConfigs()->filter( function ( SportScoreConfig $config ) {
+            return $config->isFirst();
+        } );
+    }
+
     public function getLastStartDateTime(): \DateTimeImmutable
     {
         $games = $this->getGames( GameBase::ORDER_BY_BATCH );
