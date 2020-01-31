@@ -69,10 +69,14 @@ insert into sportscoreconfigs ( roundnumberid, sportid, direction, maximum, pare
                     join sports s on s.name = l.sportDep
     );
 update 	sportscoreconfigs ssc
-        join 	roundscoreconfigs rsc on ssc.iddep = rsc.id
-        join 	sportscoreconfigs scp on scp.iddep = rsc.parentid
-set 	ssc.parentid = scp.id
-where	rsc.parentid is not null;
+    join 	roundscoreconfigs rsc on ssc.iddep = rsc.id
+    join 	roundscoreconfigs rscp on rscp.parentid = rsc.id
+    join 	sportscoreconfigs sscp on sscp.iddep = rscp.id
+set 		ssc.parentid = sscp.id
+where	rsc.parentid is null;
+
+update sportscoreconfigs set enabled = true;
+update sportscoreconfigs set enabled = false where exists ( select * from sportscoreconfigs previous where previous.id = sportscoreconfigs.parentid ) and maximum = 0;
 
 -- add planningconfigs to roundnumber
 insert into planningconfigs( hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, nrOfHeadtohead, rniddep )
