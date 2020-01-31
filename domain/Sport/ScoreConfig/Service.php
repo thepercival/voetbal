@@ -33,7 +33,7 @@ class Service
         return $sportScoreConfig;
     }
 
-    protected function hasNext(int $customId): bool
+    protected function hasNext(int $customId ): bool
     {
         if (
             $customId === SportCustom::Badminton

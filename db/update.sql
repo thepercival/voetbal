@@ -33,6 +33,7 @@ delete from associations where ( select count(*) from leagues where associationi
 
 insert into sports( name, team ) (	select distinct sportDep, false from leagues );
 
+update sports set customid = 0;
 update sports set customId = 1 where name = 'badminton';
 update sports set customId = 2, team = true where name = 'basketbal';
 update sports set customId = 3 where name = 'darten';
