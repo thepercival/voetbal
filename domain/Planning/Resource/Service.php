@@ -148,11 +148,7 @@ class Service
         return $minNrOfGamesMap;
     }
 
-    /**
-     * @param array $games
-     * @return int
-     */
-    public function assign(array $games)
+    public function assign(array $games): int
     {
         $this->debugIterations = 0;
         $oCurrentDateTime = new \DateTimeImmutable();
@@ -182,8 +178,8 @@ class Service
             $refereeService = new RefereeService( $this->planning );
             $refereeService->assign( $firstBatch );
 
-            $mem = $this->convert(memory_get_usage(true)); // 123 kb
-            $this->output->consoleBatch($firstBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
+//            $mem = $this->convert(memory_get_usage(true)); // 123 kb
+//            $this->output->consoleBatch($firstBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
         } catch (TimeoutException $e) {
             return PlanningBase::STATE_TIMEOUT;
         }
@@ -207,12 +203,10 @@ class Service
         foreach ($orderedGames as $game) {
             if ($firstGame === null) {
                 $firstGame = $game;
-            } else {
-                if ($isSameGame($firstGame, $game)) {
-                    $h2hgames[] = $currentBatch;
-                    $currentBatch = [];
-                    $firstGame = $game;
-                }
+            } elseif ($isSameGame($firstGame, $game)) {
+                $h2hgames[] = $currentBatch;
+                $currentBatch = [];
+                $firstGame = $game;
             }
             $currentBatch[] = $game;
         }
@@ -289,9 +283,9 @@ class Service
             );
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0);
         }
-        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
-            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
-        }
+//        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
+//            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
+//        }
 
         if ($nrOfGamesTried === count($gamesForBatch)) {
             return false;
@@ -405,7 +399,7 @@ class Service
     {
         $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
         foreach( $this->getPlaces($game) as $place ) {
-            if( $batch->hasPlace($place) ) {
+            if( $batch->isParticipating($place) ) {
                 return false;
             }
             $nrOfGamesInARow = $batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0;

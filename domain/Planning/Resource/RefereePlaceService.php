@@ -31,12 +31,22 @@ class RefereePlaceService
      * @var bool
      */
     protected $hasOnePoule;
+    /**
+     * @var int
+     */
+    protected $nrOfPlaces;
+    /**
+     * @var int
+     */
+    protected $refillAmount;
 
     public function __construct(PlanningBase $planning)
     {
         $this->planning = $planning;
 
         $this->hasOnePoule = $this->planning->getPoules()->count() === 1;
+        $this->nrOfPlaces = $this->planning->getStructure()->getNrOfPlaces();
+        $this->refillAmount = 1;
 
         $logger = new Logger('planning-refereeplaces-create');
         $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO);
@@ -54,18 +64,42 @@ class RefereePlaceService
         if( $this->getInput()->getSelfReferee() === false ) {
             return;
         }
-        $refereePlaces = $this->getRefereePlaces( $this->planning->getPoules()->toArray() );
-        if( !$this->assignBatch( $batch, $batch->getGames(), $refereePlaces ) ) {
+        $this->output->consoleBatch( $batch, "test");
+        $refereePlaces = $this->getRefereePlaces( $batch );
+        if( $this->assignBatch( $batch, $batch->getGames(), $refereePlaces ) ) {
+            return;
+        };
+        // when h2h i smore than one, or teamup, than same game could be before other game not yet tried
+//        op het moment dat we terugkomen dat we alles geprobeerd hebben, dan nogmaals proberen
+//        maar dan met scheidsrechter meerdere keren toegevoegd
+//        dan zouden we moeten kunnen berekenen hoe vaak iedereen moet fluiten.......
+
+        // aantal wedstrijden is aantal scheidsrechters,
+        $teamup = $this->planning->getInput()->getTeamup();
+        if( $teamup === false  /*or floor(count($batch->getAllGames()) / $this->nrOfPlaces ) < 2*/ ) {
             throw new \Exception('not all refereeplaces could be assigned', E_ERROR);
         };
+
+        $this->refillAmount = $teamup ? 3 : 2; // maybe for teamup much more?
+        $refereePlaces = $this->getRefereePlaces( $batch );
+
+        if( $this->assignBatch( $batch, $batch->getGames(), $refereePlaces ) ) {
+            throw new \Exception('not all refereeplaces could be assigned', E_ERROR);
+        };
+
     }
 
-    protected function getRefereePlaces(array $poules ): RefereePlaces
+    protected function getRefereePlaces(Batch $batch ): RefereePlaces
     {
+        $refereePlaces = null;
+        $poules = $this->planning->getPoules()->toArray();
         if( count($poules) === 2 ) {
-            return new RefereePlaces\TwoPoules( $poules );
+            $refereePlaces = new RefereePlaces\TwoPoules( $poules );
+        } else {
+            $refereePlaces = new RefereePlaces\MultiplePoules( $poules );
         }
-        return new RefereePlaces\MultiplePoules( $poules );
+        $refereePlaces->fill( $batch, $this->refillAmount );
+        return $refereePlaces;
     }
 
     protected function assignBatch(Batch $batch, array $batchGames, RefereePlaces $refereePlaces): bool {
@@ -83,6 +117,11 @@ class RefereePlaceService
             if ($this->isRefereePlaceAssignable($batch, $game, $refereePlace )) {
                 $refereePlacesAssign = clone $refereePlaces;
                 $this->assignRefereePlace( $game, $refereePlace, $refereePlacesAssign );
+                if( $refereePlacesAssign->isEmpty( $refereePlace->getPoule()) ) {
+                    $nextGames = $batch->hasNext() ? $batch->getNext()->getAllGames() : [];
+                    $games = array_merge( $batchGames, $nextGames );
+                    $refereePlacesAssign->refill( $refereePlace->getPoule(), $games, $this->refillAmount );
+                }
                 if ($this->assignBatch($batch, $batchGames, $refereePlacesAssign)) {
                     return true;
                 }
@@ -92,9 +131,11 @@ class RefereePlaceService
         return false;
     }
 
+
+
     private function isRefereePlaceAssignable(Batch $batch, Game $game, Place $refereePlace): bool
     {
-        if ($game->isParticipating($refereePlace) || $batch->isParticipating($refereePlace)) {
+        if ($batch->isParticipating($refereePlace)) {
             return false;
         }
         if ($this->hasOnePoule) {
@@ -103,7 +144,7 @@ class RefereePlaceService
         return $refereePlace->getPoule() !== $game->getPoule();
     }
 
-    private function assignRefereePlace(Game $game, Place $refereePlace, RefereePlaces $refereePlaces )
+    private function assignRefereePlace( Game $game, Place $refereePlace, RefereePlaces $refereePlaces )
     {
         $game->setRefereePlace($refereePlace);
         $refereePlaces->remove( $refereePlace );

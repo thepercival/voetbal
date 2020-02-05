@@ -2,6 +2,7 @@
 
 namespace Voetbal\Planning;
 
+use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
@@ -44,7 +45,11 @@ class Input
      */
     protected $state;
     /**
-     * @var \DateTimeImmutable
+     * @var int|null
+     */
+    protected $maxNrOfGamesInARow;
+    /**
+     * @var DateTimeImmutable
      */
     protected $createdAt;
     /**
@@ -56,11 +61,19 @@ class Input
      */
     protected $plannings;
 
-    const STATE_CREATED = 1;
-    const STATE_TRYING_PLANNINGS = 2;
-    const STATE_ALL_PLANNINGS_TRIED = 4;
+    public const STATE_CREATED = 1;
+    public const STATE_TRYING_PLANNINGS = 2;
+    public const STATE_UPDATING_BESTPLANNING_SELFREFEE = 4;
+    public const STATE_ALL_PLANNINGS_TRIED = 8;
 
-    public function __construct( array $structureConfig, array $sportConfig, int $nrOfReferees, bool $teamup, bool $selfReferee, int $nrOfHeadtohead ) {
+    public function __construct(
+        array $structureConfig,
+        array $sportConfig,
+        int $nrOfReferees,
+        bool $teamup,
+        bool $selfReferee,
+        int $nrOfHeadtohead
+    ) {
         $this->structureConfig = $structureConfig;
         // $this->structure = $this->convertToStructure( $structureConfig );
         $this->sportConfig = $sportConfig;
@@ -71,7 +84,7 @@ class Input
         $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->state = Input::STATE_CREATED;
         $this->plannings = new ArrayCollection();
-        $this->createdAt = new \DateTimeImmutable();
+        $this->createdAt = new DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -84,13 +97,15 @@ class Input
      *
      * @return array
      */
-    public function getStructureConfig(): array {
+    public function getStructureConfig(): array
+    {
         return $this->structureConfig;
     }
 
-    protected function getNrOfPlaces(): int {
+    protected function getNrOfPlaces(): int
+    {
         $nrOfPlaces = 0;
-        foreach( $this->getStructureConfig() as $nrOfPlacesIt ) {
+        foreach ($this->getStructureConfig() as $nrOfPlacesIt) {
             $nrOfPlaces += $nrOfPlacesIt;
         }
         return $nrOfPlaces;
@@ -101,62 +116,72 @@ class Input
      *
      * @return array
      */
-    public function getSportConfig(): array {
+    public function getSportConfig(): array
+    {
         return $this->sportConfig;
     }
 
-    public function hasMultipleSports(): bool {
+    public function hasMultipleSports(): bool
+    {
         return count($this->sportConfig) > 1;
     }
 
-    public function getNrOfFields(): int {
+    public function getNrOfFields(): int
+    {
         $nrOfFields = 0;
-        foreach( $this->getSportConfig() as $sport ) {
+        foreach ($this->getSportConfig() as $sport) {
             $nrOfFields += $sport["nrOfFields"];
         }
         return $nrOfFields;
     }
 
-    public function getNrOfReferees(): int {
+    public function getNrOfReferees(): int
+    {
         return $this->nrOfReferees;
     }
 
-    public function getNrOfHeadtohead(): int {
+    public function getNrOfHeadtohead(): int
+    {
         return $this->nrOfHeadtohead;
     }
 
-    public function getTeamup(): bool {
+    public function getTeamup(): bool
+    {
         return $this->teamup;
     }
 
-    public function getSelfReferee(): bool {
+    public function getSelfReferee(): bool
+    {
         return $this->selfReferee;
     }
 
-    public function getState(): int {
+    public function getState(): int
+    {
         return $this->state;
     }
 
-    public function setState( int $state ) {
+    public function setState(int $state)
+    {
         $this->state = $state;
     }
 
-    public function getMaxNrOfBatchGames( int $resources = null ): int {
+    public function getMaxNrOfBatchGames(int $resources = null): int
+    {
         $maxNrOfBatchGames = null;
-        if( ( Resources::FIELDS & $resources ) === Resources::FIELDS || $resources === null  ) {
+        if ((Resources::FIELDS & $resources) === Resources::FIELDS || $resources === null) {
             $maxNrOfBatchGames = $this->getNrOfFields();
         }
 
-        if( ( Resources::REFEREES & $resources ) === Resources::REFEREES || $resources === null  ) {
-            if( $this->getSelfReferee() === false && $this->getNrOfReferees() > 0
-                && ( $this->getNrOfReferees() < $maxNrOfBatchGames || $maxNrOfBatchGames === null ) ) {
+        if ((Resources::REFEREES & $resources) === Resources::REFEREES || $resources === null) {
+            if ($this->getSelfReferee() === false && $this->getNrOfReferees() > 0
+                && ($this->getNrOfReferees() < $maxNrOfBatchGames || $maxNrOfBatchGames === null)) {
                 $maxNrOfBatchGames = $this->getNrOfReferees();
             }
         }
 
-        if( ( Resources::PLACES & $resources ) === Resources::PLACES || $resources === null  ) {
+        if ((Resources::PLACES & $resources) === Resources::PLACES || $resources === null) {
             $nrOfGamesSimultaneously = $this->getNrOfGamesSimultaneously();
-            if( $nrOfGamesSimultaneously < $maxNrOfBatchGames || $maxNrOfBatchGames === null ) {
+            if ($nrOfGamesSimultaneously < $maxNrOfBatchGames || $maxNrOfBatchGames === null) {
                 $maxNrOfBatchGames = $nrOfGamesSimultaneously;
             }
         }
@@ -169,8 +194,8 @@ class Input
      *
      * @return int
      */
-    protected function getNrOfGamesSimultaneously(): int {
-
+    protected function getNrOfGamesSimultaneously(): int
+    {
         $sportService = new SportService();
 
         // default sort, sportconfig shoud not be altered
@@ -181,8 +206,8 @@ class Input
         // $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
 
         $fieldsNrOfGamePlaces = [];
-        foreach( $this->getSportConfig() as $sport ) {
-            for( $fieldNr = 1 ; $fieldNr <= $sport["nrOfFields"] ; $fieldNr++ ) {
+        foreach ($this->getSportConfig() as $sport) {
+            for ($fieldNr = 1; $fieldNr <= $sport["nrOfFields"]; $fieldNr++) {
                 $fieldsNrOfGamePlaces[] = $sport["nrOfGamePlaces"];
             }
         }
@@ -191,28 +216,36 @@ class Input
         $nrOfPlaces = $this->getNrOfPlaces();
 
         $nrOfGamesSimultaneously = 0;
-        while ( $nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0  ) {
+        while ($nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0) {
             $nrOfGamePlaces = array_shift($fieldsNrOfGamePlaces);
-            $nrOfPlaces -= $sportService->getNrOfGamePlaces( $nrOfGamePlaces, $this->teamup, $this->selfReferee );;
-            if( $nrOfPlaces >= 0 ) {
+            $nrOfPlaces -= $sportService->getNrOfGamePlaces($nrOfGamePlaces, $this->teamup, $this->selfReferee);;
+            if ($nrOfPlaces >= 0) {
                 $nrOfGamesSimultaneously++;
             }
         }
-        if( $nrOfGamesSimultaneously === 0 ) {
+        if ($nrOfGamesSimultaneously === 0) {
             $nrOfGamesSimultaneously = 1;
         }
         return $nrOfGamesSimultaneously;
     }
 
-    public function getMaxNrOfGamesInARow(): int {
-        $structureConfig = $this->getStructureConfig();
-        $nrOfPlaces = reset( $structureConfig );
-        $sportService = new \Voetbal\Sport\Service();
-        $maxNrOfGamesInARow = $sportService->getNrOfGamesPerPlace( $nrOfPlaces, $this->getTeamup(), $this->getSelfReferee(), $this->getNrOfHeadtohead() );
-        if( !$this->getTeamup() && $maxNrOfGamesInARow > ( $nrOfPlaces * $this->getNrOfHeadtohead() ) ) {
-            $maxNrOfGamesInARow = $nrOfPlaces * $this->getNrOfHeadtohead();
+    public function getMaxNrOfGamesInARow(): int
+    {
+        if ($this->maxNrOfGamesInARow === null) {
+            $structureConfig = $this->getStructureConfig();
+            $nrOfPlaces = reset($structureConfig);
+            $sportService = new SportService();
+            $this->maxNrOfGamesInARow = $sportService->getNrOfGamesPerPlace(
+                $nrOfPlaces,
+                $this->getTeamup(),
+                $this->getSelfReferee(),
+                $this->getNrOfHeadtohead()
+            );
+            if (!$this->getTeamup() && $this->maxNrOfGamesInARow > ($nrOfPlaces * $this->getNrOfHeadtohead())) {
+                $this->maxNrOfGamesInARow = $nrOfPlaces * $this->getNrOfHeadtohead();
+            }
         }
-        return $maxNrOfGamesInARow;
+        return $this->maxNrOfGamesInARow;
         //         const sportPlanningConfigService = new SportPlanningConfigService();
         //         const defaultNrOfGames = sportPlanningConfigService.getNrOfCombinationsExt(this.roundNumber);
         //         const nrOfHeadtothead = nrOfGames / defaultNrOfGames;
@@ -233,70 +266,28 @@ class Input
 //    }
 
 
-    public function getPlannings(): Collection {
+    /**
+     * @return Collection|PlanningBase[]
+     */
+    public function getPlannings(): Collection
+    {
         return $this->plannings;
     }
 
-    public function getBestPlanning(): ?PlanningBase {
-        $plannings = array_reverse( $this->getPlannings()->toArray() );
-        foreach( $plannings as $planning ) {
-            if( $planning->getState() === PlanningBase::STATE_SUCCESS ) {
+    public function getPlanning(VoetbalRange $range, int $maxNrOfGamesInARow): ?PlanningBase
+    {
+        foreach ($this->getPlannings() as $planning) {
+            if ($planning->getMinNrOfBatchGames() === $range->min
+                && $planning->getMaxNrOfBatchGames() === $range->max
+                && $planning->getMaxNrOfGamesInARow() === $maxNrOfGamesInARow) {
                 return $planning;
             }
         }
         return null;
     }
 
-    public function hasPlanning( VoetbalRange $range, int $maxNrOfGamesInARow ): ?PlanningBase {
-        $plannings = array_reverse( $this->getPlannings()->toArray() );
-        foreach( $plannings as $planning ) {
-            if( $planning->getState() === PlanningBase::STATE_SUCCESS ) {
-                return $planning;
-            }
-        }
-        return null;
+    public function addPlanning(PlanningBase $planning)
+    {
+        $this->getPlannings()->add($planning);
     }
-
-    public function addPlanning( PlanningBase $planning ) {
-        $this->getPlannings()->add( $planning );
-    }
-
-//    public function createNextTry( Input $input ): ?PlanningBase {
-//
-//        $plannings = $input->getPlannings()->toArray(); // should be sorted by maxnrofbatchgames,
-//        $lastPlanning = end( $plannings );
-//        if( $lastPlanning === false ) {
-//            // return new PlanningBase( $input, new VoetbalRange( 6, 6), $input->getMaxNrOfGamesInARow() ); @FREDDY
-//            return new PlanningBase( $input, new VoetbalRange( $input->getMaxNrOfBatchGames(), $input->getMaxNrOfBatchGames()), $input->getMaxNrOfGamesInARow() );
-//        }
-//        return $lastPlanning->increase();
-//    }
-
-//    public function decreaseMaxNrOfBatchGames( Planning $planning ): ?Planning {
-//
-//        if( $planning->getMinNrOfBatchGames() === $planning->getMaxNrOfBatchGames()  )
-//        // Eerst min=max batchgames naar beneden totdat er succes is. Daarna nog kijken voor succesvolle min-max+1. Vervolgens inarow nog proberen. Pak steeds de helft totdat ..
-//
-//
-//        $maxNrOfGamesInARow = $this->getMaxNrOfGamesInARow();
-//        $minNrOfBatchGames = $this->getMinNrOfBatchGames();
-//        $maxNrOfBatchGames = $this->getMaxNrOfBatchGames();
-//        if( $maxNrOfGamesInARow > 1 && $this->getState() === Planning::STATE_SUCCESS ) {
-//            $maxNrOfGamesInARow--;
-//        } else {
-//            $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
-//            if( $this->getMinNrOfBatchGames() < $this->getMaxNrOfBatchGames() && $this->getState() === Planning::STATE_SUCCESS ) {
-//                $minNrOfBatchGames++;
-//            } else {
-//                $minNrOfBatchGames = 1;
-//                if( $this->getMaxNrOfBatchGames() < $this->getInput()->getMaxNrOfBatchGames() ) {
-//                    $maxNrOfBatchGames++;
-//                } else {
-//                    return null; // all tried
-//                }
-//            }
-//        }
-//        $range = new VoetbalRange( $minNrOfBatchGames, $maxNrOfBatchGames);
-//        return new Planning( $this->getInput(), $range, $maxNrOfGamesInARow );
-//    }
 }

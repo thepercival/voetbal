@@ -2,8 +2,11 @@
 
 namespace Voetbal\Planning\Resource;
 
+use Voetbal\Planning\Batch;
+use Voetbal\Planning\Game;
 use Voetbal\Planning\Place;
 use Voetbal\Planning\Poule;
+use Voetbal\Planning\Referee;
 
 abstract class RefereePlaces implements \IteratorAggregate {
     /**
@@ -14,21 +17,16 @@ abstract class RefereePlaces implements \IteratorAggregate {
      * @var array|Place[]
      */
     protected $refereePlaces;
+    /**
+     * @var int
+     */
+    protected $nrOfPlaces;
 
     public function __construct( array $poules )
     {
         $this->poules = $poules;
+        $this->initNrOfPlaces();
         $this->refereePlaces = [];
-        $this->fill();
-    }
-
-    protected function fill( Poule $poule = null ) {
-        foreach( $this->poules as $pouleIt ) {
-            if( $poule !== null && $poule !== $pouleIt ) {
-                continue;
-            }
-            $this->refereePlaces = array_merge( $this->refereePlaces, $pouleIt->getPlaces()->toArray() );
-        }
     }
 
     public function count( Poule $poule = null ): int {
@@ -40,15 +38,25 @@ abstract class RefereePlaces implements \IteratorAggregate {
         } ) );
     }
 
-    public function shift() {
+    /*public function shift() {
         return array_shift( $this->refereePlaces );
     }
 
     public function push( Place $refereePlace ): int {
         return array_push( $this->refereePlaces, $refereePlace );
+    }*/
+
+    public function remove( Place $refereePlace ) {
+        unset($this->refereePlaces[$refereePlace->getLocation()]);
     }
 
-    abstract public function remove( Place $refereePlace );
+    abstract public function isEmpty( Poule $poule ): bool;
+    abstract public function fill( Batch $batch, int $amount );
+    abstract public function refill( Poule $poule, array $games, int $amount );
+//
+//    protected function refillHelper( Batch $nextBatch, array $bacthGames = [], Poule $poule = null ): bool {
+//        $this->refereePlaces = array_merge( $this->refereePlaces, $poule->getPlaces()->toArray() );
+//    }
 
     public function __clone()
     {
@@ -58,5 +66,50 @@ abstract class RefereePlaces implements \IteratorAggregate {
     public function getIterator()
     {
         return new \ArrayIterator( $this->refereePlaces );
+    }
+
+    protected function initNrOfPlaces() {
+        $this->nrOfPlaces = 0;
+        /** @var Poule $poule */
+        foreach( $this->poules as $poule ) {
+            $this->nrOfPlaces += $poule->getPlaces()->count();
+        }
+    }
+
+    protected function getByStructure(): array {
+        $refereePlaces = [];
+        foreach( $this->poules as $poule ) {
+            foreach( $poule->getPlaces() as $place ) {
+                $refereePlaces[$place->getLocation()] = $place;
+            }
+        }
+        return $refereePlaces;
+    }
+
+    protected function refillHelper( array $games ) {
+        $refereePlaces = $this->getByStructure();
+
+        $refereePlacesPlaying = [];
+
+        $nrOfGamePlaces = 0;
+        while ($nrOfGamePlaces < $this->nrOfPlaces && count($games) > 0 ) {
+            $game = array_shift($games);
+            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+            $nrOfGamePlaces++;
+            foreach( $places as $place ) {
+                if( !array_key_exists( $place->getLocation(), $refereePlaces )  ) {
+                    continue;
+                }
+                if ( $nrOfGamePlaces < $this->nrOfPlaces ) {
+                    unset($refereePlaces[$place->getLocation()]);
+                    array_unshift( $refereePlacesPlaying, $place );
+                }
+            }
+        }
+        $refereePlacesPlaying2 = [];
+        foreach ( $refereePlacesPlaying as $refereePlacePlaying ) {
+            $refereePlacesPlaying2[$refereePlacePlaying->getLocation()] = $refereePlacePlaying;
+        }
+        $this->refereePlaces = array_merge( $refereePlaces, $refereePlacesPlaying2 );
     }
 }

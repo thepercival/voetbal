@@ -82,8 +82,7 @@ class Game implements External\Importable
     const PHASE_PENALTIES = 4;
 
     const ORDER_BY_BATCH = 1;
-    const ORDER_BY_POULE = 2;
-    const ORDER_BY_NUMBER = 3;
+    const ORDER_BY_GAMENUMBER = 2;
 
     public function __construct( Poule $poule, int $batchNr, \DateTimeImmutable $startDateTime )
     {

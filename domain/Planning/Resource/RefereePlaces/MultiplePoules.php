@@ -2,7 +2,9 @@
 
 namespace Voetbal\Planning\Resource\RefereePlaces;
 
+use Voetbal\Planning\Batch;
 use Voetbal\Planning\Place;
+use Voetbal\Planning\Poule;
 use Voetbal\Planning\Resource\RefereePlaces;
 
 class MultiplePoules extends RefereePlaces {
@@ -12,11 +14,15 @@ class MultiplePoules extends RefereePlaces {
         parent::__construct( $poules );
     }
 
-    public function remove( Place $refereePlace ) {
-        $index = array_search($refereePlace, $this->refereePlaces );
-        array_splice( $this->refereePlaces, $index, 1);
-        if( $this->count() === 0 ) {
-            $this->fill();
-        }
+    public function isEmpty( Poule $poule ): bool {
+        return $this->count() === 0;
+    }
+
+    public function fill( Batch $batch, int $amount ) {
+        $this->refillHelper( $batch->getAllGames() );
+    }
+
+    public function refill( Poule $poule, array $games, int $amount ) {
+        $this->refillHelper( $games );
     }
 }

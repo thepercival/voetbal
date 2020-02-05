@@ -3,10 +3,12 @@
 namespace Voetbal\Planning;
 
 use Psr\Log\LoggerInterface;
+use Voetbal\Game as GameBase;
 use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Planning\Input\Repository as PlanningInputRepository;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\Range as VoetbalRange;
 
 class Seeker
@@ -106,13 +108,16 @@ class Seeker
     {
         try {
             $this->processPlanning($planning, true);
-            if ($planning->getState() === PlanningBase::STATE_SUCCESS && $planning->getMaxNrOfGamesInARow() > 1) {
-                if (!$planning->getInput()->hasPlanning($planning->getNrOfBatchGames(), $planning->getMaxNrOfGamesInARow() - 1)) {
-                    $nextPlanning = $this->planningService->createNextNInARow($planning);
-                    $nextPlanning->setState(PlanningBase::STATE_TIMEOUT);
-                    $this->planningRepos->save($nextPlanning);
-                }
+            if ($planning->getState() !== PlanningBase::STATE_SUCCESS || $planning->getMaxNrOfGamesInARow() === 1) {
+                return;
             }
+            $nextPlanning = $planning->getInput()->getPlanning($planning->getNrOfBatchGames(), $planning->getMaxNrOfGamesInARow() - 1);
+            if ( $nextPlanning !== null ) {
+                return;
+            }
+            $nextPlanning = $this->planningService->createNextNInARow($planning);
+            $nextPlanning->setState(PlanningBase::STATE_TIMEOUT);
+            $this->planningRepos->save($nextPlanning);
         } catch( \Exception $e ) {
             $this->logger->error( '   ' . '   ' .  " => " . $e->getMessage() );
         }
@@ -159,9 +164,10 @@ class Seeker
             }
         }
 
-        $input->setState( Input::STATE_ALL_PLANNINGS_TRIED );
+        $input->setState( $input->getSelfReferee() ? Input::STATE_UPDATING_BESTPLANNING_SELFREFEE: Input::STATE_ALL_PLANNINGS_TRIED );
         $this->inputRepos->save( $input );
-        $this->logger->info( '   update state => STATE_ALL_PLANNINGS_TRIED' );
+        $info = $input->getSelfReferee() ? 'STATE_UPDATING_BESTPLANNING_SELFREFEE':  'STATE_ALL_PLANNINGS_TRIED';
+        $this->logger->info( '   update state => ' . $info );
     }
 
     protected function processPlanning( PlanningBase $planning, bool $timeout )

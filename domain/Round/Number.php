@@ -228,12 +228,8 @@ class Number
         return $poules;
     }
 
-    public function getGames( int $order ): array
+    public function getGames( int $order = null ): array
     {
-//        if( $order === null ) {
-//            $order = GameBase::ORDER_BY_POULE;
-//        }
-
         $games = [];
         foreach( $this->getPoules() as $poule ) {
             $games = array_merge( $games, $poule->getGames()->toArray());
@@ -407,9 +403,9 @@ class Number
     }
 
     /**
-     * @return ArrayCollection|SportScoreConfig[]
+     * @return Collection
      */
-    public function getFirstSportScoreConfigs(): ArrayCollection {
+    public function getFirstSportScoreConfigs(): Collection {
         return $this->getSportScoreConfigs()->filter( function ( SportScoreConfig $config ) {
             return $config->isFirst();
         } );

@@ -58,20 +58,23 @@ class Repository extends \Voetbal\Repository
             $input->getNrOfHeadtohead() );
     }
 
-    public function isProcessing(): bool {
-        return $this->count( ["state" => PlanningInput::STATE_TRYING_PLANNINGS ] ) > 0;
+    public function isProcessing( int $state ): bool {
+        return $this->count( ["state" => $state ] ) > 0;
     }
 
 //    public function getMaxTimeoutSeconds() {
-//        $query = $this->createQueryBuilder('p')
-//            ->orderBy('p.timeoutSeconds', 'DESC')
-//        ;
-//        $query->setMaxResults(1);
-//        $results = $query->getQuery()->getResult();
-//        $first = reset($results);
-//        return $first !== false ? $first : PlanningBase::DEFAULT_TIMEOUTSECONDS;
+
 //    }
 
+    public function getProcessing( int $state ): ?PlanningInput {
+        $query = $this->createQueryBuilder('pi')
+            ->where('pi.state', $state )
+        ;
+        $query->setMaxResults(1);
+        $results = $query->getQuery()->getResult();
+        $first = reset($results);
+        return $first !== false ? $first : null;
+    }
 
     /**
      *  select 	id, state, createdAt, createdBy,
@@ -92,13 +95,13 @@ class Repository extends \Voetbal\Repository
 
         $query = $this->createQueryBuilder('pi')
             ->addSelect('(' . $dqlMoreRecentSuccesses . ') AS HIDDEN moreRecentSuccesses')
-            ->where('pi.state <> :state')
+            ->where('pi.state = :state')
             // ->andWhere("pi.structureConfig = '[4]'")
             // ->andWhere('pi.nrOfHeadtohead = 91') // @FREDDY
             ->orderBy('moreRecentSuccesses', 'ASC')
             ->addOrderBy('pi.createdAt', 'DESC')
         ;
-        $query->setParameter('state', PlanningInput::STATE_ALL_PLANNINGS_TRIED );
+        $query->setParameter('state', PlanningInput::STATE_CREATED );
 
         $query->setMaxResults(1);
 

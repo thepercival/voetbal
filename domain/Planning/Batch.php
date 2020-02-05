@@ -28,6 +28,11 @@ class Batch
      */
     private $games = [];
 
+    /**
+     * @var array | Place[]
+     */
+    private $places = [];
+
     public function __construct(Batch $previous = null ) {
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;;
@@ -71,7 +76,7 @@ class Batch
     }
 
     public function getGamesInARow(Place $place ): int {
-        $hasPlace = $this->hasPlace($place);
+        $hasPlace = $this->isParticipating($place);
         if (!$hasPlace) {
             return 0;
         }
@@ -83,73 +88,37 @@ class Batch
 
     public function add(Game $game ) {
         $this->games[] = $game;
+        /** @var Game\Place $gamePlace */
+        foreach( $game->getPlaces() as $gamePlace ) {
+            $this->places[$gamePlace->getPlace()->getLocation()] = $gamePlace->getPlace();
+        }
     }
 
     public function remove( Game $game) {
         array_splice( $this->games, array_search( $game, $this->games), 1);
+        /** @var Game\Place $gamePlace */
+        foreach( $game->getPlaces() as $gamePlace ) {
+            unset( $this->places[$gamePlace->getPlace()->getLocation()]);
+        }
     }
 
     protected function getPlaces(): array {
-        $places = [];
-        foreach( $this->games as $game ) {
-            $placesFromGame = array_map( function ( $gamePlace ) { return $gamePlace->getPlace(); }, $game->getPlaces()->toArray() );
-            $places = array_merge( $places, $placesFromGame );
-        }
-        return $places;
+        return $this->places;
     }
-
-    public function getNrOfGames(Place $place): int {
-        $nrOfGames = 0;
-        foreach( $this->getGames() as $game ) {
-            if( $game->isParticipating($place) ) {
-                $nrOfGames++;
-            }
-        }
-        return $nrOfGames;
-    }
-
-    public function getTotalNrOfGames(): int {
-        $nrOfGames = count($this->getGames());
-        if( !$this->hasPrevious() ) {
-            return $nrOfGames;
-        }
-        return $nrOfGames + $this->getPrevious()->getTotalNrOfGames();
-    }
-
 
     public function getGames(): array {
         return $this->games;
     }
 
-    /**
-     * @param array|Place[] $places
-     * @return bool
-     */
-    public function hasSomePlace(array $places): bool {
-        foreach( $places as $place ) {
-            if( $this->hasPlace($place) ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public function hasPlace(Place $place): bool {
-        foreach( $this->getPlaces() as $placeIt ) {
-            if( $place === $placeIt ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public function isParticipating(Place $place ): bool {
-        foreach( $this->games as $game ) {
-            if( $game->isParticipating($place) ) {
-                return true;
-            }
+        return array_key_exists( $place->getLocation(), $this->places );
+    }
+
+    public function getAllGames(): array {
+        if( $this->hasNext() === false ) {
+            return $this->getGames();
         }
-        return false;
+        return array_merge( $this->getGames(), $this->getNext()->getAllGames() );
     }
 }
 

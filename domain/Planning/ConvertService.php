@@ -53,9 +53,7 @@ class ConvertService
 
     public function createGames( RoundNumber $roundNumber, PlanningBase $planning ) {
         $this->initResources( $roundNumber );
-        $firstBatch = $planning->getStructure()->getFirstBatch();
-        $refereePlaceService = new RefereePlaceService( $planning );
-        $refereePlaceService->assign( $firstBatch );
+        $firstBatch = $planning->getFirstBatch();
         $gameStartDateTime = $this->scheduleService->getRoundNumberStartDateTime( $roundNumber );
         $planningConfig = $roundNumber->getValidPlanningConfig();
         $this->createBatchGames( $firstBatch, $planningConfig, $gameStartDateTime );

@@ -29,6 +29,9 @@ class Service
 
         $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
         $selfReferee = $config->getSelfReferee() ? $planningConfigService->canSelfRefereeBeAvailable( $roundNumber->getNrOfPlaces() ) : $config->getSelfReferee();
+        if( $teamup ) {
+            $selfReferee = false; // @TODO needs to be autofilling when teamup
+        }
         if( $selfReferee ) {
             $nrOfReferees = 0;
         }

@@ -2,7 +2,9 @@
 
 namespace Voetbal\Planning\Resource\RefereePlaces;
 
+use Voetbal\Planning\Batch;
 use Voetbal\Planning\Place;
+use Voetbal\Planning\Poule;
 use Voetbal\Planning\Resource\RefereePlaces;
 
 class TwoPoules extends RefereePlaces{
@@ -12,11 +14,30 @@ class TwoPoules extends RefereePlaces{
         parent::__construct( $poules );
     }
 
-    public function remove( Place $refereePlace ) {
-        $index = array_search($refereePlace, $this->refereePlaces );
-        array_splice( $this->refereePlaces, $index, 1);
-        if( $this->count( $refereePlace->getPoule() ) === 0 ) {
-            $this->fill( $refereePlace->getPoule() );
+    public function isEmpty( Poule $poule ): bool {
+        return $this->count( $poule ) === 0;
+    }
+
+    public function fill( Batch $batch, int $amount ) {
+        if( $amount === 1 ) {
+            $this->refereePlaces = $this->getByStructure();
+            return;
         }
+        $amount = $this->getReducedAmount( count($batch->getAllGames()),$amount );
+        for( $it = 0 ; $it < $amount ; $it++ ) {
+            $this->refereePlaces = $this->getByStructure();
+        }
+
+    }
+
+    public function refill( Poule $poule, array $games, int $amount ) {
+        foreach( $poule->getPlaces() as $place ) {
+            $this->refereePlaces[$place->getLocation()] = $place;
+        }
+    }
+
+    protected function getReducedAmount( int $nfOfGames, int $amount ): int {
+        $maxAmount = (int) ceil( $nfOfGames / $this->nrOfPlaces );
+        return $maxAmount < $amount ? $maxAmount : $amount;
     }
 }

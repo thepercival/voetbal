@@ -136,7 +136,8 @@ final class Planning
         if( $planningInput === null ) {
             $planningInput = $this->inputRepos->save( $defaultPlanningInput );
         }
-        $planning = $planningInput->getBestPlanning();
+        $planningService = new PlanningService();
+        $planning = $planningService->getBestPlanning( $planningInput );
 
         $hasPlanning = false;
         if( $planning !== null ) {

@@ -17,6 +17,10 @@ class Place {
      * @var int
      */
     protected $number;
+    /**
+     * @var string
+     */
+    protected $location;
 
     public function __construct( Poule $poule, int $number )
     {
@@ -35,7 +39,10 @@ class Place {
     }
 
     public function getLocation(): string {
-        return $this->poule->getNumber() . '.' . $this->number;
+        if( $this->location === null ) {
+            $this->location = $this->poule->getNumber() . '.' . $this->number;
+        }
+        return $this->location;
     }
 }
 

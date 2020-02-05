@@ -9,8 +9,10 @@
 namespace Voetbal\Planning;
 
 use Doctrine\Common\Collections\Collection;
+use Voetbal\Game as GameBase;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Input as PlanningInput;
+use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\Range as VoetbalRange;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Place;
@@ -27,7 +29,7 @@ class Service
     public function createGames( PlanningBase $planning ) {
         $gameGenerator = new GameGenerator( $planning->getInput() );
         $gameGenerator->create( $planning );
-        $games = $planning->getStructure()->getGames();
+        $games = $planning->getGames( GameBase::ORDER_BY_GAMENUMBER );
 
         $resourceService = new Resource\Service( $planning );
 
