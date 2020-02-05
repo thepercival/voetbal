@@ -18,26 +18,18 @@ class TwoPoules extends RefereePlaces{
         return $this->count( $poule ) === 0;
     }
 
-    public function fill( Batch $batch, int $amount ) {
-        if( $amount === 1 ) {
-            $this->refereePlaces = $this->getByStructure();
-            return;
-        }
-        $amount = $this->getReducedAmount( count($batch->getAllGames()),$amount );
-        for( $it = 0 ; $it < $amount ; $it++ ) {
-            $this->refereePlaces = $this->getByStructure();
-        }
-
+    public function fill( Batch $batch ) {
+        $this->refereePlaces = $this->getByStructure();
     }
 
-    public function refill( Poule $poule, array $games, int $amount ) {
+    public function refill( Poule $poule, array $games ) {
         foreach( $poule->getPlaces() as $place ) {
             $this->refereePlaces[$place->getLocation()] = $place;
         }
     }
 
-    protected function getReducedAmount( int $nfOfGames, int $amount ): int {
-        $maxAmount = (int) ceil( $nfOfGames / $this->nrOfPlaces );
-        return $maxAmount < $amount ? $maxAmount : $amount;
-    }
+//    protected function getReducedAmount( int $nfOfGames, int $amount ): int {
+//        $maxAmount = (int) ceil( $nfOfGames / $this->nrOfPlaces );
+//        return $maxAmount < $amount ? $maxAmount : $amount;
+//    }
 }

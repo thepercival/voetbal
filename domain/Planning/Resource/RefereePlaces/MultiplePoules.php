@@ -18,11 +18,11 @@ class MultiplePoules extends RefereePlaces {
         return $this->count() === 0;
     }
 
-    public function fill( Batch $batch, int $amount ) {
+    public function fill( Batch $batch ) {
         $this->refillHelper( $batch->getAllGames() );
     }
 
-    public function refill( Poule $poule, array $games, int $amount ) {
+    public function refill( Poule $poule, array $games ) {
         $this->refillHelper( $games );
     }
 }

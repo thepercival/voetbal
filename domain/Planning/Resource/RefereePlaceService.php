@@ -36,9 +36,9 @@ class RefereePlaceService
      */
     protected $nrOfPlaces;
     /**
-     * @var int
+     * @var bool
      */
-    protected $refillAmount;
+    protected $autoRefill;
 
     public function __construct(PlanningBase $planning)
     {
@@ -46,7 +46,7 @@ class RefereePlaceService
 
         $this->hasOnePoule = $this->planning->getPoules()->count() === 1;
         $this->nrOfPlaces = $this->planning->getStructure()->getNrOfPlaces();
-        $this->refillAmount = 1;
+        $this->autoRefill = $this->planning->getInput()->getTeamup();
 
         $logger = new Logger('planning-refereeplaces-create');
         $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO);
@@ -64,28 +64,18 @@ class RefereePlaceService
         if( $this->getInput()->getSelfReferee() === false ) {
             return;
         }
-        $this->output->consoleBatch( $batch, "test");
+        // $this->output->consoleBatch( $batch, "test");
         $refereePlaces = $this->getRefereePlaces( $batch );
-        if( $this->assignBatch( $batch, $batch->getGames(), $refereePlaces ) ) {
-            return;
-        };
-        // when h2h i smore than one, or teamup, than same game could be before other game not yet tried
-//        op het moment dat we terugkomen dat we alles geprobeerd hebben, dan nogmaals proberen
-//        maar dan met scheidsrechter meerdere keren toegevoegd
-//        dan zouden we moeten kunnen berekenen hoe vaak iedereen moet fluiten.......
-
-        // aantal wedstrijden is aantal scheidsrechters,
-        $teamup = $this->planning->getInput()->getTeamup();
-        if( $teamup === false  /*or floor(count($batch->getAllGames()) / $this->nrOfPlaces ) < 2*/ ) {
+        if( $this->assignBatch( $batch, $batch->getGames(), $refereePlaces ) === false ) {
             throw new \Exception('not all refereeplaces could be assigned', E_ERROR);
         };
 
-        $this->refillAmount = $teamup ? 3 : 2; // maybe for teamup much more?
-        $refereePlaces = $this->getRefereePlaces( $batch );
+        // timeout van 1 minuut inbouwen, daarna autofill-methode
+        //
+        // met 2 poules van 5,4 en 3 games per batch, kan je geen selfref doen,
+        // met verschillende poules, als dat niet kan, dan mag je een selfref van de eigen poule
+        // doen, maar alleen als iedereen in de batch dan zelf speelt
 
-        if( $this->assignBatch( $batch, $batch->getGames(), $refereePlaces ) ) {
-            throw new \Exception('not all refereeplaces could be assigned', E_ERROR);
-        };
 
     }
 
@@ -98,7 +88,8 @@ class RefereePlaceService
         } else {
             $refereePlaces = new RefereePlaces\MultiplePoules( $poules );
         }
-        $refereePlaces->fill( $batch, $this->refillAmount );
+        $refereePlaces->setAutoRefill( $this->autoRefill );
+        $refereePlaces->fill( $batch );
         return $refereePlaces;
     }
 
@@ -108,7 +99,11 @@ class RefereePlaceService
             if( $batch->hasNext() === false ) { // endsuccess
                 return true;
             }
+
             $nextBatch = $batch->getNext();
+            if( $nextBatch->getNumber() === 3 ) {
+                $this->output->consoleBatch( $batch, "cdk");
+            }
             return $this->assignBatch($nextBatch, $nextBatch->getGames(), $refereePlaces );
         }
 
@@ -118,9 +113,10 @@ class RefereePlaceService
                 $refereePlacesAssign = clone $refereePlaces;
                 $this->assignRefereePlace( $game, $refereePlace, $refereePlacesAssign );
                 if( $refereePlacesAssign->isEmpty( $refereePlace->getPoule()) ) {
+
                     $nextGames = $batch->hasNext() ? $batch->getNext()->getAllGames() : [];
                     $games = array_merge( $batchGames, $nextGames );
-                    $refereePlacesAssign->refill( $refereePlace->getPoule(), $games, $this->refillAmount );
+                    $refereePlacesAssign->refill( $refereePlace->getPoule(), $games );
                 }
                 if ($this->assignBatch($batch, $batchGames, $refereePlacesAssign)) {
                     return true;

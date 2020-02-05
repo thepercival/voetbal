@@ -21,12 +21,17 @@ abstract class RefereePlaces implements \IteratorAggregate {
      * @var int
      */
     protected $nrOfPlaces;
+    /**
+     * @var bool
+     */
+    protected $autoRefill;
 
     public function __construct( array $poules )
     {
         $this->poules = $poules;
         $this->initNrOfPlaces();
         $this->refereePlaces = [];
+        $this->autoRefill = false;
     }
 
     public function count( Poule $poule = null ): int {
@@ -48,11 +53,18 @@ abstract class RefereePlaces implements \IteratorAggregate {
 
     public function remove( Place $refereePlace ) {
         unset($this->refereePlaces[$refereePlace->getLocation()]);
+        if( $this->autoRefill === true ) { // add at end
+            $this->refereePlaces[$refereePlace->getLocation()] = $refereePlace;
+        }
+    }
+
+    public function setAutoRefill( bool $autoRefill) {
+        $this->autoRefill = $autoRefill;
     }
 
     abstract public function isEmpty( Poule $poule ): bool;
-    abstract public function fill( Batch $batch, int $amount );
-    abstract public function refill( Poule $poule, array $games, int $amount );
+    abstract public function fill( Batch $batch );
+    abstract public function refill( Poule $poule, array $games );
 //
 //    protected function refillHelper( Batch $nextBatch, array $bacthGames = [], Poule $poule = null ): bool {
 //        $this->refereePlaces = array_merge( $this->refereePlaces, $poule->getPlaces()->toArray() );

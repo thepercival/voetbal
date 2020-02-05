@@ -283,9 +283,9 @@ class Service
             );
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0);
         }
-//        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
-//            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
-//        }
+        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
+            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
+        }
 
         if ($nrOfGamesTried === count($gamesForBatch)) {
             return false;
