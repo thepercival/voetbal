@@ -8,6 +8,8 @@
 
 namespace Voetbal\Planning\Resource;
 
+use DateTimeImmutable;
+use Monolog\Handler\StreamHandler;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Game;
 use Voetbal\Planning\Place;
@@ -48,9 +50,9 @@ class Service
      */
     private $places;
     /**
-     * @var \DateTimeImmutable
+     * @var DateTimeImmutable
      */
-    private $m_oTimeoutDateTime;
+    private $timeoutDateTime;
     /**
      * @var Output
      */
@@ -64,7 +66,7 @@ class Service
         $this->nrOfPoules = $this->planning->getPoules()->count();
 
         $logger = new Logger('planning-create');
-        $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO);
+        $handler = new StreamHandler('php://stdout', Logger::INFO);
         $logger->pushHandler($handler);
         $this->output = new Output($logger);
     }
@@ -151,8 +153,8 @@ class Service
     public function assign(array $games): int
     {
         $this->debugIterations = 0;
-        $oCurrentDateTime = new \DateTimeImmutable();
-        $this->m_oTimeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
+        $oCurrentDateTime = new DateTimeImmutable();
+        $this->timeoutDateTime = $oCurrentDateTime->modify("+" . $this->planning->getTimeoutSeconds() . " seconds");
         $this->init();
         $batch = new Batch();
 
@@ -283,10 +285,9 @@ class Service
             );
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0);
         }
-        if( (new \DateTimeImmutable()) > $this->m_oTimeoutDateTime ) { // @FREDDY
+        if( (new DateTimeImmutable()) > $this->timeoutDateTime ) { // @FREDDY
             throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
         }
-
         if ($nrOfGamesTried === count($gamesForBatch)) {
             return false;
         }

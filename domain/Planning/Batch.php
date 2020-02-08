@@ -27,15 +27,19 @@ class Batch
      * @var array | Game[]
      */
     private $games = [];
-
     /**
      * @var array | Place[]
      */
     private $places = [];
+    /**
+     * @var array | Place[]
+     */
+    private $placesAsReferee = [];
 
     public function __construct(Batch $previous = null ) {
         $this->previous = $previous;
         $this->number = $previous === null ? 1 : $previous->getNumber() + 1;;
+        $this->placesAsReferee = [];
     }
 
     public function getNumber(): int {
@@ -114,11 +118,31 @@ class Batch
         return array_key_exists( $place->getLocation(), $this->places );
     }
 
+    /**
+     * @return array|Game[]
+     */
     public function getAllGames(): array {
         if( $this->hasNext() === false ) {
             return $this->getGames();
         }
         return array_merge( $this->getGames(), $this->getNext()->getAllGames() );
     }
+
+    public function addAsReferee( Place $placeReferee ) {
+        $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
+    }
+
+    public function removeAsReferee( Place $placeReferee ) {
+        unset($this->placesAsReferee[$placeReferee->getLocation()]);
+    }
+
+    public function emptyPlacesAsReferees() {
+        $this->placesAsReferee = [];
+    }
+
+    public function isParticipatingAsReferee( Place $placeReferee ): bool {
+        return array_key_exists( $placeReferee->getLocation(), $this->placesAsReferee);
+    }
+
 }
 

@@ -102,7 +102,7 @@ class Input
         return $this->structureConfig;
     }
 
-    protected function getNrOfPlaces(): int
+    public function getNrOfPlaces(): int
     {
         $nrOfPlaces = 0;
         foreach ($this->getStructureConfig() as $nrOfPlacesIt) {
