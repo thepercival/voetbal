@@ -216,7 +216,7 @@ class Iterator
         $maxNrOfRefereesInPlanning = $planningInput->getMaxNrOfBatchGames(
             Resources::FIELDS + Resources::PLACES
         );
-        if ($this->nrOfReferees > $maxNrOfRefereesInPlanning) {
+        if ($this->nrOfReferees < $this->nrOfFields && $this->nrOfReferees > $maxNrOfRefereesInPlanning) {
             if ($this->incrementNrOfFields() === false) {
                 return null;
             }
@@ -226,7 +226,7 @@ class Iterator
         $maxNrOfFieldsInPlanning = $planningInput->getMaxNrOfBatchGames(
             Resources::REFEREES + Resources::PLACES
         );
-        if ($this->nrOfFields > $maxNrOfFieldsInPlanning) {
+        if ($this->nrOfFields < $this->nrOfReferees && $this->nrOfFields > $maxNrOfFieldsInPlanning) {
             if ($this->incrementNrOfSports() === false) {
                 return null;
             }

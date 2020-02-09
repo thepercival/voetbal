@@ -68,29 +68,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
      * @param array|int[] $expectedValue
      */
     protected function assertValidGamesParticipations(Place $place, array $games, array $expectedValue ) {
-        // $sportPlanningConfigService = new SportPlanningConfigService();
-        $nrOfGames = 0;
-        foreach( $games as $game ) {
-            $nrOfSingleGameParticipations = 0;
-            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
-            foreach( $places as $placeIt ) {
-                if ($placeIt === $place) {
-                    $nrOfSingleGameParticipations++;
-                }
-            }
-            if ($nrOfSingleGameParticipations === 1) {
-                $nrOfGames++;
-            }
-            if ($game->getRefereePlace() && $game->getRefereePlace() === $place) {
-                $nrOfSingleGameParticipations++;
-            }
-            $this->assertLessThan( 2, $nrOfSingleGameParticipations);
-        }
-        // $config = $place->getRound()->getNumber()->getValidPlanningConfig();
-        // const nrOfGamesPerPlace = sportPlanningConfigService.getNrOfGamesPerPlace(place.getPoule(), config.getNrOfHeadtohead());
-        // expect(nrOfGamesPerPlace).to.equal(nrOfGames);
-
-        $this->assertNotFalse( array_search( $nrOfGames, $expectedValue ), 'nrofgames for 1 place are not equal');
+        // use validator
 
     }
 
@@ -100,40 +78,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
      * @param int $maxInRow
      */
     protected function assertGamesInRow(Place $place, array $games, int $maxInRow ) {
-        $batches = []; $maxBatchNr = 0;
-        /** @var Game $game */
-        foreach( $games as $game ) {
-            if ( array_key_exists( $game->getResourceBatch(), $batches ) === false ) {
-                $batches[$game->getResourceBatch()] = false;
-                if ($game->getResourceBatch() > $maxBatchNr) {
-                    $maxBatchNr = $game->getResourceBatch();
-                }
-            }
-            if ( $batches[$game->getResourceBatch()] === true ) {
-                continue;
-            }
-            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } )->toArray();
-            $some = false;
-            foreach( $places as $placeIt ) {
-                if( $placeIt === $place ) {
-                    $some = true;
-                    break;
-                }
-            }
-            $batches[$game->getResourceBatch()] = $some;
-        }
-        if( $maxInRow < 0 ) {
-            return;
-        }
-        $nrOfGamesInRow = 0;
-        for ($i = 1; $i <= $maxBatchNr; $i++) {
-            if ( array_key_exists( $i, $batches ) && $batches[$i] ) {
-                $nrOfGamesInRow++;
-                $this->assertLessThan( $maxInRow + 1, $nrOfGamesInRow, $place->getLocationId() . " has more than " . $maxInRow . " games in a row" );
-            } else {
-                $nrOfGamesInRow = 0;
-            }
-        }
+        // use validator
     }
 
     /**

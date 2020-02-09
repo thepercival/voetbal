@@ -12,6 +12,7 @@ use DateTimeImmutable;
 use Monolog\Handler\StreamHandler;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Game;
+use Voetbal\Planning\Game\Place as GamePlace;
 use Voetbal\Planning\Place;
 use Voetbal\Planning\Field;
 use Voetbal\Planning\Sport;
@@ -24,6 +25,7 @@ use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Planning\Batch;
 use Voetbal\Planning\Output;
+use Voetbal\Game as GameBase;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
 
@@ -168,7 +170,11 @@ class Service
                 }
             } else {
                 $resources = new Resources($fields);
+                if( $this->planning->getMaxNrOfGamesInARow() === 10 ) {
+                    $checkout = "1.2";
+                }
                 $gamesH2h = $this->getGamesByH2h($games); // @FREDDY comment
+
                 foreach ($gamesH2h as $games) { // @FREDDY comment
                     $batch = $this->assignBatch($games, $resources, $batch);
                     if ($batch === null) {
@@ -190,30 +196,13 @@ class Service
 
     protected function getGamesByH2h(array $orderedGames): array
     {
-        $isSameGame = function (Game $firstGame, Game $game): bool {
-            foreach ($firstGame->getPlaces() as $gamePlace) {
-                if (!$game->isParticipating($gamePlace->getPlace())) {
-                    return false;
-                }
-            }
-            return true;
-        };
-
-        $currentBatch = null;
         $h2hgames = [];
-        $firstGame = null;
         foreach ($orderedGames as $game) {
-            if ($firstGame === null) {
-                $firstGame = $game;
-            } elseif ($isSameGame($firstGame, $game)) {
-                $h2hgames[] = $currentBatch;
-                $currentBatch = [];
-                $firstGame = $game;
+            $nrOfHeadtohead = $game->getNrOfHeadtohead();
+            if( array_key_exists( $nrOfHeadtohead, $h2hgames) === false ) {
+                $h2hgames[$nrOfHeadtohead] = [];
             }
-            $currentBatch[] = $game;
-        }
-        if ($currentBatch !== null) {
-            $h2hgames[] = $currentBatch;
+            $h2hgames[$nrOfHeadtohead][] = $game;
         }
         return $h2hgames;
     }
@@ -364,6 +353,7 @@ class Service
      */
     protected function toNextBatch(Batch $batch, Resources $resources, array &$games): Batch
     {
+
         foreach ($batch->getGames() as $game) {
             $game->setBatchNr($batch->getNumber());
             // hier alle velden toevoegen die er nog niet in staan
@@ -376,6 +366,7 @@ class Service
             }
         }
         $nextBatch = $batch->createNext();
+
         return $nextBatch;
     }
 

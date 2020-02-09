@@ -102,6 +102,11 @@ class Input
         return $this->structureConfig;
     }
 
+    public function getNrOfPoules(): int
+    {
+        return count( $this->getStructureConfig() );
+    }
+
     public function getNrOfPlaces(): int
     {
         $nrOfPlaces = 0;
@@ -253,6 +258,18 @@ class Input
         //            if( $nrOfHeadtohead > 1 ) {
         //                $maxNrOfGamesInARow *= 2;
         //            }
+    }
+
+    protected function inputToString( Input $planningInput ): string {
+        $sports = array_map( function( array $sportConfig ) {
+            return '' . $sportConfig["nrOfFields"] ;
+        }, $planningInput->getSportConfig());
+        return 'structure [' . implode( '|', $planningInput->getStructureConfig()) . ']'
+            . ', sports [' . implode(',', $sports ) . ']'
+            . ', referees ' . $planningInput->getNrOfReferees()
+            . ', teamup ' . ( $planningInput->getTeamup() ? '1' : '0' )
+            . ', selfRef ' . ( $planningInput->getSelfReferee() ? '1' : '0' )
+            . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();
     }
 
     // should be known when creating input

@@ -88,7 +88,7 @@ class Seeker
                 $nrOfPlaces = $gcdGame->getPoule()->getPlaces()->count();
                 $newPouleNr = ($startIndices[$nrOfPlaces]+1) + $iteration;
                 $poule = $planning->getPoule( $newPouleNr );
-                $game = new Game( $poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr() );
+                $game = new Game( $poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr(), $gcdGame->getNrOfHeadtohead() );
                 $game->setBatchNr( $gcdGame->getBatchNr() );
 
                 if( $gcdGame->getReferee() ) {
