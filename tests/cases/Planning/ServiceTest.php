@@ -87,28 +87,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
      * @param array|Game[] $games
      */
     protected function assertValidResourcesPerBatch(array $games) {
-        $batchResources = [];
-        foreach( $games as $game ) {
-            if ( array_key_exists( $game->getResourceBatch(), $batchResources ) === false ) {
-                $batchResources[$game->getResourceBatch()] = array( "fields" => [], "referees" => [], "places" => [] );
-            }
-            $batchResource = $batchResources[$game->getResourceBatch()];
-            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
-            if ($game->getRefereePlace() !== null) {
-                $places[] = $game->getRefereePlace();
-            }
-            foreach( $places as $placeIt ) {
-                $this->assertFalse( array_search( $placeIt, $batchResource["places"] ) );
-                $batchResource["places"][] = $placeIt;
-            }
-
-            $this->assertFalse( array_search( $game->getField(), $batchResource["fields"] ), 'same field in one batch? ');
-            $batchResource["fields"][] = $game->getField();
-            if ($game->getReferee()) {
-                $this->assertFalse( array_search( $game->getReferee(), $batchResource["referees"] ), 'same referee in one batch? ');
-                $batchResource["referees"][] = $game->getReferee();
-            }
-        }
+        // use validator
     }
 
     protected function addSport(Competition $competition ) {

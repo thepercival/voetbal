@@ -9,10 +9,9 @@
 
 namespace Voetbal\Planning;
 
-use Doctrine\Common\Collections\Collection;
-
-use Voetbal\Planning as PlanningBase;
 use Voetbal\Game as GameBase;
+use Voetbal\Planning\Game\Place as GamePlace;
+use Voetbal\Planning as PlanningBase;
 
 class Validator
 {
@@ -30,7 +29,8 @@ class Validator
 
         $getNrOfGameParticipations = function( Game $game, Place $place ): int {
             $participations = 0;
-            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+            /** @var Place[] $places */
+            $places = $game->getPlaces()->map( function( GamePlace $gamePlace ) { return $gamePlace->getPlace(); } );
             foreach( $places as $placeIt ) {
                 if ($placeIt === $place) {
                     $participations++;
@@ -64,7 +64,7 @@ class Validator
     protected function allPlacesInPouleSameNrOfGames( Poule $poule ): bool {
         $nrOfGames = [];
         foreach( $poule->getGames() as $game ) {
-            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
+            $places = $game->getPlaces()->map( function( GamePlace $gamePlace ) { return $gamePlace->getPlace(); } );
             /** @var Place $place */
             foreach( $places as $place ) {
                 if( array_key_exists( $place->getLocation(), $nrOfGames ) === false ) {
@@ -107,7 +107,7 @@ class Validator
             if ( $batches[$game->getBatchNr()] === true ) {
                 continue;
             }
-            $places = $game->getPlaces()->map( function( $gamePlace ) { return $gamePlace->getPlace(); } )->toArray();
+            $places = $game->getPlaces()->map( function( GamePlace $gamePlace ) { return $gamePlace->getPlace(); } )->toArray();
             $some = false;
             foreach( $places as $placeIt ) {
                 if( $placeIt === $place ) {
@@ -120,9 +120,6 @@ class Validator
         if( $this->planning->getMaxNrOfGamesInARow() < 0 ) {
             return true;
         }
-        if( reset($games) === false ) {
-            $r = 12;
-        }
         $maxBatchNr = reset($games)->getBatchNr();
         $nrOfGamesInRow = 0;
         for ($i = 1; $i <= $maxBatchNr; $i++) {
@@ -133,6 +130,40 @@ class Validator
                 }
             } else {
                 $nrOfGamesInRow = 0;
+            }
+        }
+        return true;
+    }
+
+    public function validResourcesPerBatch(): bool {
+        $games = $this->planning->getGames( GameBase::ORDER_BY_BATCH );
+        $batchesResources = [];
+        foreach( $games as $game ) {
+            if ( array_key_exists( $game->getBatchNr(), $batchesResources ) === false ) {
+                $batchesResources[$game->getBatchNr()] = array( "fields" => [], "referees" => [], "places" => [] );
+            }
+            $batchResources = $batchesResources[$game->getBatchNr()];
+            /** @var array|Place[] $places */
+            $places = $game->getPlaces()->map( function( GamePlace $gamePlace ) { return $gamePlace->getPlace(); } );
+            if ($game->getRefereePlace() !== null) {
+                $places[] = $game->getRefereePlace();
+            }
+            foreach( $places as $placeIt ) {
+                if( array_search( $placeIt, $batchResources["places"] ) !== false ) {
+                    return false;
+                }
+                $batchResources["places"][] = $placeIt;
+            }
+
+            if( array_search( $game->getField(), $batchResources["fields"] ) !== false ) {
+                return false;
+            }
+            $batchResources["fields"][] = $game->getField();
+            if ($game->getReferee()) {
+                if( array_search( $game->getReferee(), $batchResources["referees"] ) !== false ) {
+                    return false;
+                }
+                $batchResources["referees"][] = $game->getReferee();
             }
         }
         return true;
