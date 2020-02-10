@@ -170,9 +170,6 @@ class Service
                 }
             } else {
                 $resources = new Resources($fields);
-                if( $this->planning->getMaxNrOfGamesInARow() === 10 ) {
-                    $checkout = "1.2";
-                }
                 $gamesH2h = $this->getGamesByH2h($games); // @FREDDY comment
 
                 foreach ($gamesH2h as $games) { // @FREDDY comment

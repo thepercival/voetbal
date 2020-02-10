@@ -347,10 +347,10 @@ class Iterator
 
     protected function incrementNrOfPlaces(): bool
     {
-        if ($this->nrOfPlaces === $this->structureRanges->getPlaceRange()->max) {
+        if ($this->nrOfPlaces === $this->structureRanges->getPlaceRange()->min) {
             return false;
         }
-        $this->nrOfPlaces++;
+        $this->nrOfPlaces--;
         $this->initNrOfPoules();
         return true;
     }

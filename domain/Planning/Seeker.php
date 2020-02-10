@@ -72,21 +72,22 @@ class Seeker
         $gcdPlanning = $this->planningService->getBestPlanning( $gcdInput );
         $planning = new PlanningBase( $input, $gcdPlanning->getNrOfBatchGames(), $gcdPlanning->getMaxNrOfGamesInARow() );
 
+        // 5, 4 => (2) => 5, 5, 4, 4
+
+        // 2, 2 => (2) => 2, 2, 2, 2
+
+        // 4, 3, 3 => (3) => 4, 4, 4, 3, 3, 3, 3, 3, 3, 3
+
+        // 2, 2 => (5) => 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
 //        6,4,2 => 6,6,4,4,2,2
-//        [6] STARTINDEX = 0
-//        [4] STARTINDEX = 2
-//        [2] STARTINDEX = 4
-        $startIndices = [];
-        foreach( $planning->getInput()->getStructureConfig() as $key => $nrOfPlaces ) {
-            if( array_key_exists($nrOfPlaces, $startIndices ) === false ) {
-                $startIndices[$nrOfPlaces] = $key;
-            }
-        }
-        for( $iteration = 0 ; $iteration < $gcd ; $iteration++ ) {
-            foreach( $gcdPlanning->getGames() as $gcdGame ) {
-                // $pouleNr = ( $iteration * $gcdPlanning->getPoules()->count() ) + $gcdGame->getPoule()->getNumber();
-                $nrOfPlaces = $gcdGame->getPoule()->getPlaces()->count();
-                $newPouleNr = ($startIndices[$nrOfPlaces]+1) + $iteration;
+
+        $getNewPouleNr = function( int $gcdIteration, int $gcdPouleNr ) use ($gcd): int {
+            return ( ( ( $gcdPouleNr - 1) * $gcd ) + $gcdIteration );
+        };
+
+        foreach( $gcdPlanning->getGames() as $gcdGame ) {
+            for( $iteration = 0 ; $iteration < $gcd ; $iteration++ ) {
+                $newPouleNr = $getNewPouleNr( $iteration + 1, $gcdGame->getPoule()->getNumber() );
                 $poule = $planning->getPoule( $newPouleNr );
                 $game = new Game( $poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr(), $gcdGame->getNrOfHeadtohead() );
                 $game->setBatchNr( $gcdGame->getBatchNr() );
@@ -101,6 +102,10 @@ class Seeker
 
                 foreach( $gcdGame->getPlaces() as $gcdGamePlace ) {
                     $place = $poule->getPlace( $gcdGamePlace->getPlace()->getNumber() );
+                    if( $place === null ) {
+                        $e = 1;
+                        $eee = 1212;
+                    }
                     $gamePlace = new Game\Place( $game, $place, $gcdGamePlace->getHomeAway() );
                 }
             }
