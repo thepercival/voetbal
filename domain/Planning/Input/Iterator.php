@@ -8,17 +8,11 @@
 
 namespace Voetbal\Planning\Input;
 
-use FCToernooi\Tournament\StructureOptions as TournamentStructureOptions;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Resources;
 use Voetbal\Range as VoetbalRange;
-use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
-use Voetbal\Planning\Sport\NrFields as SportNrFields;
 use Voetbal\Sport;
-use Voetbal\Sport\Service as SportService;
-use Voetbal\Poule;
-use Voetbal\Math as VoetbalMath;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Structure\Options as StructureOptions;
 
@@ -264,10 +258,11 @@ class Iterator
             $this->teamup,
             $this->nrOfPlaces
         );
-        if ($selfRefereeIsAvailable) {
-            $this->selfReferee = true;
+        if ($selfRefereeIsAvailable === false ) {
+            return $this->incrementTeamup();
         }
-        return $selfRefereeIsAvailable;
+        $this->selfReferee = true;
+        return true;
     }
 
     protected function incrementTeamup(): bool
@@ -298,7 +293,9 @@ class Iterator
 
     protected function incrementNrOfReferees(): bool
     {
-        if ($this->nrOfReferees === $this->rangeNrOfReferees->max) {
+        $maxNrOfReferees = $this->rangeNrOfReferees->max;
+        $maxNrOfRefereesByPlaces = (int)( ceil( $this->nrOfPlaces / 2 ) );
+        if ($this->nrOfReferees >= $maxNrOfReferees || $this->nrOfReferees >= $maxNrOfRefereesByPlaces ) {
             return $this->incrementNrOfFields();;
         }
         $this->nrOfReferees++;
@@ -308,7 +305,9 @@ class Iterator
 
     protected function incrementNrOfFields(): bool
     {
-        if ($this->nrOfFields === $this->rangeNrOfFields->max) {
+        $maxNrOfFields = $this->rangeNrOfFields->max;
+        $maxNrOfFieldsByPlaces = (int)( ceil( $this->nrOfPlaces / 2 ) );
+        if ($this->nrOfFields >= $maxNrOfFields || $this->nrOfFields >= $maxNrOfFieldsByPlaces ) {
             return $this->incrementNrOfSports();;
         }
         $this->nrOfFields++;
