@@ -85,6 +85,7 @@ class Repository extends \Voetbal\Repository
         $moreRecentSuccesses = $this->createQueryBuilder('pisub')
             ->select('count(pisub)')
             ->where('pisub.state = ' . PlanningInput::STATE_ALL_PLANNINGS_TRIED)
+            ->andWhere('pisub.createdBy is not null')
             ->andWhere('pisub.createdBy = pi.createdBy')
             ->andWhere('pisub.createdAt > pi.createdAt')
         ;
