@@ -10,6 +10,8 @@ Voetbal\Sport\ScoreConfig:
       type: integer
     maximum:
       type: integer
+    enabled:
+      type: boolean
     next:
       type: Voetbal\Sport\ScoreConfig
   virtual_properties:

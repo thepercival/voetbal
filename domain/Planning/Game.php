@@ -23,6 +23,10 @@ class Game
      */
     protected $subNr;
     /**
+     * @var int
+     */
+    protected $nrOfHeadtohead;
+    /**
      * @var Poule
      */
     protected $poule;
@@ -47,10 +51,11 @@ class Game
      */
     protected $referee;
 
-    public function __construct( Poule $poule, int $roundNr, int $subNr ) {
+    public function __construct( Poule $poule, int $roundNr, int $subNr, int $nrOfHeadtohead ) {
         $this->poule = $poule;
         $this->roundNr = $roundNr;
         $this->subNr = $subNr;
+        $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->places = new ArrayCollection();
         $this->batchNr = 0;
         $this->poule->getGames()->add( $this );
@@ -71,6 +76,10 @@ class Game
 
     public function getSubNr(): int {
         return $this->subNr;
+    }
+
+    public function getNrOfHeadtohead(): int {
+        return $this->nrOfHeadtohead;
     }
 
     public function getBatchNr(): int {

@@ -41,6 +41,10 @@ class ScoreConfig
      * @var int
      */
     protected $maximum;
+    /**
+     * @var bool
+     */
+    protected $enabled;
 
     protected $roundconfigiddep; // DEPRECATED
     protected $iddep;  // DEPRECATED
@@ -103,7 +107,7 @@ class ScoreConfig
     /**
      * @return bool
      */
-    public function isRoot(): bool
+    public function isFirst(): bool
     {
         return !$this->hasPrevious();
     }
@@ -135,11 +139,11 @@ class ScoreConfig
     /**
      * @return ScoreConfig
      */
-    public function getRoot()
+    public function getFirst()
     {
         $parent = $this->getPrevious();
         if( $parent !== null ) {
-            return $parent->getRoot();
+            return $parent->getFirst();
         }
         return $this;
     }
@@ -218,5 +222,33 @@ class ScoreConfig
     public function setMaximum( int $maximum )
     {
         $this->maximum = $maximum;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param bool $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
+    public function isLast() {
+        return !$this->hasNext();
+    }
+
+    public function getCalculate(): ScoreConfig {
+        $first = $this->getFirst();
+        if ($first->hasNext() && $first->getNext()->getEnabled()) {
+            return $first->getNext();
+        }
+        return $this;
     }
 }

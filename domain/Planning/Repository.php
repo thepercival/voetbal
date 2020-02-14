@@ -127,7 +127,7 @@ class Repository extends \Voetbal\Repository
 
     public function saveRoundNumber( RoundNumber $roundNumber, bool $hasPlanning = null )
     {
-        foreach( $roundNumber->getGames( GameBase::ORDER_BY_POULE) as $game ) {
+        foreach( $roundNumber->getGames() as $game ) {
             $this->_em->persist($game);
         }
         if( $hasPlanning !== null ) {

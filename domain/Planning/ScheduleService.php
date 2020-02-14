@@ -54,26 +54,28 @@ class ScheduleService
 
     public function getRoundNumberStartDateTime(RoundNumber $roundNumber ): \DateTimeImmutable {
         if ($roundNumber->isFirst() ) {
-            return $roundNumber->getCompetition()->getStartDateTime();
+            $startDateTime = $roundNumber->getCompetition()->getStartDateTime();
+            return $this->addMinutes($startDateTime, 0, $roundNumber->getValidPlanningConfig());
         }
-        $previousLastStartDateTime = $roundNumber->getPrevious()->getLastStartDateTime();
-        $previousEndDateTime = $this->addMinutes($previousLastStartDateTime, $roundNumber->getPrevious()->getValidPlanningConfig()->getMaximalNrOfMinutesPerGame());
+        $previousRoundLastStartDateTime = $roundNumber->getPrevious()->getLastStartDateTime();
         $previousPlanningConfig = $roundNumber->getPrevious()->getValidPlanningConfig();
-        return $this->addMinutes($previousEndDateTime, $previousPlanningConfig->getMinutesAfter());
+        $minutes = $previousPlanningConfig->getMaximalNrOfMinutesPerGame() + $previousPlanningConfig->getMinutesAfter();
+        return $this->addMinutes($previousRoundLastStartDateTime, $minutes, $previousPlanningConfig);
     }
 
-    public function getNextGameStartDateTime( Config $planningConfig, \DateTimeImmutable $gameStartDateTime ) {
+    public function getNextGameStartDateTime( Config $planningConfig, \DateTimeImmutable $gameStartDateTime ): \DateTimeImmutable {
         $minutes = $planningConfig->getMaximalNrOfMinutesPerGame() + $planningConfig->getMinutesBetweenGames();
-        return $this->addMinutes($gameStartDateTime, $minutes);
+        return $this->addMinutes($gameStartDateTime, $minutes, $planningConfig);
     }
 
-    protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes): \DateTimeImmutable {
-        $newDateTime = $dateTime->modify("+" . $minutes . " minutes");
-        if ($this->blockedPeriod !== null
-            && $newDateTime > $this->blockedPeriod->getStartDate()
-            && $newDateTime < $this->blockedPeriod->getEndDate() ) {
-            $newDateTime = clone $this->blockedPeriod->getEndDate();
+    protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes, Config $planningConfig): \DateTimeImmutable {
+        $newStartDateTime = $dateTime->modify("+" . $minutes . " minutes");
+        if ($this->blockedPeriod !== null ) {
+            $newEndDateTime = $newStartDateTime->modify("+" . $planningConfig->getMaximalNrOfMinutesPerGame() . " minutes");
+            if( $newStartDateTime < $this->blockedPeriod->getEndDate() && $newEndDateTime > $this->blockedPeriod->getStartDate() ) {
+                $newStartDateTime = clone $this->blockedPeriod->getEndDate();
+            }
         }
-        return $newDateTime;
+        return $newStartDateTime;
     }
 }

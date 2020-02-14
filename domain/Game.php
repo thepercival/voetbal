@@ -70,20 +70,19 @@ class Game implements External\Importable
      */
     protected $places;
 
-    const RESULT_HOME = 1;
-    const RESULT_DRAW = 2;
-    const RESULT_AWAY = 3;
+    public const RESULT_HOME = 1;
+    public const RESULT_DRAW = 2;
+    public const RESULT_AWAY = 3;
 
-    const HOME = true;
-    const AWAY = false;
+    public const HOME = true;
+    public const AWAY = false;
 
-    const PHASE_REGULARTIME = 1;
-    const PHASE_EXTRATIME = 2;
-    const PHASE_PENALTIES = 4;
+    public const PHASE_REGULARTIME = 1;
+    public const PHASE_EXTRATIME = 2;
+    public const PHASE_PENALTIES = 4;
 
-    const ORDER_BY_BATCH = 1;
-    const ORDER_BY_POULE = 2;
-    const ORDER_BY_NUMBER = 3;
+    public const ORDER_BY_BATCH = 1;
+    public const ORDER_BY_GAMENUMBER = 2;
 
     public function __construct( Poule $poule, int $batchNr, \DateTimeImmutable $startDateTime )
     {

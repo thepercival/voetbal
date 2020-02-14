@@ -9,6 +9,7 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Game as GameBase;
+use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Game;
@@ -52,26 +53,35 @@ class ConvertService
 
     public function createGames( RoundNumber $roundNumber, PlanningBase $planning ) {
         $this->initResources( $roundNumber );
-        $batches = $planning->getStructure()->getBatches();
+        $firstBatch = $planning->getFirstBatch();
         $gameStartDateTime = $this->scheduleService->getRoundNumberStartDateTime( $roundNumber );
-        foreach( $batches as $planningGames ) {
-            /** @var PlanningGame $planningGame */
-            foreach( $planningGames as $planningGame ) {
-                $poule = $this->getPoule( $planningGame->getPoule() );
-                $game = new GameBase( $poule, $planningGame->getBatchNr(), $gameStartDateTime );
-                $game->setField( $this->getField( $planningGame->getField() ) );
-                if( $planningGame->getReferee() !== null ) {
-                    $game->setReferee( $this->getReferee( $planningGame->getReferee() ) );
-                }
-                if( $planningGame->getRefereePlace() !== null ) {
-                    $game->setRefereePlace( $this->getPlace( $planningGame->getRefereePlace() ) );
-                }
-                /** @var PlanningGamePlace $planningGamePlace */
-                foreach( $planningGame->getPlaces() as $planningGamePlace ) {
-                    new GamePlace( $game, $this->getPlace( $planningGamePlace->getPlace() ), $planningGamePlace->getHomeaway() );
-                }
+        $planningConfig = $roundNumber->getValidPlanningConfig();
+        $this->createBatchGames( $firstBatch, $planningConfig, $gameStartDateTime );
+    }
+
+    // zorg dat vanaf ronde 2 de wedstrijden op volgorde van qualifypoule worden ingedeeld
+    // dit kan natuurlijk alleen met poules van dezelfde poulegrootte!!!
+
+    protected function createBatchGames( Batch $batch, Config $planningConfig, \DateTimeImmutable $gameStartDateTime ) {
+        /** @var PlanningGame $planningGame */
+        foreach( $batch->getGames() as $planningGame ) {
+            $poule = $this->getPoule( $planningGame->getPoule() );
+            $game = new GameBase( $poule, $planningGame->getBatchNr(), $gameStartDateTime );
+            $game->setField( $this->getField( $planningGame->getField() ) );
+            if( $planningGame->getReferee() !== null ) {
+                $game->setReferee( $this->getReferee( $planningGame->getReferee() ) );
             }
-            $gameStartDateTime = $this->scheduleService->getNextGameStartDateTime( $roundNumber->getValidPlanningConfig(), $gameStartDateTime );
+            if( $planningGame->getRefereePlace() !== null ) {
+                $game->setRefereePlace( $this->getPlace( $planningGame->getRefereePlace() ) );
+            }
+            /** @var PlanningGamePlace $planningGamePlace */
+            foreach( $planningGame->getPlaces() as $planningGamePlace ) {
+                new GamePlace( $game, $this->getPlace( $planningGamePlace->getPlace() ), $planningGamePlace->getHomeaway() );
+            }
+        }
+        if( $batch->hasNext() ) {
+            $nextGameStartDateTime = $this->scheduleService->getNextGameStartDateTime( $planningConfig, $gameStartDateTime );
+            $this->createBatchGames( $batch->getNext(), $planningConfig, $nextGameStartDateTime );
         }
     }
 
@@ -83,9 +93,18 @@ class ConvertService
 
     protected function initPoules( RoundNumber $roundNumber ) {
         $poules = $roundNumber->getPoules();
-        uasort( $poules, function ( Poule $pouleA, Poule $pouleB ) {
-            return $pouleA->getPlaces()->count() > $pouleB->getPlaces()->count() ? -1 : 1;
-        });
+        if( $roundNumber->isFirst() ) {
+            uasort( $poules, function ( Poule $pouleA, Poule $pouleB ) {
+                return $pouleA->getPlaces()->count() > $pouleB->getPlaces()->count() ? -1 : 1;
+            });
+        } else {
+            uasort( $poules, function ( Poule $pouleA, Poule $pouleB ) {
+                if( $pouleA->getPlaces()->count() === $pouleB->getPlaces()->count() ) {
+                    return $pouleA->getStructureNumber() > $pouleB->getStructureNumber() ? -1 : 1;
+                }
+                return $pouleA->getPlaces()->count() > $pouleB->getPlaces()->count() ? -1 : 1;
+            });
+        }
         $this->poules = array_values($poules);
     }
 

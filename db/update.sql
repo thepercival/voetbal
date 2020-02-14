@@ -10,6 +10,8 @@ update roundnumbers set hasPlanning = true;
 
 update rounds set winnersOrLosers = 3 where winnersOrLosers = 2;
 
+delete from roundscoreconfigs where direction = 2;
+
 update tournaments set updated = false;
 
 update gamescores set phase = 1 where gameid in ( select id from games where scoresmoment = 2 and id = gamescores.gameid );
@@ -31,6 +33,7 @@ delete from associations where ( select count(*) from leagues where associationi
 
 insert into sports( name, team ) (	select distinct sportDep, false from leagues );
 
+update sports set customid = 0;
 update sports set customId = 1 where name = 'badminton';
 update sports set customId = 2, team = true where name = 'basketbal';
 update sports set customId = 3 where name = 'darten';
@@ -58,7 +61,7 @@ insert into sportconfigs( competitionid, sportid, winPoints, drawPoints, winPoin
 -- add sportscoreconfigs for roundnumbers
 insert into sportscoreconfigs ( roundnumberid, sportid, direction, maximum, parentid, iddep )
     (
-        select 	rn.id, s.id, rsc.direction, rsc.direction, null, rsc.id
+        select 	rn.id, s.id, rsc.direction, rsc.maximum, null, rsc.id
         from    roundscoreconfigs rsc
                     join roundconfigs rc on rc.id = rsc.roundconfigid
                     join roundnumbers rn on rc.id = rn.configid
@@ -67,10 +70,14 @@ insert into sportscoreconfigs ( roundnumberid, sportid, direction, maximum, pare
                     join sports s on s.name = l.sportDep
     );
 update 	sportscoreconfigs ssc
-        join 	roundscoreconfigs rsc on ssc.iddep = rsc.id
-        join 	sportscoreconfigs scp on scp.iddep = rsc.parentid
-set 	ssc.parentid = scp.id
-where	rsc.parentid is not null;
+    join 	roundscoreconfigs rsc on ssc.iddep = rsc.id
+    join 	roundscoreconfigs rscp on rscp.parentid = rsc.id
+    join 	sportscoreconfigs sscp on sscp.iddep = rscp.id
+set 		ssc.parentid = sscp.id
+where	rsc.parentid is null;
+
+update sportscoreconfigs set enabled = true;
+update sportscoreconfigs set enabled = false where exists ( select * from sportscoreconfigs previous where previous.id = sportscoreconfigs.parentid ) and maximum = 0;
 
 -- add planningconfigs to roundnumber
 insert into planningconfigs( hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, nrOfHeadtohead, rniddep )

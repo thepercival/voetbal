@@ -8,7 +8,7 @@
 
 namespace Voetbal\Ranking;
 
-use Voetbal\Game ;
+use Voetbal\Game;
 use Voetbal\Game\Score as GameScore;
 use Voetbal\Game\Score\HomeAway as GameScoreHomeAway;
 use Voetbal\Sport\ScoreConfig\Service as SportScoreConfigService;
@@ -18,7 +18,8 @@ use Voetbal\Ranking\RoundItem\Unranked as UnrankedRoundItem;
 
 /* tslint:disable:no-bitwise */
 
-class ItemsGetter {
+class ItemsGetter
+{
 
     /**
      * @var Round
@@ -33,14 +34,15 @@ class ItemsGetter {
      */
     private $sportScoreConfigService;
 
-    public function __construct(Round $round, int $gameStates )
+    public function __construct(Round $round, int $gameStates)
     {
         $this->round = $round;
         $this->gameStates = $gameStates;
         $this->sportScoreConfigService = new SportScoreConfigService();
     }
 
-    protected static function getIndex(Place $place ): string {
+    protected static function getIndex(Place $place): string
+    {
         return $place->getPoule()->getNumber() . '-' . $place->getNumber();
     }
 
@@ -49,26 +51,35 @@ class ItemsGetter {
      * @param array | Game[] $games
      * @return array | UnrankedRoundItem[]
      */
-    public function getUnrankedItems(array $places, array $games): array {
-        $items = array_map( function( $place ) {
-            return new UnrankedRoundItem($this->round, $place->getLocation(), $place->getPenaltyPoints());
-            }, $places );
-        foreach( $games as $game ) {
+    public function getUnrankedItems(array $places, array $games): array
+    {
+        $items = array_map(
+            function ($place) {
+                return new UnrankedRoundItem($this->round, $place->getLocation(), $place->getPenaltyPoints());
+            },
+            $places
+        );
+        foreach ($games as $game) {
             if (($game->getState() & $this->gameStates) === 0) {
                 continue;
             }
             $finalScore = $this->sportScoreConfigService->getFinal($game);
-            foreach( [Game::HOME, Game::AWAY] as $homeAway ) {
+            foreach ([Game::HOME, Game::AWAY] as $homeAway) {
                 $points = $this->getNrOfPoints($finalScore, $homeAway, $game);
                 $scored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED, false);
                 $received = $this->getNrOfUnits($finalScore, $homeAway, GameScore::RECEIVED, false);
                 $subScored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED, true);
                 $subReceived = $this->getNrOfUnits($finalScore, $homeAway, GameScore::RECEIVED, true);
-                foreach( $game->getPlaces($homeAway) as $gamePlace ) {
-                    $foundItems = array_filter( $items, function( $item ) use($gamePlace) {
-                        return $item->getPlaceLocation()->getPlaceNr() === $gamePlace->getPlace()->getLocation()->getPlaceNr()
-                            && $item->getPlaceLocation()->getPouleNr() === $gamePlace->getPlace()->getLocation()->getPouleNr();
-                    });
+                foreach ($game->getPlaces($homeAway) as $gamePlace) {
+                    $foundItems = array_filter(
+                        $items,
+                        function ($item) use ($gamePlace) {
+                            return $item->getPlaceLocation()->getPlaceNr() === $gamePlace->getPlace()->getLocation(
+                                )->getPlaceNr()
+                                && $item->getPlaceLocation()->getPouleNr() === $gamePlace->getPlace()->getLocation(
+                                )->getPouleNr();
+                        }
+                    );
                     $item = reset($foundItems);
                     $item->addGame();
                     $item->addPoints($points);
@@ -82,43 +93,48 @@ class ItemsGetter {
         return $items;
     }
 
-    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game): float {
+    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game): float
+    {
         if ($finalScore === null) {
             return 0;
-        }           
+        }
         if ($this->isWin($finalScore, $homeAway)) {
             if ($game->getFinalPhase() === Game::PHASE_REGULARTIME) {
                 return $game->getSportConfig()->getWinPoints();
-            } else if ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
+            } elseif ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
                 return $game->getSportConfig()->getWinPointsExt();
             }
-        } else if ($this->isDraw($finalScore)) {
+        } elseif ($this->isDraw($finalScore)) {
             if ($game->getFinalPhase() === Game::PHASE_REGULARTIME) {
                 return $game->getSportConfig()->getDrawPoints();
-            } else if ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
+            } elseif ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
                 return $game->getSportConfig()->getDrawPointsExt();
             }
         }
         return 0;
     }
 
-    private function isWin(GameScoreHomeAway $finalScore, bool $homeAway): bool {
+    private function isWin(GameScoreHomeAway $finalScore, bool $homeAway): bool
+    {
         return ($finalScore->getResult() === Game::RESULT_HOME && $homeAway === Game::HOME)
             || ($finalScore->getResult() === Game::RESULT_AWAY && $homeAway === Game::AWAY);
     }
 
-    private function isDraw(GameScoreHomeAway $finalScore ): bool {
+    private function isDraw(GameScoreHomeAway $finalScore): bool
+    {
         return $finalScore->getResult() === Game::RESULT_DRAW;
     }
 
-    private function getNrOfUnits(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoredReceived, bool $sub): int {
+    private function getNrOfUnits(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoredReceived, bool $sub): int
+    {
         if ($finalScore === null) {
             return 0;
         }
         return $this->getGameScorePart($finalScore, $scoredReceived === GameScore::SCORED ? $homeAway : !$homeAway);
     }
 
-    private function getGameScorePart(GameScoreHomeAway $gameScoreHomeAway, bool $homeAway): int {
+    private function getGameScorePart(GameScoreHomeAway $gameScoreHomeAway, bool $homeAway): int
+    {
         return $homeAway === Game::HOME ? $gameScoreHomeAway->getHome() : $gameScoreHomeAway->getAway();
     }
 }

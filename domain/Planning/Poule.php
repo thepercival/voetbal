@@ -73,6 +73,9 @@ class Poule
         $places = $this->getPlaces()->filter( function( $place ) use ( $number ) {
             return $place->getNumber() === $number;
         });
+        if( $places->count() === 0 ) {
+            return null;
+        }
         return $places->first();
     }
 

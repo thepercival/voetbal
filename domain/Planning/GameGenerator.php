@@ -46,7 +46,7 @@ class GameGenerator
         foreach( $gameRounds as $gameRound ) {
             $subNumber = 1;
             foreach( $gameRound->getCombinations() as $combination ) {
-                $game = new Game( $poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++);
+                $game = new Game( $poule, $startGameRoundNumber + $gameRound->getNumber(), $subNumber++, $headtohead);
                 $combination->createGamePlaces($game, $reverseHomeAway/*, reverseCombination*/);
             }
         }

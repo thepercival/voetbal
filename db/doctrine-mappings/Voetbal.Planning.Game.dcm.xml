@@ -6,6 +6,7 @@
     </id>
     <field name="roundNr" column="roundNr" type="smallint" nullable="false" unique="false"/>
     <field name="subNr" column="subNr" type="smallint" nullable="false" unique="false"/>
+    <field name="nrOfHeadtohead" column="nrOfHeadtohead" type="smallint" nullable="false" unique="false"/>
     <field name="batchNr" column="batchNr" type="smallint" nullable="false" unique="false"/>
     <many-to-one field="field" target-entity="Voetbal\Planning\Field">
       <join-columns>

@@ -3,10 +3,12 @@
 namespace Voetbal\Planning;
 
 use Psr\Log\LoggerInterface;
+use Voetbal\Game as GameBase;
 use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Planning\Input\Repository as PlanningInputRepository;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\Range as VoetbalRange;
 
 class Seeker
@@ -70,30 +72,40 @@ class Seeker
         $gcdPlanning = $this->planningService->getBestPlanning( $gcdInput );
         $planning = new PlanningBase( $input, $gcdPlanning->getNrOfBatchGames(), $gcdPlanning->getMaxNrOfGamesInARow() );
 
-        for( $iteration = 0 ; $iteration < $gcd ; $iteration++ ) {
-            foreach( $gcdPlanning->getGames() as $gcdGame ) {
-                $pouleNr = ( $iteration * $gcdPlanning->getPoules()->count() ) + $gcdGame->getPoule()->getNumber();
-                $poule = $planning->getPoule( $pouleNr );
+        // 5, 4 => (2) => 5, 5, 4, 4
 
-                $game = new Game( $poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr() );
+        // 2, 2 => (2) => 2, 2, 2, 2
+
+        // 4, 3, 3 => (3) => 4, 4, 4, 3, 3, 3, 3, 3, 3, 3
+
+        // 2, 2 => (5) => 2, 2, 2, 2, 2, 2, 2, 2, 2, 2
+//        6,4,2 => 6,6,4,4,2,2
+
+        $getNewPouleNr = function( int $gcdIteration, int $gcdPouleNr ) use ($gcd): int {
+            return ( ( ( $gcdPouleNr - 1) * $gcd ) + $gcdIteration );
+        };
+
+        foreach( $gcdPlanning->getGames() as $gcdGame ) {
+            for( $iteration = 0 ; $iteration < $gcd ; $iteration++ ) {
+                $newPouleNr = $getNewPouleNr( $iteration + 1, $gcdGame->getPoule()->getNumber() );
+                $poule = $planning->getPoule( $newPouleNr );
+                $game = new Game( $poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr(), $gcdGame->getNrOfHeadtohead() );
                 $game->setBatchNr( $gcdGame->getBatchNr() );
 
                 if( $gcdGame->getReferee() ) {
                     $refereeNr = ( $iteration * $gcdInput->getNrOfReferees() ) + $gcdGame->getReferee()->getNumber();
                     $game->setReferee( $planning->getReferee( $refereeNr ) );
                 }
+                // @TODO use also startindex as with poulenr when doing multiple sports
                 $fieldNr = ( $iteration * $gcdInput->getNrOfFields() ) + $gcdGame->getField()->getNumber();
                 $game->setField( $planning->getField( $fieldNr ) );
 
-                if( $gcdGame->getRefereePlace() ) {
-                    $refereePouleNr = $gcdGame->getRefereePlace()->getPoule()->getNumber();
-                    $refereePoule = $planning->getPoule( $refereePouleNr );
-                    $refereePlace = $refereePoule->getPlace( $gcdGame->getRefereePlace()->getNumber() );
-                    $game->setRefereePlace( $refereePlace );
-                }
-
                 foreach( $gcdGame->getPlaces() as $gcdGamePlace ) {
                     $place = $poule->getPlace( $gcdGamePlace->getPlace()->getNumber() );
+                    if( $place === null ) {
+                        $e = 1;
+                        $eee = 1212;
+                    }
                     $gamePlace = new Game\Place( $game, $place, $gcdGamePlace->getHomeAway() );
                 }
             }
@@ -113,13 +125,16 @@ class Seeker
     {
         try {
             $this->processPlanning($planning, true);
-            if ($planning->getState() === PlanningBase::STATE_SUCCESS && $planning->getMaxNrOfGamesInARow() > 1) {
-                if (!$planning->getInput()->hasPlanning($planning->getNrOfBatchGames(), $planning->getMaxNrOfGamesInARow() - 1)) {
-                    $nextPlanning = $this->planningService->createNextNInARow($planning);
-                    $nextPlanning->setState(PlanningBase::STATE_TIMEOUT);
-                    $this->planningRepos->save($nextPlanning);
-                }
+            if ($planning->getState() !== PlanningBase::STATE_SUCCESS || $planning->getMaxNrOfGamesInARow() === 1) {
+                return;
             }
+            $nextPlanning = $planning->getInput()->getPlanning($planning->getNrOfBatchGames(), $planning->getMaxNrOfGamesInARow() - 1);
+            if ( $nextPlanning !== null ) {
+                return;
+            }
+            $nextPlanning = $this->planningService->createNextNInARow($planning);
+            $nextPlanning->setState(PlanningBase::STATE_TIMEOUT);
+            $this->planningRepos->save($nextPlanning);
         } catch( \Exception $e ) {
             $this->logger->error( '   ' . '   ' .  " => " . $e->getMessage() );
         }
@@ -166,9 +181,10 @@ class Seeker
             }
         }
 
-        $input->setState( Input::STATE_ALL_PLANNINGS_TRIED );
+        $input->setState( $input->getSelfReferee() ? Input::STATE_UPDATING_BESTPLANNING_SELFREFEE: Input::STATE_ALL_PLANNINGS_TRIED );
         $this->inputRepos->save( $input );
-        $this->logger->info( '   update state => STATE_ALL_PLANNINGS_TRIED' );
+        $info = $input->getSelfReferee() ? 'STATE_UPDATING_BESTPLANNING_SELFREFEE':  'STATE_ALL_PLANNINGS_TRIED';
+        $this->logger->info( '   update state => ' . $info );
     }
 
     protected function processPlanning( PlanningBase $planning, bool $timeout )

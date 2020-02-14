@@ -4,6 +4,7 @@ namespace Voetbal\Round\Number;
 
 use Voetbal\Planning\ConvertService;
 use Voetbal\Planning\Input\Service as PlanningInputService;
+use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Planning\Input\Repository as PlanningInputRepository;
 use Voetbal\Planning\ScheduleService;
@@ -69,7 +70,8 @@ class PlanningCreator
         $inputService = new PlanningInputService();
         $defaultPlanningInput = $inputService->get( $roundNumber );
         $planningInput = $this->inputRepos->getFromInput( $defaultPlanningInput );
-        $planning = $planningInput->getBestPlanning();
+        $planningService = new PlanningService();
+        $planning = $planningService->getBestPlanning( $planningInput );
         if( $planning === null ) {
             return;
         }

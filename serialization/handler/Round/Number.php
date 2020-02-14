@@ -97,6 +97,7 @@ class Number implements SubscribingHandlerInterface
         $config = new SportScoreConfig($sport, $roundNumber, $previous );
         $config->setDirection($arrConfig["direction"]);
         $config->setMaximum($arrConfig["maximum"]);
+        $config->setEnabled($arrConfig["enabled"]);
         if( array_key_exists("next", $arrConfig ) && $arrConfig["next"] !== null ) {
             $this->createSportScoreConfig( $arrConfig["next"], $sport, $roundNumber, $config );
         }

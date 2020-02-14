@@ -94,7 +94,7 @@ class Service
         return true;
     }
 
-    public function canSelfRefereeBeAvailable( int $nrOfPlaces ) {
-        return $nrOfPlaces > 2;
+    public function canSelfRefereeBeAvailable( bool $teamup, int $nrOfPlaces ) {
+        return $nrOfPlaces > ($teamup ? 4 : 2);
     }
 }

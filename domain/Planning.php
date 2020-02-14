@@ -10,8 +10,11 @@ namespace Voetbal;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Game as GameBase;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Planning\Batch;
 use Voetbal\Planning\Field;
+use Voetbal\Planning\Game;
 use Voetbal\Planning\Input;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Game as PlanningGame;
@@ -73,6 +76,7 @@ class Planning
     const STATE_FAILED = 1;
     const STATE_TIMEOUT = 2;
     const STATE_SUCCESS = 4;
+    const STATE_UPDATING_SELFREFEE = 8;
 
     const TIMEOUT_MULTIPLIER = 6;
     const DEFAULT_TIMEOUTSECONDS = 5;
@@ -170,14 +174,6 @@ class Planning
 //        $this->input = $input;
 //    }
 
-    public function isBest(): bool {
-        return $this->getInput()->getState() === PlanningInput::STATE_ALL_PLANNINGS_TRIED && $this->isCurrentlyBest();
-    }
-
-    protected function isCurrentlyBest(): bool {
-        return $this->getState() === Planning::STATE_SUCCESS && $this === $this->getInput()->getBestPlanning();
-    }
-
     public function getPoules(): Collection {
         return $this->poules;
 //        $structure = new Structure();
@@ -203,7 +199,7 @@ class Planning
         }
     }
 
-    public function getStructure() {
+    public function getStructure(): Planning\Structure {
         return new Planning\Structure( $this->getPoules() );
     }
 
@@ -267,12 +263,42 @@ class Planning
         return null;
     }
 
-    public function getGames(): ArrayCollection {
-        $games = new ArrayCollection();
-        foreach( $this->getPoules() as $poule ) {
-            foreach( $poule->getGames() as $game ) {
-                $games->add($game);
+    public function getFirstBatch(): Batch {
+        $games = $this->getGames( GameBase::ORDER_BY_BATCH );
+        $batch = new Batch();
+        foreach( $games as $game ) {
+            if( $game->getBatchNr() === ( $batch->getNumber() + 1 ) ) {
+                $batch = $batch->createNext();
             }
+            $batch->add( $game );
+        }
+        return $batch->getFirst();
+    }
+
+    /**
+     * @param int|null $order
+     * @return array|Game[]
+     */
+    public function getGames( int $order = null ): array
+    {
+        $games = [];
+        foreach( $this->getPoules() as $poule ) {
+            $games = array_merge( $games, $poule->getGames()->toArray() );
+        }
+        if( $order === GameBase::ORDER_BY_BATCH ) {
+            uasort( $games, function(Game $g1,Game  $g2 ) {
+                return $g1->getBatchNr() - $g2->getBatchNr();
+            } );
+        } elseif( $order === GameBase::ORDER_BY_GAMENUMBER ) {
+            uasort($games, function (Game $g1, Game $g2) {
+                if ($g1->getRoundNr() !== $g2->getRoundNr()) {
+                    return $g1->getRoundNr() - $g2->getRoundNr();
+                }
+                if ($g1->getSubNr() !== $g2->getSubNr()) {
+                    return $g1->getSubNr() - $g2->getSubNr();
+                }
+                return $g1->getPoule()->getNumber() - $g2->getPoule()->getNumber();
+            });
         }
         return $games;
     }

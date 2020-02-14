@@ -228,12 +228,8 @@ class Number
         return $poules;
     }
 
-    public function getGames( int $order ): array
+    public function getGames( int $order = null ): array
     {
-//        if( $order === null ) {
-//            $order = GameBase::ORDER_BY_POULE;
-//        }
-
         $games = [];
         foreach( $this->getPoules() as $poule ) {
             $games = array_merge( $games, $poule->getGames()->toArray());
@@ -363,8 +359,8 @@ class Number
     }
 
     public function getSportScoreConfig(Sport $sport ): ?SportScoreConfig {
-        $sportScoreConfigs = $this->sportScoreConfigs->filter( function($sportScoreConfigIt) use ($sport){
-            return $sportScoreConfigIt->isRoot() && $sportScoreConfigIt->getSport() === $sport;
+        $sportScoreConfigs = $this->sportScoreConfigs->filter( function(SportScoreConfig $sportScoreConfigIt) use ($sport){
+            return $sportScoreConfigIt->isFirst() && $sportScoreConfigIt->getSport() === $sport;
         });
         if ( $sportScoreConfigs->count() === 1 ) {
             return $sportScoreConfigs->first();
@@ -404,6 +400,15 @@ class Number
         $games = $this->getGames( GameBase::ORDER_BY_BATCH );
         $leastRecentGame = reset(  $games );
         return $leastRecentGame->getStartDateTime();
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getFirstSportScoreConfigs(): Collection {
+        return $this->getSportScoreConfigs()->filter( function ( SportScoreConfig $config ) {
+            return $config->isFirst();
+        } );
     }
 
     public function getLastStartDateTime(): \DateTimeImmutable
