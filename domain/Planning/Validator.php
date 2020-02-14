@@ -25,6 +25,10 @@ class Validator
         $this->planning = $planning;
     }
 
+    public function hasEnoughTotalNrOfGames(): bool {
+        return count( $this->planning->getGames() ) > 0;
+    }
+
     public function placeOneTimePerGame(): bool {
 
         $getNrOfGameParticipations = function( Game $game, Place $place ): int {
@@ -145,7 +149,11 @@ class Validator
             $batchResources = $batchesResources[$game->getBatchNr()];
             /** @var array|Place[] $places */
             $places = $game->getPlaces()->map( function( GamePlace $gamePlace ) { return $gamePlace->getPlace(); } );
-            if ($game->getRefereePlace() !== null) {
+
+            if ( $this->planning->getInput()->getSelfReferee() ) {
+                if ($game->getRefereePlace() === null) {
+                    return false;
+                }
                 $places[] = $game->getRefereePlace();
             }
             foreach( $places as $placeIt ) {
@@ -159,7 +167,10 @@ class Validator
                 return false;
             }
             $batchResources["fields"][] = $game->getField();
-            if ($game->getReferee()) {
+            if ( $this->planning->getInput()->getNrOfReferees() > 0 ) {
+                if( $game->getReferee() === null ) {
+                    return false;
+                }
                 if( array_search( $game->getReferee(), $batchResources["referees"] ) !== false ) {
                     return false;
                 }
