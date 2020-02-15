@@ -162,23 +162,13 @@ class Service
 
         try {
             $fields = $this->planning->getFields()->toArray();
-            if ($this->getInput()->hasMultipleSports()) {
-                $resources = new Resources($fields, $this->getSportCounters());
-                $batch = $this->assignBatch($games, $resources, $batch);
-                if ($batch === null) {
-                    return PlanningBase::STATE_FAILED;
-                }
-            } else {
-                $resources = new Resources($fields);
-                $gamesH2h = $this->getGamesByH2h($games); // @FREDDY comment
 
-                foreach ($gamesH2h as $games) { // @FREDDY comment
-                    $batch = $this->assignBatch($games, $resources, $batch);
-                    if ($batch === null) {
-                        return PlanningBase::STATE_FAILED;
-                    }
-                }
+            $resources = new Resources($fields/*, $this->getSportCounters()*/);
+            $batch = $this->assignBatch($games, $resources, $batch);
+            if ($batch === null) {
+                return PlanningBase::STATE_FAILED;
             }
+
             $firstBatch = $batch->getFirst();
             $refereeService = new RefereeService( $this->planning );
             $refereeService->assign( $firstBatch );
@@ -260,6 +250,7 @@ class Service
             ) === count($batch->getGames())) // batchsuccess
         {
             $nextBatch = $this->toNextBatch($batch, $resources, $games);
+//            $this->output->consoleBatch($batch, ' batch completed nr ' . $batch->getNumber() );
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
                 return true;
             }
@@ -269,6 +260,9 @@ class Service
                     return $this->areAllPlacesAssignableByGamesInARow($nextBatch, $game);
                 }
             );
+//            if( count($gamesForBatchTmp) === 0 ) {
+//                return false;
+//            }
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0);
         }
         if( (new DateTimeImmutable()) > $this->timeoutDateTime ) { // @FREDDY
@@ -307,12 +301,12 @@ class Service
             return true;
         }
 
-        $resourcesSwitchFields = $resources->copy();
-        while ($resourcesSwitchFields->switchFields()) {
-            if ($this->assignBatchHelper($games, $gamesForBatch, $resourcesSwitchFields, $batch, $maxNrOfBatchGames)) {
-                return true;
-            }
-        }
+//        $resourcesSwitchFields = $resources->copy();
+//        while ($resourcesSwitchFields->switchFields()) {
+//            if ($this->assignBatchHelper($games, $gamesForBatch, $resourcesSwitchFields, $batch, $maxNrOfBatchGames)) {
+//                return true;
+//            }
+//        }
 
         if ($maxNrOfBatchGames === $this->planning->getMaxNrOfBatchGames() && $this->planning->getNrOfBatchGames(
             )->difference() > 0) {
@@ -340,7 +334,7 @@ class Service
     {
         $batch->remove($game);
         // $this->releaseSport($game, $game->getField()->getSport());
-        $this->releaseField($game);
+        // $this->releaseField($game);
     }
 
     /**
@@ -357,9 +351,9 @@ class Service
             if (array_search($game->getField(), $resources->getFields()) === false) {
                 $resources->addField($game->getField());
             }
-            $gameFound = array_search($game, $games, true);
-            if ($gameFound !== false) {
-                array_splice($games, $gameFound, 1);
+            $foundGameIndex = array_search($game, $games, true);
+            if ($foundGameIndex !== false) {
+                unset($games[$foundGameIndex]);
             }
         }
         $nextBatch = $batch->createNext();

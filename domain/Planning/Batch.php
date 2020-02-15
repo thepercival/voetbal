@@ -99,7 +99,10 @@ class Batch
     }
 
     public function remove( Game $game) {
-        array_splice( $this->games, array_search( $game, $this->games), 1);
+        $index = array_search( $game, $this->games);
+        if( $index !== false ) {
+            unset( $this->games[$index]);
+        }
         /** @var Game\Place $gamePlace */
         foreach( $game->getPlaces() as $gamePlace ) {
             unset( $this->places[$gamePlace->getPlace()->getLocation()]);

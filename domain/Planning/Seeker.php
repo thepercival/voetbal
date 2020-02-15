@@ -210,12 +210,6 @@ class Seeker
             ( $planning->getState() === PlanningBase::STATE_TIMEOUT ? "timeout(".$planning->getTimeoutSeconds().")" : "success" );
 
         $this->logger->info( '   ' . '   ' .  " => " . $stateDescription );
-
-//      if( $planning->getState() === Planning::STATE_SUCCESS ) {
-//           $sortedGames = $planning->getStructure()->getGames( GameBase::ORDER_BY_BATCH );
-//           $planningOutput = new Voetbal\Planning\Output( $this->logger );
-//           $planningOutput->consoleGames( $sortedGames );
-//      }
     }
 
     protected function inputToString( Input $planningInput ): string {

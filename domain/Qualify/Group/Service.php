@@ -63,12 +63,14 @@ class Service
     public function merge(QualifyGroup $firstQualifyGroup, QualifyGroup $secondQualifyGroup) {
         $round = $firstQualifyGroup->getRound();
         $qualifyGroups = $round->getQualifyGroups($firstQualifyGroup->getWinnersOrLosers());
-        $idx = $qualifyGroups->indexOf($secondQualifyGroup);
+        $index = $qualifyGroups->indexOf($secondQualifyGroup);
         $round->removeQualifyGroup($secondQualifyGroup);
         $this->renumber($round, $firstQualifyGroup->getWinnersOrLosers());
 
         $horizontalPoules = $secondQualifyGroup->getHorizontalPoules();
-        array_splice( $horizontalPoules, $idx, 1);
+        if( $index !== false ) {
+            unset( $horizontalPoules[$index]);
+        }
 
         $removedPoules = $secondQualifyGroup->getHorizontalPoules();
         foreach( $removedPoules as $removedPoule ) {

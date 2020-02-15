@@ -117,7 +117,10 @@ class Service
             $rankedPlaceLocation = $this->reservationService->getFreeAndLeastAvailabe($toPouleNumber, $round, $rankedPlaceLocations);
             $toPlace->setCompetitor($this->rankingService->getCompetitor($rankedPlaceLocation));
             $changedPlaces[] = $toPlace;
-            array_splice($rankedPlaceLocations, array_search( $rankedPlaceLocation, $rankedPlaceLocations), 1);
+            $index = array_search( $rankedPlaceLocation, $rankedPlaceLocations);
+            if( $index !== false ) {
+                unset( $rankedPlaceLocations[$index]);
+            }
         }
         return $changedPlaces;
     }

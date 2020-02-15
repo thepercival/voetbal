@@ -119,7 +119,7 @@ class GameGenerator
         if (count($gameRound->getCombinations()) === 0) {
             $index = array_search($gameRound, $gameRounds);
             if ($index !== false) {
-                array_splice($gameRounds,$index, 1);
+                unset($gameRounds[$index]);
             }
         }
         return $gameRounds;
