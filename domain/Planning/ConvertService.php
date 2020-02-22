@@ -109,25 +109,11 @@ class ConvertService
     }
 
     protected function initFields( Competition $competition ) {
-        $fields = [];
-        foreach( $competition->getFields() as $field ) {
-            $fields[] = $field;
-        }
-        uasort( $fields, function ( Field $fieldA, Field $fieldB ) {
-            return $fieldA->getNumber() > $fieldB->getNumber() ? -1 : 1;
-        });
-        $this->fields = array_values($fields);
+        $this->fields = $competition->getFields()->toArray();
     }
 
     protected function initReferees( Competition $competition ) {
-        $this->referees = [];
-        foreach( $competition->getReferees() as $referee ) {
-            $this->referees[] = $referee;
-        }
-//        uasort( $referees, function ( Referee $refereeA, Referee $refereeB ) {
-//            return $refereeA->getNumber() > $refereeB->getNumber() ? -1 : 1;
-//        });
-//        $this->referees = array_values($referees);
+        $this->referees = $competition->getReferees()->toArray();
     }
 
     protected function getPoule( PlanningPoule $poule ): Poule {
