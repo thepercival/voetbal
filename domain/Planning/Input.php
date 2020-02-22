@@ -53,10 +53,6 @@ class Input
      */
     protected $createdAt;
     /**
-     * @var int
-     */
-    protected $createdBy;
-    /**
      * @var Collection| PlanningBase[]
      */
     protected $plannings;

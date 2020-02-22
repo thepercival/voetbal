@@ -157,8 +157,11 @@ class Service {
 //        return $minNrOfGames;
 //    }
 
-    protected function getNrOfGamesPerPoule( int $nrOfPoulePlaces, bool $teamup ): int {
-        return $this->getNrOfCombinations($nrOfPoulePlaces, $teamup );
+    public function getNrOfGamesPerPoule( int $nrOfPoulePlaces, bool $teamup, int $nrOfHeadtohead = null ): int {
+        if( $nrOfHeadtohead === null ) {
+            $nrOfHeadtohead = 1;
+        }
+        return ( $this->getNrOfCombinations($nrOfPoulePlaces, $teamup ) * $nrOfHeadtohead );
     }
 
     public function getNrOfGamesPerPlace(int $nrOfPoulePlaces, bool $teamup, bool $selfReferee, int $nrOfHeadtohead ): int {
