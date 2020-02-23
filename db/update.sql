@@ -3,6 +3,9 @@
 
 -- update games set startdatetime = ( select c.startdatetime from poules p join rounds r on r.id = p.roundid join roundnumbers rn on rn.id = r.numberid join competitions c on c.id = rn.competitionid where p.id = games.pouleid ) where startdatetime is null;
 
+-- mysqldump -u fctoernooi_a_dba -p fctoernooiacc planninginputs plannings > planninginputs.sql
+-- mysql -u coen -p fctoernooi_dba < planninginputs.sql
+
 -- draaien na doctrine-update
 update tournaments set exported = 1 where printed = true;
 
