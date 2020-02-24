@@ -1,10 +1,12 @@
+-- next release remove round.qualifyOrder
+
 -- draaien voor doctrine-update
 -- ALTER TABLE rounds MODIFY numberid INT NOT NULL;
 
 -- update games set startdatetime = ( select c.startdatetime from poules p join rounds r on r.id = p.roundid join roundnumbers rn on rn.id = r.numberid join competitions c on c.id = rn.competitionid where p.id = games.pouleid ) where startdatetime is null;
 
--- mysqldump -u fctoernooi_a_dba -p fctoernooiacc planninginputs plannings > planninginputs.sql
--- mysql -u coen -p fctoernooi_dba < planninginputs.sql
+-- mysqldump -u fctoernooi_a_dba -p fctoernooiacc planninginputs plannings planningsports planningfields planningpoules planningplaces planningreferees planninggames planninggameplaces > planninginputs.sql
+-- mysql -u fctoernooi_dba -p fctoernooi < planninginputs.sql
 
 -- draaien na doctrine-update
 update tournaments set exported = 1 where printed = true;
@@ -80,7 +82,9 @@ set 		ssc.parentid = sscp.id
 where	rsc.parentid is null;
 
 update sportscoreconfigs set enabled = true;
-update sportscoreconfigs set enabled = false where exists ( select * from sportscoreconfigs previous where previous.id = sportscoreconfigs.parentid ) and maximum = 0;
+
+-- update sportscoreconfigs set enabled = false where exists ( select * from sportscoreconfigs previous where previous.id = sportscoreconfigs.parentid ) and maximum = 0;
+update sportscoreconfigs ssc join sportscoreconfigs previous on previous.id = ssc.parentid set ssc.enabled = false where ssc.maximum = 0;
 
 -- add planningconfigs to roundnumber
 insert into planningconfigs( hasExtension,minutesPerGameExt,enableTime,minutesPerGame,minutesInBetween,minutesBetweenGames,teamup,selfReferee, nrOfHeadtohead, rniddep )
@@ -106,18 +110,11 @@ insert into fields( competitionid, number, name, sportid )
 
 -- update old structures, qualifyorder=2 handmatig
 -- zou zo moeten werken,
-insert into qualifygroups( roundid, winnersOrLosers, number ) (
-    select 	parentid, winnersOrLosers, 1
-    from 	rounds
-    where 	parentid is not null
-      and	qualifyOrder = 1
-);
+insert into qualifygroups( roundid, winnersOrLosers, number ) ( select parentid, winnersOrLosers, 1 from rounds where parentid is not null and qualifyOrder = 1 );
 
 update rounds set parentQualifyId = ( select id from qualifygroups where qualifygroups.roundid = rounds.parentid && qualifygroups.winnersOrLosers = rounds.winnersOrLosers ) where parentid is not null and qualifyOrder = 1;
 
-update tournaments set updated = true where competitionid not in (
-    select rn.competitionid from rounds r join roundnumbers rn on rn.id = r.numberid where qualifyOrder = 2
-);
+update tournaments set updated = true where competitionid not in ( select rn.competitionid from rounds r join roundnumbers rn on rn.id = r.numberid where qualifyOrder = 2 );
 
 -- add qualifyGroups
 -- insert into qualifygroups( roundid, winnersOrLosers, number, childRoundId ) -- nrOfHorizontalPoules
