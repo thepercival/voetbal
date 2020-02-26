@@ -5,7 +5,6 @@
       <generator strategy="AUTO"/>
     </id>
     <field name="name" column="name" type="string" length="30" nullable="false" unique="false"/>
-    <field name="sportDep" column="sportDep" type="string" length="30" nullable="false" unique="false"/>
     <field name="abbreviation" column="abbreviation" type="string" length="7" nullable="true" unique="false"/>
     <many-to-one field="association" target-entity="Voetbal\Association" inversed-by="leagues">
       <cascade>

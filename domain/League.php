@@ -16,27 +16,18 @@ class League implements External\Importable
 	 * @var int
 	 */
 	protected $id;
-
 	/**
 	 * @var string
 	 */
     protected $name;
-
 	/**
 	 * @var string
 	 */
     protected $abbreviation;
-
-    /**
-     * @var string
-     */
-    private $sportDep;
-
 	/**
 	 * @var ArrayCollection
 	 */
     protected $competitions;
-
     /**
      * @var Association
      */
@@ -116,21 +107,6 @@ class League implements External\Importable
 		    throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
 	    }
         $this->abbreviation = $abbreviation;
-    }
-
-    /**
-     * @param string $sportDep
-     */
-    public function setSportDep( $sportDep )
-    {
-        if ( strlen( $sportDep ) === 0 )
-            throw new \InvalidArgumentException( "de sport moet gezet zijn", E_ERROR );
-
-        if ( strlen( $sportDep ) > static::MAX_LENGTH_SPORT ){
-            throw new \InvalidArgumentException( "de sport mag maximaal ".static::MAX_LENGTH_SPORT." karakters bevatten", E_ERROR );
-        }
-
-        $this->sportDep = $sportDep;
     }
 
     /**

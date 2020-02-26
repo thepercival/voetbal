@@ -7,8 +7,6 @@
     <field name="direction" column="direction" type="smallint" nullable="false" unique="false"/>
     <field name="maximum" column="maximum" type="smallint" nullable="false" unique="false"/>
     <field name="enabled" column="enabled" type="boolean" nullable="true" unique="false"/>
-    <field name="iddep" column="iddep" type="integer" nullable="true" unique="false"/>
-    <field name="roundconfigiddep" column="roundconfigiddep" type="integer" nullable="true" unique="false"/>
     <one-to-one field="previous" target-entity="Voetbal\Sport\ScoreConfig" inversed-by="next">
       <join-columns>
         <join-column name="parentid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>

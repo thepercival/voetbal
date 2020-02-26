@@ -36,7 +36,7 @@ class Service
      */
     private $options;
 
-    public function __construct( Options $options )
+    public function __construct(Options $options)
     {
         $this->options = $options;
         $this->planningConfigService = new PlanningConfigService();
@@ -63,14 +63,18 @@ class Service
         // console.log('removePoulePlace for round ' + round.getNumberAsValue());
         $nrOfPlaces = $round->getNrOfPlaces();
         if ($nrOfPlaces === $round->getNrOfPlacesChildren()) {
-            throw new \Exception('de deelnemer kan niet verwijderd worden, omdat alle deelnemer naar de volgende ronde gaan',
-                E_ERROR);
+            throw new \Exception(
+                'de deelnemer kan niet verwijderd worden, omdat alle deelnemer naar de volgende ronde gaan',
+                E_ERROR
+            );
         }
         $newNrOfPlaces = $nrOfPlaces - 1;
         $this->checkRanges($newNrOfPlaces);
         if (($newNrOfPlaces / $round->getPoules()->count()) < 2) {
-            throw new \Exception('Er kan geen deelnemer verwijderd worden. De minimale aantal deelnemers per poule is 2.',
-                E_ERROR);
+            throw new \Exception(
+                'Er kan geen deelnemer verwijderd worden. De minimale aantal deelnemers per poule is 2.',
+                E_ERROR
+            );
         }
 
         $this->updateRound($round, $newNrOfPlaces, $round->getPoules()->count());
@@ -105,8 +109,10 @@ class Service
         $newNrOfPlaces = $round->getNrOfPlaces() - ($modifyNrOfPlaces ? $lastPoule->getPlaces()->count() : 0);
 
         if ($newNrOfPlaces < $round->getNrOfPlacesChildren()) {
-            throw new \Exception('de poule kan niet verwijderd worden, omdat er te weinig deelnemers overblijven om naar de volgende ronde gaan',
-                E_ERROR);
+            throw new \Exception(
+                'de poule kan niet verwijderd worden, omdat er te weinig deelnemers overblijven om naar de volgende ronde gaan',
+                E_ERROR
+            );
         }
 
         $this->updateRound($round, $newNrOfPlaces, $poules->count() - 1);
@@ -144,7 +150,6 @@ class Service
 
     public function removeQualifier(Round $round, int $winnersOrLosers)
     {
-
         $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
         $borderQualifyGroup = $round->getBorderQualifyGroup($winnersOrLosers);
         $newNrOfPlaces = $nrOfPlaces - ($borderQualifyGroup && $borderQualifyGroup->getNrOfQualifiers() === 2 ? 2 : 1);
@@ -161,7 +166,6 @@ class Service
 
     public function addQualifiers(Round $round, int $winnersOrLosers, int $nrOfQualifiers)
     {
-
         if ($round->getBorderQualifyGroup($winnersOrLosers) === null) {
             if ($nrOfQualifiers < 2) {
                 throw new \Exception("Voeg miniaal 2 gekwalificeerden toe", E_ERROR);
@@ -176,8 +180,10 @@ class Service
     public function addQualifier(Round $round, int $winnersOrLosers)
     {
         if ($round->getNrOfPlacesChildren() >= $round->getNrOfPlaces()) {
-            throw new \Exception('er mogen maximaal ' . $round->getNrOfPlacesChildren() . ' deelnemers naar de volgende ronde',
-                E_ERROR);
+            throw new \Exception(
+                'er mogen maximaal ' . $round->getNrOfPlacesChildren() . ' deelnemers naar de volgende ronde',
+                E_ERROR
+            );
         }
         $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
         $newNrOfPlaces = $nrOfPlaces + ($nrOfPlaces === 0 ? 2 : 1);
@@ -199,7 +205,33 @@ class Service
         if ($current->isBorderPoule() && $current->getNrOfQualifiers() < 2) {
             return false;
         }
+        if ($this->getNrOfQualifiersPrevious($previous) < 2 || $this->getNrOfQualifiersNext($current) < 2) {
+            return false;
+        }
         return true;
+    }
+
+    protected function getNrOfQualifiersPrevious(HorizontalPoule $horPoule): int
+    {
+        return $this->getNrOfQualifiersRecursive($horPoule, 0, false);
+    }
+
+    protected function getNrOfQualifiersNext(HorizontalPoule $horPoule): int
+    {
+        return $this->getNrOfQualifiersRecursive($horPoule, 0, true);
+    }
+
+    protected function getNrOfQualifiersRecursive(HorizontalPoule $horPoule, int $nrOfQualifiers, bool $add): int
+    {
+        $nrOfQualifiers += $horPoule->getNrOfQualifiers();
+        $nextHorPoule = $horPoule->getRound()->getHorizontalPoule(
+            $horPoule->getWinnersOrLosers(),
+            $horPoule->getNumber() + ($add ? 1 : -1)
+        );
+        if ($nextHorPoule === null) {
+            return $nrOfQualifiers;
+        }
+        return $this->getNrOfQualifiersRecursive($nextHorPoule, $nrOfQualifiers, $add);
     }
 
     public function splitQualifyGroup(QualifyGroup $qualifyGroup, HorizontalPoule $pouleOne, HorizontalPoule $pouleTwo)
@@ -240,7 +272,8 @@ class Service
         $round = $qualifyGroupOne->getRound();
         $winnersOrLosers = $qualifyGroupOne->getWinnersOrLosers();
 
-        $firstQualifyGroup = $qualifyGroupOne->getNumber() <= $qualifyGroupTwo->getNumber() ? $qualifyGroupOne : $qualifyGroupTwo;
+        $firstQualifyGroup = $qualifyGroupOne->getNumber() <= $qualifyGroupTwo->getNumber(
+        ) ? $qualifyGroupOne : $qualifyGroupTwo;
         $secondQualifyGroup = ($firstQualifyGroup === $qualifyGroupOne) ? $qualifyGroupTwo : $qualifyGroupOne;
 
         $nrOfPlacesChildrenBeforeMerge = $round->getNrOfPlacesChildren($winnersOrLosers);
@@ -259,7 +292,6 @@ class Service
 
     public function updateRound(Round $round, int $newNrOfPlaces, int $newNrOfPoules)
     {
-
         if ($round->getNrOfPlaces() === $newNrOfPlaces && $newNrOfPoules === $round->getPoules()->count()) {
             return;
         }
@@ -300,7 +332,8 @@ class Service
             $nrOfQualifiers = 0;
             if ($qualifyGroup === false) {
                 $qualifyGroup = new QualifyGroup($round, $winnersOrLosers);
-                $nextRoundNumber = $round->getNumber()->hasNext() ? $round->getNumber()->getNext() : $this->createRoundNumber($round);
+                $nextRoundNumber = $round->getNumber()->hasNext() ? $round->getNumber()->getNext(
+                ) : $this->createRoundNumber($round);
                 new Round($nextRoundNumber, $qualifyGroup);
                 $nrOfQualifiers = $newNrOfPlacesChildren;
             } else {
@@ -410,7 +443,7 @@ class Service
         }
         $round->getPoules()->clear();
 
-        foreach( $this->getStructureConfig( $nrOfPlaces,  $nrOfPoules ) as $nrOfPlacesToAdd ) {
+        foreach ($this->getStructureConfig($nrOfPlaces, $nrOfPoules) as $nrOfPlacesToAdd) {
             $poule = new Poule($round);
             for ($i = 0; $i < $nrOfPlacesToAdd; $i++) {
                 new Place($poule);
@@ -419,7 +452,8 @@ class Service
         return $round;
     }
 
-    public function getStructureConfig( int $nrOfPlaces, int $nrOfPoules ): array {
+    public function getStructureConfig(int $nrOfPlaces, int $nrOfPoules): array
+    {
         $structureConfig = [];
         while ($nrOfPlaces > 0) {
             $nrOfPlacesToAdd = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules, false);
@@ -427,10 +461,13 @@ class Service
             $nrOfPlaces -= $nrOfPlacesToAdd;
             $nrOfPoules--;
         }
-        uasort( $structureConfig, function ( int $nrOfPlacesPouleA, int $nrOfPlacesPouleB ) {
-            return $nrOfPlacesPouleA > $nrOfPlacesPouleB ? -1 : 1;
-        });
-        $structureConfig = array_values( $structureConfig );
+        uasort(
+            $structureConfig,
+            function (int $nrOfPlacesPouleA, int $nrOfPlacesPouleB) {
+                return $nrOfPlacesPouleA > $nrOfPlacesPouleB ? -1 : 1;
+            }
+        );
+        $structureConfig = array_values($structureConfig);
         return $structureConfig;
     }
 
@@ -442,7 +479,7 @@ class Service
         return $round;
     }
 
-    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules, bool $floor ): int
+    public function getNrOfPlacesPerPoule(int $nrOfPlaces, int $nrOfPoules, bool $floor): int
     {
         $nrOfPlaceLeft = ($nrOfPlaces % $nrOfPoules);
         if ($nrOfPlaceLeft === 0) {
@@ -454,29 +491,44 @@ class Service
         return (int)ceil((($nrOfPlaces + ($nrOfPoules - $nrOfPlaceLeft)) / $nrOfPoules));
     }
 
-    protected function checkRanges(int $nrOfPlaces, int $nrOfPoules = null) {
-        if ($nrOfPlaces < $this->options->getPlaceRange()->min ) {
-            throw new \Exception('er moeten minimaal ' . $this->options->getPlaceRange()->min . ' deelnemers zijn', E_ERROR);
+    protected function checkRanges(int $nrOfPlaces, int $nrOfPoules = null)
+    {
+        if ($nrOfPlaces < $this->options->getPlaceRange()->min) {
+            throw new \Exception(
+                'er moeten minimaal ' . $this->options->getPlaceRange()->min . ' deelnemers zijn',
+                E_ERROR
+            );
         }
         if ($nrOfPlaces > $this->options->getPlaceRange()->max) {
-            throw new \Exception('er mogen maximaal ' . $this->options->getPlaceRange()->max . ' deelnemers zijn', E_ERROR);
+            throw new \Exception(
+                'er mogen maximaal ' . $this->options->getPlaceRange()->max . ' deelnemers zijn',
+                E_ERROR
+            );
         }
         if ($nrOfPoules === null) {
             return;
         }
         if ($nrOfPoules < $this->options->getPouleRange()->min) {
-            throw new \Exception('er moeten minimaal ' . $this->options->getPouleRange()->min . ' poules zijn', E_ERROR);
+            throw new \Exception(
+                'er moeten minimaal ' . $this->options->getPouleRange()->min . ' poules zijn', E_ERROR
+            );
         }
         if ($nrOfPoules > $this->options->getPouleRange()->max) {
             throw new \Exception('er mogen maximaal ' . $this->options->getPouleRange()->max . ' poules zijn', E_ERROR);
         }
         $flooredNrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules, true);
         if ($flooredNrOfPlacesPerPoule < $this->options->getPlacesPerPouleRange()->min) {
-            throw new \Exception('er moeten minimaal ' . $this->options->getPlacesPerPouleRange()->min . ' deelnemers per poule zijn', E_ERROR);
+            throw new \Exception(
+                'er moeten minimaal ' . $this->options->getPlacesPerPouleRange()->min . ' deelnemers per poule zijn',
+                E_ERROR
+            );
         }
         $ceiledNrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules, false);
         if ($ceiledNrOfPlacesPerPoule > $this->options->getPlacesPerPouleRange()->max) {
-            throw new \Exception('er mogen maximaal ' . $this->options->getPlacesPerPouleRange()->max . ' deelnemers per poule zijn', E_ERROR);
+            throw new \Exception(
+                'er mogen maximaal ' . $this->options->getPlacesPerPouleRange()->max . ' deelnemers per poule zijn',
+                E_ERROR
+            );
         }
     }
 
@@ -489,39 +541,39 @@ class Service
             case 4:
             case 5:
             case 7:
-                {
-                    return 1;
-                }
+            {
+                return 1;
+            }
             case 6:
             case 8:
             case 10:
             case 11:
-                {
-                    return 2;
-                }
+            {
+                return 2;
+            }
             case 9:
             case 12:
             case 13:
             case 14:
             case 15:
-                {
-                    return 3;
-                }
+            {
+                return 3;
+            }
             case 16:
             case 17:
             case 18:
             case 19:
-                {
-                    return 4;
-                }
+            {
+                return 4;
+            }
             case 20:
             case 21:
             case 22:
             case 23:
             case 25:
-                {
-                    return 5;
-                }
+            {
+                return 5;
+            }
             case 24:
             case 26:
             case 29:
@@ -529,22 +581,22 @@ class Service
             case 33:
             case 34:
             case 36:
-                {
-                    return 6;
-                }
+            {
+                return 6;
+            }
             case 28:
             case 31:
             case 35:
             case 37:
             case 38:
             case 39:
-                {
-                    return 7;
-                }
+            {
+                return 7;
+            }
             case 27:
-                {
-                    return 9;
-                }
+            {
+                return 9;
+            }
         }
         return 8;
     }

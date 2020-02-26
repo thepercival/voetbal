@@ -46,9 +46,6 @@ class ScoreConfig
      */
     protected $enabled;
 
-    protected $roundconfigiddep; // DEPRECATED
-    protected $iddep;  // DEPRECATED
-
     const UPWARDS = 1;
     const DOWNWARDS = 2;
 

@@ -72,23 +72,39 @@ class Structure
     }
 
     public function setStructureNumbers() {
-        $pouleStructureNumber = 1;
+
         $nrOfDropoutPlaces = 0;
-        $setStructureNumbers = function(Round $round) use (&$setStructureNumbers, &$pouleStructureNumber, &$nrOfDropoutPlaces) {
-            foreach( $round->getPoules() as $poule ) {
-                $poule->setStructureNumber($pouleStructureNumber++);
-            }
+        $setRoundStructureNumbers = function(Round $round) use (&$setRoundStructureNumbers, &$nrOfDropoutPlaces) {
             foreach( $round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup ) {
-                $setStructureNumbers($qualifyGroup->getChildRound());
+                $setRoundStructureNumbers($qualifyGroup->getChildRound());
             }
             $round->setStructureNumber($nrOfDropoutPlaces);
             $nrOfDropoutPlaces += $round->getNrOfDropoutPlaces();
             $losersQualifyGroups = array_reverse( $round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0) );
             foreach( $losersQualifyGroups as $qualifyGroup ) {
-                $setStructureNumbers($qualifyGroup->getChildRound());
+                $setRoundStructureNumbers($qualifyGroup->getChildRound());
             }
         };
-        $setStructureNumbers($this->rootRound);
+
+        $pouleNr = 1;
+        $setPouleStructureNumbers = function(RoundNumber $roundNumber) use (&$setPouleStructureNumbers, &$pouleNr) {
+            $rounds = $roundNumber->getRounds()->toArray();
+            uasort( $rounds, function(Round $roundA, Round $roundB) {
+                return ($roundA->getStructureNumber() > $roundB->getStructureNumber()) ? 1 : -1;
+            });
+            foreach( $rounds as $round ) {
+                /** @var Poule $poule */
+                foreach( $round->getPoules() as $poule ) {
+                    $poule->setStructureNumber($pouleNr++);
+                }
+            }
+            if ($roundNumber->hasNext()) {
+                $setPouleStructureNumbers($roundNumber->getNext());
+            }
+        };
+
+        $setRoundStructureNumbers($this->rootRound);
+        $setPouleStructureNumbers($this->firstRoundNumber);
     }
 
 

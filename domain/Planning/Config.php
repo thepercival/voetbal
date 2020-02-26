@@ -21,10 +21,6 @@ class Config {
      */
     protected $id;
     /**
-     * @var bool
-     */
-    protected $hasExtensionDep = false;
-    /**
      * @var int
      */
     protected $minutesPerGameExt;
@@ -56,8 +52,6 @@ class Config {
      * @var int
      */
     protected $nrOfHeadtohead;
-
-    protected $rniddep;  // DEPRECATED
 
     const DEFAULTENABLETIME = false;
     const TEAMUP_MIN = 4;

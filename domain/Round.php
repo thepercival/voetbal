@@ -21,47 +21,22 @@ class Round
      * @var int
      */
     protected $id;
-
     /**
      * @var string
      */
     protected $name;
-
-    /**
-     * @var int
-     */
-    protected $winnersOrLosersDep; # DEPRECATED
-
-    /**
-     * @var int
-     */
-    protected $qualifyOrderDep; # DEPRECATED
-
     /**
      * @var Round\Number
      */
     protected $number;
-
-    /**
-     * @var Round
-     */
-    protected $parent; // DEPRECATED
-
     /**
      * @var QualifyGroup
      */
     protected $parentQualifyGroup;
-
-    /**
-     * @var Round[] | ArrayCollection
-     */
-    // protected $childRounds;
-
     /**
      * @var Poule[] | ArrayCollection
      */
     protected $poules;
-
     /**
      * @var QualifyGroup[] | ArrayCollection
      */

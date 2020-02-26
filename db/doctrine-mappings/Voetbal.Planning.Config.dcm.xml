@@ -4,8 +4,6 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
-    <field name="hasExtensionDep" column="hasExtension" type="boolean" nullable="false" unique="false"/>
-    <field name="rniddep" column="rniddep" type="integer" nullable="true" unique="false"/>
     <field name="enableTime" column="enableTime" type="boolean" nullable="false" unique="false"/>
     <field name="minutesPerGame" column="minutesPerGame" type="smallint" nullable="false" unique="false"/>
     <field name="minutesPerGameExt" column="minutesPerGameExt" type="smallint" nullable="false" unique="false"/>
