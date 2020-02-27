@@ -64,7 +64,9 @@ class Round implements SubscribingHandlerInterface
                 $competitor = new Competitor($association, "dummy");
                 $competitor->setId($arrPlace["competitor"]["id"]);
                 $competitor->setName($arrPlace["competitor"]["name"]);
-                $competitor->setRegistered($arrPlace["competitor"]["registered"]);
+                if( array_key_exists( "registered", $arrPlace["competitor"] )) {
+                    $competitor->setRegistered($arrPlace["competitor"]["registered"]);
+                }
                 $place->setCompetitor($competitor);
             }
         }
