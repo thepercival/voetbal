@@ -142,7 +142,7 @@ class Seeker
 
     protected function processHelper( Input $input ) {
         if( $input->getState() === Input::STATE_CREATED ) {
-            $input->setState( $input::STATE_TRYING_PLANNINGS );
+            $input->setState( Input::STATE_TRYING_PLANNINGS );
             $this->inputRepos->save( $input );
             $this->logger->info( '   update state => STATE_TRYING_PLANNINGS' );
         }

@@ -142,16 +142,22 @@ class Repository extends \Voetbal\Repository
             ->join("p.input", "pi")
             ->where('p.state = :state')
             ->andWhere('p.timeoutSeconds > 0')
+            ->andWhere('pi.state = :pistate')
             ->orderBy('p.timeoutSeconds', 'ASC')
             ->addOrderBy('pi.teamup', 'ASC')
             ->addOrderBy('p.id', 'ASC')
         ;
 
         $query = $query->setParameter('state', PlanningBase::STATE_TIMEOUT );
+        $query = $query->setParameter('pistate', Input::STATE_ALL_PLANNINGS_TRIED );
 
         $query->setMaxResults(1);
         $results = $query->getQuery()->getResult();
         $first = reset($results);
         return $first !== false ? $first : null;
+    }
+
+    public function isProcessing( int $state ): bool {
+        return $this->count( ["state" => $state ] ) > 0;
     }
 }
