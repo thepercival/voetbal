@@ -77,6 +77,7 @@ class Planning
     const STATE_TIMEOUT = 2;
     const STATE_SUCCESS = 4;
     const STATE_UPDATING_SELFREFEE = 8;
+    const STATE_PROCESSING = 8;
 
     const TIMEOUT_MULTIPLIER = 6;
     const DEFAULT_TIMEOUTSECONDS = 5;
