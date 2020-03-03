@@ -43,7 +43,12 @@ class Association implements ImporterInterface
     }
 
     public function import() {
+        $w = 1;
 
+        // haal external Association[] op
+
+        // haal Association[] op, sync met elkaar , waarbij extern leidend is
+        // bij syncen hoeft niet te verwijderden
     }
 /*
     kunnen loggen
