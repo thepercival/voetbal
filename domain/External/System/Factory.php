@@ -11,12 +11,12 @@ namespace Voetbal\External\System;
 use Voetbal\Service as VoetbalService;
 use Voetbal\External\System as ExternalSystem;
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 class Factory
 {
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
     /**
@@ -25,7 +25,7 @@ class Factory
     // private $settings;
 
     public function __construct(
-        Logger $logger/*,
+        LoggerInterface $logger/*,
         array $settings*/
     )
     {

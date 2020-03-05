@@ -2,12 +2,12 @@
 
 namespace Voetbal\Import\Helper;
 
-use Monolog\Logger;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\External\System as ExternalSystem;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\External\System\Sub\Association as ExternalSubAssociation;
+use Psr\Log\LoggerInterface;
 
 class Association implements ImporterInterface
 {
@@ -17,7 +17,7 @@ class Association implements ImporterInterface
      */
     private $externalSubSystem;
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
     /**
@@ -32,7 +32,7 @@ class Association implements ImporterInterface
     public function __construct(
         AssociationRepository $associationRepos,
         ExternalSubAssociation $externalSubSystem,
-        Logger $logger/*,
+        LoggerInterface $logger/*,
         array $settings*/
     )
     {

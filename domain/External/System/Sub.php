@@ -25,7 +25,7 @@ use Voetbal\Competition as CompetitionBase;
 use Voetbal\External\Season as ExternalSeason;
 use Voetbal\External\League as ExternalLeague;
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Voetbal\Ranking\Service as RankingService;
 
 class Sub
@@ -39,7 +39,7 @@ class Sub
      */
     private $apiHelper;
     /**
-     * @var Logger;
+     * @var LoggerInterface;
      */
     private $logger;
 
@@ -48,7 +48,7 @@ class Sub
     public function __construct(
         ExternalSystemBase $externalSystemBase,
         SofaScore\ApiHelper $apiHelper,
-        Logger $logger
+        LoggerInterface $logger
     )
     {
         $this->externalSystemBase = $externalSystemBase;

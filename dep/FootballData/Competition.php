@@ -22,7 +22,7 @@ use Voetbal\Competition as CompetitionBase;
 use Voetbal\External\Season as ExternalSeason;
 use Voetbal\External\League as ExternalLeague;
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Voetbal\Ranking\Service as RankingService;
 
 class Competition implements CompetitionImporter
@@ -65,11 +65,11 @@ class Competition implements CompetitionImporter
      */
     private $externalObjectRepos;
     /**
-     * @var Connection $conn;
+     * @var Connection;
      */
     private $conn;
     /**
-     * @var Logger $logger;
+     * @var LoggerInterface;
      */
     private $logger;
 

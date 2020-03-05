@@ -27,7 +27,7 @@ use Voetbal\Service as VoetbalService;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Voetbal\External\System\Association as ExternalSystemAssociation;
 use Voetbal\External\System\Sub\Association as ExternalSubAssociation;
 
@@ -38,7 +38,7 @@ class SofaScore implements Def, ExternalSystemAssociation
      */
     private $externalSystem;
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
     /**
@@ -52,7 +52,7 @@ class SofaScore implements Def, ExternalSystemAssociation
 
     public function __construct(
         ExternalSystemBase $externalSystem,
-        Logger $logger/*,
+        LoggerInterface $logger/*,
         array $settings*/
     )
     {

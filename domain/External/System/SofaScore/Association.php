@@ -12,8 +12,7 @@ use Voetbal\External\System\Sub\Association as ExternalSubAssociation;
 use Voetbal\Association as AssociationBase;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\Object\Repository as ExternalObjectRepository;
-
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 class Association extends ExternalSystemBase\Sub implements ExternalSubAssociation
 {
@@ -21,7 +20,7 @@ class Association extends ExternalSystemBase\Sub implements ExternalSubAssociati
     public function __construct(
         ExternalSystemBase $externalSystemBase,
         ApiHelper $apiHelper,
-        Logger $logger
+        LoggerInterface $logger
     )
     {
         parent::__construct(

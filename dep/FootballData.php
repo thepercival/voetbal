@@ -26,7 +26,7 @@ use Voetbal\Service as VoetbalService;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Doctrine\DBAL\Connection;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Voetbal\External\System\Logger\GameLogger;
 
 class FootballData implements Def, CompetitionImportable, CompetitorImportable, StructureImportable, GameImportable
@@ -44,7 +44,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
      */
     private $conn;
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
     /**
@@ -60,7 +60,7 @@ class FootballData implements Def, CompetitionImportable, CompetitorImportable, 
         VoetbalService $voetbalService,
         ExternalSystemBase $externalSystem,
         Connection $conn,
-        Logger $logger/*,
+        LoggerInterface $logger/*,
         array $settings*/
     )
     {

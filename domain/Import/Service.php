@@ -8,8 +8,7 @@
 
 namespace Voetbal\Import;
 
-use Voetbal\Import\Helper\Association as AssociationImportService;
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Factory as ExternalSystemFactory;
 use Voetbal\External\System\Association as ExternalSystemAssociation;
@@ -21,7 +20,7 @@ class Service
      */
     protected $externalSystems;
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $logger;
     /**
@@ -32,9 +31,9 @@ class Service
     /**
      * Service constructor.
      * @param array|ExternalSystemBase[] $externalSystems
-     * @param Logger $logger
+     * @param LoggerInterface $logger
      */
-    public function __construct( array $externalSystems, Logger $logger )
+    public function __construct( array $externalSystems, LoggerInterface $logger )
     {
         $this->externalSystems = $externalSystems;
         $this->logger = $logger;

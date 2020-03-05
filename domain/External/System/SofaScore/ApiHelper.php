@@ -11,7 +11,6 @@ namespace Voetbal\External\System\SofaScore;
 use Voetbal\External\System as ExternalSystem;
 use Voetbal\External\Season as ExternalSeason;
 use Voetbal\External\League as ExternalLeague;
-use Monolog\Logger;
 use GuzzleHttp\Client;
 
 class ApiHelper
