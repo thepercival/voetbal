@@ -9,9 +9,11 @@
 namespace Voetbal\Import;
 
 use Psr\Log\LoggerInterface;
+use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Factory as ExternalSystemFactory;
 use Voetbal\External\System\Association as ExternalSystemAssociation;
+use Voetbal\Import\Helper\Association;
 
 class Service
 {
@@ -40,7 +42,7 @@ class Service
         $this->externalSystemFactory = new ExternalSystemFactory( $logger );
     }
 
-    public function importAssociations() {
+    public function importAssociations( AssociationRepository $associationRepos ) {
         /** @var ExternalSystemBase $externalSystemBase */
         foreach( $this->externalSystems as $externalSystemBase ) {
 
@@ -49,7 +51,7 @@ class Service
                 continue;
             }
 
-            $importAssociationService = new Helper\Association($externalSystem->getAssociation(), $this->logger );
+            $importAssociationService = new Helper\Association($associationRepos, $externalSystem->getAssociation(), $this->logger );
             $importAssociationService->import();
         }
     }
