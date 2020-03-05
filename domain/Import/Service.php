@@ -12,6 +12,7 @@ use Voetbal\Import\Helper\Association as AssociationImportService;
 use Monolog\Logger;
 use Voetbal\External\System as ExternalSystemBase;
 use Voetbal\External\System\Factory as ExternalSystemFactory;
+use Voetbal\External\System\Association as ExternalSystemAssociation;
 
 class Service
 {
@@ -45,11 +46,11 @@ class Service
         foreach( $this->externalSystems as $externalSystemBase ) {
 
             $externalSystem = $this->externalSystemFactory->create($externalSystemBase);
-            if ($externalSystem === null || !($externalSystem instanceof AssociationsImporter)) {
+            if ($externalSystem === null || !($externalSystem instanceof ExternalSystemAssociation)) {
                 continue;
             }
 
-            $importAssociationService = new Helper\Association($externalSystem, $this->logger );
+            $importAssociationService = new Helper\Association($externalSystem->getAssociation(), $this->logger );
             $importAssociationService->import();
         }
     }

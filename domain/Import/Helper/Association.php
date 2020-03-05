@@ -5,14 +5,17 @@ namespace Voetbal\Import\Helper;
 use Monolog\Logger;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\External\System as ExternalSystem;
+use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\External\System\Sub\Association as ExternalSubAssociation;
 
 class Association implements ImporterInterface
 {
+    protected $associationRepos;
     /**
-     * @var ExternalSystem
+     * @var ExternalSubAssociation
      */
-    private $externalSystem;
+    private $externalSubSystem;
     /**
      * @var Logger
      */
@@ -27,14 +30,16 @@ class Association implements ImporterInterface
     // protected $structureOptions;
 
     public function __construct(
-        ExternalSystem $externalSystem,
+        AssociationRepository $associationRepos,
+        ExternalSubAssociation $externalSubSystem,
         Logger $logger/*,
         array $settings*/
     )
     {
         $this->logger = $logger;
+        $this->associationRepos = $associationRepos;
         // $this->settings = $settings;
-        $this->externalSystem = $externalSystem;
+        $this->externalSubSystem = $externalSubSystem;
         /* $this->structureOptions = new StructureOptions(
              new VoetbalRange(1, 32),
              new VoetbalRange( 2, 256),
@@ -43,11 +48,12 @@ class Association implements ImporterInterface
     }
 
     public function import() {
-        $w = 1;
+        $associationsSubSystem = $this->externalSubSystem->get();
 
-        // haal external Association[] op
+        $associations = $this->associationRepos->findAll();
 
-        // haal Association[] op, sync met elkaar , waarbij extern leidend is
+//        haal de externalobjects op
+
         // bij syncen hoeft niet te verwijderden
     }
 /*
