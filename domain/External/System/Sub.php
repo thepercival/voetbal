@@ -33,15 +33,15 @@ class Sub
     /**
      * @var ExternalSystemBase
      */
-    private $externalSystemBase;
+    protected $externalSystemBase;
     /**
      * @var SofaScore\ApiHelper
      */
-    private $apiHelper;
+    protected $apiHelper;
     /**
      * @var LoggerInterface;
      */
-    private $logger;
+    protected $logger;
 
     // use Helper;
 

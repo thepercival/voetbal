@@ -33,7 +33,30 @@ class Association extends ExternalSystemBase\Sub implements ExternalSubAssociati
 
 
     public function get(): array {
-        return [];
+        verander de datum
+        $apiData = $this->apiHelper->getData("football//2020-03-02/json");
+        /** @var array|stdClass[] $competitions */
+        $competitions = $this->getAssociations( $apiData->sportItem->tournaments );
+        return $arrData;
+    }
+
+    /**
+     * @param array $competitions|stdClass[]
+     * @return array|Association[]
+     */
+    protected function getAssociations( array $competitions ): array {
+        foreach( )
+            loop door de stdclassen en haal de associations eruit
+
+        // voor seasons-helper doe bijna idem:
+            loop door de stdclassen en haal de seasons eruit
+
+        // voor leagues-helper doe bijna idem:
+            loop door de stdclassen en haal de leagues eruit
+
+        // voor competition-helper doe bijna idem:( deze heeft seasons en leagues nodig )
+            loop door de stdclassen en haal de competitions eruit
+
     }
 
 //    public function createByLeaguesAndSeasons( array $leagues, array $seasons) {
