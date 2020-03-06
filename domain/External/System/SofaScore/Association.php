@@ -45,6 +45,10 @@ class Association extends ExternalSystemBase\Sub implements ExternalSubAssociati
      * @return array|Association[]
      */
     protected function getAssociations( array $competitions ): array {
+
+        onderstaande objecten kunnen gecashed worden per dag
+        dat moet kunnen in een parent class oid.
+
         foreach( )
             loop door de stdclassen en haal de associations eruit
 
