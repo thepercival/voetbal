@@ -7,10 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Competition;
 use Voetbal\Competitor;
-use Voetbal\Planning;
 use Voetbal\Game as GameBase;
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
-use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 use Voetbal\Planning\Config as PlanningConfig;
 use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
@@ -18,7 +16,6 @@ use Voetbal\Sport;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\State;
 use Voetbal\Game;
-use Voetbal\Config\Dep as ConfigDep;
 
 class Number
 {
@@ -42,10 +39,6 @@ class Number
      * @var ?RoundNumber
      */
     protected $next;
-    /**
-     * @var ConfigDep
-     */
-    protected $configDep;
     /**
      * @var Round[] | ArrayCollection
      */

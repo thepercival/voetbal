@@ -6,15 +6,6 @@
     </id>
     <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
     <field name="hasPlanning" column="hasPlanning" type="boolean" nullable="false" unique="false"/>
-    <one-to-one field="configDep" target-entity="Voetbal\Config\Dep">
-      <cascade>
-        <cascade-persist/>
-        <cascade-remove/>
-      </cascade>
-      <join-columns>
-        <join-column name="configid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
-      </join-columns>
-    </one-to-one>
     <one-to-one field="previous" target-entity="Voetbal\Round\Number">
       <cascade>
         <cascade-remove/>

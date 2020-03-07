@@ -8,6 +8,7 @@ use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
 use Voetbal\Association as AssociationBase;
+use Voetbal\Attacher\Association as AssociationAttacher;
 use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 
@@ -64,35 +65,34 @@ class Association implements ImporterInterface
     public function import( array $externalSourceAssociations )
     {
         foreach ($externalSourceAssociations as $externalSourceAssociation) {
+            $externalId = $externalSourceAssociation->getId();
             $associationAttacher = $this->associationAttacherRepos->findOneByExternalId(
                 $this->externalSourceBase,
-                $externalSourceAssociation->getId()
+                $externalId
             );
             if ($associationAttacher === null) {
-
                 $association = $this->createAssociation($externalSourceAssociation);
-                $this->associationRepos->save($association);
-//                createAttachern @TODO
+                $associationAttacher = new AssociationAttacher(
+                    $association, $this->externalSourceBase, $externalId
+                );
+                $this->associationAttacherRepos->save( $associationAttacher);
+            } else {
+                $this->editAssociation($associationAttacher->getImportable(), $externalSourceAssociation);
             }
-
-
-            // als er een externalobject van is, dan naam updaten
-            // anders toevoegen
         }
-//        haal de externalobjects op
-
         // bij syncen hoeft niet te verwijderden
     }
 
-    protected function createAssociation(AssociationBase $association)
+    protected function createAssociation(AssociationBase $association): AssociationBase
     {
         $newAssociation = new AssociationBase($association->getName());
+        $this->associationRepos->save($newAssociation);
+        return $newAssociation;
     }
-    /*
-        kunnen loggen
-        extern system objecten kunnen ophalen
 
-        huidige objecten kunnen ophalen
-
-        en kunnen importerenn*/
+    protected function editAssociation(AssociationBase $association, AssociationBase $externalSourceAssociation)
+    {
+        $association->setName( $externalSourceAssociation->getName() );
+        $this->associationRepos->save($association);
+    }
 }
