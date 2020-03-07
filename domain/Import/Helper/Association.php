@@ -3,19 +3,28 @@
 namespace Voetbal\Import\Helper;
 
 use Voetbal\Import\ImporterInterface;
-use Voetbal\External\System as ExternalSystem;
+use Voetbal\ExternalSource;
+use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
 use Voetbal\Association\Repository as AssociationRepository;
+use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
+use Voetbal\Association as AssociationBase;
 use Voetbal\Structure\Options as StructureOptions;
-use Voetbal\External\System\Sub\Association as ExternalSubAssociation;
 use Psr\Log\LoggerInterface;
 
 class Association implements ImporterInterface
 {
+    /**
+     * @var AssociationRepository
+     */
     protected $associationRepos;
     /**
-     * @var ExternalSubAssociation
+     * @var AssociationAttacherRepository
      */
-    private $externalSubSystem;
+    protected $associationAttacherRepos;
+    /**
+     * @var ExternalSource
+     */
+    private $externalSourceBase;
     /**
      * @var LoggerInterface
      */
@@ -31,15 +40,17 @@ class Association implements ImporterInterface
 
     public function __construct(
         AssociationRepository $associationRepos,
-        ExternalSubAssociation $externalSubSystem,
+        AssociationAttacherRepository $associationAttacherRepos,
+        ExternalSource $externalSourceBase,
         LoggerInterface $logger/*,
         array $settings*/
     )
     {
         $this->logger = $logger;
         $this->associationRepos = $associationRepos;
+        $this->associationAttacherRepos = $associationAttacherRepos;
         // $this->settings = $settings;
-        $this->externalSubSystem = $externalSubSystem;
+        $this->externalSourceBase = $externalSourceBase;
         /* $this->structureOptions = new StructureOptions(
              new VoetbalRange(1, 32),
              new VoetbalRange( 2, 256),
@@ -47,20 +58,41 @@ class Association implements ImporterInterface
          );*/
     }
 
-    public function import() {
-        $associationsSubSystem = $this->externalSubSystem->get();
+    /**
+     * @param array|AssociationBase[] $externalSourceAssociations
+     */
+    public function import( array $externalSourceAssociations )
+    {
+        foreach ($externalSourceAssociations as $externalSourceAssociation) {
+            $associationAttacher = $this->associationAttacherRepos->findOneByExternalId(
+                $this->externalSourceBase,
+                $externalSourceAssociation->getId()
+            );
+            if ($associationAttacher === null) {
 
-        $associations = $this->associationRepos->findAll();
+                $association = $this->createAssociation($externalSourceAssociation);
+                $this->associationRepos->save($association);
+//                createAttachern @TODO
+            }
 
+
+            // als er een externalobject van is, dan naam updaten
+            // anders toevoegen
+        }
 //        haal de externalobjects op
 
         // bij syncen hoeft niet te verwijderden
     }
-/*
-    kunnen loggen
-    extern system objecten kunnen ophalen
 
-    huidige objecten kunnen ophalen
+    protected function createAssociation(AssociationBase $association)
+    {
+        $newAssociation = new AssociationBase($association->getName());
+    }
+    /*
+        kunnen loggen
+        extern system objecten kunnen ophalen
 
-    en kunnen importerenn*/
+        huidige objecten kunnen ophalen
+
+        en kunnen importerenn*/
 }

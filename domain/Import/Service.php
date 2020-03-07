@@ -10,49 +10,59 @@ namespace Voetbal\Import;
 
 use Psr\Log\LoggerInterface;
 use Voetbal\Association\Repository as AssociationRepository;
-use Voetbal\External\System as ExternalSystemBase;
-use Voetbal\External\System\Factory as ExternalSystemFactory;
-use Voetbal\External\System\Association as ExternalSystemAssociation;
+use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
+use Voetbal\ExternalSource;
+use Voetbal\ExternalSource\Factory as ExternalSourceFactory;
+use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
 use Voetbal\Import\Helper\Association;
 
 class Service
 {
     /**
-     * @var ExternalSystemBase[]|array
+     * @var ExternalSource[]|array
      */
-    protected $externalSystems;
+    protected $externalSources;
     /**
      * @var LoggerInterface
      */
     protected $logger;
     /**
-     * @var ExternalSystemFactory
+     * @var ExternalSourceFactory
      */
-    protected $externalSystemFactory;
+    protected $externalSourceFactory;
 
     /**
      * Service constructor.
-     * @param array|ExternalSystemBase[] $externalSystems
+     * @param array|ExternalSource[] $externalSources
      * @param LoggerInterface $logger
      */
-    public function __construct( array $externalSystems, LoggerInterface $logger )
+    public function __construct(array $externalSources, LoggerInterface $logger)
     {
-        $this->externalSystems = $externalSystems;
+        $this->externalSources = $externalSources;
         $this->logger = $logger;
-        $this->externalSystemFactory = new ExternalSystemFactory( $logger );
+        $this->externalSourceFactory = new ExternalSourceFactory($logger);
     }
 
-    public function importAssociations( AssociationRepository $associationRepos ) {
-        /** @var ExternalSystemBase $externalSystemBase */
-        foreach( $this->externalSystems as $externalSystemBase ) {
-
-            $externalSystem = $this->externalSystemFactory->create($externalSystemBase);
-            if ($externalSystem === null || !($externalSystem instanceof ExternalSystemAssociation)) {
+    public function importAssociations(
+        AssociationRepository $associationRepos,
+        AssociationAttacherRepository $associationAttacherRepos
+    ) {
+        /** @var ExternalSource $externalSourceBase */
+        foreach ($this->externalSources as $externalSourceBase) {
+            $externalSourceImplementation = $this->externalSourceFactory->create($externalSourceBase);
+            if ($externalSourceImplementation === null || !($externalSourceImplementation instanceof ExternalSourceAssociation)) {
                 continue;
             }
 
-            $importAssociationService = new Helper\Association($associationRepos, $externalSystem->getAssociation(), $this->logger );
-            $importAssociationService->import();
+            $externalSourceAssociations = $externalSourceImplementation->getAssociations();
+
+            $importAssociationService = new Helper\Association(
+                $associationRepos,
+                $associationAttacherRepos,
+                $externalSourceBase,
+                $this->logger
+            );
+            $importAssociationService->import( $externalSourceAssociations );
         }
     }
 

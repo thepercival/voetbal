@@ -3,16 +3,10 @@
 namespace Voetbal;
 
 use League\Period\Period;
+use Voetbal\Import\Idable as Importable;
 use \Doctrine\Common\Collections\ArrayCollection;
 
-/**
- * Created by PhpStorm.
- * User: cdunnink
- * Date: 8-2-2016
- * Time: 11:40
- */
-
-class Season implements External\Importable
+class Season implements Importable
 {
     /**
      * @var int
@@ -42,7 +36,7 @@ class Season implements External\Importable
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 9;
 
-    use External\ImportableTrait;
+    use ImportableTrait;
 
     public function __construct( $name, Period $period )
     {

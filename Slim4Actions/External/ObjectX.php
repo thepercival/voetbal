@@ -7,15 +7,15 @@
  */
 
 
-namespace VoetbalApp\Action\External;
+namespace VoetbalApp\Action;
 
 use JMS\Serializer\Serializer;
-use Voetbal\External\Object\Service as ExternalObjectService;
+use Voetbal\ExternalSource\Object\Service as ExternalObjectService;
 use \Doctrine\ORM\EntityRepository;
 use Voetbal\Repository as VoetbalRepository;
 use Voetbal;
 
-final class ObjectX
+final class Attacher
 {
     /**
      * @var VoetbalRepository
@@ -26,7 +26,7 @@ final class ObjectX
      */
     protected $importableRepos;
     /**
-     * @var Voetbal\External\System\Repository
+     * @var Voetbal\ExternalSource\Source\Repository
      */
     protected $systemRepos;
     /**
@@ -41,7 +41,7 @@ final class ObjectX
     public function __construct(
         VoetbalRepository $repos,
         EntityRepository $importableRepos,
-        Voetbal\External\System\Repository $systemRepos,
+        Voetbal\ExternalSource\Repository $systemRepos,
         Serializer $serializer
     )
     {
@@ -66,12 +66,12 @@ final class ObjectX
 
     public function fetchOne( $request, $response, $args)
     {
-        $externalSystemId = filter_var($request->getParam('externalSystemId'), FILTER_VALIDATE_INT);
+        $externalSourceId = filter_var($request->getParam('externalSystemId'), FILTER_VALIDATE_INT);
         $importableObjectId = filter_var($request->getParam('importableObjectId'), FILTER_VALIDATE_INT);
 
         $externalObject = $this->repos->findOneBy( array(
-            'externalSystem' => $externalSystemId,
-            'importableObject' => $importableObjectId
+            'externalSource' => $externalSourceId,
+            'importable' => $importableObjectId
         ) );
 
         if ($externalObject) {
@@ -87,7 +87,7 @@ final class ObjectX
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\ObjectX $externalObjectSer */
+            /** @var \Voetbal\Attacher $externalObjectSer */
             $externalObjectExtSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\ObjectExt', 'json');
             if ( $externalObjectExtSer === null ) {
                 throw new \Exception("er kan geen extern object worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
@@ -115,7 +115,7 @@ final class ObjectX
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\ObjectX $externalObjectSer */
+            /** @var \Voetbal\Attacher $externalObjectSer */
             $externalObjectExtSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\ObjectExt', 'json');
             if ( $externalObjectExtSer === null ) {
                 throw new \Exception("er kan geen extern object worden gevonden o.b.v. de invoergegevens", E_ERROR);

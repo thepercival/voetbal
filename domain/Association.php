@@ -9,8 +9,9 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Import\Idable as Importable;
 
-class Association implements External\Importable // extends External\Importable
+class Association implements Importable
 {
     /**
      * @var int
@@ -45,7 +46,7 @@ class Association implements External\Importable // extends External\Importable
     const MAX_LENGTH_NAME = 20;
     const MAX_LENGTH_DESCRIPTION = 50;
 
-    use External\ImportableTrait;
+    use ImportableTrait;
 
     public function __construct($name)
     {

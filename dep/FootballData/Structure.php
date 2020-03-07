@@ -6,12 +6,12 @@
  * Time: 11:25
  */
 
-namespace Voetbal\External\System\FootballData;
+namespace Voetbal\External\Source\FootballData;
 
-use Voetbal\External\System as ExternalSystemBase;
-use Voetbal\External\System\Importer\Structure as StructureImporter;
-use Voetbal\External\System\Importer\Competition as CompetitionImporter;
-use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
+use Voetbal\External\Source as ExternalSystemBase;
+use Voetbal\External\Source\Importer\Structure as StructureImporter;
+use Voetbal\External\Source\Importer\Competition as CompetitionImporter;
+use Voetbal\External\Source\Importer\Competitor as CompetitorImporter;
 use Voetbal\Competition as Competition;
 use Voetbal\External\Competitor\Repository as ExternalCompetitorRepos;
 use Voetbal\Structure\Repository as StructureRepository;

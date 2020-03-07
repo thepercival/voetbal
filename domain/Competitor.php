@@ -8,7 +8,9 @@
 
 namespace Voetbal;
 
-class Competitor implements External\Importable
+use Voetbal\Import\Idable as Importable;
+
+class Competitor implements Importable
 {
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 30;
@@ -44,7 +46,7 @@ class Competitor implements External\Importable
      */
     protected $association;
 
-    use External\ImportableTrait;
+    use ImportableTrait;
 
     public function __construct( Association $association, string $name )
     {

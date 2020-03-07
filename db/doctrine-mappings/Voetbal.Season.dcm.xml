@@ -8,6 +8,6 @@
     <field name="startDateTime" column="startdatetime" type="datetime_immutable" nullable="false" unique="false"/>
     <field name="endDateTime" column="enddatetime" type="datetime_immutable" nullable="false" unique="false"/>
     <one-to-many field="competitions" target-entity="Voetbal\Competition" mapped-by="season"/>
-    <one-to-many field="externals" target-entity="Voetbal\External\Season" mapped-by="importableObject"/>
+    <one-to-many field="externals" target-entity="Voetbal\Attacher\Season" mapped-by="importable"/>
   </entity>
 </doctrine-mapping>

@@ -6,7 +6,7 @@
  * Time: 9:44
  */
 
-namespace Voetbal\External\System\FootballData;
+namespace Voetbal\External\Source\FootballData;
 
 use Voetbal\Competition;
 use Voetbal\League;

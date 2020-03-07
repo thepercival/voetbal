@@ -9,13 +9,12 @@
 namespace Voetbal\Competitor;
 
 use Voetbal\Competitor as CompetitorBase;
-use Voetbal\External\Importable\Repository as ImportableRepository;
 
 /**
  * Class Repository
  * @package Voetbal\Competitor
  */
-class Repository extends \Voetbal\Repository implements ImportableRepository
+class Repository extends \Voetbal\Repository
 {
     public function find($id, $lockMode = null, $lockVersion = null): ?CompetitorBase
     {

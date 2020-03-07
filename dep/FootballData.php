@@ -6,28 +6,28 @@
  * Time: 19:47
  */
 
-namespace Voetbal\External\System;
+namespace Voetbal\External\Source;
 
-use Voetbal\External\System as ExternalSystemBase;
-use Voetbal\External\System\Importable\Competition as CompetitionImportable;
-use Voetbal\External\System\Importable\Competitor as CompetitorImportable;
-use Voetbal\External\System\Importable\Game as GameImportable;
-use Voetbal\External\System\Importable\Structure as StructureImportable;
-use Voetbal\External\System\Importer\Competition as CompetitionImporter;
-use Voetbal\External\System\Importer\Game as GameImporter;
-use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
-use Voetbal\External\System\Importer\Structure as StructureImporter;
-use Voetbal\External\System\FootballData\Competition as FootballDataCompetitionImporter;
-use Voetbal\External\System\FootballData\Competitor as FootballDataCompetitorImporter;
-use Voetbal\External\System\FootballData\Structure as FootballDataStructureImporter;
-use Voetbal\External\System\FootballData\Game as FootballDataGameImporter;
+use Voetbal\External\Source as ExternalSource;
+use Voetbal\External\Source\Importable\Competition as CompetitionImportable;
+use Voetbal\External\Source\Importable\Competitor as CompetitorImportable;
+use Voetbal\External\Source\Importable\Game as GameImportable;
+use Voetbal\External\Source\Importable\Structure as StructureImportable;
+use Voetbal\External\Source\Importer\Competition as CompetitionImporter;
+use Voetbal\External\Source\Importer\Game as GameImporter;
+use Voetbal\External\Source\Importer\Competitor as CompetitorImporter;
+use Voetbal\External\Source\Importer\Structure as StructureImporter;
+use Voetbal\External\Source\FootballData\Competition as FootballDataCompetitionImporter;
+use Voetbal\External\Source\FootballData\Competitor as FootballDataCompetitorImporter;
+use Voetbal\External\Source\FootballData\Structure as FootballDataStructureImporter;
+use Voetbal\External\Source\FootballData\Game as FootballDataGameImporter;
 use Voetbal\Range as VoetbalRange;
 use Voetbal\Service as VoetbalService;
 use Voetbal\Structure\Options as StructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Doctrine\DBAL\Connection;
 use Psr\Log\LoggerInterface;
-use Voetbal\External\System\Logger\GameLogger;
+use Voetbal\External\Source\Logger\GameLogger;
 
 class FootballData implements Def, CompetitionImportable, CompetitorImportable, StructureImportable, GameImportable
 {

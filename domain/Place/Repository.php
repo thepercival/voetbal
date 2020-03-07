@@ -8,10 +8,6 @@
 
 namespace Voetbal\Place;
 
-use Voetbal\Place;
-use Voetbal\Competitor;
-use Voetbal\Poule;
-
 /**
  * Class Repository
  * @package Voetbal\Place

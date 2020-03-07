@@ -6,12 +6,12 @@
  * Time: 19:55
  */
 
-namespace Voetbal\External\System\FootballData;
+namespace Voetbal\External\Source\FootballData;
 
 use Monolog\Logger;
-use Voetbal\External\System as ExternalSystemBase;
-use Voetbal\External\System\Importer\Game as GameImporter;
-use Voetbal\External\System\Importer\Competitor as CompetitorImporter;
+use Voetbal\External\Source as ExternalSystemBase;
+use Voetbal\External\Source\Importer\Game as GameImporter;
+use Voetbal\External\Source\Importer\Competitor as CompetitorImporter;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Structure;
 use Voetbal\Game\Service as GameService;
@@ -26,7 +26,7 @@ use Voetbal\State;
 use Voetbal\External\League\Repository as ExternalLeagueRepos;
 use Voetbal\External\Season\Repository as ExternalSeasonRepos;
 use Doctrine\DBAL\Connection;
-use Voetbal\External\System\Logger\GameLogger;
+use Voetbal\External\Source\Logger\GameLogger;
 use Voetbal\Round;
 use Voetbal\Game\Score as GameScore;
 

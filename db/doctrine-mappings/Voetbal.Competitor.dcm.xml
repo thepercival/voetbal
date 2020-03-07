@@ -17,6 +17,6 @@
         <join-column name="associationid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
-    <one-to-many field="externals" target-entity="Voetbal\External\Competitor" mapped-by="importableObject" />
+    <one-to-many field="externals" target-entity="Voetbal\Attacher\Competitor" mapped-by="importable" />
   </entity>
 </doctrine-mapping>

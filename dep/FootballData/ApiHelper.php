@@ -6,9 +6,9 @@
  * Time: 20:53
  */
 
-namespace Voetbal\External\System\FootballData;
+namespace Voetbal\External\Source\FootballData;
 
-use Voetbal\External\System as ExternalSystem;
+use Voetbal\External\Source as ExternalSystem;
 use Voetbal\External\Season as ExternalSeason;
 use Voetbal\External\League as ExternalLeague;
 use Monolog\Logger;

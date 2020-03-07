@@ -9,8 +9,8 @@
 namespace VoetbalApp\Action\External;
 
 use JMS\Serializer\Serializer;
-use Voetbal\External\System\Service as SystemService;
-use Voetbal\External\System\Repository as SystemRepository;
+use Voetbal\ExternalSource\Source\Service as SystemService;
+use Voetbal\ExternalSource\Source\Repository as SystemRepository;
 use Voetbal;
 
 final class System
@@ -61,8 +61,9 @@ final class System
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\System|false $systemSer */
-            $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\System', 'json');
+            /** @var \Voetbal\ExternalSource\ExternalSource|false $systemSer */
+            $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
+                                                        'Voetbal\External\Source', 'json');
             if ( $systemSer === false ) {
                 throw new \Exception("er kan geen extern systeem worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
@@ -90,8 +91,9 @@ final class System
     {
         $sErrorMessage = null;
         try {
-            /** @var \Voetbal\External\System|false $systemSer */
-            $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\External\System', 'json');
+            /** @var \Voetbal\ExternalSource\ExternalSource|false $systemSer */
+            $systemSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),
+                                                        'Voetbal\External\Source', 'json');
             if ( $systemSer === false ) {
                 throw new \Exception("er kan geen extern systeem worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
