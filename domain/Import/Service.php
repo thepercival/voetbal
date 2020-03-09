@@ -11,6 +11,7 @@ namespace Voetbal\Import;
 use Psr\Log\LoggerInterface;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
+use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\ExternalSource;
 use Voetbal\ExternalSource\Factory as ExternalSourceFactory;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
@@ -31,16 +32,25 @@ class Service
      */
     protected $externalSourceFactory;
 
+    public const ASSOCIATION_CACHE_MINUTES = 1440; // 60 * 24
+    public const SEASON_CACHE_MINUTES = 1440; // 60 * 24
+    public const LEAGUE_CACHE_MINUTES = 1440; // 60 * 24
+    public const COMPETITION_CACHE_MINUTES = 1440; // 60 * 24
+
     /**
      * Service constructor.
      * @param array|ExternalSource[] $externalSources
+     * @param CacheItemDbRepository $cacheItemDbRepos
      * @param LoggerInterface $logger
      */
-    public function __construct(array $externalSources, LoggerInterface $logger)
-    {
+    public function __construct(
+        array $externalSources,
+        CacheItemDbRepository $cacheItemDbRepos,
+        LoggerInterface $logger
+    ) {
         $this->externalSources = $externalSources;
         $this->logger = $logger;
-        $this->externalSourceFactory = new ExternalSourceFactory($logger);
+        $this->externalSourceFactory = new ExternalSourceFactory($cacheItemDbRepos, $logger);
     }
 
     public function importAssociations(
@@ -62,7 +72,7 @@ class Service
                 $externalSourceBase,
                 $this->logger
             );
-            $importAssociationService->import( $externalSourceAssociations );
+            $importAssociationService->import($externalSourceAssociations);
         }
     }
 

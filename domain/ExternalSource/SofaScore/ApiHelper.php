@@ -11,6 +11,8 @@ namespace Voetbal\ExternalSource\SofaScore;
 use Voetbal\ExternalSource;
 use Voetbal\ExternalSource\Season as ExternalSeason;
 use Voetbal\ExternalSource\League as ExternalLeague;
+use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
+use Voetbal\CacheItemDb;
 use GuzzleHttp\Client;
 
 class ApiHelper
@@ -20,18 +22,19 @@ class ApiHelper
      */
     private $externalSource;
     /**
-     * @var array
+     * @var CacheItemDbRepository
      */
-    private $requests;
+    private $cacheItemDbRepos;
     /**
      * @var Client
      */
     private $client;
 
     public function __construct(
-        ExternalSource $externalSource
+        ExternalSource $externalSource,
+        CacheItemDbRepository $cacheItemDbRepos
     ) {
-        $this->requests = [];
+        $this->cacheItemDbRepos = $cacheItemDbRepos;
         $this->externalSource = $externalSource;
     }
 
@@ -58,18 +61,19 @@ class ApiHelper
         ];
     }
 
-    public function getData($postUrl)
+    public function getData(string $postUrl, int $cacheMinutes)
     {
-        if (array_key_exists($postUrl, $this->requests)) {
-            return $this->requests[$postUrl];
+        $data = $this->cacheItemDbRepos->getItem( $postUrl );
+        if ( $data !== null ) {
+            return json_decode($data);
         }
 
         $response = $this->getClient()->get(
             $this->externalSource->getApiurl() . $postUrl . $this->getUrlPostfix(),
             $this->getHeaders()
         );
-        $this->requests[$postUrl] = json_decode($response->getBody());
-        return $this->requests[$postUrl];
+        $this->cacheItemDbRepos->saveItem( $postUrl, $response->getBody()->getContents(), $cacheMinutes );
+        return $this->getData( $postUrl, $cacheMinutes);
     }
 
     protected function getUrlPostfix()

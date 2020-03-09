@@ -13,6 +13,7 @@ use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
 use Voetbal\Association as AssociationBase;
 use Voetbal\ExternalSource;
 use Psr\Log\LoggerInterface;
+use Voetbal\Import\Service as ImportService;
 
 class Association extends SofaScoreHelper
 {
@@ -21,35 +22,38 @@ class Association extends SofaScoreHelper
         ExternalSource $externalSource,
         SofaScoreApiHelper $apiHelper,
         LoggerInterface $logger
-    )
-    {
+    ) {
         parent::__construct(
             $externalSource,
             $apiHelper,
-            $logger );
+            $logger
+        );
     }
 
     /**
      * @return array|AssociationBase[]
      */
-    public function get(): array {
-        $apiData = $this->apiHelper->getData("football//".$this->apiHelper->getCurrentDateAsString()."/json");
-        return $this->getAssociations( $apiData->sportItem->tournaments );
+    public function get(): array
+    {
+        $apiData = $this->apiHelper->getData(
+            "football//" . $this->apiHelper->getCurrentDateAsString() . "/json",
+            ImportService::ASSOCIATION_CACHE_MINUTES );
+        return $this->getAssociations($apiData->sportItem->tournaments);
     }
 
     /**
-     * @param array $competitions|stdClass[]
+     * @param array $competitions |stdClass[]
      * @return array|AssociationBase[]
      */
-    protected function getAssociations( array $competitions ): array {
-
-       //  {"name":"England","slug":"england","priority":10,"id":1,"flag":"england"}
+    protected function getAssociations(array $competitions): array
+    {
+        //  {"name":"England","slug":"england","priority":10,"id":1,"flag":"england"}
 
         $associations = array();
-        foreach( $competitions as $competition ) {
+        foreach ($competitions as $competition) {
             // unused $competition->category->slug
-            $association = new AssociationBase( $competition->category->name );
-            $association->setId( $competition->category->id );
+            $association = new AssociationBase($competition->category->name);
+            $association->setId($competition->category->id);
             $associations[$association->getId()] = $association;
         }
         return $associations;

@@ -10,6 +10,7 @@ namespace Voetbal\ExternalSource;
 
 use Voetbal\ExternalSource as ExternalSourceBase;
 use Voetbal\ExternalSource\Implementation as ExternalSourceImplementation;
+use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 use Voetbal\Association as AssociationBase;
@@ -21,6 +22,10 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
      * @var ExternalSourceBase
      */
     private $externalSource;
+    /**
+     * @var CacheItemDbRepository
+     */
+    private $cacheItemDbRepos;
     /**
      * @var LoggerInterface
      */
@@ -36,6 +41,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
 
     public function __construct(
         ExternalSourceBase $externalSource,
+        CacheItemDbRepository $cacheItemDbRepos,
         LoggerInterface $logger/*,
         array $settings*/
     )
@@ -43,6 +49,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         $this->logger = $logger;
         // $this->settings = $settings;
         $this->setExternalSource($externalSource);
+        $this->cacheItemDbRepos = $cacheItemDbRepos;
         /* $this->structureOptions = new StructureOptions(
              new VoetbalRange(1, 32),
              new VoetbalRange( 2, 256),
@@ -52,7 +59,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
 
     protected function getApiHelper()
     {
-        return new SofaScore\ApiHelper($this->getExternalSource());
+        return new SofaScore\ApiHelper($this->getExternalSource(), $this->cacheItemDbRepos);
     }
 
     /*protected function getErrorUrl(): string
