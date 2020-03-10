@@ -86,7 +86,7 @@ class Season implements ImporterInterface
 
     protected function createSeason(SeasonBase $season): SeasonBase
     {
-        $newSeason = new SeasonBase($season->getName(), new Period( new \DateTimeImmutable(), new \DateTimeImmutable()) );
+        $newSeason = new SeasonBase($season->getName(), $season->getPeriod() );
         $this->seasonRepos->save($newSeason);
         return $newSeason;
     }

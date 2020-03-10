@@ -10,73 +10,80 @@ namespace Voetbal\ExternalSource\SofaScore\Helper;
 
 use Voetbal\ExternalSource\SofaScore\Helper as SofaScoreHelper;
 use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
+use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
 use Voetbal\Association as AssociationBase;
-use Voetbal\ExternalSource;
+use Voetbal\ExternalSource\SofaScore;
 use Psr\Log\LoggerInterface;
 use Voetbal\Import\Service as ImportService;
 
-class Association extends SofaScoreHelper
+class Association extends SofaScoreHelper implements ExternalSourceAssociation
 {
+    /**
+     * @var array|AssociationBase[]|null
+     */
+    protected $associations;
 
     public function __construct(
-        ExternalSource $externalSource,
+        SofaScore $parent,
         SofaScoreApiHelper $apiHelper,
         LoggerInterface $logger
     ) {
         parent::__construct(
-            $externalSource,
+            $parent,
             $apiHelper,
             $logger
         );
     }
 
-    /**
-     * @return array|AssociationBase[]
-     */
-    public function get(): array
+    public function getAssociations(): array
     {
         $apiData = $this->apiHelper->getData(
             "football//" . $this->apiHelper->getCurrentDateAsString() . "/json",
             ImportService::ASSOCIATION_CACHE_MINUTES );
-        return $this->getAssociations($apiData->sportItem->tournaments);
+        return $this->getAssociationsHelper($apiData->sportItem->tournaments);
+    }
+
+    public function getAssociation( $id = null ): ?AssociationBase
+    {
+        $associations = $this->getAssociations();
+        if( array_key_exists( $id, $associations ) ) {
+            return $associations[$id];
+        }
+        return null;
     }
 
     /**
+     * {"name":"England","slug":"england","priority":10,"id":1,"flag":"england"}
+     *
      * @param array $competitions |stdClass[]
      * @return array|AssociationBase[]
      */
-    protected function getAssociations(array $competitions): array
+    protected function getAssociationsHelper(array $competitions): array
     {
-        //  {"name":"England","slug":"england","priority":10,"id":1,"flag":"england"}
+        if( $this->associations !== null ) {
+            return $this->associations;
+        }
+        $this->associations = [];
 
-        $associations = array();
         foreach ($competitions as $competition) {
-            // unused $competition->category->slug
-            $name = $competition->category->name;
-            if( $this->hasName( $associations, $name ) ) {
+            if( $competition->category === null ) {
                 continue;
             }
-            $association = new AssociationBase($competition->category->name);
-            $association->setId($competition->category->id);
-            $associations[$association->getId()] = $association;
+            $name = $competition->category->name;
+            if( $this->hasName( $this->associations, $name ) ) {
+                continue;
+            }
+            $association = $this->createAssociation( $competition->category ) ;
+            $this->associations[$association->getId()] = $association;
         }
-        return $associations;
+        return $this->associations;
+    }
 
-//        onderstaande objecten kunnen gecashed worden per dag
-//        dat moet kunnen in een parent class oid.
-//
-//        foreach( )
-//            loop door de stdclassen en haal de associations eruit
-//
-//        // voor seasons-helper doe bijna idem:
-//            loop door de stdclassen en haal de seasons eruit
-//
-//        // voor leagues-helper doe bijna idem:
-//            loop door de stdclassen en haal de leagues eruit
-//
-//        // voor competition-helper doe bijna idem:( deze heeft seasons en leagues nodig )
-//            loop door de stdclassen en haal de competitions eruit
-
+    protected function createAssociation( \stdClass $category ): AssociationBase
+    {
+        $association = new AssociationBase($category->name);
+        $association->setId($category->id);
+        return $association;
     }
 
 //    public function createByLeaguesAndSeasons( array $leagues, array $seasons) {

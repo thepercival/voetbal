@@ -18,7 +18,10 @@ class Repository extends \Voetbal\Repository
         if ( $cacheItem !== null &&
             ( $cacheItem->getExpireDateTime() === null || $cacheItem->getExpireDateTime() > (new \DateTimeImmutable()))
         ) {
-            return stream_get_contents( $cacheItem->getValue() );
+            $handle = $cacheItem->getValue();
+            $content = stream_get_contents( $handle );
+            rewind($handle);
+            return $content;
         }
         return null;
     }

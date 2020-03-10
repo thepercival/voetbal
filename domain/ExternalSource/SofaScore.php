@@ -15,10 +15,12 @@ use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 use Voetbal\Association;
 use Voetbal\Season;
+use Voetbal\League;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
 use Voetbal\ExternalSource\Season as ExternalSourceSeason;
+use Voetbal\ExternalSource\League as ExternalSourceLeague;
 
-class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociation, ExternalSourceSeason
+class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociation, ExternalSourceSeason, ExternalSourceLeague
 {
     /**
      * @var ExternalSourceBase
@@ -90,12 +92,21 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
      */
     public function getAssociations(): array
     {
-        $associationHelper = new SofaScore\Helper\Association(
-            $this->getExternalSource(),
+        return $this->getAssociationHelper()->getAssociations();
+    }
+
+    public function getAssociation( $id = null): ?Association
+    {
+        return $this->getAssociationHelper()->getAssociation( $id );
+    }
+
+    protected function getAssociationHelper(): SofaScore\Helper\Association
+    {
+        return new SofaScore\Helper\Association(
+            $this,
             $this->getApiHelper(),
             $this->logger
         );
-        return $associationHelper->get();
     }
 
     /**
@@ -103,42 +114,43 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
      */
     public function getSeasons(): array
     {
-        $seasonHelper = new SofaScore\Helper\Season(
-            $this->getExternalSource(),
+        return $this->getSeasonHelper()->getSeasons();
+    }
+
+    public function getSeason( $id = null): ?Season
+    {
+        return $this->getSeasonHelper()->getSeason( $id );
+    }
+
+    protected function getSeasonHelper(): SofaScore\Helper\Season
+    {
+        return new SofaScore\Helper\Season(
+            $this,
             $this->getApiHelper(),
             $this->logger
         );
-        return $seasonHelper->get();
     }
 
-    /*
-        public function getCompetitorImporter() : CompetitorImporter
-        {
-            return new FootballDataCompetitorImporter(
-                $this->getExternalSystem(),
-                $this->getApiHelper(),
-               $this->logger
-            );
-        }
+    /**
+     * @return array|League[]
+     */
+    public function getLeagues(): array
+    {
+        return $this->getLeagueHelper()->getLeagues();
+    }
 
-        public function getStructureImporter() : StructureImporter
-        {
-            return new FootballDataStructureImporter(
-                $this->getExternalSystem(),
-                $this->getApiHelper(),
-                $this->logger
-            );
-        }
+    public function getLeague( $id = null): ?League
+    {
+        return $this->getLeagueHelper()->getLeague( $id );
+    }
 
-        public function getGameImporter( GameLogger $gameLogger ) : GameImporter {
-            return new FootballDataGameImporter(
-                $this->getExternalSystem(),
-                $this->getApiHelper(),
-                $this->logger
-            );
-        }*/
-
-    /* protected function getStructureService(): StructureService {
-         return new StructureService( $this->structureOptions );
-     }*/
+    protected function getLeagueHelper(): SofaScore\Helper\League
+    {
+        return new SofaScore\Helper\League(
+            $this,
+            $this->getApiHelper(),
+            $this->logger
+        );
+    }
+    
 }

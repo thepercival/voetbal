@@ -8,25 +8,30 @@
 
 namespace Voetbal\ExternalSource\SofaScore\Helper;
 
-use Cake\Chronos\Date;
 use League\Period\Period;
+use Voetbal\Association as AssociationBase;
 use Voetbal\ExternalSource\SofaScore\Helper as SofaScoreHelper;
 use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
 use Voetbal\Season as SeasonBase;
-use Voetbal\ExternalSource;
+use Voetbal\ExternalSource\SofaScore;
 use Psr\Log\LoggerInterface;
 use Voetbal\Import\Service as ImportService;
+use Voetbal\ExternalSource\Season as ExternalSourceSeason;
 
-class Season extends SofaScoreHelper
+class Season extends SofaScoreHelper implements ExternalSourceSeason
 {
+    /**
+     * @var array|SeasonBase[]|null
+     */
+    protected $seasons;
 
     public function __construct(
-        ExternalSource $externalSource,
+        SofaScore $parent,
         SofaScoreApiHelper $apiHelper,
         LoggerInterface $logger
     ) {
         parent::__construct(
-            $externalSource,
+            $parent,
             $apiHelper,
             $logger
         );
@@ -35,23 +40,35 @@ class Season extends SofaScoreHelper
     /**
      * @return array|SeasonBase[]
      */
-    public function get(): array
+    public function getSeasons(): array
     {
         $apiData = $this->apiHelper->getData(
             "football//" . $this->apiHelper->getCurrentDateAsString() . "/json",
             ImportService::SEASON_CACHE_MINUTES );
-        return $this->getSeasons($apiData->sportItem->tournaments);
+        return $this->getSeasonsHelper($apiData->sportItem->tournaments);
+    }
+
+    public function getSeason( $id = null ): ?SeasonBase
+    {
+        $seasons = $this->getSeasons();
+        if( array_key_exists( $id, $seasons ) ) {
+            return $seasons[$id];
+        }
+        return null;
     }
 
     /**
+     * {"name":"Premier League 19\/20","slug":"premier-league-1920","year":"19\/20","id":23776}
+     *
      * @param array $competitions |stdClass[]
      * @return array|SeasonBase[]
      */
-    protected function getSeasons(array $competitions): array
+    protected function getSeasonsHelper(array $competitions): array
     {
-        //  {"name":"Premier League 19\/20","slug":"premier-league-1920","year":"19\/20","id":23776}
-
-        $seasons = array();
+        if( $this->seasons !== null ) {
+            return $this->seasons;
+        }
+        $this->seasons = [];
         foreach ($competitions as $competition) {
             if( $competition->season === null ) {
                 continue;
@@ -60,15 +77,20 @@ class Season extends SofaScoreHelper
                 continue;
             }
             $name = $this->getName( $competition->season->year );
-            if( $this->hasName( $seasons, $name ) ) {
+            if( $this->hasName( $this->seasons, $name ) ) {
                 continue;
             }
-            // check if name exists, also do check with associations!!!
-            $season = new SeasonBase( $name, $this->getPeriod( $name ) );
-            $season->setId($name);
-            $seasons[$name] = $season;
+            $season = $this->createSeason( $name ) ;
+            $this->seasons[$season->getId()] = $season;
         }
-        return $seasons;
+        return $this->seasons;
+    }
+
+    protected function createSeason( $name ): SeasonBase
+    {
+        $season = new SeasonBase( $name, $this->getPeriod( $name ) );
+        $season->setId($name);
+        return $season;
     }
 
     protected function getName( string $name ): string {

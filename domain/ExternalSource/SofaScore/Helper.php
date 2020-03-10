@@ -8,32 +8,15 @@
 
 namespace Voetbal\ExternalSource\SofaScore;
 
-use Voetbal\ExternalSource\Association as ExternalAssociation;
-use Voetbal\Association;
-use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\Competition\Repository as ExternalCompetitionRepos;
-
-use Voetbal\ExternalSource\Source\Importer\Competition as CompetitionImporter;
-use Voetbal\Competition\Service as CompetitionService;
-use Voetbal\Competition\Repository as CompetitionRepository;
-use Voetbal\ExternalSource\Object\Service as ExternalObjectService;
-use Voetbal\ExternalSource\League\Repository as ExternalLeagueRepos;
-use Voetbal\ExternalSource\Season\Repository as ExternalSeasonRepos;
-use Voetbal\League;
-use Voetbal\Season;
-use Voetbal\Competition as CompetitionBase;
-use Voetbal\ExternalSource\Season as ExternalSeason;
-use Voetbal\ExternalSource\League as ExternalLeague;
-use Doctrine\DBAL\Connection;
+use Voetbal\ExternalSource\SofaScore;
 use Psr\Log\LoggerInterface;
-use Voetbal\Ranking\Service as RankingService;
 
 class Helper
 {
     /**
-     * @var ExternalSource
+     * @var SofaScore
      */
-    protected $externalSource;
+    protected $parent;
     /**
      * @var ApiHelper
      */
@@ -46,12 +29,12 @@ class Helper
     // use Helper;
 
     public function __construct(
-        ExternalSource $externalSource,
+        SofaScore $parent,
         ApiHelper $apiHelper,
         LoggerInterface $logger
     )
     {
-        $this->externalSource = $externalSource;
+        $this->parent = $parent;
         $this->apiHelper = $apiHelper;
         $this->logger = $logger;
     }
@@ -146,10 +129,10 @@ class Helper
 //    }
 
     private function notice( $msg ) {
-        $this->logger->notice( $this->externalSource->getName() . " : " . $msg );
+        $this->logger->notice( $this->parent->getExternalSource()->getName() . " : " . $msg );
     }
 
     private function error( $msg ) {
-        $this->logger->error( $this->externalSource->getName() . " : " . $msg );
+        $this->logger->error( $this->parent->getExternalSource()->getName() . " : " . $msg );
     }
 }

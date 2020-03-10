@@ -9,16 +9,19 @@
 namespace Voetbal\Import;
 
 use Psr\Log\LoggerInterface;
-use Voetbal\Association\Repository as AssociationRepository;
-use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
-use Voetbal\Season\Repository as SeasonRepository;
-use Voetbal\Attacher\Season\Repository as SeasonAttacherRepository;
+
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\ExternalSource;
 use Voetbal\ExternalSource\Factory as ExternalSourceFactory;
+use Voetbal\Association\Repository as AssociationRepository;
+use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
+use Voetbal\Season\Repository as SeasonRepository;
+use Voetbal\Attacher\Season\Repository as SeasonAttacherRepository;
 use Voetbal\ExternalSource\Season as ExternalSourceSeason;
-use Voetbal\Import\Helper\Association;
+use Voetbal\League\Repository as LeagueRepository;
+use Voetbal\Attacher\League\Repository as LeagueAttacherRepository;
+use Voetbal\ExternalSource\League as ExternalSourceLeague;
 
 class Service
 {
@@ -99,6 +102,31 @@ class Service
                 $this->logger
             );
             $importSeasonService->import($externalSourceSeasons);
+        }
+    }
+
+    public function importLeagues(
+        LeagueRepository $leagueRepos,
+        LeagueAttacherRepository $leagueAttacherRepos,
+        AssociationAttacherRepository $associationAttacherRepos
+    ) {
+        /** @var ExternalSource $externalSourceBase */
+        foreach ($this->externalSources as $externalSourceBase) {
+            $externalSourceImplementation = $this->externalSourceFactory->create($externalSourceBase);
+            if ($externalSourceImplementation === null || !($externalSourceImplementation instanceof ExternalSourceLeague)) {
+                continue;
+            }
+
+            $externalSourceLeagues = $externalSourceImplementation->getLeagues();
+
+            $importLeagueService = new Helper\League(
+                $leagueRepos,
+                $leagueAttacherRepos,
+                $associationAttacherRepos,
+                $externalSourceBase,
+                $this->logger
+            );
+            $importLeagueService->import($externalSourceLeagues);
         }
     }
 }
