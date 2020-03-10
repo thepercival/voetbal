@@ -13,10 +13,12 @@ use Voetbal\ExternalSource\Implementation as ExternalSourceImplementation;
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
-use Voetbal\Association as AssociationBase;
+use Voetbal\Association;
+use Voetbal\Season;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
+use Voetbal\ExternalSource\Season as ExternalSourceSeason;
 
-class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociation
+class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociation, ExternalSourceSeason
 {
     /**
      * @var ExternalSourceBase
@@ -84,7 +86,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
     }
 
     /**
-     * @return array|AssociationBase[]
+     * @return array|Association[]
      */
     public function getAssociations(): array
     {
@@ -94,6 +96,19 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
             $this->logger
         );
         return $associationHelper->get();
+    }
+
+    /**
+     * @return array|Season[]
+     */
+    public function getSeasons(): array
+    {
+        $seasonHelper = new SofaScore\Helper\Season(
+            $this->getExternalSource(),
+            $this->getApiHelper(),
+            $this->logger
+        );
+        return $seasonHelper->get();
     }
 
     /*

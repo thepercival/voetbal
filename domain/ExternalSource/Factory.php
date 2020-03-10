@@ -45,5 +45,19 @@ class Factory
         }
         return null;
     }
+
+    /**
+     * @param array|ExternalSource[] $externalSources
+     */
+    public function setImplementations( array $externalSources ) {
+
+        foreach( $externalSources as $externalSource ) {
+            $externalSourceImpl = $this->create( $externalSource );
+            if( $externalSourceImpl === null) {
+                continue;
+            }
+            $externalSource->setImplementationsFromImplementation( $externalSourceImpl );
+        }
+    }
 }
 

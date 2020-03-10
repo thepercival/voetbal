@@ -18,3 +18,5 @@ Voetbal\ExternalSource:
       type: string
     apikey:
       type: string
+    implementations:
+      type: integer

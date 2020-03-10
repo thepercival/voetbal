@@ -15,7 +15,7 @@ class Repository extends \Voetbal\Repository
     {
         /** @var CacheItemDb $cacheItem */
         $cacheItem = $this->findOneBy( ["name" => $name] );
-        if ( $cacheItem &&
+        if ( $cacheItem !== null &&
             ( $cacheItem->getExpireDateTime() === null || $cacheItem->getExpireDateTime() > (new \DateTimeImmutable()))
         ) {
             return stream_get_contents( $cacheItem->getValue() );

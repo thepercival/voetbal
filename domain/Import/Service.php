@@ -11,10 +11,13 @@ namespace Voetbal\Import;
 use Psr\Log\LoggerInterface;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
+use Voetbal\Season\Repository as SeasonRepository;
+use Voetbal\Attacher\Season\Repository as SeasonAttacherRepository;
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\ExternalSource;
 use Voetbal\ExternalSource\Factory as ExternalSourceFactory;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
+use Voetbal\ExternalSource\Season as ExternalSourceSeason;
 use Voetbal\Import\Helper\Association;
 
 class Service
@@ -76,7 +79,26 @@ class Service
         }
     }
 
-    /*public function getSeason(): SeasonsImporter {
+    public function importSeasons(
+        SeasonRepository $seasonRepos,
+        SeasonAttacherRepository $seasonAttacherRepos
+    ) {
+        /** @var ExternalSource $externalSourceBase */
+        foreach ($this->externalSources as $externalSourceBase) {
+            $externalSourceImplementation = $this->externalSourceFactory->create($externalSourceBase);
+            if ($externalSourceImplementation === null || !($externalSourceImplementation instanceof ExternalSourceSeason)) {
+                continue;
+            }
 
-    }*/
+            $externalSourceSeasons = $externalSourceImplementation->getSeasons();
+
+            $importSeasonService = new Helper\Season(
+                $seasonRepos,
+                $seasonAttacherRepos,
+                $externalSourceBase,
+                $this->logger
+            );
+            $importSeasonService->import($externalSourceSeasons);
+        }
+    }
 }

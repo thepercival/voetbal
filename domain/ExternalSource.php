@@ -8,6 +8,8 @@
 
 namespace Voetbal;
 
+use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
+
 class ExternalSource
 {
     /**
@@ -44,6 +46,10 @@ class ExternalSource
      * @var string
      */
     private $apikey;
+    /**
+     * @var int
+     */
+    private $implementations;
 
     const MAX_LENGTH_NAME = 50;
     const MAX_LENGTH_WEBSITE = 255;
@@ -52,17 +58,18 @@ class ExternalSource
     const MAX_LENGTH_APIURL = 255;
     const MAX_LENGTH_APIKEY = 255;
 
+    public const ASSOCIATION = 1;
+    public const SEASON = 2;
+    public const LEAGUE = 4;
+    public const COMPETITION = 8;
+
     public function __construct( $name, $website = null )
     {
         $this->setName( $name );
         $this->setWebsite( $website );
+        $this->implementations = 0;
     }
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
     public function getId(): int
     {
         return $this->id;
@@ -173,5 +180,36 @@ class ExternalSource
     public function setApikey($apikey)
     {
         $this->apikey = $apikey;
+    }
+
+    public function getImplementations(): int
+    {
+        return $this->implementations;
+    }
+
+    /**
+     * @param int $implementations
+     */
+    public function setImplementations( int $implementations )
+    {
+        $this->implementations = $implementations;
+    }
+
+    public function setImplementationsFromImplementation( ExternalSource\Implementation $implementation )
+    {
+        $implementations = 0;
+        if( $implementation instanceof ExternalSourceAssociation ) {
+            $implementations += ExternalSource::ASSOCIATION;
+        }
+        if( $implementation instanceof ExternalSourceAssociation ) {
+            $implementations += ExternalSource::SEASON;
+        }
+        if( $implementation instanceof ExternalSourceAssociation ) {
+            $implementations += ExternalSource::LEAGUE;
+        }
+        if( $implementation instanceof ExternalSourceAssociation ) {
+            $implementations += ExternalSource::COMPETITION;
+        }
+        $this->setImplementations( $implementations );
     }
 }
