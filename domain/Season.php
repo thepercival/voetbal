@@ -8,9 +8,6 @@ use \Doctrine\Common\Collections\ArrayCollection;
 
 class Season implements Importable
 {
-    /**
-     * @var int
-     */
     private $id;
 
     /**
@@ -45,20 +42,13 @@ class Season implements Importable
         $this->setPeriod( $period );
     }
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId(): int
+    public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     */
-    public function setId( int $id = null )
+
+    public function setId( $id )
     {
         $this->id = $id;
     }
@@ -80,9 +70,9 @@ class Season implements Importable
             throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
         }
 
-        if(preg_match('/[^0-9\s\/-]/i', $name)){
-            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
-        }
+//        if(preg_match('/[^0-9\s\/-]/i', $name)){
+//            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
+//        }
 
         $this->name = $name;
     }

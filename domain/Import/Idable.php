@@ -11,8 +11,16 @@ namespace Voetbal\Import;
 
 interface Idable
 {
-    public function getId(): ?int;
-    public function setId( int $id = null );
+    /**
+     * @return int|string
+     */
+    public function getId();
+
+    /**
+     * @param int|string $id
+     * @return mixed
+     */
+    public function setId( $id );
 }
 
 //class Importable

@@ -56,6 +56,15 @@ class Helper
         $this->logger = $logger;
     }
 
+    protected function hasName( array $objects, string $name ): bool {
+        foreach( $objects as $object ) {
+            if( $object->getName() === $name ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 //    public function createByLeaguesAndSeasons( array $leagues, array $seasons) {
 //        /** @var League $league */
 //        foreach( $leagues as $league ) {

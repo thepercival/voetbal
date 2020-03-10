@@ -9,10 +9,8 @@
 namespace Voetbal;
 
 use DateTimeImmutable;
-use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Import\Idable as Importable;
 
-class CacheItemDb implements Importable
+class CacheItemDb
 {
     /**
      * @var int

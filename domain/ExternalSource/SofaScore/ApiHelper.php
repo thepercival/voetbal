@@ -72,8 +72,9 @@ class ApiHelper
             $this->externalSource->getApiurl() . $postUrl . $this->getUrlPostfix(),
             $this->getHeaders()
         );
-        $this->cacheItemDbRepos->saveItem( $postUrl, $response->getBody()->getContents(), $cacheMinutes );
-        return $this->getData( $postUrl, $cacheMinutes);
+        return json_decode(
+            $this->cacheItemDbRepos->saveItem( $postUrl, $response->getBody()->getContents(), $cacheMinutes )
+        );
     }
 
     protected function getUrlPostfix()

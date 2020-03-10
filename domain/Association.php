@@ -14,7 +14,7 @@ use Voetbal\Import\Idable as Importable;
 class Association implements Importable
 {
     /**
-     * @var int
+     * @var int|string
      */
     protected $id;
     /**
@@ -43,7 +43,7 @@ class Association implements Importable
     protected $competitors;
 
     const MIN_LENGTH_NAME = 2;
-    const MAX_LENGTH_NAME = 20;
+    const MAX_LENGTH_NAME = 30;
     const MAX_LENGTH_DESCRIPTION = 50;
 
     use ImportableTrait;
@@ -57,19 +57,18 @@ class Association implements Importable
     }
 
     /**
-     * Get id
-     *
-     * @return int
+     * @return int|string
      */
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
 
     /**
-     * @param int $id
+     * @param int|string $id
+     * @return void
      */
-    public function setId(int $id = null)
+    public function setId( $id )
     {
         $this->id = $id;
     }

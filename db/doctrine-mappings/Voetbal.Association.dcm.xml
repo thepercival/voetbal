@@ -4,7 +4,7 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
-    <field name="name" column="name" type="string" length="20" nullable="false" unique="false"/>
+    <field name="name" column="name" type="string" length="30" nullable="false" unique="false"/>
     <field name="description" column="description" type="string" length="50" nullable="true" unique="false"/>
     <many-to-one field="parent" target-entity="Voetbal\Association" inversed-by="children">
       <join-columns>

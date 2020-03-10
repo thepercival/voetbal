@@ -18,7 +18,7 @@ class Competitor implements Importable
     const MAX_LENGTH_INFO = 200;
     const MAX_LENGTH_IMAGEURL = 150;
     /**
-     * @var int
+     * @var int|string
      */
     protected $id;
     /**
@@ -56,19 +56,18 @@ class Competitor implements Importable
     }
 
     /**
-     * Get id
-     *
-     * @return int
+     * @return int|string
      */
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
 
     /**
-     * @param int $id
+     * @param int|string $id
+     * @return void
      */
-    public function setId( int $id = null )
+    public function setId( $id )
     {
         $this->id = $id;
     }

@@ -52,6 +52,10 @@ class Association extends SofaScoreHelper
         $associations = array();
         foreach ($competitions as $competition) {
             // unused $competition->category->slug
+            $name = $competition->category->name;
+            if( $this->hasName( $associations, $name ) ) {
+                continue;
+            }
             $association = new AssociationBase($competition->category->name);
             $association->setId($competition->category->id);
             $associations[$association->getId()] = $association;

@@ -56,30 +56,42 @@ class Season extends SofaScoreHelper
             if( $competition->season === null ) {
                 continue;
             }
-            $name = $competition->season->year;
-            check if name exists, also do check with associations!!!
+            if( strlen( $competition->season->year ) === 0 ) {
+                continue;
+            }
+            $name = $this->getName( $competition->season->year );
+            if( $this->hasName( $seasons, $name ) ) {
+                continue;
+            }
+            // check if name exists, also do check with associations!!!
             $season = new SeasonBase( $name, $this->getPeriod( $name ) );
-            $season->setId($competition->season->id);
-            $seasons[$season->getId()] = $season;
+            $season->setId($name);
+            $seasons[$name] = $season;
         }
         return $seasons;
+    }
+
+    protected function getName( string $name ): string {
+        if( strpos( $name, "/") === false ) {
+            return $name;
+        }
+        return "20" . substr( $name, 0, 2 ) . "/" . "20" . substr( $name, 3, 2 );
     }
 
     protected function getPeriod( string $name ): Period {
         $start = null;
         $end = null;
-
         if( strpos( $name, "/") !== false ) {
-            $year = "20" . substr( $name, 0, 2 );
+            $year = substr( $name, 0, 4 );
             $start = $year . "-07-01";
-            $year = "20" . substr( $name, 3, 2 );
+            $year = substr( $name, 5, 4 );
             $end = $year . "-07-01";
         } else {
             $start = $name . "-01-01";
             $end = (((int)$name)+1) . "-01-01";
         }
-        $startDateTime = \DateTimeImmutable::createFromFormat ( "Y-m-d", $start );
-        $endDateTime = \DateTimeImmutable::createFromFormat ( "Y-m-d", $end );
+        $startDateTime = \DateTimeImmutable::createFromFormat ( "Y-m-d\TH:i:s", $start . "T00:00:00", new \DateTimeZone('UTC') );
+        $endDateTime = \DateTimeImmutable::createFromFormat ( "Y-m-d\TH:i:s", $end . "T00:00:00", new \DateTimeZone('UTC') );
         return new Period( $startDateTime, $endDateTime );
     }
 

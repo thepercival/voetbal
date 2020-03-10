@@ -19,7 +19,7 @@ use Voetbal\Import\Idable as Importable;
 class Game implements Importable
 {
     /**
-     * @var int
+     * @var int|string
      */
     protected $id;
     /**
@@ -98,19 +98,18 @@ class Game implements Importable
     }
 
     /**
-     * Get id
-     *
-     * @return int
+     * @return int|string
      */
-    public function getId(): ?int
+    public function getId()
     {
         return $this->id;
     }
 
     /**
-     * @param int $id
+     * @param int|string $id
+     * @return void
      */
-    public function setId( int $id = null )
+    public function setId( $id )
     {
         $this->id = $id;
     }
