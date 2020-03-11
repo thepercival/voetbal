@@ -80,16 +80,16 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
             if( $this->hasName( $this->seasons, $name ) ) {
                 continue;
             }
-            $season = $this->createSeason( $name ) ;
+            $season = $this->createSeason( $competition->season->year, $name ) ;
             $this->seasons[$season->getId()] = $season;
         }
         return $this->seasons;
     }
 
-    protected function createSeason( $name ): SeasonBase
+    protected function createSeason( $id, $name ): SeasonBase
     {
         $season = new SeasonBase( $name, $this->getPeriod( $name ) );
-        $season->setId($name);
+        $season->setId($id);
         return $season;
     }
 

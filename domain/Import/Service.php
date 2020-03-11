@@ -22,6 +22,9 @@ use Voetbal\ExternalSource\Season as ExternalSourceSeason;
 use Voetbal\League\Repository as LeagueRepository;
 use Voetbal\Attacher\League\Repository as LeagueAttacherRepository;
 use Voetbal\ExternalSource\League as ExternalSourceLeague;
+use Voetbal\Competition\Repository as CompetitionRepository;
+use Voetbal\Attacher\Competition\Repository as CompetitionAttacherRepository;
+use Voetbal\ExternalSource\Competition as ExternalSourceCompetition;
 
 class Service
 {
@@ -127,6 +130,33 @@ class Service
                 $this->logger
             );
             $importLeagueService->import($externalSourceLeagues);
+        }
+    }
+
+    public function importCompetitions(
+        CompetitionRepository $competitionRepos,
+        CompetitionAttacherRepository $competitionAttacherRepos,
+        LeagueAttacherRepository $leagueAttacherRepos,
+        SeasonAttacherRepository $seasonAttacherRepos
+    ) {
+        /** @var ExternalSource $externalSourceBase */
+        foreach ($this->externalSources as $externalSourceBase) {
+            $externalSourceImplementation = $this->externalSourceFactory->create($externalSourceBase);
+            if ($externalSourceImplementation === null || !($externalSourceImplementation instanceof ExternalSourceCompetition)) {
+                continue;
+            }
+
+            $externalSourceCompetitions = $externalSourceImplementation->getCompetitions();
+
+            $importCompetitionService = new Helper\Competition(
+                $competitionRepos,
+                $competitionAttacherRepos,
+                $leagueAttacherRepos,
+                $seasonAttacherRepos,
+                $externalSourceBase,
+                $this->logger
+            );
+            $importCompetitionService->import($externalSourceCompetitions);
         }
     }
 }
