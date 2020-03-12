@@ -14,6 +14,7 @@ use Voetbal\ExternalSource\League as ExternalLeague;
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\CacheItemDb;
 use GuzzleHttp\Client;
+use Voetbal\Range as VoetbalRange;
 
 class ApiHelper
 {
@@ -29,6 +30,10 @@ class ApiHelper
      * @var Client
      */
     private $client;
+    /**
+     * @var VoetbalRange
+     */
+    private $sleepRangeInSeconds;
 
     public function __construct(
         ExternalSource $externalSource,
@@ -36,6 +41,7 @@ class ApiHelper
     ) {
         $this->cacheItemDbRepos = $cacheItemDbRepos;
         $this->externalSource = $externalSource;
+        $this->sleepRangeInSeconds = new VoetbalRange( 5, 60 );
     }
 
     protected function getClient()
@@ -72,6 +78,7 @@ class ApiHelper
             $this->externalSource->getApiurl() . $postUrl . $this->getUrlPostfix(),
             $this->getHeaders()
         );
+        sleep( rand( $this->sleepRangeInSeconds->min, $this->sleepRangeInSeconds->max ) );
         return json_decode(
             $this->cacheItemDbRepos->saveItem( $postUrl, $response->getBody()->getContents(), $cacheMinutes )
         );

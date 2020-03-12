@@ -42,10 +42,24 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
      */
     public function getSeasons(): array
     {
-        $apiData = $this->apiHelper->getData(
-            "football//" . $this->apiHelper->getCurrentDateAsString() . "/json",
-            ImportService::SEASON_CACHE_MINUTES );
-        return $this->getSeasonsHelper($apiData->sportItem->tournaments);
+        if( $this->seasons !== null ) {
+            return $this->seasons;
+        }
+        $this->seasons = [];
+        $sports = $this->parent->getSports();
+
+        $seasonData = [];
+        foreach( $sports as $sport ) {
+            if( $sport->getName() !== SofaScore::SPORTFILTER ) {
+                continue;
+            }
+            $apiData = $this->apiHelper->getData(
+                $sport->getName() . "//" . $this->apiHelper->getCurrentDateAsString() . "/json",
+                ImportService::SEASON_CACHE_MINUTES );
+            $seasonData = array_merge( $seasonData, $apiData->sportItem->tournaments );
+        }
+        $this->setSeasons( $seasonData );
+        return $this->seasons;
     }
 
     public function getSeason( $id = null ): ?SeasonBase
@@ -60,15 +74,10 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
     /**
      * {"name":"Premier League 19\/20","slug":"premier-league-1920","year":"19\/20","id":23776}
      *
-     * @param array $competitions |stdClass[]
-     * @return array|SeasonBase[]
+     * @param array|\stdClass[] $competitions
      */
-    protected function getSeasonsHelper(array $competitions): array
+    protected function setSeasons(array $competitions)
     {
-        if( $this->seasons !== null ) {
-            return $this->seasons;
-        }
-        $this->seasons = [];
         foreach ($competitions as $competition) {
             if( $competition->season === null ) {
                 continue;
@@ -83,7 +92,6 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
             $season = $this->createSeason( $competition->season->year, $name ) ;
             $this->seasons[$season->getId()] = $season;
         }
-        return $this->seasons;
     }
 
     protected function createSeason( $id, $name ): SeasonBase

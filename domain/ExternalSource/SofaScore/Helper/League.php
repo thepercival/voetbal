@@ -42,10 +42,25 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
      */
     public function getLeagues(): array
     {
-        $apiData = $this->apiHelper->getData(
-            "football//" . $this->apiHelper->getCurrentDateAsString() . "/json",
-            ImportService::LEAGUE_CACHE_MINUTES );
-        return $this->getLeaguesHelper($apiData->sportItem->tournaments);
+        if( $this->leagues !== null ) {
+            return $this->leagues;
+        }
+        $this->leagues = [];
+
+        $sports = $this->parent->getSports();
+
+        $leagueData = [];
+        foreach( $sports as $sport ) {
+            if( $sport->getName() !== SofaScore::SPORTFILTER ) {
+                continue;
+            }
+            $apiData = $this->apiHelper->getData(
+                $sport->getName() . "//" . $this->apiHelper->getCurrentDateAsString() . "/json",
+                ImportService::LEAGUE_CACHE_MINUTES );
+            $leagueData = array_merge( $leagueData, $apiData->sportItem->tournaments );
+        }
+        $this->setLeagues( $leagueData );
+        return $this->leagues;
     }
 
     public function getLeague( $id = null ): ?LeagueBase
@@ -61,15 +76,10 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
     /**
      * {"name":"Premier League 19\/20","slug":"premier-league-1920","year":"19\/20","id":23776}
      *
-     * @param array $competitions |stdClass[]
-     * @return array|LeagueBase[]
+     * @param array|\stdClass[] $competitions
      */
-    protected function getLeaguesHelper(array $competitions): array
+    protected function setLeagues(array $competitions)
     {
-        if( $this->leagues !== null ) {
-            return $this->leagues;
-        }
-        $this->leagues = [];
         foreach ($competitions as $competition) {
 
             if( $competition->category === null ) {
@@ -90,7 +100,6 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
             $league->setId( $competition->tournament->id );
             $this->leagues[$league->getId()] = $league;
         }
-        return $this->leagues;
     }
 
 }

@@ -13,17 +13,23 @@ use Voetbal\ExternalSource\Implementation as ExternalSourceImplementation;
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
-use Voetbal\Association;
-use Voetbal\Season;
-use Voetbal\League;
-use Voetbal\Competition;
-use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
-use Voetbal\ExternalSource\Season as ExternalSourceSeason;
-use Voetbal\ExternalSource\League as ExternalSourceLeague;
-use Voetbal\ExternalSource\Competition as ExternalSourceCompetition;
 
-class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociation, ExternalSourceSeason, ExternalSourceLeague, ExternalSourceCompetition
+use Voetbal\Sport;
+use Voetbal\ExternalSource\Sport as ExternalSourceSport;
+use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
+use Voetbal\Association;
+use Voetbal\ExternalSource\Season as ExternalSourceSeason;
+use Voetbal\Season;
+use Voetbal\ExternalSource\League as ExternalSourceLeague;
+use Voetbal\League;
+use Voetbal\ExternalSource\Competition as ExternalSourceCompetition;
+use Voetbal\Competition;
+
+class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, ExternalSourceAssociation,
+                           ExternalSourceSeason, ExternalSourceLeague, ExternalSourceCompetition
 {
+    public const SPORTFILTER = "football";
+
     /**
      * @var ExternalSourceBase
      */
@@ -49,8 +55,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         ExternalSourceBase $externalSource,
         CacheItemDbRepository $cacheItemDbRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->helpers = [];
         $this->setExternalSource($externalSource);
@@ -89,6 +94,32 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
     }
 
     /**
+     * @return array|Sport[]
+     */
+    public function getSports(): array
+    {
+        return $this->getSportHelper()->getSports();
+    }
+
+    public function getSport($id = null): ?Sport
+    {
+        return $this->getSportHelper()->getSport($id);
+    }
+
+    protected function getSportHelper(): SofaScore\Helper\Sport
+    {
+        if (array_key_exists(SofaScore\Helper\Sport::class, $this->helpers)) {
+            return $this->helpers[SofaScore\Helper\Sport::class];
+        }
+        $this->helpers[SofaScore\Helper\Sport::class] = new SofaScore\Helper\Sport(
+            $this,
+            $this->getApiHelper(),
+            $this->logger
+        );
+        return $this->helpers[SofaScore\Helper\Sport::class];
+    }
+
+    /**
      * @return array|Association[]
      */
     public function getAssociations(): array
@@ -96,14 +127,14 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         return $this->getAssociationHelper()->getAssociations();
     }
 
-    public function getAssociation( $id = null): ?Association
+    public function getAssociation($id = null): ?Association
     {
-        return $this->getAssociationHelper()->getAssociation( $id );
+        return $this->getAssociationHelper()->getAssociation($id);
     }
 
     protected function getAssociationHelper(): SofaScore\Helper\Association
     {
-        if ( array_key_exists( SofaScore\Helper\Association::class, $this->helpers ) ) {
+        if (array_key_exists(SofaScore\Helper\Association::class, $this->helpers)) {
             return $this->helpers[SofaScore\Helper\Association::class];
         }
         $this->helpers[SofaScore\Helper\Association::class] = new SofaScore\Helper\Association(
@@ -122,14 +153,14 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         return $this->getSeasonHelper()->getSeasons();
     }
 
-    public function getSeason( $id = null): ?Season
+    public function getSeason($id = null): ?Season
     {
-        return $this->getSeasonHelper()->getSeason( $id );
+        return $this->getSeasonHelper()->getSeason($id);
     }
 
     protected function getSeasonHelper(): SofaScore\Helper\Season
     {
-        if ( array_key_exists( SofaScore\Helper\Season::class, $this->helpers ) ) {
+        if (array_key_exists(SofaScore\Helper\Season::class, $this->helpers)) {
             return $this->helpers[SofaScore\Helper\Season::class];
         }
         $this->helpers[SofaScore\Helper\Season::class] = new SofaScore\Helper\Season(
@@ -148,14 +179,14 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         return $this->getLeagueHelper()->getLeagues();
     }
 
-    public function getLeague( $id = null): ?League
+    public function getLeague($id = null): ?League
     {
-        return $this->getLeagueHelper()->getLeague( $id );
+        return $this->getLeagueHelper()->getLeague($id);
     }
 
     protected function getLeagueHelper(): SofaScore\Helper\League
     {
-        if ( array_key_exists( SofaScore\Helper\League::class, $this->helpers ) ) {
+        if (array_key_exists(SofaScore\Helper\League::class, $this->helpers)) {
             return $this->helpers[SofaScore\Helper\League::class];
         }
         $this->helpers[SofaScore\Helper\League::class] = new SofaScore\Helper\League(
@@ -165,7 +196,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         );
         return $this->helpers[SofaScore\Helper\League::class];
     }
-    
+
     /**
      * @return array|Competition[]
      */
@@ -174,14 +205,14 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         return $this->getCompetitionHelper()->getCompetitions();
     }
 
-    public function getCompetition( $id = null): ?Competition
+    public function getCompetition($id = null): ?Competition
     {
-        return $this->getCompetitionHelper()->getCompetition( $id );
+        return $this->getCompetitionHelper()->getCompetition($id);
     }
 
     protected function getCompetitionHelper(): SofaScore\Helper\Competition
     {
-        if ( array_key_exists( SofaScore\Helper\Competition::class, $this->helpers ) ) {
+        if (array_key_exists(SofaScore\Helper\Competition::class, $this->helpers)) {
             return $this->helpers[SofaScore\Helper\Competition::class];
         }
         $this->helpers[SofaScore\Helper\Competition::class] = new SofaScore\Helper\Competition(
@@ -191,5 +222,5 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceAssociati
         );
         return $this->helpers[SofaScore\Helper\Competition::class];
     }
-    
+
 }

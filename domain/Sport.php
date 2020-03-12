@@ -8,11 +8,9 @@
 
 namespace Voetbal;
 
-/**
- * Class Sport
- * @package Voetbal
- */
-class Sport
+use Voetbal\Import\Idable as Importable;
+
+class Sport implements Importable
 {
     const TEMPDEFAULT = 2;
     const MIN_LENGTH_NAME = 3;
@@ -21,7 +19,7 @@ class Sport
     const MAX_LENGTH_UNITNAME = 20;
 
     /**
-     * @var int
+     * @var int|string
      */
     private $id;
     /**
@@ -50,11 +48,20 @@ class Sport
         $this->setName( $name );
     }
 
-    public function getId(): int {
+    /**
+     * @return int|string
+     */
+    public function getId()
+    {
         return $this->id;
-}
+    }
 
-    public function setId(int $id): void {
+    /**
+     * @param int|string $id
+     * @return void
+     */
+    public function setId( $id )
+    {
         $this->id = $id;
     }
 

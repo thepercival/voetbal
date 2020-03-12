@@ -13,6 +13,11 @@ use Psr\Log\LoggerInterface;
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
 use Voetbal\ExternalSource;
 use Voetbal\ExternalSource\Factory as ExternalSourceFactory;
+use Voetbal\ExternalSource\SofaScore;
+use Voetbal\Import\Service as ImportService;
+use Voetbal\Sport\Repository as SportRepository;
+use Voetbal\Attacher\Sport\Repository as SportAttacherRepository;
+use Voetbal\ExternalSource\Sport as ExternalSourceSport;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
@@ -41,6 +46,7 @@ class Service
      */
     protected $externalSourceFactory;
 
+    public const SPORT_CACHE_MINUTES = 1440; // 60 * 24
     public const ASSOCIATION_CACHE_MINUTES = 1440; // 60 * 24
     public const SEASON_CACHE_MINUTES = 1440; // 60 * 24
     public const LEAGUE_CACHE_MINUTES = 1440; // 60 * 24
@@ -62,6 +68,29 @@ class Service
         $this->externalSourceFactory = new ExternalSourceFactory($cacheItemDbRepos, $logger);
     }
 
+    public function importSports(
+        SportRepository $sportRepos,
+        SportAttacherRepository $sportAttacherRepos
+    ) {
+        /** @var ExternalSource $externalSourceBase */
+        foreach ($this->externalSources as $externalSourceBase) {
+            $externalSourceImplementation = $this->externalSourceFactory->create($externalSourceBase);
+            if ($externalSourceImplementation === null || !($externalSourceImplementation instanceof ExternalSourceSport)) {
+                continue;
+            }
+
+            $externalSourceSports = $externalSourceImplementation->getSports();
+
+            $importSportService = new Helper\Sport(
+                $sportRepos,
+                $sportAttacherRepos,
+                $externalSourceBase,
+                $this->logger
+            );
+            $importSportService->import($externalSourceSports);
+        }
+    }
+
     public function importAssociations(
         AssociationRepository $associationRepos,
         AssociationAttacherRepository $associationAttacherRepos
@@ -72,7 +101,6 @@ class Service
             if ($externalSourceImplementation === null || !($externalSourceImplementation instanceof ExternalSourceAssociation)) {
                 continue;
             }
-
             $externalSourceAssociations = $externalSourceImplementation->getAssociations();
 
             $importAssociationService = new Helper\Association(
@@ -137,7 +165,8 @@ class Service
         CompetitionRepository $competitionRepos,
         CompetitionAttacherRepository $competitionAttacherRepos,
         LeagueAttacherRepository $leagueAttacherRepos,
-        SeasonAttacherRepository $seasonAttacherRepos
+        SeasonAttacherRepository $seasonAttacherRepos,
+        SportAttacherRepository $sportAttacherRepos
     ) {
         /** @var ExternalSource $externalSourceBase */
         foreach ($this->externalSources as $externalSourceBase) {
@@ -153,6 +182,7 @@ class Service
                 $competitionAttacherRepos,
                 $leagueAttacherRepos,
                 $seasonAttacherRepos,
+                $sportAttacherRepos,
                 $externalSourceBase,
                 $this->logger
             );

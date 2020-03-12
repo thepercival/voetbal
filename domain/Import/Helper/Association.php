@@ -86,6 +86,14 @@ class Association implements ImporterInterface
     protected function createAssociation(AssociationBase $association): AssociationBase
     {
         $newAssociation = new AssociationBase($association->getName());
+        $parentAssociation = null;
+        if( $association->getParent() !== null ) {
+            $parentAssociation = $this->associationAttacherRepos->findImportable(
+                $this->externalSourceBase,
+                $association->getParent()->getId()
+            );
+        }
+        $newAssociation->setParent( $parentAssociation );
         $this->associationRepos->save($newAssociation);
         return $newAssociation;
     }
