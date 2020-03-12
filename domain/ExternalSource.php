@@ -67,7 +67,6 @@ class ExternalSource
     {
         $this->setName( $name );
         $this->setWebsite( $website );
-        $this->implementations = 0;
     }
 
     public function getId(): int
@@ -184,6 +183,9 @@ class ExternalSource
 
     public function getImplementations(): int
     {
+        if( $this->implementations === null ) {
+            $this->implementations = 0;
+        }
         return $this->implementations;
     }
 

@@ -141,10 +141,9 @@ class Competition implements ImporterInterface
                  continue;
              }
             $sportConfig = $this->sportConfigService->copy( $externalSourceSportConfig, $competition, $sport );
-             // daarna waarschijnlijk de sportconfigs opslaan
-            // $this->sportConfigRepos->save( $sportConfig );
         }
         $this->competitionRepos->customPersist($competition);
+        $this->competitionRepos->save($competition);
         return $competition;
     }
 
