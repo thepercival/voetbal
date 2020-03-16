@@ -1,6 +1,6 @@
 <?php
 
-namespace Voetbal\Import\Helper;
+namespace Voetbal\Import\Service;
 
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
@@ -23,26 +23,13 @@ class Sport implements ImporterInterface
      */
     protected $sportAttacherRepos;
     /**
-     * @var ExternalSource
-     */
-    private $externalSourceBase;
-    /**
      * @var LoggerInterface
      */
     private $logger;
-    /**
-     * @var array
-     */
-    // private $settings;
-    /**
-     * @var StructureOptions
-     */
-    // protected $structureOptions;
 
     public function __construct(
         SportRepository $sportRepos,
         SportAttacherRepository $sportAttacherRepos,
-        ExternalSource $externalSourceBase,
         LoggerInterface $logger/*,
         array $settings*/
     )
@@ -50,30 +37,25 @@ class Sport implements ImporterInterface
         $this->logger = $logger;
         $this->sportRepos = $sportRepos;
         $this->sportAttacherRepos = $sportAttacherRepos;
-        // $this->settings = $settings;
-        $this->externalSourceBase = $externalSourceBase;
-        /* $this->structureOptions = new StructureOptions(
-             new VoetbalRange(1, 32),
-             new VoetbalRange( 2, 256),
-             new VoetbalRange( 2, 30)
-         );*/
     }
 
     /**
+     * @param ExternalSource $externalSource
      * @param array|SportBase[] $externalSourceSports
+     * @throws \Exception
      */
-    public function import( array $externalSourceSports )
+    public function import(ExternalSource $externalSource, array $externalSourceSports )
     {
         foreach ($externalSourceSports as $externalSourceSport) {
             $externalId = $externalSourceSport->getId();
             $sportAttacher = $this->sportAttacherRepos->findOneByExternalId(
-                $this->externalSourceBase,
+                $externalSource,
                 $externalId
             );
             if ($sportAttacher === null) {
                 $sport = $this->createSport($externalSourceSport);
                 $sportAttacher = new SportAttacher(
-                    $sport, $this->externalSourceBase, $externalId
+                    $sport, $externalSource, $externalId
                 );
                 $this->sportAttacherRepos->save( $sportAttacher);
             } else {

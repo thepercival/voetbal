@@ -1,6 +1,6 @@
 <?php
 
-namespace Voetbal\Import\Helper;
+namespace Voetbal\Import\Service;
 
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
@@ -10,6 +10,7 @@ use Voetbal\Attacher\Competition\Repository as CompetitionAttacherRepository;
 use Voetbal\Attacher\League\Repository as LeagueAttacherRepository;
 use Voetbal\Attacher\Season\Repository as SeasonAttacherRepository;
 use Voetbal\Attacher\Sport\Repository as SportAttacherRepository;
+use Voetbal\League as LeagueBase;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Sport\Config\Service as SportConfigService;
 use Voetbal\Competition as CompetitionBase;
@@ -44,21 +45,9 @@ class Competition implements ImporterInterface
      */
     protected $sportConfigService;
     /**
-     * @var ExternalSource
-     */
-    private $externalSourceBase;
-    /**
      * @var LoggerInterface
      */
     private $logger;
-    /**
-     * @var array
-     */
-    // private $settings;
-    /**
-     * @var StructureOptions
-     */
-    // protected $structureOptions;
 
     public function __construct(
         CompetitionRepository $competitionRepos,
@@ -66,10 +55,7 @@ class Competition implements ImporterInterface
         LeagueAttacherRepository $leagueAttacherRepos,
         SeasonAttacherRepository $seasonAttacherRepos,
         SportAttacherRepository $sportAttacherRepos,
-        // SportConfigRepository $sportConfigRepos,
-        ExternalSource $externalSourceBase,
-        LoggerInterface $logger/*,
-        array $settings*/
+        LoggerInterface $logger
     )
     {
         $this->logger = $logger;
@@ -78,34 +64,29 @@ class Competition implements ImporterInterface
         $this->leagueAttacherRepos = $leagueAttacherRepos;
         $this->seasonAttacherRepos = $seasonAttacherRepos;
         $this->sportAttacherRepos = $sportAttacherRepos;
-        // $this->settings = $settings;
-        $this->externalSourceBase = $externalSourceBase;
         $this->sportConfigService = new SportConfigService();
-        /* $this->structureOptions = new StructureOptions(
-             new VoetbalRange(1, 32),
-             new VoetbalRange( 2, 256),
-             new VoetbalRange( 2, 30)
-         );*/
     }
 
     /**
+     * @param ExternalSource $externalSource
      * @param array|CompetitionBase[] $externalSourceCompetitions
+     * @throws \Exception
      */
-    public function import(array $externalSourceCompetitions)
+    public function import(ExternalSource $externalSource, array $externalSourceCompetitions)
     {
         foreach ($externalSourceCompetitions as $externalSourceCompetition) {
             $externalId = $externalSourceCompetition->getId();
             $competitionAttacher = $this->competitionAttacherRepos->findOneByExternalId(
-                $this->externalSourceBase,
+                $externalSource,
                 $externalId
             );
             if ($competitionAttacher === null) {
-                $competition = $this->createCompetition($externalSourceCompetition);
+                $competition = $this->createCompetition($externalSource, $externalSourceCompetition);
                 if ($competition === null) {
                     continue;
                 }
                 $competitionAttacher = new CompetitionAttacher(
-                    $competition, $this->externalSourceBase, $externalId
+                    $competition, $externalSource, $externalId
                 );
                 $this->competitionAttacherRepos->save($competitionAttacher);
             } else {
@@ -115,17 +96,17 @@ class Competition implements ImporterInterface
         // bij syncen hoeft niet te verwijderden
     }
 
-    protected function createCompetition(CompetitionBase $externalSourceCompetition): ?CompetitionBase
+    protected function createCompetition(ExternalSource $externalSource, CompetitionBase $externalSourceCompetition): ?CompetitionBase
     {
         $league = $this->leagueAttacherRepos->findImportable(
-            $this->externalSourceBase,
+            $externalSource,
             $externalSourceCompetition->getLeague()->getId()
         );
         if( $league  === null ) {
             return null;
         }
         $season = $this->seasonAttacherRepos->findImportable(
-            $this->externalSourceBase,
+            $externalSource,
             $externalSourceCompetition->getSeason()->getId()
         );
         if( $season  === null ) {
@@ -136,7 +117,7 @@ class Competition implements ImporterInterface
 
         foreach( $externalSourceCompetition->getSportConfigs() as $externalSourceSportConfig ) {
 
-             $sport = $this->sportAttacherRepos->findImportable( $this->externalSourceBase, $externalSourceSportConfig->getSport()->getId() );
+             $sport = $this->sportAttacherRepos->findImportable( $externalSource, $externalSourceSportConfig->getSport()->getId() );
              if( $sport === null ) {
                  continue;
              }

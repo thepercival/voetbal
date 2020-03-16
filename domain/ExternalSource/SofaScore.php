@@ -29,6 +29,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
                            ExternalSourceSeason, ExternalSourceLeague, ExternalSourceCompetition
 {
     public const SPORTFILTER = "football";
+    public const NAME = "SofaScore";
 
     /**
      * @var ExternalSourceBase
@@ -54,7 +55,7 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
     public function __construct(
         ExternalSourceBase $externalSource,
         CacheItemDbRepository $cacheItemDbRepos,
-        LoggerInterface $logger
+        LoggerInterface $logger = null
     ) {
         $this->logger = $logger;
         $this->helpers = [];
@@ -69,7 +70,13 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
 
     protected function getApiHelper()
     {
-        return new SofaScore\ApiHelper($this->getExternalSource(), $this->cacheItemDbRepos);
+        if (array_key_exists(SofaScore\ApiHelper::class, $this->helpers)) {
+            return $this->helpers[SofaScore\ApiHelper::class];
+        }
+        $this->helpers[SofaScore\ApiHelper::class] = new SofaScore\ApiHelper(
+            $this->getExternalSource(), $this->cacheItemDbRepos
+        );
+        return $this->helpers[SofaScore\ApiHelper::class];
     }
 
     /*protected function getErrorUrl(): string

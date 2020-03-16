@@ -1,6 +1,6 @@
 <?php
 
-namespace Voetbal\Import\Helper;
+namespace Voetbal\Import\Service;
 
 use League\Period\Period;
 use Voetbal\Import\ImporterInterface;
@@ -11,6 +11,7 @@ use Voetbal\Attacher\League\Repository as LeagueAttacherRepository;
 use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
 use Voetbal\League as LeagueBase;
 use Voetbal\Attacher\League as LeagueAttacher;
+use Voetbal\Season as SeasonBase;
 use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 
@@ -29,62 +30,43 @@ class League implements ImporterInterface
      */
     protected $associationAttacherRepos;
     /**
-     * @var ExternalSource
-     */
-    private $externalSourceBase;
-    /**
      * @var LoggerInterface
      */
     private $logger;
-    /**
-     * @var array
-     */
-    // private $settings;
-    /**
-     * @var StructureOptions
-     */
-    // protected $structureOptions;
 
     public function __construct(
         LeagueRepository $leagueRepos,
         LeagueAttacherRepository $leagueAttacherRepos,
         AssociationAttacherRepository $associationAttacherRepos,
-        ExternalSource $externalSourceBase,
-        LoggerInterface $logger/*,
-        array $settings*/
+        LoggerInterface $logger
     )
     {
         $this->logger = $logger;
         $this->leagueRepos = $leagueRepos;
         $this->leagueAttacherRepos = $leagueAttacherRepos;
         $this->associationAttacherRepos = $associationAttacherRepos;
-        // $this->settings = $settings;
-        $this->externalSourceBase = $externalSourceBase;
-        /* $this->structureOptions = new StructureOptions(
-             new VoetbalRange(1, 32),
-             new VoetbalRange( 2, 256),
-             new VoetbalRange( 2, 30)
-         );*/
     }
 
     /**
+     * @param ExternalSource $externalSource
      * @param array|LeagueBase[] $externalSourceLeagues
+     * @throws \Exception
      */
-    public function import(array $externalSourceLeagues)
+    public function import(ExternalSource $externalSource, array $externalSourceLeagues)
     {
         foreach ($externalSourceLeagues as $externalSourceLeague) {
             $externalId = $externalSourceLeague->getId();
             $leagueAttacher = $this->leagueAttacherRepos->findOneByExternalId(
-                $this->externalSourceBase,
+                $externalSource,
                 $externalId
             );
             if ($leagueAttacher === null) {
-                $league = $this->createLeague($externalSourceLeague);
+                $league = $this->createLeague($externalSource, $externalSourceLeague);
                 if ($league === null) {
                     continue;
                 }
                 $leagueAttacher = new LeagueAttacher(
-                    $league, $this->externalSourceBase, $externalId
+                    $league, $externalSource, $externalId
                 );
                 $this->leagueAttacherRepos->save($leagueAttacher);
             } else {
@@ -94,10 +76,10 @@ class League implements ImporterInterface
         // bij syncen hoeft niet te verwijderden
     }
 
-    protected function createLeague(LeagueBase $externalSourceLeague): ?LeagueBase
+    protected function createLeague(ExternalSource $externalSource, LeagueBase $externalSourceLeague): ?LeagueBase
     {
         $association = $this->associationAttacherRepos->findImportable(
-            $this->externalSourceBase,
+            $externalSource,
             $externalSourceLeague->getAssociation()->getId()
         );
         if( $association === null ) {

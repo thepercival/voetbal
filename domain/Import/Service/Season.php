@@ -1,6 +1,6 @@
 <?php
 
-namespace Voetbal\Import\Helper;
+namespace Voetbal\Import\Service;
 
 use League\Period\Period;
 use Voetbal\Import\ImporterInterface;
@@ -10,6 +10,7 @@ use Voetbal\Season\Repository as SeasonRepository;
 use Voetbal\Attacher\Season\Repository as SeasonAttacherRepository;
 use Voetbal\Season as SeasonBase;
 use Voetbal\Attacher\Season as SeasonAttacher;
+use Voetbal\Sport as SportBase;
 use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 
@@ -24,57 +25,38 @@ class Season implements ImporterInterface
      */
     protected $seasonAttacherRepos;
     /**
-     * @var ExternalSource
-     */
-    private $externalSourceBase;
-    /**
      * @var LoggerInterface
      */
     private $logger;
-    /**
-     * @var array
-     */
-    // private $settings;
-    /**
-     * @var StructureOptions
-     */
-    // protected $structureOptions;
 
     public function __construct(
         SeasonRepository $seasonRepos,
         SeasonAttacherRepository $seasonAttacherRepos,
-        ExternalSource $externalSourceBase,
-        LoggerInterface $logger/*,
-        array $settings*/
+        LoggerInterface $logger
     )
     {
         $this->logger = $logger;
         $this->seasonRepos = $seasonRepos;
         $this->seasonAttacherRepos = $seasonAttacherRepos;
-        // $this->settings = $settings;
-        $this->externalSourceBase = $externalSourceBase;
-        /* $this->structureOptions = new StructureOptions(
-             new VoetbalRange(1, 32),
-             new VoetbalRange( 2, 256),
-             new VoetbalRange( 2, 30)
-         );*/
     }
 
     /**
+     * @param ExternalSource $externalSource
      * @param array|SeasonBase[] $externalSourceSeasons
+     * @throws \Exception
      */
-    public function import( array $externalSourceSeasons )
+    public function import(ExternalSource $externalSource, array $externalSourceSeasons )
     {
         foreach ($externalSourceSeasons as $externalSourceSeason) {
             $externalId = $externalSourceSeason->getId();
             $seasonAttacher = $this->seasonAttacherRepos->findOneByExternalId(
-                $this->externalSourceBase,
+                $externalSource,
                 $externalId
             );
             if ($seasonAttacher === null) {
                 $season = $this->createSeason($externalSourceSeason);
                 $seasonAttacher = new SeasonAttacher(
-                    $season, $this->externalSourceBase, $externalId
+                    $season, $externalSource, $externalId
                 );
                 $this->seasonAttacherRepos->save( $seasonAttacher);
             } else {

@@ -8,7 +8,9 @@
 
 namespace Voetbal\Import;
 
+use Voetbal\ExternalSource;
+
 interface ImporterInterface
 {
-    public function import( array $importables);
+    public function import( ExternalSource $externalSource, array $importables);
 }

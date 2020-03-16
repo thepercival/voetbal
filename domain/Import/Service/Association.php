@@ -1,7 +1,8 @@
 <?php
 
-namespace Voetbal\Import\Helper;
+namespace Voetbal\Import\Service;
 
+use Voetbal\Competition as CompetitionBase;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
@@ -23,57 +24,38 @@ class Association implements ImporterInterface
      */
     protected $associationAttacherRepos;
     /**
-     * @var ExternalSource
-     */
-    private $externalSourceBase;
-    /**
      * @var LoggerInterface
      */
     private $logger;
-    /**
-     * @var array
-     */
-    // private $settings;
-    /**
-     * @var StructureOptions
-     */
-    // protected $structureOptions;
 
     public function __construct(
         AssociationRepository $associationRepos,
         AssociationAttacherRepository $associationAttacherRepos,
-        ExternalSource $externalSourceBase,
-        LoggerInterface $logger/*,
-        array $settings*/
+        LoggerInterface $logger
     )
     {
         $this->logger = $logger;
         $this->associationRepos = $associationRepos;
         $this->associationAttacherRepos = $associationAttacherRepos;
-        // $this->settings = $settings;
-        $this->externalSourceBase = $externalSourceBase;
-        /* $this->structureOptions = new StructureOptions(
-             new VoetbalRange(1, 32),
-             new VoetbalRange( 2, 256),
-             new VoetbalRange( 2, 30)
-         );*/
     }
 
     /**
+     * @param ExternalSource $externalSource
      * @param array|AssociationBase[] $externalSourceAssociations
+     * @throws \Exception
      */
-    public function import( array $externalSourceAssociations )
+    public function import( ExternalSource $externalSource,  array $externalSourceAssociations )
     {
         foreach ($externalSourceAssociations as $externalSourceAssociation) {
             $externalId = $externalSourceAssociation->getId();
             $associationAttacher = $this->associationAttacherRepos->findOneByExternalId(
-                $this->externalSourceBase,
+                $externalSource,
                 $externalId
             );
             if ($associationAttacher === null) {
-                $association = $this->createAssociation($externalSourceAssociation);
+                $association = $this->createAssociation($externalSource, $externalSourceAssociation);
                 $associationAttacher = new AssociationAttacher(
-                    $association, $this->externalSourceBase, $externalId
+                    $association, $externalSource, $externalId
                 );
                 $this->associationAttacherRepos->save( $associationAttacher);
             } else {
@@ -83,13 +65,13 @@ class Association implements ImporterInterface
         // bij syncen hoeft niet te verwijderden
     }
 
-    protected function createAssociation(AssociationBase $association): AssociationBase
+    protected function createAssociation(ExternalSource $externalSource, AssociationBase $association): AssociationBase
     {
         $newAssociation = new AssociationBase($association->getName());
         $parentAssociation = null;
         if( $association->getParent() !== null ) {
             $parentAssociation = $this->associationAttacherRepos->findImportable(
-                $this->externalSourceBase,
+                $externalSource,
                 $association->getParent()->getId()
             );
         }
