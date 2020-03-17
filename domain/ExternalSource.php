@@ -200,16 +200,19 @@ class ExternalSource
     public function setImplementationsFromImplementation( ExternalSource\Implementation $implementation )
     {
         $implementations = 0;
+        if( $implementation instanceof ExternalSourceSport ) {
+            $implementations += ExternalSource::SPORT;
+        }
         if( $implementation instanceof ExternalSourceAssociation ) {
             $implementations += ExternalSource::ASSOCIATION;
         }
-        if( $implementation instanceof ExternalSourceAssociation ) {
+        if( $implementation instanceof ExternalSourceSeason ) {
             $implementations += ExternalSource::SEASON;
         }
-        if( $implementation instanceof ExternalSourceAssociation ) {
+        if( $implementation instanceof ExternalSourceLeague ) {
             $implementations += ExternalSource::LEAGUE;
         }
-        if( $implementation instanceof ExternalSourceAssociation ) {
+        if( $implementation instanceof ExternalSourceCompetition ) {
             $implementations += ExternalSource::COMPETITION;
         }
         $this->setImplementations( $implementations );

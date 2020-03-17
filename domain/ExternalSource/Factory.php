@@ -54,17 +54,14 @@ class Factory
 
     public function createByName( string $name)
     {
-        if ( $name === SofaScore::NAME ) {
-            $externalSource = $this->externalSourceRepos->findOneBy( ["name" => SofaScore::NAME ] );
-            if( $externalSource === null ) {
-                return null;
-            }
-            return $this->create( $externalSource );
+        $externalSource = $this->externalSourceRepos->findOneBy( ["name" => $name ] );
+        if( $externalSource === null ) {
+            return null;
         }
-        return null;
+        return $this->create( $externalSource );
     }
 
-    private function create( ExternalSource $externalSource )
+    protected function create( ExternalSource $externalSource )
     {
         if ( $externalSource->getName() === SofaScore::NAME ) {
             return new SofaScore($externalSource, $this->cacheItemDbRepos, $this->logger);
@@ -76,9 +73,9 @@ class Factory
      * @param array|ExternalSource[] $externalSources
      */
     public function setImplementations( array $externalSources ) {
-
+        /** @var ExternalSource $externalSource */
         foreach( $externalSources as $externalSource ) {
-            $externalSourceImpl = $this->create( $externalSource->getName() );
+            $externalSourceImpl = $this->create( $externalSource );
             if( $externalSourceImpl === null) {
                 continue;
             }
