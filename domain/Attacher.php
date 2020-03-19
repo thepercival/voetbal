@@ -16,28 +16,29 @@ class Attacher
      * @var int
      */
     protected $id;
-
     /**
      * @var Importable
      */
     protected $importable;
-
     /**
      * @var ExternalSource
      */
     protected $externalSource;
-
     /**
      * @var string
      */
     protected $externalId;
+    /**
+     * @var int
+     */
+    protected $importableId;
 
     const MAX_LENGTH_EXTERNALID = 100;
 
     public function __construct( Importable $importable, ExternalSource $externalSource, $externalId)
     {
         $this->setImportable( $importable );
-        $this->setExternalSource( $externalSource );
+        $this->externalSource = $externalSource;
         $this->setExternalId( $externalId );
     }
 
@@ -96,8 +97,27 @@ class Attacher
         return $this->externalSource;
     }
 
-    public function setExternalSource( ExternalSource $externalSource )
+    /**
+     * @return int
+     */
+    public function getImportableId(): int
     {
-        $this->externalSource = $externalSource;
+        return $this->importable->getId();
+    }
+
+    /**
+     * @return int
+     */
+    public function getImportableIdForSer(): int
+    {
+        return $this->importableId;
+    }
+
+    /**
+     * @param int $importableId
+     */
+    public function setImportableId( int $importableId )
+    {
+        $this->importableId = $importableId;
     }
 }

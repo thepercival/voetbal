@@ -8,8 +8,6 @@
 
 namespace Voetbal;
 
-use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
-
 class ExternalSource
 {
     /**
@@ -58,10 +56,11 @@ class ExternalSource
     const MAX_LENGTH_APIURL = 255;
     const MAX_LENGTH_APIKEY = 255;
 
-    public const ASSOCIATION = 1;
-    public const SEASON = 2;
-    public const LEAGUE = 4;
-    public const COMPETITION = 8;
+    protected const SPORT = 1;
+    protected const ASSOCIATION = 2;
+    protected const SEASON = 4;
+    protected const LEAGUE = 8;
+    protected const COMPETITION = 16;
 
     public function __construct( $name, $website = null )
     {
@@ -200,19 +199,19 @@ class ExternalSource
     public function setImplementationsFromImplementation( ExternalSource\Implementation $implementation )
     {
         $implementations = 0;
-        if( $implementation instanceof ExternalSourceSport ) {
+        if( $implementation instanceof ExternalSource\Sport ) {
             $implementations += ExternalSource::SPORT;
         }
-        if( $implementation instanceof ExternalSourceAssociation ) {
+        if( $implementation instanceof ExternalSource\Association ) {
             $implementations += ExternalSource::ASSOCIATION;
         }
-        if( $implementation instanceof ExternalSourceSeason ) {
+        if( $implementation instanceof ExternalSource\Season ) {
             $implementations += ExternalSource::SEASON;
         }
-        if( $implementation instanceof ExternalSourceLeague ) {
+        if( $implementation instanceof ExternalSource\League ) {
             $implementations += ExternalSource::LEAGUE;
         }
-        if( $implementation instanceof ExternalSourceCompetition ) {
+        if( $implementation instanceof ExternalSource\Competition ) {
             $implementations += ExternalSource::COMPETITION;
         }
         $this->setImplementations( $implementations );
