@@ -59,6 +59,7 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
             $seasonData = array_merge( $seasonData, $apiData->sportItem->tournaments );
         }
         $this->setSeasons( $seasonData );
+        $this->seasons = array_values( $this->seasons );
         return $this->seasons;
     }
 

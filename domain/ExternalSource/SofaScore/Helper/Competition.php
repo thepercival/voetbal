@@ -61,6 +61,7 @@ class Competition extends SofaScoreHelper implements ExternalSourceCompetition
 
             $this->setCompetitions( $sport, $apiData->sportItem->tournaments );
         }
+        $this->competitions = array_values( $this->competitions );
         return $this->competitions;
     }
 

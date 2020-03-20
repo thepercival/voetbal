@@ -31,7 +31,7 @@ class ApiHelper
      */
     private $client;
     /**
-     * @var VoetbalRange
+     * @var VoetbalRange|null
      */
     private $sleepRangeInSeconds;
 
@@ -41,7 +41,6 @@ class ApiHelper
     ) {
         $this->cacheItemDbRepos = $cacheItemDbRepos;
         $this->externalSource = $externalSource;
-        $this->sleepRangeInSeconds = new VoetbalRange( 5, 60 );
     }
 
     protected function getClient()
@@ -74,11 +73,16 @@ class ApiHelper
             return json_decode($data);
         }
 
+        if( $this->sleepRangeInSeconds === null ) {
+            $this->sleepRangeInSeconds = new VoetbalRange( 5, 60 );
+        } else {
+            sleep( rand( $this->sleepRangeInSeconds->min, $this->sleepRangeInSeconds->max ) );
+        }
+
         $response = $this->getClient()->get(
             $this->externalSource->getApiurl() . $postUrl . $this->getUrlPostfix(),
             $this->getHeaders()
         );
-        sleep( rand( $this->sleepRangeInSeconds->min, $this->sleepRangeInSeconds->max ) );
         return json_decode(
             $this->cacheItemDbRepos->saveItem( $postUrl, $response->getBody()->getContents(), $cacheMinutes )
         );

@@ -59,6 +59,7 @@ class Association extends SofaScoreHelper implements ExternalSourceAssociation
             $associationData = array_merge( $associationData, $apiData->sportItem->tournaments );
         }
         $this->setAssociations( $associationData );
+        $this->associations = array_values( $this->associations );
         return $this->associations;
     }
 

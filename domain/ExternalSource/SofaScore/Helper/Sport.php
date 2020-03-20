@@ -56,6 +56,7 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
         }
 
         $this->setSports($sportsData);
+        $this->sports = array_values( $this->sports );
         return $this->sports;
     }
 

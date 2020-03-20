@@ -60,6 +60,7 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
             $leagueData = array_merge( $leagueData, $apiData->sportItem->tournaments );
         }
         $this->setLeagues( $leagueData );
+        $this->leagues = array_values( $this->leagues );
         return $this->leagues;
     }
 
