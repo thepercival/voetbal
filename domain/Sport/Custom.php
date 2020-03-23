@@ -22,7 +22,8 @@ abstract class Custom {
     const Football = 11;
     const Volleyball = 12;
     const Baseball = 13;
-    const Max = 13;
+    const IceHockey = 14;
+    const Max = 14;
 
     static public function get(): array {
         return [
@@ -31,6 +32,7 @@ abstract class Custom {
             Custom::Darts,
             Custom::ESports,
             Custom::Hockey,
+            Custom::Baseball,
             Custom::Korfball,
             Custom::Chess,
             Custom::Squash,
@@ -38,7 +40,7 @@ abstract class Custom {
             Custom::Tennis,
             Custom::Football,
             Custom::Volleyball,
-            Custom::Baseball
+            Custom::IceHockey
         ];
     }
 }
