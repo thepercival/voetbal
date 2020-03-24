@@ -154,7 +154,7 @@ class Referee
         }
         if ($name !== null && !preg_match('/^[a-z0-9 .\-]+$/i', $name)) {
             throw new \InvalidArgumentException(
-                "de naam (" . $name . ") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR
+                "de naam (" . $name . ") mag alleen cijfers, streeptes, slashes en spaties bevatten", E_ERROR
             );
         }
         $this->name = $name;

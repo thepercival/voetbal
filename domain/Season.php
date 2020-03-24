@@ -71,7 +71,7 @@ class Season implements Importable
         }
 
 //        if(preg_match('/[^0-9\s\/-]/i', $name)){
-//            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streeptjes, slashes en spaties bevatten", E_ERROR );
+//            throw new \InvalidArgumentException( "de naam (".$name.") mag alleen cijfers, streepjes, slashes en spaties bevatten", E_ERROR );
 //        }
 
         $this->name = $name;
