@@ -75,8 +75,7 @@ class Number implements SubscribingHandlerInterface
 
         if( array_key_exists( "sportScoreConfigs", $arrRoundNumber ) ) {
             foreach ($arrRoundNumber["sportScoreConfigs"] as $arrSportScoreConfig) {
-                $sport = new Sport("");
-                $sport->setId($arrSportScoreConfig["sportId"]);
+                $sport = $this->createSport( $arrSportScoreConfig["sport"] );
                 $this->createSportScoreConfig($arrSportScoreConfig, $sport, $roundNumber);
             }
         }
@@ -91,6 +90,13 @@ class Number implements SubscribingHandlerInterface
         }
 
         return $roundNumber;
+    }
+
+    protected function createSport( array $arrSport ): Sport {
+        $sport = new Sport( $arrSport["name"] );
+        $sport->setTeam($arrSport["team"]);
+        $sport->setCustomId($arrSport["customId"]);
+        return $sport;
     }
 
     protected function createSportScoreConfig( array $arrConfig, Sport $sport, RoundNumber $roundNumber, SportScoreConfig $previous = null ) {

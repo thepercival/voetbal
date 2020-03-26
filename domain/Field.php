@@ -8,9 +8,6 @@
 
 namespace Voetbal;
 
-use Voetbal\Sport\IdSer as SportIdSer;
-use Voetbal\Competition;
-
 /**
  * Class Field
  * @package Voetbal
@@ -37,8 +34,6 @@ class Field
      * @var Sport
      */
     private $sport;
-
-    use SportIdSer;
 
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 3;

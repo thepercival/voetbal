@@ -4,7 +4,7 @@ Voetbal\Sport:
   access_type: public_method
   properties:
     id:
-      type: integer
+      read_only: true
     name:
       type: string
     team:

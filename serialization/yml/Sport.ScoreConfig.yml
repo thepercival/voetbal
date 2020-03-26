@@ -14,7 +14,5 @@ Voetbal\Sport\ScoreConfig:
       type: boolean
     next:
       type: Voetbal\Sport\ScoreConfig
-  virtual_properties:
-    getSportId:
-      type: integer
-      serialized_name: sportId
+    sport:
+      type: Voetbal\Sport

@@ -18,9 +18,5 @@ Voetbal\Sport\Config:
       type: integer
     nrOfGamePlaces:
       type: integer
-    sportIdSer:
-      type: integer
-      serialized_name: sportId
-      access_type: public_method
-      accessor:
-        getter: getSportIdForSer
+    sport:
+      type: Voetbal\Sport

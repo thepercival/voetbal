@@ -8,10 +8,7 @@
 
 namespace Voetbal\Sport;
 
-use Voetbal\Game;
-use Voetbal\Sport;
 use Voetbal\Sport as SportBase;
-use Voetbal\Sport\IdSer as SportIdSer;
 use Voetbal\Competition;
 
 class Config {
@@ -52,8 +49,6 @@ class Config {
      * @var int
      */
     protected $nrOfGamePlaces;
-
-    use SportIdSer;
 
     const DEFAULT_WINPOINTS = 3;
     const DEFAULT_DRAWPOINTS = 1;
@@ -179,6 +174,10 @@ class Config {
     public function getSport(): SportBase
     {
         return $this->sport;
+    }
+
+    public function setSport(SportBase $sport): void {
+        $this->sport = $sport;
     }
 
     /**

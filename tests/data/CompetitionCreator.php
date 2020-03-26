@@ -38,7 +38,7 @@ function createCompetition(): Competition
 
     foreach( $competition->getFields() as $field ) {
         $foundSports = $competition->getSports()->filter( function( $sport ) use ( $field ) {
-            return $field->getSportIdSer() === $sport->getId();
+            return $field->getSport()->getName() === $sport->getName();
         });
         $field->setSport( $foundSports->first() );
     }

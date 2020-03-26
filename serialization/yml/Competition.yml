@@ -6,7 +6,7 @@ Voetbal\Competition:
 
   properties:
     id:
-      type: integer
+      read_only: true
     ruleSet:
       type: integer
     state:
