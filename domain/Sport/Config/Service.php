@@ -8,13 +8,10 @@
 
 namespace Voetbal\Sport\Config;
 
-use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Sport;
-use Voetbal\Sport as SportBase;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Sport\Custom as SportCustom;
 use Voetbal\Sport\ScoreConfig\Service as ScoreConfigService;
-use Voetbal\Sport\PlanningConfig\Service as PlanningConfigService;
 use Voetbal\Competition;
 use Voetbal\Structure;
 
@@ -36,6 +33,7 @@ class Service {
         $config->setDrawPoints($this->getDefaultDrawPoints($sport));
         $config->setWinPointsExt($this->getDefaultWinPointsExt($sport));
         $config->setDrawPointsExt($this->getDefaultDrawPointsExt($sport));
+        $config->setLosePointsExt($this->getDefaultLosePointsExt($sport));
         $config->setPointsCalculation(SportConfig::POINTS_CALC_GAMEPOINTS);
         $config->setNrOfGamePlaces( SportConfig::DEFAULT_NROFGAMEPLACES );
         if ($structure) {
@@ -60,12 +58,17 @@ class Service {
         return $sport->getCustomId() === SportCustom::Chess ? 1 : 0.5;
     }
 
+    protected function getDefaultLosePointsExt( Sport $sport ): float {
+        return $sport->getCustomId() === SportCustom::IceHockey ? 1 : 0;
+    }
+
     public function copy( SportConfig $sourceConfig, Competition $newCompetition, Sport $sport ): SportConfig {
         $newConfig = new SportConfig($sport, $newCompetition);
         $newConfig->setWinPoints($sourceConfig->getWinPoints());
         $newConfig->setDrawPoints($sourceConfig->getDrawPoints());
         $newConfig->setWinPointsExt($sourceConfig->getWinPointsExt());
         $newConfig->setDrawPointsExt($sourceConfig->getDrawPointsExt());
+        $newConfig->setLosePointsExt($sourceConfig->getLosePointsExt());
         $newConfig->setPointsCalculation($sourceConfig->getPointsCalculation());
         $newConfig->setNrOfGamePlaces( $sourceConfig->getNrOfGamePlaces() );
         return $newConfig;
@@ -120,6 +123,7 @@ class Service {
             || $sportConfig->getDrawPoints() !== $this->getDefaultDrawPoints($sport)
             || $sportConfig->getWinPointsExt() !== $this->getDefaultWinPointsExt($sport)
             || $sportConfig->getDrawPointsExt() !== $this->getDefaultDrawPointsExt($sport)
+            || $sportConfig->getLosePointsExt() !== $this->getDefaultLosePointsExt($sport)
             || $sportConfig->getPointsCalculation() !== SportConfig::POINTS_CALC_GAMEPOINTS
             || $sportConfig->getNrOfGamePlaces() !== SportConfig::DEFAULT_NROFGAMEPLACES
         );
@@ -131,6 +135,7 @@ class Service {
             || $sportConfigA->getDrawPoints() !== $sportConfigB->getDrawPoints()
             || $sportConfigA->getWinPointsExt() !== $sportConfigB->getWinPointsExt()
             || $sportConfigA->getDrawPointsExt() !== $sportConfigB->getDrawPointsExt()
+            || $sportConfigA->getLosePointsExt() !== $sportConfigB->getLosePointsExt()
             || $sportConfigA->getPointsCalculation() !== $sportConfigB->getPointsCalculation()
             || $sportConfigA->getNrOfGamePlaces() !== $sportConfigB->getNrOfGamePlaces()
         );

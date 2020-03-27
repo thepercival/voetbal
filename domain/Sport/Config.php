@@ -42,6 +42,10 @@ class Config {
      */
     protected $drawPointsExt;
     /**
+     * @var double
+     */
+    protected $losePointsExt;
+    /**
      * @var int
      */
     protected $pointsCalculation;
@@ -144,6 +148,22 @@ class Config {
     public function setDrawPointsExt($drawPointsExt)
     {
         $this->drawPointsExt = $drawPointsExt;
+    }
+
+    /**
+     * @return double
+     */
+    public function getLosePointsExt()
+    {
+        return $this->losePointsExt;
+    }
+
+    /**
+     * @param double $losePointsExt
+     */
+    public function setLosePointsExt($losePointsExt)
+    {
+        $this->losePointsExt = $losePointsExt;
     }
 
     /**

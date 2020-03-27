@@ -5,6 +5,8 @@ Voetbal\Planning\Config:
   properties:
     id:
       type: integer
+    extension:
+      type: boolean
     enableTime:
       type: boolean
     minutesPerGame:

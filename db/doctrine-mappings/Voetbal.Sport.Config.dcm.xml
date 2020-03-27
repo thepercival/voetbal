@@ -8,6 +8,7 @@
     <field name="drawPoints" column="drawPoints" type="decimal" precision="3" scale="1" nullable="false" unique="false"/>
     <field name="winPointsExt" column="winPointsExt" type="decimal" precision="3" scale="1" nullable="false" unique="false"/>
     <field name="drawPointsExt" column="drawPointsExt" type="decimal" precision="3" scale="1" nullable="false" unique="false"/>
+    <field name="losePointsExt" column="losePointsExt" type="decimal" precision="3" scale="1" nullable="false" unique="false"/>
     <field name="pointsCalculation" column="pointsCalculation" type="smallint" nullable="false" unique="false"/>
     <field name="nrOfGamePlaces" column="nrOfGamePlaces" type="smallint" nullable="true" unique="false"/>
     <many-to-one field="competition" target-entity="Voetbal\Competition" inversed-by="sportConfigs">

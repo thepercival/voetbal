@@ -24,6 +24,7 @@
       "drawPoints": 1.0,
       "winPointsExt": 2.0,
       "drawPointsExt": 1.0,
+      "losePointsExt": 0.0,
       "nrOfGamePlaces": 2,
       "pointsCalculation": 0,
       "sportId": 1

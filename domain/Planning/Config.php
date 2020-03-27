@@ -21,9 +21,9 @@ class Config {
      */
     protected $id;
     /**
-     * @var int
+     * @var bool
      */
-    protected $minutesPerGameExt;
+    protected $extension;
     /**
      * @var bool
      */
@@ -32,6 +32,10 @@ class Config {
      * @var int
      */
     protected $minutesPerGame;
+    /**
+     * @var int
+     */
+    protected $minutesPerGameExt;
     /**
      * @var int
      */
@@ -53,7 +57,8 @@ class Config {
      */
     protected $nrOfHeadtohead;
 
-    const DEFAULTENABLETIME = false;
+    const DEFAULTEXTENSION = false;
+    const DEFAULTENABLETIME = true;
     const TEAMUP_MIN = 4;
     const TEAMUP_MAX = 6;
     const DEFAULTNROFHEADTOHEAD = 1;
@@ -80,6 +85,25 @@ class Config {
     public function setId(int $id = null)
     {
         $this->id = $id;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getExtension()
+    {
+        return $this->extension;
+    }
+
+    /**
+     * @param bool $extension
+     */
+    public function setExtension($extension)
+    {
+        if (!is_bool($extension)) {
+            throw new \InvalidArgumentException("verlenging ja/nee heeft een onjuiste waarde", E_ERROR);
+        }
+        $this->extension = $extension;
     }
 
     /**
@@ -152,14 +176,6 @@ class Config {
     public function setMinutesPerGame(int $minutesPerGame)
     {
         $this->minutesPerGame = $minutesPerGame;
-    }
-
-    /**
-     * @return bool
-     */
-    public function hasExtension()
-    {
-        return $this->getMinutesPerGameExt() > 0;
     }
 
     /**

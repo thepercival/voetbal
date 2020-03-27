@@ -5,6 +5,7 @@ update sports set team = true, customId = 14 where name = 'ijshockey';
 -- POST POST POST doctrine-update ===========================================================
 update tournaments set breakStartDateTime = null where breakStartDateTime is not null and breakDuration = 0;
 update tournaments set breakEndDateTime = DATE_ADD(breakStartDateTime, INTERVAL breakDuration MINUTE) where breakStartDateTime is not null;
+update planningconfigs set extension = ( minutesPerGameExt > 0 );
 
 -- CUSTOM IMPORT =============================
 -- mysqldump -u fctoernooi_a_dba -p fctoernooiacc planninginputs plannings planningsports planningfields planningpoules planningplaces planningreferees planninggames planninggameplaces > planninginputs.sql

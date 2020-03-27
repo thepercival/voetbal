@@ -110,6 +110,8 @@ class ItemsGetter
             } elseif ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
                 return $game->getSportConfig()->getDrawPointsExt();
             }
+        } elseif ($game->getFinalPhase() === Game::PHASE_EXTRATIME) {
+            return $game->getSportConfig()->getLosePointsExt();
         }
         return 0;
     }
