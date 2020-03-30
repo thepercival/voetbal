@@ -7,7 +7,7 @@ update tournaments set breakStartDateTime = null where breakStartDateTime is not
 update tournaments set breakEndDateTime = DATE_ADD(breakStartDateTime, INTERVAL breakDuration MINUTE) where breakStartDateTime is not null;
 update planningconfigs set extension = ( minutesPerGameExt > 0 );
 
-delete	r.*
+delete  r.*
 from 	rounds r
             join roundnumbers rn on rn.id = r.numberid
             join competitions c on c.id = rn.competitionid
