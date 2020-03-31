@@ -89,23 +89,12 @@ class Service
         return $sportScoreConfigA->getNext() === $sportScoreConfigB->getNext();
     }
 
-    public function hasMultipleScores(SportScoreConfig $rootSportScoreConfig): bool
-    {
-        return $rootSportScoreConfig->getNext() !== null;
-    }
-
-    public function getFinal(Game $game, bool $sub = null): ?GameScoreHomeAway
+    public function getFinalScore(Game $game, bool $useSubScore): ?GameScoreHomeAway
     {
         if ($game->getScores()->count() === 0) {
             return null;
         }
-        if ($sub === true) {
-            return $this->getSubScore($game);
-        }
-        $home = $game->getScores()->first()->getHome();
-        $away = $game->getScores()->first()->getAway();
-        $sportScoreConfig = $game->getSportScoreConfig();
-        if ($sportScoreConfig->getCalculate() !== $sportScoreConfig) {
+        if ($useSubScore) {
             $home = 0;
             $away = 0;
             foreach ($game->getScores() as $score) {
@@ -115,11 +104,14 @@ class Service
                     $away++;
                 }
             }
+            return new GameScoreHomeAway($home, $away);
         }
+        $home = $game->getScores()->first()->getHome();
+        $away = $game->getScores()->first()->getAway();
         return new GameScoreHomeAway($home, $away);
     }
 
-    private function getSubScore(Game $game): GameScoreHomeAway
+    public function getFinalSubScore(Game $game): GameScoreHomeAway
     {
         $home = 0;
         $away = 0;

@@ -34,10 +34,6 @@ class Service
     /**
      * @var int
      */
-    private $maxPlaces = 64;
-    /**
-     * @var int
-     */
     private $gameStates;
     /**
      * @var array
@@ -252,16 +248,15 @@ class Service
             if ($againstEachOther !== false) {
                 $rankFunctions[] = $this->rankFunctions[Service::BestAgainstEachOther];
             }
-        } else {
-            if ($this->rulesSet === Service::RULESSET_EC) {
-                if ($againstEachOther !== false) {
-                    $rankFunctions[] = $this->rankFunctions[Service::BestAgainstEachOther];
-                }
-                $rankFunctions = array_merge($rankFunctions, $unitRankFunctions);
-            } else {
-                throw new \Exception('Unknown qualifying rule', E_ERROR);
+        } elseif ($this->rulesSet === Service::RULESSET_EC) {
+            if ($againstEachOther !== false) {
+                $rankFunctions[] = $this->rankFunctions[Service::BestAgainstEachOther];
             }
+            $rankFunctions = array_merge($rankFunctions, $unitRankFunctions);
+        } else {
+            throw new \Exception('Unknown qualifying rule', E_ERROR);
         }
+
         return $rankFunctions;
     }
 
@@ -277,12 +272,10 @@ class Service
                 if ($mostPoints === null || $points === $mostPoints) {
                     $mostPoints = $points;
                     $bestItems[] = $item;
-                } else {
-                    if ($points > $mostPoints) {
-                        $mostPoints = $points;
-                        $bestItems = [];
-                        $bestItems[] = $item;
-                    }
+                } elseif ($points > $mostPoints) {
+                    $mostPoints = $points;
+                    $bestItems = [];
+                    $bestItems[] = $item;
                 }
             }
             return $bestItems;
@@ -296,11 +289,9 @@ class Service
                 if ($fewestGames === null || $nrOfGames === $fewestGames) {
                     $fewestGames = $nrOfGames;
                     $bestItems[] = $item;
-                } else {
-                    if ($nrOfGames < $fewestGames) {
-                        $fewestGames = $nrOfGames;
-                        $bestItems = [$item];
-                    }
+                } elseif ($nrOfGames < $fewestGames) {
+                    $fewestGames = $nrOfGames;
+                    $bestItems = [$item];
                 }
             }
             return $bestItems;
@@ -383,11 +374,9 @@ class Service
                 if ($bestDiff === null || $diff === $bestDiff) {
                     $bestDiff = $diff;
                     $bestItems[] = $item;
-                } else {
-                    if ($diff > $bestDiff) {
-                        $bestDiff = $diff;
-                        $bestItems = [$item];
-                    }
+                } elseif ($diff > $bestDiff) {
+                    $bestDiff = $diff;
+                    $bestItems = [$item];
                 }
             }
             return $bestItems;
@@ -409,11 +398,9 @@ class Service
                 if ($mostScored === null || $scored === $mostScored) {
                     $mostScored = $scored;
                     $bestItems[] = $item;
-                } else {
-                    if ($scored > $mostScored) {
-                        $mostScored = $scored;
-                        $bestItems = [$item];
-                    }
+                } elseif ($scored > $mostScored) {
+                    $mostScored = $scored;
+                    $bestItems = [$item];
                 }
             }
             return $bestItems;

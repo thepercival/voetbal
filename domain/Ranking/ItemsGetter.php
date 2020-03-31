@@ -33,12 +33,18 @@ class ItemsGetter
      * @var SportScoreConfigService
      */
     private $sportScoreConfigService;
+    /**
+     * @var bool
+     */
+    private $useSubScoreRound;
 
     public function __construct(Round $round, int $gameStates)
     {
         $this->round = $round;
         $this->gameStates = $gameStates;
         $this->sportScoreConfigService = new SportScoreConfigService();
+        $sportConfig = $round->getNumber()->getCompetition()->getFirstSportConfig();
+        $this->useSubScoreRound = $round->getNumber()->getSportScoreConfig($sportConfig->getSport())->useSubScore();
     }
 
     protected static function getIndex(Place $place): string
@@ -63,13 +69,22 @@ class ItemsGetter
             if (($game->getState() & $this->gameStates) === 0) {
                 continue;
             }
-            $finalScore = $this->sportScoreConfigService->getFinal($game);
+            $useSubScore = $this->useSubScoreRound ? $this->useSubScoreRound : $game->getSportScoreConfig()->useSubScore();
+            $finalScore = $this->sportScoreConfigService->getFinalScore($game, $useSubScore);
+            $finalSubScore = $useSubScore ? $this->sportScoreConfigService->getFinalSubScore($game) : null;
+
+            // $finalScore = $this->sportScoreConfigService->getFinal($game);
             foreach ([Game::HOME, Game::AWAY] as $homeAway) {
                 $points = $this->getNrOfPoints($finalScore, $homeAway, $game);
-                $scored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED, false);
-                $received = $this->getNrOfUnits($finalScore, $homeAway, GameScore::RECEIVED, false);
-                $subScored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED, true);
-                $subReceived = $this->getNrOfUnits($finalScore, $homeAway, GameScore::RECEIVED, true);
+                $scored = $this->getNrOfUnits($finalScore, $homeAway, GameScore::SCORED);
+                $received = $this->getNrOfUnits($finalScore, $homeAway, GameScore::RECEIVED);
+                $subScored = 0;
+                $subReceived = 0;
+                if ( $useSubScore ) {
+                    $subScored = $this->getNrOfUnits($finalSubScore, $homeAway, GameScore::SCORED);
+                    $subReceived = $this->getNrOfUnits($finalSubScore, $homeAway, GameScore::RECEIVED);
+                }
+
                 foreach ($game->getPlaces($homeAway) as $gamePlace) {
                     $foundItems = array_filter(
                         $items,
@@ -127,7 +142,7 @@ class ItemsGetter
         return $finalScore->getResult() === Game::RESULT_DRAW;
     }
 
-    private function getNrOfUnits(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoredReceived, bool $sub): int
+    private function getNrOfUnits(?GameScoreHomeAway $finalScore, bool $homeAway, int $scoredReceived): int
     {
         if ($finalScore === null) {
             return 0;

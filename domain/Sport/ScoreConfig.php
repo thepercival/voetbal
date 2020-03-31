@@ -240,4 +240,8 @@ class ScoreConfig
         }
         return $this;
     }
+
+    public function useSubScore(): bool {
+        return ($this !== $this->getCalculate());
+    }
 }
