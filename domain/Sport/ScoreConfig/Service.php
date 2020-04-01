@@ -89,12 +89,12 @@ class Service
         return $sportScoreConfigA->getNext() === $sportScoreConfigB->getNext();
     }
 
-    public function getFinalScore(Game $game, bool $useSubScore): ?GameScoreHomeAway
+    public function getFinalScore(Game $game): ?GameScoreHomeAway
     {
         if ($game->getScores()->count() === 0) {
             return null;
         }
-        if ($useSubScore) {
+        if ( $game->getSportScoreConfig()->useSubScore() ) {
             $home = 0;
             $away = 0;
             foreach ($game->getScores() as $score) {
