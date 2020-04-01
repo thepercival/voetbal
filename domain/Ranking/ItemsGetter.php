@@ -33,18 +33,12 @@ class ItemsGetter
      * @var SportScoreConfigService
      */
     private $sportScoreConfigService;
-    /**
-     * @var bool
-     */
-    private $useSubScoreRound;
 
     public function __construct(Round $round, int $gameStates)
     {
         $this->round = $round;
         $this->gameStates = $gameStates;
         $this->sportScoreConfigService = new SportScoreConfigService();
-        $sportConfig = $round->getNumber()->getCompetition()->getFirstSportConfig();
-        $this->useSubScoreRound = $round->getNumber()->getSportScoreConfig($sportConfig->getSport())->useSubScore();
     }
 
     protected static function getIndex(Place $place): string
@@ -69,8 +63,8 @@ class ItemsGetter
             if (($game->getState() & $this->gameStates) === 0) {
                 continue;
             }
-            $useSubScore = $this->useSubScoreRound ? $this->useSubScoreRound : $game->getSportScoreConfig()->useSubScore();
-            $finalScore = $this->sportScoreConfigService->getFinalScore($game, $useSubScore);
+            $useSubScore = $game->getSportScoreConfig()->useSubScore();
+            $finalScore = $this->sportScoreConfigService->getFinalScore($game);
             $finalSubScore = $useSubScore ? $this->sportScoreConfigService->getFinalSubScore($game) : null;
 
             // $finalScore = $this->sportScoreConfigService->getFinal($game);
