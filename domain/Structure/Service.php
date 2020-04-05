@@ -36,6 +36,8 @@ class Service
      */
     private $options;
 
+    public const DEFAULTNROFPLACES = 5;
+
     public function __construct(Options $options)
     {
         $this->options = $options;

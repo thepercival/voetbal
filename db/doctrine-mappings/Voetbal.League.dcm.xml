@@ -11,7 +11,7 @@
         <cascade-persist/>
       </cascade>
       <join-columns>
-        <join-column name="associationid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+        <join-column name="associationid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
       </join-columns>
     </many-to-one>
     <one-to-many field="competitions" target-entity="Voetbal\Competition" mapped-by="league"/>
