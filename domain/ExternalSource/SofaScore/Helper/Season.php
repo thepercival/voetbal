@@ -9,6 +9,7 @@
 namespace Voetbal\ExternalSource\SofaScore\Helper;
 
 use League\Period\Period;
+use stdClass;
 use Voetbal\Association as AssociationBase;
 use Voetbal\ExternalSource\SofaScore\Helper as SofaScoreHelper;
 use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
@@ -42,12 +43,33 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
      */
     public function getSeasons(): array
     {
-        if( $this->seasons !== null ) {
-            return $this->seasons;
-        }
-        $this->seasons = [];
-        $sports = $this->parent->getSports();
+        $this->initSeasons();
+        return array_values( $this->seasons );
+    }
 
+    public function getSeason( $id = null ): ?SeasonBase
+    {
+        $this->initSeasons();
+        if( array_key_exists( $id, $this->seasons ) ) {
+            return $this->seasons[$id];
+        }
+        return null;
+    }
+
+    protected function initSeasons()
+    {
+        if( $this->seasons !== null ) {
+            return;
+        }
+        $this->setSeasons( $this->getSeasonData() );
+    }
+
+    /**
+     * @return array|stdClass[]
+     */
+    protected function getSeasonData(): array
+    {
+        $sports = $this->parent->getSports();
         $seasonData = [];
         foreach( $sports as $sport ) {
             if( $sport->getName() !== SofaScore::SPORTFILTER ) {
@@ -58,18 +80,7 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
                 ImportService::SEASON_CACHE_MINUTES );
             $seasonData = array_merge( $seasonData, $apiData->sportItem->tournaments );
         }
-        $this->setSeasons( $seasonData );
-        $this->seasons = array_values( $this->seasons );
-        return $this->seasons;
-    }
-
-    public function getSeason( $id = null ): ?SeasonBase
-    {
-        $seasons = $this->getSeasons();
-        if( array_key_exists( $id, $seasons ) ) {
-            return $seasons[$id];
-        }
-        return null;
+        return $seasonData;
     }
 
     /**
@@ -79,6 +90,7 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
      */
     protected function setSeasons(array $competitions)
     {
+        $this->seasons = [];
         foreach ($competitions as $competition) {
             if( $competition->season === null ) {
                 continue;

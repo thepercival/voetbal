@@ -4,18 +4,14 @@ namespace Voetbal\Import\Service;
 
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\Competition as ExternalSourceCompetition;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal\Attacher\Competition\Repository as CompetitionAttacherRepository;
 use Voetbal\Attacher\League\Repository as LeagueAttacherRepository;
 use Voetbal\Attacher\Season\Repository as SeasonAttacherRepository;
 use Voetbal\Attacher\Sport\Repository as SportAttacherRepository;
-use Voetbal\League as LeagueBase;
-use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Sport\Config\Service as SportConfigService;
 use Voetbal\Competition as CompetitionBase;
 use Voetbal\Attacher\Competition as CompetitionAttacher;
-use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 
 class Competition implements ImporterInterface

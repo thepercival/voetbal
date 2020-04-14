@@ -2,15 +2,13 @@
 
 namespace Voetbal\Import\Service;
 
-use Voetbal\Competition as CompetitionBase;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
 use Voetbal\Association\Repository as AssociationRepository;
 use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
 use Voetbal\Association as AssociationBase;
 use Voetbal\Attacher\Association as AssociationAttacher;
-use Voetbal\Structure\Options as StructureOptions;
+
 use Psr\Log\LoggerInterface;
 
 class Association implements ImporterInterface

@@ -12,6 +12,7 @@ use Voetbal\ExternalSource\SofaScore\Helper as SofaScoreHelper;
 use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
 use Voetbal\League as LeagueBase;
 use Voetbal\ExternalSource;
+use stdClass;
 use Psr\Log\LoggerInterface;
 use Voetbal\Import\Service as ImportService;
 use Voetbal\ExternalSource\SofaScore;
@@ -42,11 +43,32 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
      */
     public function getLeagues(): array
     {
-        if( $this->leagues !== null ) {
-            return $this->leagues;
-        }
-        $this->leagues = [];
+        $this->initLeagues();
+        return array_values( $this->leagues );
+    }
 
+    public function getLeague( $id = null ): ?LeagueBase
+    {
+        $this->initLeagues();
+        if( array_key_exists( $id, $this->leagues ) ) {
+            return $this->leagues[$id];
+        }
+        return null;
+    }
+
+    protected function initLeagues()
+    {
+        if( $this->leagues !== null ) {
+            return;
+        }
+        $this->setLeagues( $this->getLeagueData() );
+    }
+
+    /**
+     * @return array | stdClass[]
+     */
+    protected function getLeagueData(): array
+    {
         $sports = $this->parent->getSports();
 
         $leagueData = [];
@@ -59,28 +81,17 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
                 ImportService::LEAGUE_CACHE_MINUTES );
             $leagueData = array_merge( $leagueData, $apiData->sportItem->tournaments );
         }
-        $this->setLeagues( $leagueData );
-        $this->leagues = array_values( $this->leagues );
-        return $this->leagues;
+        return $leagueData;
     }
-
-    public function getLeague( $id = null ): ?LeagueBase
-    {
-        $leagues = $this->getLeagues();
-        if( array_key_exists( $id, $leagues ) ) {
-            return $leagues[$id];
-        }
-        return null;
-    }
-
 
     /**
      * {"name":"Premier League 19\/20","slug":"premier-league-1920","year":"19\/20","id":23776}
      *
-     * @param array|\stdClass[] $competitions
+     * @param array|stdClass[] $competitions
      */
     protected function setLeagues(array $competitions)
     {
+        $this->leagues = [];
         foreach ($competitions as $competition) {
 
             if( $competition->category === null ) {
@@ -90,7 +101,7 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
             if( $association === null ) {
                 continue;
             }
-            if( $competition->tournament === null ) {
+            if( $competition->tournament === null || !property_exists($competition->tournament, "uniqueId") ) {
                 continue;
             }
             $name = $competition->tournament->name;
@@ -98,7 +109,7 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
                 continue;
             }
             $league = new LeagueBase( $association, $name );
-            $league->setId( $competition->tournament->id );
+            $league->setId( $competition->tournament->uniqueId );
             $this->leagues[$league->getId()] = $league;
         }
     }

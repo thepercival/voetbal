@@ -2,16 +2,12 @@
 
 namespace Voetbal\Import\Service;
 
-use League\Period\Period;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\Season as ExternalSourceSeason;
 use Voetbal\Season\Repository as SeasonRepository;
 use Voetbal\Attacher\Season\Repository as SeasonAttacherRepository;
 use Voetbal\Season as SeasonBase;
 use Voetbal\Attacher\Season as SeasonAttacher;
-use Voetbal\Sport as SportBase;
-use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 
 class Season implements ImporterInterface

@@ -15,6 +15,7 @@ use Voetbal\Sport as SportBase;
 use Voetbal\ExternalSource\SofaScore;
 use Psr\Log\LoggerInterface;
 use Voetbal\Import\Service as ImportService;
+use stdClass;
 
 class Sport extends SofaScoreHelper implements ExternalSourceSport
 {
@@ -41,23 +42,8 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
 
     public function getSports(): array
     {
-        if( $this->sports !== null ) {
-            return $this->sports;
-        }
-        $this->sports = [];
-
-        $apiData = $this->apiHelper->getData(
-            "event/count/by-sports/json",
-            ImportService::SPORT_CACHE_MINUTES );
-
-        $sportsData = [];
-        if ( is_object( $apiData ) ) {
-            $sportsData = get_object_vars( $apiData );
-        }
-
-        $this->setSports($sportsData);
-        $this->sports = array_values( $this->sports );
-        return $this->sports;
+        $this->initSports();
+        return array_values( $this->sports );
     }
 
     public function getSport( $id = null ): ?SportBase
@@ -69,8 +55,33 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
         return null;
     }
 
+    protected function initSports()
+    {
+        if( $this->sports !== null ) {
+            return;
+        }
+        $this->setSports( $this->getSportData() );
+    }
+
+    /**
+     * @return array|stdClass[]
+     */
+    protected function getSportData(): array
+    {
+        $apiData = $this->apiHelper->getData(
+            "event/count/by-sports/json",
+            ImportService::SPORT_CACHE_MINUTES );
+
+        $sportData = [];
+        if ( is_object( $apiData ) ) {
+            $sportData = get_object_vars( $apiData );
+        }
+        return $sportData;
+    }
+
     protected function setSports(array $externalSourceSports)
     {
+        $this->sports = [];
         foreach ($externalSourceSports as $sportName => $value) {
             if( $this->hasName( $this->sports, $sportName ) ) {
                 continue;

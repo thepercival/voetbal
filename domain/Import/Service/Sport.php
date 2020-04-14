@@ -4,12 +4,10 @@ namespace Voetbal\Import\Service;
 
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\Sport as ExternalSourceSport;
 use Voetbal\Sport\Repository as SportRepository;
 use Voetbal\Attacher\Sport\Repository as SportAttacherRepository;
 use Voetbal\Sport as SportBase;
 use Voetbal\Attacher\Sport as SportAttacher;
-use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 
 class Sport implements ImporterInterface

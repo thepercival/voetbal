@@ -35,7 +35,7 @@ class League implements Importable
     protected $association;
 
 	const MIN_LENGTH_NAME = 3;
-	const MAX_LENGTH_NAME = 50;
+	const MAX_LENGTH_NAME = 60;
 	const MAX_LENGTH_ABBREVIATION = 7;
     const MAX_LENGTH_SPORT = 30;
 

@@ -24,7 +24,7 @@ class Service
         $sportScoreConfig->setDirection(SportScoreConfig::UPWARDS);
         $sportScoreConfig->setMaximum(0);
         $sportScoreConfig->setEnabled(true);
-        if ($this->hasNext($sport->getCustomId())) {
+        if ($sport->getCustomId() && $this->hasNext($sport->getCustomId())) {
             $subScoreConfig = new SportScoreConfig($sport, $roundNumber, $sportScoreConfig);
             $subScoreConfig->setDirection(SportScoreConfig::UPWARDS);
             $subScoreConfig->setMaximum(0);

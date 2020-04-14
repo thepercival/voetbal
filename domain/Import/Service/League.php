@@ -2,17 +2,13 @@
 
 namespace Voetbal\Import\Service;
 
-use League\Period\Period;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\League as ExternalSourceLeague;
 use Voetbal\League\Repository as LeagueRepository;
 use Voetbal\Attacher\League\Repository as LeagueAttacherRepository;
 use Voetbal\Attacher\Association\Repository as AssociationAttacherRepository;
 use Voetbal\League as LeagueBase;
 use Voetbal\Attacher\League as LeagueAttacher;
-use Voetbal\Season as SeasonBase;
-use Voetbal\Structure\Options as StructureOptions;
 use Psr\Log\LoggerInterface;
 
 class League implements ImporterInterface

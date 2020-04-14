@@ -8,6 +8,7 @@
 
 namespace Voetbal\ExternalSource\SofaScore\Helper;
 
+use stdClass;
 use Voetbal\ExternalSource\SofaScore\Helper as SofaScoreHelper;
 use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
 use Voetbal\ExternalSource\Association as ExternalSourceAssociation;
@@ -41,13 +42,33 @@ class Association extends SofaScoreHelper implements ExternalSourceAssociation
 
     public function getAssociations(): array
     {
+        $this->initAssociations();
+        return array_values( $this->associations );
+    }
+
+    protected function initAssociations()
+    {
         if( $this->associations !== null ) {
-            return $this->associations;
+            return;
         }
-        $this->associations = [];
+        $this->setAssociations( $this->getAssociationData() );
+    }
 
+    public function getAssociation( $id = null ): ?AssociationBase
+    {
+        $this->initAssociations();
+        if( array_key_exists( $id, $this->associations ) ) {
+            return $this->associations[$id];
+        }
+        return null;
+    }
+
+    /**
+     * @return array|stdClass[]
+     */
+    protected function getAssociationData(): array
+    {
         $sports = $this->parent->getSports();
-
         $associationData = [];
         foreach( $sports as $sport ) {
             if( $sport->getName() !== SofaScore::SPORTFILTER ) {
@@ -58,24 +79,13 @@ class Association extends SofaScoreHelper implements ExternalSourceAssociation
                 ImportService::ASSOCIATION_CACHE_MINUTES );
             $associationData = array_merge( $associationData, $apiData->sportItem->tournaments );
         }
-        $this->setAssociations( $associationData );
-        $this->associations = array_values( $this->associations );
-        return $this->associations;
-    }
-
-    public function getAssociation( $id = null ): ?AssociationBase
-    {
-        $associations = $this->getAssociations();
-        if( array_key_exists( $id, $associations ) ) {
-            return $associations[$id];
-        }
-        return null;
+        return $associationData;
     }
 
     /**
      * {"name":"England","slug":"england","priority":10,"id":1,"flag":"england"}
      *
-     * @param array $competitions |stdClass[]
+     * @param array $competitions | stdClass[]
      */
     protected function setAssociations(array $competitions)
     {

@@ -10,11 +10,6 @@ namespace Voetbal\Import;
 
 use Psr\Log\LoggerInterface;
 
-use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
-use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\Factory as ExternalSourceFactory;
-use Voetbal\ExternalSource\SofaScore;
-use Voetbal\Import\Service as ImportService;
 use Voetbal\ExternalSource\Implementation as ExternalSourceImplementation;
 use Voetbal\Sport\Repository as SportRepository;
 use Voetbal\Attacher\Sport\Repository as SportAttacherRepository;
@@ -31,6 +26,11 @@ use Voetbal\ExternalSource\League as ExternalSourceLeague;
 use Voetbal\Competition\Repository as CompetitionRepository;
 use Voetbal\Attacher\Competition\Repository as CompetitionAttacherRepository;
 use Voetbal\ExternalSource\Competition as ExternalSourceCompetition;
+use Voetbal\Competitor\Repository as CompetitorRepository;
+use Voetbal\Attacher\Competitor\Repository as CompetitorAttacherRepository;
+use Voetbal\ExternalSource\Competitor as ExternalSourceCompetitor;
+use Voetbal\Structure\Repository as StructureRepository;
+use Voetbal\ExternalSource\Structure as ExternalSourceStructure;
 
 class Service
 {
@@ -39,11 +39,12 @@ class Service
      */
     protected $logger;
 
-    public const SPORT_CACHE_MINUTES = 1440; // 60 * 24
-    public const ASSOCIATION_CACHE_MINUTES = 1440; // 60 * 24
-    public const SEASON_CACHE_MINUTES = 1440; // 60 * 24
-    public const LEAGUE_CACHE_MINUTES = 1440; // 60 * 24
-    public const COMPETITION_CACHE_MINUTES = 1440; // 60 * 24
+    public const SPORT_CACHE_MINUTES = 1440 * 7; // 60 * 24
+    public const ASSOCIATION_CACHE_MINUTES = 1440 * 7; // 60 * 24
+    public const SEASON_CACHE_MINUTES = 1440 * 7; // 60 * 24
+    public const LEAGUE_CACHE_MINUTES = 1440 * 7; // 60 * 24
+    public const COMPETITION_CACHE_MINUTES = 1440 * 7; // 60 * 24
+    public const COMPETITOR_CACHE_MINUTES = 1440 * 7; // 60 * 24
 
     /**
      * Service constructor.
@@ -156,5 +157,70 @@ class Service
             $externalSourceImplementation->getExternalSource(),
             $externalSourceImplementation->getCompetitions()
         );
+    }
+
+    public function importCompetitors(
+        ExternalSourceImplementation $externalSourceImplementation,
+        CompetitorRepository $competitorRepos,
+        CompetitorAttacherRepository $competitorAttacherRepos,
+        AssociationAttacherRepository $associationAttacherRepos,
+        CompetitionAttacherRepository $competitionAttacherRepos
+    ) {
+        if (!($externalSourceImplementation instanceof ExternalSourceCompetitor)
+            || !($externalSourceImplementation instanceof ExternalSourceCompetition)) {
+            return;
+        }
+        $importCompetitorService = new Service\Competitor(
+            $competitorRepos,
+            $competitorAttacherRepos,
+            $associationAttacherRepos,
+            $this->logger
+        );
+
+        $filter = ["externalSource" => $externalSourceImplementation->getExternalSource() ];
+        $competitionAttachers = $competitionAttacherRepos->findBy($filter);
+        foreach( $competitionAttachers as $competitionAttacher ) {
+
+            $competition = $externalSourceImplementation->getCompetition( $competitionAttacher->getExternalId() );
+            if( $competition === null ) {
+                continue;
+            }
+            $importCompetitorService->import(
+                $externalSourceImplementation->getExternalSource(),
+                $externalSourceImplementation->getCompetitors( $competition )
+            );
+        }
+    }
+
+    public function importStructures(
+        ExternalSourceImplementation $externalSourceImplementation,
+        StructureRepository $structureRepos,
+        CompetitorAttacherRepository $competitorAttacherRepos,
+        CompetitionAttacherRepository $competitionAttacherRepos
+    ) {
+        if (!($externalSourceImplementation instanceof ExternalSourceStructure)
+            || !($externalSourceImplementation instanceof ExternalSourceCompetition)) {
+            return;
+        }
+        $importStructureService = new Service\Structure(
+            $structureRepos,
+            $competitorAttacherRepos,
+            $competitionAttacherRepos,
+            $this->logger
+        );
+
+        $filter = ["externalSource" => $externalSourceImplementation->getExternalSource() ];
+        $competitionAttachers = $competitionAttacherRepos->findBy($filter);
+        foreach( $competitionAttachers as $competitionAttacher ) {
+
+            $competition = $externalSourceImplementation->getCompetition( $competitionAttacher->getExternalId() );
+            if( $competition === null ) {
+                continue;
+            }
+            $importStructureService->import(
+                $externalSourceImplementation->getExternalSource(),
+                [$externalSourceImplementation->getStructure( $competition )]
+            );
+        }
     }
 }

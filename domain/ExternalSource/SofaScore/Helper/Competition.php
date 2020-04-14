@@ -8,6 +8,7 @@
 
 namespace Voetbal\ExternalSource\SofaScore\Helper;
 
+use stdClass;
 use Voetbal\ExternalSource\SofaScore\Helper as SofaScoreHelper;
 use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
 use Voetbal\Competition as CompetitionBase;
@@ -45,10 +46,24 @@ class Competition extends SofaScoreHelper implements ExternalSourceCompetition
      */
     public function getCompetitions(): array
     {
-        if( $this->competitions !== null ) {
-            return $this->competitions;
+        $this->initCompetitions();
+        return array_values( $this->competitions );
+    }
+
+    public function getCompetition( $id = null ): ?CompetitionBase
+    {
+        $this->initCompetitions();
+        if( array_key_exists( $id, $this->competitions ) ) {
+            return $this->competitions[$id];
         }
-        $this->competitions = [];
+        return null;
+    }
+
+    protected function initCompetitions()
+    {
+        if( $this->competitions !== null ) {
+            return;
+        }
 
         $sports = $this->parent->getSports();
         foreach( $sports as $sport ) {
@@ -57,39 +72,28 @@ class Competition extends SofaScoreHelper implements ExternalSourceCompetition
             }
             $apiData = $this->apiHelper->getData(
                 $sport->getName() . "//" . $this->apiHelper->getCurrentDateAsString() . "/json",
-                ImportService::LEAGUE_CACHE_MINUTES );
+                ImportService::COMPETITION_CACHE_MINUTES );
 
             $this->setCompetitions( $sport, $apiData->sportItem->tournaments );
         }
-        $this->competitions = array_values( $this->competitions );
-        return $this->competitions;
     }
-
-    public function getCompetition( $id = null ): ?CompetitionBase
-    {
-        $competitions = $this->getCompetitions();
-        if( array_key_exists( $id, $competitions ) ) {
-            return $competitions[$id];
-        }
-        return null;
-    }
-
 
     /**
      * {"name":"Premier Competition 19\/20","slug":"premier-competition-1920","year":"19\/20","id":23776}
      *
      * @param Sport $sport
-     * @param array|\stdClass[] $externalSourceCompetitions
+     * @param array | stdClass[] $externalSourceCompetitions
      */
     protected function setCompetitions( Sport $sport, array $externalSourceCompetitions)
     {
-        /** @var \stdClass $externalSourceCompetition */
+        $this->competitions = [];
+        /** @var stdClass $externalSourceCompetition */
         foreach ($externalSourceCompetitions as $externalSourceCompetition) {
 
-            if( $externalSourceCompetition->tournament === null ) {
+            if( $externalSourceCompetition->tournament === null || !property_exists($externalSourceCompetition->tournament, "uniqueId") ) {
                 continue;
             }
-            $league = $this->parent->getLeague( $externalSourceCompetition->tournament->id );
+            $league = $this->parent->getLeague( $externalSourceCompetition->tournament->uniqueId );
             if( $league === null ) {
                 continue;
             }

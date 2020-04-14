@@ -24,9 +24,14 @@ use Voetbal\ExternalSource\League as ExternalSourceLeague;
 use Voetbal\League;
 use Voetbal\ExternalSource\Competition as ExternalSourceCompetition;
 use Voetbal\Competition;
+use Voetbal\ExternalSource\Competitor as ExternalSourceCompetitor;
+use Voetbal\Competitor;
+use Voetbal\ExternalSource\Structure as ExternalSourceStructure;
+use Voetbal\Structure;
 
 class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, ExternalSourceAssociation,
-                           ExternalSourceSeason, ExternalSourceLeague, ExternalSourceCompetition
+                           ExternalSourceSeason, ExternalSourceLeague, ExternalSourceCompetition,
+                           ExternalSourceCompetitor, ExternalSourceStructure
 {
     public const SPORTFILTER = "football";
     public const NAME = "SofaScore";
@@ -230,4 +235,47 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
         return $this->helpers[SofaScore\Helper\Competition::class];
     }
 
+    /**
+     * @return array|Competitor[]
+     */
+    public function getCompetitors( Competition $competition ): array
+    {
+        return $this->getCompetitorHelper()->getCompetitors( $competition );
+    }
+
+    public function getCompetitor( Competition $competition, $id ): ?Competitor
+    {
+        return $this->getCompetitorHelper()->getCompetitor( $competition, $id );
+    }
+
+    protected function getCompetitorHelper(): SofaScore\Helper\Competitor
+    {
+        if (array_key_exists(SofaScore\Helper\Competitor::class, $this->helpers)) {
+            return $this->helpers[SofaScore\Helper\Competitor::class];
+        }
+        $this->helpers[SofaScore\Helper\Competitor::class] = new SofaScore\Helper\Competitor(
+            $this,
+            $this->getApiHelper(),
+            $this->logger
+        );
+        return $this->helpers[SofaScore\Helper\Competitor::class];
+    }
+
+    public function getStructure( Competition $competition ): ?Structure
+    {
+        return $this->getStructureHelper()->getStructure( $competition );
+    }
+
+    protected function getStructureHelper(): SofaScore\Helper\Structure
+    {
+        if (array_key_exists(SofaScore\Helper\Structure::class, $this->helpers)) {
+            return $this->helpers[SofaScore\Helper\Structure::class];
+        }
+        $this->helpers[SofaScore\Helper\Structure::class] = new SofaScore\Helper\Structure(
+            $this,
+            $this->getApiHelper(),
+            $this->logger
+        );
+        return $this->helpers[SofaScore\Helper\Structure::class];
+    }
 }
