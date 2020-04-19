@@ -27,6 +27,12 @@ class Factory
      */
     protected $logger;
 
+    protected const SPORT = 1;
+    protected const ASSOCIATION = 2;
+    protected const SEASON = 4;
+    protected const LEAGUE = 8;
+    protected const COMPETITION = 16;
+    protected const COMPETITOR = 32;
 
     public function __construct(
         Repository $externalSourceRepos,
@@ -79,8 +85,34 @@ class Factory
             if( $externalSourceImpl === null) {
                 continue;
             }
-            $externalSource->setImplementationsFromImplementation( $externalSourceImpl );
+            $externalSourceImpl->getExternalSource()->setImplementations(
+                $this->getImplementations( $externalSourceImpl )
+            );
         }
+    }
+
+    protected function getImplementations( ExternalSource\Implementation $implementation )
+    {
+        $implementations = 0;
+        if( $implementation instanceof ExternalSource\Sport ) {
+            $implementations += static::SPORT;
+        }
+        if( $implementation instanceof ExternalSource\Association ) {
+            $implementations += static::ASSOCIATION;
+        }
+        if( $implementation instanceof ExternalSource\Season ) {
+            $implementations += static::SEASON;
+        }
+        if( $implementation instanceof ExternalSource\League ) {
+            $implementations += static::LEAGUE;
+        }
+        if( $implementation instanceof ExternalSource\Competition ) {
+            $implementations += static::COMPETITION;
+        }
+        if( $implementation instanceof ExternalSource\Competitor ) {
+            $implementations += static::COMPETITOR;
+        }
+        return $implementations;
     }
 }
 

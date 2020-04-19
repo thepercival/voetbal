@@ -56,13 +56,6 @@ class ExternalSource
     const MAX_LENGTH_APIURL = 255;
     const MAX_LENGTH_APIKEY = 255;
 
-    protected const SPORT = 1;
-    protected const ASSOCIATION = 2;
-    protected const SEASON = 4;
-    protected const LEAGUE = 8;
-    protected const COMPETITION = 16;
-    protected const COMPETITOR = 32;
-
     public function __construct( $name, $website = null )
     {
         $this->setName( $name );
@@ -195,29 +188,5 @@ class ExternalSource
     public function setImplementations( int $implementations )
     {
         $this->implementations = $implementations;
-    }
-
-    public function setImplementationsFromImplementation( ExternalSource\Implementation $implementation )
-    {
-        $implementations = 0;
-        if( $implementation instanceof ExternalSource\Sport ) {
-            $implementations += ExternalSource::SPORT;
-        }
-        if( $implementation instanceof ExternalSource\Association ) {
-            $implementations += ExternalSource::ASSOCIATION;
-        }
-        if( $implementation instanceof ExternalSource\Season ) {
-            $implementations += ExternalSource::SEASON;
-        }
-        if( $implementation instanceof ExternalSource\League ) {
-            $implementations += ExternalSource::LEAGUE;
-        }
-        if( $implementation instanceof ExternalSource\Competition ) {
-            $implementations += ExternalSource::COMPETITION;
-        }
-        if( $implementation instanceof ExternalSource\Competitor ) {
-            $implementations += ExternalSource::COMPETITOR;
-        }
-        $this->setImplementations( $implementations );
     }
 }
