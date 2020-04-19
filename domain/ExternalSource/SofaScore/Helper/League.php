@@ -76,9 +76,7 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
             if( $sport->getName() !== SofaScore::SPORTFILTER ) {
                 continue;
             }
-            $apiData = $this->apiHelper->getData(
-                $sport->getName() . "//" . $this->apiHelper->getCurrentDateAsString() . "/json",
-                ImportService::LEAGUE_CACHE_MINUTES );
+            $apiData = $this->apiHelper->getCompetitionsData( $sport );
             $leagueData = array_merge( $leagueData, $apiData->sportItem->tournaments );
         }
         return $leagueData;

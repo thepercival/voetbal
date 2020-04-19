@@ -53,8 +53,8 @@ class Competition extends SofaScoreHelper implements ExternalSourceCompetition
     public function getCompetition( $id = null ): ?CompetitionBase
     {
         $this->initCompetitions();
-        if( array_key_exists( $id, $this->competitions ) ) {
-            return $this->competitions[$id];
+        if( array_key_exists( (int)$id, $this->competitions ) ) {
+            return $this->competitions[(int)$id];
         }
         return null;
     }
@@ -70,10 +70,7 @@ class Competition extends SofaScoreHelper implements ExternalSourceCompetition
             if( $sport->getName() !== SofaScore::SPORTFILTER ) {
                 continue;
             }
-            $apiData = $this->apiHelper->getData(
-                $sport->getName() . "//" . $this->apiHelper->getCurrentDateAsString() . "/json",
-                ImportService::COMPETITION_CACHE_MINUTES );
-
+            $apiData = $this->apiHelper->getCompetitionsData( $sport );
             $this->setCompetitions( $sport, $apiData->sportItem->tournaments );
         }
     }

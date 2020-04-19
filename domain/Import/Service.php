@@ -10,7 +10,12 @@ namespace Voetbal\Import;
 
 use Psr\Log\LoggerInterface;
 
+use Voetbal\Attacher\Game\Repository as GameAttacherRepository;
+use Voetbal\Attacher\Place\Repository as PlaceAttacherRepository;
+use Voetbal\Attacher\Poule\Repository as PouleAttacherRepository;
 use Voetbal\ExternalSource\Implementation as ExternalSourceImplementation;
+use Voetbal\Game\Repository as GameRepository;
+use Voetbal\Game\Score\Repository as GameScoreRepository;
 use Voetbal\Sport\Repository as SportRepository;
 use Voetbal\Attacher\Sport\Repository as SportAttacherRepository;
 use Voetbal\ExternalSource\Sport as ExternalSourceSport;
@@ -29,8 +34,10 @@ use Voetbal\ExternalSource\Competition as ExternalSourceCompetition;
 use Voetbal\Competitor\Repository as CompetitorRepository;
 use Voetbal\Attacher\Competitor\Repository as CompetitorAttacherRepository;
 use Voetbal\ExternalSource\Competitor as ExternalSourceCompetitor;
+use Voetbal\State;
 use Voetbal\Structure\Repository as StructureRepository;
 use Voetbal\ExternalSource\Structure as ExternalSourceStructure;
+use Voetbal\ExternalSource\Game as ExternalSourceGame;
 
 class Service
 {
@@ -45,6 +52,7 @@ class Service
     public const LEAGUE_CACHE_MINUTES = 1440 * 7; // 60 * 24
     public const COMPETITION_CACHE_MINUTES = 1440 * 7; // 60 * 24
     public const COMPETITOR_CACHE_MINUTES = 1440 * 7; // 60 * 24
+    public const GAME_CACHE_MINUTES = 10; // 60 * 24
 
     /**
      * Service constructor.
@@ -223,4 +231,68 @@ class Service
             );
         }
     }
+
+
+    public function importGames(
+        ExternalSourceImplementation $externalSourceImplementation,
+        GameRepository $gameRepos,
+        GameScoreRepository $gameScoreRepos,
+        CompetitorRepository $competitorRepos,
+        StructureRepository $structureRepos,
+        GameAttacherRepository $gameAttacherRepos,
+        CompetitionAttacherRepository $competitionAttacherRepos,
+        CompetitorAttacherRepository $competitorAttacherRepos
+    ) {
+        if (!($externalSourceImplementation instanceof ExternalSourceGame)
+            || !($externalSourceImplementation instanceof ExternalSourceStructure)
+            || !($externalSourceImplementation instanceof ExternalSourceCompetition)) {
+            return;
+        }
+        $importGameService = new Service\Game(
+            $gameRepos,
+            $gameScoreRepos,
+            $structureRepos,
+            $gameAttacherRepos,
+            $competitionAttacherRepos,
+            $competitorAttacherRepos,
+            $this->logger
+        );
+
+        $filter = ["externalSource" => $externalSourceImplementation->getExternalSource() ];
+        $competitionAttachers = $competitionAttacherRepos->findBy($filter);
+        foreach( $competitionAttachers as $competitionAttacher ) {
+
+            $externalCompetition = $externalSourceImplementation->getCompetition( $competitionAttacher->getExternalId() );
+            if( $externalCompetition === null ) {
+                continue;
+            }
+            $competition = $competitionAttacher->getImportable();
+            $nrOfCompetitors = $competitorRepos->getNrOfCompetitors( $competition );
+            if( $nrOfCompetitors === 0 ) {
+                continue;
+            }
+            $batchNrs = $externalSourceImplementation->getBatchNrs( $externalCompetition, true );
+            foreach( $batchNrs as $batchNr ) {
+                $finishedGames = $gameRepos->getCompetitionGames( $competition, State::Finished, $batchNr );
+                if( (count($finishedGames) * 2) === $nrOfCompetitors ) {
+                    continue;
+                }
+                // $importGameService->setPoule( );
+                $importGameService->import(
+                    $externalSourceImplementation->getExternalSource(),
+                    $externalSourceImplementation->getGames( $externalCompetition, $batchNr )
+                );
+            }
+        }
+    }
+
+    // wedstrijden
+    // events->rounds heeft het aantal ronden, dit is per competitie op te vragen
+    // per wedstrijdronde de games invoeren, voor de ronden die nog niet ingevoerd zijn
+    // 0 notstarted
+    // 70 canceled
+    // 100 finished
+
+    // wedstrijden te updaten uit aparte url per wedstrijdronde
+    // roundMatches->tournaments[]->events[]
 }

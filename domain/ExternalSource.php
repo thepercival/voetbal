@@ -61,6 +61,7 @@ class ExternalSource
     protected const SEASON = 4;
     protected const LEAGUE = 8;
     protected const COMPETITION = 16;
+    protected const COMPETITOR = 32;
 
     public function __construct( $name, $website = null )
     {
@@ -213,6 +214,9 @@ class ExternalSource
         }
         if( $implementation instanceof ExternalSource\Competition ) {
             $implementations += ExternalSource::COMPETITION;
+        }
+        if( $implementation instanceof ExternalSource\Competitor ) {
+            $implementations += ExternalSource::COMPETITOR;
         }
         $this->setImplementations( $implementations );
     }

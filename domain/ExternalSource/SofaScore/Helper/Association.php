@@ -74,9 +74,7 @@ class Association extends SofaScoreHelper implements ExternalSourceAssociation
             if( $sport->getName() !== SofaScore::SPORTFILTER ) {
                 continue;
             }
-            $apiData = $this->apiHelper->getData(
-                $sport->getName() . "//" . $this->apiHelper->getCurrentDateAsString() . "/json",
-                ImportService::ASSOCIATION_CACHE_MINUTES );
+            $apiData = $this->apiHelper->getCompetitionsData( $sport );
             $associationData = array_merge( $associationData, $apiData->sportItem->tournaments );
         }
         return $associationData;

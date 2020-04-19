@@ -9,6 +9,7 @@
 namespace Voetbal\Attacher;
 
 use Voetbal\ExternalSource;
+use Voetbal\Attacher as AttacherBase;
 use Voetbal\Import\Idable as Importable;
 
 class Repository extends \Voetbal\Repository

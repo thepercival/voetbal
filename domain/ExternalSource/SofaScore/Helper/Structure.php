@@ -70,12 +70,7 @@ class Structure extends SofaScoreHelper implements ExternalSourceStructure
 
     protected function getPlacesAndPoules( Competition $competition ): array
     {
-        $apiData = $this->apiHelper->getData(
-            "u-tournament/". $competition->getLeague()->getId() .
-            "/season/". $competition->getId() ."/json",
-            ImportService::COMPETITOR_CACHE_MINUTES
-        );
-
+        $apiData = $this->apiHelper->getCompetitionData( $competition );
         return $this->getPlacesAndPoulesHelper( $apiData );
     }
 

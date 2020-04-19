@@ -4,7 +4,7 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
-    <field name="name" column="name" type="string" length="50" nullable="false" unique="true"/>
+    <field name="name" column="name" type="string" length="100" nullable="false" unique="true"/>
     <field name="value" column="value" type="blob" nullable="false" unique="false"/>
     <field name="expireDateTime" column="expireDateTime" type="datetime_immutable" nullable="true" unique="false"/>
   </entity>

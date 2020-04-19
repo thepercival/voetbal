@@ -8,58 +8,78 @@
 
 namespace Voetbal\Game;
 
+use Doctrine\ORM\QueryBuilder;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Competitor;
 use Voetbal\Competition;
 use Voetbal\Game as GameBase;
 
-/**
- * Game
- */
 class Repository extends \Voetbal\Repository
 {
-    public function hasCompetitionGames( Competition $competition, $gameStates = null )
+    public function getCompetitionGames( Competition $competition, $gameStates = null, int $batchNr = null )
     {
-        $query = $this->createQueryBuilder('g')
-            ->join("g.poule", "p")
-            ->join("p.round", "r")
-            ->where('r.competition = :competition');
-        ;
-        if( $gameStates !== null ) {
-            // $query = $query->andWhere('g.state & :gamestates = g.state');
-            $query = $query->andWhere('BIT_AND(g.state, :gamestates) > 0');
-        }
-        $query = $query->setParameter('competition', $competition);
-        if( $gameStates !== null ) {
-            $query = $query->setParameter('gamestates', $gameStates);
-        }
-        $query->setMaxResults(1);
-
-        $x = $query->getQuery()->getResult();
-
-        return count($x) === 1;
+        return $this->getCompetitionGamesQuery( $competition, $gameStates, $batchNr )->getQuery()->getResult();
     }
 
-    public function hasRoundNumberGames( RoundNumber $roundNumber, $gameStates = null )
+    public function hasCompetitionGames( Competition $competition, $gameStates = null, int $batchNr = null )
+    {
+        $games = $this->getCompetitionGamesQuery(
+            $competition, $gameStates, $batchNr
+        )->setMaxResults(1)->getQuery()->getResult();
+        return count($games) === 1;
+    }
+
+    protected function getCompetitionGamesQuery( Competition $competition, $gameStates = null, int $batchNr = null ): QueryBuilder
     {
         $query = $this->createQueryBuilder('g')
             ->join("g.poule", "p")
             ->join("p.round", "r")
-            ->Where('r.number = :roundNumber');
+            ->join("r.number", "rn")
+            ->where('rn.competition = :competition')
+            ->setParameter('competition', $competition);
         ;
-        if( $gameStates !== null ) {
-            $query = $query->andWhere('BIT_AND(g.state, :gamestates) = g.state');
-            // $query = $query->andWhere('(g.state & :gamestates) = g.state');
-        }
-        $query = $query->setParameter('roundNumber', $roundNumber);
-        if( $gameStates !== null ) {
-            $query = $query->setParameter('gamestates', $gameStates);
-        }
-        $query->setMaxResults(1);
+        return $this->applyExtraFilters( $query, $gameStates, $batchNr );
+    }
 
-        $x = $query->getQuery()->getResult();
+    public function getRoundNumberGames( RoundNumber $roundNumber, $gameStates = null, int $batchNr = null )
+    {
+        return $this->getRoundNumberGamesQuery( $roundNumber, $gameStates, $batchNr )->getQuery()->getResult();
+    }
 
-        return count($x) === 1;
+    public function hasRoundNumberGames( RoundNumber $roundNumber, $gameStates = null, int $batchNr = null )
+    {
+        $games = $this->getRoundNumberGamesQuery(
+            $roundNumber, $gameStates, $batchNr
+        )->setMaxResults(1)->getQuery()->getResult();
+        return count($games) === 1;
+    }
+
+    protected function getRoundNumberGamesQuery( RoundNumber $roundNumber, $gameStates = null, int $batchNr = null ): QueryBuilder
+    {
+        $query = $this->createQueryBuilder('g')
+            ->join("g.poule", "p")
+            ->join("p.round", "r")
+            ->join("r.number", "rn")
+            ->where('rn.roundNumber = :roundNumber')
+            ->setParameter('roundNumber', $roundNumber);
+        ;
+        return $this->applyExtraFilters( $query, $gameStates, $batchNr );
+    }
+
+    protected function applyExtraFilters( QueryBuilder $query, int $gameStates = null, int $batchNr = null ): QueryBuilder
+    {
+        if( $gameStates !== null ) {
+            // $query = $query->andWhere('g.state & :gamestates = g.state');
+            $query = $query
+                ->andWhere('BIT_AND(g.state, :gamestates) > 0')
+                ->setParameter('gamestates', $gameStates);
+        }
+        if( $batchNr !== null ) {
+            $query = $query
+                ->andWhere('g.batchNr = :batchNr')
+                ->setParameter('batchNr', $batchNr);
+        }
+        return  $query;
     }
 
 

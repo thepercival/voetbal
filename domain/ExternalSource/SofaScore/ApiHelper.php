@@ -8,13 +8,18 @@
 
 namespace Voetbal\ExternalSource\SofaScore;
 
+use DateTimeImmutable;
+use Voetbal\Competitor as CompetitorBase;
 use Voetbal\ExternalSource;
-use Voetbal\ExternalSource\Season as ExternalSeason;
-use Voetbal\ExternalSource\League as ExternalLeague;
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
-use Voetbal\CacheItemDb;
+use stdClass;
 use GuzzleHttp\Client;
+use Voetbal\Import\Service as ImportService;
 use Voetbal\Range as VoetbalRange;
+use Voetbal\Competition;
+use Voetbal\Competitor;
+use Voetbal\Sport;
+use Voetbal\Association;
 
 class ApiHelper
 {
@@ -66,7 +71,7 @@ class ApiHelper
         ];
     }
 
-    public function getData(string $postUrl, int $cacheMinutes)
+    protected function getData(string $postUrl, int $cacheMinutes)
     {
         $data = $this->cacheItemDbRepos->getItem( $postUrl );
         if ( $data !== null ) {
@@ -98,6 +103,54 @@ class ApiHelper
         return (new \DateTimeImmutable())->format("Y-m-d");
     }
 
+    public function getSportsData(): stdClass {
+        return $this->getData( "event/count/by-sports/json", ImportService::SPORT_CACHE_MINUTES );
+    }
+
+    public function getCompetitionsData( Sport $sport, DateTimeImmutable $date = null ): stdClass {
+        if( $date === null ) {
+            $date = $this->getCurrentDateAsString();
+        }
+        return $this->getData(
+            $sport->getName() . "//" . $date . "/json",
+            60 * 24 );
+    }
+
+    public function getCompetitionData( Competition $competition ): stdClass {
+        return $this->getData(
+            "u-tournament/". $competition->getLeague()->getId() .
+            "/season/". $competition->getId() ."/json",
+            ImportService::COMPETITOR_CACHE_MINUTES
+        );
+    }
+
+    public function getBatchGameData( Competition $competition, int $batchNr ): stdClass {
+        return $this->getData(
+            "u-tournament/". $competition->getLeague()->getId() .
+            "/season/". $competition->getId() ."/matches/round/" . $batchNr,
+            60 * 24
+        );
+    }
+
+    /**
+     * {
+     *   "name": "FC Smolevichi",
+     *   "slug": "fc-smolevichi",
+     *   "gender": "M",
+     *   "disabled": false,
+     *   "national": false,
+     *   "id": 42964,
+     *   "subTeams": []
+    },
+     * @return Competitor
+     */
+    public function convertCompetitor( Association $association, stdClass $externalCompetitor ): Competitor {
+        $competitor = new Competitor( $association, $externalCompetitor->name );
+        $competitor->setId( $externalCompetitor->id );
+        $competitor->setAbbreviation( substr( $externalCompetitor->name, 0, Competitor::MAX_LENGTH_ABBREVIATION ));
+        $competitor->setImageUrl( "https://www.sofascore.com/images/team-logo/football_".$competitor->getId().".png" );
+        return $competitor;
+    }
     /*
         public function getLeague(ExternalLeague $externalLeague): ?\stdClass
         {

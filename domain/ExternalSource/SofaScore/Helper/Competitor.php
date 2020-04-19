@@ -60,11 +60,7 @@ class Competitor extends SofaScoreHelper implements ExternalSourceCompetitor
         $competitionCompetitors = [];
         $association = $competition->getLeague()->getAssociation();
 
-        $apiData = $this->apiHelper->getData(
-            "u-tournament/". $competition->getLeague()->getId() .
-            "/season/". $competition->getId() ."/json",
-            ImportService::COMPETITOR_CACHE_MINUTES
-        );
+        $apiData = $this->apiHelper->getCompetitionData( $competition );
 
         $apiDataTeams = $this->convertExternalSourceCompetitors( $apiData );
 
@@ -80,11 +76,7 @@ class Competitor extends SofaScoreHelper implements ExternalSourceCompetitor
                 continue;
             }
 
-            $newCompetitor = new CompetitorBase( $association, $externalSourceCompetitor->name );
-            $abbreviation = substr( $externalSourceCompetitor->shortName, 0, CompetitorBase::MAX_LENGTH_ABBREVIATION );
-            $newCompetitor->setAbbreviation( $abbreviation );
-            $newCompetitor->setId( $externalSourceCompetitor->id );
-            $newCompetitor->setImageUrl("https://www.sofascore.com/images/team-logo/football_".$newCompetitor->getId().".png" );
+            $newCompetitor = $this->apiHelper->convertCompetitor( $association, $externalSourceCompetitor );
             $this->competitors[$newCompetitor->getId()] = $newCompetitor;
             $competitionCompetitors[$newCompetitor->getId()] = $newCompetitor;
         }
@@ -112,6 +104,4 @@ class Competitor extends SofaScoreHelper implements ExternalSourceCompetitor
         }
         return $apiDataTeams;
     }
-
-
 }

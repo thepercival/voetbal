@@ -7,7 +7,6 @@
     <field name="batchNr" column="resourcebatch" type="smallint" nullable="false" unique="false"/>
     <field name="state" column="state" type="smallint" nullable="false" unique="false"/>
     <field name="startDateTime" column="startDateTime" type="datetime_immutable" nullable="false" unique="false"/>
-    <field name="scoresMomentDep" column="scoresmoment" type="smallint" nullable="true" unique="false"/>
     <many-to-one field="poule" target-entity="Voetbal\Poule" inversed-by="games">
       <join-columns>
         <join-column name="pouleid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>

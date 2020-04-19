@@ -52,4 +52,24 @@ class Repository extends \Voetbal\Repository
 
         $queryBuilder->getQuery()->execute();
     }
+
+    public function getNrOfCompetitors( Competition $competition ): int
+    {
+        $queryBuilder = $this->getEM()->createQueryBuilder()
+            ->select('count(pp.competitor)')
+            ->distinct()
+            ->from('Voetbal\Place', 'pp')
+            ->join("pp.poule", "p")
+            // ->join("g.poule", "g")
+            ->join("p.round", "r")
+            ->join("r.number", "rn")
+            ->where('rn.competition = :competition')
+            ->andWhere('pp.competitor is not null')
+            ->setParameter('competition', $competition)
+        ;
+
+        // echo $queryBuilder->getQuery()->getSQL();
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
 }

@@ -29,7 +29,7 @@ class CacheItemDb
      */
     protected $expireDateTime;
 
-    const MAX_LENGTH_NAME = 50;
+    const MAX_LENGTH_NAME = 100;
 
     public function __construct( string $name, $value, DateTimeImmutable $expireDateTime = null )
     {

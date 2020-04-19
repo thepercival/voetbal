@@ -9,6 +9,7 @@ use Voetbal\Attacher\Competition\Repository as CompetitionAttacherRepository;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
 use Voetbal\Structure as StructureBase;
+use Voetbal\Competition;
 use Voetbal\Structure\Copier as StructureCopier;
 use Psr\Log\LoggerInterface;
 
@@ -49,20 +50,17 @@ class Structure implements ImporterInterface
         /** @var StructureBase $externalSourceStructure */
         $externalSourceStructure = $externalSourceStructures[0];
 
-        $competition = null;
-        {
-            /** @var Attacher $competitionAttacher */
-            $competitionAttacher = $this->competitionAttacherRepos->findOneByExternalId(
-                $externalSource,
-                $externalSourceStructure->getFirstRoundNumber()->getCompetition()->getId()
-            );
-            if ($competitionAttacher !== null) {
-                $competition = $competitionAttacher->getImportable();
-            }
-        }
-        if ($competition === null ) {
+        /** @var Attacher|null $competitionAttacher */
+        $competitionAttacher = $this->competitionAttacherRepos->findOneByExternalId(
+            $externalSource,
+            $externalSourceStructure->getFirstRoundNumber()->getCompetition()->getId()
+        );
+        if ($competitionAttacher === null) {
             return;
         }
+        /** @var Competition $competition */
+        $competition = $competitionAttacher->getImportable();
+
         $structure = $this->structureRepos->getStructure( $competition );
         if ($structure !== null ) {
             return;

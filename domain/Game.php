@@ -44,28 +44,19 @@ class Game implements Importable
      */
     protected $refereePlace;
     protected $refereePlaceId; // for serialization, not used
-
     /**
      * @var ?Field
      */
     protected $field;
     protected $fieldNr; // for serialization, not used
-
     /**
      * @var int
      */
     protected $state;
-
     /**
      * @var Score[] | ArrayCollection
      */
     protected $scores;
-
-    /**
-     * @var int
-     */
-    private $scoresMomentDep;
-
     /**
      * @var GamePlace[] | Collection
      */

@@ -75,9 +75,7 @@ class Season extends SofaScoreHelper implements ExternalSourceSeason
             if( $sport->getName() !== SofaScore::SPORTFILTER ) {
                 continue;
             }
-            $apiData = $this->apiHelper->getData(
-                $sport->getName() . "//" . $this->apiHelper->getCurrentDateAsString() . "/json",
-                ImportService::SEASON_CACHE_MINUTES );
+            $apiData = $this->apiHelper->getCompetitionsData( $sport );
             $seasonData = array_merge( $seasonData, $apiData->sportItem->tournaments );
         }
         return $seasonData;

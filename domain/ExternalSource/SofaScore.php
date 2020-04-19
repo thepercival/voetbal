@@ -28,10 +28,12 @@ use Voetbal\ExternalSource\Competitor as ExternalSourceCompetitor;
 use Voetbal\Competitor;
 use Voetbal\ExternalSource\Structure as ExternalSourceStructure;
 use Voetbal\Structure;
+use Voetbal\ExternalSource\Game as ExternalSourceGame;
+use Voetbal\Game;
 
 class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, ExternalSourceAssociation,
                            ExternalSourceSeason, ExternalSourceLeague, ExternalSourceCompetition,
-                           ExternalSourceCompetitor, ExternalSourceStructure
+                           ExternalSourceCompetitor, ExternalSourceStructure, ExternalSourceGame
 {
     public const SPORTFILTER = "football";
     public const NAME = "SofaScore";
@@ -277,5 +279,28 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
             $this->logger
         );
         return $this->helpers[SofaScore\Helper\Structure::class];
+    }
+
+    public function getBatchNrs( Competition $competition, bool $forImport ): array
+    {
+        return $this->getGameHelper()->getBatchNrs( $competition, $forImport );
+    }
+
+    public function getGames( Competition $competition, int $batchNr ): array
+    {
+        return $this->getGameHelper()->getGames( $competition, $batchNr );
+    }
+
+    protected function getGameHelper(): SofaScore\Helper\Game
+    {
+        if (array_key_exists(SofaScore\Helper\Game::class, $this->helpers)) {
+            return $this->helpers[SofaScore\Helper\Game::class];
+        }
+        $this->helpers[SofaScore\Helper\Game::class] = new SofaScore\Helper\Game(
+            $this,
+            $this->getApiHelper(),
+            $this->logger
+        );
+        return $this->helpers[SofaScore\Helper\Game::class];
     }
 }

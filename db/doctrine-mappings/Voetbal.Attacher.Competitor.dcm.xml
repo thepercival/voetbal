@@ -16,7 +16,7 @@
       </join-columns>
     </many-to-one>
     <unique-constraints>
-      <unique-constraint columns="externalSystemid,externalId" name="main_idx" />
+      <unique-constraint columns="externalSystemid,importableObjectid" name="main_idx" />
     </unique-constraints>
   </entity>
 </doctrine-mapping>
