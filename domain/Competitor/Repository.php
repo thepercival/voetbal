@@ -25,7 +25,7 @@ class Repository extends \Voetbal\Repository
         return $this->_em->find($this->_entityName, $id, $lockMode, $lockVersion);
     }
 
-    public function removeUnused( Association $association )
+    public function removeUnused(Association $association)
     {
         $queryBuilder = $this->createQueryBuilder('c')
             ->delete('Voetbal\Competitor', 'c')
@@ -53,7 +53,7 @@ class Repository extends \Voetbal\Repository
         $queryBuilder->getQuery()->execute();
     }
 
-    public function getNrOfCompetitors( Competition $competition ): int
+    public function getNrOfCompetitors(Competition $competition): int
     {
         $queryBuilder = $this->getEM()->createQueryBuilder()
             ->select('count(pp.competitor)')

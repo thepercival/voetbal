@@ -127,7 +127,8 @@ class Referee
         }
         if (!ctype_alnum($initials)) {
             throw new \InvalidArgumentException(
-                "de initialen (" . $initials . ") mag alleen cijfers en letters bevatten", E_ERROR
+                "de initialen (" . $initials . ") mag alleen cijfers en letters bevatten",
+                E_ERROR
             );
         }
         $this->initials = $initials;
@@ -154,7 +155,8 @@ class Referee
         }
         if ($name !== null && !preg_match('/^[a-z0-9 .\-]+$/i', $name)) {
             throw new \InvalidArgumentException(
-                "de naam (" . $name . ") mag alleen cijfers, streeptes, slashes en spaties bevatten", E_ERROR
+                "de naam (" . $name . ") mag alleen cijfers, streeptes, slashes en spaties bevatten",
+                E_ERROR
             );
         }
         $this->name = $name;

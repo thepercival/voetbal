@@ -18,7 +18,7 @@ class ScheduleService
      */
     protected $blockedPeriod;
 
-    public function __construct( Period $blockedPeriod = null )
+    public function __construct(Period $blockedPeriod = null)
     {
         $this->blockedPeriod = $blockedPeriod;
     }
@@ -27,33 +27,35 @@ class ScheduleService
      * @param RoundNumber $roundNumber
      * @return array|\DateTimeImmutable[]
      */
-    public function rescheduleGames( RoundNumber $roundNumber ): array {
+    public function rescheduleGames(RoundNumber $roundNumber): array
+    {
         $gameDates = [];
-        $gameStartDateTime = $this->getRoundNumberStartDateTime( $roundNumber );
+        $gameStartDateTime = $this->getRoundNumberStartDateTime($roundNumber);
         $previousBatchNr = 1;
         $gameDates[] = $gameStartDateTime;
 
-        $games = $roundNumber->getGames( Game::ORDER_BY_BATCH );
-        if( count($games) === 0 ) {
-            throw new \Exception("roundnumber has no games", E_ERROR );
+        $games = $roundNumber->getGames(Game::ORDER_BY_BATCH);
+        if (count($games) === 0) {
+            throw new \Exception("roundnumber has no games", E_ERROR);
         }
         /** @var Game $game */
-        foreach( $games as $game ) {
-           if ( $previousBatchNr !== $game->getBatchNr()) {
-                $gameStartDateTime = $this->getNextGameStartDateTime( $roundNumber->getValidPlanningConfig(), $gameStartDateTime );
+        foreach ($games as $game) {
+            if ($previousBatchNr !== $game->getBatchNr()) {
+                $gameStartDateTime = $this->getNextGameStartDateTime($roundNumber->getValidPlanningConfig(), $gameStartDateTime);
                 $gameDates[] = $gameStartDateTime;
                 $previousBatchNr = $game->getBatchNr();
             }
-            $game->setStartDateTime( $gameStartDateTime );
+            $game->setStartDateTime($gameStartDateTime);
         }
-        if( $roundNumber->hasNext() ) {
-            return array_merge( $gameDates, $this->rescheduleGames( $roundNumber->getNext() ) );
+        if ($roundNumber->hasNext()) {
+            return array_merge($gameDates, $this->rescheduleGames($roundNumber->getNext()));
         }
         return $gameDates;
     }
 
-    public function getRoundNumberStartDateTime(RoundNumber $roundNumber ): \DateTimeImmutable {
-        if ($roundNumber->isFirst() ) {
+    public function getRoundNumberStartDateTime(RoundNumber $roundNumber): \DateTimeImmutable
+    {
+        if ($roundNumber->isFirst()) {
             $startDateTime = $roundNumber->getCompetition()->getStartDateTime();
             return $this->addMinutes($startDateTime, 0, $roundNumber->getValidPlanningConfig());
         }
@@ -63,16 +65,18 @@ class ScheduleService
         return $this->addMinutes($previousRoundLastStartDateTime, $minutes, $previousPlanningConfig);
     }
 
-    public function getNextGameStartDateTime( Config $planningConfig, \DateTimeImmutable $gameStartDateTime ): \DateTimeImmutable {
+    public function getNextGameStartDateTime(Config $planningConfig, \DateTimeImmutable $gameStartDateTime): \DateTimeImmutable
+    {
         $minutes = $planningConfig->getMaximalNrOfMinutesPerGame() + $planningConfig->getMinutesBetweenGames();
         return $this->addMinutes($gameStartDateTime, $minutes, $planningConfig);
     }
 
-    protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes, Config $planningConfig): \DateTimeImmutable {
+    protected function addMinutes(\DateTimeImmutable $dateTime, int $minutes, Config $planningConfig): \DateTimeImmutable
+    {
         $newStartDateTime = $dateTime->modify("+" . $minutes . " minutes");
-        if ($this->blockedPeriod !== null ) {
+        if ($this->blockedPeriod !== null) {
             $newEndDateTime = $newStartDateTime->modify("+" . $planningConfig->getMaximalNrOfMinutesPerGame() . " minutes");
-            if( $newStartDateTime < $this->blockedPeriod->getEndDate() && $newEndDateTime > $this->blockedPeriod->getStartDate() ) {
+            if ($newStartDateTime < $this->blockedPeriod->getEndDate() && $newEndDateTime > $this->blockedPeriod->getStartDate()) {
                 $newStartDateTime = clone $this->blockedPeriod->getEndDate();
             }
         }

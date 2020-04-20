@@ -3,7 +3,8 @@ namespace Voetbal\Planning\Sport;
 
 use Voetbal\Planning\Sport as PlanningSport;
 
-class Counter {
+class Counter
+{
     /**
      * @var int
      */
@@ -26,30 +27,33 @@ class Counter {
      * @param array|int[] $minNrOfGamesMap
      * @param array|int[] $nrOfGamesDoneMap
      */
-    public function __construct( int $nrOfGamesToGo, array $minNrOfGamesMap, array $nrOfGamesDoneMap, int $nrOfSportsToGo = null )
+    public function __construct(int $nrOfGamesToGo, array $minNrOfGamesMap, array $nrOfGamesDoneMap, int $nrOfSportsToGo = null)
     {
         $this->nrOfGamesToGo = $nrOfGamesToGo;
         $this->minNrOfGamesMap = $minNrOfGamesMap;
-        if( $nrOfSportsToGo === null ) {
+        if ($nrOfSportsToGo === null) {
             $nrOfSportsToGo = array_sum($this->minNrOfGamesMap);
         }
         $this->nrOfSportsToGo = $nrOfSportsToGo;
         $this->nrOfGamesDoneMap = $nrOfGamesDoneMap;
     }
 
-    public function getNrOfSportsToGo(): int {
+    public function getNrOfSportsToGo(): int
+    {
         return $this->nrOfSportsToGo;
     }
 
-    public function isAssignable(PlanningSport $sport): bool {
+    public function isAssignable(PlanningSport $sport): bool
+    {
         $sportNr = $sport->getNumber();
         $isSportDone = $this->nrOfGamesDoneMap[$sportNr] >= $this->minNrOfGamesMap[$sportNr];
         return ($this->nrOfSportsToGo - ($isSportDone ? 0 : 1)) <= ($this->nrOfGamesToGo - 1);
     }
 
-    public function addGame(PlanningSport $sport ) {
+    public function addGame(PlanningSport $sport)
+    {
         $sportNr = $sport->getNumber();
-        if ( array_key_exists( $sportNr, $this->nrOfGamesDoneMap ) === false) {
+        if (array_key_exists($sportNr, $this->nrOfGamesDoneMap) === false) {
             $this->nrOfGamesDoneMap[$sportNr] = 0;
         }
         if ($this->nrOfGamesDoneMap[$sportNr] < $this->minNrOfGamesMap[$sportNr]) {
@@ -59,8 +63,9 @@ class Counter {
         $this->nrOfGamesToGo--;
     }
 
-    public function copy(): Counter {
-        return new Counter( $this->nrOfGamesToGo, $this->minNrOfGamesMap, $this->nrOfGamesDoneMap, $this->nrOfSportsToGo );
+    public function copy(): Counter
+    {
+        return new Counter($this->nrOfGamesToGo, $this->minNrOfGamesMap, $this->nrOfGamesDoneMap, $this->nrOfSportsToGo);
     }
 
 //    public function removeGame(PlanningSport $sport ) {

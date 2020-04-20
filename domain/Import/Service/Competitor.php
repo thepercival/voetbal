@@ -35,8 +35,7 @@ class Competitor implements ImporterInterface
         CompetitorAttacherRepository $competitorAttacherRepos,
         AssociationAttacherRepository $associationAttacherRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->competitorRepos = $competitorRepos;
         $this->competitorAttacherRepos = $competitorAttacherRepos;
@@ -62,7 +61,9 @@ class Competitor implements ImporterInterface
                     continue;
                 }
                 $competitorAttacher = new CompetitorAttacher(
-                    $competitor, $externalSource, $externalId
+                    $competitor,
+                    $externalSource,
+                    $externalId
                 );
                 $this->competitorAttacherRepos->save($competitorAttacher);
             } else {
@@ -78,12 +79,12 @@ class Competitor implements ImporterInterface
             $externalSource,
             $externalSourceCompetitor->getAssociation()->getId()
         );
-        if( $association === null ) {
+        if ($association === null) {
             return null;
         }
-        $competitor = new CompetitorBase($association, $externalSourceCompetitor->getName() );
-        $competitor->setAbbreviation( $externalSourceCompetitor->getAbbreviation() );
-        $competitor->setImageUrl( $externalSourceCompetitor->getImageUrl() );
+        $competitor = new CompetitorBase($association, $externalSourceCompetitor->getName());
+        $competitor->setAbbreviation($externalSourceCompetitor->getAbbreviation());
+        $competitor->setImageUrl($externalSourceCompetitor->getImageUrl());
 
         $this->competitorRepos->save($competitor);
         return $competitor;
@@ -91,8 +92,8 @@ class Competitor implements ImporterInterface
 
     protected function editCompetitor(CompetitorBase $competitor, CompetitorBase $externalSourceCompetitor)
     {
-         $competitor->setAbbreviation($externalSourceCompetitor->getAbbreviation());
-         $competitor->setImageUrl( $externalSourceCompetitor->getImageUrl() );
-         $this->competitorRepos->save($competitor);
+        $competitor->setAbbreviation($externalSourceCompetitor->getAbbreviation());
+        $competitor->setImageUrl($externalSourceCompetitor->getImageUrl());
+        $this->competitorRepos->save($competitor);
     }
 }

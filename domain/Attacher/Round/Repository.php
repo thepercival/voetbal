@@ -12,5 +12,4 @@ use Voetbal\Attacher\Repository as AttacherRepository;
 
 class Repository extends AttacherRepository
 {
-
 }

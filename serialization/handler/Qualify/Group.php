@@ -15,7 +15,6 @@ use JMS\Serializer\JsonDeserializationVisitor;
 use JMS\Serializer\Context;
 use Voetbal\Qualify\Group as QualifyGroupBase;
 
-
 class Group implements SubscribingHandlerInterface
 {
     public static function getSubscribingMethods()
@@ -38,7 +37,7 @@ class Group implements SubscribingHandlerInterface
 
     public function deserializeFromJson(JsonDeserializationVisitor $visitor, $arrQualifyGroup, array $type, Context $context)
     {
-        $qualifyGroup = new QualifyGroupBase( $type["params"]["round"], $arrQualifyGroup["winnersOrLosers"], $arrQualifyGroup["number"] );
+        $qualifyGroup = new QualifyGroupBase($type["params"]["round"], $arrQualifyGroup["winnersOrLosers"], $arrQualifyGroup["number"]);
         return $qualifyGroup;
     }
 }

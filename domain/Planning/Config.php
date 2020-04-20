@@ -10,7 +10,8 @@ namespace Voetbal\Planning;
 
 use Voetbal\Round\Number as RoundNumber;
 
-class Config {
+class Config
+{
 
     /**
      * @var RoundNumber
@@ -63,7 +64,7 @@ class Config {
     const TEAMUP_MAX = 6;
     const DEFAULTNROFHEADTOHEAD = 1;
 
-    public function __construct( RoundNumber $roundNumber )
+    public function __construct(RoundNumber $roundNumber)
     {
         $this->roundNumber = $roundNumber;
         $this->roundNumber->setPlanningConfig($this);
@@ -243,7 +244,7 @@ class Config {
     /**
      * @param int $nrOfHeadtohead
      */
-    public function setNrOfHeadtohead( $nrOfHeadtohead )
+    public function setNrOfHeadtohead($nrOfHeadtohead)
     {
         if (!is_int($nrOfHeadtohead)) {
             throw new \InvalidArgumentException("het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR);
@@ -251,7 +252,8 @@ class Config {
         $this->nrOfHeadtohead = $nrOfHeadtohead;
     }
 
-    public function getNrOfCompetitorsPerGame(): int {
+    public function getNrOfCompetitorsPerGame(): int
+    {
         return $this->getTeamup() ? 4 : 2;
     }
 

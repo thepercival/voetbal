@@ -17,33 +17,35 @@ class Structure
      */
     protected $nrOfPlaces;
 
-    public function __construct( Collection $poules)
+    public function __construct(Collection $poules)
     {
         $this->nrOfPlaces = 0;
         $this->poules = new ArrayCollection();
-        foreach( $poules as $poule ) {
-            $this->addPoule( $poule );
+        foreach ($poules as $poule) {
+            $this->addPoule($poule);
         }
     }
 
-    protected function addPoule( Poule $poule )
+    protected function addPoule(Poule $poule)
     {
-        $this->poules->add( $poule );
+        $this->poules->add($poule);
         $this->nrOfPlaces += $poule->getPlaces()->count();
     }
 
     /**
      * @return Collection|Poule[]
      */
-    public function getPoules(): Collection {
+    public function getPoules(): Collection
+    {
         return $this->poules;
     }
 
     /**
      * @return Poule|null
      */
-    public function getPoule( int $number ): ?Poule {
-        foreach( $this->getPoules() as $poule ) {
+    public function getPoule(int $number): ?Poule
+    {
+        foreach ($this->getPoules() as $poule) {
             if ($poule->getNumber() === $number) {
                 return $poule;
             }
@@ -51,7 +53,8 @@ class Structure
         return null;
     }
 
-    public function getNrOfPlaces(): int {
+    public function getNrOfPlaces(): int
+    {
         return $this->nrOfPlaces;
     }
 }

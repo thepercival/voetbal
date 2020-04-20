@@ -8,7 +8,6 @@
 
 namespace Voetbal\Import;
 
-
 interface Idable
 {
     /**
@@ -20,7 +19,7 @@ interface Idable
      * @param int|string $id
      * @return mixed
      */
-    public function setId( $id );
+    public function setId($id);
 }
 
 //class Importable

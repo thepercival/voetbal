@@ -55,7 +55,7 @@ trait HomeAwayTrait
     /**
      * @param int $away
      */
-    public function setAway( int $away)
+    public function setAway(int $away)
     {
         /*$scoreConfig = $this->getGame() ? $this->getGame()->getConfig()->getInputScore() : null;
         if ( $scoreConfig && !($scoreConfig->getDirection() === ScoreConfig::UPWARDS and $scoreConfig->getMaximum() === 0 ) ) {
@@ -71,7 +71,8 @@ trait HomeAwayTrait
 //        return $homeAway === Game::HOME ? $this->getHome() : $this->getAway();
 //    }
 
-    public function getResult(): int {
+    public function getResult(): int
+    {
         if ($this->getHome() === $this->getAway()) {
             return Game::RESULT_DRAW;
         }

@@ -73,15 +73,15 @@ class ApiHelper
 
     protected function getData(string $postUrl, int $cacheMinutes)
     {
-        $data = $this->cacheItemDbRepos->getItem( $postUrl );
-        if ( $data !== null ) {
+        $data = $this->cacheItemDbRepos->getItem($postUrl);
+        if ($data !== null) {
             return json_decode($data);
         }
 
-        if( $this->sleepRangeInSeconds === null ) {
-            $this->sleepRangeInSeconds = new VoetbalRange( 5, 60 );
+        if ($this->sleepRangeInSeconds === null) {
+            $this->sleepRangeInSeconds = new VoetbalRange(5, 60);
         } else {
-            sleep( rand( $this->sleepRangeInSeconds->min, $this->sleepRangeInSeconds->max ) );
+            sleep(rand($this->sleepRangeInSeconds->min, $this->sleepRangeInSeconds->max));
         }
 
         $response = $this->getClient()->get(
@@ -89,7 +89,7 @@ class ApiHelper
             $this->getHeaders()
         );
         return json_decode(
-            $this->cacheItemDbRepos->saveItem( $postUrl, $response->getBody()->getContents(), $cacheMinutes )
+            $this->cacheItemDbRepos->saveItem($postUrl, $response->getBody()->getContents(), $cacheMinutes)
         );
     }
 
@@ -103,20 +103,24 @@ class ApiHelper
         return (new \DateTimeImmutable())->format("Y-m-d");
     }
 
-    public function getSportsData(): stdClass {
-        return $this->getData( "event/count/by-sports/json", ImportService::SPORT_CACHE_MINUTES );
+    public function getSportsData(): stdClass
+    {
+        return $this->getData("event/count/by-sports/json", ImportService::SPORT_CACHE_MINUTES);
     }
 
-    public function getCompetitionsData( Sport $sport, DateTimeImmutable $date = null ): stdClass {
-        if( $date === null ) {
+    public function getCompetitionsData(Sport $sport, DateTimeImmutable $date = null): stdClass
+    {
+        if ($date === null) {
             $date = $this->getCurrentDateAsString();
         }
         return $this->getData(
             $sport->getName() . "//" . $date . "/json",
-            60 * 24 );
+            60 * 24
+        );
     }
 
-    public function getCompetitionData( Competition $competition ): stdClass {
+    public function getCompetitionData(Competition $competition): stdClass
+    {
         return $this->getData(
             "u-tournament/". $competition->getLeague()->getId() .
             "/season/". $competition->getId() ."/json",
@@ -124,7 +128,8 @@ class ApiHelper
         );
     }
 
-    public function getBatchGameData( Competition $competition, int $batchNr ): stdClass {
+    public function getBatchGameData(Competition $competition, int $batchNr): stdClass
+    {
         return $this->getData(
             "u-tournament/". $competition->getLeague()->getId() .
             "/season/". $competition->getId() ."/matches/round/" . $batchNr,
@@ -144,11 +149,12 @@ class ApiHelper
     },
      * @return Competitor
      */
-    public function convertCompetitor( Association $association, stdClass $externalCompetitor ): Competitor {
-        $competitor = new Competitor( $association, $externalCompetitor->name );
-        $competitor->setId( $externalCompetitor->id );
-        $competitor->setAbbreviation( substr( $externalCompetitor->name, 0, Competitor::MAX_LENGTH_ABBREVIATION ));
-        $competitor->setImageUrl( "https://www.sofascore.com/images/team-logo/football_".$competitor->getId().".png" );
+    public function convertCompetitor(Association $association, stdClass $externalCompetitor): Competitor
+    {
+        $competitor = new Competitor($association, $externalCompetitor->name);
+        $competitor->setId($externalCompetitor->id);
+        $competitor->setAbbreviation(substr($externalCompetitor->name, 0, Competitor::MAX_LENGTH_ABBREVIATION));
+        $competitor->setImageUrl("https://www.sofascore.com/images/team-logo/football_".$competitor->getId().".png");
         return $competitor;
     }
     /*

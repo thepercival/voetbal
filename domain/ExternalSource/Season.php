@@ -14,5 +14,5 @@ interface Season
      * @param mixed $id
      * @return SeasonBase|null
      */
-    public function getSeason( $id ): ?SeasonBase;
+    public function getSeason($id): ?SeasonBase;
 }

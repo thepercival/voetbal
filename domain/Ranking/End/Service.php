@@ -18,7 +18,8 @@ use Voetbal\Ranking\Service as RankingService;
 
 /* tslint:disable:no-bitwise */
 
-class Service {
+class Service
+{
     /**
      * @var int
      */
@@ -37,7 +38,7 @@ class Service {
      * @param Structure $structure
      * @param int $ruleSet
      */
-    public function __construct( Structure $structure, int $ruleSet )
+    public function __construct(Structure $structure, int $ruleSet)
     {
         $this->structure = $structure;
         $this->ruleSet = $ruleSet;
@@ -46,20 +47,21 @@ class Service {
     /**
      * @return array | Item[]
      */
-    public function getItems(): array {
+    public function getItems(): array
+    {
         $this->currentRank = 1;
-        $getItems = function (Round $round ) use (&$getItems) : array {
+        $getItems = function (Round $round) use (&$getItems) : array {
             $items = [];
-            foreach( $round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup ) {
-                $items = array_merge( $items, $getItems($qualifyGroup->getChildRound()));
+            foreach ($round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup) {
+                $items = array_merge($items, $getItems($qualifyGroup->getChildRound()));
             }
             if ($round->getState() === State::Finished) {
-                $items = array_merge( $items, $this->getDropouts($round));
+                $items = array_merge($items, $this->getDropouts($round));
             } else {
-                $items = array_merge( $items, $this->getDropoutsNotPlayed($round));
+                $items = array_merge($items, $this->getDropoutsNotPlayed($round));
             }
-            foreach( array_reverse( $round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0) ) as $qualifyGroup ) {
-                $items = array_merge( $items, $getItems($qualifyGroup->getChildRound()));
+            foreach (array_reverse($round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0)) as $qualifyGroup) {
+                $items = array_merge($items, $getItems($qualifyGroup->getChildRound()));
             }
             return $items;
         };
@@ -70,7 +72,8 @@ class Service {
      * @param Round $round
      * @return array | Item[]
      */
-    protected function getDropoutsNotPlayed(Round $round): array {
+    protected function getDropoutsNotPlayed(Round $round): array
+    {
         $items = [];
         $nrOfDropouts = $round->getNrOfPlaces() - $round->getNrOfPlacesChildren();
         for ($i = 0; $i < $nrOfDropouts; $i++) {
@@ -83,28 +86,29 @@ class Service {
      * @param Round $round
      * @return array | Item[]
      */
-    protected function getDropouts(Round $round): array {
+    protected function getDropouts(Round $round): array
+    {
         $rankingService = new RankingService($round, $this->ruleSet);
         $dropouts = [];
         $nrOfDropouts = $round->getNrOfDropoutPlaces();
         while ($nrOfDropouts > 0) {
-            foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
-                foreach( $round->getHorizontalPoules($winnersOrLosers) as $horizontalPoule ) {
+            foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
+                foreach ($round->getHorizontalPoules($winnersOrLosers) as $horizontalPoule) {
                     /** @var HorizontalPoule $horizontalPoule */
                     if ($horizontalPoule->getQualifyGroup() && $horizontalPoule->getQualifyGroup()->getNrOfToPlacesTooMuch() === 0) {
-                        if( $nrOfDropouts > 0 ) {
+                        if ($nrOfDropouts > 0) {
                             continue;
                         }
                         break;
                     }
                     $dropoutsHorizontalPoule = $this->getDropoutsHorizontalPoule($horizontalPoule, $rankingService);
-                    $dropouts = array_merge( $dropouts, $dropoutsHorizontalPoule );
+                    $dropouts = array_merge($dropouts, $dropoutsHorizontalPoule);
                     $nrOfDropouts -= count($dropoutsHorizontalPoule);
-                    if( $nrOfDropouts === 0 ) {
+                    if ($nrOfDropouts === 0) {
                         break;
                     }
                 }
-                if( $nrOfDropouts === 0 ) {
+                if ($nrOfDropouts === 0) {
                     break;
                 }
             }
@@ -117,13 +121,14 @@ class Service {
      * @param RankingService $rankingService
      * @return array | Item[]
      */
-    protected function getDropoutsHorizontalPoule(HorizontalPoule $horizontalPoule, RankingService $rankingService ): array {
+    protected function getDropoutsHorizontalPoule(HorizontalPoule $horizontalPoule, RankingService $rankingService): array
+    {
         $rankedPlaceLocations = $rankingService->getPlaceLocationsForHorizontalPoule($horizontalPoule);
-        array_splice( $rankedPlaceLocations, 0, $horizontalPoule->getNrOfQualifiers());
-        return array_map( function ($rankedPlaceLocation) use ($rankingService) {
+        array_splice($rankedPlaceLocations, 0, $horizontalPoule->getNrOfQualifiers());
+        return array_map(function ($rankedPlaceLocation) use ($rankingService) {
             $competitor = $rankingService->getCompetitor($rankedPlaceLocation);
             $name = $competitor ? $competitor->getName() : 'onbekend';
             return new Item($this->currentRank, $this->currentRank++, $name);
-        }, $rankedPlaceLocations );
+        }, $rankedPlaceLocations);
     }
 }

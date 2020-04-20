@@ -25,14 +25,15 @@ class Referee
      */
     protected $planning;
 
-    public function __construct( PlanningBase $planning, int $number )
+    public function __construct(PlanningBase $planning, int $number)
     {
         $this->planning = $planning;
         $this->number = $number;
         $this->priority = RefereeBase::DEFAULT_RANK;
     }
 
-    public function getPlanning(): PlanningBase {
+    public function getPlanning(): PlanningBase
+    {
         return $this->planning;
     }
 
@@ -52,7 +53,7 @@ class Referee
         return $this->priority;
     }
 
-    public function setPriority( int $priority )
+    public function setPriority(int $priority)
     {
         $this->priority = $priority;
     }

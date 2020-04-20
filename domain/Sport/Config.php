@@ -11,7 +11,8 @@ namespace Voetbal\Sport;
 use Voetbal\Sport as SportBase;
 use Voetbal\Competition;
 
-class Config {
+class Config
+{
 
     /**
      * @var SportBase
@@ -61,7 +62,7 @@ class Config {
     const POINTS_CALC_BOTH = 2;
     const DEFAULT_NROFGAMEPLACES = 2;
 
-    public function __construct( SportBase $sport, Competition $competition )
+    public function __construct(SportBase $sport, Competition $competition)
     {
         $this->sport = $sport;
         $this->competition = $competition;
@@ -169,22 +170,26 @@ class Config {
     /**
      * @return int
      */
-    public function getPointsCalculation(): int {
+    public function getPointsCalculation(): int
+    {
         return $this->pointsCalculation;
     }
 
     /**
      * @param int $pointsCalculation
      */
-    public function setPointsCalculation(int $pointsCalculation) {
+    public function setPointsCalculation(int $pointsCalculation)
+    {
         $this->pointsCalculation = $pointsCalculation;
     }
 
-    public function getNrOfGamePlaces(): ?int {
+    public function getNrOfGamePlaces(): ?int
+    {
         return $this->nrOfGamePlaces;
     }
 
-    public function setNrOfGamePlaces(int $nrOfGamePlaces): void {
+    public function setNrOfGamePlaces(int $nrOfGamePlaces): void
+    {
         $this->nrOfGamePlaces = $nrOfGamePlaces;
     }
 
@@ -196,7 +201,8 @@ class Config {
         return $this->sport;
     }
 
-    public function setSport(SportBase $sport): void {
+    public function setSport(SportBase $sport): void
+    {
         $this->sport = $sport;
     }
 
@@ -208,10 +214,11 @@ class Config {
         return $this->competition;
     }
 
-    public function getNrOfFields(): int {
+    public function getNrOfFields(): int
+    {
         $nrOfFields = 0;
-        foreach( $this->getCompetition()->getFields() as $field ) {
-            if( $field->getSport() === $this->getSport() ) {
+        foreach ($this->getCompetition()->getFields() as $field) {
+            if ($field->getSport() === $this->getSport()) {
                 $nrOfFields++;
             }
         }

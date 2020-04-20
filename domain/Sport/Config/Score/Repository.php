@@ -8,12 +8,10 @@
 
 namespace Voetbal\Sport\Config\Score;
 
-
 /**
  * Class Repository
  * @package Voetbal\Sport\Config
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

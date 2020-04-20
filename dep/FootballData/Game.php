@@ -106,7 +106,6 @@ class Game implements GameImporter
         CompetitorImporter $competitorImporter,
         Connection $conn,
         GameLogger $logger
-
     ) {
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
@@ -125,8 +124,9 @@ class Game implements GameImporter
         $this->logger = $logger;
     }
 
-    public function createByCompetitions( array $competitions ) {
-throw new \Exception("createByCompetitions should be added again", E_ERROR );
+    public function createByCompetitions(array $competitions)
+    {
+        throw new \Exception("createByCompetitions should be added again", E_ERROR);
 //        foreach( $competitions as $competition ) {
 //
 //            $structure = null; // @TODO $this->structureService->getStructure( $competition );
@@ -154,40 +154,46 @@ throw new \Exception("createByCompetitions should be added again", E_ERROR );
 //        }
     }
 
-    private function createFromExternalSystemGames( Competition $competition, Structure $structure, $externalLeague, $externalSeason ) {
+    private function createFromExternalSystemGames(Competition $competition, Structure $structure, $externalLeague, $externalSeason)
+    {
+        $externalSystemRounds = $this->apiHelper->getRounds($externalLeague, $externalSeason);
+        foreach ($externalSystemRounds as $externalSystemRound) {
+            $round = $this->getRound($structure, $externalSystemRound->name);
 
-        $externalSystemRounds = $this->apiHelper->getRounds( $externalLeague, $externalSeason );
-        foreach( $externalSystemRounds as $externalSystemRound ) {
-            $round = $this->getRound( $structure, $externalSystemRound->name );
-
-            $externalSystemGames = $this->apiHelper->getGames( $externalLeague, $externalSeason, $externalSystemRound->name );
-            foreach( $externalSystemGames as $externalSystemGame ) {
-                $game = $this->getGame( $competition, $round, $externalSystemGame );
-                if( $game === null ) {
-                    $this->logger->addGameNotFoundNotice('game could not be found', $competition );
+            $externalSystemGames = $this->apiHelper->getGames($externalLeague, $externalSeason, $externalSystemRound->name);
+            foreach ($externalSystemGames as $externalSystemGame) {
+                $game = $this->getGame($competition, $round, $externalSystemGame);
+                if ($game === null) {
+                    $this->logger->addGameNotFoundNotice('game could not be found', $competition);
                     continue;
                 }
-                $externalGame = $this->externalGameRepos->findOneByExternalId($this->externalSystemBase, $externalSystemGame->id );
+                $externalGame = $this->externalGameRepos->findOneByExternalId($this->externalSystemBase, $externalSystemGame->id);
                 if ($externalGame !== null) {
                     continue;
                 }
-                $externalGame = $this->externalObjectService->create( $game, $this->externalSystemBase, $externalSystemGame->id );
+                $externalGame = $this->externalObjectService->create($game, $this->externalSystemBase, $externalSystemGame->id);
             }
         }
     }
 
-    private function editGames( Structure $structure, $externalLeague, $externalSeason ) {
-        $this->editGamesForRound( $structure->getRootRound(), $externalLeague, $externalSeason );
+    private function editGames(Structure $structure, $externalLeague, $externalSeason)
+    {
+        $this->editGamesForRound($structure->getRootRound(), $externalLeague, $externalSeason);
     }
 
-    private function editGamesForRound( Round $round, $externalLeague, $externalSeason ) {
+    private function editGamesForRound(Round $round, $externalLeague, $externalSeason)
+    {
         $games = $round->getGames();
 
         foreach ($games as $game) {
             $externalGame = $this->externalGameRepos->findOneByImportable($this->externalSystemBase, $game);
             if ($externalGame === null) {
-                $this->logger->addExternalGameNotFoundNotice('externalgame could not be found',
-                    $this->externalSystemBase, $game, $round->getNumber()->getCompetition());
+                $this->logger->addExternalGameNotFoundNotice(
+                    'externalgame could not be found',
+                    $this->externalSystemBase,
+                    $game,
+                    $round->getNumber()->getCompetition()
+                );
                 continue;
             }
             $stage = $round->getName();
@@ -197,47 +203,48 @@ throw new \Exception("createByCompetitions should be added again", E_ERROR );
             );
         }
 
-        foreach( $round->getChildren() as $childRound ) {
-            $this->editGamesForRound( $childRound, $externalLeague, $externalSeason );
+        foreach ($round->getChildren() as $childRound) {
+            $this->editGamesForRound($childRound, $externalLeague, $externalSeason);
         }
     }
 
-    private function getRound( Structure $structure, string $roundName ): ?Round {
-        $fnGetRound = function( Round $round, string $roundName ) use ( &$fnGetRound ): ?Round {
-            if( $round->getName() === $roundName ) {
+    private function getRound(Structure $structure, string $roundName): ?Round
+    {
+        $fnGetRound = function (Round $round, string $roundName) use (&$fnGetRound): ?Round {
+            if ($round->getName() === $roundName) {
                 return $round;
             }
-            foreach( $round->getChildren() as $childRound ) {
-                $childRoundWithName = $fnGetRound( $childRound, $roundName );
-                if( $childRoundWithName !== null ) {
+            foreach ($round->getChildren() as $childRound) {
+                $childRoundWithName = $fnGetRound($childRound, $roundName);
+                if ($childRoundWithName !== null) {
                     return $childRoundWithName;
                 }
             }
             return null;
         };
-        return $fnGetRound( $structure->getRootRound(), $roundName );
+        return $fnGetRound($structure->getRootRound(), $roundName);
     }
 
-    protected function editGame(GameBase $game, \stdClass $externalSystemGame )
+    protected function editGame(GameBase $game, \stdClass $externalSystemGame)
     {
-        if( $game->getState() === State::Finished ) {
+        if ($game->getState() === State::Finished) {
             return $game;
         }
 
         // $game->setRoundNumber( $externalSystemGame->matchday );
         // $game->setBatchNr( $externalSystemGame->matchday );
-        $startDateTime = $this->apiHelper->getDate( $externalSystemGame->utcDate );
-        $game->setStartDateTime( $startDateTime );
+        $startDateTime = $this->apiHelper->getDate($externalSystemGame->utcDate);
+        $game->setStartDateTime($startDateTime);
 
-        if ( $externalSystemGame->status === "FINISHED" ) { //    OTHER, "IN_PLAY", "FINISHED",
-            $game->setState( State::Finished );
+        if ($externalSystemGame->status === "FINISHED") { //    OTHER, "IN_PLAY", "FINISHED",
+            $game->setState(State::Finished);
 
             $scores = $externalSystemGame->score;
-            if( property_exists ( $scores, "halfTime" ) ) {
-                new GameScore( $game, $scores->halfTime->homeTeam, $scores->halfTime->awayTeam, GameBase::PHASE_REGULARTIME );
+            if (property_exists($scores, "halfTime")) {
+                new GameScore($game, $scores->halfTime->homeTeam, $scores->halfTime->awayTeam, GameBase::PHASE_REGULARTIME);
             }
-            if( property_exists ( $scores, "fullTime" ) ) {
-                new GameScore( $game, $scores->fullTime->homeTeam, $scores->fullTime->awayTeam, GameBase::PHASE_REGULARTIME );
+            if (property_exists($scores, "fullTime")) {
+                new GameScore($game, $scores->fullTime->homeTeam, $scores->fullTime->awayTeam, GameBase::PHASE_REGULARTIME);
             }
 
             // set qualifiers for next round
@@ -269,38 +276,38 @@ throw new \Exception("createByCompetitions should be added again", E_ERROR );
 
 
 
-    protected function getGame( Competition $competition, Round $round, $externalSystemGame ): ?GameBase
+    protected function getGame(Competition $competition, Round $round, $externalSystemGame): ?GameBase
     {
-        $homeCompetitor = $this->getCompetitor( $externalSystemGame->homeTeam );
-        if( $homeCompetitor === null ) {
-            $this->logger->addExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->homeTeam );
+        $homeCompetitor = $this->getCompetitor($externalSystemGame->homeTeam);
+        if ($homeCompetitor === null) {
+            $this->logger->addExternalCompetitorNotFoundNotice("competitor could not be found", $this->externalSystemBase, $externalSystemGame->homeTeam);
             return null;
         }
-        $awayCompetitor = $this->getCompetitor( $externalSystemGame->awayTeam);
-        if( $awayCompetitor === null ) {
-            $this->logger->addExternalCompetitorNotFoundNotice( "competitor could not be found", $this->externalSystemBase, $externalSystemGame->awayTeam );
+        $awayCompetitor = $this->getCompetitor($externalSystemGame->awayTeam);
+        if ($awayCompetitor === null) {
+            $this->logger->addExternalCompetitorNotFoundNotice("competitor could not be found", $this->externalSystemBase, $externalSystemGame->awayTeam);
             return null;
         }
         /**@var GameBase[] $games */
-        $games = $this->repos->findByExt($homeCompetitor, $awayCompetitor, $competition );
+        $games = $this->repos->findByExt($homeCompetitor, $awayCompetitor, $competition);
 //        if( count($games) === 0 ) {
 //            $games = $this->repos->findByExt($awayCompetitor, $homeCompetitor, $competition );
 //        }
-        if( count($games) === 0 ) {
+        if (count($games) === 0) {
             return null;
         }
-        if( count($games) > 1 ) {
-            $games = array_filter( $games, function( $gameIt ) use ( $round ) {
+        if (count($games) > 1) {
+            $games = array_filter($games, function ($gameIt) use ($round) {
                 return $gameIt->getRound() === $round;
             });
-            uasort( $games, function( GameBase $g1, GameBase $g2) {
+            uasort($games, function (GameBase $g1, GameBase $g2) {
                 return $g2->getStartDateTime()->getTimestamp() - $g1->getStartDateTime()->getTimestamp();
             });
         }
-        return reset( $games );
+        return reset($games);
     }
 
-    protected function getCompetitor( $externalSystemCompetitor): ?CompetitorBase
+    protected function getCompetitor($externalSystemCompetitor): ?CompetitorBase
     {
         ///$externalCompetitor = $this->externalCompetitorRepos->findOneByExternalId( $this->externalSystemBase, $externalSystemCompetitor->id );
 
@@ -313,17 +320,19 @@ throw new \Exception("createByCompetitions should be added again", E_ERROR );
 //        }
 //        $externalSystemCompetitorId = $externalSystemCompetitor ? $this->apiHelper->getId( $externalSystemCompetitor ) : null;
         //if( $externalCompetitor === null ) {
-       //     return null;
-      //  }
-        return $this->externalCompetitorRepos->findImportable( $this->externalSystemBase, $externalSystemCompetitor->id);
+        //     return null;
+        //  }
+        return $this->externalCompetitorRepos->findImportable($this->externalSystemBase, $externalSystemCompetitor->id);
     }
 
-    private function addNotice( $msg ) {
+    private function addNotice($msg)
+    {
         // could add url, because is logger is gamelogger
-        $this->logger->notice( $this->externalSystemBase->getName() . " : " . $msg );
+        $this->logger->notice($this->externalSystemBase->getName() . " : " . $msg);
     }
 
-    private function addError( $msg ) {
-        $this->logger->error( $this->externalSystemBase->getName() . " : " . $msg );
+    private function addError($msg)
+    {
+        $this->logger->error($this->externalSystemBase->getName() . " : " . $msg);
     }
 }

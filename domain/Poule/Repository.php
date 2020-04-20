@@ -18,5 +18,4 @@ use Voetbal\Field;
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

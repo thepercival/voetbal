@@ -41,8 +41,8 @@ class Repository
         $conn = $this->em->getConnection();
         $conn->beginTransaction();
         try {
-            $this->remove( $competition, $roundNumberValue );
-            $roundNumber = $this->add( $newStructure, $roundNumberValue);
+            $this->remove($competition, $roundNumberValue);
+            $roundNumber = $this->add($newStructure, $roundNumberValue);
 
             $this->em->flush();
             $conn->commit();
@@ -55,40 +55,39 @@ class Repository
 
     public function add(StructureBase $structure, int $roundNumberValue = null): RoundNumber
     {
-        $roundNumber = $structure->getRoundNumber( $roundNumberValue ? $roundNumberValue : 1);
-        if( $roundNumber === null ) {
+        $roundNumber = $structure->getRoundNumber($roundNumberValue ? $roundNumberValue : 1);
+        if ($roundNumber === null) {
             throw new \Exception("rondenummer " . $roundNumberValue . " kon niet gevonden worden", E_ERROR);
         }
-        $this->customPersistHelper( $roundNumber );
+        $this->customPersistHelper($roundNumber);
         return $roundNumber;
     }
 
     protected function customPersistHelper(RoundNumber $roundNumber)
     {
-        foreach( $roundNumber->getRounds() as $round ) {
+        foreach ($roundNumber->getRounds() as $round) {
             $this->em->persist($round);
         }
         $this->em->persist($roundNumber);
-        if( $roundNumber->hasNext() ) {
+        if ($roundNumber->hasNext()) {
             $this->customPersistHelper($roundNumber->getNext());
         }
     }
 
-    public function hasStructure( Competition $competition ): bool
+    public function hasStructure(Competition $competition): bool
     {
-
-        $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition) );
+        $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition));
         return count($roundNumbers) > 0;
     }
 
-    public function getStructure( Competition $competition ): ?StructureBase
+    public function getStructure(Competition $competition): ?StructureBase
     {
         $roundNumbers = $this->roundNumberRepos->findBy(array("competition" => $competition), array("number" => "asc"));
-        if( count($roundNumbers) === 0 ) {
+        if (count($roundNumbers) === 0) {
             return null;
         }
         $roundNumber = reset($roundNumbers);
-        while( $nextRoundNumber = next($roundNumbers) ) {
+        while ($nextRoundNumber = next($roundNumbers)) {
             $roundNumber->setNext($nextRoundNumber);
             $roundNumber = $nextRoundNumber;
         }
@@ -98,7 +97,7 @@ class Repository
         $structure = new StructureBase($firstRoundNumber, $firstRound);
         $structure->setStructureNumbers();
 
-        $postCreateService = new PostCreateService( $structure );
+        $postCreateService = new PostCreateService($structure);
         $postCreateService->create();
 
         return $structure;
@@ -108,34 +107,35 @@ class Repository
      * @param array $filter
      * @return array|StructureBase[]
      */
-    public function getStructures( array $filter ): array {
+    public function getStructures(array $filter): array
+    {
         $structures = [];
 
         $roundNumbers = $this->roundNumberRepos->findBy($filter, array("number" => "asc"));
-        foreach( $roundNumbers as $roundNumber ) {
-            if( array_key_exists($roundNumber->getCompetition()->getId(), $structures ) ) {
+        foreach ($roundNumbers as $roundNumber) {
+            if (array_key_exists($roundNumber->getCompetition()->getId(), $structures)) {
                 continue;
             }
-            $structures[$roundNumber->getCompetition()->getId()] = $this->getStructure( $roundNumber->getCompetition() );
+            $structures[$roundNumber->getCompetition()->getId()] = $this->getStructure($roundNumber->getCompetition());
         }
         return $structures;
     }
 
-    public function remove( Competition $competition, int $roundNumberAsValue = null )
+    public function remove(Competition $competition, int $roundNumberAsValue = null)
     {
-        if( $roundNumberAsValue === null ) {
+        if ($roundNumberAsValue === null) {
             $roundNumberAsValue = 1;
         }
         $structure = $this->getStructure($competition);
-        if( $structure === null ) {
+        if ($structure === null) {
             return;
         }
-        $roundNumber = $structure->getRoundNumber( $roundNumberAsValue );
-        if( $roundNumber === null ) {
+        $roundNumber = $structure->getRoundNumber($roundNumberAsValue);
+        if ($roundNumber === null) {
             return;
         }
-        if( $roundNumber->hasNext() ) {
-            $this->remove( $competition, $roundNumberAsValue + 1 );
+        if ($roundNumber->hasNext()) {
+            $this->remove($competition, $roundNumberAsValue + 1);
         }
 
         $this->em->remove($roundNumber);
@@ -160,4 +160,3 @@ class Repository
         }
     }*/
 }
-

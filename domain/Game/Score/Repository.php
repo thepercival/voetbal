@@ -18,11 +18,11 @@ class Repository extends \Voetbal\Repository
     /**
      * @param Game $game
      */
-    public function removeScores( Game $game )
+    public function removeScores(Game $game)
     {
-        while( $game->getScores()->count() > 0 ) {
+        while ($game->getScores()->count() > 0) {
             $gameScore = $game->getScores()->first();
-            $game->getScores()->removeElement( $gameScore );
+            $game->getScores()->removeElement($gameScore);
             $this->remove($gameScore);
         }
     }

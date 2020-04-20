@@ -44,13 +44,13 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
     public function getLeagues(): array
     {
         $this->initLeagues();
-        return array_values( $this->leagues );
+        return array_values($this->leagues);
     }
 
-    public function getLeague( $id = null ): ?LeagueBase
+    public function getLeague($id = null): ?LeagueBase
     {
         $this->initLeagues();
-        if( array_key_exists( $id, $this->leagues ) ) {
+        if (array_key_exists($id, $this->leagues)) {
             return $this->leagues[$id];
         }
         return null;
@@ -58,10 +58,10 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
 
     protected function initLeagues()
     {
-        if( $this->leagues !== null ) {
+        if ($this->leagues !== null) {
             return;
         }
-        $this->setLeagues( $this->getLeagueData() );
+        $this->setLeagues($this->getLeagueData());
     }
 
     /**
@@ -72,12 +72,12 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
         $sports = $this->parent->getSports();
 
         $leagueData = [];
-        foreach( $sports as $sport ) {
-            if( $sport->getName() !== SofaScore::SPORTFILTER ) {
+        foreach ($sports as $sport) {
+            if ($sport->getName() !== SofaScore::SPORTFILTER) {
                 continue;
             }
-            $apiData = $this->apiHelper->getCompetitionsData( $sport );
-            $leagueData = array_merge( $leagueData, $apiData->sportItem->tournaments );
+            $apiData = $this->apiHelper->getCompetitionsData($sport);
+            $leagueData = array_merge($leagueData, $apiData->sportItem->tournaments);
         }
         return $leagueData;
     }
@@ -91,25 +91,23 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
     {
         $this->leagues = [];
         foreach ($competitions as $competition) {
-
-            if( $competition->category === null ) {
+            if ($competition->category === null) {
                 continue;
             }
-            $association = $this->parent->getAssociation( $competition->category->id );
-            if( $association === null ) {
+            $association = $this->parent->getAssociation($competition->category->id);
+            if ($association === null) {
                 continue;
             }
-            if( $competition->tournament === null || !property_exists($competition->tournament, "uniqueId") ) {
+            if ($competition->tournament === null || !property_exists($competition->tournament, "uniqueId")) {
                 continue;
             }
             $name = $competition->tournament->name;
-            if( $this->hasName( $this->leagues, $name ) ) {
+            if ($this->hasName($this->leagues, $name)) {
                 continue;
             }
-            $league = new LeagueBase( $association, $name );
-            $league->setId( $competition->tournament->uniqueId );
+            $league = new LeagueBase($association, $name);
+            $league->setId($competition->tournament->uniqueId);
             $this->leagues[$league->getId()] = $league;
         }
     }
-
 }

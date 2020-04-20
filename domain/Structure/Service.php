@@ -512,7 +512,8 @@ class Service
         }
         if ($nrOfPoules < $this->options->getPouleRange()->min) {
             throw new \Exception(
-                'er moeten minimaal ' . $this->options->getPouleRange()->min . ' poules zijn', E_ERROR
+                'er moeten minimaal ' . $this->options->getPouleRange()->min . ' poules zijn',
+                E_ERROR
             );
         }
         if ($nrOfPoules > $this->options->getPouleRange()->max) {

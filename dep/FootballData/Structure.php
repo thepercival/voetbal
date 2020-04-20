@@ -25,7 +25,6 @@ use Voetbal\External\League as ExternalLeague;
 use Doctrine\DBAL\Connection;
 use Monolog\Logger;
 
-
 class Structure implements StructureImporter
 {
     /**
@@ -212,7 +211,8 @@ class Structure implements StructureImporter
                 if ($competitor === null) {
                     throw new \Exception(
                         "cannot assign competitors: no competitor for externalid " . $competitorExternalId . " and " . $this->externalSystemBase->getName(
-                        ), E_ERROR
+                        ),
+                        E_ERROR
                     );
                 }
                 $place->setCompetitor($competitor);

@@ -14,7 +14,8 @@ use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 
 class Service
 {
-    public function createDefault( RoundNumber $roundNumber ): PlanningConfig {
+    public function createDefault(RoundNumber $roundNumber): PlanningConfig
+    {
         $config = new PlanningConfig($roundNumber);
         $config->setExtension(PlanningConfig::DEFAULTEXTENSION);
         $config->setEnableTime(PlanningConfig::DEFAULTENABLETIME);
@@ -31,8 +32,9 @@ class Service
         return $config;
     }
 
-    public function copy( PlanningConfig $planningConfig, RoundNumber $roundNumber ) {
-        $newPlanningConfig = new PlanningConfig( $roundNumber );
+    public function copy(PlanningConfig $planningConfig, RoundNumber $roundNumber)
+    {
+        $newPlanningConfig = new PlanningConfig($roundNumber);
 
         $newPlanningConfig->setExtension($planningConfig->getExtension());
         $newPlanningConfig->setEnableTime($planningConfig->getEnableTime());
@@ -49,53 +51,60 @@ class Service
         $newPlanningConfig->setNrOfHeadtohead($planningConfig->getNrOfHeadtohead());
     }
 
-    public function getDefaultMinutesPerGame(): int {
+    public function getDefaultMinutesPerGame(): int
+    {
         return 20;
     }
 
-    public function getDefaultMinutesPerGameExt(): int {
+    public function getDefaultMinutesPerGameExt(): int
+    {
         return 5;
     }
 
-    public function getDefaultMinutesBetweenGames(): int {
+    public function getDefaultMinutesBetweenGames(): int
+    {
         return 5;
     }
 
-    public function getDefaultMinutesAfter(): int {
+    public function getDefaultMinutesAfter(): int
+    {
         return 5;
     }
 
-    public function isTeamupAvailable( RoundNumber $roundNumber ) {
+    public function isTeamupAvailable(RoundNumber $roundNumber)
+    {
         $sportConfigs = $roundNumber->getSportConfigs();
-        if( $sportConfigs->count() > 1 ) {
+        if ($sportConfigs->count() > 1) {
             return false;
         }
-        foreach( $sportConfigs as $sportConfig ) {
-            if( $sportConfig->getSport()->getTeam() ) {
+        foreach ($sportConfigs as $sportConfig) {
+            if ($sportConfig->getSport()->getTeam()) {
                 return false;
             }
         }
-        foreach( $roundNumber->getPoules() as $poule ) {
-            if( $poule->getPlaces()->count() < PlanningConfig::TEAMUP_MIN || $poule->getPlaces()->count() > PlanningConfig::TEAMUP_MAX ) {
+        foreach ($roundNumber->getPoules() as $poule) {
+            if ($poule->getPlaces()->count() < PlanningConfig::TEAMUP_MIN || $poule->getPlaces()->count() > PlanningConfig::TEAMUP_MAX) {
                 return false;
             }
         }
         return true;
     }
 
-    public function canTeamupBeAvailable( array $structureConfig, array $sportConfig ) {
-        if( count( $sportConfig ) > 1 ) {
+    public function canTeamupBeAvailable(array $structureConfig, array $sportConfig)
+    {
+        if (count($sportConfig) > 1) {
             return false;
         }
-        foreach( $structureConfig as $nrOfPlacesPerPoule ) {
-            if( $nrOfPlacesPerPoule < PlanningConfig::TEAMUP_MIN || $nrOfPlacesPerPoule > PlanningConfig::TEAMUP_MAX ) {
+        foreach ($structureConfig as $nrOfPlacesPerPoule) {
+            if ($nrOfPlacesPerPoule < PlanningConfig::TEAMUP_MIN || $nrOfPlacesPerPoule > PlanningConfig::TEAMUP_MAX) {
                 return false;
             }
         }
         return true;
     }
 
-    public function canSelfRefereeBeAvailable( bool $teamup, int $nrOfPlaces ) {
+    public function canSelfRefereeBeAvailable(bool $teamup, int $nrOfPlaces)
+    {
         return $nrOfPlaces > ($teamup ? 4 : 2);
     }
 }

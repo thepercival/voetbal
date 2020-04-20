@@ -13,21 +13,24 @@ use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Planning\Sport\NrFields as SportNrFields;
 use Voetbal\Math as VoetbalMath;
 
-class Service {
+class Service
+{
     /**
      * @var VoetbalMath
      */
     protected $math;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->math = new VoetbalMath();
     }
 
-    protected function convertSportsNrFields( array $sportsNrFields ): array {
+    protected function convertSportsNrFields(array $sportsNrFields): array
+    {
         $sportsNrFieldsGames = [];
 
         /** @var SportNrFields $sportNrFields */
-        foreach( $sportsNrFields as $sportNrFields ) {
+        foreach ($sportsNrFields as $sportNrFields) {
             $sportsNrFieldsGames[] = new SportNrFieldsGames(
                 $sportNrFields->getSportNr(),
                 $sportNrFields->getNrOfFields(),
@@ -43,16 +46,18 @@ class Service {
      * @param float $divisor
      * @return array|SportNrFieldsGames[]
      */
-    public function modifySportsNrFieldsGames( array $sportsNrFieldsGames, float $divisor ): array {
+    public function modifySportsNrFieldsGames(array $sportsNrFieldsGames, float $divisor): array
+    {
         $modifiedSportsNrFieldsGames = [];
 
         /** @var SportNrFieldsGames $sportNrFieldsGames */
-        foreach( $sportsNrFieldsGames as $sportNrFieldsGames ) {
+        foreach ($sportsNrFieldsGames as $sportNrFieldsGames) {
             $modifiedSportsNrFieldsGames[] = new SportNrFieldsGames(
                 $sportNrFieldsGames->getSportNr(),
                 $sportNrFieldsGames->getNrOfFields(),
                 (int)($sportNrFieldsGames->getNrOfFields() / $divisor),
-                $sportNrFieldsGames->getNrOfGamePlaces() );
+                $sportNrFieldsGames->getNrOfGamePlaces()
+            );
         }
         return $modifiedSportsNrFieldsGames;
     }
@@ -77,14 +82,15 @@ class Service {
      * @param int $nrOfHeadtohead
      * @return array
      */
-    public function getPlanningMinNrOfGames(array $sportsNrFields, int $pouleNrOfPlaces, bool $teamup, bool $selfReferee, int $nrOfHeadtohead ): array {
+    public function getPlanningMinNrOfGames(array $sportsNrFields, int $pouleNrOfPlaces, bool $teamup, bool $selfReferee, int $nrOfHeadtohead): array
+    {
         $fieldDivisors = $this->getFieldsCommonDivisors($sportsNrFields);
 
         // kijk als veelvouden van het aantal-keer-sporten-per-deelnemer verkleind gebruikt kunnen worden
         // door te kijken als er nog aan het aantal poulewedstrijden wordt gekomen
         $nrOfPouleGames = $this->getNrOfPouleGames($pouleNrOfPlaces, $teamup, $nrOfHeadtohead);
-        $bestSportsNrFieldsGames = $this->convertSportsNrFields( $sportsNrFields );
-        foreach( $fieldDivisors as $fieldDivisor ) {
+        $bestSportsNrFieldsGames = $this->convertSportsNrFields($sportsNrFields);
+        foreach ($fieldDivisors as $fieldDivisor) {
             $sportsNrFieldsGames = $this->modifySportsNrFieldsGames($bestSportsNrFieldsGames, $fieldDivisor);
             $nrOfPouleGamesBySports = $this->getNrOfPouleGamesBySports($pouleNrOfPlaces, $sportsNrFieldsGames, $teamup, $selfReferee);
             if ($nrOfPouleGamesBySports < $nrOfPouleGames) {
@@ -96,7 +102,7 @@ class Service {
         // zolang het aantal-keer-sporten-per-deelnemer minder blijft dan het aantal poulewedstrijden
         // wordt het aantal-keer-sporten-per-deelnemer vergroot met 2x
         $newNrOfGames = 2;
-        $sportsNrFieldsGames = $this->convertSportsNrFields( $sportsNrFields );
+        $sportsNrFieldsGames = $this->convertSportsNrFields($sportsNrFields);
         $newSportsNrFieldsGames = $this->modifySportsNrFieldsGames($sportsNrFieldsGames, 1 / $newNrOfGames);
         while ($this->getNrOfPouleGamesBySports($pouleNrOfPlaces, $newSportsNrFieldsGames, $teamup, $selfReferee) <= $nrOfPouleGames) {
             $bestSportsNrFieldsGames = $newSportsNrFieldsGames;
@@ -110,13 +116,14 @@ class Service {
      * @param array|SportNrFields[] $sportsNrFields
      * @return array
      */
-    protected function getFieldsCommonDivisors( array $sportsNrFields): array {
+    protected function getFieldsCommonDivisors(array $sportsNrFields): array
+    {
         /** @var array|int[] $nrOfFieldsPerSport */
-        $nrOfFieldsPerSport = array_map( function( SportNrFields $sportNrFields ) {
+        $nrOfFieldsPerSport = array_map(function (SportNrFields $sportNrFields) {
             return $sportNrFields->getNrOfFields();
-        }, $sportsNrFields );
+        }, $sportsNrFields);
 
-        if ( count($nrOfFieldsPerSport) === 1) {
+        if (count($nrOfFieldsPerSport) === 1) {
             return [];
         }
         $commonDivisors = [];
@@ -125,15 +132,16 @@ class Service {
             if (count($commonDivisors) === 0) {
                 $commonDivisors = $commonDivisorsIt;
             } else {
-                $commonDivisors = array_filter( $commonDivisors, function( $commonDivisor ) use ( $commonDivisorsIt ) {
-                    return array_search( $commonDivisor, $commonDivisorsIt ) !== false;
+                $commonDivisors = array_filter($commonDivisors, function ($commonDivisor) use ($commonDivisorsIt) {
+                    return array_search($commonDivisor, $commonDivisorsIt) !== false;
                 });
             }
         }
         return $commonDivisors;
     }
 
-    public function getNrOfPouleGames(int $nrOfPlaces, bool $teamup, int $nrOfHeadtohead): int {
+    public function getNrOfPouleGames(int $nrOfPlaces, bool $teamup, int $nrOfHeadtohead): int
+    {
         return $this->getNrOfCombinations($nrOfPlaces, $teamup) * $nrOfHeadtohead;
     }
 
@@ -157,21 +165,23 @@ class Service {
 //        return $minNrOfGames;
 //    }
 
-    public function getNrOfGamesPerPoule( int $nrOfPoulePlaces, bool $teamup, int $nrOfHeadtohead = null ): int {
-        if( $nrOfHeadtohead === null ) {
+    public function getNrOfGamesPerPoule(int $nrOfPoulePlaces, bool $teamup, int $nrOfHeadtohead = null): int
+    {
+        if ($nrOfHeadtohead === null) {
             $nrOfHeadtohead = 1;
         }
-        return ( $this->getNrOfCombinations($nrOfPoulePlaces, $teamup ) * $nrOfHeadtohead );
+        return ($this->getNrOfCombinations($nrOfPoulePlaces, $teamup) * $nrOfHeadtohead);
     }
 
-    public function getNrOfGamesPerPlace(int $nrOfPoulePlaces, bool $teamup, bool $selfReferee, int $nrOfHeadtohead ): int {
+    public function getNrOfGamesPerPlace(int $nrOfPoulePlaces, bool $teamup, bool $selfReferee, int $nrOfHeadtohead): int
+    {
         $nrOfGames = $nrOfPoulePlaces - 1;
         if ($teamup === true) {
             $nrOfGames = $this->getNrOfCombinations($nrOfPoulePlaces, true) - $this->getNrOfCombinations($nrOfPoulePlaces - 1, true);
         }
-        if( $selfReferee ) {
-            $nrOfPouleGames = $this->getNrOfGamesPerPoule( $nrOfPoulePlaces, $teamup );
-            $nrOfGames += (int) ceil($nrOfPouleGames / $nrOfPoulePlaces );
+        if ($selfReferee) {
+            $nrOfPouleGames = $this->getNrOfGamesPerPoule($nrOfPoulePlaces, $teamup);
+            $nrOfGames += (int) ceil($nrOfPouleGames / $nrOfPoulePlaces);
         }
         return $nrOfHeadtohead ? $nrOfGames * $nrOfHeadtohead : $nrOfGames;
     }
@@ -182,12 +192,13 @@ class Service {
      * @param bool $teamup
      * @return int
      */
-    public function getNrOfPouleGamesBySports(int $pouleNrOfPlaces, array $sportsNrFieldsGames, bool $teamup, bool $selfReferee ): int {
+    public function getNrOfPouleGamesBySports(int $pouleNrOfPlaces, array $sportsNrFieldsGames, bool $teamup, bool $selfReferee): int
+    {
         // multiple sports
         $nrOfPouleGames = 0;
         // let totalNrOfGamePlaces = 0;
         /** @var SportNrFieldsGames $sportNrFieldsGames */
-        foreach( $sportsNrFieldsGames as $sportNrFieldsGames ) {
+        foreach ($sportsNrFieldsGames as $sportNrFieldsGames) {
             $minNrOfGames = $sportNrFieldsGames->getNrOfGames();
             $nrOfGamePlaces = $this->getNrOfGamePlaces($sportNrFieldsGames->getNrOfGamePlaces(), $teamup, false);
             // $nrOfPouleGames += ceil(($pouleNrOfPlaces / $nrOfGamePlaces) * $minNrOfGames);
@@ -197,7 +208,8 @@ class Service {
         // return (int)$nrOfPouleGames;
     }
 
-    public function getNrOfGamePlaces( int $nrOfGamePlaces, bool $teamup, bool $selfReferee ): int {
+    public function getNrOfGamePlaces(int $nrOfGamePlaces, bool $teamup, bool $selfReferee): int
+    {
         if ($teamup) {
             $nrOfGamePlaces *= 2;
         }
@@ -235,7 +247,8 @@ class Service {
 //        return $nrOfPouleGames;
 //    }
 
-    public function getNrOfCombinations(int $nrOfPlaces, bool $teamup): int {
+    public function getNrOfCombinations(int $nrOfPlaces, bool $teamup): int
+    {
         if ($teamup === false) {
             return $this->math->above($nrOfPlaces, SportBase::TEMPDEFAULT);
         }

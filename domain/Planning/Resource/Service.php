@@ -131,7 +131,9 @@ class Service
         return array_map(
             function (Sport $sport) {
                 return new SportNrFields(
-                    $sport->getNumber(), $sport->getFields()->count(), $sport->getNrOfGamePlaces()
+                    $sport->getNumber(),
+                    $sport->getFields()->count(),
+                    $sport->getNrOfGamePlaces()
                 );
             },
             $sports
@@ -170,8 +172,8 @@ class Service
             }
 
             $firstBatch = $batch->getFirst();
-            $refereeService = new RefereeService( $this->planning );
-            $refereeService->assign( $firstBatch );
+            $refereeService = new RefereeService($this->planning);
+            $refereeService->assign($firstBatch);
 
 //            $mem = $this->convert(memory_get_usage(true)); // 123 kb
 //            $this->output->consoleBatch($firstBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
@@ -186,7 +188,7 @@ class Service
         $h2hgames = [];
         foreach ($orderedGames as $game) {
             $nrOfHeadtohead = $game->getNrOfHeadtohead();
-            if( array_key_exists( $nrOfHeadtohead, $h2hgames) === false ) {
+            if (array_key_exists($nrOfHeadtohead, $h2hgames) === false) {
                 $h2hgames[$nrOfHeadtohead] = [];
             }
             $h2hgames[$nrOfHeadtohead][] = $game;
@@ -222,8 +224,8 @@ class Service
     }
 
     //// uasort( $games, function( Game $gameA, Game $gameB ) use ( $continueResources6 ) {
-////                $this->output->consoleGame( $gameA, null, 'gameA: ' );
-////                $this->output->consoleGame( $gameB, null, 'gameB: ' );
+    ////                $this->output->consoleGame( $gameA, null, 'gameA: ' );
+    ////                $this->output->consoleGame( $gameB, null, 'gameB: ' );
 //                $nrOfSportsToGoA = $continueResources6->getGameNrOfSportsToGo($gameA);
 //                $nrOfSportsToGoB = $continueResources6->getGameNrOfSportsToGo($gameB);
 //                return $nrOfSportsToGoA >= $nrOfSportsToGoB ? -1 : 1;
@@ -246,9 +248,8 @@ class Service
         int $nrOfGamesTried = 0
     ): bool {
         if (count($batch->getGames()) === $maxNrOfBatchGames || (count($gamesForBatch) === 0) && count(
-                $games
-            ) === count($batch->getGames())) // batchsuccess
-        {
+            $games
+        ) === count($batch->getGames())) { // batchsuccess
             $nextBatch = $this->toNextBatch($batch, $resources, $games);
 //            $this->output->consoleBatch($batch, ' batch completed nr ' . $batch->getNumber() );
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
@@ -265,8 +266,8 @@ class Service
 //            }
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0);
         }
-        if( (new DateTimeImmutable()) > $this->timeoutDateTime ) { // @FREDDY
-            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR );
+        if ((new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
+            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR);
         }
         if ($nrOfGamesTried === count($gamesForBatch)) {
             return false;
@@ -344,7 +345,6 @@ class Service
      */
     protected function toNextBatch(Batch $batch, Resources $resources, array &$games): Batch
     {
-
         foreach ($batch->getGames() as $game) {
             $game->setBatchNr($batch->getNumber());
             // hier alle velden toevoegen die er nog niet in staan
@@ -381,12 +381,12 @@ class Service
     private function areAllPlacesAssignable(Batch $batch, Game $game, bool $checkGamesInARow = true): bool
     {
         $maxNrOfGamesInARow = $this->getInput()->getMaxNrOfGamesInARow();
-        foreach( $this->getPlaces($game) as $place ) {
-            if( $batch->isParticipating($place) ) {
+        foreach ($this->getPlaces($game) as $place) {
+            if ($batch->isParticipating($place)) {
                 return false;
             }
             $nrOfGamesInARow = $batch->hasPrevious() ? ($batch->getPrevious()->getGamesInARow($place)) : 0;
-            if( $nrOfGamesInARow < $maxNrOfGamesInARow || $maxNrOfGamesInARow === -1 ) {
+            if ($nrOfGamesInARow < $maxNrOfGamesInARow || $maxNrOfGamesInARow === -1) {
                 continue;
             }
             return false;

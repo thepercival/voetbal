@@ -71,14 +71,14 @@ class Place
 
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Poule $poule, int $number = null )
+    public function __construct(Poule $poule, int $number = null)
     {
         if ($number === null) {
             $number = $poule->getPlaces()->count() + 1;
         }
-        $this->setPoule( $poule );
-        $this->setNumber( $number );
-        $this->setPenaltyPoints( 0 );
+        $this->setPoule($poule);
+        $this->setNumber($number);
+        $this->setPenaltyPoints(0);
         $this->locationId = $poule->getRound()->getNumberAsValue() . '.' . $poule->getNumber() . '.' . $number;
     }
 
@@ -95,7 +95,7 @@ class Place
     /**
      * @param int $id
      */
-    public function setId( int $id = null )
+    public function setId(int $id = null)
     {
         $this->id = $id;
     }
@@ -111,12 +111,12 @@ class Place
     /**
      * @param Poule $poule
      */
-    public function setPoule( Poule $poule = null )
+    public function setPoule(Poule $poule = null)
     {
-        if ( $this->poule !== null && $this->poule->getPlaces()->contains( $this ) ){
+        if ($this->poule !== null && $this->poule->getPlaces()->contains($this)) {
             $this->poule->getPlaces()->removeElement($this) ;
         }
-        if ( $poule !== null && !$poule->getPlaces()->contains( $this ) ){
+        if ($poule !== null && !$poule->getPlaces()->contains($this)) {
             $poule->getPlaces()->add($this) ;
         }
         $this->poule = $poule;
@@ -141,10 +141,10 @@ class Place
     /**
      * @param int $number
      */
-    public function setNumber( $number )
+    public function setNumber($number)
     {
-        if ( !is_int( $number )   ){
-            throw new \InvalidArgumentException( "het nummer van de pouleplek heeft een onjuiste waarde", E_ERROR );
+        if (!is_int($number)) {
+            throw new \InvalidArgumentException("het nummer van de pouleplek heeft een onjuiste waarde", E_ERROR);
         }
         $this->number = $number;
     }
@@ -160,7 +160,7 @@ class Place
     /**
      * @param int $penaltyPoints
      */
-    public function setPenaltyPoints( int $penaltyPoints )
+    public function setPenaltyPoints(int $penaltyPoints)
     {
         $this->penaltyPoints = $penaltyPoints;
     }
@@ -176,17 +176,18 @@ class Place
     /**
      * @param string $name
      */
-    public function setName( $name )
+    public function setName($name)
     {
-        if ( is_string($name) and strlen( $name ) === 0 )
+        if (is_string($name) and strlen($name) === 0) {
             $name = null;
-
-        if ( strlen( $name ) > static::MAX_LENGTH_NAME ){
-            throw new \InvalidArgumentException( "de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
         }
 
-        if(preg_match('/[^a-z0-9 ]/i', $name)){
-            throw new \InvalidArgumentException( "de naam mag alleen cijfers, letters en spaties bevatten", E_ERROR );
+        if (strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException("de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR);
+        }
+
+        if (preg_match('/[^a-z0-9 ]/i', $name)) {
+            throw new \InvalidArgumentException("de naam mag alleen cijfers, letters en spaties bevatten", E_ERROR);
         }
 
         $this->name = $name;
@@ -203,7 +204,7 @@ class Place
     /**
      * @param Competitor $competitor
      */
-    public function setCompetitor( Competitor $competitor = null )
+    public function setCompetitor(Competitor $competitor = null)
     {
         $this->competitor = $competitor;
     }
@@ -213,7 +214,7 @@ class Place
         return $this->fromQualifyRule;
     }
 
-    public function setFromQualifyRule(?QualifyRule $qualifyRule )
+    public function setFromQualifyRule(?QualifyRule $qualifyRule)
     {
         $this->fromQualifyRule = $qualifyRule;
     }
@@ -225,14 +226,14 @@ class Place
 
     public function getToQualifyRule(int $winnersOrLosers)
     {
-        $filtered = array_filter( $this->toQualifyRules, function ($qualifyRule) use ($winnersOrLosers) {
+        $filtered = array_filter($this->toQualifyRules, function ($qualifyRule) use ($winnersOrLosers) {
             return ($qualifyRule->getWinnersOrLosers() === $winnersOrLosers);
         });
-        $toQualifyRule = reset( $filtered );
+        $toQualifyRule = reset($filtered);
         return $toQualifyRule !== false ? $toQualifyRule : null;
     }
 
-    public function setToQualifyRule(int $winnersOrLosers, QualifyRule $qualifyRule = null )
+    public function setToQualifyRule(int $winnersOrLosers, QualifyRule $qualifyRule = null)
     {
         $toQualifyRuleOld = $this->getToQualifyRule($winnersOrLosers);
         if ($toQualifyRuleOld !== null) {
@@ -245,11 +246,13 @@ class Place
         }
     }
 
-    public function getHorizontalPoule(int $winnersOrLosers): HorizontalPoule {
+    public function getHorizontalPoule(int $winnersOrLosers): HorizontalPoule
+    {
         return ($winnersOrLosers === QualifyGroup::WINNERS) ? $this->horizontalPouleWinners : $this->horizontalPouleLosers;
     }
 
-    public function setHorizontalPoule(int $winnersOrLosers, ?HorizontalPoule $horizontalPoule ) {
+    public function setHorizontalPoule(int $winnersOrLosers, ?HorizontalPoule $horizontalPoule)
+    {
         if ($winnersOrLosers === QualifyGroup::WINNERS) {
             $this->horizontalPouleWinners = $horizontalPoule;
         } else {
@@ -261,14 +264,16 @@ class Place
         }
     }
 
-    public function getLocation(): Place\Location {
+    public function getLocation(): Place\Location
+    {
         return new Place\Location($this->getPoule()->getNumber(), $this->getNumber());
     }
 
     /**
      * within roundnumber
      */
-    public function getLocationId(): string {
+    public function getLocationId(): string
+    {
         return $this->locationId;
     }
 }

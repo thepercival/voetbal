@@ -30,8 +30,7 @@ class Association implements ImporterInterface
         AssociationRepository $associationRepos,
         AssociationAttacherRepository $associationAttacherRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->associationRepos = $associationRepos;
         $this->associationAttacherRepos = $associationAttacherRepos;
@@ -42,7 +41,7 @@ class Association implements ImporterInterface
      * @param array|AssociationBase[] $externalSourceAssociations
      * @throws \Exception
      */
-    public function import( ExternalSource $externalSource,  array $externalSourceAssociations )
+    public function import(ExternalSource $externalSource, array $externalSourceAssociations)
     {
         foreach ($externalSourceAssociations as $externalSourceAssociation) {
             $externalId = $externalSourceAssociation->getId();
@@ -53,9 +52,11 @@ class Association implements ImporterInterface
             if ($associationAttacher === null) {
                 $association = $this->createAssociation($externalSource, $externalSourceAssociation);
                 $associationAttacher = new AssociationAttacher(
-                    $association, $externalSource, $externalId
+                    $association,
+                    $externalSource,
+                    $externalId
                 );
-                $this->associationAttacherRepos->save( $associationAttacher);
+                $this->associationAttacherRepos->save($associationAttacher);
             } else {
                 $this->editAssociation($associationAttacher->getImportable(), $externalSourceAssociation);
             }
@@ -67,20 +68,20 @@ class Association implements ImporterInterface
     {
         $newAssociation = new AssociationBase($association->getName());
         $parentAssociation = null;
-        if( $association->getParent() !== null ) {
+        if ($association->getParent() !== null) {
             $parentAssociation = $this->associationAttacherRepos->findImportable(
                 $externalSource,
                 $association->getParent()->getId()
             );
         }
-        $newAssociation->setParent( $parentAssociation );
+        $newAssociation->setParent($parentAssociation);
         $this->associationRepos->save($newAssociation);
         return $newAssociation;
     }
 
     protected function editAssociation(AssociationBase $association, AssociationBase $externalSourceAssociation)
     {
-        $association->setName( $externalSourceAssociation->getName() );
+        $association->setName($externalSourceAssociation->getName());
         $this->associationRepos->save($association);
     }
 }

@@ -46,23 +46,22 @@ final class Field
         $this->serializer = $serializer;
     }
 
-    public function fetch( $request, $response, $args)
+    public function fetch($request, $response, $args)
     {
         $objects = $this->repos->findAll();
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write( $this->serializer->serialize( $objects, 'json') );
+            ->write($this->serializer->serialize($objects, 'json'));
         ;
-
     }
 
-    public function fetchOne( $request, $response, $args)
+    public function fetchOne($request, $response, $args)
     {
         $object = $this->repos->find($args['id']);
         if ($object) {
             return $response
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $object, 'json'));
+                ->write($this->serializer->serialize($object, 'json'));
             ;
         }
         return $response->withStatus(404)->write('geen scheidsrechter met het opgegeven id gevonden');
@@ -81,26 +80,27 @@ final class Field
             if ($competition === null) {
                 throw new \Exception("de competitie kan niet gevonden worden", E_ERROR);
             }
-            $fieldsWithSameName = $competition->getFields()->filter( function( $fieldIt ) use ( $fieldSer ) {
+            $fieldsWithSameName = $competition->getFields()->filter(function ($fieldIt) use ($fieldSer) {
                 return $fieldIt->getName() === $fieldSer->getName() || $fieldIt->getNumber() === $fieldSer->getNumber();
             });
-            if( !$fieldsWithSameName->isEmpty() ) {
-                throw new \Exception("het veldnummer \"".$fieldSer->getNumber()."\" of de veldnaam \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
+            if (!$fieldsWithSameName->isEmpty()) {
+                throw new \Exception("het veldnummer \"".$fieldSer->getNumber()."\" of de veldnaam \"".$fieldSer->getName()."\" bestaat al", E_ERROR);
             }
             $sport = $this->sportRepos->find($fieldSer->getSportIdSer());
-            if ( $sport === null ) {
+            if ($sport === null) {
                 throw new \Exception("de sport kan niet gevonden worden", E_ERROR);
             }
 
-            $field = new FieldBase( $competition, $fieldSer->getNumber() );
-            $field->setName( $fieldSer->getName() );
-            $field->setSport( $sport );
+            $field = new FieldBase($competition, $fieldSer->getNumber());
+            $field->setName($fieldSer->getName());
+            $field->setSport($sport);
 
-            $this->repos->save( $field );
+            $this->repos->save($field);
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize($field, 'json'));;
+                ->write($this->serializer->serialize($field, 'json'));
+            ;
         } catch (\Exception $e) {
             $sErrorMessage = $e->getMessage();
         }
@@ -118,21 +118,21 @@ final class Field
             }
 
             $competition = $field->getCompetition();
-            $fieldsWithSameName = $competition->getFields()->filter( function( $fieldIt ) use ( $fieldSer, $field ) {
+            $fieldsWithSameName = $competition->getFields()->filter(function ($fieldIt) use ($fieldSer, $field) {
                 return $fieldIt->getName() === $fieldSer->getName() && $field !== $fieldIt;
             });
-            if( !$fieldsWithSameName->isEmpty() ) {
-                throw new \Exception("het veld \"".$fieldSer->getName()."\" bestaat al", E_ERROR );
+            if (!$fieldsWithSameName->isEmpty()) {
+                throw new \Exception("het veld \"".$fieldSer->getName()."\" bestaat al", E_ERROR);
             }
 
             $sport = $this->sportRepos->find($fieldSer->getSportIdSer());
-            if ( $sport === null ) {
+            if ($sport === null) {
                 throw new \Exception("de sport kan niet gevonden worden", E_ERROR);
             }
-            $field->setName( $fieldSer->getName() );
-            $field->setSport( $sport );
+            $field->setName($fieldSer->getName());
+            $field->setSport($sport);
 
-            $this->repos->save( $field );
+            $this->repos->save($field);
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
@@ -140,7 +140,6 @@ final class Field
         } catch (\Exception $e) {
             return $response->withStatus(404)->write($e->getMessage());
         }
-
     }
 
     public function remove($request, $response, $args)
@@ -165,8 +164,10 @@ final class Field
             throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
         if ($field->getCompetition() !== $competition) {
-            throw new \Exception("de competitie van het veld komt niet overeen met de verstuurde competitie",
-                E_ERROR);
+            throw new \Exception(
+                "de competitie van het veld komt niet overeen met de verstuurde competitie",
+                E_ERROR
+            );
         }
         return $field;
     }

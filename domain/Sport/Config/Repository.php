@@ -24,7 +24,7 @@ use Voetbal\Round\Number as RoundNumber;
  */
 class Repository extends \Voetbal\Repository
 {
-    public function customAdd( SportConfig $sportConfig, RoundNumber $roundNumber )
+    public function customAdd(SportConfig $sportConfig, RoundNumber $roundNumber)
     {
         $conn = $this->_em->getConnection();
         $conn->beginTransaction();
@@ -32,7 +32,7 @@ class Repository extends \Voetbal\Repository
             $this->save($sportConfig);
 
             $scoreRepos = new SportScoreConfigRepos($this->_em, $this->_em->getClassMetaData(SportScoreConfig::class));
-            $scoreRepos->addObjects($sportConfig->getSport(), $roundNumber );
+            $scoreRepos->addObjects($sportConfig->getSport(), $roundNumber);
 
 //            $planningRepos = new SportPlanningConfigRepos($this->_em, $this->_em->getClassMetaData(SportPlanningConfig::class));
 //            $planningRepos->addObjects($sportConfig->getSport(), $roundNumber );
@@ -45,17 +45,17 @@ class Repository extends \Voetbal\Repository
         }
     }
 
-    public function customRemove( SportConfig $sportConfig, SportRepository $sportRepos )
+    public function customRemove(SportConfig $sportConfig, SportRepository $sportRepos)
     {
         $conn = $this->_em->getConnection();
         $conn->beginTransaction();
         try {
             $competition = $sportConfig->getCompetition();
             $fieldRepos = new FieldRepository($this->_em, $this->_em->getClassMetaData(Field::class));
-            $fields = $competition->getFields()->filter( function( $field ) use ($sportConfig) {
+            $fields = $competition->getFields()->filter(function ($field) use ($sportConfig) {
                 return $field->getSport() === $sportConfig->getSport();
             });
-            foreach( $fields as $field ) {
+            foreach ($fields as $field) {
                 $fieldRepos->remove($field);
             }
 
@@ -68,7 +68,7 @@ class Repository extends \Voetbal\Repository
             $sport = $sportConfig->getSport();
             $this->remove($sportConfig);
 
-            if ( $this->findOneBy( ["sport" => $sport ] ) === null ) {
+            if ($this->findOneBy(["sport" => $sport ]) === null) {
                 $sportRepos->remove($sport);
             }
 

@@ -39,29 +39,37 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
         $firstRoundNumber = $structure->getFirstRoundNumber();
 
 
-        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
-        $gameGenerator = new GameGenerator( $planningInput );
+        $planningInput = $this->planningInputService->convert($firstRoundNumber);
+        $gameGenerator = new GameGenerator($planningInput);
         $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
 
         $roundNr = 1;
         $subNr = 1;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1], [4]); $subNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2], [3]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2], [1]); $subNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4], [3]); $roundNr++; $subNr = 1;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [3], [1]); $subNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1], [4]);
+        $subNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2], [3]);
+        $roundNr++;
+        $subNr = 1;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2], [1]);
+        $subNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4], [3]);
+        $roundNr++;
+        $subNr = 1;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [3], [1]);
+        $subNr++;
         $this->assertSameGame($gameRounds, $roundNr, $subNr, [4], [2]);
         $this->assertSame(count($gameRounds), $roundNr);
-        foreach( $firstPoule->getPlaces() as $place ) {
+        foreach ($firstPoule->getPlaces() as $place) {
             $this->assertValidGamesParticipations($place, $gameRounds, 3);
         }
     }
 
-/**
- * with one poule referee can be from same poule
- */
-    public function testOneSportHtoh2And44() {
+    /**
+     * with one poule referee can be from same poule
+     */
+    public function testOneSportHtoh2And44()
+    {
         $competition = createCompetition();
 
         $structureService = new StructureService();
@@ -70,10 +78,10 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setNrOfHeadtohead(2);
 
-        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
-        $gameGenerator = new GameGenerator( $planningInput );
+        $planningInput = $this->planningInputService->convert($firstRoundNumber);
+        $gameGenerator = new GameGenerator($planningInput);
         $gameGenerator->create();
-        $games = $firstRoundNumber->getGames( GameBase::ORDER_POULE );
+        $games = $firstRoundNumber->getGames(GameBase::ORDER_POULE);
         $this->assertSame(count($games), 24);
     }
 
@@ -87,8 +95,8 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setTeamup(true);
 
-        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
-        $gameGenerator = new GameGenerator( $planningInput );
+        $planningInput = $this->planningInputService->convert($firstRoundNumber);
+        $gameGenerator = new GameGenerator($planningInput);
 
         $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
@@ -105,7 +113,8 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
         }
     }
 
-    public function testOneSportTeamupAnd5() {
+    public function testOneSportTeamupAnd5()
+    {
         $competition = createCompetition();
 
         $structureService = new StructureService();
@@ -114,8 +123,8 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setTeamup(true);
 
-        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
-        $gameGenerator = new GameGenerator( $planningInput );
+        $planningInput = $this->planningInputService->convert($firstRoundNumber);
+        $gameGenerator = new GameGenerator($planningInput);
 
         $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
@@ -131,30 +140,46 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
         //     });
         // });
 
-        $roundNr = 1; $subNr = 1;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2, 5], [3, 4]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1, 2], [4, 5]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [5, 4], [2, 3]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1, 3], [4, 5]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4, 2], [3, 5]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4, 1], [3, 5]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [5, 1], [3, 4]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2, 5], [1, 3]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [3, 4], [1, 2]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1, 3], [2, 4]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4, 1], [2, 3]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [3, 5], [1, 2]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [5, 1], [2, 3]); $roundNr++;
-        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2, 5], [4, 1]); $roundNr++;
+        $roundNr = 1;
+        $subNr = 1;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2, 5], [3, 4]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1, 2], [4, 5]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [5, 4], [2, 3]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1, 3], [4, 5]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4, 2], [3, 5]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4, 1], [3, 5]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [5, 1], [3, 4]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2, 5], [1, 3]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [3, 4], [1, 2]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [1, 3], [2, 4]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [4, 1], [2, 3]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [3, 5], [1, 2]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [5, 1], [2, 3]);
+        $roundNr++;
+        $this->assertSameGame($gameRounds, $roundNr, $subNr, [2, 5], [4, 1]);
+        $roundNr++;
         $this->assertSameGame($gameRounds, $roundNr, $subNr, [4, 2], [5, 1]);
 
-        $this->assertSame( count($gameRounds), 15 );
-        foreach( $firstPoule->getPlaces() as $place ){
+        $this->assertSame(count($gameRounds), 15);
+        foreach ($firstPoule->getPlaces() as $place) {
             $this->assertValidGamesParticipations($place, $gameRounds, 12);
         }
     }
 
-    public function testOneSportTeamupAnd6() {
+    public function testOneSportTeamupAnd6()
+    {
         $competition = createCompetition();
 
         $structureService = new StructureService();
@@ -163,14 +188,14 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber->getValidPlanningConfig()->setTeamup(true);
 
-        $planningInput = $this->planningInputService->convert( $firstRoundNumber );
-        $gameGenerator = new GameGenerator( $planningInput );
+        $planningInput = $this->planningInputService->convert($firstRoundNumber);
+        $gameGenerator = new GameGenerator($planningInput);
 
         $firstPoule = $planningInput->getPoule(1);
         $gameRounds = $gameGenerator->createPouleGameRounds($firstPoule, $firstRoundNumber->getValidPlanningConfig()->getTeamup());
 
-        $this->assertSame( count($gameRounds), 45 );
-        foreach( $firstPoule->getPlaces() as $place ){
+        $this->assertSame(count($gameRounds), 45);
+        foreach ($firstPoule->getPlaces() as $place) {
             $this->assertValidGamesParticipations($place, $gameRounds, 30);
         }
     }
@@ -182,17 +207,22 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
      * @param array|int[] $home
      * @param array|int[] $away
      */
-    protected function assertSameGame(array $gameRounds, int $roundNr, int $subNr, array $home, array $away) {
+    protected function assertSameGame(array $gameRounds, int $roundNr, int $subNr, array $home, array $away)
+    {
         $combination = $gameRounds[$roundNr - 1]->getCombinations()[$subNr - 1];
 
         // should be deepequal
 
-        $homeCombinations = array_map( function( $place ) { return $place->getNumber(); }, $combination->getHome() );
-        $this->assertSame( $homeCombinations, $home);
+        $homeCombinations = array_map(function ($place) {
+            return $place->getNumber();
+        }, $combination->getHome());
+        $this->assertSame($homeCombinations, $home);
 
-        $awayCombinations = array_map( function( $place ) { return $place->getNumber(); }, $combination->getAway() );
-        $this->assertSame( $awayCombinations, $away);
-}
+        $awayCombinations = array_map(function ($place) {
+            return $place->getNumber();
+        }, $combination->getAway());
+        $this->assertSame($awayCombinations, $away);
+    }
 
     /**
      * check if every place has the same amount of games
@@ -202,14 +232,15 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
      * @param array|GameRound[] $gameRounds
      * @param int|null $expectedValue
      */
-    function assertValidGamesParticipations( PlanningPlace $place, array $gameRounds, int $expectedValue = null) {
+    public function assertValidGamesParticipations(PlanningPlace $place, array $gameRounds, int $expectedValue = null)
+    {
         // const sportPlanningConfigService = new SportPlanningConfigService();
         $nrOfGames = 0;
-        foreach( $gameRounds as $gameRound ) {
-            foreach( $gameRound->getCombinations() as $combination ) {
+        foreach ($gameRounds as $gameRound) {
+            foreach ($gameRound->getCombinations() as $combination) {
                 // combination is game
                 $nrOfSingleGameParticipations = 0;
-                foreach( $combination->get() as $placeIt ) {
+                foreach ($combination->get() as $placeIt) {
                     if ($placeIt === $place) {
                         $nrOfSingleGameParticipations++;
                     }
@@ -217,7 +248,7 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
                 if ($nrOfSingleGameParticipations === 1) {
                     $nrOfGames++;
                 }
-                $this->assertLessThan( 2, $nrOfSingleGameParticipations);
+                $this->assertLessThan(2, $nrOfSingleGameParticipations);
             }
         }
 
@@ -225,8 +256,7 @@ class GameGeneratorTest extends \PHPUnit\Framework\TestCase
         // const nrOfGamesPerPlace = sportPlanningConfigService.getNrOfGamesPerPlace(place.getPoule(), config.getNrOfHeadtohead());
         // expect(nrOfGamesPerPlace).to.equal(nrOfGames);
         if ($expectedValue !== null) {
-            $this->assertSame( $expectedValue, $nrOfGames);
+            $this->assertSame($expectedValue, $nrOfGames);
         }
     }
 }
-

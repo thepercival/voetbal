@@ -14,5 +14,5 @@ interface Competition
      * @param mixed $id
      * @return CompetitionBase|null
      */
-    public function getCompetition( $id ): ?CompetitionBase;
+    public function getCompetition($id): ?CompetitionBase;
 }

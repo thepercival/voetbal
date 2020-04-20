@@ -56,10 +56,10 @@ class ExternalSource
     const MAX_LENGTH_APIURL = 255;
     const MAX_LENGTH_APIKEY = 255;
 
-    public function __construct( $name, $website = null )
+    public function __construct($name, $website = null)
     {
-        $this->setName( $name );
-        $this->setWebsite( $website );
+        $this->setName($name);
+        $this->setWebsite($website);
     }
 
     public function getId(): int
@@ -70,7 +70,7 @@ class ExternalSource
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId(int $id)
     {
         $this->id = $id;
     }
@@ -83,10 +83,10 @@ class ExternalSource
     /**
      * @param string $name
      */
-    public function setName( string $name )
+    public function setName(string $name)
     {
-        if ( strlen( $name ) > static::MAX_LENGTH_NAME ){
-            throw new \InvalidArgumentException( "de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+        if (strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException("de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR);
         }
         $this->name = $name;
     }
@@ -102,10 +102,10 @@ class ExternalSource
     /**
      * @param string $website
      */
-    public function setWebsite( $website = null )
+    public function setWebsite($website = null)
     {
-        if ( strlen( $website ) > static::MAX_LENGTH_WEBSITE ){
-            throw new \InvalidArgumentException( "de omschrijving mag maximaal ".static::MAX_LENGTH_WEBSITE." karakters bevatten", E_ERROR );
+        if (strlen($website) > static::MAX_LENGTH_WEBSITE) {
+            throw new \InvalidArgumentException("de omschrijving mag maximaal ".static::MAX_LENGTH_WEBSITE." karakters bevatten", E_ERROR);
         }
         $this->website = $website;
     }
@@ -176,7 +176,7 @@ class ExternalSource
 
     public function getImplementations(): int
     {
-        if( $this->implementations === null ) {
+        if ($this->implementations === null) {
             $this->implementations = 0;
         }
         return $this->implementations;
@@ -185,7 +185,7 @@ class ExternalSource
     /**
      * @param int $implementations
      */
-    public function setImplementations( int $implementations )
+    public function setImplementations(int $implementations)
     {
         $this->implementations = $implementations;
     }

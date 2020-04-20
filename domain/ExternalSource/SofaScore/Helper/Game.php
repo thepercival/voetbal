@@ -50,78 +50,78 @@ class Game extends SofaScoreHelper implements ExternalSourceGame
      * @param bool $forImport
      * @return array|int[]
      */
-    public function getBatchNrs( Competition $competition, bool $forImport ): array {
+    public function getBatchNrs(Competition $competition, bool $forImport): array
+    {
+        $apiData = $this->apiHelper->getCompetitionData($competition);
 
-        $apiData = $this->apiHelper->getCompetitionData( $competition );
-
-        if( !property_exists($apiData, "events") ) {
+        if (!property_exists($apiData, "events")) {
             return [];
         }
-        if( !property_exists($apiData->events, "rounds") ) {
+        if (!property_exists($apiData->events, "rounds")) {
             return [];
         }
-        $gameRoundNumbers = array_map( function( stdClass $round ) {
+        $gameRoundNumbers = array_map(function (stdClass $round) {
             return $round->round;
-        }, $apiData->events->rounds );
-        if( $forImport !== true ) {
+        }, $apiData->events->rounds);
+        if ($forImport !== true) {
             return $gameRoundNumbers;
         }
         $nDayOfWeek = (int)(new \DateTimeImmutable())->format("w");
-        return array_filter( $gameRoundNumbers, function( int $gameRoundNumber )  use ($nDayOfWeek) {
+        return array_filter($gameRoundNumbers, function (int $gameRoundNumber) use ($nDayOfWeek) {
             return ($gameRoundNumber % 7) === $nDayOfWeek;
-        } );
+        });
     }
 
-    public function getGames( Competition $competition, int $batchNr ): array {
-
+    public function getGames(Competition $competition, int $batchNr): array
+    {
         $competitionGames = [];
         $association = $competition->getLeague()->getAssociation();
-        $structure = $this->parent->getStructure($competition );
+        $structure = $this->parent->getStructure($competition);
         $poule = $structure->getFirstRoundNumber()->getRounds()->first()->getPoules()->first();
 
-        $apiData = $this->apiHelper->getBatchGameData( $competition, $batchNr );
-        if( !property_exists($apiData, "roundMatches")) {
+        $apiData = $this->apiHelper->getBatchGameData($competition, $batchNr);
+        if (!property_exists($apiData, "roundMatches")) {
             return $competitionGames;
         }
-        if( !property_exists($apiData->roundMatches, "tournaments")) {
+        if (!property_exists($apiData->roundMatches, "tournaments")) {
             return $competitionGames;
         }
-        if( count($apiData->roundMatches->tournaments) !== 1 ) {
+        if (count($apiData->roundMatches->tournaments) !== 1) {
             return $competitionGames;
         }
         $tournament = reset($apiData->roundMatches->tournaments);
-        if( !property_exists($tournament, "events")) {
+        if (!property_exists($tournament, "events")) {
             return $competitionGames;
         }
         /** @var stdClass $externalSourceGame */
         foreach ($tournament->events as $externalSourceGame) {
             $startDateTime = new DateTimeImmutable("@".$externalSourceGame->startTimestamp."");
 
-            $game = new GameBase($poule, $batchNr, $startDateTime );
-            if( property_exists($externalSourceGame, "status") ) {
-                $game->setState( $this->convertState($externalSourceGame->status->code) );
+            $game = new GameBase($poule, $batchNr, $startDateTime);
+            if (property_exists($externalSourceGame, "status")) {
+                $game->setState($this->convertState($externalSourceGame->status->code));
             }
             $game->setId($externalSourceGame->id);
             // referee
             // field
 
-            $homeCompetitor = $this->apiHelper->convertCompetitor( $association, $externalSourceGame->homeTeam );
-            $homePlace = $this->getPlaceFromPoule( $poule, $homeCompetitor );
-            if( $homePlace === null ) {
+            $homeCompetitor = $this->apiHelper->convertCompetitor($association, $externalSourceGame->homeTeam);
+            $homePlace = $this->getPlaceFromPoule($poule, $homeCompetitor);
+            if ($homePlace === null) {
                 continue;
             }
-            $awayCompetitor = $this->apiHelper->convertCompetitor( $association, $externalSourceGame->awayTeam );
-            $awayPlace = $this->getPlaceFromPoule( $poule, $awayCompetitor );
-            if( $awayPlace === null ) {
+            $awayCompetitor = $this->apiHelper->convertCompetitor($association, $externalSourceGame->awayTeam);
+            $awayPlace = $this->getPlaceFromPoule($poule, $awayCompetitor);
+            if ($awayPlace === null) {
                 continue;
             }
-            $game->addPlace($homePlace, GameBase::HOME );
-            $game->addPlace($awayPlace, GameBase::AWAY );
+            $game->addPlace($homePlace, GameBase::HOME);
+            $game->addPlace($awayPlace, GameBase::AWAY);
 
-            if( $game->getState() === State::Finished and is_object( $externalSourceGame->homeScore ) ) {
+            if ($game->getState() === State::Finished and is_object($externalSourceGame->homeScore)) {
                 $home = $externalSourceGame->homeScore->current;
                 $away = $externalSourceGame->awayScore->current;
-                new GameBase\Score( $game, $home, $away, GameBase::PHASE_REGULARTIME );
+                new GameBase\Score($game, $home, $away, GameBase::PHASE_REGULARTIME);
             }
 
             $competitionGames[$game->getId()] = $game;
@@ -129,22 +129,24 @@ class Game extends SofaScoreHelper implements ExternalSourceGame
         return $competitionGames;
     }
 
-    protected function convertState( int $state ): int {
-        if( $state === 0 ) { // not started
+    protected function convertState(int $state): int
+    {
+        if ($state === 0) { // not started
             return State::Created;
-        } elseif ( $state === 70 ) { // canceled
+        } elseif ($state === 70) { // canceled
             return State::Canceled;
-        } elseif ( $state === 100 ) { // finished
+        } elseif ($state === 100) { // finished
             return State::Finished;
         }
-        throw new \Exception("unknown sofascore-status", E_ERROR );
+        throw new \Exception("unknown sofascore-status", E_ERROR);
     }
 
-    protected function getPlaceFromPoule( Poule $poule, Competitor $competitor ): ?Place {
-        $places = $poule->getPlaces()->filter( function( Place $place ) use ($competitor) {
+    protected function getPlaceFromPoule(Poule $poule, Competitor $competitor): ?Place
+    {
+        $places = $poule->getPlaces()->filter(function (Place $place) use ($competitor) {
             return $place->getCompetitor() && $place->getCompetitor()->getId() === $competitor->getId();
         });
-        if( $places->count() !== 1 ) {
+        if ($places->count() !== 1) {
             return null;
         }
         return $places->first();

@@ -31,7 +31,7 @@ class Service
      * @param string $classname
      * @return mixed
      */
-    public function getRepository( string $classname)
+    public function getRepository(string $classname)
     {
         return $this->getEntityManager()->getRepository($classname);
     }

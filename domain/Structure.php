@@ -22,21 +22,24 @@ class Structure
      */
     protected $rootRound;
 
-    public function __construct( RoundNumber $firstRoundNumber, Round $rootRound )
+    public function __construct(RoundNumber $firstRoundNumber, Round $rootRound)
     {
         $this->firstRoundNumber = $firstRoundNumber;
         $this->rootRound = $rootRound;
     }
 
-    public function getFirstRoundNumber(): RoundNumber {
+    public function getFirstRoundNumber(): RoundNumber
+    {
         return $this->firstRoundNumber;
     }
 
-    public function getRootRound(): Round {
+    public function getRootRound(): Round
+    {
         return $this->rootRound;
     }
 
-    public function getLastRoundNumber(): RoundNumber {
+    public function getLastRoundNumber(): RoundNumber
+    {
         $getLastRoundNumber = function (RoundNumber $roundNumber) use (&$getLastRoundNumber) : RoundNumber {
             if (!$roundNumber->hasNext()) {
                 return $roundNumber;
@@ -49,10 +52,11 @@ class Structure
     /**
      * @return array|RoundNumber[]
      */
-    public function getRoundNumbers(): array {
+    public function getRoundNumbers(): array
+    {
         $roundNumbers = [];
         $roundNumber = $this->getFirstRoundNumber();
-        while( $roundNumber !== null ) {
+        while ($roundNumber !== null) {
             $roundNumbers[] = $roundNumber;
             $roundNumber = $roundNumber->getNext();
         }
@@ -60,10 +64,11 @@ class Structure
     }
 
 
-    public function getRoundNumber(int $roundNumberAsValue): ?RoundNumber {
+    public function getRoundNumber(int $roundNumberAsValue): ?RoundNumber
+    {
         $roundNumber = $this->getFirstRoundNumber();
-        while( $roundNumber !== null ) {
-            if($roundNumber->getNumber() === $roundNumberAsValue) {
+        while ($roundNumber !== null) {
+            if ($roundNumber->getNumber() === $roundNumberAsValue) {
                 return $roundNumber;
             }
             $roundNumber = $roundNumber->getNext();
@@ -71,30 +76,30 @@ class Structure
         return $roundNumber;
     }
 
-    public function setStructureNumbers() {
-
+    public function setStructureNumbers()
+    {
         $nrOfDropoutPlaces = 0;
-        $setRoundStructureNumbers = function(Round $round) use (&$setRoundStructureNumbers, &$nrOfDropoutPlaces) {
-            foreach( $round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup ) {
+        $setRoundStructureNumbers = function (Round $round) use (&$setRoundStructureNumbers, &$nrOfDropoutPlaces) {
+            foreach ($round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup) {
                 $setRoundStructureNumbers($qualifyGroup->getChildRound());
             }
             $round->setStructureNumber($nrOfDropoutPlaces);
             $nrOfDropoutPlaces += $round->getNrOfDropoutPlaces();
-            $losersQualifyGroups = array_reverse( $round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0) );
-            foreach( $losersQualifyGroups as $qualifyGroup ) {
+            $losersQualifyGroups = array_reverse($round->getQualifyGroups(QualifyGroup::LOSERS)->slice(0));
+            foreach ($losersQualifyGroups as $qualifyGroup) {
                 $setRoundStructureNumbers($qualifyGroup->getChildRound());
             }
         };
 
         $pouleNr = 1;
-        $setPouleStructureNumbers = function(RoundNumber $roundNumber) use (&$setPouleStructureNumbers, &$pouleNr) {
+        $setPouleStructureNumbers = function (RoundNumber $roundNumber) use (&$setPouleStructureNumbers, &$pouleNr) {
             $rounds = $roundNumber->getRounds()->toArray();
-            uasort( $rounds, function(Round $roundA, Round $roundB) {
+            uasort($rounds, function (Round $roundA, Round $roundB) {
                 return ($roundA->getStructureNumber() > $roundB->getStructureNumber()) ? 1 : -1;
             });
-            foreach( $rounds as $round ) {
+            foreach ($rounds as $round) {
                 /** @var Poule $poule */
-                foreach( $round->getPoules() as $poule ) {
+                foreach ($round->getPoules() as $poule) {
                     $poule->setStructureNumber($pouleNr++);
                 }
             }

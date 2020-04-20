@@ -8,5 +8,4 @@ namespace Voetbal\League;
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

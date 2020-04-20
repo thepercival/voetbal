@@ -21,7 +21,8 @@ use Voetbal\SerializationHandler\Round\Number as RoundNumberSerializationHandler
 use Voetbal\SerializationHandler\Config as ConfigSerializationHandler;
 use Voetbal\SerializationHandler\Structure as StructureSerializationHandler;
 
-function getSerializer(): \JMS\Serializer\Serializer {
+function getSerializer(): \JMS\Serializer\Serializer
+{
     $apiVersion = 2;
 
     $serializerBuilder = SerializerBuilder::create()->setDebug(true);
@@ -38,14 +39,14 @@ function getSerializer(): \JMS\Serializer\Serializer {
             ->setGroups(array('Default'))
             ->setVersion($apiVersion);
     });
-    $serializerBuilder->addMetadataDir(__DIR__.'/../../serialization/yml','Voetbal');
+    $serializerBuilder->addMetadataDir(__DIR__.'/../../serialization/yml', 'Voetbal');
 
-    $serializerBuilder->configureHandlers(function(JMS\Serializer\Handler\HandlerRegistry $registry) {
-            $registry->registerSubscribingHandler(new StructureSerializationHandler());
-            $registry->registerSubscribingHandler(new RoundNumberSerializationHandler());
-            $registry->registerSubscribingHandler(new RoundSerializationHandler());
-            $registry->registerSubscribingHandler(new QualifyGroupSerializationHandler());
-        });
+    $serializerBuilder->configureHandlers(function (JMS\Serializer\Handler\HandlerRegistry $registry) {
+        $registry->registerSubscribingHandler(new StructureSerializationHandler());
+        $registry->registerSubscribingHandler(new RoundNumberSerializationHandler());
+        $registry->registerSubscribingHandler(new RoundSerializationHandler());
+        $registry->registerSubscribingHandler(new QualifyGroupSerializationHandler());
+    });
 
     $serializerBuilder->addDefaultHandlers();
 

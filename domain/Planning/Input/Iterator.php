@@ -196,7 +196,7 @@ class Iterator
     //     return [json_decode(json_encode(["selfReferee" => $selfReferee, "teamup" => $teamup]))];
     public function increment(): ?PlanningInput
     {
-        if( $this->incremented === false ) {
+        if ($this->incremented === false) {
             $this->incremented = true;
             return $this->createInput();
         }
@@ -258,7 +258,7 @@ class Iterator
             $this->teamup,
             $this->nrOfPlaces
         );
-        if ($selfRefereeIsAvailable === false ) {
+        if ($selfRefereeIsAvailable === false) {
             return $this->incrementTeamup();
         }
         $this->selfReferee = true;
@@ -273,7 +273,7 @@ class Iterator
         $structureConfig = $this->structureService->getStructureConfig($this->nrOfPlaces, $this->nrOfPoules);
         $sportConfig = $this->getSportConfig($this->nrOfSports, $this->nrOfFields);
         $teamupAvailable = $this->planningConfigService->canTeamupBeAvailable($structureConfig, $sportConfig);
-        if ($teamupAvailable === false ) {
+        if ($teamupAvailable === false) {
             return $this->incrementNrOfHeadtohead();
         }
         $this->teamup = true;
@@ -284,7 +284,8 @@ class Iterator
     protected function incrementNrOfHeadtohead(): bool
     {
         if ($this->nrOfHeadtohead === $this->rangeNrOfHeadtohead->max) {
-            return $this->incrementNrOfReferees();;
+            return $this->incrementNrOfReferees();
+            ;
         }
         $this->nrOfHeadtohead++;
         $this->initTeamup();
@@ -294,9 +295,10 @@ class Iterator
     protected function incrementNrOfReferees(): bool
     {
         $maxNrOfReferees = $this->rangeNrOfReferees->max;
-        $maxNrOfRefereesByPlaces = (int)( ceil( $this->nrOfPlaces / 2 ) );
-        if ($this->nrOfReferees >= $maxNrOfReferees || $this->nrOfReferees >= $maxNrOfRefereesByPlaces ) {
-            return $this->incrementNrOfFields();;
+        $maxNrOfRefereesByPlaces = (int)(ceil($this->nrOfPlaces / 2));
+        if ($this->nrOfReferees >= $maxNrOfReferees || $this->nrOfReferees >= $maxNrOfRefereesByPlaces) {
+            return $this->incrementNrOfFields();
+            ;
         }
         $this->nrOfReferees++;
         $this->initNrOfHeadtohead();
@@ -306,9 +308,10 @@ class Iterator
     protected function incrementNrOfFields(): bool
     {
         $maxNrOfFields = $this->rangeNrOfFields->max;
-        $maxNrOfFieldsByPlaces = (int)( ceil( $this->nrOfPlaces / 2 ) );
-        if ($this->nrOfFields >= $maxNrOfFields || $this->nrOfFields >= $maxNrOfFieldsByPlaces ) {
-            return $this->incrementNrOfSports();;
+        $maxNrOfFieldsByPlaces = (int)(ceil($this->nrOfPlaces / 2));
+        if ($this->nrOfFields >= $maxNrOfFields || $this->nrOfFields >= $maxNrOfFieldsByPlaces) {
+            return $this->incrementNrOfSports();
+            ;
         }
         $this->nrOfFields++;
         $this->initNrOfReferees();
@@ -318,7 +321,8 @@ class Iterator
     protected function incrementNrOfSports(): bool
     {
         if ($this->nrOfSports === $this->rangeNrOfSports->max) {
-            return $this->incrementNrOfPoules();;
+            return $this->incrementNrOfPoules();
+            ;
         }
         $this->nrOfSports++;
         $this->initNrOfFields();

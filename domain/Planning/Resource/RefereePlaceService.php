@@ -99,13 +99,14 @@ class RefereePlaceService
         }
     }
 
-    protected function resetReferees( Batch $batch ) {
+    protected function resetReferees(Batch $batch)
+    {
         $batch->emptyPlacesAsReferees();
-        foreach( $batch->getGames() as $game ) {
+        foreach ($batch->getGames() as $game) {
             $game->emptyRefereePlace();
         }
-        if( $batch->hasNext() ) {
-            $this->resetReferees( $batch->getNext() );
+        if ($batch->hasNext()) {
+            $this->resetReferees($batch->getNext());
         }
     }
 
@@ -128,7 +129,7 @@ class RefereePlaceService
     {
         $this->canBeSamePoule = [];
         $poules = $this->planning->getStructure()->getPoules();
-        if ($poules->count() > 2 ) {
+        if ($poules->count() > 2) {
             return;
         }
         if ($poules->count() === 1) {
@@ -151,21 +152,21 @@ class RefereePlaceService
             $pouleTwoNrOfPlaces = $pouleTwo->getPlaces()->count();
             $pouleOneNrOfPlacesGames = 0;
             $pouleTwoNrOfPlacesGames = 0;
-            foreach( $batch->getGames() as $game ) {
-                if( $game->getPoule() === $pouleOne ) {
+            foreach ($batch->getGames() as $game) {
+                if ($game->getPoule() === $pouleOne) {
                     $pouleOneNrOfPlacesGames++;
                 }
-                if( $game->getPoule() === $pouleTwo ) {
+                if ($game->getPoule() === $pouleTwo) {
                     $pouleTwoNrOfPlacesGames++;
                 }
             }
 
-            $pouleOneNrOfRefsAvailable = ( $pouleOneNrOfPlaces - ($pouleOneNrOfPlacesGames * 2));
-            if( $pouleTwoNrOfPlacesGames > $pouleOneNrOfRefsAvailable ) {
+            $pouleOneNrOfRefsAvailable = ($pouleOneNrOfPlaces - ($pouleOneNrOfPlacesGames * 2));
+            if ($pouleTwoNrOfPlacesGames > $pouleOneNrOfRefsAvailable) {
                 $this->canBeSamePoule[$batch->getNumber()] = $pouleTwo;
             }
-            $pouleTwoNrOfRefsAvailable = ( $pouleTwoNrOfPlaces - ($pouleTwoNrOfPlacesGames * 2));
-            if( $pouleOneNrOfPlacesGames > $pouleTwoNrOfRefsAvailable ) {
+            $pouleTwoNrOfRefsAvailable = ($pouleTwoNrOfPlaces - ($pouleTwoNrOfPlacesGames * 2));
+            if ($pouleOneNrOfPlacesGames > $pouleTwoNrOfRefsAvailable) {
                 $this->canBeSamePoule[$batch->getNumber()] = $pouleOne;
             }
             if ($batch->hasNext()) {
@@ -177,8 +178,7 @@ class RefereePlaceService
 
     protected function assignBatch(Batch $batch, array $batchGames, RefereePlaces $refereePlaces): bool
     {
-        if (count($batchGames) === 0) // batchsuccess
-        {
+        if (count($batchGames) === 0) { // batchsuccess
             if ($batch->hasNext() === false) { // endsuccess
                 return true;
             }
@@ -190,8 +190,8 @@ class RefereePlaceService
             }
             $nextBatch = $batch->getNext();
 //            if( $nextBatch->getNumber() === 3 ) {
-                //  $this->output->consoleBatch( $batch, "cdk batch ".$batch->getNumber()." completed");
-          //  $this->output->getLogger()->debug("cdk batch ".$batch->getNumber()." completed");
+            //  $this->output->consoleBatch( $batch, "cdk batch ".$batch->getNumber()." completed");
+            //  $this->output->getLogger()->debug("cdk batch ".$batch->getNumber()." completed");
 //            }
             return $this->assignBatch($nextBatch, $nextBatch->getGames(), $refereePlaces);
         }
@@ -210,7 +210,7 @@ class RefereePlaceService
                     return true;
                 }
                 $game->emptyRefereePlace();
-                $batch->removeAsReferee( $refereePlace );
+                $batch->removeAsReferee($refereePlace);
             }
         }
         return false;

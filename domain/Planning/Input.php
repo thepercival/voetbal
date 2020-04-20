@@ -100,7 +100,7 @@ class Input
 
     public function getNrOfPoules(): int
     {
-        return count( $this->getStructureConfig() );
+        return count($this->getStructureConfig());
     }
 
     public function getNrOfPlaces(): int
@@ -219,7 +219,8 @@ class Input
         $nrOfGamesSimultaneously = 0;
         while ($nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0) {
             $nrOfGamePlaces = array_shift($fieldsNrOfGamePlaces);
-            $nrOfPlaces -= $sportService->getNrOfGamePlaces($nrOfGamePlaces, $this->teamup, $this->selfReferee);;
+            $nrOfPlaces -= $sportService->getNrOfGamePlaces($nrOfGamePlaces, $this->teamup, $this->selfReferee);
+            ;
             if ($nrOfPlaces >= 0) {
                 $nrOfGamesSimultaneously++;
             }
@@ -256,15 +257,16 @@ class Input
         //            }
     }
 
-    protected function inputToString( Input $planningInput ): string {
-        $sports = array_map( function( array $sportConfig ) {
+    protected function inputToString(Input $planningInput): string
+    {
+        $sports = array_map(function (array $sportConfig) {
             return '' . $sportConfig["nrOfFields"] ;
         }, $planningInput->getSportConfig());
-        return 'structure [' . implode( '|', $planningInput->getStructureConfig()) . ']'
-            . ', sports [' . implode(',', $sports ) . ']'
+        return 'structure [' . implode('|', $planningInput->getStructureConfig()) . ']'
+            . ', sports [' . implode(',', $sports) . ']'
             . ', referees ' . $planningInput->getNrOfReferees()
-            . ', teamup ' . ( $planningInput->getTeamup() ? '1' : '0' )
-            . ', selfRef ' . ( $planningInput->getSelfReferee() ? '1' : '0' )
+            . ', teamup ' . ($planningInput->getTeamup() ? '1' : '0')
+            . ', selfRef ' . ($planningInput->getSelfReferee() ? '1' : '0')
             . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();
     }
 

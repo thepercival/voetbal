@@ -42,39 +42,37 @@ final class Structure
         CompetitionRepository $competitionRepos,
         Serializer $serializer,
         EntityManager $em
-    )
-    {
+    ) {
         $this->repos = $repos;
         $this->competitionRepos = $competitionRepos;
         $this->serializer = $serializer;
         $this->em = $em;
     }
 
-    public function fetch( $request, $response, $args)
+    public function fetch($request, $response, $args)
     {
-        return $this->fetchOne( $request, $response, $args);
-
+        return $this->fetchOne($request, $response, $args);
     }
 
-    public function fetchOne( $request, $response, $args)
+    public function fetchOne($request, $response, $args)
     {
-        $competition = $this->competitionRepos->find( (int) $args['id'] );
-        if( $competition === null ) {
+        $competition = $this->competitionRepos->find((int) $args['id']);
+        if ($competition === null) {
             return $response->withStatus(404)->write('geen indeling gevonden voor competitie');
         }
 
-        $structure = $this->repos->getStructure( $competition );
+        $structure = $this->repos->getStructure($competition);
         // var_dump($structure); die();
 
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write($this->serializer->serialize( $structure, 'json'));
+            ->write($this->serializer->serialize($structure, 'json'));
         ;
     }
 
-    public function add( $request, $response, $args)
+    public function add($request, $response, $args)
     {
-        return $response->withStatus( 401 )->write( "only one entity can be fetched" );
+        return $response->withStatus(401)->write("only one entity can be fetched");
 
 //        $this->em->getConnection()->beginTransaction();
 //        try {
@@ -112,23 +110,23 @@ final class Structure
 //        }
     }
 
-    public function edit( $request, $response, $args)
+    public function edit($request, $response, $args)
     {
         $this->em->getConnection()->beginTransaction();
         try {
             /** @var \Voetbal\Structure|false $structureSer */
-            $structureSer = $this->serializer->deserialize( json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
-            if ( $structureSer === false ) {
+            $structureSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Structure', 'json');
+            if ($structureSer === false) {
                 throw new \Exception("er kan geen ronde worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
-            $competition = $this->competitionRepos->find( (int) $args['id'] );
+            $competition = $this->competitionRepos->find((int) $args['id']);
             if ($competition === null) {
                 throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
             }
-            $this->postSerialize( $structureSer->getFirstRoundNumber(), $competition );
+            $this->postSerialize($structureSer->getFirstRoundNumber(), $competition);
 
             $roundNumberAsValue = 1;
-            $this->repos->remove( $competition, $roundNumberAsValue );
+            $this->repos->remove($competition, $roundNumberAsValue);
 
             $roundNumber = $this->repos->customPersist($structureSer, $roundNumberAsValue);
 
@@ -144,48 +142,48 @@ final class Structure
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $structureSer, 'json'));
+                ->write($this->serializer->serialize($structureSer, 'json'));
             ;
-        }
-        catch( \Exception $e ){
+        } catch (\Exception $e) {
             $this->em->getConnection()->rollBack();
-            return $response->withStatus( 401 )->write( $e->getMessage() );
+            return $response->withStatus(401)->write($e->getMessage());
         }
     }
 
-    protected function postSerialize( RoundNumber $roundNumber, Competition $competition ) {
+    protected function postSerialize(RoundNumber $roundNumber, Competition $competition)
+    {
         $competitors = $competition->getLeague()->getAssociation()->getCompetitors();
         $roundNumber->setCompetition($competition);
-        foreach( $roundNumber->getPlaces() as $place ) {
-            if( $place->getCompetitor() === null ) {
+        foreach ($roundNumber->getPlaces() as $place) {
+            if ($place->getCompetitor() === null) {
                 continue;
             }
-            $foundCompetitors = $competitors->filter( function( $competitorIt ) use ($place) {
+            $foundCompetitors = $competitors->filter(function ($competitorIt) use ($place) {
                 return $competitorIt->getId() === $place->getCompetitor()->getId();
             });
-            if( $foundCompetitors->count() !== 1 ) {
+            if ($foundCompetitors->count() !== 1) {
                 continue;
             }
-            $place->setCompetitor( $foundCompetitors->first() );
+            $place->setCompetitor($foundCompetitors->first());
         }
 
         $sports = $competition->getSports();
-        foreach( $roundNumber->getSportScoreConfigs() as $sportScoreConfig ) {
-            $foundSports = $sports->filter( function( $sport ) use ($sportScoreConfig) {
+        foreach ($roundNumber->getSportScoreConfigs() as $sportScoreConfig) {
+            $foundSports = $sports->filter(function ($sport) use ($sportScoreConfig) {
                 return $sport->getId() === $sportScoreConfig->getSport()->getId();
-            } );
-            if( $foundSports->count() !== 1 ) {
-                throw new \Exception("Er kon geen sport worden gevonden voor de configuratie", E_ERROR );
+            });
+            if ($foundSports->count() !== 1) {
+                throw new \Exception("Er kon geen sport worden gevonden voor de configuratie", E_ERROR);
             }
-            $sportScoreConfig->setSport( $foundSports->first() );
+            $sportScoreConfig->setSport($foundSports->first());
         }
 
-        if( $roundNumber->hasNext() ) {
-            $this->postSerialize( $roundNumber->getNext(), $competition );
+        if ($roundNumber->hasNext()) {
+            $this->postSerialize($roundNumber->getNext(), $competition);
         }
     }
 
-    public function remove( $request, $response, $args)
+    public function remove($request, $response, $args)
     {
         try {
             throw new \Exception("er is geen competitie zonder structuur mogelijk", E_ERROR);

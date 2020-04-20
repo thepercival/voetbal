@@ -43,12 +43,12 @@ class Structure implements SubscribingHandlerInterface
     public function deserializeFromJson(JsonDeserializationVisitor $visitor, $arrStructure, array $type, Context $context)
     {
         $arrStructure["firstRoundNumber"]["previous"] = null;
-        $metadataRoundNumber = new StaticPropertyMetadata('Voetbal\Round\Number', "firstRoundNumber", $arrStructure["firstRoundNumber"] );
-        $metadataRoundNumber->setType(['name' => 'Voetbal\Round\Number', "params" => [ "competition" => $this->createCompetition()]] );
+        $metadataRoundNumber = new StaticPropertyMetadata('Voetbal\Round\Number', "firstRoundNumber", $arrStructure["firstRoundNumber"]);
+        $metadataRoundNumber->setType(['name' => 'Voetbal\Round\Number', "params" => [ "competition" => $this->createCompetition()]]);
         $firstRoundNumber = $visitor->visitProperty($metadataRoundNumber, $arrStructure);
 
-        $metadataRound = new StaticPropertyMetadata('Voetbal\Round', "rootRound", $arrStructure["rootRound"] );
-        $metadataRound->setType(['name' => 'Voetbal\Round', "params" => [ "roundnumber" => $firstRoundNumber]] );
+        $metadataRound = new StaticPropertyMetadata('Voetbal\Round', "rootRound", $arrStructure["rootRound"]);
+        $metadataRound->setType(['name' => 'Voetbal\Round', "params" => [ "roundnumber" => $firstRoundNumber]]);
 
         return new StructureBase(
             $firstRoundNumber,
@@ -59,10 +59,10 @@ class Structure implements SubscribingHandlerInterface
     private function createCompetition(): Competition
     {
         $association = new Association("knvb");
-        $league = new League( $association, "my league" );
-        $season = new Season( "123", new \League\Period\Period("2018-12-17T11:33:15.710Z", "2018-12-17T11:33:15.710Z" ) );
-        $competition = new Competition( $league, $season );
-        $competition->setStartDateTime( new \DateTimeImmutable("2018-12-17T12:00:00.000Z") );
+        $league = new League($association, "my league");
+        $season = new Season("123", new \League\Period\Period("2018-12-17T11:33:15.710Z", "2018-12-17T11:33:15.710Z"));
+        $competition = new Competition($league, $season);
+        $competition->setStartDateTime(new \DateTimeImmutable("2018-12-17T12:00:00.000Z"));
         return $competition;
     }
 

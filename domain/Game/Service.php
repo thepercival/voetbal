@@ -22,7 +22,9 @@ use Voetbal\Round\Number as RoundNumber;
 
 class Service
 {
-    public function __construct() {}
+    public function __construct()
+    {
+    }
 
     /**
      * @param Game $game
@@ -31,7 +33,7 @@ class Service
      * @param Place|null $refereePlace
      * @return Game
      */
-    public function editResource( Game $game, Field $field = null, Referee $referee = null, Place $refereePlace = null )
+    public function editResource(Game $game, Field $field = null, Referee $referee = null, Place $refereePlace = null)
     {
         $game->setField($field);
         $game->setReferee($referee);
@@ -43,10 +45,10 @@ class Service
      * @param Game $game
      * @param GameScore[]|array $newGameScores
      */
-    public function addScores( Game $game, array $newGameScores )
+    public function addScores(Game $game, array $newGameScores)
     {
-        foreach( $newGameScores as $newGameScore ) {
-            new GameScore( $game, $newGameScore->getHome(), $newGameScore->getAway(), $newGameScore->getPhase() );
+        foreach ($newGameScores as $newGameScore) {
+            new GameScore($game, $newGameScore->getHome(), $newGameScore->getAway(), $newGameScore->getPhase());
         }
     }
 
@@ -102,6 +104,4 @@ class Service
 //            }
 //        }
 //    }
-
 }
-

@@ -27,37 +27,37 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure9.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure,$competition);
+        postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {
             $nameService = new NameService();
             /*  */
-            if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1 ) {
+            if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'A1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'wim');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'A2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'max');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 3 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 3) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'A3');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jan');
-            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 1 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'B1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jip');
-            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'B2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jil');
-            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 3 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 3) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'B3');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jos');
-            } elseif ($poulePlace->getPoule()->getNumber() === 3 && $poulePlace->getNumber() === 1 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 3 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'C1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'zed');
-            } elseif ($poulePlace->getPoule()->getNumber() === 3 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 3 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'C2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'cor');
-            } elseif ($poulePlace->getPoule()->getNumber() === 3 && $poulePlace->getNumber() === 3 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 3 && $poulePlace->getNumber() === 3) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'C3');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'pim');
             }
@@ -65,19 +65,19 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
         foreach ($structure->getRound([Round::WINNERS])->getPoulePlaces() as $poulePlace) {
             $nameService = new NameService();
-            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1 ) {
+            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'D1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'A1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'max');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'D2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'C1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'zed');
-            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 1 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'E1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'B1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jip');
-            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'E2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), '?2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jil');
@@ -86,19 +86,19 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
         foreach ($structure->getRound([Round::LOSERS])->getPoulePlaces() as $poulePlace) {
             $nameService = new NameService();
-            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1 ) {
+            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'F1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), '?2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'cor');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'F2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'B3');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jos');
-            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 1 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'G1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'A3');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'wim');
-            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 2 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'G2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'C3');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'pim');
@@ -107,11 +107,11 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
         foreach ($structure->getRound([Round::WINNERS,Round::WINNERS])->getPoulePlaces() as $poulePlace) {
             $nameService = new NameService();
-            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1 ) {
+            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'H1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'D1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'max');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'H2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'E1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jil');
@@ -120,11 +120,11 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
         foreach ($structure->getRound([Round::WINNERS,Round::LOSERS])->getPoulePlaces() as $poulePlace) {
             $nameService = new NameService();
-            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1 ) {
+            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'I1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'D2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'zed');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'I2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'E2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jip');
@@ -133,11 +133,11 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
         foreach ($structure->getRound([Round::LOSERS,Round::WINNERS])->getPoulePlaces() as $poulePlace) {
             $nameService = new NameService();
-            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1 ) {
+            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'J1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'F1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'jos');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'J2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'G1');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'wim');
@@ -146,11 +146,11 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
         foreach ($structure->getRound([Round::LOSERS,Round::LOSERS])->getPoulePlaces() as $poulePlace) {
             $nameService = new NameService();
-            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1 ) {
+            /*  */if ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 1) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'K1');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'F2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'cor');
-            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2 ) {
+            } elseif ($poulePlace->getPoule()->getNumber() === 1 && $poulePlace->getNumber() === 2) {
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, false), 'K2');
                 $this->assertSame($nameService->getPoulePlaceFromName($poulePlace, false), 'G2');
                 $this->assertSame($nameService->getPoulePlaceName($poulePlace, true), 'pim');
@@ -169,7 +169,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure16rank.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure,$competition);
+        postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {
@@ -402,7 +402,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure163poules.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure,$competition);
+        postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {
@@ -507,7 +507,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure15.json");
         $json = json_decode($json_raw, true);
         $structure = $serializer->deserialize(json_encode($json), 'Voetbal\Structure', 'json');
-        postSerialize($structure,$competition);
+        postSerialize($structure, $competition);
         $structure->setQualifyRules();
 
         foreach ($structure->getRound([])->getPoulePlaces() as $poulePlace) {

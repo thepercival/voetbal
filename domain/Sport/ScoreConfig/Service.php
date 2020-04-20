@@ -17,7 +17,6 @@ use Voetbal\Round\Number as RoundNumber;
 
 class Service
 {
-
     public function createDefault(Sport $sport, RoundNumber $roundNumber)
     {
         $sportScoreConfig = new SportScoreConfig($sport, $roundNumber);
@@ -33,7 +32,7 @@ class Service
         return $sportScoreConfig;
     }
 
-    protected function hasNext(int $customId ): bool
+    protected function hasNext(int $customId): bool
     {
         if (
             $customId === SportCustom::Badminton
@@ -94,7 +93,7 @@ class Service
         if ($game->getScores()->count() === 0) {
             return null;
         }
-        if ( $game->getSportScoreConfig()->useSubScore() ) {
+        if ($game->getSportScoreConfig()->useSubScore()) {
             $home = 0;
             $away = 0;
             foreach ($game->getScores() as $score) {
@@ -122,4 +121,3 @@ class Service
         return new GameScoreHomeAway($home, $away);
     }
 }
-

@@ -18,23 +18,26 @@ use Voetbal\Qualify\Rule as QualifyRule;
 
 use Voetbal\Qualify\ReservationService as QualifyReservationService;
 
-class Service {
+class Service
+{
     /**
      * @var Round
      */
     private $round;
 
-    public function __construct( Round $round )
+    public function __construct(Round $round)
     {
         $this->round = $round;
     }
 
-    public function recreateTo() {
+    public function recreateTo()
+    {
         $this->removeTo($this->round);
         $this->createTo($this->round);
     }
 
-    public function recreateFrom() {
+    public function recreateFrom()
+    {
         $parentRound = $this->round->getParent();
         if ($parentRound === null) {
             return;
@@ -43,8 +46,9 @@ class Service {
         $this->createTo($parentRound);
     }
 
-    protected function removeTo(Round $round ) {
-        foreach( $round->getPlaces() as $place ) {
+    protected function removeTo(Round $round)
+    {
+        foreach ($round->getPlaces() as $place) {
             $toQualifyRules = &$place->getToQualifyRules();
             foreach ($toQualifyRules as $toQualifyRule) {
                 $toPlaces = [];
@@ -59,27 +63,28 @@ class Service {
             }
             $toQualifyRules = [];
         }
-        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
-            foreach( $round->getHorizontalPoules($winnersOrLosers) as $horizontalPoule ) {
+        foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
+            foreach ($round->getHorizontalPoules($winnersOrLosers) as $horizontalPoule) {
                 $horizontalPoule->setQualifyRuleMultiple(null);
             }
         }
     }
 
-    protected function createTo(Round $round) {
-        foreach( $round->getQualifyGroups() as $qualifyGroup ) {
+    protected function createTo(Round $round)
+    {
+        foreach ($round->getQualifyGroups() as $qualifyGroup) {
             $queue = new QualifyRuleQueue();
             $childRound = $qualifyGroup->getChildRound();
             $qualifyReservationService = new QualifyReservationService($childRound);
 
             // add rules and set from places
             {
-                foreach( $qualifyGroup->getHorizontalPoules() as $horizontalPoule ) {
+                foreach ($qualifyGroup->getHorizontalPoules() as $horizontalPoule) {
                     if ($horizontalPoule->isBorderPoule() && $qualifyGroup->getNrOfToPlacesTooMuch() > 0) {
                         $nrOfToPlacesBorderPoule = $qualifyGroup->getChildRound()->getNrOfPlaces() % $round->getPoules()->count();
                         $queue->add(QualifyRuleQueue::START, new QualifyRuleMultiple($horizontalPoule, $nrOfToPlacesBorderPoule));
                     } else {
-                        foreach( $horizontalPoule->getPlaces() as $place ) {
+                        foreach ($horizontalPoule->getPlaces() as $place) {
                             $queue->add(QualifyRuleQueue::START, new QualifyRuleSingle($place, $qualifyGroup));
                         }
                     }
@@ -92,7 +97,7 @@ class Service {
             $startEnd = QualifyRuleQueue::START;
             while (count($toHorPoules) > 0) {
                 $toHorPoule = $startEnd === QualifyRuleQueue::START ? array_shift($toHorPoules) : array_pop($toHorPoules);
-                foreach( $toHorPoule->getPlaces() as $place ) {
+                foreach ($toHorPoule->getPlaces() as $place) {
                     $this->connectPlaceWithRule($place, $queue, $startEnd, $qualifyReservationService);
                 }
                 $startEnd = $queue->toggle($startEnd);
@@ -100,7 +105,8 @@ class Service {
         }
     }
 
-    private function connectPlaceWithRule(Place $childPlace, QualifyRuleQueue $queue, int $startEnd, QualifyReservationService $reservationService) {
+    private function connectPlaceWithRule(Place $childPlace, QualifyRuleQueue $queue, int $startEnd, QualifyReservationService $reservationService)
+    {
 
         /**
          * @param QualifyRuleSingle|QualifyRuleMultiple $qualifyRule
@@ -136,7 +142,7 @@ class Service {
             $oneQualifyRuleConnected = true;
         }
         if ($startEnd === QualifyRuleQueue::END) {
-            $unfreeQualifyRules = array_reverse( $unfreeQualifyRules );
+            $unfreeQualifyRules = array_reverse($unfreeQualifyRules);
         }
         if (!$oneQualifyRuleConnected && count($unfreeQualifyRules) > 0) {
             $setToPlacesAndReserve(array_shift($unfreeQualifyRules));

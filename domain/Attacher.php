@@ -35,11 +35,11 @@ class Attacher
 
     const MAX_LENGTH_EXTERNALID = 100;
 
-    public function __construct( Importable $importable, ExternalSource $externalSource, $externalId)
+    public function __construct(Importable $importable, ExternalSource $externalSource, $externalId)
     {
-        $this->setImportable( $importable );
+        $this->setImportable($importable);
         $this->externalSource = $externalSource;
-        $this->setExternalId( $externalId );
+        $this->setExternalId($externalId);
     }
 
     /**
@@ -55,7 +55,7 @@ class Attacher
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId(int $id)
     {
         $this->id = $id;
     }
@@ -68,10 +68,10 @@ class Attacher
     /**
      * @param string $externalId
      */
-    public function setExternalId( $externalId )
+    public function setExternalId($externalId)
     {
-        if ( strlen( $externalId ) > static::MAX_LENGTH_EXTERNALID ){
-            throw new \InvalidArgumentException( "de externe id mag maximaal ".static::MAX_LENGTH_EXTERNALID." karakters bevatten", E_ERROR );
+        if (strlen($externalId) > static::MAX_LENGTH_EXTERNALID) {
+            throw new \InvalidArgumentException("de externe id mag maximaal ".static::MAX_LENGTH_EXTERNALID." karakters bevatten", E_ERROR);
         }
         $this->externalId = $externalId;
     }
@@ -87,7 +87,7 @@ class Attacher
     /**
      * @param Importable $importable
      */
-    public function setImportable( Importable $importable )
+    public function setImportable(Importable $importable)
     {
         $this->importable = $importable;
     }
@@ -116,7 +116,7 @@ class Attacher
     /**
      * @param int $importableId
      */
-    public function setImportableId( int $importableId )
+    public function setImportableId(int $importableId)
     {
         $this->importableId = $importableId;
     }

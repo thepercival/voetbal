@@ -38,10 +38,10 @@ class Field
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 3;
 
-    public function __construct( Competition $competition, $number )
+    public function __construct(Competition $competition, $number)
     {
-        $this->setCompetition( $competition );
-        $this->setNumber( $number );
+        $this->setCompetition($competition);
+        $this->setNumber($number);
     }
 
     /**
@@ -57,7 +57,7 @@ class Field
     /**
      * @param int $id
      */
-    public function setId( int $id = null )
+    public function setId(int $id = null)
     {
         $this->id = $id;
     }
@@ -73,10 +73,10 @@ class Field
     /**
      * @param int $number
      */
-    public function setNumber( $number )
+    public function setNumber($number)
     {
-        if ( !is_int( $number )   ){
-            throw new \InvalidArgumentException( "het veldnummer heeft een onjuiste waarde", E_ERROR );
+        if (!is_int($number)) {
+            throw new \InvalidArgumentException("het veldnummer heeft een onjuiste waarde", E_ERROR);
         }
         $this->number = $number;
     }
@@ -92,10 +92,10 @@ class Field
     /**
      * @param string $name
      */
-    public function setName( string $name )
+    public function setName(string $name)
     {
-        if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-            throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+        if (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException("de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR);
         }
 
         $this->name = $name;
@@ -112,9 +112,9 @@ class Field
     /**
      * @param Competition $competition
      */
-    private function setCompetition( Competition $competition )
+    private function setCompetition(Competition $competition)
     {
-        if ( $this->competition === null and $competition !== null and !$competition->getFields()->contains( $this ) ) {
+        if ($this->competition === null and $competition !== null and !$competition->getFields()->contains($this)) {
             $competition->getFields()->add($this) ;
         }
         $this->competition = $competition;
@@ -131,7 +131,7 @@ class Field
     /**
      * @param Sport $sport
      */
-    public function setSport( Sport $sport )
+    public function setSport(Sport $sport)
     {
         $this->sport = $sport;
     }

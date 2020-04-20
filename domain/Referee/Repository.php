@@ -11,5 +11,4 @@ use Voetbal\Referee;
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

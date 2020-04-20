@@ -14,5 +14,5 @@ interface Sport
      * @param mixed $id
      * @return SportBase|null
      */
-    public function getSport( $id ): ?SportBase;
+    public function getSport($id): ?SportBase;
 }

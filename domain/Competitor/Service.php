@@ -27,7 +27,7 @@ class Service
         foreach ($places as $place) {
             $competitor = $place->getCompetitor();
             if ($competitor !== null) {
-                $newCompetitor = new Competitor($association, $competitor->getName() );
+                $newCompetitor = new Competitor($association, $competitor->getName());
                 $newCompetitor->setAbbreviation($competitor->getAbbreviation());
                 $newCompetitor->setImageUrl($competitor->getImageUrl());
                 $newCompetitor->setInfo($competitor->getInfo());
@@ -37,26 +37,26 @@ class Service
         return $competitors;
     }
 
-    public function assignCompetitors( Structure $newStructure, array $newCompetitors )
+    public function assignCompetitors(Structure $newStructure, array $newCompetitors)
     {
-        foreach( $newStructure->getRootRound()->getPlaces() as $place ) {
+        foreach ($newStructure->getRootRound()->getPlaces() as $place) {
             $place->setCompetitor(null);
             $place->setCompetitor(array_shift($newCompetitors));
         }
-        foreach( $newStructure->getRootRound()->getChildren() as $childRound ) {
-            $this->removeQualifiedCompetitors( $childRound );
+        foreach ($newStructure->getRootRound()->getChildren() as $childRound) {
+            $this->removeQualifiedCompetitors($childRound);
         }
     }
 
-    protected function removeQualifiedCompetitors( Round $round)
+    protected function removeQualifiedCompetitors(Round $round)
     {
-        foreach( $round->getPoules() as $poule ) {
-            foreach( $poule->getPlaces() as $place ) {
+        foreach ($round->getPoules() as $poule) {
+            foreach ($poule->getPlaces() as $place) {
                 $place->setCompetitor(null);
             }
         }
-        foreach( $round->getChildren() as $childRound ) {
-            $this->removeQualifiedCompetitors( $childRound );
+        foreach ($round->getChildren() as $childRound) {
+            $this->removeQualifiedCompetitors($childRound);
         }
     }
 }

@@ -46,60 +46,64 @@ class ConvertService
      */
     protected $scheduleService;
 
-    public function __construct( ScheduleService $scheduleService )
+    public function __construct(ScheduleService $scheduleService)
     {
         $this->scheduleService = $scheduleService;
     }
 
-    public function createGames( RoundNumber $roundNumber, PlanningBase $planning ) {
-        $this->initResources( $roundNumber );
+    public function createGames(RoundNumber $roundNumber, PlanningBase $planning)
+    {
+        $this->initResources($roundNumber);
         $firstBatch = $planning->getFirstBatch();
-        $gameStartDateTime = $this->scheduleService->getRoundNumberStartDateTime( $roundNumber );
+        $gameStartDateTime = $this->scheduleService->getRoundNumberStartDateTime($roundNumber);
         $planningConfig = $roundNumber->getValidPlanningConfig();
-        $this->createBatchGames( $firstBatch, $planningConfig, $gameStartDateTime );
+        $this->createBatchGames($firstBatch, $planningConfig, $gameStartDateTime);
     }
 
     // zorg dat vanaf ronde 2 de wedstrijden op volgorde van qualifypoule worden ingedeeld
     // dit kan natuurlijk alleen met poules van dezelfde poulegrootte!!!
 
-    protected function createBatchGames( Batch $batch, Config $planningConfig, \DateTimeImmutable $gameStartDateTime ) {
+    protected function createBatchGames(Batch $batch, Config $planningConfig, \DateTimeImmutable $gameStartDateTime)
+    {
         /** @var PlanningGame $planningGame */
-        foreach( $batch->getGames() as $planningGame ) {
-            $poule = $this->getPoule( $planningGame->getPoule() );
-            $game = new GameBase( $poule, $planningGame->getBatchNr(), $gameStartDateTime );
-            $game->setField( $this->getField( $planningGame->getField() ) );
-            if( $planningGame->getReferee() !== null ) {
-                $game->setReferee( $this->getReferee( $planningGame->getReferee() ) );
+        foreach ($batch->getGames() as $planningGame) {
+            $poule = $this->getPoule($planningGame->getPoule());
+            $game = new GameBase($poule, $planningGame->getBatchNr(), $gameStartDateTime);
+            $game->setField($this->getField($planningGame->getField()));
+            if ($planningGame->getReferee() !== null) {
+                $game->setReferee($this->getReferee($planningGame->getReferee()));
             }
-            if( $planningGame->getRefereePlace() !== null ) {
-                $game->setRefereePlace( $this->getPlace( $planningGame->getRefereePlace() ) );
+            if ($planningGame->getRefereePlace() !== null) {
+                $game->setRefereePlace($this->getPlace($planningGame->getRefereePlace()));
             }
             /** @var PlanningGamePlace $planningGamePlace */
-            foreach( $planningGame->getPlaces() as $planningGamePlace ) {
-                new GamePlace( $game, $this->getPlace( $planningGamePlace->getPlace() ), $planningGamePlace->getHomeaway() );
+            foreach ($planningGame->getPlaces() as $planningGamePlace) {
+                new GamePlace($game, $this->getPlace($planningGamePlace->getPlace()), $planningGamePlace->getHomeaway());
             }
         }
-        if( $batch->hasNext() ) {
-            $nextGameStartDateTime = $this->scheduleService->getNextGameStartDateTime( $planningConfig, $gameStartDateTime );
-            $this->createBatchGames( $batch->getNext(), $planningConfig, $nextGameStartDateTime );
+        if ($batch->hasNext()) {
+            $nextGameStartDateTime = $this->scheduleService->getNextGameStartDateTime($planningConfig, $gameStartDateTime);
+            $this->createBatchGames($batch->getNext(), $planningConfig, $nextGameStartDateTime);
         }
     }
 
-    protected function initResources( RoundNumber $roundNumber ) {
-        $this->initPoules( $roundNumber );
-        $this->initFields( $roundNumber->getCompetition() );
-        $this->initReferees( $roundNumber->getCompetition() );
+    protected function initResources(RoundNumber $roundNumber)
+    {
+        $this->initPoules($roundNumber);
+        $this->initFields($roundNumber->getCompetition());
+        $this->initReferees($roundNumber->getCompetition());
     }
 
-    protected function initPoules( RoundNumber $roundNumber ) {
+    protected function initPoules(RoundNumber $roundNumber)
+    {
         $poules = $roundNumber->getPoules();
-        if( $roundNumber->isFirst() ) {
-            uasort( $poules, function ( Poule $pouleA, Poule $pouleB ) {
+        if ($roundNumber->isFirst()) {
+            uasort($poules, function (Poule $pouleA, Poule $pouleB) {
                 return $pouleA->getPlaces()->count() >= $pouleB->getPlaces()->count() ? -1 : 1;
             });
         } else {
-            uasort( $poules, function ( Poule $pouleA, Poule $pouleB ) {
-                if( $pouleA->getPlaces()->count() === $pouleB->getPlaces()->count() ) {
+            uasort($poules, function (Poule $pouleA, Poule $pouleB) {
+                if ($pouleA->getPlaces()->count() === $pouleB->getPlaces()->count()) {
                     return $pouleA->getStructureNumber() >= $pouleB->getStructureNumber() ? -1 : 1;
                 }
                 return $pouleA->getPlaces()->count() >= $pouleB->getPlaces()->count() ? -1 : 1;
@@ -108,28 +112,34 @@ class ConvertService
         $this->poules = array_values($poules);
     }
 
-    protected function initFields( Competition $competition ) {
+    protected function initFields(Competition $competition)
+    {
         $this->fields = $competition->getFields()->toArray();
     }
 
-    protected function initReferees( Competition $competition ) {
+    protected function initReferees(Competition $competition)
+    {
         $this->referees = $competition->getReferees()->toArray();
     }
 
-    protected function getPoule( PlanningPoule $poule ): Poule {
+    protected function getPoule(PlanningPoule $poule): Poule
+    {
         return $this->poules[ $poule->getNumber() - 1 ];
     }
 
-    protected function getField( PlanningField $field ): Field {
+    protected function getField(PlanningField $field): Field
+    {
         return $this->fields[ $field->getNumber() - 1 ];
     }
 
-    protected function getReferee( PlanningReferee $referee ): Referee {
+    protected function getReferee(PlanningReferee $referee): Referee
+    {
         return $this->referees[ $referee->getNumber() - 1 ];
     }
 
-    protected function getPlace( PlanningPlace $planningPlace ): Place {
-        $poule = $this->getPoule( $planningPlace->getPoule() );
-        return $poule->getPlace( $planningPlace->getNumber() );
+    protected function getPlace(PlanningPlace $planningPlace): Place
+    {
+        $poule = $this->getPoule($planningPlace->getPoule());
+        return $poule->getPlace($planningPlace->getNumber());
     }
 }

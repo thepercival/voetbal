@@ -47,13 +47,13 @@ class Service
     const RULESSET_WC = 1;
     const RULESSET_EC = 2;
 
-    CONST MostPoints = 1;
-    CONST FewestGames = 2;
-    CONST BestAgainstEachOther = 3;
-    CONST BestUnitDifference = 4;
-    CONST BestSubUnitDifference = 5;
-    CONST MostUnitsScored = 6;
-    CONST MostSubUnitsScored = 7;
+    const MostPoints = 1;
+    const FewestGames = 2;
+    const BestAgainstEachOther = 3;
+    const BestUnitDifference = 4;
+    const BestSubUnitDifference = 5;
+    const MostUnitsScored = 6;
+    const MostSubUnitsScored = 7;
 
     public function __construct(Round $round, int $rulesSet, int $gameStates = null)
     {
@@ -78,8 +78,7 @@ class Service
                 } else /* if ($rankFunction === $this->rankFunctions[Service::BestAgainstEachOther]) */ {
                     return 'het beste onderling resultaat';
                 }
-            }
-            ,
+            },
             array_filter(
                 $this->getRankFunctions(),
                 function ($rankFunction) {
@@ -215,8 +214,8 @@ class Service
 
         foreach ($rankFunctions as $rankFunction) {
             if ($rankFunction === $this->rankFunctions[Service::BestAgainstEachOther] && count($orgItems) === count(
-                    $bestItems
-                )) {
+                $bestItems
+            )) {
                 continue;
             }
             $bestItems = $rankFunction($bestItems);

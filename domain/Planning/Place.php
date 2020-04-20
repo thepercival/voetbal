@@ -4,7 +4,8 @@ namespace Voetbal\Planning;
 
 use Voetbal\Planning\Sport\Counter as SportCounter;
 
-class Place {
+class Place
+{
     /**
      * @var int
      */
@@ -22,7 +23,7 @@ class Place {
      */
     protected $location;
 
-    public function __construct( Poule $poule, int $number )
+    public function __construct(Poule $poule, int $number)
     {
         $this->poule = $poule;
         $this->number = $number;
@@ -38,11 +39,11 @@ class Place {
         return $this->number;
     }
 
-    public function getLocation(): string {
-        if( $this->location === null ) {
+    public function getLocation(): string
+    {
+        if ($this->location === null) {
             $this->location = $this->poule->getNumber() . '.' . $this->number;
         }
         return $this->location;
     }
 }
-

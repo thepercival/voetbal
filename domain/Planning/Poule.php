@@ -34,18 +34,19 @@ class Poule
      */
     protected $games;
 
-    public function __construct( PlanningBase $planning, int $number, int $nrOfPlaces )
+    public function __construct(PlanningBase $planning, int $number, int $nrOfPlaces)
     {
         $this->planning = $planning;
         $this->number = $number;
         $this->places = new ArrayCollection();
-        for( $placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++ ) {
-            $this->places->add( new Place( $this, $placeNr) );
+        for ($placeNr = 1 ; $placeNr <= $nrOfPlaces ; $placeNr++) {
+            $this->places->add(new Place($this, $placeNr));
         }
         $this->games = new ArrayCollection();
     }
 
-    public function getPlanning(): PlanningBase {
+    public function getPlanning(): PlanningBase
+    {
         return $this->planning;
     }
 
@@ -68,12 +69,12 @@ class Poule
     /**
      * @return ?Place
      */
-    public function getPlace( $number ): ?Place
+    public function getPlace($number): ?Place
     {
-        $places = $this->getPlaces()->filter( function( $place ) use ( $number ) {
+        $places = $this->getPlaces()->filter(function ($place) use ($number) {
             return $place->getNumber() === $number;
         });
-        if( $places->count() === 0 ) {
+        if ($places->count() === 0) {
             return null;
         }
         return $places->first();

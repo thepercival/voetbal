@@ -22,7 +22,7 @@ class Qualifier
      */
     private $competitor;
 
-    public function __construct( Place $place, Competitor $competitor = null )
+    public function __construct(Place $place, Competitor $competitor = null)
     {
         $this->place = $place;
         $this->competitor = $competitor;
@@ -47,7 +47,7 @@ class Qualifier
     /**
      * @param Competitor $competitor
      */
-    public function setCompetitor( Competitor $competitor )
+    public function setCompetitor(Competitor $competitor)
     {
         $this->competitor = $competitor;
     }

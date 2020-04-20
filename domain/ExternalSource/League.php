@@ -15,5 +15,5 @@ interface League
      * @param mixed $id
      * @return LeagueBase|null
      */
-    public function getLeague( $id ): ?LeagueBase;
+    public function getLeague($id): ?LeagueBase;
 }

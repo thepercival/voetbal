@@ -8,7 +8,6 @@
 
 namespace Voetbal\Planning\Config;
 
-
 class Repository extends \Voetbal\Repository
 {
 

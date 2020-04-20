@@ -21,7 +21,7 @@ use Voetbal\Round\Number\Repository as RoundNumberRepository;
  */
 class Repository extends \Voetbal\Repository
 {
-    public function hasEndSuccess( Input $input ): bool
+    public function hasEndSuccess(Input $input): bool
     {
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
@@ -34,13 +34,13 @@ class Repository extends \Voetbal\Repository
             ->andWhere('p.state = :state')
         ;
 
-        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
-        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
-        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
-        $query = $query->setParameter('teamup', $input->getTeamup() );
-        $query = $query->setParameter('selfReferee', $input->getSelfReferee() );
-        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
-        $query = $query->setParameter('state', PlanningBase::STATE_SUCCESS );
+        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()));
+        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()));
+        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
+        $query = $query->setParameter('teamup', $input->getTeamup());
+        $query = $query->setParameter('selfReferee', $input->getSelfReferee());
+        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead());
+        $query = $query->setParameter('state', PlanningBase::STATE_SUCCESS);
 
         $query->setMaxResults(1);
 
@@ -49,7 +49,7 @@ class Repository extends \Voetbal\Repository
         return count($x) === 1;
     }
 
-    public function hasTried( Input $input, VoetbalRange $nrOfBatchGamesRange ): bool
+    public function hasTried(Input $input, VoetbalRange $nrOfBatchGamesRange): bool
     {
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
@@ -63,14 +63,14 @@ class Repository extends \Voetbal\Repository
             ->andWhere('p.maxNrOfBatchGames = :maxNrOfBatchGames')
         ;
 
-        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
-        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
-        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
-        $query = $query->setParameter('teamup', $input->getTeamup() );
-        $query = $query->setParameter('selfReferee', $input->getSelfReferee() );
-        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
-        $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->min );
-        $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->max );
+        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()));
+        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()));
+        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
+        $query = $query->setParameter('teamup', $input->getTeamup());
+        $query = $query->setParameter('selfReferee', $input->getSelfReferee());
+        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead());
+        $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->min);
+        $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->max);
 
         $query->setMaxResults(1);
 
@@ -79,7 +79,7 @@ class Repository extends \Voetbal\Repository
         return count($x) === 1;
     }
 
-    public function get( Input $input, VoetbalRange $nrOfBatchGamesRange, int $maxNrOfGamesInARow ): PlanningBase
+    public function get(Input $input, VoetbalRange $nrOfBatchGamesRange, int $maxNrOfGamesInARow): PlanningBase
     {
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
@@ -94,50 +94,51 @@ class Repository extends \Voetbal\Repository
             ->andWhere('p.maxNrOfGamesInARow = :maxNrOfGamesInARow')
         ;
 
-        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()) );
-        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()) );
-        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees() );
-        $query = $query->setParameter('teamup', $input->getTeamup() );
-        $query = $query->setParameter('selfReferee', $input->getSelfReferee() );
-        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead() );
-        $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->min );
-        $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->max );
-        $query = $query->setParameter('maxNrOfGamesInARow', $maxNrOfGamesInARow );
+        $query = $query->setParameter('structureConfig', json_encode($input->getStructureConfig()));
+        $query = $query->setParameter('sportConfig', json_encode($input->getSportConfig()));
+        $query = $query->setParameter('nrOfReferees', $input->getNrOfReferees());
+        $query = $query->setParameter('teamup', $input->getTeamup());
+        $query = $query->setParameter('selfReferee', $input->getSelfReferee());
+        $query = $query->setParameter('nrOfHeadtohead', $input->getNrOfHeadtohead());
+        $query = $query->setParameter('minNrOfBatchGames', $nrOfBatchGamesRange->min);
+        $query = $query->setParameter('maxNrOfBatchGames', $nrOfBatchGamesRange->max);
+        $query = $query->setParameter('maxNrOfGamesInARow', $maxNrOfGamesInARow);
 
         $query->setMaxResults(1);
 
         return $query->getQuery()->getResult()->first();
     }
 
-    public function removeRoundNumber( RoundNumber $roundNumber )
+    public function removeRoundNumber(RoundNumber $roundNumber)
     {
-        foreach( $roundNumber->getPoules() as $poule ) {
+        foreach ($roundNumber->getPoules() as $poule) {
             $games = $poule->getGames();
-            while( $games->count() > 0 ) {
+            while ($games->count() > 0) {
                 $game = $games->first();
-                $games->removeElement( $game );
+                $games->removeElement($game);
                 $this->_em->remove($game);
             }
         }
-        $roundNumber->setHasPlanning( false );
+        $roundNumber->setHasPlanning(false);
         $this->_em->persist($roundNumber);
 
         $this->_em->flush();
     }
 
-    public function saveRoundNumber( RoundNumber $roundNumber, bool $hasPlanning = null )
+    public function saveRoundNumber(RoundNumber $roundNumber, bool $hasPlanning = null)
     {
-        foreach( $roundNumber->getGames() as $game ) {
+        foreach ($roundNumber->getGames() as $game) {
             $this->_em->persist($game);
         }
-        if( $hasPlanning !== null ) {
-            $roundNumber->setHasPlanning( $hasPlanning );
+        if ($hasPlanning !== null) {
+            $roundNumber->setHasPlanning($hasPlanning);
         }
 
         $this->_em->flush();
     }
 
-    public function getTimeout(): ?PlanningBase {
+    public function getTimeout(): ?PlanningBase
+    {
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
             ->where('p.state = :state')
@@ -148,8 +149,8 @@ class Repository extends \Voetbal\Repository
             ->addOrderBy('p.id', 'ASC')
         ;
 
-        $query = $query->setParameter('state', PlanningBase::STATE_TIMEOUT );
-        $query = $query->setParameter('pistate', Input::STATE_ALL_PLANNINGS_TRIED );
+        $query = $query->setParameter('state', PlanningBase::STATE_TIMEOUT);
+        $query = $query->setParameter('pistate', Input::STATE_ALL_PLANNINGS_TRIED);
 
         $query->setMaxResults(1);
         $results = $query->getQuery()->getResult();
@@ -157,7 +158,8 @@ class Repository extends \Voetbal\Repository
         return $first !== false ? $first : null;
     }
 
-    public function isProcessing( int $state ): bool {
-        return $this->count( ["state" => $state ] ) > 0;
+    public function isProcessing(int $state): bool
+    {
+        return $this->count(["state" => $state ]) > 0;
     }
 }

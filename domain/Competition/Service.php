@@ -17,10 +17,9 @@ use Voetbal\State;
 
 class Service
 {
-	public function __construct()
-	{
-
-	}
+    public function __construct()
+    {
+    }
 
     /**
      * @param League $league
@@ -30,18 +29,18 @@ class Service
      * @return Competition
      * @throws \Exception
      */
-	public function create( League $league, Season $season, int $ruleSet, \DateTimeImmutable $startDateTime ): Competition
-	{
-        if( !$season->getPeriod()->contains( $startDateTime ) ) {
-            throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR );
+    public function create(League $league, Season $season, int $ruleSet, \DateTimeImmutable $startDateTime): Competition
+    {
+        if (!$season->getPeriod()->contains($startDateTime)) {
+            throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR);
         }
 
-        $competition = new Competition( $league, $season );
+        $competition = new Competition($league, $season);
         $competition->setRuleSet($ruleSet);
-        $competition->setStartDateTime( $startDateTime );
+        $competition->setStartDateTime($startDateTime);
 
         return $competition;
-	}
+    }
 
     /**
      * @param Competition $competition
@@ -49,20 +48,20 @@ class Service
      * @return mixed
      * @throws \Exception
      */
-	public function changeStartDateTime( Competition $competition, \DateTimeImmutable $startDateTime )
-	{
-        if( $competition->getState() > State::Created ) {
-            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al gespeelde wedstrijden heeft", E_ERROR );
+    public function changeStartDateTime(Competition $competition, \DateTimeImmutable $startDateTime)
+    {
+        if ($competition->getState() > State::Created) {
+            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al gespeelde wedstrijden heeft", E_ERROR);
         }
 
-        if( !$competition->getSeason()->getPeriod()->contains( $startDateTime ) ) {
-            throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR );
+        if (!$competition->getSeason()->getPeriod()->contains($startDateTime)) {
+            throw new \Exception("de startdatum van de competitie valt buiten het seizoen", E_ERROR);
         }
 
-        $competition->setStartDateTime( $startDateTime );
+        $competition->setStartDateTime($startDateTime);
 
         return $competition;
-	}
+    }
 
     /**
      * @param Competition $competition
@@ -70,13 +69,13 @@ class Service
      * @return Competition
      * @throws \Exception
      */
-    public function changeRuleSet( Competition $competition, int $ruleSet )
+    public function changeRuleSet(Competition $competition, int $ruleSet)
     {
-        if( $competition->getState() > State::Created ) {
-            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al gespeelde wedstrijden heeft", E_ERROR );
+        if ($competition->getState() > State::Created) {
+            throw new \Exception("de competitie kan niet worden gewijzigd, omdat deze al gespeelde wedstrijden heeft", E_ERROR);
         }
 
-        $competition->setRuleSet( $ruleSet );
+        $competition->setRuleSet($ruleSet);
 
         return $competition;
     }

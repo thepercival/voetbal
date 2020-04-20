@@ -13,39 +13,39 @@ use Voetbal\Import\Idable as Importable;
 
 class League implements Importable
 {
-	/**
-	 * @var int|string
-	 */
-	protected $id;
-	/**
-	 * @var string
-	 */
+    /**
+     * @var int|string
+     */
+    protected $id;
+    /**
+     * @var string
+     */
     protected $name;
-	/**
-	 * @var string
-	 */
+    /**
+     * @var string
+     */
     protected $abbreviation;
-	/**
-	 * @var ArrayCollection
-	 */
+    /**
+     * @var ArrayCollection
+     */
     protected $competitions;
     /**
      * @var Association
      */
     protected $association;
 
-	const MIN_LENGTH_NAME = 3;
-	const MAX_LENGTH_NAME = 60;
-	const MAX_LENGTH_ABBREVIATION = 7;
+    const MIN_LENGTH_NAME = 3;
+    const MAX_LENGTH_NAME = 60;
+    const MAX_LENGTH_ABBREVIATION = 7;
     const MAX_LENGTH_SPORT = 30;
 
-	use ImportableTrait;
+    use ImportableTrait;
 
-    public function __construct( Association $association, $name, $abbreviation = null )
+    public function __construct(Association $association, $name, $abbreviation = null)
     {
-        $this->setAssociation( $association );
-        $this->setName( $name );
-        $this->setAbbreviation( $abbreviation );
+        $this->setAssociation($association);
+        $this->setName($name);
+        $this->setAbbreviation($abbreviation);
         $this->competitions = new ArrayCollection();
     }
 
@@ -61,51 +61,52 @@ class League implements Importable
      * @param int|string $id
      * @return void
      */
-    public function setId( $id )
+    public function setId($id)
     {
         $this->id = $id;
     }
 
-	public function getName()
+    public function getName()
     {
         return $this->name;
     }
 
-	/**
-	 * @param string $name
-	 */
-	public function setName( $name )
-	{
-		if ( strlen( $name ) === 0 )
-			throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        if (strlen($name) === 0) {
+            throw new \InvalidArgumentException("de naam moet gezet zijn", E_ERROR);
+        }
 
-		if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-			throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
-		}
+        if (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException("de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR);
+        }
 
-		$this->name = $name;
-	}
+        $this->name = $name;
+    }
 
-	/**
-	 * @return string
-	 */
+    /**
+     * @return string
+     */
     public function getAbbreviation()
     {
         return $this->abbreviation;
     }
 
-	/**
-	 * @param string $abbreviation
-	 */
-    public function setAbbreviation( $abbreviation )
+    /**
+     * @param string $abbreviation
+     */
+    public function setAbbreviation($abbreviation)
     {
-        if ( strlen($abbreviation) === 0 ){
+        if (strlen($abbreviation) === 0) {
             $abbreviation = null;
         }
 
-    	if ( strlen( $abbreviation ) > static::MAX_LENGTH_ABBREVIATION ){
-		    throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
-	    }
+        if (strlen($abbreviation) > static::MAX_LENGTH_ABBREVIATION) {
+            throw new \InvalidArgumentException("de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR);
+        }
         $this->abbreviation = $abbreviation;
     }
 
@@ -120,7 +121,7 @@ class League implements Importable
     /**
      * @param Association $association
      */
-    public function setAssociation( Association $association )
+    public function setAssociation(Association $association)
     {
         $this->association = $association;
     }

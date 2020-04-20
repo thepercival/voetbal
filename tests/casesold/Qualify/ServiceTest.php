@@ -175,30 +175,29 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $qualifyService = new QualifyService($rootRound, RankingService::RULESSET_WC);
         $changedPlaces = $qualifyService->setQualifiers();
-        $this->assertSame(count($changedPlaces),8);
+        $this->assertSame(count($changedPlaces), 8);
 
         $winnersPoule = $rootRound->getChild(QualifyGroup::WINNERS, 1)->getPoule(1);
 
-        $this->assertSame($winnersPoule->getPlace(1)->getFromQualifyRule()->isSingle(),true);
+        $this->assertSame($winnersPoule->getPlace(1)->getFromQualifyRule()->isSingle(), true);
         $this->assertNotSame($winnersPoule->getPlace(1)->getCompetitor(), null);
-        $this->assertSame($winnersPoule->getPlace(2)->getFromQualifyRule()->isSingle(),true);
+        $this->assertSame($winnersPoule->getPlace(2)->getFromQualifyRule()->isSingle(), true);
         $this->assertNotSame($winnersPoule->getPlace(2)->getCompetitor(), null);
         $this->assertSame($winnersPoule->getPlace(3)->getFromQualifyRule()->isSingle(), true);
         $this->assertNotSame($winnersPoule->getPlace(3)->getCompetitor(), null);
-        $this->assertSame($winnersPoule->getPlace(4)->getFromQualifyRule()->isMultiple(),true);
-        $this->assertSame($winnersPoule->getPlace(4)->getCompetitor()->getName(),'08');
+        $this->assertSame($winnersPoule->getPlace(4)->getFromQualifyRule()->isMultiple(), true);
+        $this->assertSame($winnersPoule->getPlace(4)->getCompetitor()->getName(), '08');
 
         $losersPoule = $rootRound->getChild(QualifyGroup::LOSERS, 1)->getPoule(1);
 
-        $this->assertSame($losersPoule->getPlace(1)->getFromQualifyRule()->isMultiple(),true);
+        $this->assertSame($losersPoule->getPlace(1)->getFromQualifyRule()->isMultiple(), true);
         $this->assertNotSame($losersPoule->getPlace(1)->getCompetitor()->getName(), null);
-        $this->assertSame($losersPoule->getPlace(2)->getFromQualifyRule()->isSingle(),true);
+        $this->assertSame($losersPoule->getPlace(2)->getFromQualifyRule()->isSingle(), true);
         $this->assertNotSame($losersPoule->getPlace(2)->getCompetitor(), null);
-        $this->assertSame($losersPoule->getPlace(3)->getFromQualifyRule()->isSingle(),true);
+        $this->assertSame($losersPoule->getPlace(3)->getFromQualifyRule()->isSingle(), true);
         $this->assertNotSame($losersPoule->getPlace(3)->getCompetitor(), null);
-        $this->assertSame($losersPoule->getPlace(4)->getFromQualifyRule()->isSingle(),true);
+        $this->assertSame($losersPoule->getPlace(4)->getFromQualifyRule()->isSingle(), true);
         $this->assertNotSame($losersPoule->getPlace(4)->getCompetitor(), null);
-
     }
 
     public function test2RoundNumbers9MultipleNotFinished()

@@ -66,8 +66,7 @@ class Game implements ImporterInterface
         CompetitionAttacherRepository $competitionAttacherRepos,
         CompetitorAttacherRepository $competitorAttacherRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->gameRepos = $gameRepos;
         $this->gameScoreRepos = $gameScoreRepos;
@@ -102,7 +101,9 @@ class Game implements ImporterInterface
                     continue;
                 }
                 $gameAttacher = new GameAttacher(
-                    $game, $externalSource, $externalId
+                    $game,
+                    $externalSource,
+                    $externalId
                 );
                 $this->gameAttacherRepos->save($gameAttacher);
             } else {
@@ -114,69 +115,72 @@ class Game implements ImporterInterface
 
     protected function createGame(ExternalSource $externalSource, GameBase $externalSourceGame): ?GameBase
     {
-        $poule = $this->getPouleFromExternal( $externalSource, $externalSourceGame->getPoule() );
-        if( $poule === null ) {
+        $poule = $this->getPouleFromExternal($externalSource, $externalSourceGame->getPoule());
+        if ($poule === null) {
             return null;
         }
-        $game = new GameBase($poule, $externalSourceGame->getBatchNr(), $externalSourceGame->getStartDateTime() );
-        $game->setState( $externalSourceGame->getState() );
+        $game = new GameBase($poule, $externalSourceGame->getBatchNr(), $externalSourceGame->getStartDateTime());
+        $game->setState($externalSourceGame->getState());
         // referee
         // field
 
-        foreach( $externalSourceGame->getPlaces() as $externalSourceGamePlace ) {
-            $competitor = $this->getCompetitorFromExternal( $externalSource, $externalSourceGamePlace->getPlace()->getCompetitor() );
-            $place = $this->getPlaceFromPoule( $poule, $competitor );
-            if( $place === null ) {
+        foreach ($externalSourceGame->getPlaces() as $externalSourceGamePlace) {
+            $competitor = $this->getCompetitorFromExternal($externalSource, $externalSourceGamePlace->getPlace()->getCompetitor());
+            $place = $this->getPlaceFromPoule($poule, $competitor);
+            if ($place === null) {
                 return null;
             }
             $game->addPlace($place, $externalSourceGamePlace->getHomeaway());
         }
 
-        $this->gameService->addScores( $game, $externalSourceGame->getScores()->toArray() );
+        $this->gameService->addScores($game, $externalSourceGame->getScores()->toArray());
 
         $this->gameRepos->save($game);
         return $game;
     }
 
-    protected function getPouleFromExternal( ExternalSource $externalSource, Poule $externalPoule ): ?Poule {
+    protected function getPouleFromExternal(ExternalSource $externalSource, Poule $externalPoule): ?Poule
+    {
         $externalCompetition = $externalPoule->getRound()->getNumber()->getCompetition();
 
         $competition = $this->competitionAttacherRepos->findImportable(
             $externalSource,
             $externalCompetition->getId()
         );
-        if( $competition === null ) {
+        if ($competition === null) {
             return null;
         }
-        $structure = $this->structureRepos->getStructure( $competition );
-        if( $structure === null ) {
+        $structure = $this->structureRepos->getStructure($competition);
+        if ($structure === null) {
             return null;
         }
         return $structure->getFirstRoundNumber()->getRounds()->first()->getPoules()->first();
     }
 
-    protected function getPlaceFromPoule( Poule $poule, Competitor $competitor ): ?Place {
-        $places = $poule->getPlaces()->filter( function( Place $place ) use ($competitor) {
+    protected function getPlaceFromPoule(Poule $poule, Competitor $competitor): ?Place
+    {
+        $places = $poule->getPlaces()->filter(function (Place $place) use ($competitor) {
             return $place->getCompetitor() && $place->getCompetitor()->getId() === $competitor->getId();
         });
-        if( $places->count() !== 1 ) {
+        if ($places->count() !== 1) {
             return null;
         }
         return $places->first();
     }
 
-    protected function getCompetitorFromExternal( ExternalSource $externalSource, Competitor $externalCompetitor ): ?Competitor {
-        return $this->competitorAttacherRepos->findImportable( $externalSource, $externalCompetitor->getId() );
+    protected function getCompetitorFromExternal(ExternalSource $externalSource, Competitor $externalCompetitor): ?Competitor
+    {
+        return $this->competitorAttacherRepos->findImportable($externalSource, $externalCompetitor->getId());
     }
 
     protected function editGame(GameBase $game, GameBase $externalSourceGame)
     {
-        $game->setState( $externalSourceGame->getState() );
-        $game->setStartDateTime( $externalSourceGame->getStartDateTime() );
+        $game->setState($externalSourceGame->getState());
+        $game->setStartDateTime($externalSourceGame->getStartDateTime());
         // referee
         // field
-        $this->gameScoreRepos->removeScores( $game );
-        $this->gameService->addScores( $game, $game->getScores()->toArray() );
+        $this->gameScoreRepos->removeScores($game);
+        $this->gameService->addScores($game, $game->getScores()->toArray());
 
         $this->gameRepos->save($game);
     }

@@ -21,21 +21,22 @@ class Service
      */
     private $structureService;
 
-    public function __construct( StructureService $structureService )
+    public function __construct(StructureService $structureService)
     {
         $this->structureService = $structureService;
     }
 
-    public function splitFrom(HorizontalPoule $horizontalPoule) {
+    public function splitFrom(HorizontalPoule $horizontalPoule)
+    {
         $qualifyGroup = $horizontalPoule->getQualifyGroup();
         $nrOfPlacesChildRound = $qualifyGroup->getChildRound()->getNrOfPlaces();
         $horizontalPoules = $qualifyGroup->getHorizontalPoules();
-        $idx = array_search( $horizontalPoule, $horizontalPoules );
+        $idx = array_search($horizontalPoule, $horizontalPoules);
         if ($idx < 0) {
-            throw new \Exception('de horizontale poule kan niet gevonden worden', E_ERROR );
+            throw new \Exception('de horizontale poule kan niet gevonden worden', E_ERROR);
         }
         $splittedPoules = array_slice($horizontalPoules, $idx);
-        $horizontalPoules = array_slice($horizontalPoules,0,$idx);
+        $horizontalPoules = array_slice($horizontalPoules, 0, $idx);
         $round = $qualifyGroup->getRound();
         $newNrOfQualifiers = count($horizontalPoules) * $round->getPoules()->count();
         $newNrOfPoules = $this->structureService->calculateNewNrOfPoules($qualifyGroup, $newNrOfQualifiers);
@@ -55,12 +56,13 @@ class Service
         }
         $this->structureService->updateRound($newChildRound, $splittedNrOfQualifiers, $splittedNrOfPoules);
 
-        foreach( $splittedPoules as $splittedPoule ) {
+        foreach ($splittedPoules as $splittedPoule) {
             $splittedPoule->setQualifyGroup($newQualifyGroup);
         }
     }
 
-    public function merge(QualifyGroup $firstQualifyGroup, QualifyGroup $secondQualifyGroup) {
+    public function merge(QualifyGroup $firstQualifyGroup, QualifyGroup $secondQualifyGroup)
+    {
         $round = $firstQualifyGroup->getRound();
         $qualifyGroups = $round->getQualifyGroups($firstQualifyGroup->getWinnersOrLosers());
         $index = $qualifyGroups->indexOf($secondQualifyGroup);
@@ -68,12 +70,12 @@ class Service
         $this->renumber($round, $firstQualifyGroup->getWinnersOrLosers());
 
         $horizontalPoules = $secondQualifyGroup->getHorizontalPoules();
-        if( $index !== false ) {
-            unset( $horizontalPoules[$index]);
+        if ($index !== false) {
+            unset($horizontalPoules[$index]);
         }
 
         $removedPoules = $secondQualifyGroup->getHorizontalPoules();
-        foreach( $removedPoules as $removedPoule ) {
+        foreach ($removedPoules as $removedPoule) {
             $removedPoule->setQualifyGroup($firstQualifyGroup);
         }
     }
@@ -98,9 +100,10 @@ class Service
 //        return $qualifyGroups;
 //    }
 
-    protected function renumber(Round $round, int $winnersOrLosers) {
+    protected function renumber(Round $round, int $winnersOrLosers)
+    {
         $number = 1;
-        foreach( $round->getQualifyGroups($winnersOrLosers) as $qualifyGroup ) {
+        foreach ($round->getQualifyGroups($winnersOrLosers) as $qualifyGroup) {
             $qualifyGroup->setNumber($number++);
         }
     }

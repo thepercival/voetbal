@@ -32,7 +32,7 @@ class Ranked
      * @param int $uniqueRank
      * @param int $rank
      */
-    public function __construct( Unranked $unranked, int $uniqueRank, int $rank )
+    public function __construct(Unranked $unranked, int $uniqueRank, int $rank)
     {
         $this->unranked = $unranked;
         $this->uniqueRank = $uniqueRank;
@@ -40,23 +40,28 @@ class Ranked
     }
 
 
-    public function getUniqueRank(): int {
+    public function getUniqueRank(): int
+    {
         return $this->uniqueRank;
     }
 
-    public function getRank(): int {
+    public function getRank(): int
+    {
         return $this->rank;
     }
 
-    public function getPlaceLocation(): PlaceLocation {
+    public function getPlaceLocation(): PlaceLocation
+    {
         return $this->unranked->getPlaceLocation();
     }
 
-    public function getUnranked(): Unranked {
+    public function getUnranked(): Unranked
+    {
         return $this->unranked;
     }
 
-    public function getPlace(): Place {
+    public function getPlace(): Place
+    {
         return $this->unranked->getRound()->getPlace($this->unranked->getPlaceLocation());
     }
 }

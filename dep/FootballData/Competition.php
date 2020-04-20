@@ -85,8 +85,7 @@ class Competition implements CompetitionImporter
         ExternalCompetitionRepos $externalRepos,
         Connection $conn,
         Logger $logger
-    )
-    {
+    ) {
         $this->externalSystemBase = $externalSystemBase;
         $this->apiHelper = $apiHelper;
         $this->service = $service;
@@ -101,34 +100,36 @@ class Competition implements CompetitionImporter
         $this->logger = $logger;
     }
 
-    public function createByLeaguesAndSeasons( array $leagues, array $seasons) {
+    public function createByLeaguesAndSeasons(array $leagues, array $seasons)
+    {
         /** @var League $league */
-        foreach( $leagues as $league ) {
-            $externalLeague = $this->getExternalLeague( $league );
-            if( $externalLeague === null ) {
+        foreach ($leagues as $league) {
+            $externalLeague = $this->getExternalLeague($league);
+            if ($externalLeague === null) {
                 continue;
             }
-            foreach( $seasons as $season ) {
-                $externalSeason = $this->getExternalSeason( $season );
-                if( $externalSeason === null ) {
+            foreach ($seasons as $season) {
+                $externalSeason = $this->getExternalSeason($season);
+                if ($externalSeason === null) {
                     continue;
                 }
-                $this->create($externalLeague, $externalSeason );
+                $this->create($externalLeague, $externalSeason);
             }
         }
     }
 
-    private function create( ExternalLeague $externalLeague, ExternalSeason $externalSeason )
+    private function create(ExternalLeague $externalLeague, ExternalSeason $externalSeason)
     {
-
         $externalSystemCompetition = $this->apiHelper->getCompetition($externalLeague, $externalSeason);
         if ($externalSystemCompetition === null) {
             $this->addNotice('for external league "' . $externalLeague->getExternalId() . '" and external season "' . $externalSeason->getExternalId() . '" there is no externalsystemcompetition found');
             return;
         }
 
-        $externalCompetition = $this->externalObjectRepos->findOneByExternalId($this->externalSystemBase,
-            $externalSystemCompetition->id);
+        $externalCompetition = $this->externalObjectRepos->findOneByExternalId(
+            $this->externalSystemBase,
+            $externalSystemCompetition->id
+        );
 
 
         if ($externalCompetition === null) { // add and create structure
@@ -141,10 +142,10 @@ class Competition implements CompetitionImporter
                 $competition = $this->createHelper($league, $season, $externalSystemCompetition->id);
                 $this->conn->commit();
             } catch (\Exception $e) {
-                $fncGetMessage = function( League $league, Season $season ) {
+                $fncGetMessage = function (League $league, Season $season) {
                     return 'competition for league "' . $league->getName() . '" and season "' . $season->getName() . '" could not be created: ';
                 };
-                $this->addError( $fncGetMessage( $league, $season ). $e->getMessage());
+                $this->addError($fncGetMessage($league, $season). $e->getMessage());
                 $this->conn->rollBack();
             }
         } // else {
@@ -153,25 +154,24 @@ class Competition implements CompetitionImporter
     }
 
 
-    private function createHelper( League $league, Season $season, $externalSystemCompetitionId )
+    private function createHelper(League $league, Season $season, $externalSystemCompetitionId)
     {
-        $competition = $this->repos->findExt( $league, $season );
-        if ( $competition === false ) {
-            $competition = $this->service->create( $league, $season, RankingService::RULESSET_WC, $season->getStartDateTime() );
+        $competition = $this->repos->findExt($league, $season);
+        if ($competition === false) {
+            $competition = $this->service->create($league, $season, RankingService::RULESSET_WC, $season->getStartDateTime());
             $this->repos->save($competition);
         }
-        $externalCompetition = $this->createExternal( $competition, $externalSystemCompetitionId );
+        $externalCompetition = $this->createExternal($competition, $externalSystemCompetitionId);
         return $competition;
-
     }
 
-    private function createExternal( CompetitionBase $competition, $externalId )
+    private function createExternal(CompetitionBase $competition, $externalId)
     {
-        $externalCompetition = $this->externalObjectRepos->findOneByExternalId (
+        $externalCompetition = $this->externalObjectRepos->findOneByExternalId(
             $this->externalSystemBase,
             $externalId
         );
-        if( $externalCompetition === null ) {
+        if ($externalCompetition === null) {
             $externalCompetition = $this->externalObjectService->create(
                 $competition,
                 $this->externalSystemBase,
@@ -181,11 +181,13 @@ class Competition implements CompetitionImporter
         return $externalCompetition;
     }
 
-    private function addNotice( $msg ) {
-        $this->logger->notice( $this->externalSystemBase->getName() . " : " . $msg );
+    private function addNotice($msg)
+    {
+        $this->logger->notice($this->externalSystemBase->getName() . " : " . $msg);
     }
 
-    private function addError( $msg ) {
-        $this->logger->error( $this->externalSystemBase->getName() . " : " . $msg );
+    private function addError($msg)
+    {
+        $this->logger->error($this->externalSystemBase->getName() . " : " . $msg);
     }
 }

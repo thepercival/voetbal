@@ -18,5 +18,4 @@ use Voetbal\Poule\Repository as PouleRepository;
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

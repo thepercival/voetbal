@@ -43,21 +43,21 @@ class Association extends SofaScoreHelper implements ExternalSourceAssociation
     public function getAssociations(): array
     {
         $this->initAssociations();
-        return array_values( $this->associations );
+        return array_values($this->associations);
     }
 
     protected function initAssociations()
     {
-        if( $this->associations !== null ) {
+        if ($this->associations !== null) {
             return;
         }
-        $this->setAssociations( $this->getAssociationData() );
+        $this->setAssociations($this->getAssociationData());
     }
 
-    public function getAssociation( $id = null ): ?AssociationBase
+    public function getAssociation($id = null): ?AssociationBase
     {
         $this->initAssociations();
-        if( array_key_exists( $id, $this->associations ) ) {
+        if (array_key_exists($id, $this->associations)) {
             return $this->associations[$id];
         }
         return null;
@@ -70,12 +70,12 @@ class Association extends SofaScoreHelper implements ExternalSourceAssociation
     {
         $sports = $this->parent->getSports();
         $associationData = [];
-        foreach( $sports as $sport ) {
-            if( $sport->getName() !== SofaScore::SPORTFILTER ) {
+        foreach ($sports as $sport) {
+            if ($sport->getName() !== SofaScore::SPORTFILTER) {
                 continue;
             }
-            $apiData = $this->apiHelper->getCompetitionsData( $sport );
-            $associationData = array_merge( $associationData, $apiData->sportItem->tournaments );
+            $apiData = $this->apiHelper->getCompetitionsData($sport);
+            $associationData = array_merge($associationData, $apiData->sportItem->tournaments);
         }
         return $associationData;
     }
@@ -91,29 +91,30 @@ class Association extends SofaScoreHelper implements ExternalSourceAssociation
         $this->associations = [ $defaultAssociation->getId() => $defaultAssociation ];
 
         foreach ($competitions as $competition) {
-            if( $competition->category === null ) {
+            if ($competition->category === null) {
                 continue;
             }
             $name = $competition->category->name;
-            if( $this->hasName( $this->associations, $name ) ) {
+            if ($this->hasName($this->associations, $name)) {
                 continue;
             }
-            $association = $this->createAssociation( $competition->category ) ;
+            $association = $this->createAssociation($competition->category) ;
             $this->associations[$association->getId()] = $association;
         }
     }
 
-    protected function createAssociation( \stdClass $category ): AssociationBase
+    protected function createAssociation(\stdClass $category): AssociationBase
     {
         $association = new AssociationBase($category->name);
-        $association->setParent( $this->getDefaultAssociation() );
+        $association->setParent($this->getDefaultAssociation());
         $association->setId($category->id);
         return $association;
     }
 
-    protected function getDefaultAssociation(): AssociationBase {
-        if( $this->defaultAssociation === null ) {
-            $this->defaultAssociation = new AssociationBase("FOOTBALLEARTH" );
+    protected function getDefaultAssociation(): AssociationBase
+    {
+        if ($this->defaultAssociation === null) {
+            $this->defaultAssociation = new AssociationBase("FOOTBALLEARTH");
             $this->defaultAssociation->setId("FOOTBALLEARTH");
         }
         return $this->defaultAssociation;

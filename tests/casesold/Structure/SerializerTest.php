@@ -26,33 +26,33 @@ class SerializerTest extends \PHPUnit\Framework\TestCase
         $serializer = getSerializer();
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/competition.json");
-        if($json_raw === false ) {
+        if ($json_raw === false) {
             throw new \Exception("competition-json not read well from file", E_ERROR);
         }
         $json = json_decode($json_raw, true);
-        if($json === false ) {
+        if ($json === false) {
             throw new \Exception("competition-json not read well from file", E_ERROR);
         }
         $jsonEncoded = json_encode($json);
-        if($jsonEncoded === false ) {
+        if ($jsonEncoded === false) {
             throw new \Exception("competition-json not read well from file", E_ERROR);
         }
         $competition = $serializer->deserialize($jsonEncoded, 'Voetbal\Competition', 'json');
 
         $json_raw = file_get_contents(__DIR__ . "/../../data/structure/332a.json");
-        if($json_raw === false ) {
+        if ($json_raw === false) {
             throw new \Exception("structure-json not read well from file", E_ERROR);
         }
         $json = json_decode($json_raw, true);
-        if($json === false ) {
+        if ($json === false) {
             throw new \Exception("structure-json not read well from file", E_ERROR);
         }
         $jsonEncoded = json_encode($json);
-        if($jsonEncoded === false ) {
+        if ($jsonEncoded === false) {
             throw new \Exception("structure-json not read well from file", E_ERROR);
         }
         $structure = $serializer->deserialize($jsonEncoded, 'Voetbal\Structure', 'json');
-        $postCreateService = new PostCreateService( $structure );
+        $postCreateService = new PostCreateService($structure);
         $postCreateService->create();
 
         $this->check332astructure($structure);

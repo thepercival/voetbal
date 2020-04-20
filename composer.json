@@ -29,7 +29,8 @@
     "phpstan/phpstan": "^0.12",
     "phpstan/phpstan-doctrine": "^0.12",
     "phpstan/extension-installer": "^1.0",
-    "phpstan/phpstan-phpunit": "^0.12.8"
+    "phpstan/phpstan-phpunit": "^0.12.8",
+    "friendsofphp/php-cs-fixer": "^2.16"
   },
   "autoload": {
     "psr-4": {
@@ -50,9 +51,10 @@
   "scripts": {
     "start": "php -S localhost:2990 -t public/",
     "test": [
-      "vendor/bin/phpunit --bootstrap vendor/autoload.php tests/cases/"
+      "vendor/bin/phpunit --configuration tests/phpunit.xml tests/cases/"
     ],
-    "stan": "vendor/bin/phpstan analyse --level=5 domain tests/cases/"
+    "stan": "vendor/bin/phpstan analyse --level=5 domain tests/cases/",
+    "cs-fix": "php-cs-fixer fix ."
   },
   "extra": {
     "phpstan": {

@@ -16,20 +16,22 @@ use Voetbal\Game as GameBase;
 
 class Repository extends \Voetbal\Repository
 {
-    public function getCompetitionGames( Competition $competition, $gameStates = null, int $batchNr = null )
+    public function getCompetitionGames(Competition $competition, $gameStates = null, int $batchNr = null)
     {
-        return $this->getCompetitionGamesQuery( $competition, $gameStates, $batchNr )->getQuery()->getResult();
+        return $this->getCompetitionGamesQuery($competition, $gameStates, $batchNr)->getQuery()->getResult();
     }
 
-    public function hasCompetitionGames( Competition $competition, $gameStates = null, int $batchNr = null )
+    public function hasCompetitionGames(Competition $competition, $gameStates = null, int $batchNr = null)
     {
         $games = $this->getCompetitionGamesQuery(
-            $competition, $gameStates, $batchNr
+            $competition,
+            $gameStates,
+            $batchNr
         )->setMaxResults(1)->getQuery()->getResult();
         return count($games) === 1;
     }
 
-    protected function getCompetitionGamesQuery( Competition $competition, $gameStates = null, int $batchNr = null ): QueryBuilder
+    protected function getCompetitionGamesQuery(Competition $competition, $gameStates = null, int $batchNr = null): QueryBuilder
     {
         $query = $this->createQueryBuilder('g')
             ->join("g.poule", "p")
@@ -38,23 +40,25 @@ class Repository extends \Voetbal\Repository
             ->where('rn.competition = :competition')
             ->setParameter('competition', $competition);
         ;
-        return $this->applyExtraFilters( $query, $gameStates, $batchNr );
+        return $this->applyExtraFilters($query, $gameStates, $batchNr);
     }
 
-    public function getRoundNumberGames( RoundNumber $roundNumber, $gameStates = null, int $batchNr = null )
+    public function getRoundNumberGames(RoundNumber $roundNumber, $gameStates = null, int $batchNr = null)
     {
-        return $this->getRoundNumberGamesQuery( $roundNumber, $gameStates, $batchNr )->getQuery()->getResult();
+        return $this->getRoundNumberGamesQuery($roundNumber, $gameStates, $batchNr)->getQuery()->getResult();
     }
 
-    public function hasRoundNumberGames( RoundNumber $roundNumber, $gameStates = null, int $batchNr = null )
+    public function hasRoundNumberGames(RoundNumber $roundNumber, $gameStates = null, int $batchNr = null)
     {
         $games = $this->getRoundNumberGamesQuery(
-            $roundNumber, $gameStates, $batchNr
+            $roundNumber,
+            $gameStates,
+            $batchNr
         )->setMaxResults(1)->getQuery()->getResult();
         return count($games) === 1;
     }
 
-    protected function getRoundNumberGamesQuery( RoundNumber $roundNumber, $gameStates = null, int $batchNr = null ): QueryBuilder
+    protected function getRoundNumberGamesQuery(RoundNumber $roundNumber, $gameStates = null, int $batchNr = null): QueryBuilder
     {
         $query = $this->createQueryBuilder('g')
             ->join("g.poule", "p")
@@ -63,18 +67,18 @@ class Repository extends \Voetbal\Repository
             ->where('rn.roundNumber = :roundNumber')
             ->setParameter('roundNumber', $roundNumber);
         ;
-        return $this->applyExtraFilters( $query, $gameStates, $batchNr );
+        return $this->applyExtraFilters($query, $gameStates, $batchNr);
     }
 
-    protected function applyExtraFilters( QueryBuilder $query, int $gameStates = null, int $batchNr = null ): QueryBuilder
+    protected function applyExtraFilters(QueryBuilder $query, int $gameStates = null, int $batchNr = null): QueryBuilder
     {
-        if( $gameStates !== null ) {
+        if ($gameStates !== null) {
             // $query = $query->andWhere('g.state & :gamestates = g.state');
             $query = $query
                 ->andWhere('BIT_AND(g.state, :gamestates) > 0')
                 ->setParameter('gamestates', $gameStates);
         }
-        if( $batchNr !== null ) {
+        if ($batchNr !== null) {
             $query = $query
                 ->andWhere('g.batchNr = :batchNr')
                 ->setParameter('batchNr', $batchNr);
@@ -137,7 +141,7 @@ class Repository extends \Voetbal\Repository
     /**
      * @param GameBase $game
      */
-    public function customRemove( GameBase $game )
+    public function customRemove(GameBase $game)
     {
         $game->getPoule()->getGames()->removeElement($game);
         return $this->remove($game);

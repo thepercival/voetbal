@@ -2,7 +2,8 @@
 
 namespace Voetbal;
 
-class Math {
+class Math
+{
 
 
     /**
@@ -10,19 +11,20 @@ class Math {
      * @param int|null $gcd
      * @return int
      */
-    public function getGreatestCommonDivisor( array $array, int $gcd = null ): int {
-        if( $gcd === null ) {
-            if( count($array) === 0) {
+    public function getGreatestCommonDivisor(array $array, int $gcd = null): int
+    {
+        if ($gcd === null) {
+            if (count($array) === 0) {
                 return 0;
             }
             $gcd = array_pop($array);
         }
         $number = array_pop($array);
-        if( $number === null) {
+        if ($number === null) {
             return $gcd;
         }
         $commonDivsors = $this->getCommonDivisors($gcd, $number);
-        $newGcd = array_shift( $commonDivsors );
+        $newGcd = array_shift($commonDivsors);
         return $this->getGreatestCommonDivisor($array, $newGcd);
     }
 
@@ -31,14 +33,15 @@ class Math {
      * @param int $b
      * @return array|int[]
      */
-    public function getCommonDivisors( int $a, int $b): array {
-        $gcd = function ( int $x, int $y) use (&$gcd): int {
+    public function getCommonDivisors(int $a, int $b): array
+    {
+        $gcd = function (int $x, int $y) use (&$gcd): int {
             if (!$y) {
                 return $x;
             }
             return $gcd($y, $x % $y);
         };
-        return array_reverse( $this->getDivisors($gcd($a, $b)));
+        return array_reverse($this->getDivisors($gcd($a, $b)));
     }
 
 
@@ -46,7 +49,8 @@ class Math {
      * @param int $number
      * @return array|int[]
      */
-    public function getDivisors(int $number): array {
+    public function getDivisors(int $number): array
+    {
         $divisors = [];
         for ($currentDivisor = 1; $currentDivisor <= $number; $currentDivisor++) {
             if ($number % $currentDivisor === 0) {
@@ -56,7 +60,8 @@ class Math {
         return $divisors;
     }
 
-    public function above(int $top, int $bottom): int {
+    public function above(int $top, int $bottom): int
+    {
         // if (bottom > top) {
         //     return 0;
         // }
@@ -66,7 +71,8 @@ class Math {
         return (int) $x;
     }
 
-    public function faculty(float $x): float {
+    public function faculty(float $x): float
+    {
         if ($x > 1) {
             return $this->faculty($x - 1) * $x;
         }

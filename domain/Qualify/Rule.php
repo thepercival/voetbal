@@ -10,8 +10,8 @@ namespace Voetbal\Qualify;
 
 use Voetbal\Round;
 
-abstract class Rule {
-
+abstract class Rule
+{
     abstract public function getFromRound(): Round;
     abstract public function isMultiple(): bool;
     abstract public function isSingle(): bool;

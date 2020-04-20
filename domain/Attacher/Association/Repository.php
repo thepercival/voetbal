@@ -8,5 +8,4 @@ use Voetbal\Import\Idable as Importable;
 
 class Repository extends \Voetbal\Attacher\Repository
 {
-
 }

@@ -13,7 +13,8 @@ use Voetbal\Round;
 use Voetbal\Place;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 
-class Service {
+class Service
+{
     /**
      * @var Round
      */
@@ -23,7 +24,7 @@ class Service {
      */
     private $winnersAndLosers;
 
-    public function __construct( Round $round, int $winnersOrLosers = null )
+    public function __construct(Round $round, int $winnersOrLosers = null)
     {
         $this->round = $round;
 
@@ -34,13 +35,15 @@ class Service {
         }
     }
 
-    public function recreate() {
+    public function recreate()
+    {
         $this->remove();
         $this->create();
     }
 
-    protected function remove() {
-        foreach( $this->winnersAndLosers as $winnersOrLosers ) {
+    protected function remove()
+    {
+        foreach ($this->winnersAndLosers as $winnersOrLosers) {
             $horizontalPoules = &$this->round->getHorizontalPoules($winnersOrLosers);
             while (count($horizontalPoules) > 0) {
                 $horizontalPoule = array_pop($horizontalPoules);
@@ -54,8 +57,9 @@ class Service {
         }
     }
 
-    protected function create() {
-        foreach( $this->winnersAndLosers as $winnersOrLosers ) {
+    protected function create()
+    {
+        foreach ($this->winnersAndLosers as $winnersOrLosers) {
             $this->createRoundHorizontalPoules($winnersOrLosers);
         }
     }
@@ -64,7 +68,8 @@ class Service {
      * @param int $winnersOrLosers
      * @return array | HorizontalPoule[]
      */
-    protected function createRoundHorizontalPoules(int $winnersOrLosers): array {
+    protected function createRoundHorizontalPoules(int $winnersOrLosers): array
+    {
         $horizontalPoules = &$this->round->getHorizontalPoules($winnersOrLosers);
 
         $placesOrderedByPlaceNumber = $this->getPlacesHorizontal();
@@ -72,9 +77,9 @@ class Service {
             $placesOrderedByPlaceNumber = array_reverse($placesOrderedByPlaceNumber);
         }
 
-        foreach( $placesOrderedByPlaceNumber as $placeIt ) {
-            $filteredHorizontalPoules = array_filter( $horizontalPoules, function($horizontalPoule) use($placeIt,$winnersOrLosers ) {
-                foreach( $horizontalPoule->getPlaces() as $poulePlaceIt ) {
+        foreach ($placesOrderedByPlaceNumber as $placeIt) {
+            $filteredHorizontalPoules = array_filter($horizontalPoules, function ($horizontalPoule) use ($placeIt,$winnersOrLosers) {
+                foreach ($horizontalPoule->getPlaces() as $poulePlaceIt) {
                     $poulePlaceNrIt = $poulePlaceIt->getNumber();
                     if ($winnersOrLosers === QualifyGroup::LOSERS) {
                         $poulePlaceNrIt = ($poulePlaceIt->getPoule()->getPlaces()->count() + 1) - $poulePlaceNrIt;
@@ -83,7 +88,7 @@ class Service {
                     if ($winnersOrLosers === QualifyGroup::LOSERS) {
                         $placeNrIt = ($placeIt->getPoule()->getPlaces()->count() + 1) - $placeNrIt;
                     }
-                    if ( $poulePlaceNrIt === $placeNrIt ) {
+                    if ($poulePlaceNrIt === $placeNrIt) {
                         return true;
                     }
                 }
@@ -103,12 +108,13 @@ class Service {
     /**
      * @return array | Place[]
      */
-    protected function getPlacesHorizontal(): array {
+    protected function getPlacesHorizontal(): array
+    {
         $places = [];
-        foreach( $this->round->getPoules() as $poule ) {
-            $places = array_merge( $places, $poule->getPlaces()->toArray() );
+        foreach ($this->round->getPoules() as $poule) {
+            $places = array_merge($places, $poule->getPlaces()->toArray());
         }
-        uasort( $places, function( $placeA, $placeB) {
+        uasort($places, function ($placeA, $placeB) {
             if ($placeA->getNumber() > $placeB->getNumber()) {
                 return 1;
             }

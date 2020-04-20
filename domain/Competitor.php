@@ -48,10 +48,10 @@ class Competitor implements Importable
 
     use ImportableTrait;
 
-    public function __construct( Association $association, string $name )
+    public function __construct(Association $association, string $name)
     {
-        $this->setAssociation( $association );
-        $this->setName( $name );
+        $this->setAssociation($association);
+        $this->setName($name);
         $this->setRegistered(false);
     }
 
@@ -67,7 +67,7 @@ class Competitor implements Importable
      * @param int|string $id
      * @return void
      */
-    public function setId( $id )
+    public function setId($id)
     {
         $this->id = $id;
     }
@@ -80,13 +80,14 @@ class Competitor implements Importable
     /**
      * @param string $name
      */
-    public function setName( $name )
+    public function setName($name)
     {
-        if ( strlen( $name ) === 0 )
-            throw new \InvalidArgumentException( "de naam moet gezet zijn", E_ERROR );
+        if (strlen($name) === 0) {
+            throw new \InvalidArgumentException("de naam moet gezet zijn", E_ERROR);
+        }
 
-        if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-            throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+        if (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException("de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR);
         }
         $this->name = $name;
     }
@@ -102,14 +103,14 @@ class Competitor implements Importable
     /**
      * @param string $abbreviation
      */
-    public function setAbbreviation( $abbreviation )
+    public function setAbbreviation($abbreviation)
     {
-        if ( strlen($abbreviation) === 0 ){
+        if (strlen($abbreviation) === 0) {
             $abbreviation = null;
         }
 
-        if ( strlen( $abbreviation ) > static::MAX_LENGTH_ABBREVIATION ){
-            throw new \InvalidArgumentException( "de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR );
+        if (strlen($abbreviation) > static::MAX_LENGTH_ABBREVIATION) {
+            throw new \InvalidArgumentException("de afkorting mag maximaal ".static::MAX_LENGTH_ABBREVIATION." karakters bevatten", E_ERROR);
         }
         $this->abbreviation = $abbreviation;
     }
@@ -125,7 +126,7 @@ class Competitor implements Importable
     /**
      * @param bool $registered
      */
-    public function setRegistered( $registered )
+    public function setRegistered($registered)
     {
         $this->registered = $registered;
     }
@@ -141,14 +142,14 @@ class Competitor implements Importable
     /**
      * @param string $info
      */
-    public function setInfo( $info)
+    public function setInfo($info)
     {
-        if ( strlen($info) === 0 ){
+        if (strlen($info) === 0) {
             $info = null;
         }
 
-        if ( strlen( $info ) > static::MAX_LENGTH_INFO ){
-            throw new \InvalidArgumentException( "de extra-info mag maximaal ".static::MAX_LENGTH_INFO." karakters bevatten", E_ERROR );
+        if (strlen($info) > static::MAX_LENGTH_INFO) {
+            throw new \InvalidArgumentException("de extra-info mag maximaal ".static::MAX_LENGTH_INFO." karakters bevatten", E_ERROR);
         }
         $this->info = $info;
     }
@@ -164,14 +165,14 @@ class Competitor implements Importable
     /**
      * @param string $imageUrl
      */
-    public function setImageUrl( $imageUrl)
+    public function setImageUrl($imageUrl)
     {
-        if ( strlen($imageUrl) === 0 ){
+        if (strlen($imageUrl) === 0) {
             $imageUrl = null;
         }
 
-        if ( strlen( $imageUrl ) > static::MAX_LENGTH_IMAGEURL ){
-            throw new \InvalidArgumentException( "de imageUrl mag maximaal ".static::MAX_LENGTH_IMAGEURL." karakters bevatten", E_ERROR );
+        if (strlen($imageUrl) > static::MAX_LENGTH_IMAGEURL) {
+            throw new \InvalidArgumentException("de imageUrl mag maximaal ".static::MAX_LENGTH_IMAGEURL." karakters bevatten", E_ERROR);
         }
         $this->imageUrl = $imageUrl;
     }
@@ -187,9 +188,9 @@ class Competitor implements Importable
     /**
      * @param Association $association
      */
-    public function setAssociation( Association $association )
+    public function setAssociation(Association $association)
     {
-        if ( !$association->getCompetitors()->contains( $this )){
+        if (!$association->getCompetitors()->contains($this)) {
             $association->getCompetitors()->add($this) ;
         }
         $this->association = $association;

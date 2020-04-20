@@ -82,16 +82,16 @@ class Planning
     const TIMEOUT_MULTIPLIER = 6;
     const DEFAULT_TIMEOUTSECONDS = 5;
 
-    public function __construct( PlanningInput $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow )
+    public function __construct(PlanningInput $input, VoetbalRange $nrOfBatchGames, int $maxNrOfGamesInARow)
     {
         $this->input = $input;
         $this->minNrOfBatchGames = $nrOfBatchGames->min;
         $this->maxNrOfBatchGames = $nrOfBatchGames->max;
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
-        $this->input->addPlanning( $this );
-        $this->initPoules( $this->getInput()->getStructureConfig() );
-        $this->initSports( $this->getInput()->getSportConfig() );
-        $this->initReferees( $this->getInput()->getNrOfReferees() );
+        $this->input->addPlanning($this);
+        $this->initPoules($this->getInput()->getStructureConfig());
+        $this->initSports($this->getInput()->getSportConfig());
+        $this->initReferees($this->getInput()->getNrOfReferees());
 
         $this->createdDateTime = new \DateTimeImmutable();
         $this->initTimeoutSeconds();
@@ -102,11 +102,13 @@ class Planning
         return $this->id;
     }
 
-    public function minIsMaxNrOfBatchGames(): bool {
+    public function minIsMaxNrOfBatchGames(): bool
+    {
         return $this->getMinNrOfBatchGames() === $this->getMaxNrOfBatchGames();
     }
 
-    public function getMinNrOfBatchGames(): int {
+    public function getMinNrOfBatchGames(): int
+    {
         return $this->minNrOfBatchGames;
     }
 
@@ -114,7 +116,8 @@ class Planning
 //        $this->minNrOfBatchGames = $minNrOfBatchGames;
 //    }
 
-    public function getMaxNrOfBatchGames(): int {
+    public function getMaxNrOfBatchGames(): int
+    {
         return $this->maxNrOfBatchGames;
     }
 
@@ -122,15 +125,18 @@ class Planning
 //        $this->maxNrOfBatchGames = $maxNrOfBatchGames;
 //    }
 
-    public function getNrOfBatchGames(): VoetbalRange {
-        return new VoetbalRange( $this->getMinNrOfBatchGames(), $this->getMaxNrOfBatchGames() );
+    public function getNrOfBatchGames(): VoetbalRange
+    {
+        return new VoetbalRange($this->getMinNrOfBatchGames(), $this->getMaxNrOfBatchGames());
     }
 
-    public function getMaxNrOfGamesInARow(): int {
+    public function getMaxNrOfGamesInARow(): int
+    {
         return $this->maxNrOfGamesInARow;
     }
 
-    public function setMaxNrOfGamesInARow( int $maxNrOfGamesInARow ) {
+    public function setMaxNrOfGamesInARow(int $maxNrOfGamesInARow)
+    {
         $this->maxNrOfGamesInARow = $maxNrOfGamesInARow;
     }
 
@@ -139,35 +145,41 @@ class Planning
         return $this->createdDateTime;
     }
 
-    public function setCreatedDateTime( \DateTimeImmutable $createdDateTime )
+    public function setCreatedDateTime(\DateTimeImmutable $createdDateTime)
     {
         $this->createdDateTime = $createdDateTime;
     }
 
-    public function getTimeoutSeconds(): int {
+    public function getTimeoutSeconds(): int
+    {
         return $this->timeoutSeconds;
     }
 
-    public function setTimeoutSeconds( int $timeoutSeconds ) {
+    public function setTimeoutSeconds(int $timeoutSeconds)
+    {
         $this->timeoutSeconds = $timeoutSeconds;
     }
 
-    protected function initTimeoutSeconds() {
+    protected function initTimeoutSeconds()
+    {
         $this->timeoutSeconds = PlanningBase::DEFAULT_TIMEOUTSECONDS;
 //        if( $this->input->getTeamup() || max($this->input->getStructureConfig()) > 7 || $this->input->hasMultipleSports() ) {
 //            $this->timeoutSeconds *= 6;
 //        }
     }
 
-    public function getState(): int {
+    public function getState(): int
+    {
         return $this->state;
     }
 
-    public function setState( int $state ) {
+    public function setState(int $state)
+    {
         $this->state = $state;
     }
 
-    public function getInput(): PlanningInput {
+    public function getInput(): PlanningInput
+    {
         return $this->input;
     }
 
@@ -175,7 +187,8 @@ class Planning
 //        $this->input = $input;
 //    }
 
-    public function getPoules(): Collection {
+    public function getPoules(): Collection
+    {
         return $this->poules;
 //        $structure = new Structure();
 //        foreach( $this->getInput()->getStructureConfig() as $nrOfPlaces ) {
@@ -184,38 +197,43 @@ class Planning
 //        return $structure;
     }
 
-    public function getPoule( int $pouleNr ): ?Poule {
-        foreach( $this->getPoules() as $poule ) {
-            if( $poule->getNumber() === $pouleNr ) {
+    public function getPoule(int $pouleNr): ?Poule
+    {
+        foreach ($this->getPoules() as $poule) {
+            if ($poule->getNumber() === $pouleNr) {
                 return $poule;
             }
         }
         return null;
     }
 
-    protected function initPoules( array $structureConfig ) {
+    protected function initPoules(array $structureConfig)
+    {
         $this->poules = new ArrayCollection();
-        foreach( $structureConfig as $nrOfPlaces ) {
-            $this->poules->add( new Poule( $this, $this->poules->count() + 1, $nrOfPlaces ) );
+        foreach ($structureConfig as $nrOfPlaces) {
+            $this->poules->add(new Poule($this, $this->poules->count() + 1, $nrOfPlaces));
         }
     }
 
-    public function getStructure(): Planning\Structure {
-        return new Planning\Structure( $this->getPoules() );
+    public function getStructure(): Planning\Structure
+    {
+        return new Planning\Structure($this->getPoules());
     }
 
-    public function getSports(): Collection {
+    public function getSports(): Collection
+    {
         return $this->sports;
     }
 
-    protected function initSports( array $sportConfig ) {
+    protected function initSports(array $sportConfig)
+    {
         $fieldNr = 1;
         $this->sports = new ArrayCollection();
-        foreach( $sportConfig as $sportIt ) {
-            $sport = new Sport( $this, $this->sports->count() + 1, $sportIt["nrOfGamePlaces"] );
-            $this->sports->add( $sport );
-            for( $fieldNrDelta = 0 ; $fieldNrDelta < $sportIt["nrOfFields"] ; $fieldNrDelta++ ) {
-                new Field( $fieldNr + $fieldNrDelta, $sport );
+        foreach ($sportConfig as $sportIt) {
+            $sport = new Sport($this, $this->sports->count() + 1, $sportIt["nrOfGamePlaces"]);
+            $this->sports->add($sport);
+            for ($fieldNrDelta = 0 ; $fieldNrDelta < $sportIt["nrOfFields"] ; $fieldNrDelta++) {
+                new Field($fieldNr + $fieldNrDelta, $sport);
             }
             $fieldNr += $sport->getFields()->count();
         }
@@ -232,9 +250,10 @@ class Planning
         return $fields;
     }
         
-    public function getField( int $fieldNr ): ?Field {
-        foreach( $this->getFields() as $field ) {
-            if( $field->getNumber() === $fieldNr ) {
+    public function getField(int $fieldNr): ?Field
+    {
+        foreach ($this->getFields() as $field) {
+            if ($field->getNumber() === $fieldNr) {
                 return $field;
             }
         }
@@ -244,34 +263,38 @@ class Planning
     /**
      * @return Referee[] | Collection
      */
-    public function getReferees(): Collection {
+    public function getReferees(): Collection
+    {
         return $this->referees;
     }
 
-    protected function initReferees( int $nrOfReferees ) {
+    protected function initReferees(int $nrOfReferees)
+    {
         $this->referees = new ArrayCollection();
-        for( $refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $refereeNr++ ) {
-            $this->referees->add( new Referee( $this, $refereeNr ) );
+        for ($refereeNr = 1 ; $refereeNr <= $nrOfReferees ; $refereeNr++) {
+            $this->referees->add(new Referee($this, $refereeNr));
         }
     }
 
-    public function getReferee( int $refereeNr ): ?Referee {
-        foreach( $this->getReferees() as $referee ) {
-            if( $referee->getNumber() === $refereeNr ) {
+    public function getReferee(int $refereeNr): ?Referee
+    {
+        foreach ($this->getReferees() as $referee) {
+            if ($referee->getNumber() === $refereeNr) {
                 return $referee;
             }
         }
         return null;
     }
 
-    public function getFirstBatch(): Batch {
-        $games = $this->getGames( GameBase::ORDER_BY_BATCH );
+    public function getFirstBatch(): Batch
+    {
+        $games = $this->getGames(GameBase::ORDER_BY_BATCH);
         $batch = new Batch();
-        foreach( $games as $game ) {
-            if( $game->getBatchNr() === ( $batch->getNumber() + 1 ) ) {
+        foreach ($games as $game) {
+            if ($game->getBatchNr() === ($batch->getNumber() + 1)) {
                 $batch = $batch->createNext();
             }
-            $batch->add( $game );
+            $batch->add($game);
         }
         return $batch->getFirst();
     }
@@ -280,17 +303,17 @@ class Planning
      * @param int|null $order
      * @return array|Game[]
      */
-    public function getGames( int $order = null ): array
+    public function getGames(int $order = null): array
     {
         $games = [];
-        foreach( $this->getPoules() as $poule ) {
-            $games = array_merge( $games, $poule->getGames()->toArray() );
+        foreach ($this->getPoules() as $poule) {
+            $games = array_merge($games, $poule->getGames()->toArray());
         }
-        if( $order === GameBase::ORDER_BY_BATCH ) {
-            uasort( $games, function(Game $g1,Game  $g2 ) {
+        if ($order === GameBase::ORDER_BY_BATCH) {
+            uasort($games, function (Game $g1, Game  $g2) {
                 return $g1->getBatchNr() - $g2->getBatchNr();
-            } );
-        } elseif( $order === GameBase::ORDER_BY_GAMENUMBER ) {
+            });
+        } elseif ($order === GameBase::ORDER_BY_GAMENUMBER) {
             uasort($games, function (Game $g1, Game $g2) {
                 if ($g1->getRoundNr() !== $g2->getRoundNr()) {
                     return $g1->getRoundNr() - $g2->getRoundNr();
@@ -304,10 +327,11 @@ class Planning
         return $games;
     }
 
-    public function getPlaces(): ArrayCollection {
+    public function getPlaces(): ArrayCollection
+    {
         $places = new ArrayCollection();
-        foreach( $this->getPoules() as $poule ) {
-            foreach( $poule->getPlaces() as $place ) {
+        foreach ($this->getPoules() as $poule) {
+            foreach ($poule->getPlaces() as $place) {
                 $places->add($place);
             }
         }

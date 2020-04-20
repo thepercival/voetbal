@@ -17,20 +17,20 @@ use Voetbal\Import\Idable as Importable;
 
 class Competition implements Importable
 {
-	/**
-	 * @var int|string
-	 */
-	private $id;
+    /**
+     * @var int|string
+     */
+    private $id;
 
-	/**
-	 * @var League
-	 */
-	private $league;
+    /**
+     * @var League
+     */
+    private $league;
 
-	/**
-	 * @var Season
-	 */
-	private $season;
+    /**
+     * @var Season
+     */
+    private $season;
 
     /**
      * @var \DateTimeImmutable
@@ -42,10 +42,10 @@ class Competition implements Importable
      */
     private $ruleSet;
 
-	/**
-	 * @var int
-	 */
-	private $state;
+    /**
+     * @var int
+     */
+    private $state;
 
     /**
      * @var ArrayCollection
@@ -72,7 +72,7 @@ class Competition implements Importable
 
     use ImportableTrait;
 
-    public function __construct( League $league, Season $season )
+    public function __construct(League $league, Season $season)
     {
         $this->league = $league;
         $this->season = $season;
@@ -96,7 +96,7 @@ class Competition implements Importable
      * @param int|string $id
      * @return void
      */
-    public function setId( $id )
+    public function setId($id)
     {
         $this->id = $id;
     }
@@ -104,7 +104,7 @@ class Competition implements Importable
     /**
      * @return League
      */
-	public function getLeague()
+    public function getLeague()
     {
         return $this->league;
     }
@@ -112,10 +112,10 @@ class Competition implements Importable
     /**
      * @param League $league
      */
-	public function setLeague( League $league )
-	{
-		$this->league = $league;
-	}
+    public function setLeague(League $league)
+    {
+        $this->league = $league;
+    }
 
     /**
      * @return Season
@@ -128,7 +128,7 @@ class Competition implements Importable
     /**
      * @param Season $season
      */
-    public function setSeason( Season $season )
+    public function setSeason(Season $season)
     {
         $this->season = $season;
     }
@@ -152,7 +152,7 @@ class Competition implements Importable
     /**
      * @param \DateTimeImmutable $datetime
      */
-    public function setStartDateTime( \DateTimeImmutable $datetime )
+    public function setStartDateTime(\DateTimeImmutable $datetime)
     {
         $this->startDateTime = $datetime;
     }
@@ -168,7 +168,7 @@ class Competition implements Importable
     /**
      * @param int $ruleSet
      */
-    public function setRuleSet( $ruleSet )
+    public function setRuleSet($ruleSet)
     {
         $this->ruleSet = $ruleSet;
     }
@@ -184,7 +184,7 @@ class Competition implements Importable
     /**
      * @param int $state
      */
-    public function setState( $state )
+    public function setState($state)
     {
         $this->state = $state;
     }
@@ -208,7 +208,7 @@ class Competition implements Importable
     /**
      * @param ArrayCollection | Referee[] $referees
      */
-    public function setReferees( $referees )
+    public function setReferees($referees)
     {
         $this->referees = $referees;
     }
@@ -216,23 +216,23 @@ class Competition implements Importable
     /**
      * @return Referee
      */
-    public function getReferee( int $rank )
+    public function getReferee(int $rank)
     {
-        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $rank ) {
+        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($rank) {
             return $referee->getRank() === $rank;
         });
-        return array_shift( $referees );
+        return array_shift($referees);
     }
 
     /**
      * @return Referee
      */
-    public function getRefereeById( $id )
+    public function getRefereeById($id)
     {
-        $referees = array_filter( $this->getReferees()->toArray(), function( $referee ) use ( $id ) {
+        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($id) {
             return $referee->getId() === $id;
         });
-        return array_shift( $referees );
+        return array_shift($referees);
     }
 
     /**
@@ -246,7 +246,7 @@ class Competition implements Importable
     /**
      * @param ArrayCollection | Field[] $fields
      */
-    public function setFields( $fields )
+    public function setFields($fields)
     {
         $this->fields = $fields;
     }
@@ -254,12 +254,12 @@ class Competition implements Importable
     /**
      * @return Field
      */
-    public function getField( $number )
+    public function getField($number)
     {
-        $fields = array_filter( $this->getFields()->toArray(), function( $field ) use ( $number ) {
+        $fields = array_filter($this->getFields()->toArray(), function ($field) use ($number) {
             return $field->getNumber() === $number;
         });
-        return array_shift( $fields );
+        return array_shift($fields);
     }
 
     public function setSportConfigs(ArrayCollection $sportConfigs)
@@ -270,34 +270,39 @@ class Competition implements Importable
     /**
      * @return ArrayCollection | PersistentCollection | SportConfig[]
      */
-    public function getSportConfigs() {
+    public function getSportConfigs()
+    {
         return $this->sportConfigs;
     }
 
-    public function getSportConfig(Sport $sport = null): ?SportConfig {
-        $foundConfigs = $this->sportConfigs->filter( function ($sportConfig) use ( $sport ) {
+    public function getSportConfig(Sport $sport = null): ?SportConfig
+    {
+        $foundConfigs = $this->sportConfigs->filter(function ($sportConfig) use ($sport) {
             return $sportConfig->getSport() === $sport;
         });
         $foundConfig = $foundConfigs->first();
         return $foundConfig !== false ? $foundConfig : null;
     }
 
-    public function setSportConfig(SportConfig $sportConfig) {
-        $this->sportConfigs->add( $sportConfig );
+    public function setSportConfig(SportConfig $sportConfig)
+    {
+        $this->sportConfigs->add($sportConfig);
     }
 
-    public function hasMultipleSportConfigs(): bool {
+    public function hasMultipleSportConfigs(): bool
+    {
         return $this->sportConfigs->count() > 1;
     }
 
-    public function getFirstSportConfig(): SportConfig {
+    public function getFirstSportConfig(): SportConfig
+    {
         return $this->sportConfigs[0];
     }
 
-    public function getSportBySportId( int $sportId): ?Sport
+    public function getSportBySportId(int $sportId): ?Sport
     {
-        foreach( $this->getSportConfigs() as $sportConfig ) {
-            if( $sportConfig->getSport()->getId() === $sportId) {
+        foreach ($this->getSportConfigs() as $sportConfig) {
+            if ($sportConfig->getSport()->getId() === $sportId) {
                 return $sportConfig->getSport();
             }
         }
@@ -307,7 +312,10 @@ class Competition implements Importable
     /**
      * @return Collection | Sport[]
      */
-    public function getSports(): Collection {
-        return $this->sportConfigs->map( function ($sportConfig) { return $sportConfig->getSport(); });
+    public function getSports(): Collection
+    {
+        return $this->sportConfigs->map(function ($sportConfig) {
+            return $sportConfig->getSport();
+        });
     }
 }

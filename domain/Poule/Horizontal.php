@@ -24,7 +24,8 @@ use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
  *  [ C1 B1 A1 ]
  *
  **/
-class Horizontal {
+class Horizontal
+{
     /**
      * @var Round
      */
@@ -46,45 +47,54 @@ class Horizontal {
      */
     protected $multipleRule;
 
-    public function __construct( Round $round, int $number ) {
+    public function __construct(Round $round, int $number)
+    {
         $this->places = [];
         $this->round = $round;
         $this->number = $number;
     }
 
-    public function getRound(): Round {
+    public function getRound(): Round
+    {
         return $this->round;
     }
 
-    public function setRound(Round $round) {
+    public function setRound(Round $round)
+    {
         $this->round = $round;
     }
 
-    public function getWinnersOrLosers(): int {
+    public function getWinnersOrLosers(): int
+    {
         return $this->getQualifyGroup() ? $this->getQualifyGroup()->getWinnersOrLosers() : QualifyGroup::DROPOUTS;
     }
 
-    public function getNumber(): int {
+    public function getNumber(): int
+    {
         return $this->number;
     }
 
-    public function setNumber(int $number) {
+    public function setNumber(int $number)
+    {
         $this->number = $number;
     }
 
-    public function getPlaceNumber(): int {
-    if ($this->getWinnersOrLosers() !== QualifyGroup::LOSERS) {
-        return $this->number;
+    public function getPlaceNumber(): int
+    {
+        if ($this->getWinnersOrLosers() !== QualifyGroup::LOSERS) {
+            return $this->number;
+        }
+        $nrOfPlaceNubers = count($this->getQualifyGroup()->getRound()->getHorizontalPoules(QualifyGroup::WINNERS));
+        return $nrOfPlaceNubers - ($this->number - 1);
     }
-        $nrOfPlaceNubers = count( $this->getQualifyGroup()->getRound()->getHorizontalPoules(QualifyGroup::WINNERS));
-    return $nrOfPlaceNubers - ($this->number - 1);
-}
 
-    public function getQualifyGroup(): ?QualifyGroup {
+    public function getQualifyGroup(): ?QualifyGroup
+    {
         return $this->qualifyGroup;
     }
 
-    public function setQualifyGroup(?QualifyGroup $qualifyGroup) {
+    public function setQualifyGroup(?QualifyGroup $qualifyGroup)
+    {
 
         // this is done in horizontalpouleservice
         // if( this.qualifyGroup != null ){ // remove from old round
@@ -100,27 +110,32 @@ class Horizontal {
         }
     }
 
-    public function getQualifyRuleMultiple(): ?QualifyRuleMultiple {
+    public function getQualifyRuleMultiple(): ?QualifyRuleMultiple
+    {
         return $this->multipleRule;
     }
 
-    public function setQualifyRuleMultiple(QualifyRuleMultiple $multipleRule = null ) {
-        foreach( $this->getPlaces() as $place ) {
+    public function setQualifyRuleMultiple(QualifyRuleMultiple $multipleRule = null)
+    {
+        foreach ($this->getPlaces() as $place) {
             $place->setToQualifyRule($this->getWinnersOrLosers(), $multipleRule);
         }
         $this->multipleRule = $multipleRule;
     }
 
-    public function &getPlaces(): array {
+    public function &getPlaces(): array
+    {
         return $this->places;
     }
 
-    public function getFirstPlace(): Place {
+    public function getFirstPlace(): Place
+    {
         return $this->places[0];
     }
 
-    public function hasPlace(Place $place): bool {
-        return array_search( $place, $this->getPlaces() ) !== false;
+    public function hasPlace(Place $place): bool
+    {
+        return array_search($place, $this->getPlaces()) !== false;
     }
 
     // next(): Poule {
@@ -128,7 +143,8 @@ class Horizontal {
     //     return poules[this.getNumber()];
     // }
 
-    public function isBorderPoule(): bool {
+    public function isBorderPoule(): bool
+    {
         if (!$this->getQualifyGroup() || !$this->getQualifyGroup()->isBorderGroup()) {
             return false;
         }
@@ -136,7 +152,8 @@ class Horizontal {
         return $horPoules[count($horPoules)-1] === $this;
     }
 
-    public function getNrOfQualifiers() {
+    public function getNrOfQualifiers()
+    {
         if ($this->getQualifyGroup() === null) {
             return 0;
         }

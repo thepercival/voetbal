@@ -52,8 +52,7 @@ class Competition implements ImporterInterface
         SeasonAttacherRepository $seasonAttacherRepos,
         SportAttacherRepository $sportAttacherRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->competitionRepos = $competitionRepos;
         $this->competitionAttacherRepos = $competitionAttacherRepos;
@@ -82,7 +81,9 @@ class Competition implements ImporterInterface
                     continue;
                 }
                 $competitionAttacher = new CompetitionAttacher(
-                    $competition, $externalSource, $externalId
+                    $competition,
+                    $externalSource,
+                    $externalId
                 );
                 $this->competitionAttacherRepos->save($competitionAttacher);
             } else {
@@ -98,26 +99,25 @@ class Competition implements ImporterInterface
             $externalSource,
             $externalSourceCompetition->getLeague()->getId()
         );
-        if( $league  === null ) {
+        if ($league  === null) {
             return null;
         }
         $season = $this->seasonAttacherRepos->findImportable(
             $externalSource,
             $externalSourceCompetition->getSeason()->getId()
         );
-        if( $season  === null ) {
+        if ($season  === null) {
             return null;
         }
         $competition = new CompetitionBase($league, $season);
-        $competition->setStartDateTime( $season->getStartDateTime() );
+        $competition->setStartDateTime($season->getStartDateTime());
 
-        foreach( $externalSourceCompetition->getSportConfigs() as $externalSourceSportConfig ) {
-
-             $sport = $this->sportAttacherRepos->findImportable( $externalSource, $externalSourceSportConfig->getSport()->getId() );
-             if( $sport === null ) {
-                 continue;
-             }
-            $sportConfig = $this->sportConfigService->copy( $externalSourceSportConfig, $competition, $sport );
+        foreach ($externalSourceCompetition->getSportConfigs() as $externalSourceSportConfig) {
+            $sport = $this->sportAttacherRepos->findImportable($externalSource, $externalSourceSportConfig->getSport()->getId());
+            if ($sport === null) {
+                continue;
+            }
+            $sportConfig = $this->sportConfigService->copy($externalSourceSportConfig, $competition, $sport);
         }
         $this->competitionRepos->customPersist($competition);
         $this->competitionRepos->save($competition);

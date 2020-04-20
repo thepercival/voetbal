@@ -51,14 +51,15 @@ class Game
      */
     protected $referee;
 
-    public function __construct( Poule $poule, int $roundNr, int $subNr, int $nrOfHeadtohead ) {
+    public function __construct(Poule $poule, int $roundNr, int $subNr, int $nrOfHeadtohead)
+    {
         $this->poule = $poule;
         $this->roundNr = $roundNr;
         $this->subNr = $subNr;
         $this->nrOfHeadtohead = $nrOfHeadtohead;
         $this->places = new ArrayCollection();
         $this->batchNr = 0;
-        $this->poule->getGames()->add( $this );
+        $this->poule->getGames()->add($this);
     }
 
     public function getId(): ?int
@@ -66,63 +67,78 @@ class Game
         return $this->id;
     }
 
-    public function getPoule(): Poule {
+    public function getPoule(): Poule
+    {
         return $this->poule;
     }
 
-    public function getRoundNr(): int {
+    public function getRoundNr(): int
+    {
         return $this->roundNr;
     }
 
-    public function getSubNr(): int {
+    public function getSubNr(): int
+    {
         return $this->subNr;
     }
 
-    public function getNrOfHeadtohead(): int {
+    public function getNrOfHeadtohead(): int
+    {
         return $this->nrOfHeadtohead;
     }
 
-    public function getBatchNr(): int {
+    public function getBatchNr(): int
+    {
         return $this->batchNr;
     }
 
-    public function setBatchNr( int $batchNr) {
+    public function setBatchNr(int $batchNr)
+    {
         $this->batchNr = $batchNr;
     }
 
-    public function getRefereePlace(): ?Place {
+    public function getRefereePlace(): ?Place
+    {
         return $this->refereePlace;
     }
 
-    public function setRefereePlace( Place $refereePlace ) {
+    public function setRefereePlace(Place $refereePlace)
+    {
         $this->refereePlace = $refereePlace;
     }
 
-    public function emptyRefereePlace() {
+    public function emptyRefereePlace()
+    {
         $this->refereePlace = null;
     }
 
-    public function getReferee(): ?Referee {
+    public function getReferee(): ?Referee
+    {
         return $this->referee;
     }
 
-    public function setReferee( Referee $referee) {
+    public function setReferee(Referee $referee)
+    {
         $this->referee = $referee;
     }
 
-    public function emptyReferee() {
+    public function emptyReferee()
+    {
         $this->referee = null;
     }
 
-    public function getField(): ?Field {
+    public function getField(): ?Field
+    {
         return $this->field;
     }
 
-    public function setField(Field $field) {
+    public function setField(Field $field)
+    {
         $this->field = $field;
     }
 
-    public function emptyField() {
+    public function emptyField()
+    {
         $this->field = null;
     }
 
@@ -130,13 +146,13 @@ class Game
      * @param bool|null $homeaway
      * @return Collection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null ): Collection
+    public function getPlaces(bool $homeaway = null): Collection
     {
         if ($homeaway === null) {
             return $this->places;
         }
         return new ArrayCollection(
-            $this->places->filter( function( $gamePlace ) use ( $homeaway ) {
+            $this->places->filter(function ($gamePlace) use ($homeaway) {
                 return $gamePlace->getHomeaway() === $homeaway;
             })->toArray()
         );
@@ -157,7 +173,7 @@ class Game
      */
     public function addPlace(Place $place, bool $homeaway): GamePlace
     {
-        return new GamePlace( $this, $place, $homeaway );
+        return new GamePlace($this, $place, $homeaway);
     }
 
     /**
@@ -165,17 +181,20 @@ class Game
      * @param bool|null $homeaway
      * @return bool
      */
-    public function isParticipating(Place $place, bool $homeaway = null ): bool {
-        $places = $this->getPlaces( $homeaway )->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
-        return $places->contains( $place );
+    public function isParticipating(Place $place, bool $homeaway = null): bool
+    {
+        $places = $this->getPlaces($homeaway)->map(function ($gamePlace) {
+            return $gamePlace->getPlace();
+        });
+        return $places->contains($place);
     }
 
     public function getHomeAway(Place $place): ?bool
     {
-        if( $this->isParticipating($place, GameBase::HOME )) {
+        if ($this->isParticipating($place, GameBase::HOME)) {
             return GameBase::HOME;
         }
-        if( $this->isParticipating($place, GameBase::AWAY )) {
+        if ($this->isParticipating($place, GameBase::AWAY)) {
             return GameBase::AWAY;
         }
         return null;

@@ -37,8 +37,7 @@ class Structure implements ImporterInterface
         CompetitorAttacherRepository $competitorAttacherRepos,
         CompetitionAttacherRepository $competitionAttacherRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->structureRepos = $structureRepos;
         $this->competitorAttacherRepos = $competitorAttacherRepos;
@@ -61,14 +60,14 @@ class Structure implements ImporterInterface
         /** @var Competition $competition */
         $competition = $competitionAttacher->getImportable();
 
-        $structure = $this->structureRepos->getStructure( $competition );
-        if ($structure !== null ) {
+        $structure = $this->structureRepos->getStructure($competition);
+        if ($structure !== null) {
             return;
         }
 
         $externalSourceCompetitors = $externalSourceStructure->getFirstRoundNumber()->getCompetitors();
 
-        $existingCompetitors = $this->getCompetitors( $externalSource, $externalSourceCompetitors );
+        $existingCompetitors = $this->getCompetitors($externalSource, $externalSourceCompetitors);
 
         $structureCopier = new StructureCopier($competition, $existingCompetitors);
         $newStructure = $structureCopier->copy($externalSourceStructure);
@@ -77,20 +76,19 @@ class Structure implements ImporterInterface
         $this->structureRepos->removeAndAdd($competition, $newStructure, $roundNumberAsValue);
     }
 
-    protected function getCompetitors( ExternalSource $externalSource, array $externalSourceCompetitors ): array {
+    protected function getCompetitors(ExternalSource $externalSource, array $externalSourceCompetitors): array
+    {
         $competitors = [];
-        foreach( $externalSourceCompetitors as $externalSourceCompetitor ) {
+        foreach ($externalSourceCompetitors as $externalSourceCompetitor) {
             $competitorAttacher = $this->competitorAttacherRepos->findOneByExternalId(
                 $externalSource,
                 $externalSourceCompetitor->getId()
             );
-            if( $competitorAttacher === null ) {
+            if ($competitorAttacher === null) {
                 continue;
             }
             $competitors[] = $competitorAttacher->getImportable();
         }
         return $competitors;
     }
-
-
 }

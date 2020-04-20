@@ -74,7 +74,7 @@ class ItemsGetter
                 $received = $this->getNrOfUnits($finalScore, $homeAway, GameScore::RECEIVED);
                 $subScored = 0;
                 $subReceived = 0;
-                if ( $useSubScore ) {
+                if ($useSubScore) {
                     $subScored = $this->getNrOfUnits($finalSubScore, $homeAway, GameScore::SCORED);
                     $subReceived = $this->getNrOfUnits($finalSubScore, $homeAway, GameScore::RECEIVED);
                 }

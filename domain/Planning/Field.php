@@ -17,11 +17,11 @@ class Field
      */
     protected $sport;
 
-    public function __construct( int $number, Sport $sport )
+    public function __construct(int $number, Sport $sport)
     {
         $this->number = $number;
         $this->sport = $sport;
-        $sport->getFields()->add( $this );
+        $sport->getFields()->add($this);
     }
 
     /**
@@ -40,4 +40,3 @@ class Field
         return $this->sport;
     }
 }
-

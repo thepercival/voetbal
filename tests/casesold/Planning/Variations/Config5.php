@@ -126,5 +126,3 @@ class Config5
         ];
     }
 }
-
-

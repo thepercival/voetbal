@@ -36,25 +36,31 @@ class Batch
      */
     private $placesAsReferee = [];
 
-    public function __construct(Batch $previous = null ) {
+    public function __construct(Batch $previous = null)
+    {
         $this->previous = $previous;
-        $this->number = $previous === null ? 1 : $previous->getNumber() + 1;;
+        $this->number = $previous === null ? 1 : $previous->getNumber() + 1;
+        ;
         $this->placesAsReferee = [];
     }
 
-    public function getNumber(): int {
+    public function getNumber(): int
+    {
         return $this->number;
     }
 
-    public function hasNext(): bool {
+    public function hasNext(): bool
+    {
         return $this->next !== null;
     }
 
-    public function getNext(): Batch {
+    public function getNext(): Batch
+    {
         return $this->next;
     }
 
-    public function createNext(): Batch {
+    public function createNext(): Batch
+    {
         $this->next = new Batch($this);
         return $this->getNext();
     }
@@ -63,23 +69,28 @@ class Batch
         $this->next = null;
     }*/
 
-    public function hasPrevious(): bool {
+    public function hasPrevious(): bool
+    {
         return $this->previous !== null;
     }
 
-    public function getPrevious(): Batch {
+    public function getPrevious(): Batch
+    {
         return $this->previous;
     }
 
-    public function getFirst(): Batch {
+    public function getFirst(): Batch
+    {
         return $this->hasPrevious() ? $this->previous->getFirst() : $this;
     }
 
-    public function getLeaf(): Batch {
+    public function getLeaf(): Batch
+    {
         return $this->hasNext() ? $this->next->getLeaf() : $this;
     }
 
-    public function getGamesInARow(Place $place ): int {
+    public function getGamesInARow(Place $place): int
+    {
         $hasPlace = $this->isParticipating($place);
         if (!$hasPlace) {
             return 0;
@@ -90,62 +101,70 @@ class Batch
         return $this->getPrevious()->getGamesInARow($place) + 1;
     }
 
-    public function add(Game $game ) {
+    public function add(Game $game)
+    {
         $this->games[] = $game;
         /** @var Game\Place $gamePlace */
-        foreach( $game->getPlaces() as $gamePlace ) {
+        foreach ($game->getPlaces() as $gamePlace) {
             $this->places[$gamePlace->getPlace()->getLocation()] = $gamePlace->getPlace();
         }
     }
 
-    public function remove( Game $game) {
-        $index = array_search( $game, $this->games);
-        if( $index !== false ) {
-            unset( $this->games[$index]);
+    public function remove(Game $game)
+    {
+        $index = array_search($game, $this->games);
+        if ($index !== false) {
+            unset($this->games[$index]);
         }
         /** @var Game\Place $gamePlace */
-        foreach( $game->getPlaces() as $gamePlace ) {
-            unset( $this->places[$gamePlace->getPlace()->getLocation()]);
+        foreach ($game->getPlaces() as $gamePlace) {
+            unset($this->places[$gamePlace->getPlace()->getLocation()]);
         }
     }
 
-    protected function getPlaces(): array {
+    protected function getPlaces(): array
+    {
         return $this->places;
     }
 
-    public function getGames(): array {
+    public function getGames(): array
+    {
         return $this->games;
     }
 
-    public function isParticipating(Place $place ): bool {
-        return array_key_exists( $place->getLocation(), $this->places );
+    public function isParticipating(Place $place): bool
+    {
+        return array_key_exists($place->getLocation(), $this->places);
     }
 
     /**
      * @return array|Game[]
      */
-    public function getAllGames(): array {
-        if( $this->hasNext() === false ) {
+    public function getAllGames(): array
+    {
+        if ($this->hasNext() === false) {
             return $this->getGames();
         }
-        return array_merge( $this->getGames(), $this->getNext()->getAllGames() );
+        return array_merge($this->getGames(), $this->getNext()->getAllGames());
     }
 
-    public function addAsReferee( Place $placeReferee ) {
+    public function addAsReferee(Place $placeReferee)
+    {
         $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
     }
 
-    public function removeAsReferee( Place $placeReferee ) {
+    public function removeAsReferee(Place $placeReferee)
+    {
         unset($this->placesAsReferee[$placeReferee->getLocation()]);
     }
 
-    public function emptyPlacesAsReferees() {
+    public function emptyPlacesAsReferees()
+    {
         $this->placesAsReferee = [];
     }
 
-    public function isParticipatingAsReferee( Place $placeReferee ): bool {
-        return array_key_exists( $placeReferee->getLocation(), $this->placesAsReferee);
+    public function isParticipatingAsReferee(Place $placeReferee): bool
+    {
+        return array_key_exists($placeReferee->getLocation(), $this->placesAsReferee);
     }
-
 }
-

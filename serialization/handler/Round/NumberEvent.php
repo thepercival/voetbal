@@ -33,9 +33,9 @@ class NumberEvent implements \JMS\Serializer\EventDispatcher\EventSubscriberInte
         $roundNumber = $event->getObject();
 
         $roundNumber->setSportScoreConfigs(
-            $roundNumber->getSportScoreConfigs()->filter( function ( SportScoreConfig $config ) {
+            $roundNumber->getSportScoreConfigs()->filter(function (SportScoreConfig $config) {
                 return $config->isFirst();
-            } )
+            })
         );
     }
 }

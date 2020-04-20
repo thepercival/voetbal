@@ -30,11 +30,11 @@ class Place
      */
     private $place;
 
-    public function __construct( PlanningGame $game, PlanningPlace $place, bool $homeaway )
+    public function __construct(PlanningGame $game, PlanningPlace $place, bool $homeaway)
     {
-        $this->setGame( $game );
-        $this->setPlace( $place );
-        $this->setHomeaway( $homeaway );
+        $this->setGame($game);
+        $this->setPlace($place);
+        $this->setHomeaway($homeaway);
     }
 
     /**
@@ -50,7 +50,7 @@ class Place
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId(int $id)
     {
         $this->id = $id;
     }
@@ -66,9 +66,9 @@ class Place
     /**
      * @param PlanningGame $game
      */
-    public function setGame( PlanningGame $game )
+    public function setGame(PlanningGame $game)
     {
-        if ( $this->game === null and $game !== null and !$game->getPlaces()->contains( $this )){
+        if ($this->game === null and $game !== null and !$game->getPlaces()->contains($this)) {
             $game->getPlaces()->add($this) ;
         }
         $this->game = $game;
@@ -106,7 +106,7 @@ class Place
     /**
      * @param PlanningPlace $place
      */
-    public function setPlace( PlanningPlace $place )
+    public function setPlace(PlanningPlace $place)
     {
         $this->place = $place;
     }

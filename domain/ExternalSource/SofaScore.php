@@ -31,9 +31,16 @@ use Voetbal\Structure;
 use Voetbal\ExternalSource\Game as ExternalSourceGame;
 use Voetbal\Game;
 
-class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, ExternalSourceAssociation,
-                           ExternalSourceSeason, ExternalSourceLeague, ExternalSourceCompetition,
-                           ExternalSourceCompetitor, ExternalSourceStructure, ExternalSourceGame
+class SofaScore implements
+    ExternalSourceImplementation,
+    ExternalSourceSport,
+    ExternalSourceAssociation,
+                           ExternalSourceSeason,
+    ExternalSourceLeague,
+    ExternalSourceCompetition,
+                           ExternalSourceCompetitor,
+    ExternalSourceStructure,
+    ExternalSourceGame
 {
     public const SPORTFILTER = "football";
     public const NAME = "SofaScore";
@@ -81,7 +88,8 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
             return $this->helpers[SofaScore\ApiHelper::class];
         }
         $this->helpers[SofaScore\ApiHelper::class] = new SofaScore\ApiHelper(
-            $this->getExternalSource(), $this->cacheItemDbRepos
+            $this->getExternalSource(),
+            $this->cacheItemDbRepos
         );
         return $this->helpers[SofaScore\ApiHelper::class];
     }
@@ -240,14 +248,14 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
     /**
      * @return array|Competitor[]
      */
-    public function getCompetitors( Competition $competition ): array
+    public function getCompetitors(Competition $competition): array
     {
-        return $this->getCompetitorHelper()->getCompetitors( $competition );
+        return $this->getCompetitorHelper()->getCompetitors($competition);
     }
 
-    public function getCompetitor( Competition $competition, $id ): ?Competitor
+    public function getCompetitor(Competition $competition, $id): ?Competitor
     {
-        return $this->getCompetitorHelper()->getCompetitor( $competition, $id );
+        return $this->getCompetitorHelper()->getCompetitor($competition, $id);
     }
 
     protected function getCompetitorHelper(): SofaScore\Helper\Competitor
@@ -263,9 +271,9 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
         return $this->helpers[SofaScore\Helper\Competitor::class];
     }
 
-    public function getStructure( Competition $competition ): ?Structure
+    public function getStructure(Competition $competition): ?Structure
     {
-        return $this->getStructureHelper()->getStructure( $competition );
+        return $this->getStructureHelper()->getStructure($competition);
     }
 
     protected function getStructureHelper(): SofaScore\Helper\Structure
@@ -281,14 +289,14 @@ class SofaScore implements ExternalSourceImplementation, ExternalSourceSport, Ex
         return $this->helpers[SofaScore\Helper\Structure::class];
     }
 
-    public function getBatchNrs( Competition $competition, bool $forImport ): array
+    public function getBatchNrs(Competition $competition, bool $forImport): array
     {
-        return $this->getGameHelper()->getBatchNrs( $competition, $forImport );
+        return $this->getGameHelper()->getBatchNrs($competition, $forImport);
     }
 
-    public function getGames( Competition $competition, int $batchNr ): array
+    public function getGames(Competition $competition, int $batchNr): array
     {
-        return $this->getGameHelper()->getGames( $competition, $batchNr );
+        return $this->getGameHelper()->getGames($competition, $batchNr);
     }
 
     protected function getGameHelper(): SofaScore\Helper\Game

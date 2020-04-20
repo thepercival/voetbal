@@ -48,13 +48,13 @@ class Poule
 
     const MAX_LENGTH_NAME = 10;
 
-    public function __construct( Round $round, int $number = null )
+    public function __construct(Round $round, int $number = null)
     {
         if ($number === null) {
             $number = $round->getPoules()->count() + 1;
         }
-        $this->setRound( $round );
-        $this->setNumber( $number );
+        $this->setRound($round);
+        $this->setNumber($number);
         $this->places = new ArrayCollection();
         $this->games = new ArrayCollection();
     }
@@ -72,7 +72,7 @@ class Poule
     /**
      * @param int $id
      */
-    public function setId( int $id = null )
+    public function setId(int $id = null)
     {
         $this->id = $id;
     }
@@ -88,9 +88,9 @@ class Poule
     /**
      * @param Round $round
      */
-    protected function setRound( Round $round )
+    protected function setRound(Round $round)
     {
-        if ( !$round->getPoules()->contains( $this )){
+        if (!$round->getPoules()->contains($this)) {
             $round->getPoules()->add($this) ;
         }
         $this->round = $round;
@@ -107,10 +107,10 @@ class Poule
     /**
      * @param int $number
      */
-    public function setNumber( $number )
+    public function setNumber($number)
     {
-        if ( !is_int( $number )   ){
-            throw new \InvalidArgumentException( "het poulenummer heeft een onjuiste waarde", E_ERROR );
+        if (!is_int($number)) {
+            throw new \InvalidArgumentException("het poulenummer heeft een onjuiste waarde", E_ERROR);
         }
         $this->number = $number;
     }
@@ -126,27 +126,30 @@ class Poule
     /**
      * @param string $name
      */
-    public function setName( $name )
+    public function setName($name)
     {
-        if ( is_string($name) and strlen( $name ) === 0 )
+        if (is_string($name) and strlen($name) === 0) {
             $name = null;
-
-        if ( strlen( $name ) > static::MAX_LENGTH_NAME ){
-            throw new \InvalidArgumentException( "de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
         }
 
-        if(preg_match('/[^a-z0-9 ]/i', $name)){
-            throw new \InvalidArgumentException( "de naam mag alleen cijfers, letters en spaties bevatten", E_ERROR );
+        if (strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException("de naam mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR);
+        }
+
+        if (preg_match('/[^a-z0-9 ]/i', $name)) {
+            throw new \InvalidArgumentException("de naam mag alleen cijfers, letters en spaties bevatten", E_ERROR);
         }
 
         $this->name = $name;
     }
 
-    public function getStructureNumber(): int {
+    public function getStructureNumber(): int
+    {
         return $this->structureNumber;
     }
 
-    public function setStructureNumber(int $structureNumber): void {
+    public function setStructureNumber(int $structureNumber): void
+    {
         $this->structureNumber = $structureNumber;
     }
 
@@ -169,12 +172,12 @@ class Poule
     /**
      * @return ?Place
      */
-    public function getPlace( $number ): ?Place
+    public function getPlace($number): ?Place
     {
-        $places = array_filter( $this->getPlaces()->toArray(), function( $place ) use ( $number ) {
+        $places = array_filter($this->getPlaces()->toArray(), function ($place) use ($number) {
             return $place->getNumber() === $number;
         });
-        return array_shift( $places );
+        return array_shift($places);
     }
 
     /**
@@ -195,7 +198,7 @@ class Poule
 
     public function getGamesWithState($state)
     {
-        return array_filter( $this->getGames()->toArray(), function($gameIt) use ($state) {
+        return array_filter($this->getGames()->toArray(), function ($gameIt) use ($state) {
             return $gameIt->getState() === $state;
         });
     }
@@ -211,26 +214,26 @@ class Poule
     public function getNrOfGamesPerRound()
     {
         $nrOfPlaces = $this->getPlaces()->count();
-        if( ( $nrOfPlaces % 2 ) !== 0 ) {
-            return ( ( $nrOfPlaces - 1) / 2 );
+        if (($nrOfPlaces % 2) !== 0) {
+            return (($nrOfPlaces - 1) / 2);
         }
-        return ( $nrOfPlaces / 2 );
+        return ($nrOfPlaces / 2);
     }
 
     public function getState(): int
     {
         $allPlayed = true;
-        foreach( $this->getGames() as $game ) {
-            if( $game->getState() !== State::Finished ) {
+        foreach ($this->getGames() as $game) {
+            if ($game->getState() !== State::Finished) {
                 $allPlayed = false;
                 break;
             }
         }
-        if ($this->getGames()->count() > 0 && $allPlayed ) {
+        if ($this->getGames()->count() > 0 && $allPlayed) {
             return State::Finished;
         }
-        foreach( $this->getGames() as $game ) {
-            if( $game->getState() !== State::Created ) {
+        foreach ($this->getGames() as $game) {
+            if ($game->getState() !== State::Created) {
                 return State::InProgress;
             }
         }
@@ -240,7 +243,7 @@ class Poule
     public function getCompetitors(): array
     {
         $competitors = [];
-        foreach ( $this->getPlaces() as $place ) {
+        foreach ($this->getPlaces() as $place) {
             $competitor = $place->getCompetitor();
             if ($competitor !== null) {
                 $competitors[] = $competitor;

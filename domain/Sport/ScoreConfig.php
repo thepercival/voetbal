@@ -49,11 +49,11 @@ class ScoreConfig
     const UPWARDS = 1;
     const DOWNWARDS = 2;
 
-    public function __construct( SportBase $sport, RoundNumber $roundNumber, ScoreConfig $previous = null )
+    public function __construct(SportBase $sport, RoundNumber $roundNumber, ScoreConfig $previous = null)
     {
-        $this->setSport( $sport );
-        $this->setRoundNumber( $roundNumber );
-        $this->setPrevious( $previous );
+        $this->setSport($sport);
+        $this->setRoundNumber($roundNumber);
+        $this->setPrevious($previous);
     }
 
     /**
@@ -69,7 +69,7 @@ class ScoreConfig
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId(int $id)
     {
         $this->id = $id;
     }
@@ -85,11 +85,11 @@ class ScoreConfig
     /**
      * @param ScoreConfig $scoreConfig
      */
-    public function setPrevious( ScoreConfig $scoreConfig = null )
+    public function setPrevious(ScoreConfig $scoreConfig = null)
     {
         $this->previous = $scoreConfig;
-        if( $this->previous !== null ) {
-            $this->previous->setNext( $this );
+        if ($this->previous !== null) {
+            $this->previous->setNext($this);
         }
     }
 
@@ -120,7 +120,7 @@ class ScoreConfig
     /**
      * @param ScoreConfig $scoreConfig
      */
-    public function setNext( ScoreConfig $scoreConfig = null )
+    public function setNext(ScoreConfig $scoreConfig = null)
     {
         $this->next = $scoreConfig;
     }
@@ -139,7 +139,7 @@ class ScoreConfig
     public function getFirst()
     {
         $parent = $this->getPrevious();
-        if( $parent !== null ) {
+        if ($parent !== null) {
             return $parent->getFirst();
         }
         return $this;
@@ -156,7 +156,7 @@ class ScoreConfig
     /**
      * @param SportBase $sport
      */
-    public function setSport( SportBase $sport )
+    public function setSport(SportBase $sport)
     {
         $this->sport = $sport;
     }
@@ -172,7 +172,7 @@ class ScoreConfig
     /**
      * @param RoundNumber $roundNumber
      */
-    protected function setRoundNumber( RoundNumber $roundNumber )
+    protected function setRoundNumber(RoundNumber $roundNumber)
     {
         $this->roundNumber = $roundNumber;
         $this->roundNumber->setSportScoreConfig($this);
@@ -189,10 +189,10 @@ class ScoreConfig
     /**
      * @param int $direction
      */
-    public function setDirection( int $direction )
+    public function setDirection(int $direction)
     {
-        if ( $direction !== ScoreConfig::UPWARDS and $direction !== ScoreConfig::DOWNWARDS ) {
-            throw new \InvalidArgumentException( "de richting heeft een onjuiste waarde", E_ERROR );
+        if ($direction !== ScoreConfig::UPWARDS and $direction !== ScoreConfig::DOWNWARDS) {
+            throw new \InvalidArgumentException("de richting heeft een onjuiste waarde", E_ERROR);
         }
         $this->direction = $direction;
     }
@@ -208,7 +208,7 @@ class ScoreConfig
     /**
      * @param int $maximum
      */
-    public function setMaximum( int $maximum )
+    public function setMaximum(int $maximum)
     {
         $this->maximum = $maximum;
     }
@@ -229,11 +229,13 @@ class ScoreConfig
         $this->enabled = $enabled;
     }
 
-    public function isLast() {
+    public function isLast()
+    {
         return !$this->hasNext();
     }
 
-    public function getCalculate(): ScoreConfig {
+    public function getCalculate(): ScoreConfig
+    {
         $first = $this->getFirst();
         if ($first->hasNext() && $first->getNext()->getEnabled()) {
             return $first->getNext();
@@ -241,7 +243,8 @@ class ScoreConfig
         return $this;
     }
 
-    public function useSubScore(): bool {
+    public function useSubScore(): bool
+    {
         return ($this !== $this->getCalculate());
     }
 }

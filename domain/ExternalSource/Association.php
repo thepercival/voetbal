@@ -14,5 +14,5 @@ interface Association
      * @param mixed $id
      * @return AssociationBase|null
      */
-    public function getAssociation( $id ): ?AssociationBase;
+    public function getAssociation($id): ?AssociationBase;
 }

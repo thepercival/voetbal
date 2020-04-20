@@ -12,5 +12,4 @@ use Voetbal\Attacher;
 
 class Season extends Attacher
 {
-
 }

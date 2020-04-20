@@ -14,7 +14,7 @@ use Voetbal\Import\Idable as Importable;
 
 class Repository extends \Voetbal\Repository
 {
-    public function findOneByExternalId( ExternalSource $externalSource, $externalId )
+    public function findOneByExternalId(ExternalSource $externalSource, $externalId)
     {
         return $this->findOneBy(array(
             'externalId' => $externalId,
@@ -22,16 +22,16 @@ class Repository extends \Voetbal\Repository
         ));
     }
 
-    public function findImportable( ExternalSource $externalSource, $externalId )
+    public function findImportable(ExternalSource $externalSource, $externalId)
     {
-        $externalObject = $this->findOneByExternalId( $externalSource, $externalId );
-        if( $externalObject === null ) {
+        $externalObject = $this->findOneByExternalId($externalSource, $externalId);
+        if ($externalObject === null) {
             return null;
         }
         return $externalObject->getImportable();
     }
 
-    public function findOneByImportable( ExternalSource $externalSource, Importable $importable )
+    public function findOneByImportable(ExternalSource $externalSource, Importable $importable)
     {
         return $this->findOneBy(array(
             'importable' => $importable,
@@ -40,10 +40,10 @@ class Repository extends \Voetbal\Repository
     }
 
 
-    public function findExternalId( ExternalSource $externalSource, Importable $importable )
+    public function findExternalId(ExternalSource $externalSource, Importable $importable)
     {
-        $externalObject = $this->findOneByImportable( $externalSource, $importable );
-        if( $externalObject === null ) {
+        $externalObject = $this->findOneByImportable($externalSource, $importable);
+        if ($externalObject === null) {
             return null;
         }
         return $externalObject->getExternalId();

@@ -13,7 +13,8 @@ use Voetbal\Qualify\Group as QualifyGroup;
 
 trait Check332a
 {
-    protected function check332astructure(Structure $structure) {
+    protected function check332astructure(Structure $structure)
+    {
         // roundnumbers
         $this->assertNotSame($structure->getFirstRoundNumber(), null);
 
@@ -42,7 +43,7 @@ trait Check332a
         $this->assertSame(count($rootRound->getHorizontalPoules(QualifyGroup::LOSERS)), 3);
 
         // second rounds
-        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
+        foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
             $this->assertNotSame($rootRound->getBorderQualifyGroup($winnersOrLosers), null);
             $qualifyGroup = $rootRound->getBorderQualifyGroup($winnersOrLosers);
 
@@ -60,7 +61,7 @@ trait Check332a
             $this->assertSame($secondRound->getNrOfPlaces(), 4);
 
             // third rounds
-            foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers2 ) {
+            foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers2) {
                 $this->assertNotSame($secondRound->getBorderQualifyGroup($winnersOrLosers2), null);
                 $qualifyGroup2 = $secondRound->getBorderQualifyGroup($winnersOrLosers2);
 

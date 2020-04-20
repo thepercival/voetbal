@@ -10,7 +10,8 @@ namespace Voetbal\Poule\Horizontal;
 
 use Voetbal\Qualify\Group as QualifyGroup;
 
-class Creator {
+class Creator
+{
     /**
      * @var QualifyGroup
      */
@@ -20,7 +21,7 @@ class Creator {
      */
     public $nrOfQualifiers;
 
-    public function __construct( QualifyGroup $qualifyGroup, int $nrOfQualifiers )
+    public function __construct(QualifyGroup $qualifyGroup, int $nrOfQualifiers)
     {
         $this->qualifyGroup = $qualifyGroup;
         $this->nrOfQualifiers = $nrOfQualifiers;

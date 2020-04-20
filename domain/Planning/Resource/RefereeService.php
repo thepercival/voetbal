@@ -36,22 +36,22 @@ class RefereeService
 
     public function assign(Batch $batch)
     {
-        if( $this->refereesEnabled() === false ) {
+        if ($this->refereesEnabled() === false) {
             return false;
         }
-        $this->assignBatch($batch->getLeaf(), $this->planning->getReferees()->toArray() );
+        $this->assignBatch($batch->getLeaf(), $this->planning->getReferees()->toArray());
     }
 
-    protected function assignBatch( Batch $batch, array $referees)
+    protected function assignBatch(Batch $batch, array $referees)
     {
-        $games = array_reverse( $batch->getGames() );
-        foreach( $games as $game ) {
+        $games = array_reverse($batch->getGames());
+        foreach ($games as $game) {
             $referee = array_shift($referees);
-            $game->setReferee( $referee );
+            $game->setReferee($referee);
             array_push($referees, $referee);
         }
-        if( $batch->hasPrevious() ) {
-            $this->assignBatch( $batch->getPrevious(), $referees );
+        if ($batch->hasPrevious()) {
+            $this->assignBatch($batch->getPrevious(), $referees);
         }
     }
 }

@@ -12,40 +12,45 @@ use Voetbal\Round;
 use Voetbal\Poule;
 use Voetbal\Place\Location as PlaceLocation;
 
-class ReservationService {
+class ReservationService
+{
 
     /**
      * @var PouleNumberReservations[] | array
      */
     private $reservations = [];
 
-    public function __construct( Round $childRound )
+    public function __construct(Round $childRound)
     {
         $this->reservations  = [];
-        foreach( $childRound->getPoules() as $poule ) {
-            $this->reservations[] = new PouleNumberReservations( $poule->getNumber(), [] );
+        foreach ($childRound->getPoules() as $poule) {
+            $this->reservations[] = new PouleNumberReservations($poule->getNumber(), []);
         }
     }
 
-    public function isFree( int $toPouleNumber, Poule $fromPoule): bool {
-        return array_search ( $fromPoule, $this->get($toPouleNumber)->fromPoules ) === false;
+    public function isFree(int $toPouleNumber, Poule $fromPoule): bool
+    {
+        return array_search($fromPoule, $this->get($toPouleNumber)->fromPoules) === false;
     }
 
-    public function reserve(int $toPouleNumber, Poule $fromPoule) {
+    public function reserve(int $toPouleNumber, Poule $fromPoule)
+    {
         $this->get($toPouleNumber)->fromPoules[] = $fromPoule;
     }
 
-    protected function get(int $toPouleNumber): PouleNumberReservations {
-        $filtered = array_filter( $this->reservations, function( $reservationIt ) use ($toPouleNumber) {
+    protected function get(int $toPouleNumber): PouleNumberReservations
+    {
+        $filtered = array_filter($this->reservations, function ($reservationIt) use ($toPouleNumber) {
             return $reservationIt->toPouleNr === $toPouleNumber;
         });
         return array_shift($filtered);
     }
 
-    public function getFreeAndLeastAvailabe(int $toPouleNumber, Round $fromRound, array $fromPlaceLocations ): PlaceLocation {
+    public function getFreeAndLeastAvailabe(int $toPouleNumber, Round $fromRound, array $fromPlaceLocations): PlaceLocation
+    {
         $retPlaceLocation = null;
         $leastNrOfPoulesAvailable = null;
-        foreach( $fromPlaceLocations as $fromPlaceLocation ) {
+        foreach ($fromPlaceLocations as $fromPlaceLocation) {
             $fromPoule = $fromRound->getPoule($fromPlaceLocation->getPouleNr());
             if (!$this->isFree($toPouleNumber, $fromPoule)) {
                 continue;
@@ -62,15 +67,17 @@ class ReservationService {
         return $retPlaceLocation;
     }
 
-    protected function getNrOfPoulesAvailable( Poule $fromPoule, int $toPouleNumber): int {
-        $filtered = array_filter( $this->reservations, function( $reservation ) use ($fromPoule, $toPouleNumber){
+    protected function getNrOfPoulesAvailable(Poule $fromPoule, int $toPouleNumber): int
+    {
+        $filtered = array_filter($this->reservations, function ($reservation) use ($fromPoule, $toPouleNumber) {
             return $reservation->toPouleNr >= $toPouleNumber && $this->isFree($reservation->toPouleNr, $fromPoule);
         });
         return count($filtered);
     }
 }
 
-class PouleNumberReservations {
+class PouleNumberReservations
+{
     /**
      * @var int
      */
@@ -80,7 +87,7 @@ class PouleNumberReservations {
      */
     public $fromPoules;
 
-    public function __construct( int $toPouleNr, array $fromPoules )
+    public function __construct(int $toPouleNr, array $fromPoules)
     {
         $this->toPouleNr = $toPouleNr;
         $this->fromPoules = $fromPoules;

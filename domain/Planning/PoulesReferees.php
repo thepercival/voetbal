@@ -8,7 +8,6 @@
 
 namespace Voetbal\Planning;
 
-
 class PoulesReferees
 {
     /**
@@ -20,15 +19,15 @@ class PoulesReferees
      */
     public $referees;
 
-    public function __construct( $poules, $referees )
+    public function __construct($poules, $referees)
     {
         $this->poules = $poules;
         $this->referees = $referees;
     }
 
-    public function getReferee( $refereeNr )
+    public function getReferee($refereeNr)
     {
-        if( array_key_exists($refereeNr, $this->referees ) === false ){
+        if (array_key_exists($refereeNr, $this->referees) === false) {
             return null;
         }
         return $this->referees[$refereeNr];

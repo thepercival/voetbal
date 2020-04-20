@@ -18,7 +18,7 @@ class ServiceOldExternalSource
      */
     protected $repos;
 
-    public function __construct( ExternalSourceRepository $systemRepos )
+    public function __construct(ExternalSourceRepository $systemRepos)
     {
         $this->repos = $systemRepos;
     }
@@ -33,14 +33,14 @@ class ServiceOldExternalSource
      * @return ExternalSource
      * @throws \Exception
      */
-    public function create( string $name, string $website = null, string $username = null, string $password = null, string $apiurl = null, string $apikey = null ): System
+    public function create(string $name, string $website = null, string $username = null, string $password = null, string $apiurl = null, string $apikey = null): System
     {
-        $systemWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $systemWithSameName !== null ){
-            throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR );
+        $systemWithSameName = $this->repos->findOneBy(array('name' => $name ));
+        if ($systemWithSameName !== null) {
+            throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR);
         }
 
-        $system = new ExternalSource( $name );
+        $system = new ExternalSource($name);
         $system->setWebsite($website);
         $system->setUsername($username);
         $system->setPassword($password);
@@ -55,7 +55,7 @@ class ServiceOldExternalSource
      * @param array $data
      * @throws \Exception
      */
-    public function edit( ExternalSource $externalSource, array $data )
+    public function edit(ExternalSource $externalSource, array $data)
     {
         $name = $data['name'];
         $website = $data['website'];
@@ -64,9 +64,9 @@ class ServiceOldExternalSource
         $apiurl = $data['apiurl'];
         $apikey = $data['apikey'];
 
-        $sourceWithSameName = $this->repos->findOneBy( array('name' => $name ) );
-        if ( $sourceWithSameName !== null and $sourceWithSameName !== $externalSource ){
-            throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR );
+        $sourceWithSameName = $this->repos->findOneBy(array('name' => $name ));
+        if ($sourceWithSameName !== null and $sourceWithSameName !== $externalSource) {
+            throw new \Exception("het externe systeem ".$name." bestaat al", E_ERROR);
         }
 
         $externalSource->setName($name);
@@ -82,7 +82,7 @@ class ServiceOldExternalSource
     /**
      * @param ExternalSource $externalSource
      */
-    public function remove( ExternalSource $externalSource )
+    public function remove(ExternalSource $externalSource)
     {
         $this->repos->remove($externalSource);
     }

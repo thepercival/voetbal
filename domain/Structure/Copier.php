@@ -44,7 +44,8 @@ class Copier
             $previousRoundNumber = null;
             foreach ($structure->getRoundNumbers() as $roundNumber) {
                 $newRoundNumber = $previousRoundNumber ? $previousRoundNumber->createNext() : new RoundNumber(
-                    $this->competition, $previousRoundNumber
+                    $this->competition,
+                    $previousRoundNumber
                 );
                 if ($roundNumber->getPlanningConfig() !== null) {
                     $planningConfigService->copy($roundNumber->getPlanningConfig(), $newRoundNumber);
@@ -146,4 +147,3 @@ class Copier
         return reset($foundCompetitors);
     }
 }
-

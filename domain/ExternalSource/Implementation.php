@@ -10,7 +10,8 @@ namespace Voetbal\ExternalSource;
 
 use Voetbal\ExternalSource as ExternalSourceBase;
 
-interface Implementation {
+interface Implementation
+{
     public function getExternalSource();
-    public function setExternalSource( ExternalSourceBase $externalSource );
+    public function setExternalSource(ExternalSourceBase $externalSource);
 }

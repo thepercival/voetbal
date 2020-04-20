@@ -30,8 +30,7 @@ class Sport implements ImporterInterface
         SportAttacherRepository $sportAttacherRepos,
         LoggerInterface $logger/*,
         array $settings*/
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->sportRepos = $sportRepos;
         $this->sportAttacherRepos = $sportAttacherRepos;
@@ -42,7 +41,7 @@ class Sport implements ImporterInterface
      * @param array|SportBase[] $externalSourceSports
      * @throws \Exception
      */
-    public function import(ExternalSource $externalSource, array $externalSourceSports )
+    public function import(ExternalSource $externalSource, array $externalSourceSports)
     {
         foreach ($externalSourceSports as $externalSourceSport) {
             $externalId = $externalSourceSport->getId();
@@ -53,9 +52,11 @@ class Sport implements ImporterInterface
             if ($sportAttacher === null) {
                 $sport = $this->createSport($externalSourceSport);
                 $sportAttacher = new SportAttacher(
-                    $sport, $externalSource, $externalId
+                    $sport,
+                    $externalSource,
+                    $externalId
                 );
-                $this->sportAttacherRepos->save( $sportAttacher);
+                $this->sportAttacherRepos->save($sportAttacher);
             } else {
                 $this->editSport($sportAttacher->getImportable(), $externalSourceSport);
             }
@@ -73,7 +74,7 @@ class Sport implements ImporterInterface
 
     protected function editSport(SportBase $sport, SportBase $externalSourceSport)
     {
-        $sport->setName( $externalSourceSport->getName() );
+        $sport->setName($externalSourceSport->getName());
         $this->sportRepos->save($sport);
     }
 }

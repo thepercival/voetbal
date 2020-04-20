@@ -43,9 +43,9 @@ class Sport implements Importable
      */
     private $customId;
 
-    public function __construct( string $name )
+    public function __construct(string $name)
     {
-        $this->setName( $name );
+        $this->setName($name);
     }
 
     /**
@@ -60,16 +60,18 @@ class Sport implements Importable
      * @param int|string $id
      * @return void
      */
-    public function setId( $id )
+    public function setId($id)
     {
         $this->id = $id;
     }
 
-    public function getName(): string {
+    public function getName(): string
+    {
         return $this->name;
     }
 
-    public function setName(string $name): void {
+    public function setName(string $name): void
+    {
         $this->name = $name;
     }
 
@@ -93,19 +95,23 @@ class Sport implements Importable
 //        return $this->scoreSubUnitName === null;
 //    }
 
-    public function getTeam(): bool {
+    public function getTeam(): bool
+    {
         return $this->team;
     }
 
-    public function setTeam(bool $team): void {
+    public function setTeam(bool $team): void
+    {
         $this->team = $team;
     }
 
-    public function getCustomId(): ?int {
+    public function getCustomId(): ?int
+    {
         return $this->customId;
     }
 
-    public function setCustomId(int $id): void {
+    public function setCustomId(int $id): void
+    {
         $this->customId = $id;
     }
 }

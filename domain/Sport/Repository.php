@@ -10,5 +10,4 @@ namespace Voetbal\Sport;
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

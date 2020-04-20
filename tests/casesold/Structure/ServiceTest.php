@@ -428,20 +428,20 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $horPoule5 = $rootRound->getHorizontalPoule(QualifyGroup::WINNERS, 5);
         $horPoule6 = $rootRound->getHorizontalPoule(QualifyGroup::WINNERS, 6);
 
-        $hasHorPoule = function ( QualifyGroup $qualifyGroup, HorizontalPoule $horPoule ): bool {
-            $foundHorPoules = array_filter( $qualifyGroup->getHorizontalPoules(), function ($horPouleIt) use ($horPoule) {
+        $hasHorPoule = function (QualifyGroup $qualifyGroup, HorizontalPoule $horPoule): bool {
+            $foundHorPoules = array_filter($qualifyGroup->getHorizontalPoules(), function ($horPouleIt) use ($horPoule) {
                 return $horPouleIt === $horPoule;
             });
             return count($foundHorPoules) > 0;
         };
-        $this->assertSame($hasHorPoule( $qualifyGroup12, $horPoule1), true);
-        $this->assertSame($hasHorPoule( $qualifyGroup12, $horPoule2), true);
-        $this->assertSame($hasHorPoule( $qualifyGroup12, $horPoule3), false);
-        $this->assertSame($hasHorPoule( $qualifyGroup12, $horPoule4), false);
-        $this->assertSame($hasHorPoule( $qualifyGroup56, $horPoule5), true);
-        $this->assertSame($hasHorPoule( $qualifyGroup56, $horPoule6), true);
-        $this->assertSame($hasHorPoule( $qualifyGroup56, $horPoule3), false);
-        $this->assertSame($hasHorPoule( $qualifyGroup56, $horPoule4), false);
+        $this->assertSame($hasHorPoule($qualifyGroup12, $horPoule1), true);
+        $this->assertSame($hasHorPoule($qualifyGroup12, $horPoule2), true);
+        $this->assertSame($hasHorPoule($qualifyGroup12, $horPoule3), false);
+        $this->assertSame($hasHorPoule($qualifyGroup12, $horPoule4), false);
+        $this->assertSame($hasHorPoule($qualifyGroup56, $horPoule5), true);
+        $this->assertSame($hasHorPoule($qualifyGroup56, $horPoule6), true);
+        $this->assertSame($hasHorPoule($qualifyGroup56, $horPoule3), false);
+        $this->assertSame($hasHorPoule($qualifyGroup56, $horPoule4), false);
     }
 
     public function testQualifyGroupMergable33()
@@ -510,8 +510,10 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $structureService->splitQualifyGroup($winnersBorderQualifyGroup, $winHorPoule1, $winHorPoule2);
 
         $winnersBorderQualifyGroups = $rootRound->getQualifyGroups(QualifyGroup::WINNERS);
-        $structureService->mergeQualifyGroups($winnersBorderQualifyGroups->last(),
-            $winnersBorderQualifyGroups->first());
+        $structureService->mergeQualifyGroups(
+            $winnersBorderQualifyGroups->last(),
+            $winnersBorderQualifyGroups->first()
+        );
 
         $losersBorderQualifyGroup = $rootRound->getBorderQualifyGroup(QualifyGroup::LOSERS);
         $losHorPoule1 = $rootRound->getHorizontalPoule(QualifyGroup::LOSERS, 1);

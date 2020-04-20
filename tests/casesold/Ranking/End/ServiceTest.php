@@ -77,7 +77,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $endRankingService = new EndRankingService($structure, RankingService::RULESSET_WC);
         $items = $endRankingService->getItems();
 
-        $this->assertSame($items[2]->getName(), 'onbekend' );
+        $this->assertSame($items[2]->getName(), 'onbekend');
     }
 
     public function testOnePouleOfThreePlacesNotPlayed()

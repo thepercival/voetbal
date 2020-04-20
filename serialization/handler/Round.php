@@ -44,40 +44,39 @@ class Round implements SubscribingHandlerInterface
     {
         $roundNumber = $type["params"]["roundnumber"];
         $parentQualifyGroup = null;
-        if( array_key_exists( "parentqualifygroup", $type["params"]) && $type["params"]["parentqualifygroup"] !== null ) {
+        if (array_key_exists("parentqualifygroup", $type["params"]) && $type["params"]["parentqualifygroup"] !== null) {
             $parentQualifyGroup = $type["params"]["parentqualifygroup"];
         }
 
-        $round = new RoundBase( $roundNumber, $parentQualifyGroup );
+        $round = new RoundBase($roundNumber, $parentQualifyGroup);
         $association = $round->getNumber()->getCompetition()->getLeague()->getAssociation();
 
         // set poules
-        foreach( $arrRound["poules"] as $arrPoule ) {
-            $poule = new Poule( $round, $arrPoule["number"] );
-            foreach( $arrPoule["places"] as $arrPlace ) {
+        foreach ($arrRound["poules"] as $arrPoule) {
+            $poule = new Poule($round, $arrPoule["number"]);
+            foreach ($arrPoule["places"] as $arrPlace) {
                 $place = new Place($poule, $arrPlace["number"]);
                 $place->setPenaltyPoints($arrPlace["penaltyPoints"]);
 
-                if( !array_key_exists( "competitor", $arrPlace )) {
+                if (!array_key_exists("competitor", $arrPlace)) {
                     continue;
                 }
                 $competitor = new Competitor($association, "dummy");
                 $competitor->setId($arrPlace["competitor"]["id"]);
                 $competitor->setName($arrPlace["competitor"]["name"]);
-                if( array_key_exists( "registered", $arrPlace["competitor"] )) {
+                if (array_key_exists("registered", $arrPlace["competitor"])) {
                     $competitor->setRegistered($arrPlace["competitor"]["registered"]);
                 }
                 $place->setCompetitor($competitor);
             }
         }
 
-        foreach( $arrRound["qualifyGroups"] as $arrQualifyGroup ) {
-
-            $qualifyGroup = new QualifyGroup( $round, $arrQualifyGroup["winnersOrLosers"] );
-            $qualifyGroup->setNumber( $arrQualifyGroup["number"] );
-            $metadataConfig = new StaticPropertyMetadata('Voetbal\Round', "childRound", $arrQualifyGroup );
+        foreach ($arrRound["qualifyGroups"] as $arrQualifyGroup) {
+            $qualifyGroup = new QualifyGroup($round, $arrQualifyGroup["winnersOrLosers"]);
+            $qualifyGroup->setNumber($arrQualifyGroup["number"]);
+            $metadataConfig = new StaticPropertyMetadata('Voetbal\Round', "childRound", $arrQualifyGroup);
             $metadataConfig->setType(['name' => 'Voetbal\Round', "params" => [ "roundnumber" => $roundNumber->getNext(), "parentqualifygroup" => $qualifyGroup ]]);
-            $qualifyGroup->setChildRound( $visitor->visitProperty($metadataConfig, $arrQualifyGroup ) );
+            $qualifyGroup->setChildRound($visitor->visitProperty($metadataConfig, $arrQualifyGroup));
         }
 
         return $round;

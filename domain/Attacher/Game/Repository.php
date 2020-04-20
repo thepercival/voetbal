@@ -10,5 +10,4 @@ namespace Voetbal\Attacher\Game;
 
 class Repository extends \Voetbal\Attacher\Repository
 {
-
 }

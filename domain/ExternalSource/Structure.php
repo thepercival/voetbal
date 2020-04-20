@@ -11,5 +11,5 @@ interface Structure
      * @param Competition $competition
      * @return StructureBase
      */
-    public function getStructure( Competition $competition ): ?StructureBase;
+    public function getStructure(Competition $competition): ?StructureBase;
 }

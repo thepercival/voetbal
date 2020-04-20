@@ -41,23 +41,22 @@ final class Referee
         $this->serializer = $serializer;
     }
 
-    public function fetch( $request, $response, $args)
+    public function fetch($request, $response, $args)
     {
         $objects = $this->repos->findAll();
         return $response
             ->withHeader('Content-Type', 'application/json;charset=utf-8')
-            ->write( $this->serializer->serialize( $objects, 'json') );
+            ->write($this->serializer->serialize($objects, 'json'));
         ;
-
     }
 
-    public function fetchOne( $request, $response, $args)
+    public function fetchOne($request, $response, $args)
     {
         $object = $this->repos->find($args['id']);
         if ($object) {
             return $response
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $object, 'json'));
+                ->write($this->serializer->serialize($object, 'json'));
             ;
         }
         return $response->withStatus(404)->write('geen scheidsrechter met het opgegeven id gevonden');
@@ -81,20 +80,20 @@ final class Referee
                 throw new \Exception("er kan geen scheidsrechter worden aangemaakt o.b.v. de invoergegevens", E_ERROR);
             }
 
-            $refereesWithSameInitials = $competition->getReferees()->filter( function( $refereeIt ) use ( $refereeSer ) {
+            $refereesWithSameInitials = $competition->getReferees()->filter(function ($refereeIt) use ($refereeSer) {
                 return $refereeIt->getInitials() === $refereeSer->getInitials();
             });
-            if( !$refereesWithSameInitials->isEmpty() ) {
-                throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR );
+            if (!$refereesWithSameInitials->isEmpty()) {
+                throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR);
             }
 
-            $referee = new RefereeBase( $competition, $refereeSer->getRank() );
+            $referee = new RefereeBase($competition, $refereeSer->getRank());
             $referee->setInitials($refereeSer->getInitials());
             $referee->setName($refereeSer->getName());
             $referee->setEmailaddress($refereeSer->getEmailaddress());
             $referee->setInfo($refereeSer->getInfo());
 
-            $this->repos->save( $referee );
+            $this->repos->save($referee);
 
             $serializationContext = SerializationContext::create();
             $serializationContext->setGroups($serGroups);
@@ -123,20 +122,20 @@ final class Referee
 
             $competition = $referee->getCompetition();
 
-            $refereesWithSameInitials = $competition->getReferees()->filter( function( $refereeIt ) use ( $refereeSer, $referee ) {
+            $refereesWithSameInitials = $competition->getReferees()->filter(function ($refereeIt) use ($refereeSer, $referee) {
                 return $refereeIt->getInitials() === $refereeSer->getInitials() && $referee !== $refereeIt;
             });
-            if( !$refereesWithSameInitials->isEmpty() ) {
-                throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR );
+            if (!$refereesWithSameInitials->isEmpty()) {
+                throw new \Exception("de scheidsrechter met de initialen ".$refereeSer->getInitials()." bestaat al", E_ERROR);
             }
 
-            $referee->setRank( $refereeSer->getRank() );
-            $referee->setInitials( $refereeSer->getInitials() );
-            $referee->setName( $refereeSer->getName() );
+            $referee->setRank($refereeSer->getRank());
+            $referee->setInitials($refereeSer->getInitials());
+            $referee->setName($refereeSer->getName());
             $referee->setEmailaddress($refereeSer->getEmailaddress());
-            $referee->setInfo( $refereeSer->getInfo() );
+            $referee->setInfo($refereeSer->getInfo());
 
-            $this->repos->save( $referee );
+            $this->repos->save($referee);
 
             $serializationContext = SerializationContext::create();
             $serializationContext->setGroups($serGroups);
@@ -171,8 +170,10 @@ final class Referee
             throw new \Exception("er kan geen competitie worden gevonden o.b.v. de invoergegevens", E_ERROR);
         }
         if ($referee->getCompetition() !== $competition) {
-            throw new \Exception("de competitie van de scheidsrechter komt niet overeen met de verstuurde competitie",
-                E_ERROR);
+            throw new \Exception(
+                "de competitie van de scheidsrechter komt niet overeen met de verstuurde competitie",
+                E_ERROR
+            );
         }
         return $referee;
     }

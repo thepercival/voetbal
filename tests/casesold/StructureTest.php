@@ -28,7 +28,7 @@ class StructureTest extends \PHPUnit\Framework\TestCase
 
         $this->assertSame($rootRound->getNumber()->getNext(), $structure->getLastRoundNumber());
 
-        $this->assertSame(count($structure->getRoundNumbers()),2);
+        $this->assertSame(count($structure->getRoundNumbers()), 2);
 
         $this->assertSame($structure->getRoundNumber(1), $firstRoundNumber);
         $this->assertSame($structure->getRoundNumber(2), $firstRoundNumber->getNext());
@@ -51,14 +51,13 @@ class StructureTest extends \PHPUnit\Framework\TestCase
 
         $structure->setStructureNumbers();
 
-        $this->assertSame($rootRound->getChild(QualifyGroup::WINNERS, 1)->getStructureNumber(),0);
-        $this->assertSame($rootRound->getStructureNumber(),2);
+        $this->assertSame($rootRound->getChild(QualifyGroup::WINNERS, 1)->getStructureNumber(), 0);
+        $this->assertSame($rootRound->getStructureNumber(), 2);
         $this->assertSame($rootRound->getChild(QualifyGroup::LOSERS, 1)->getStructureNumber(), 14);
 
-        $this->assertSame($rootRound->getPoule(1)->getStructureNumber(),1);
-        $this->assertSame($rootRound->getPoule(4)->getStructureNumber(),4);
-        $this->assertSame($rootRound->getChild(QualifyGroup::WINNERS, 1)->getPoule(1)->getStructureNumber(),5);
+        $this->assertSame($rootRound->getPoule(1)->getStructureNumber(), 1);
+        $this->assertSame($rootRound->getPoule(4)->getStructureNumber(), 4);
+        $this->assertSame($rootRound->getChild(QualifyGroup::WINNERS, 1)->getPoule(1)->getStructureNumber(), 5);
         $this->assertSame($rootRound->getChild(QualifyGroup::LOSERS, 1)->getPoule(1)->getStructureNumber(), 6);
     }
 }
-

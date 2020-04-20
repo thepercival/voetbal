@@ -21,7 +21,8 @@ class GameRound
      */
     private $combinations;
 
-    public function __construct( int $roundNumber, array $combinations ) {
+    public function __construct(int $roundNumber, array $combinations)
+    {
         $this->roundNumber = $roundNumber;
         $this->combinations = $combinations;
     }
@@ -29,21 +30,24 @@ class GameRound
     /**
      * @return int
      */
-    public function getNumber(): int {
+    public function getNumber(): int
+    {
         return $this->roundNumber;
     }
 
     /**
      * @return array | PlaceCombination[]
      */
-    public function getCombinations(): array {
+    public function getCombinations(): array
+    {
         return $this->combinations;
     }
 
     /**
      * @return PlaceCombination
      */
-    public function addCombination(PlaceCombination $combination ): PlaceCombination {
+    public function addCombination(PlaceCombination $combination): PlaceCombination
+    {
         $this->combinations[] = $combination;
         return $combination;
     }

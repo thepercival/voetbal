@@ -141,8 +141,10 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
         $resService->reserve(3, $pouleFour);
 
 
-        $horPoule = $rootRound->getHorizontalPoule(QualifyGroup::WINNERS, 1 );
-        $fromPlaceLocations = array_map( function($place) { return $place->getLocation(); }, $horPoule->getPlaces());
+        $horPoule = $rootRound->getHorizontalPoule(QualifyGroup::WINNERS, 1);
+        $fromPlaceLocations = array_map(function ($place) {
+            return $place->getLocation();
+        }, $horPoule->getPlaces());
 
         // none available
         $placeLocationOne = $resService->getFreeAndLeastAvailabe(1, $rootRound, $fromPlaceLocations);
@@ -206,4 +208,3 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
         $this->assertSame($winnersPoule->getPlace(4)->getCompetitor(), null);
     }
 }
-

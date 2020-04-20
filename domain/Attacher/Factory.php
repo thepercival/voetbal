@@ -22,37 +22,37 @@ class Factory
 {
     public function createObject(Importable $importable, ExternalSource $externalSource, $externalId): ?AttacherBase
     {
-        if( $importable instanceof Sport ) {
+        if ($importable instanceof Sport) {
             return new SportAttacher(
                 $importable,
                 $externalSource,
                 $externalId
             );
-        } else if( $importable instanceof Association ) {
+        } elseif ($importable instanceof Association) {
             return new AssociationAttacher(
                 $importable,
                 $externalSource,
                 $externalId
             );
-        } else if( $importable instanceof Season ) {
+        } elseif ($importable instanceof Season) {
             return new SeasonAttacher(
                 $importable,
                 $externalSource,
                 $externalId
             );
-        } else if( $importable instanceof League ) {
+        } elseif ($importable instanceof League) {
             return new LeagueAttacher(
                 $importable,
                 $externalSource,
                 $externalId
             );
-        }  else if( $importable instanceof Competition ) {
+        } elseif ($importable instanceof Competition) {
             return new CompetitionAttacher(
                 $importable,
                 $externalSource,
                 $externalId
             );
-        }  else if( $importable instanceof Competitor ) {
+        } elseif ($importable instanceof Competitor) {
             return new CompetitorAttacher(
                 $importable,
                 $externalSource,
@@ -61,5 +61,4 @@ class Factory
         }
         return null;
     }
-
 }

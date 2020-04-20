@@ -35,11 +35,11 @@ class Season implements Importable
 
     use ImportableTrait;
 
-    public function __construct( $name, Period $period )
+    public function __construct($name, Period $period)
     {
-        $this->setName( $name );
+        $this->setName($name);
         $this->competitions = new ArrayCollection();
-        $this->setPeriod( $period );
+        $this->setPeriod($period);
     }
 
     public function getId()
@@ -48,7 +48,7 @@ class Season implements Importable
     }
 
 
-    public function setId( $id )
+    public function setId($id)
     {
         $this->id = $id;
     }
@@ -64,10 +64,10 @@ class Season implements Importable
     /**
      * @param string $name
      */
-    public function setName( string $name )
+    public function setName(string $name)
     {
-        if ( strlen( $name ) < static::MIN_LENGTH_NAME or strlen( $name ) > static::MAX_LENGTH_NAME ){
-            throw new \InvalidArgumentException( "de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR );
+        if (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME) {
+            throw new \InvalidArgumentException("de naam moet minimaal ".static::MIN_LENGTH_NAME." karakters bevatten en mag maximaal ".static::MAX_LENGTH_NAME." karakters bevatten", E_ERROR);
         }
 
 //        if(preg_match('/[^0-9\s\/-]/i', $name)){
@@ -85,7 +85,7 @@ class Season implements Importable
         return $this->startDateTime;
     }
 
-    public function setStartDateTime( \DateTimeImmutable $startDateTime )
+    public function setStartDateTime(\DateTimeImmutable $startDateTime)
     {
         $this->startDateTime = $startDateTime;
     }
@@ -98,20 +98,20 @@ class Season implements Importable
         return $this->endDateTime;
     }
 
-    public function setEndDateTime( \DateTimeImmutable $endDateTime )
+    public function setEndDateTime(\DateTimeImmutable $endDateTime)
     {
         $this->endDateTime = $endDateTime;
     }
 
     public function getPeriod()
     {
-       return new Period( $this->getStartDateTime(), $this->getEndDateTime() );
+        return new Period($this->getStartDateTime(), $this->getEndDateTime());
     }
 
-    public function setPeriod( Period $period )
+    public function setPeriod(Period $period)
     {
-        $this->setStartDateTime( $period->getStartDate() );
-        $this->setEndDateTime( $period->getEndDate() );
+        $this->setStartDateTime($period->getStartDate());
+        $this->setEndDateTime($period->getEndDate());
     }
 
     /**

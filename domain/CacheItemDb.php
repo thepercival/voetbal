@@ -31,7 +31,7 @@ class CacheItemDb
 
     const MAX_LENGTH_NAME = 100;
 
-    public function __construct( string $name, $value, DateTimeImmutable $expireDateTime = null )
+    public function __construct(string $name, $value, DateTimeImmutable $expireDateTime = null)
     {
         $this->setName($name);
         $this->value = $value;
@@ -55,7 +55,7 @@ class CacheItemDb
 
     public function setName(string $name)
     {
-        if ( strlen($name) > static::MAX_LENGTH_NAME) {
+        if (strlen($name) > static::MAX_LENGTH_NAME) {
             throw new \InvalidArgumentException(
                 "de naam mag maximaal " . static::MAX_LENGTH_NAME . " karakters bevatten",
                 E_ERROR
@@ -76,7 +76,7 @@ class CacheItemDb
     /**
      * @param mixed $value
      */
-    public function setValue( $value )
+    public function setValue($value)
     {
         $this->value = $value;
     }
@@ -86,7 +86,7 @@ class CacheItemDb
         return $this->expireDateTime;
     }
 
-    public function setExpireDateTime( DateTimeImmutable $expireDateTime = null )
+    public function setExpireDateTime(DateTimeImmutable $expireDateTime = null)
     {
         $this->expireDateTime = $expireDateTime;
     }

@@ -210,29 +210,29 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $winnersChildRound = $rootRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
             $winnersLastPlace = $winnersChildRound->getPoule(1)->getPlace(2);
 
-            $this->assertSame($nameService->getPlaceFromName($winnersLastPlace, false, false),'?2');
-            $this->assertSame($nameService->getPlaceFromName($winnersLastPlace, false, true),'beste nummer 2');
+            $this->assertSame($nameService->getPlaceFromName($winnersLastPlace, false, false), '?2');
+            $this->assertSame($nameService->getPlaceFromName($winnersLastPlace, false, true), 'beste nummer 2');
 
             $winnersFirstPlace = $winnersChildRound->getPoule(1)->getPlace(1);
 
-            $this->assertSame($nameService->getPlaceFromName($winnersFirstPlace, false, false),'A1');
-            $this->assertSame($nameService->getPlaceFromName($winnersFirstPlace, false, true),'poule A nr. 1');
+            $this->assertSame($nameService->getPlaceFromName($winnersFirstPlace, false, false), 'A1');
+            $this->assertSame($nameService->getPlaceFromName($winnersFirstPlace, false, true), 'poule A nr. 1');
 
             $structureService->addQualifier($winnersChildRound, QualifyGroup::WINNERS);
             $doubleWinnersChildRound = $winnersChildRound->getBorderQualifyGroup(QualifyGroup::WINNERS)->getChildRound();
 
             $doubleWinnersFirstPlace = $doubleWinnersChildRound->getPoule(1)->getPlace(1);
 
-            $this->assertSame($nameService->getPlaceFromName($doubleWinnersFirstPlace, false, false),'D1');
-            $this->assertSame($nameService->getPlaceFromName($doubleWinnersFirstPlace, false, true),'winnaar D');
+            $this->assertSame($nameService->getPlaceFromName($doubleWinnersFirstPlace, false, false), 'D1');
+            $this->assertSame($nameService->getPlaceFromName($doubleWinnersFirstPlace, false, true), 'winnaar D');
 
             $structureService->addQualifier($winnersChildRound, QualifyGroup::LOSERS);
             $winnersLosersChildRound = $winnersChildRound->getBorderQualifyGroup(QualifyGroup::LOSERS)->getChildRound();
 
             $winnersLosersFirstPlace = $winnersLosersChildRound->getPoule(1)->getPlace(1);
 
-            $this->assertSame($nameService->getPlaceFromName($winnersLosersFirstPlace, false),'D2');
-            $this->assertSame($nameService->getPlaceFromName($winnersLosersFirstPlace, false, true),'verliezer D');
+            $this->assertSame($nameService->getPlaceFromName($winnersLosersFirstPlace, false), 'D2');
+            $this->assertSame($nameService->getPlaceFromName($winnersLosersFirstPlace, false, true), 'verliezer D');
         }
     }
 
@@ -257,7 +257,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $game = $rootRound->getGames()[0];
             $gamePlaces = $game->getPlaces();
 
-            $this->assertSame($nameService->getPlacesFromName($gamePlaces, false, false),'A2 & A3');
+            $this->assertSame($nameService->getPlacesFromName($gamePlaces, false, false), 'A2 & A3');
         }
     }
 
@@ -273,16 +273,16 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $rootRound = $structure->getRootRound();
 
             $firstWinnersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule),'nummers 1');
+            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule), 'nummers 1');
 
             $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
             $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
 
             $firstWinnersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule2),'2 beste nummers 1');
+            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule2), '2 beste nummers 1');
 
             $firstLosersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule),'2 slechtste nummers laatste');
+            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule), '2 slechtste nummers laatste');
 
             $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
             $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
@@ -291,25 +291,25 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
 
             $firstWinnersHorPoule3 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule3),'nummers 1');
+            $this->assertSame($nameService->getHorizontalPouleName($firstWinnersHorPoule3), 'nummers 1');
 
             $firstLosersHorPoule3 = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[0];
-            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule3),'nummers laatste');
+            $this->assertSame($nameService->getHorizontalPouleName($firstLosersHorPoule3), 'nummers laatste');
 
             $secondWinnersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule),'beste nummer 2');
+            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule), 'beste nummer 2');
 
             $secondLosersHorPoule = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule),'slechtste 1 na laatst');
+            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule), 'slechtste 1 na laatst');
 
 
             $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
             $secondWinnersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::WINNERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule2),'2 beste nummers 2');
+            $this->assertSame($nameService->getHorizontalPouleName($secondWinnersHorPoule2), '2 beste nummers 2');
 
             $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
             $secondLosersHorPoule2 = $rootRound->getHorizontalPoules(QualifyGroup::LOSERS)[1];
-            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule2),'2 slechtste nummers 1 na laatst');
+            $this->assertSame($nameService->getHorizontalPouleName($secondLosersHorPoule2), '2 slechtste nummers 1 na laatst');
         }
     }
 
@@ -338,9 +338,9 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
             $game = $rootRound->getGames()[0];
 
-            $this->assertSame($nameService->getRefereeName($game),'CDK');
-            $this->assertSame($nameService->getRefereeName($game, false),'CDK');
-            $this->assertSame($nameService->getRefereeName($game, true),'Co Du');
+            $this->assertSame($nameService->getRefereeName($game), 'CDK');
+            $this->assertSame($nameService->getRefereeName($game, false), 'CDK');
+            $this->assertSame($nameService->getRefereeName($game, true), 'Co Du');
 
             $rootRound->getNumber()->getValidPlanningConfig()->setSelfReferee(true);
             // @TODO implements planningservice with sports!!

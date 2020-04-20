@@ -34,12 +34,12 @@ class Score
     const SCORED = 1;
     const RECEIVED = 2;
 
-    public function __construct( Game $game, int $home, int $away, int $phase, int $number = null )
+    public function __construct(Game $game, int $home, int $away, int $phase, int $number = null)
     {
-        $this->setHome( $home );
-        $this->setAway( $away );
-        $this->setGame( $game );
-        $this->setPhase( $phase );
+        $this->setHome($home);
+        $this->setAway($away);
+        $this->setGame($game);
+        $this->setPhase($phase);
         if ($number === null) {
             $number = $game->getScores()->count();
         }
@@ -59,7 +59,7 @@ class Score
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId(int $id)
     {
         $this->id = $id;
     }
@@ -75,9 +75,9 @@ class Score
     /**
      * @param Game $game
      */
-    public function setGame( Game $game )
+    public function setGame(Game $game)
     {
-        if ( $this->game === null and $game !== null and !$game->getScores()->contains( $this )){
+        if ($this->game === null and $game !== null and !$game->getScores()->contains($this)) {
             $game->getScores()->add($this) ;
         }
         $this->game = $game;

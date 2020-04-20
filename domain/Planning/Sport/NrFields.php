@@ -2,7 +2,8 @@
 
 namespace Voetbal\Planning\Sport;
 
-class NrFields {
+class NrFields
+{
     /**
      * @var int
      */
@@ -16,22 +17,25 @@ class NrFields {
      */
     private $nrOfGamePlaces;
 
-    public function __construct( int $sportNr, int $nrOfFields, int $nrOfGamePlaces )
+    public function __construct(int $sportNr, int $nrOfFields, int $nrOfGamePlaces)
     {
         $this->sportNr = $sportNr;
         $this->nrOfFields = $nrOfFields;
         $this->nrOfGamePlaces = $nrOfGamePlaces;
     }
 
-    public function getSportNr(): int {
+    public function getSportNr(): int
+    {
         return $this->sportNr;
     }
 
-    public function getNrOfFields(): int {
+    public function getNrOfFields(): int
+    {
         return $this->nrOfFields;
     }
 
-    public function getNrOfGamePlaces(): int {
+    public function getNrOfGamePlaces(): int
+    {
         return $this->nrOfGamePlaces;
     }
 }

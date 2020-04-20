@@ -18,7 +18,6 @@ use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
 
 class NameService
 {
-
     public function getWinnersLosersDescription(int $winnersOrLosers, bool $multiple = false): string
     {
         $description = $winnersOrLosers === QualifyGroup::WINNERS ? 'winnaar' : ($winnersOrLosers === QualifyGroup::LOSERS ? 'verliezer' : '');
@@ -70,7 +69,8 @@ class NameService
             $firstLetter = ($pouleStructureNumber - $secondLetter) / 26;
             $pouleName .= (chr(ord('A') + ($firstLetter - 1)));
         }
-        $pouleName .= (chr(ord('A') + $secondLetter));;
+        $pouleName .= (chr(ord('A') + $secondLetter));
+        ;
         return $pouleName;
     }
 

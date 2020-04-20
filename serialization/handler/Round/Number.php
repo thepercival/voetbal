@@ -57,31 +57,31 @@ class Number implements SubscribingHandlerInterface
     public function deserializeFromJson(JsonDeserializationVisitor $visitor, $arrRoundNumber, array $type, Context $context)
     {
         $roundNumber = null;
-        if( array_key_exists( "previous", $type["params"]) && $type["params"]["previous"] !== null ) {
+        if (array_key_exists("previous", $type["params"]) && $type["params"]["previous"] !== null) {
             $roundNumber = $type["params"]["previous"]->createNext();
         } else {
-            $roundNumber = new RoundNumber( $type["params"]["competition"], null );
+            $roundNumber = new RoundNumber($type["params"]["competition"], null);
         }
 
 //        if( array_key_exists( "id", $arrRoundNumber) ) {
 //            $roundNumber->setId($arrRoundNumber["id"]);
 //        }
 
-        if ( array_key_exists("planningConfig", $arrRoundNumber) ) {
-            $metadataConfig = new StaticPropertyMetadata('Voetbal\Planning\Config', "planningConfig", $arrRoundNumber["planningConfig"] );
+        if (array_key_exists("planningConfig", $arrRoundNumber)) {
+            $metadataConfig = new StaticPropertyMetadata('Voetbal\Planning\Config', "planningConfig", $arrRoundNumber["planningConfig"]);
             $metadataConfig->setType(['name' => 'Voetbal\Planning\Config', "params" => [ "roundnumber" => $roundNumber]]);
-            $roundNumber->setPlanningConfig( $visitor->visitProperty($metadataConfig, $arrRoundNumber) );
+            $roundNumber->setPlanningConfig($visitor->visitProperty($metadataConfig, $arrRoundNumber));
         }
 
-        if( array_key_exists( "sportScoreConfigs", $arrRoundNumber ) ) {
+        if (array_key_exists("sportScoreConfigs", $arrRoundNumber)) {
             foreach ($arrRoundNumber["sportScoreConfigs"] as $arrSportScoreConfig) {
-                $sport = $this->createSport( $arrSportScoreConfig["sport"] );
+                $sport = $this->createSport($arrSportScoreConfig["sport"]);
                 $this->createSportScoreConfig($arrSportScoreConfig, $sport, $roundNumber);
             }
         }
-        if ( array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null ) {
+        if (array_key_exists("next", $arrRoundNumber) && $arrRoundNumber["next"] !== null) {
             $arrRoundNumber["next"]["previous"] = $roundNumber;
-            $metadataNext = new StaticPropertyMetadata('Voetbal\Round\Number', "next", $arrRoundNumber["next"] );
+            $metadataNext = new StaticPropertyMetadata('Voetbal\Round\Number', "next", $arrRoundNumber["next"]);
             $metadataNext->setType(['name' => 'Voetbal\Round\Number', "params" => [
                 "competition" => $roundNumber->getCompetition(),
                 "previous" => $roundNumber
@@ -92,20 +92,22 @@ class Number implements SubscribingHandlerInterface
         return $roundNumber;
     }
 
-    protected function createSport( array $arrSport ): Sport {
-        $sport = new Sport( $arrSport["name"] );
+    protected function createSport(array $arrSport): Sport
+    {
+        $sport = new Sport($arrSport["name"]);
         $sport->setTeam($arrSport["team"]);
         $sport->setCustomId($arrSport["customId"]);
         return $sport;
     }
 
-    protected function createSportScoreConfig( array $arrConfig, Sport $sport, RoundNumber $roundNumber, SportScoreConfig $previous = null ) {
-        $config = new SportScoreConfig($sport, $roundNumber, $previous );
+    protected function createSportScoreConfig(array $arrConfig, Sport $sport, RoundNumber $roundNumber, SportScoreConfig $previous = null)
+    {
+        $config = new SportScoreConfig($sport, $roundNumber, $previous);
         $config->setDirection($arrConfig["direction"]);
         $config->setMaximum($arrConfig["maximum"]);
         $config->setEnabled($arrConfig["enabled"]);
-        if( array_key_exists("next", $arrConfig ) && $arrConfig["next"] !== null ) {
-            $this->createSportScoreConfig( $arrConfig["next"], $sport, $roundNumber, $config );
+        if (array_key_exists("next", $arrConfig) && $arrConfig["next"] !== null) {
+            $this->createSportScoreConfig($arrConfig["next"], $sport, $roundNumber, $config);
         }
     }
 

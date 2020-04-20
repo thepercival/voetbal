@@ -48,15 +48,19 @@ class Service
         */
         $nrOfHeadtohead = $config->getNrOfHeadtohead();
         $structureConfig = $this->getStructureConfig($roundNumber);
-        $sportConfig = $this->getSportConfig($roundNumber, $nrOfHeadtohead, $teamup );
+        $sportConfig = $this->getSportConfig($roundNumber, $nrOfHeadtohead, $teamup);
 
         // $multipleSports = count($sportConfig) > 1;
 //        if ($multipleSports) {
 //            $nrOfHeadtohead = $this->getSufficientNrOfHeadtoheadByRoundNumber($roundNumber, $sportConfig);
 //        }
         return new PlanningInput(
-            $structureConfig, $sportConfig,
-            $nrOfReferees, $teamup, $selfReferee, $nrOfHeadtohead
+            $structureConfig,
+            $sportConfig,
+            $nrOfReferees,
+            $teamup,
+            $selfReferee,
+            $nrOfHeadtohead
         );
     }
 
@@ -79,8 +83,12 @@ class Service
             $input->getNrOfReferees()
         );
         return new PlanningInput(
-            $structureConfig, $sportConfig,
-            $nrOfReferees, $input->getTeamup(), $input->getSelfReferee(), $input->getNrOfHeadtohead()
+            $structureConfig,
+            $sportConfig,
+            $nrOfReferees,
+            $input->getTeamup(),
+            $input->getSelfReferee(),
+            $input->getNrOfHeadtohead()
         );
     }
 
@@ -93,8 +101,12 @@ class Service
             $input->getNrOfReferees()
         );
         return new PlanningInput(
-            $structureConfig, $sportConfig,
-            $nrOfReferees, $input->getTeamup(), $input->getSelfReferee(), $input->getNrOfHeadtohead()
+            $structureConfig,
+            $sportConfig,
+            $nrOfReferees,
+            $input->getTeamup(),
+            $input->getSelfReferee(),
+            $input->getNrOfHeadtohead()
         );
     }
 
@@ -182,13 +194,13 @@ class Service
      */
     protected function getSportConfig(RoundNumber $roundNumber, int $nrOfHeadtohead, bool $teamup): array
     {
-        $maxNrOfFields = $this->getMaxNrOfFields( $roundNumber, $nrOfHeadtohead, $teamup );
+        $maxNrOfFields = $this->getMaxNrOfFields($roundNumber, $nrOfHeadtohead, $teamup);
 
         $sportConfigRet = [];
         /** @var \Voetbal\Sport\Config $sportConfig */
         foreach ($roundNumber->getSportConfigs() as $sportConfig) {
             $nrOfFields = $sportConfig->getNrOfFields();
-            if( $nrOfFields > $maxNrOfFields ) {
+            if ($nrOfFields > $maxNrOfFields) {
                 $nrOfFields = $maxNrOfFields;
             }
             $sportConfigRet[] = [
@@ -211,7 +223,7 @@ class Service
         $nrOfGames = 0;
         /** @var \Voetbal\Poule $poule */
         foreach ($roundNumber->getPoules() as $poule) {
-            $nrOfGames += $sportService->getNrOfGamesPerPoule( $poule->getPlaces()->count(), $teamup, $nrOfHeadtohead );
+            $nrOfGames += $sportService->getNrOfGamesPerPoule($poule->getPlaces()->count(), $teamup, $nrOfHeadtohead);
         }
         return $nrOfGames;
     }

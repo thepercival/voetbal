@@ -29,12 +29,14 @@ class ServiceOld
         $this->repos = $repos;
     }
 
-    public function create( Importable $importable, ExternalSource $externalSource, $externalId )
+    public function create(Importable $importable, ExternalSource $externalSource, $externalId)
     {
         // make an external from the importable and save to the repos
-        $externalClass = $this->getAttacherClass( get_class($importable) );
+        $externalClass = $this->getAttacherClass(get_class($importable));
         $externalobject = new $externalClass(
-            $importable, $externalSource, $externalId
+            $importable,
+            $externalSource,
+            $externalId
         );
         return $this->repos->save($externalobject);
     }
@@ -43,14 +45,14 @@ class ServiceOld
      * @param Attacher $attacher
      * @return mixed
      */
-    public function remove( Attacher $attacher )
+    public function remove(Attacher $attacher)
     {
-        return $this->repos->remove( $attacher );
+        return $this->repos->remove($attacher);
     }
 
-    public function getAttacherClass( $className )
+    public function getAttacherClass($className)
     {
-        return str_replace( "Voetbal\\", "Voetbal\\Attacher\\", $className );
+        return str_replace("Voetbal\\", "Voetbal\\Attacher\\", $className);
     }
 
 //    public function toJSON( Attacher $attacher )

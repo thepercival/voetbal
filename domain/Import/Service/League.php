@@ -35,8 +35,7 @@ class League implements ImporterInterface
         LeagueAttacherRepository $leagueAttacherRepos,
         AssociationAttacherRepository $associationAttacherRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->logger = $logger;
         $this->leagueRepos = $leagueRepos;
         $this->leagueAttacherRepos = $leagueAttacherRepos;
@@ -62,7 +61,9 @@ class League implements ImporterInterface
                     continue;
                 }
                 $leagueAttacher = new LeagueAttacher(
-                    $league, $externalSource, $externalId
+                    $league,
+                    $externalSource,
+                    $externalId
                 );
                 $this->leagueAttacherRepos->save($leagueAttacher);
             } else {
@@ -78,7 +79,7 @@ class League implements ImporterInterface
             $externalSource,
             $externalSourceLeague->getAssociation()->getId()
         );
-        if( $association === null ) {
+        if ($association === null) {
             return null;
         }
         $league = new LeagueBase($association, $externalSourceLeague->getName());

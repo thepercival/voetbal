@@ -57,7 +57,7 @@ class Unranked
      * @param PlaceLocation $placeLocation
      * @param int|null $penaltyPoints
      */
-    public function __construct( Round $round, PlaceLocation $placeLocation, ?int $penaltyPoints )
+    public function __construct(Round $round, PlaceLocation $placeLocation, ?int $penaltyPoints)
     {
         $this->round = $round;
         $this->placeLocation = $placeLocation;
@@ -66,67 +66,83 @@ class Unranked
         }
     }
 
-    public function getRound(): Round {
+    public function getRound(): Round
+    {
         return $this->round;
     }
 
-    public function getPlaceLocation(): PlaceLocation {
+    public function getPlaceLocation(): PlaceLocation
+    {
         return $this->placeLocation;
     }
 
-    public function getGames(): int {
+    public function getGames(): int
+    {
         return $this->games;
     }
 
-    public function addGame() {
+    public function addGame()
+    {
         $this->games++;
     }
 
-    public function getPoints(): int {
+    public function getPoints(): int
+    {
         return $this->points;
     }
 
-    public function addPoints( int $points) {
+    public function addPoints(int $points)
+    {
         $this->points += $points;
     }
 
-    public function getScored(): int {
+    public function getScored(): int
+    {
         return $this->scored;
     }
 
-    public function addScored(int $scored) {
+    public function addScored(int $scored)
+    {
         $this->scored += $scored;
     }
 
-    public function getReceived(): int {
+    public function getReceived(): int
+    {
         return $this->received;
     }
 
-    public function addReceived(int $received) {
+    public function addReceived(int $received)
+    {
         $this->received += $received;
     }
 
-    public function getDiff(): int {
+    public function getDiff(): int
+    {
         return $this->getScored() - $this->getReceived();
     }
 
-    public function getSubScored(): int {
+    public function getSubScored(): int
+    {
         return $this->subScored;
     }
 
-    public function addSubScored(int $subScored) {
+    public function addSubScored(int $subScored)
+    {
         $this->subScored += $subScored;
     }
 
-    public function getSubReceived(): int {
+    public function getSubReceived(): int
+    {
         return $this->subReceived;
     }
 
-    public function addSubReceived(int $subReceived) {
+    public function addSubReceived(int $subReceived)
+    {
         $this->subReceived += $subReceived;
     }
 
-    public function getSubDiff(): int {
+    public function getSubDiff(): int
+    {
         return $this->getSubScored() - $this->getSubReceived();
     }
 }

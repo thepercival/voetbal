@@ -246,8 +246,7 @@ class ApiHelper
         ExternalLeague $externalLeague,
         ExternalSeason $externalSeason,
         string $stage = null /* round */
-    ): ?array
-    {
+    ): ?array {
         $retVal = $this->getData(
             "competitions/" . $externalLeague->getExternalId() . "/matches?season=" . $externalSeason->getExternalId()
         );

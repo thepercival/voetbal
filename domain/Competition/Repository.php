@@ -17,7 +17,7 @@ class Repository extends \Voetbal\Repository
         return $this->_em->find($this->_entityName, $id, $lockMode, $lockVersion);
     }
 
-    public function customPersist( Competition $competition )
+    public function customPersist(Competition $competition)
     {
         foreach ($competition->getFields() as $field) {
             $this->_em->persist($field);
@@ -33,7 +33,7 @@ class Repository extends \Voetbal\Repository
         $this->_em->persist($competition);
     }
 
-    public function findExt( League $league, Season $season )
+    public function findExt(League $league, Season $season)
     {
         $query = $this->createQueryBuilder('c')
             ->where('c.season = :season')
@@ -41,14 +41,14 @@ class Repository extends \Voetbal\Repository
         $query = $query->setParameter('season', $season);
         $query = $query->setParameter('league', $league);
         $results = $query->getQuery()->getResult();
-        $result = reset( $results );
+        $result = reset($results);
         return $result;
     }
 
-    public function findOneByLeagueAndDate( League $league, \DateTimeImmutable $date )
+    public function findOneByLeagueAndDate(League $league, \DateTimeImmutable $date)
     {
         $query = $this->createQueryBuilder('cs')
-            ->join("cs.season","s")
+            ->join("cs.season", "s")
             ->where('s.startDateTime <= :date')
             ->andWhere('s.endDateTime >= :date')
             ->andWhere('cs.league = :league');
@@ -65,7 +65,7 @@ class Repository extends \Voetbal\Repository
 //            $query = $query->setParameter('studentnummer', $studentnummer);
 //        }
         $results = $query->getQuery()->getResult();
-        $result = reset( $results );
+        $result = reset($results);
         return $result;
     }
 }

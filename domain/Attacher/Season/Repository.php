@@ -8,5 +8,4 @@ namespace Voetbal\Attacher\Season;
  */
 class Repository extends \Voetbal\Attacher\Repository
 {
-
 }

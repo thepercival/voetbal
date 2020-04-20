@@ -2,7 +2,8 @@
 
 namespace Voetbal\Place;
 
-class Location {
+class Location
+{
     /**
      * @var int
      */
@@ -12,16 +13,19 @@ class Location {
      */
     private $placeNr;
 
-    public function __construct( int $pouleNr, int $placeNr ) {
+    public function __construct(int $pouleNr, int $placeNr)
+    {
         $this->pouleNr = $pouleNr;
         $this->placeNr = $placeNr;
     }
 
-    public function getPouleNr(): int {
+    public function getPouleNr(): int
+    {
         return $this->pouleNr;
     }
 
-    public function getPlaceNr(): int {
+    public function getPlaceNr(): int
+    {
         return $this->placeNr;
     }
 }

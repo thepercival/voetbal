@@ -29,7 +29,7 @@ class Sport
      */
     protected $fields;
 
-    public function __construct( PlanningBase $planning, int $number, int $nrOfGamePlaces )
+    public function __construct(PlanningBase $planning, int $number, int $nrOfGamePlaces)
     {
         $this->planning = $planning;
         $this->number = $number;
@@ -37,7 +37,8 @@ class Sport
         $this->fields = new ArrayCollection();
     }
 
-    public function getPlanning(): PlanningBase {
+    public function getPlanning(): PlanningBase
+    {
         return $this->planning;
     }
 

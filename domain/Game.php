@@ -78,12 +78,12 @@ class Game implements Importable
 
     use ImportableTrait;
 
-    public function __construct( Poule $poule, int $batchNr, \DateTimeImmutable $startDateTime )
+    public function __construct(Poule $poule, int $batchNr, \DateTimeImmutable $startDateTime)
     {
-        $this->setPoule( $poule );
+        $this->setPoule($poule);
         $this->batchNr = $batchNr;
         $this->startDateTime = $startDateTime;
-        $this->setState( State::Created );
+        $this->setState(State::Created);
         $this->places = new ArrayCollection();
         $this->scores = new ArrayCollection();
     }
@@ -100,7 +100,7 @@ class Game implements Importable
      * @param int|string $id
      * @return void
      */
-    public function setId( $id )
+    public function setId($id)
     {
         $this->id = $id;
     }
@@ -116,9 +116,9 @@ class Game implements Importable
     /**
      * @param Poule $poule
      */
-    public function setPoule( Poule $poule )
+    public function setPoule(Poule $poule)
     {
-        if ( $this->poule === null and $poule !== null and !$poule->getGames()->contains( $this )){
+        if ($this->poule === null and $poule !== null and !$poule->getGames()->contains($this)) {
             $poule->getGames()->add($this) ;
         }
         $this->poule = $poule;
@@ -151,7 +151,7 @@ class Game implements Importable
     /**
      * @param \DateTimeImmutable $startDateTime
      */
-    public function setStartDateTime( \DateTimeImmutable $startDateTime )
+    public function setStartDateTime(\DateTimeImmutable $startDateTime)
     {
         $this->startDateTime = $startDateTime;
     }
@@ -167,10 +167,10 @@ class Game implements Importable
     /**
      * @param int $state
      */
-    public function setState( $state )
+    public function setState($state)
     {
-        if ( !is_int( $state )   ){
-            throw new \InvalidArgumentException( "de status heeft een onjuiste waarde", E_ERROR );
+        if (!is_int($state)) {
+            throw new \InvalidArgumentException("de status heeft een onjuiste waarde", E_ERROR);
         }
         $this->state = $state;
     }
@@ -186,7 +186,7 @@ class Game implements Importable
     /**
      * @param Referee $referee
      */
-    public function setReferee( Referee $referee = null )
+    public function setReferee(Referee $referee = null)
     {
         $this->referee = $referee;
     }
@@ -202,7 +202,7 @@ class Game implements Importable
     /**
      * @param int $refereeRank
      */
-    public function setRefereeRank( int $refereeRank = null )
+    public function setRefereeRank(int $refereeRank = null)
     {
         $this->refereeRank = $refereeRank;
     }
@@ -218,7 +218,7 @@ class Game implements Importable
     /**
      * @param Place $refereePlace
      */
-    public function setRefereePlace( Place $refereePlace = null )
+    public function setRefereePlace(Place $refereePlace = null)
     {
         $this->refereePlace = $refereePlace;
     }
@@ -234,7 +234,7 @@ class Game implements Importable
     /**
      * @param int $refereePlaceId
      */
-    public function setRefereePlaceId( int $refereePlaceId = null )
+    public function setRefereePlaceId(int $refereePlaceId = null)
     {
         $this->refereePlaceId = $refereePlaceId;
     }
@@ -250,7 +250,7 @@ class Game implements Importable
     /**
      * @param Field $field
      */
-    public function setField( Field $field = null )
+    public function setField(Field $field = null)
     {
         $this->field = $field;
     }
@@ -266,7 +266,7 @@ class Game implements Importable
     /**
      * @param int $fieldNr
      */
-    public function setFieldNr( int $fieldNr = null )
+    public function setFieldNr(int $fieldNr = null)
     {
         $this->fieldNr = $fieldNr;
     }
@@ -291,13 +291,13 @@ class Game implements Importable
      * @param bool|null $homeaway
      * @return Collection | GamePlace[]
      */
-    public function getPlaces( bool $homeaway = null ): Collection
+    public function getPlaces(bool $homeaway = null): Collection
     {
         if ($homeaway === null) {
             return $this->places;
         }
         return new ArrayCollection(
-            $this->places->filter( function( $gamePlace ) use ( $homeaway ) {
+            $this->places->filter(function ($gamePlace) use ($homeaway) {
                 return $gamePlace->getHomeaway() === $homeaway;
             })->toArray()
         );
@@ -318,7 +318,7 @@ class Game implements Importable
      */
     public function addPlace(Place $place, bool $homeaway): GamePlace
     {
-        return new GamePlace( $this, $place, $homeaway );
+        return new GamePlace($this, $place, $homeaway);
     }
 
     /**
@@ -326,38 +326,44 @@ class Game implements Importable
      * @param bool|null $homeaway
      * @return bool
      */
-    public function isParticipating(Place $place, bool $homeaway = null ): bool {
-        $places = $this->getPlaces( $homeaway )->map( function( $gamePlace ) { return $gamePlace->getPlace(); } );
-        return $places->contains( $place );
+    public function isParticipating(Place $place, bool $homeaway = null): bool
+    {
+        $places = $this->getPlaces($homeaway)->map(function ($gamePlace) {
+            return $gamePlace->getPlace();
+        });
+        return $places->contains($place);
     }
 
     public function getHomeAway(Place $place): ?bool
     {
-        if( $this->isParticipating($place, Game::HOME )) {
+        if ($this->isParticipating($place, Game::HOME)) {
             return Game::HOME;
         }
-        if( $this->isParticipating($place, Game::AWAY )) {
+        if ($this->isParticipating($place, Game::AWAY)) {
             return Game::AWAY;
         }
         return null;
     }
 
-    public function getFinalPhase(): int {
+    public function getFinalPhase(): int
+    {
         if ($this->getScores()->count()  === 0) {
             return 0;
         }
         return $this->getScores()->last()->getPhase();
     }
 
-    public function getSportConfig(): SportConfig {
+    public function getSportConfig(): SportConfig
+    {
         $field = $this->getField();
-        if ( $field === null ) {
+        if ($field === null) {
             return $this->getRound()->getNumber()->getCompetition()->getFirstSportConfig();
         }
-        return $this->getRound()->getNumber()->getCompetition()->getSportConfig( $field->getSport() );
+        return $this->getRound()->getNumber()->getCompetition()->getSportConfig($field->getSport());
     }
 
-    public function getSportScoreConfig() {
-        return $this->getRound()->getNumber()->getValidSportScoreConfig( $this->getField()->getSport() );
+    public function getSportScoreConfig()
+    {
+        return $this->getRound()->getNumber()->getValidSportScoreConfig($this->getField()->getSport());
     }
 }

@@ -7,23 +7,26 @@ use Voetbal\Planning\Place;
 use Voetbal\Planning\Poule;
 use Voetbal\Planning\Resource\RefereePlaces;
 
-class TwoPoules extends RefereePlaces{
-
-    public function __construct( array $poules )
+class TwoPoules extends RefereePlaces
+{
+    public function __construct(array $poules)
     {
-        parent::__construct( $poules );
+        parent::__construct($poules);
     }
 
-    public function isEmpty( Poule $poule ): bool {
-        return $this->count( $poule ) === 0;
+    public function isEmpty(Poule $poule): bool
+    {
+        return $this->count($poule) === 0;
     }
 
-    public function fill( Batch $batch ) {
+    public function fill(Batch $batch)
+    {
         $this->refereePlaces = $this->getByStructure();
     }
 
-    public function refill( Poule $poule, array $games ) {
-        foreach( $poule->getPlaces() as $place ) {
+    public function refill(Poule $poule, array $games)
+    {
+        foreach ($poule->getPlaces() as $place) {
             $this->refereePlaces[$place->getLocation()] = $place;
         }
     }

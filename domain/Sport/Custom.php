@@ -7,7 +7,8 @@
  */
 namespace Voetbal\Sport;
 
-abstract class Custom {
+abstract class Custom
+{
     const Min = 1;
     const Badminton = 1;
     const Basketball = 2;
@@ -25,7 +26,8 @@ abstract class Custom {
     const IceHockey = 14;
     const Max = 14;
 
-    static public function get(): array {
+    public static function get(): array
+    {
         return [
             Custom::Badminton,
             Custom::Basketball,
@@ -44,4 +46,3 @@ abstract class Custom {
         ];
     }
 }
-

@@ -20,10 +20,14 @@ use Voetbal\Planning\Input as PlanningInput;
  */
 class Repository extends \Voetbal\Repository
 {
-    public function get( array $structureConfig, array $sportConfig,
-                         int $nrOfReferees, bool $teamup, bool $selfReferee, int $nrOfHeadtohead
-    ): ?PlanningInput
-    {
+    public function get(
+        array $structureConfig,
+        array $sportConfig,
+        int $nrOfReferees,
+        bool $teamup,
+        bool $selfReferee,
+        int $nrOfHeadtohead
+    ): ?PlanningInput {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.structureConfig = :structureConfig')
             ->andWhere('pi.sportConfig = :sportConfig')
@@ -33,12 +37,12 @@ class Repository extends \Voetbal\Repository
             ->andWhere('pi.nrOfHeadtohead = :nrOfHeadtohead')
         ;
 
-        $query = $query->setParameter('structureConfig', json_encode($structureConfig) );
-        $query = $query->setParameter('sportConfig', json_encode($sportConfig) );
+        $query = $query->setParameter('structureConfig', json_encode($structureConfig));
+        $query = $query->setParameter('sportConfig', json_encode($sportConfig));
         $query = $query->setParameter('nrOfReferees', $nrOfReferees);
-        $query = $query->setParameter('teamup', $teamup );
-        $query = $query->setParameter('selfReferee', $selfReferee );
-        $query = $query->setParameter('nrOfHeadtohead', $nrOfHeadtohead );
+        $query = $query->setParameter('teamup', $teamup);
+        $query = $query->setParameter('selfReferee', $selfReferee);
+        $query = $query->setParameter('nrOfHeadtohead', $nrOfHeadtohead);
 
         $query->setMaxResults(1);
 
@@ -47,7 +51,7 @@ class Repository extends \Voetbal\Repository
         return $first !== false ? $first : null;
     }
 
-    public function getFromInput( PlanningInput $input ): ?PlanningInput
+    public function getFromInput(PlanningInput $input): ?PlanningInput
     {
         return $this->get(
             $input->getStructureConfig(),
@@ -55,20 +59,23 @@ class Repository extends \Voetbal\Repository
             $input->getNrOfReferees(),
             $input->getTeamup(),
             $input->getSelfReferee(),
-            $input->getNrOfHeadtohead() );
+            $input->getNrOfHeadtohead()
+        );
     }
 
-    public function isProcessing( int $state ): bool {
-        return $this->count( ["state" => $state ] ) > 0;
+    public function isProcessing(int $state): bool
+    {
+        return $this->count(["state" => $state ]) > 0;
     }
 
 //    public function getMaxTimeoutSeconds() {
 
 //    }
 
-    public function getProcessing( int $state ): ?PlanningInput {
+    public function getProcessing(int $state): ?PlanningInput
+    {
         $query = $this->createQueryBuilder('pi')
-            ->where('pi.state', $state )
+            ->where('pi.state', $state)
         ;
         $query->setMaxResults(1);
         $results = $query->getQuery()->getResult();
@@ -76,14 +83,15 @@ class Repository extends \Voetbal\Repository
         return $first !== false ? $first : null;
     }
 
-    public function getFirstUnsuccessful(): ?PlanningInput {
+    public function getFirstUnsuccessful(): ?PlanningInput
+    {
         $query = $this->createQueryBuilder('pi')
             ->where('pi.state = :state')
             // ->andWhere("pi.structureConfig = '[4]'")
             // ->andWhere('pi.nrOfHeadtohead = 91') // @FREDDY
             ->orderBy('pi.createdAt', 'DESC')
         ;
-        $query->setParameter('state', PlanningInput::STATE_CREATED );
+        $query->setParameter('state', PlanningInput::STATE_CREATED);
 
         $query->setMaxResults(1);
 

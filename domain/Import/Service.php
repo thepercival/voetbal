@@ -118,7 +118,7 @@ class Service
         $importSeasonService->import(
             $externalSourceImplementation->getExternalSource(),
             $externalSourceImplementation->getSeasons()
-        );        
+        );
     }
 
     public function importLeagues(
@@ -187,15 +187,14 @@ class Service
 
         $filter = ["externalSource" => $externalSourceImplementation->getExternalSource() ];
         $competitionAttachers = $competitionAttacherRepos->findBy($filter);
-        foreach( $competitionAttachers as $competitionAttacher ) {
-
-            $competition = $externalSourceImplementation->getCompetition( $competitionAttacher->getExternalId() );
-            if( $competition === null ) {
+        foreach ($competitionAttachers as $competitionAttacher) {
+            $competition = $externalSourceImplementation->getCompetition($competitionAttacher->getExternalId());
+            if ($competition === null) {
                 continue;
             }
             $importCompetitorService->import(
                 $externalSourceImplementation->getExternalSource(),
-                $externalSourceImplementation->getCompetitors( $competition )
+                $externalSourceImplementation->getCompetitors($competition)
             );
         }
     }
@@ -219,15 +218,14 @@ class Service
 
         $filter = ["externalSource" => $externalSourceImplementation->getExternalSource() ];
         $competitionAttachers = $competitionAttacherRepos->findBy($filter);
-        foreach( $competitionAttachers as $competitionAttacher ) {
-
-            $competition = $externalSourceImplementation->getCompetition( $competitionAttacher->getExternalId() );
-            if( $competition === null ) {
+        foreach ($competitionAttachers as $competitionAttacher) {
+            $competition = $externalSourceImplementation->getCompetition($competitionAttacher->getExternalId());
+            if ($competition === null) {
                 continue;
             }
             $importStructureService->import(
                 $externalSourceImplementation->getExternalSource(),
-                [$externalSourceImplementation->getStructure( $competition )]
+                [$externalSourceImplementation->getStructure($competition)]
             );
         }
     }
@@ -260,27 +258,26 @@ class Service
 
         $filter = ["externalSource" => $externalSourceImplementation->getExternalSource() ];
         $competitionAttachers = $competitionAttacherRepos->findBy($filter);
-        foreach( $competitionAttachers as $competitionAttacher ) {
-
-            $externalCompetition = $externalSourceImplementation->getCompetition( $competitionAttacher->getExternalId() );
-            if( $externalCompetition === null ) {
+        foreach ($competitionAttachers as $competitionAttacher) {
+            $externalCompetition = $externalSourceImplementation->getCompetition($competitionAttacher->getExternalId());
+            if ($externalCompetition === null) {
                 continue;
             }
             $competition = $competitionAttacher->getImportable();
-            $nrOfCompetitors = $competitorRepos->getNrOfCompetitors( $competition );
-            if( $nrOfCompetitors === 0 ) {
+            $nrOfCompetitors = $competitorRepos->getNrOfCompetitors($competition);
+            if ($nrOfCompetitors === 0) {
                 continue;
             }
-            $batchNrs = $externalSourceImplementation->getBatchNrs( $externalCompetition, true );
-            foreach( $batchNrs as $batchNr ) {
-                $finishedGames = $gameRepos->getCompetitionGames( $competition, State::Finished, $batchNr );
-                if( (count($finishedGames) * 2) === $nrOfCompetitors ) {
+            $batchNrs = $externalSourceImplementation->getBatchNrs($externalCompetition, true);
+            foreach ($batchNrs as $batchNr) {
+                $finishedGames = $gameRepos->getCompetitionGames($competition, State::Finished, $batchNr);
+                if ((count($finishedGames) * 2) === $nrOfCompetitors) {
                     continue;
                 }
                 // $importGameService->setPoule( );
                 $importGameService->import(
                     $externalSourceImplementation->getExternalSource(),
-                    $externalSourceImplementation->getGames( $externalCompetition, $batchNr )
+                    $externalSourceImplementation->getGames($externalCompetition, $batchNr)
                 );
             }
         }

@@ -10,5 +10,4 @@ namespace Voetbal\Season;
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

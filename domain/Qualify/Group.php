@@ -44,15 +44,15 @@ class Group
      */
     protected $horizontalPoules = [];
 
-    CONST WINNERS = 1;
-    CONST DROPOUTS = 2;
-    CONST LOSERS = 3;
+    const WINNERS = 1;
+    const DROPOUTS = 2;
+    const LOSERS = 3;
 
-    public function __construct( Round $round, int $winnersOrLosers, int $number = null )
+    public function __construct(Round $round, int $winnersOrLosers, int $number = null)
     {
         $this->setWinnersOrLosers($winnersOrLosers);
         if ($number === null) {
-            $this->setRound( $round );
+            $this->setRound($round);
         } else {
             $this->insertRoundAt($round, $number);
         }
@@ -71,7 +71,7 @@ class Group
     /**
      * @param int $id
      */
-    public function setId( int $id )
+    public function setId(int $id)
     {
         $this->id = $id;
     }
@@ -87,10 +87,10 @@ class Group
     /**
      * @param int $winnersOrLosers
      */
-    public function setWinnersOrLosers( $winnersOrLosers )
+    public function setWinnersOrLosers($winnersOrLosers)
     {
-        if ( !is_int( $winnersOrLosers )   ){
-            throw new \InvalidArgumentException( "winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR );
+        if (!is_int($winnersOrLosers)) {
+            throw new \InvalidArgumentException("winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR);
         }
         $this->winnersOrLosers = $winnersOrLosers;
     }
@@ -106,7 +106,7 @@ class Group
     /**
      * @param int $number
      */
-    public function setNumber( int $number )
+    public function setNumber(int $number)
     {
         $this->number = $number;
     }
@@ -119,10 +119,11 @@ class Group
         return $this->round;
     }
 
-    protected function insertRoundAt(Round $round, int $insertAt) {
+    protected function insertRoundAt(Round $round, int $insertAt)
+    {
         $qualifyGroups = $round->getQualifyGroups($this->getWinnersOrLosers());
-        if( $round !== null and !$qualifyGroups->contains( $this ) ) {
-            $round->addQualifyGroup( $this );
+        if ($round !== null and !$qualifyGroups->contains($this)) {
+            $round->addQualifyGroup($this);
             // sort auto because of sort-config in db-yml
         }
         $this->round = $round;
@@ -131,11 +132,11 @@ class Group
     /**
      * @param Round $round
      */
-    public function setRound( Round $round  )
+    public function setRound(Round $round)
     {
         $qualifyGroups = $round->getQualifyGroups($this->getWinnersOrLosers());
-        if( $round !== null and !$qualifyGroups->contains( $this ) ) {
-            $round->addQualifyGroup( $this );
+        if ($round !== null and !$qualifyGroups->contains($this)) {
+            $round->addQualifyGroup($this);
         }
         $this->round = $round;
     }
@@ -151,7 +152,7 @@ class Group
     /**
      * @param Round $childRound
      */
-    public function setChildRound( Round $childRound )
+    public function setChildRound(Round $childRound)
     {
         $this->childRound = $childRound;
     }
@@ -159,11 +160,13 @@ class Group
     /**
      * @return array | HorizontalPoule[]
      */
-    public function &getHorizontalPoules(): array {
+    public function &getHorizontalPoules(): array
+    {
         return $this->horizontalPoules;
     }
 
-    public function isBorderGroup(): bool {
+    public function isBorderGroup(): bool
+    {
         $qualifyGroups = $this->getRound()->getQualifyGroups($this->getWinnersOrLosers());
         return $this === $qualifyGroups->last();
     }
@@ -173,21 +176,25 @@ class Group
     //     return $borderHorizontalPoule->hasPlace($place);
     // }
 
-    public function getBorderPoule(): HorizontalPoule {
+    public function getBorderPoule(): HorizontalPoule
+    {
         return $this->horizontalPoules[count($this->horizontalPoules)-1];
     }
 
-    public function getNrOfPlaces() {
+    public function getNrOfPlaces()
+    {
         return count($this->getHorizontalPoules()) * $this->getRound()->getPoules()->count();
     }
 
-    public function getNrOfToPlacesTooMuch(): int {
+    public function getNrOfToPlacesTooMuch(): int
+    {
         return $this->getNrOfPlaces() - $this->getChildRound()->getNrOfPlaces();
     }
 
-    public function getNrOfQualifiers(): int {
+    public function getNrOfQualifiers(): int
+    {
         $nrOfQualifiers = 0;
-        foreach( $this->getHorizontalPoules() as $horizontalPoule ) {
+        foreach ($this->getHorizontalPoules() as $horizontalPoule) {
             $nrOfQualifiers += $horizontalPoule->getNrOfQualifiers();
         }
         return $nrOfQualifiers;

@@ -38,14 +38,14 @@ class Factory
         Repository $externalSourceRepos,
         CacheItemDbRepository $cacheItemDbRepos,
         LoggerInterface $logger
-    )
-    {
+    ) {
         $this->externalSourceRepos = $externalSourceRepos;
         $this->cacheItemDbRepos = $cacheItemDbRepos;
         $this->logger = $logger;
     }
 
-    public function setLogger( LoggerInterface $logger ) {
+    public function setLogger(LoggerInterface $logger)
+    {
         $this->logger = $logger;
     }
 
@@ -58,18 +58,18 @@ class Factory
 //    }
 
 
-    public function createByName( string $name)
+    public function createByName(string $name)
     {
-        $externalSource = $this->externalSourceRepos->findOneBy( ["name" => $name ] );
-        if( $externalSource === null ) {
+        $externalSource = $this->externalSourceRepos->findOneBy(["name" => $name ]);
+        if ($externalSource === null) {
             return null;
         }
-        return $this->create( $externalSource );
+        return $this->create($externalSource);
     }
 
-    protected function create( ExternalSource $externalSource )
+    protected function create(ExternalSource $externalSource)
     {
-        if ( $externalSource->getName() === SofaScore::NAME ) {
+        if ($externalSource->getName() === SofaScore::NAME) {
             return new SofaScore($externalSource, $this->cacheItemDbRepos, $this->logger);
         }
         return null;
@@ -78,41 +78,41 @@ class Factory
     /**
      * @param array|ExternalSource[] $externalSources
      */
-    public function setImplementations( array $externalSources ) {
+    public function setImplementations(array $externalSources)
+    {
         /** @var ExternalSource $externalSource */
-        foreach( $externalSources as $externalSource ) {
-            $externalSourceImpl = $this->create( $externalSource );
-            if( $externalSourceImpl === null) {
+        foreach ($externalSources as $externalSource) {
+            $externalSourceImpl = $this->create($externalSource);
+            if ($externalSourceImpl === null) {
                 continue;
             }
             $externalSourceImpl->getExternalSource()->setImplementations(
-                $this->getImplementations( $externalSourceImpl )
+                $this->getImplementations($externalSourceImpl)
             );
         }
     }
 
-    protected function getImplementations( ExternalSource\Implementation $implementation )
+    protected function getImplementations(ExternalSource\Implementation $implementation)
     {
         $implementations = 0;
-        if( $implementation instanceof ExternalSource\Sport ) {
+        if ($implementation instanceof ExternalSource\Sport) {
             $implementations += static::SPORT;
         }
-        if( $implementation instanceof ExternalSource\Association ) {
+        if ($implementation instanceof ExternalSource\Association) {
             $implementations += static::ASSOCIATION;
         }
-        if( $implementation instanceof ExternalSource\Season ) {
+        if ($implementation instanceof ExternalSource\Season) {
             $implementations += static::SEASON;
         }
-        if( $implementation instanceof ExternalSource\League ) {
+        if ($implementation instanceof ExternalSource\League) {
             $implementations += static::LEAGUE;
         }
-        if( $implementation instanceof ExternalSource\Competition ) {
+        if ($implementation instanceof ExternalSource\Competition) {
             $implementations += static::COMPETITION;
         }
-        if( $implementation instanceof ExternalSource\Competitor ) {
+        if ($implementation instanceof ExternalSource\Competitor) {
             $implementations += static::COMPETITOR;
         }
         return $implementations;
     }
 }
-

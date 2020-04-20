@@ -43,13 +43,13 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
     public function getSports(): array
     {
         $this->initSports();
-        return array_values( $this->sports );
+        return array_values($this->sports);
     }
 
-    public function getSport( $id = null ): ?SportBase
+    public function getSport($id = null): ?SportBase
     {
         $sports = $this->getSports();
-        if( array_key_exists( $id, $sports ) ) {
+        if (array_key_exists($id, $sports)) {
             return $sports[$id];
         }
         return null;
@@ -57,10 +57,10 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
 
     protected function initSports()
     {
-        if( $this->sports !== null ) {
+        if ($this->sports !== null) {
             return;
         }
-        $this->setSports( $this->getSportData() );
+        $this->setSports($this->getSportData());
     }
 
     /**
@@ -70,8 +70,8 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
     {
         $apiData = $this->apiHelper->getSportsData();
         $sportData = [];
-        if ( is_object( $apiData ) ) {
-            $sportData = get_object_vars( $apiData );
+        if (is_object($apiData)) {
+            $sportData = get_object_vars($apiData);
         }
         return $sportData;
     }
@@ -80,15 +80,15 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
     {
         $this->sports = [];
         foreach ($externalSourceSports as $sportName => $value) {
-            if( $this->hasName( $this->sports, $sportName ) ) {
+            if ($this->hasName($this->sports, $sportName)) {
                 continue;
             }
-            $sport = $this->createSport( $sportName ) ;
+            $sport = $this->createSport($sportName) ;
             $this->sports[$sport->getId()] = $sport;
         }
     }
 
-    protected function createSport( string $name ): SportBase
+    protected function createSport(string $name): SportBase
     {
         $sport = new SportBase($name);
         $sport->setTeam(false);

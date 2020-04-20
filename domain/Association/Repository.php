@@ -8,5 +8,4 @@ namespace Voetbal\Association;
  */
 class Repository extends \Voetbal\Repository
 {
-
 }

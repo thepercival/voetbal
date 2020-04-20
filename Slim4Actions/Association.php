@@ -19,7 +19,7 @@ final class Association
     /**
      * @var AssociationService
      */
-	protected $service;
+    protected $service;
     /**
      * @var AssociationRepository
      */
@@ -29,40 +29,39 @@ final class Association
      */
     protected $serializer;
 
-	public function __construct(AssociationService $service, AssociationRepository $repos, Serializer $serializer)
-	{
-		$this->repos = $repos;
+    public function __construct(AssociationService $service, AssociationRepository $repos, Serializer $serializer)
+    {
+        $this->repos = $repos;
         $this->service = $service;
-		$this->serializer = $serializer;
-	}
+        $this->serializer = $serializer;
+    }
 
-	public function fetch( $request, $response, $args)
-	{
-		$objects = $this->repos->findAll();
-		return $response
-			->withHeader('Content-Type', 'application/json;charset=utf-8')
-			->write( $this->serializer->serialize( $objects, 'json') );
-		;
+    public function fetch($request, $response, $args)
+    {
+        $objects = $this->repos->findAll();
+        return $response
+            ->withHeader('Content-Type', 'application/json;charset=utf-8')
+            ->write($this->serializer->serialize($objects, 'json'));
+        ;
+    }
 
-	}
-
-	public function fetchOne( $request, $response, $args)
-	{
+    public function fetchOne($request, $response, $args)
+    {
         $object = $this->repos->find($args['id']);
-		if ($object) {
-			return $response
-				->withHeader('Content-Type', 'application/json;charset=utf-8')
-				->write($this->serializer->serialize( $object, 'json'));
-			;
-		}
-		return $response->withStatus(404)->write('geen bond met het opgegeven id gevonden');
-	}
+        if ($object) {
+            return $response
+                ->withHeader('Content-Type', 'application/json;charset=utf-8')
+                ->write($this->serializer->serialize($object, 'json'));
+            ;
+        }
+        return $response->withStatus(404)->write('geen bond met het opgegeven id gevonden');
+    }
 
-	public function add( $request, $response, $args)
-	{
+    public function add($request, $response, $args)
+    {
         try {
             /** @var \Voetbal\Association|false $associationSer */
-            $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()),'Voetbal\Association', 'json');
+            $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
             if ($associationSer === false) {
                 throw new \Exception("er kan geen bond worden toegevoegd o.b.v. de invoergegevens", E_ERROR);
             }
@@ -80,68 +79,65 @@ final class Association
             $association = new AssociationBase($associationSer->getName());
             $association->setDescription($associationSer->getDescription());
             $association = $this->service->changeParent($association, $parentAssociation);
-            $this->repos->save( $association );
+            $this->repos->save($association);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $association, 'json'));
+                ->write($this->serializer->serialize($association, 'json'));
             ;
+        } catch (\Exception $e) {
+            return $response->withStatus(404)->write($e->getMessage());
         }
-        catch( \Exception $e ){
-            return $response->withStatus(404)->write( $e->getMessage() );
-        }
-	}
+    }
 
-	public function edit( $request, $response, $args)
-	{
+    public function edit($request, $response, $args)
+    {
         try {
 
             /** @var \Voetbal\Association|false $associationSer */
             $associationSer = $this->serializer->deserialize(json_encode($request->getParsedBody()), 'Voetbal\Association', 'json');
-            if ( $associationSer === false ) {
+            if ($associationSer === false) {
                 throw new \Exception("er kan geen bond worden gewijzigd o.b.v. de invoergegevens", E_ERROR);
             }
 
             $association = $this->repos->find($args['id']);
-            if ( $association === null ) {
+            if ($association === null) {
                 throw new \Exception("de bond kon niet gevonden worden o.b.v. de invoer", E_ERROR);
             }
             $parentAssociation = null;
-            if( $associationSer->getParent() !== null ) {
+            if ($associationSer->getParent() !== null) {
                 $parentAssociation = $this->repos->find($associationSer->getParent()->getId());
             }
 
-            $associationWithSameName = $this->repos->findOneBy( array('name' => $associationSer->getName() ) );
-            if ( $associationWithSameName !== null and $associationWithSameName !== $association ){
-                throw new \Exception("de bond met de naam ".$associationSer->getName()." bestaat al", E_ERROR );
+            $associationWithSameName = $this->repos->findOneBy(array('name' => $associationSer->getName() ));
+            if ($associationWithSameName !== null and $associationWithSameName !== $association) {
+                throw new \Exception("de bond met de naam ".$associationSer->getName()." bestaat al", E_ERROR);
             }
 
             $association->setName($associationSer->getName());
             $association->setDescription($associationSer->getDescription());
-            $association = $this->service->changeParent( $association, $parentAssociation );
-            $this->repos->save( $association );
+            $association = $this->service->changeParent($association, $parentAssociation);
+            $this->repos->save($association);
 
             return $response
                 ->withStatus(201)
                 ->withHeader('Content-Type', 'application/json;charset=utf-8')
-                ->write($this->serializer->serialize( $association, 'json'));
+                ->write($this->serializer->serialize($association, 'json'));
             ;
+        } catch (\Exception $e) {
+            return $response->withStatus(404)->write($e->getMessage());
         }
-        catch( \Exception $e ){
-            return $response->withStatus(404)->write( $e->getMessage() );
-        }
-	}
+    }
 
-	public function remove( $request, $response, $args)
-	{
-		$association = $this->repos->find($args['id']);
-		try {
-			$this->repos->remove($association);
-			return $response->withStatus(204);
-		}
-		catch( \Exception $e ){
-            return $response->withStatus(404)->write( $e->getMessage() );
-		}
-	}
+    public function remove($request, $response, $args)
+    {
+        $association = $this->repos->find($args['id']);
+        try {
+            $this->repos->remove($association);
+            return $response->withStatus(204);
+        } catch (\Exception $e) {
+            return $response->withStatus(404)->write($e->getMessage());
+        }
+    }
 }

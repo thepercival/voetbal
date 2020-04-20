@@ -11,54 +11,59 @@ use Voetbal\Qualify\Rule\Service as QualifyRuleService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Structure\Service as StructureService;
 
-class PostCreateService {
+class PostCreateService
+{
 
     /**
      * @var Structure
      */
     private $structure;
 
-    public function __construct( Structure $structure)
+    public function __construct(Structure $structure)
     {
         $this->structure = $structure;
     }
 
-    public function create() {
+    public function create()
+    {
         $rootRound = $this->structure->getRootRound();
-        $this->createRoundHorizontalPoules( $rootRound );
-        $this->createQualifyGroupHorizontalPoules( $rootRound );
-        $this->recreateToQualifyRules( $rootRound );
+        $this->createRoundHorizontalPoules($rootRound);
+        $this->createQualifyGroupHorizontalPoules($rootRound);
+        $this->recreateToQualifyRules($rootRound);
     }
 
-    protected function createRoundHorizontalPoules( Round $round ) {
+    protected function createRoundHorizontalPoules(Round $round)
+    {
         $horizontalPouleService = new HorizontalPouleService($round);
         $horizontalPouleService->recreate();
-        foreach ( $round->getChildren() as $childRound ) {
+        foreach ($round->getChildren() as $childRound) {
             $this->createRoundHorizontalPoules($childRound);
         }
     }
 
-    protected function createQualifyGroupHorizontalPoules( Round $round ) {
+    protected function createQualifyGroupHorizontalPoules(Round $round)
+    {
         $horizontalPouleService = new HorizontalPouleService($round);
-        foreach( [QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers ) {
+        foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
             $horizontalPouleService->updateQualifyGroups(
-                array_slice( $round->getHorizontalPoules($winnersOrLosers), 0 ),
-                array_map( function($qualifyGroup) {
+                array_slice($round->getHorizontalPoules($winnersOrLosers), 0),
+                array_map(function ($qualifyGroup) {
                     return new HorizontolPouleCreator($qualifyGroup, $qualifyGroup->getChildRound()->getNrOfPlaces());
-                }, $round->getQualifyGroups($winnersOrLosers)->toArray() )
+                }, $round->getQualifyGroups($winnersOrLosers)->toArray())
             );
         }
 
-        foreach ( $round->getChildren() as $childRound ) {
+        foreach ($round->getChildren() as $childRound) {
             $this->createQualifyGroupHorizontalPoules($childRound);
         }
     }
 
-    protected function recreateToQualifyRules( Round $round ){
+    protected function recreateToQualifyRules(Round $round)
+    {
         $qualifyRuleService = new QualifyRuleService($round);
         $qualifyRuleService->recreateTo();
 
-        foreach ( $round->getChildren() as $childRound ) {
+        foreach ($round->getChildren() as $childRound) {
             $this->recreateToQualifyRules($childRound);
         }
     }

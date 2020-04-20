@@ -13,12 +13,12 @@ interface Game
      * @param bool $forImport
      * @return array|int[]
      */
-    public function getBatchNrs( Competition $competition, bool $forImport ): array;
+    public function getBatchNrs(Competition $competition, bool $forImport): array;
     /**
      * @param Competition $competition
      * @return array
      */
-    public function getGames( Competition $competition, int $batchNr ): array;
+    public function getGames(Competition $competition, int $batchNr): array;
     /**
      * @param Competition $competition
      * @return array

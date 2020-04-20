@@ -68,7 +68,7 @@ class Association implements Importable
      * @param int|string $id
      * @return void
      */
-    public function setId( $id )
+    public function setId($id)
     {
         $this->id = $id;
     }
@@ -111,7 +111,8 @@ class Association implements Importable
         }
         if (strlen($description) > static::MAX_LENGTH_DESCRIPTION) {
             throw new \InvalidArgumentException(
-                "de omschrijving mag maximaal " . static::MAX_LENGTH_DESCRIPTION . " karakters bevatten", E_ERROR
+                "de omschrijving mag maximaal " . static::MAX_LENGTH_DESCRIPTION . " karakters bevatten",
+                E_ERROR
             );
         }
         $this->description = $description;

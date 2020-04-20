@@ -128,7 +128,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         $rankingService2 = new RankingService($rootRound, RankingService::RULESSET_WC);
         $items2 = $rankingService2->getItemsForPoule($pouleOne);
-        foreach( $items2 as $item ) {
+        foreach ($items2 as $item) {
             $this->assertSame($item->getRank(), 1);
         }
     }
@@ -415,9 +415,9 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
         $rankingService = new RankingService($rootRound, RankingService::RULESSET_WC);
         $items = $rankingService->getItemsForPoule($pouleOne);
 
-        $this->assertSame($items[0]->getRank(),1);
-        $this->assertSame($items[1]->getRank(),1);
-        $this->assertSame($items[2]->getRank(),1);
+        $this->assertSame($items[0]->getRank(), 1);
+        $this->assertSame($items[1]->getRank(), 1);
+        $this->assertSame($items[2]->getRank(), 1);
         $this->assertSame($rankingService->getItemByRank($items, 4)->getPlace(), $pouleOne->getPlace(2));
     }
 }

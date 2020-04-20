@@ -19,28 +19,25 @@ class Repository extends EntityRepository
         parent::__construct($em, $class);
     }
 
-	public function save( $object )
-	{
-        try{
+    public function save($object)
+    {
+        try {
             $this->_em->persist($object);
             $this->_em->flush();
-
-        }
-        catch( \Exception $e ) {
-
-            throw new \Exception($e->getMessage(), E_ERROR );
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), E_ERROR);
         }
 
-		return $object;
-	}
+        return $object;
+    }
 
-	public function remove( $object )
-	{
-		$this->_em->remove($object);
-		$this->_em->flush();
-	}
+    public function remove($object)
+    {
+        $this->_em->remove($object);
+        $this->_em->flush();
+    }
 
-	public function getEM()
+    public function getEM()
     {
         return $this->getEntityManager();
     }

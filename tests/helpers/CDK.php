@@ -26,22 +26,24 @@ function checkPlanning(
     for ($sportNr = 2; $sportNr <= $nrOfSports; $sportNr++) {
         $competitionFirstSports[] = addSport($competition);
     }
-    $competitionSports = $competition->getSportConfigs()->map( function($sportConfig) { return $sportConfig->getSport(); } )->toArray();
+    $competitionSports = $competition->getSportConfigs()->map(function ($sportConfig) {
+        return $sportConfig->getSport();
+    })->toArray();
 
     $sports = [];
-    if( $nrOfFields > 1 ) {
+    if ($nrOfFields > 1) {
         $x = "1";
     }
     while (count($sports) < $nrOfFields) {
         $init = count($sports) === 0;
         $sports = array_merge($sports, $competitionSports);
         if ($init && count($competitionSports) > 1) {
-            array_shift( $sports );
+            array_shift($sports);
         }
     }
     for ($fieldNr = 2; $fieldNr <= $nrOfFields; $fieldNr++) {
         $field = new Field($competition, $fieldNr);
-        $field->setSport( array_shift($sports) );
+        $field->setSport(array_shift($sports));
     }
 
     $structureService = new StructureService();
@@ -65,9 +67,10 @@ function checkPlanning(
 //    $this->assertLessThan( $assertConfig->maxNrOfBatches + 1, array_pop( $games )->getResourceBatch(), 'het aantal batches moet minder zijn dan ..' );
 }
 
-function addSport(Competition $competition ) {
+function addSport(Competition $competition)
+{
     $sportConfigService = new SportConfigService();
-    $id = count( $competition->getSportConfigs() ) + 1;
+    $id = count($competition->getSportConfigs()) + 1;
     $sport = new Sport('sport' . $id);
     $sport->setId($id);
     $sportConfigService->createDefault($sport, $competition);

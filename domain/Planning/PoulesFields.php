@@ -21,15 +21,15 @@ class PoulesFields
      */
     public $fields;
 
-    public function __construct( $poules, $fields )
+    public function __construct($poules, $fields)
     {
         $this->poules = $poules;
         $this->fields = $fields;
     }
 
-    public function getField( $fieldNr )
+    public function getField($fieldNr)
     {
-        if( array_key_exists($fieldNr, $this->fields ) === false ){
+        if (array_key_exists($fieldNr, $this->fields) === false) {
             return null;
         }
         return $this->fields[$fieldNr];

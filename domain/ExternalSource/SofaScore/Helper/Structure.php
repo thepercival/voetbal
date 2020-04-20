@@ -38,46 +38,47 @@ class Structure extends SofaScoreHelper implements ExternalSourceStructure
             $apiHelper,
             $logger
         );
-        $options = new StructureOptions (
-            new VoetbalRange(1,64), // pouleRange
+        $options = new StructureOptions(
+            new VoetbalRange(1, 64), // pouleRange
             new VoetbalRange(1, 128), // placeRange
-            new VoetbalRange( 1, 40 ) // placesPerPouleRange
+            new VoetbalRange(1, 40) // placesPerPouleRange
         );
-        $this->structureService = new StructureService( $options );
+        $this->structureService = new StructureService($options);
     }
 
-    public function getStructure( Competition $competition ): ?StructureBase
+    public function getStructure(Competition $competition): ?StructureBase
     {
-        list( $nrOfPlaces, $nrOfPoules ) = $this->getPlacesAndPoules( $competition );
-        if( $nrOfPlaces === 0 || $nrOfPoules === 0 ) {
+        list($nrOfPlaces, $nrOfPoules) = $this->getPlacesAndPoules($competition);
+        if ($nrOfPlaces === 0 || $nrOfPoules === 0) {
             return null;
         }
-        $competitors = $this->parent->getCompetitors( $competition );
-        $structure = $this->structureService->create( $competition, $nrOfPlaces, $nrOfPoules );
+        $competitors = $this->parent->getCompetitors($competition);
+        $structure = $this->structureService->create($competition, $nrOfPlaces, $nrOfPoules);
         $firstRoundNumber = $structure->getFirstRoundNumber();
-        foreach( $firstRoundNumber->getPoules() as $poule ) {
-            foreach( $poule->getPlaces() as $place ) {
-                $competitor = array_shift( $competitors );
-                if( $competitor === null ) {
+        foreach ($firstRoundNumber->getPoules() as $poule) {
+            foreach ($poule->getPlaces() as $place) {
+                $competitor = array_shift($competitors);
+                if ($competitor === null) {
                     return null;
                 }
-                $place->setCompetitor( $competitor );
+                $place->setCompetitor($competitor);
             }
         }
 
         return $structure;
     }
 
-    protected function getPlacesAndPoules( Competition $competition ): array
+    protected function getPlacesAndPoules(Competition $competition): array
     {
-        $apiData = $this->apiHelper->getCompetitionData( $competition );
-        return $this->getPlacesAndPoulesHelper( $apiData );
+        $apiData = $this->apiHelper->getCompetitionData($competition);
+        return $this->getPlacesAndPoulesHelper($apiData);
     }
 
-    protected function getPlacesAndPoulesHelper( $apiData ) {
+    protected function getPlacesAndPoulesHelper($apiData)
+    {
         $nrOfPlaces = 0;
         $nrOfPoules = 0;
-        if( property_exists( $apiData, 'standingsTables') ) {
+        if (property_exists($apiData, 'standingsTables')) {
             foreach ($apiData->standingsTables as $standingsTable) {
                 $nrOfPoules++;
                 $nrOfPlaces += count($standingsTable->tableRows);
@@ -85,6 +86,4 @@ class Structure extends SofaScoreHelper implements ExternalSourceStructure
         }
         return [$nrOfPlaces,$nrOfPoules];
     }
-
-
 }
