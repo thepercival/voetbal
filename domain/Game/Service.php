@@ -43,7 +43,7 @@ class Service
 
     /**
      * @param Game $game
-     * @param GameScore[]|array $newGameScores
+     * @param array|GameScore[] $newGameScores
      */
     public function addScores(Game $game, array $newGameScores)
     {
@@ -59,9 +59,6 @@ class Service
 //        $this->blockedPeriod = new Period($startDateTime, $endDateTime);
 //    }
 
-    /**
-     * @var Period
-     */
    // protected $blockedPeriod;
 //    public function getStartDateTime(): \DateTimeImmutable {
 //        return $this->competition->getStartDateTime();
