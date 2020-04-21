@@ -99,8 +99,8 @@ class ApiHelper
     }
 
     public function getCurrentDateAsString(): string
-    {
-        return (new \DateTimeImmutable())->format("Y-m-d");
+    {        ;
+        return (new DateTimeImmutable())->modify("+15 days")->format("Y-m-d");
     }
 
     public function getSportsData(): stdClass

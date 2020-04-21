@@ -138,7 +138,7 @@ class Game extends SofaScoreHelper implements ExternalSourceGame
         } elseif ($state === 100) { // finished
             return State::Finished;
         }
-        throw new \Exception("unknown sofascore-status", E_ERROR);
+        throw new \Exception("unknown sofascore-status: " . $state, E_ERROR);
     }
 
     protected function getPlaceFromPoule(Poule $poule, Competitor $competitor): ?Place
