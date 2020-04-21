@@ -133,6 +133,8 @@ class Game extends SofaScoreHelper implements ExternalSourceGame
     {
         if ($state === 0) { // not started
             return State::Created;
+        } elseif ($state === 60) { // postponed
+            return State::Canceled;
         } elseif ($state === 70) { // canceled
             return State::Canceled;
         } elseif ($state === 100) { // finished
