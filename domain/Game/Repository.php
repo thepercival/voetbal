@@ -95,7 +95,7 @@ class Repository extends \Voetbal\Repository
 
         $query = $this->createQueryBuilder('g')
             ->where('g.startDateTime >= :start' )
-            ->andWhere('g.startDateTime <=> :end' )
+            ->andWhere('g.startDateTime <= :end' )
             ->andWhere(
                 $exprHome->exists(
                     $this->getEM()->createQueryBuilder()
@@ -127,7 +127,11 @@ class Repository extends \Voetbal\Repository
         $query = $query->setParameter('homecompetitor', $homeCompetitor);
         $query = $query->setParameter('away', GameBase::AWAY);
         $query = $query->setParameter('awaycompetitor', $awayCompetitor);
-        return $query->getQuery()->getResult();
+        $games = $query->getQuery()->getResult();
+        if( count($games) === 0 ) {
+            return null;
+        }
+        return reset($games);
     }
 
     /**
