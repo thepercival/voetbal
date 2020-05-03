@@ -259,7 +259,7 @@ class Input
 
     protected function inputToString(Input $planningInput): string
     {
-        $sports = array_map(function (array $sportConfig) {
+        $sports = array_map(function (array $sportConfig): string {
             return '' . $sportConfig["nrOfFields"] ;
         }, $planningInput->getSportConfig());
         return 'structure [' . implode('|', $planningInput->getStructureConfig()) . ']'

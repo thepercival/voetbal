@@ -44,11 +44,12 @@ class League implements ImporterInterface
 
     /**
      * @param ExternalSource $externalSource
-     * @param array|LeagueBase[] $externalSourceLeagues
+     * @param array $externalSourceLeagues
      * @throws \Exception
      */
     public function import(ExternalSource $externalSource, array $externalSourceLeagues)
     {
+        /** @var LeagueBase $externalSourceLeague */
         foreach ($externalSourceLeagues as $externalSourceLeague) {
             $externalId = $externalSourceLeague->getId();
             $leagueAttacher = $this->leagueAttacherRepos->findOneByExternalId(

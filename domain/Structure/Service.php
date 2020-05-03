@@ -50,7 +50,7 @@ class Service
         $sportConfigService = new SportConfigService();
         $this->planningConfigService->createDefault($firstRoundNumber);
         $rootRound = new Round($firstRoundNumber, null);
-        $nrOfPoulesToAdd = $nrOfPoules ? $nrOfPoules : $this->getDefaultNrOfPoules($nrOfPlaces);
+        $nrOfPoulesToAdd = ($nrOfPoules !== null) ? $nrOfPoules : $this->getDefaultNrOfPoules($nrOfPlaces);
         $this->updateRound($rootRound, $nrOfPlaces, $nrOfPoulesToAdd);
         $structure = new StructureBase($firstRoundNumber, $rootRound);
         foreach ($competition->getSportConfigs() as $sportConfig) {
@@ -154,7 +154,10 @@ class Service
     {
         $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
         $borderQualifyGroup = $round->getBorderQualifyGroup($winnersOrLosers);
-        $newNrOfPlaces = $nrOfPlaces - ($borderQualifyGroup && $borderQualifyGroup->getNrOfQualifiers() === 2 ? 2 : 1);
+        $newNrOfPlaces = $nrOfPlaces - 1;
+        if ($borderQualifyGroup !== null && $borderQualifyGroup->getNrOfQualifiers() === 2) {
+            $newNrOfPlaces--;
+        }
         $this->updateQualifyGroups($round, $winnersOrLosers, $newNrOfPlaces);
 
         $qualifyRuleService = new QualifyRuleService($round);
@@ -201,7 +204,7 @@ class Service
 
     public function isQualifyGroupSplittable(HorizontalPoule $previous, HorizontalPoule $current): bool
     {
-        if (!$previous->getQualifyGroup() || $previous->getQualifyGroup() !== $current->getQualifyGroup()) {
+        if ($previous->getQualifyGroup() !== null || $previous->getQualifyGroup() !== $current->getQualifyGroup()) {
             return false;
         }
         if ($current->isBorderPoule() && $current->getNrOfQualifiers() < 2) {

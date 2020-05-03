@@ -43,7 +43,7 @@ class Copier
             /** @var RoundNumber|null $previousRoundNumber */
             $previousRoundNumber = null;
             foreach ($structure->getRoundNumbers() as $roundNumber) {
-                $newRoundNumber = $previousRoundNumber ? $previousRoundNumber->createNext() : new RoundNumber(
+                $newRoundNumber = $previousRoundNumber !== null ? $previousRoundNumber->createNext() : new RoundNumber(
                     $this->competition,
                     $previousRoundNumber
                 );
@@ -123,7 +123,7 @@ class Copier
     protected function getSportFromCompetition(Sport $sport, Competition $competition): Sport
     {
         $foundSports = $competition->getSports()->filter(
-            function ($sportIt) use ($sport) {
+            function ($sportIt) use ($sport): bool {
                 return $sportIt->getName() === $sport->getName();
             }
         );
@@ -137,7 +137,7 @@ class Copier
     {
         $foundCompetitors = array_filter(
             $this->competitors,
-            function ($competitorIt) use ($competitor) {
+            function ($competitorIt) use ($competitor): bool {
                 return $competitorIt->getName() === $competitor->getName();
             }
         );

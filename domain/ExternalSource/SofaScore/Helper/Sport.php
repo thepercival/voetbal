@@ -69,11 +69,7 @@ class Sport extends SofaScoreHelper implements ExternalSourceSport
     protected function getSportData(): array
     {
         $apiData = $this->apiHelper->getSportsData();
-        $sportData = [];
-        if (is_object($apiData)) {
-            $sportData = get_object_vars($apiData);
-        }
-        return $sportData;
+        return get_object_vars($apiData);
     }
 
     protected function setSports(array $externalSourceSports)

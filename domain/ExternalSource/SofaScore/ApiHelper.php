@@ -99,7 +99,8 @@ class ApiHelper
     }
 
     public function getCurrentDateAsString(): string
-    {        ;
+    {
+        ;
         return (new DateTimeImmutable())->modify("+15 days")->format("Y-m-d");
     }
 

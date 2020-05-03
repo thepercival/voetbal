@@ -31,7 +31,7 @@ class Unranked
      */
     private $games = 0;
     /**
-     * @var int
+     * @var float
      */
     private $points = 0;
     /**
@@ -86,12 +86,12 @@ class Unranked
         $this->games++;
     }
 
-    public function getPoints(): int
+    public function getPoints(): float
     {
         return $this->points;
     }
 
-    public function addPoints(int $points)
+    public function addPoints(float $points)
     {
         $this->points += $points;
     }

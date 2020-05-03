@@ -31,7 +31,7 @@ class Service
         $qualifyGroup = $horizontalPoule->getQualifyGroup();
         $nrOfPlacesChildRound = $qualifyGroup->getChildRound()->getNrOfPlaces();
         $horizontalPoules = $qualifyGroup->getHorizontalPoules();
-        $idx = array_search($horizontalPoule, $horizontalPoules);
+        $idx = array_search($horizontalPoule, $horizontalPoules, true);
         if ($idx < 0) {
             throw new \Exception('de horizontale poule kan niet gevonden worden', E_ERROR);
         }

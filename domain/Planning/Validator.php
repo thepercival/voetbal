@@ -35,7 +35,7 @@ class Validator
         $getNrOfGameParticipations = function (Game $game, Place $place): int {
             $participations = 0;
             /** @var Place[] $places */
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace) {
+            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             });
             foreach ($places as $placeIt) {
@@ -43,7 +43,7 @@ class Validator
                     $participations++;
                 }
             }
-            if ($game->getRefereePlace() && $game->getRefereePlace() === $place) {
+            if ($game->getRefereePlace() !== null && $game->getRefereePlace() === $place) {
                 $participations++;
             }
             return $participations;
@@ -73,7 +73,7 @@ class Validator
     {
         $nrOfGames = [];
         foreach ($poule->getGames() as $game) {
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace) {
+            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             });
             /** @var Place $place */
@@ -120,7 +120,7 @@ class Validator
             if ($batches[$game->getBatchNr()] === true) {
                 continue;
             }
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace) {
+            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             })->toArray();
             $some = false;
@@ -160,7 +160,7 @@ class Validator
             }
             $batchResources = $batchesResources[$game->getBatchNr()];
             /** @var array|Place[] $places */
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace) {
+            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             });
 
@@ -171,13 +171,15 @@ class Validator
                 $places[] = $game->getRefereePlace();
             }
             foreach ($places as $placeIt) {
-                if (array_search($placeIt, $batchResources["places"]) !== false) {
+                if (array_search($placeIt, $batchResources["places"], true) !== false) {
                     return false;
                 }
                 $batchResources["places"][] = $placeIt;
             }
 
-            if (array_search($game->getField(), $batchResources["fields"]) !== false) {
+            /** @var bool|int|string $search */
+            $search = array_search($game->getField(), $batchResources["fields"], true);
+            if ( $search !== false ) {
                 return false;
             }
             $batchResources["fields"][] = $game->getField();
@@ -185,7 +187,9 @@ class Validator
                 if ($game->getReferee() === null) {
                     return false;
                 }
-                if (array_search($game->getReferee(), $batchResources["referees"]) !== false) {
+                /** @var bool|int|string $search */
+                $search = array_search($game->getReferee(), $batchResources["referees"], true);
+                if ( $search !== false) {
                     return false;
                 }
                 $batchResources["referees"][] = $game->getReferee();

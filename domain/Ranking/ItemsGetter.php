@@ -53,8 +53,9 @@ class ItemsGetter
      */
     public function getUnrankedItems(array $places, array $games): array
     {
+        /** @var UnrankedRoundItem[]|array $items */
         $items = array_map(
-            function ($place) {
+            function ($place): UnrankedRoundItem {
                 return new UnrankedRoundItem($this->round, $place->getLocation(), $place->getPenaltyPoints());
             },
             $places
@@ -82,13 +83,14 @@ class ItemsGetter
                 foreach ($game->getPlaces($homeAway) as $gamePlace) {
                     $foundItems = array_filter(
                         $items,
-                        function ($item) use ($gamePlace) {
+                        function ($item) use ($gamePlace): bool {
                             return $item->getPlaceLocation()->getPlaceNr() === $gamePlace->getPlace()->getLocation(
                                 )->getPlaceNr()
                                 && $item->getPlaceLocation()->getPouleNr() === $gamePlace->getPlace()->getLocation(
                                 )->getPouleNr();
                         }
                     );
+                    /** @var UnrankedRoundItem $item */
                     $item = reset($foundItems);
                     $item->addGame();
                     $item->addPoints($points);

@@ -37,8 +37,7 @@ final class Competitor
         CompetitorRepository $repos,
         AssociationRepository $associationRepos,
         Serializer $serializer
-    )
-    {
+    ) {
         $this->repos = $repos;
         $this->associationRepos = $associationRepos;
         $this->serializer = $serializer;

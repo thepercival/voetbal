@@ -119,7 +119,7 @@ class Service
     protected function getFieldsCommonDivisors(array $sportsNrFields): array
     {
         /** @var array|int[] $nrOfFieldsPerSport */
-        $nrOfFieldsPerSport = array_map(function (SportNrFields $sportNrFields) {
+        $nrOfFieldsPerSport = array_map(function (SportNrFields $sportNrFields): int {
             return $sportNrFields->getNrOfFields();
         }, $sportsNrFields);
 
@@ -132,8 +132,8 @@ class Service
             if (count($commonDivisors) === 0) {
                 $commonDivisors = $commonDivisorsIt;
             } else {
-                $commonDivisors = array_filter($commonDivisors, function ($commonDivisor) use ($commonDivisorsIt) {
-                    return array_search($commonDivisor, $commonDivisorsIt) !== false;
+                $commonDivisors = array_filter($commonDivisors, function ($commonDivisor) use ($commonDivisorsIt): bool {
+                    return array_search($commonDivisor, $commonDivisorsIt, true) !== false;
                 });
             }
         }
@@ -183,7 +183,7 @@ class Service
             $nrOfPouleGames = $this->getNrOfGamesPerPoule($nrOfPoulePlaces, $teamup);
             $nrOfGames += (int) ceil($nrOfPouleGames / $nrOfPoulePlaces);
         }
-        return $nrOfHeadtohead ? $nrOfGames * $nrOfHeadtohead : $nrOfGames;
+        return $nrOfGames * $nrOfHeadtohead;
     }
 
     /**

@@ -38,11 +38,12 @@ class Association implements ImporterInterface
 
     /**
      * @param ExternalSource $externalSource
-     * @param array|AssociationBase[] $externalSourceAssociations
+     * @param array $externalSourceAssociations
      * @throws \Exception
      */
     public function import(ExternalSource $externalSource, array $externalSourceAssociations)
     {
+        /** @var AssociationBase $externalSourceAssociation */
         foreach ($externalSourceAssociations as $externalSourceAssociation) {
             $externalId = $externalSourceAssociation->getId();
             $associationAttacher = $this->associationAttacherRepos->findOneByExternalId(

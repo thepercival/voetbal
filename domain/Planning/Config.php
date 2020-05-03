@@ -88,41 +88,23 @@ class Config
         $this->id = $id;
     }
 
-    /**
-     * @return bool
-     */
-    public function getExtension()
+    public function getExtension(): bool
     {
         return $this->extension;
     }
 
-    /**
-     * @param bool $extension
-     */
-    public function setExtension($extension)
+    public function setExtension(bool $extension)
     {
-        if (!is_bool($extension)) {
-            throw new \InvalidArgumentException("verlenging ja/nee heeft een onjuiste waarde", E_ERROR);
-        }
         $this->extension = $extension;
     }
 
-    /**
-     * @return bool
-     */
-    public function getEnableTime()
+    public function getEnableTime(): bool
     {
         return $this->enableTime;
     }
 
-    /**
-     * @param bool $enableTime
-     */
-    public function setEnableTime($enableTime)
+    public function setEnableTime(bool $enableTime)
     {
-        if (!is_bool($enableTime)) {
-            throw new \InvalidArgumentException("met/zonder-tijd heeft een onjuiste waarde", E_ERROR);
-        }
         $this->enableTime = $enableTime;
     }
 
@@ -195,60 +177,33 @@ class Config
         $this->minutesPerGameExt = $minutesPerGameExt;
     }
 
-    /**
-     * @return bool
-     */
-    public function getTeamup()
+    public function getTeamup(): bool
     {
         return $this->teamup;
     }
 
-    /**
-     * @param bool $teamup
-     */
-    public function setTeamup($teamup)
+    public function setTeamup(bool $teamup)
     {
-        if (!is_bool($teamup)) {
-            throw new \InvalidArgumentException("mixen-ja/nee heeft een onjuiste waarde", E_ERROR);
-        }
         $this->teamup = $teamup;
     }
 
-    /**
-     * @return bool
-     */
-    public function getSelfReferee()
+    public function getSelfReferee(): bool
     {
         return $this->selfReferee;
     }
 
-    /**
-     * @param bool $selfReferee
-     */
-    public function setSelfReferee($selfReferee)
+    public function setSelfReferee(bool $selfReferee)
     {
-        if (!is_bool($selfReferee)) {
-            throw new \InvalidArgumentException("zelf-scheidsrechter-ja/nee heeft een onjuiste waarde", E_ERROR);
-        }
         $this->selfReferee = $selfReferee;
     }
 
-    /**
-     * @return int
-     */
-    public function getNrOfHeadtohead()
+    public function getNrOfHeadtohead(): int
     {
         return $this->nrOfHeadtohead;
     }
 
-    /**
-     * @param int $nrOfHeadtohead
-     */
-    public function setNrOfHeadtohead($nrOfHeadtohead)
+    public function setNrOfHeadtohead(int $nrOfHeadtohead)
     {
-        if (!is_int($nrOfHeadtohead)) {
-            throw new \InvalidArgumentException("het aantal-onderlinge-duels heeft een onjuiste waarde", E_ERROR);
-        }
         $this->nrOfHeadtohead = $nrOfHeadtohead;
     }
 

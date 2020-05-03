@@ -105,29 +105,20 @@ class Game implements Importable
         $this->id = $id;
     }
 
-    /**
-     * @return Poule
-     */
-    public function getPoule()
+    public function getPoule(): Poule
     {
         return $this->poule;
     }
 
-    /**
-     * @param Poule $poule
-     */
     public function setPoule(Poule $poule)
     {
-        if ($this->poule === null and $poule !== null and !$poule->getGames()->contains($this)) {
+        if ($this->poule === null and !$poule->getGames()->contains($this)) {
             $poule->getGames()->add($this) ;
         }
         $this->poule = $poule;
     }
 
-    /**
-     * @return Round
-     */
-    public function getRound()
+    public function getRound(): Round
     {
         return $this->poule->getRound();
     }
@@ -156,36 +147,21 @@ class Game implements Importable
         $this->startDateTime = $startDateTime;
     }
 
-    /**
-     * @return int
-     */
-    public function getState()
+    public function getState(): int
     {
         return $this->state;
     }
 
-    /**
-     * @param int $state
-     */
-    public function setState($state)
+    public function setState(int $state)
     {
-        if (!is_int($state)) {
-            throw new \InvalidArgumentException("de status heeft een onjuiste waarde", E_ERROR);
-        }
         $this->state = $state;
     }
 
-    /**
-     * @return ?Referee
-     */
     public function getReferee(): ?Referee
     {
         return $this->referee;
     }
 
-    /**
-     * @param Referee $referee
-     */
     public function setReferee(Referee $referee = null)
     {
         $this->referee = $referee;
@@ -196,7 +172,7 @@ class Game implements Importable
      */
     public function getRefereeRank()
     {
-        return $this->referee ? $this->referee->getRank() : $this->refereeRank;
+        return $this->referee !== null ? $this->referee->getRank() : $this->refereeRank;
     }
 
     /**
@@ -228,7 +204,7 @@ class Game implements Importable
      */
     public function getRefereePlaceId()
     {
-        return $this->refereePlace ? $this->refereePlace->getId() : $this->refereePlaceId;
+        return $this->refereePlace !== null ? $this->refereePlace->getId() : $this->refereePlaceId;
     }
 
     /**
@@ -260,7 +236,7 @@ class Game implements Importable
      */
     public function getFieldNr()
     {
-        return $this->field ? $this->field->getNumber() : $this->fieldNr;
+        return $this->field !== null ? $this->field->getNumber() : $this->fieldNr;
     }
 
     /**
@@ -297,7 +273,7 @@ class Game implements Importable
             return $this->places;
         }
         return new ArrayCollection(
-            $this->places->filter(function ($gamePlace) use ($homeaway) {
+            $this->places->filter(function ($gamePlace) use ($homeaway): bool {
                 return $gamePlace->getHomeaway() === $homeaway;
             })->toArray()
         );

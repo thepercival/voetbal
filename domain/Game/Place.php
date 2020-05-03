@@ -100,7 +100,7 @@ class Place
      */
     public function setGame(Game $game)
     {
-        if ($this->game === null and $game !== null and !$game->getPlaces()->contains($this)) {
+        if ($this->game === null and !$game->getPlaces()->contains($this)) {
             $game->getPlaces()->add($this) ;
         }
         $this->game = $game;

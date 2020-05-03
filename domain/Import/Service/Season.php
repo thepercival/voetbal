@@ -2,6 +2,7 @@
 
 namespace Voetbal\Import\Service;
 
+use Exception;
 use Voetbal\Import\ImporterInterface;
 use Voetbal\ExternalSource;
 use Voetbal\Season\Repository as SeasonRepository;
@@ -37,11 +38,12 @@ class Season implements ImporterInterface
 
     /**
      * @param ExternalSource $externalSource
-     * @param array|SeasonBase[] $externalSourceSeasons
-     * @throws \Exception
+     * @param array $externalSourceSeasons
+     * @throws Exception
      */
     public function import(ExternalSource $externalSource, array $externalSourceSeasons)
     {
+        /** @var SeasonBase $externalSourceSeason */
         foreach ($externalSourceSeasons as $externalSourceSeason) {
             $externalId = $externalSourceSeason->getId();
             $seasonAttacher = $this->seasonAttacherRepos->findOneByExternalId(

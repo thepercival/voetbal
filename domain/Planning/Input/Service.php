@@ -148,10 +148,10 @@ class Service
         $gcdStructure = $math->getGreatestCommonDivisor($this->getNrOfPoulesByNrOfPlaces($structureConfig));
         $gcdSports = $sportConfig[0]["nrOfFields"];
 
-        $gcds = [$gcdStructure, $gcdSports];
-        if ($nrOfReferees > 0) {
-            $gcd[] = $nrOfReferees;
-        }
+//        $gcds = [$gcdStructure, $gcdSports];
+//        if ($nrOfReferees > 0) {
+//            $gcd[] = $nrOfReferees;
+//        }
         return $math->getGreatestCommonDivisor([$gcdStructure, $nrOfReferees, $gcdSports]);
     }
 

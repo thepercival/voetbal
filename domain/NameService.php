@@ -140,7 +140,7 @@ class NameService
         return implode(
             ' & ',
             $gamePlaces->map(
-                function ($gamePlace) use ($competitorName, $longName) {
+                function ($gamePlace) use ($competitorName, $longName): string {
                     return $this->getPlaceFromName($gamePlace->getPlace(), $competitorName, $longName);
                 }
             )->toArray()

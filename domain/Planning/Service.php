@@ -45,14 +45,14 @@ class Service
 
     public function getMinIsMaxPlannings(Input $input): array
     {
-        return array_filter($this->getOrderedPlannings($input), function (PlanningBase $planning) {
+        return array_filter($this->getOrderedPlannings($input), function (PlanningBase $planning): bool {
             return $planning->minIsMaxNrOfBatchGames();
         });
     }
 
     public function getPlannings(Input $input, VoetbalRange $range): array
     {
-        return array_filter($this->getOrderedPlannings($input), function (PlanningBase $planning) use ($range) {
+        return array_filter($this->getOrderedPlannings($input), function (PlanningBase $planning) use ($range): bool {
             return $planning->getMinNrOfBatchGames() === $range->min && $planning->getMaxNrOfBatchGames() === $range->max;
         });
     }
@@ -60,7 +60,7 @@ class Service
     public function getMinIsMax(Input $input, int $states): ?PlanningBase
     {
         $maxNrInARow = $input->getMaxNrOfGamesInARow();
-        $minIsMaxPlannings = array_filter($this->getMinIsMaxPlannings($input), function (PlanningBase $planning) use ($states, $maxNrInARow) {
+        $minIsMaxPlannings = array_filter($this->getMinIsMaxPlannings($input), function (PlanningBase $planning) use ($states, $maxNrInARow): bool {
             return ($planning->getState() & $states) === $planning->getState() && $planning->getMaxNrOfGamesInARow() === $maxNrInARow;
         });
         if (count($minIsMaxPlannings) === 0) {
@@ -72,13 +72,13 @@ class Service
     public function createNextMinIsMaxPlanning(Input $input): PlanningBase
     {
         $lastPlanning = $this->getMinIsMax($input, PlanningBase::STATE_FAILED + PlanningBase::STATE_TIMEOUT);
-        $nrOfBatchGames = $lastPlanning ? ($lastPlanning->getMaxNrOfBatchGames() - 1) : $input->getMaxNrOfBatchGames();
+        $nrOfBatchGames = $lastPlanning !== null ? ($lastPlanning->getMaxNrOfBatchGames() - 1) : $input->getMaxNrOfBatchGames();
         return new PlanningBase($input, new VoetbalRange($nrOfBatchGames, $nrOfBatchGames), $input->getMaxNrOfGamesInARow());
     }
 
     public function getPlusOnePlanning(PlanningBase $minIsMaxPlanning): ?PlanningBase
     {
-        $plusOnePlannings = array_filter($this->getOrderedPlannings($minIsMaxPlanning->getInput()), function (PlanningBase $planning) use ($minIsMaxPlanning) {
+        $plusOnePlannings = array_filter($this->getOrderedPlannings($minIsMaxPlanning->getInput()), function (PlanningBase $planning) use ($minIsMaxPlanning): bool {
             return $planning->getMinNrOfBatchGames() === $minIsMaxPlanning->getMaxNrOfBatchGames()
                 && $planning->getMaxNrOfBatchGames() === ($minIsMaxPlanning->getMaxNrOfBatchGames() + 1);
         });

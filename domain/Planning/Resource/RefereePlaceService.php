@@ -134,7 +134,7 @@ class RefereePlaceService
         }
         if ($poules->count() === 1) {
             $poule = $this->planning->getPoule(1);
-            $onePouleHelper = function (Batch $batch) use (&$onePouleHelper, $poule) {
+            $onePouleHelper = function (Batch $batch) use (&$onePouleHelper, $poule): void {
                 $this->canBeSamePoule[$batch->getNumber()] = $poule;
                 if ($batch->hasNext()) {
                     $onePouleHelper($batch->getNext());
@@ -147,7 +147,7 @@ class RefereePlaceService
         $pouleOne = $this->planning->getPoule(1);
         $pouleTwo = $this->planning->getPoule(2);
 
-        $helper = function (Batch $batch) use (&$helper, $pouleOne, $pouleTwo) {
+        $helper = function (Batch $batch) use (&$helper, $pouleOne, $pouleTwo): void {
             $pouleOneNrOfPlaces = $pouleOne->getPlaces()->count();
             $pouleTwoNrOfPlaces = $pouleTwo->getPlaces()->count();
             $pouleOneNrOfPlacesGames = 0;

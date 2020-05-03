@@ -129,7 +129,7 @@ class Service
     protected function convertSports(array $sports): array
     {
         return array_map(
-            function (Sport $sport) {
+            function (Sport $sport): SportNrFields {
                 return new SportNrFields(
                     $sport->getNumber(),
                     $sport->getFields()->count(),
@@ -257,7 +257,7 @@ class Service
             }
             $gamesForBatchTmp = array_filter(
                 $games,
-                function (Game $game) use ($nextBatch) {
+                function (Game $game) use ($nextBatch): bool {
                     return $this->areAllPlacesAssignableByGamesInARow($nextBatch, $game);
                 }
             );
@@ -281,7 +281,7 @@ class Service
             $this->assignGame($batch, $game, $resourcesAssign);
             $gamesForBatchTmp = array_filter(
                 $gamesForBatch,
-                function (Game $game) use ($batch) {
+                function (Game $game) use ($batch): bool {
                     return $this->areAllPlacesAssignable($batch, $game);
                 }
             );
@@ -348,7 +348,7 @@ class Service
         foreach ($batch->getGames() as $game) {
             $game->setBatchNr($batch->getNumber());
             // hier alle velden toevoegen die er nog niet in staan
-            if (array_search($game->getField(), $resources->getFields()) === false) {
+            if (array_search($game->getField(), $resources->getFields(), true) === false) {
                 $resources->addField($game->getField());
             }
             $foundGameIndex = array_search($game, $games, true);
@@ -450,13 +450,13 @@ class Service
     {
         $fields = array_filter(
             $resources->getFields(),
-            function ($fieldIt) use ($game, $resources) {
+            function ($fieldIt) use ($game, $resources): bool {
                 return $resources->isSportAssignable($game, $fieldIt->getSport());
             }
         );
         if (count($fields) >= 1) {
             $field = reset($fields);
-            $fieldIndex = array_search($field, $resources->getFields());
+            $fieldIndex = array_search($field, $resources->getFields(), true);
             $removedField = $resources->removeField($fieldIndex);
             $resources->setFieldIndex($fieldIndex);
             $game->setField($removedField);

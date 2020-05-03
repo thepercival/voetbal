@@ -38,11 +38,12 @@ class Sport implements ImporterInterface
 
     /**
      * @param ExternalSource $externalSource
-     * @param array|SportBase[] $externalSourceSports
+     * @param array $externalSourceSports
      * @throws \Exception
      */
     public function import(ExternalSource $externalSource, array $externalSourceSports)
     {
+        /** @var SportBase $externalSourceSport */
         foreach ($externalSourceSports as $externalSourceSport) {
             $externalId = $externalSourceSport->getId();
             $sportAttacher = $this->sportAttacherRepos->findOneByExternalId(

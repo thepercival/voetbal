@@ -75,8 +75,7 @@ final class Game
         RefereeRepository $refereeRepos,
         CompetitionRepository $competitionRepos,
         Serializer $serializer
-    )
-    {
+    ) {
         $this->service = $service;
         $this->repos = $repos;
         $this->gameScoreRepos = $gameScoreRepos;

@@ -84,11 +84,12 @@ class Game implements ImporterInterface
 
     /**
      * @param ExternalSource $externalSource
-     * @param array|GameBase[] $externalSourceGames
+     * @param array $externalSourceGames
      * @throws \Exception
      */
     public function import(ExternalSource $externalSource, array $externalSourceGames)
     {
+        /** @var GameBase $externalSourceGame */
         foreach ($externalSourceGames as $externalSourceGame) {
             $externalId = $externalSourceGame->getId();
             $gameAttacher = $this->gameAttacherRepos->findOneByExternalId(
@@ -159,8 +160,8 @@ class Game implements ImporterInterface
 
     protected function getPlaceFromPoule(Poule $poule, Competitor $competitor): ?Place
     {
-        $places = $poule->getPlaces()->filter(function (Place $place) use ($competitor) {
-            return $place->getCompetitor() && $place->getCompetitor()->getId() === $competitor->getId();
+        $places = $poule->getPlaces()->filter(function (Place $place) use ($competitor): bool {
+            return $place->getCompetitor() !== null && $place->getCompetitor()->getId() === $competitor->getId();
         });
         if ($places->count() !== 1) {
             return null;

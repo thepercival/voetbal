@@ -30,7 +30,7 @@ class ReservationService
 
     public function isFree(int $toPouleNumber, Poule $fromPoule): bool
     {
-        return array_search($fromPoule, $this->get($toPouleNumber)->fromPoules) === false;
+        return array_search($fromPoule, $this->get($toPouleNumber)->fromPoules, true) === false;
     }
 
     public function reserve(int $toPouleNumber, Poule $fromPoule)
@@ -40,7 +40,7 @@ class ReservationService
 
     protected function get(int $toPouleNumber): PouleNumberReservations
     {
-        $filtered = array_filter($this->reservations, function ($reservationIt) use ($toPouleNumber) {
+        $filtered = array_filter($this->reservations, function ($reservationIt) use ($toPouleNumber): bool {
             return $reservationIt->toPouleNr === $toPouleNumber;
         });
         return array_shift($filtered);
@@ -69,7 +69,7 @@ class ReservationService
 
     protected function getNrOfPoulesAvailable(Poule $fromPoule, int $toPouleNumber): int
     {
-        $filtered = array_filter($this->reservations, function ($reservation) use ($fromPoule, $toPouleNumber) {
+        $filtered = array_filter($this->reservations, function ($reservation) use ($fromPoule, $toPouleNumber): bool {
             return $reservation->toPouleNr >= $toPouleNumber && $this->isFree($reservation->toPouleNr, $fromPoule);
         });
         return count($filtered);

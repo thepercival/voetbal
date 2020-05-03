@@ -83,10 +83,10 @@ class Combination
      */
     public function createGamePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/)/*: array*/
     {
-        $home = array_map(function ($homeIt) use ($game,$reverseHomeAway) {
+        $home = array_map(function ($homeIt) use ($game,$reverseHomeAway): GamePlace {
             return new GamePlace($game, $homeIt, $reverseHomeAway ? GameBase::AWAY : GameBase::HOME);
         }, $this->getHome());
-        $away = array_map(function ($awayIt) use ($game,$reverseHomeAway) {
+        $away = array_map(function ($awayIt) use ($game,$reverseHomeAway): GamePlace {
             return new GamePlace($game, $awayIt, $reverseHomeAway ? GameBase::HOME : GameBase::AWAY);
         }, $this->getAway());
 

@@ -64,11 +64,12 @@ class Competition implements ImporterInterface
 
     /**
      * @param ExternalSource $externalSource
-     * @param array|CompetitionBase[] $externalSourceCompetitions
+     * @param array $externalSourceCompetitions
      * @throws \Exception
      */
     public function import(ExternalSource $externalSource, array $externalSourceCompetitions)
     {
+        /** @var CompetitionBase $externalSourceCompetition */
         foreach ($externalSourceCompetitions as $externalSourceCompetition) {
             $externalId = $externalSourceCompetition->getId();
             $competitionAttacher = $this->competitionAttacherRepos->findOneByExternalId(

@@ -18,7 +18,7 @@ class Poule
     protected $id;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -96,37 +96,22 @@ class Poule
         $this->round = $round;
     }
 
-    /**
-     * @return int
-     */
-    public function getNumber()
+    public function getNumber(): int
     {
         return $this->number;
     }
 
-    /**
-     * @param int $number
-     */
-    public function setNumber($number)
+    public function setNumber(int $number)
     {
-        if (!is_int($number)) {
-            throw new \InvalidArgumentException("het poulenummer heeft een onjuiste waarde", E_ERROR);
-        }
         $this->number = $number;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName($name)
+    public function setName(string $name = null)
     {
         if (is_string($name) and strlen($name) === 0) {
             $name = null;
@@ -174,7 +159,7 @@ class Poule
      */
     public function getPlace($number): ?Place
     {
-        $places = array_filter($this->getPlaces()->toArray(), function ($place) use ($number) {
+        $places = array_filter($this->getPlaces()->toArray(), function ($place) use ($number): bool {
             return $place->getNumber() === $number;
         });
         return array_shift($places);
@@ -198,7 +183,7 @@ class Poule
 
     public function getGamesWithState($state)
     {
-        return array_filter($this->getGames()->toArray(), function ($gameIt) use ($state) {
+        return array_filter($this->getGames()->toArray(), function ($gameIt) use ($state): bool {
             return $gameIt->getState() === $state;
         });
     }

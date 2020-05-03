@@ -26,7 +26,7 @@ class Association implements Importable
      */
     protected $description;
     /**
-     * @var Association
+     * @var Association|null
      */
     protected $parent;
     /**
@@ -118,10 +118,7 @@ class Association implements Importable
         $this->description = $description;
     }
 
-    /**
-     * @return Association
-     */
-    public function getParent()
+    public function getParent(): ?Association
     {
         return $this->parent;
     }
@@ -135,11 +132,11 @@ class Association implements Importable
         if ($parent === $this) {
             throw new \Exception("de parent-bond mag niet zichzelf zijn", E_ERROR);
         }
-        if ($this->parent !== null && $this->parent->getChildren() !== null) {
+        if ($this->parent !== null) {
             $this->parent->getChildren()->removeElement($this);
         }
         $this->parent = $parent;
-        if ($this->parent !== null && $this->parent->getChildren() !== null) {
+        if ($this->parent !== null) {
             $this->parent->getChildren()->add($this);
         }
     }

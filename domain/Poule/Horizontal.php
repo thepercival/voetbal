@@ -66,7 +66,7 @@ class Horizontal
 
     public function getWinnersOrLosers(): int
     {
-        return $this->getQualifyGroup() ? $this->getQualifyGroup()->getWinnersOrLosers() : QualifyGroup::DROPOUTS;
+        return $this->getQualifyGroup() !== null ? $this->getQualifyGroup()->getWinnersOrLosers() : QualifyGroup::DROPOUTS;
     }
 
     public function getNumber(): int
@@ -135,7 +135,7 @@ class Horizontal
 
     public function hasPlace(Place $place): bool
     {
-        return array_search($place, $this->getPlaces()) !== false;
+        return array_search($place, $this->getPlaces(), true) !== false;
     }
 
     // next(): Poule {
@@ -145,7 +145,7 @@ class Horizontal
 
     public function isBorderPoule(): bool
     {
-        if (!$this->getQualifyGroup() || !$this->getQualifyGroup()->isBorderGroup()) {
+        if ($this->getQualifyGroup() === null || !$this->getQualifyGroup()->isBorderGroup()) {
             return false;
         }
         $horPoules = $this->getQualifyGroup()->getHorizontalPoules();

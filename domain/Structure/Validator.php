@@ -70,9 +70,6 @@ class Validator
         if ($roundNumber->getRounds()->count() === 0) {
             throw new \Exception($prefix . " bevat geen ronden", E_ERROR);
         }
-        if (!($roundNumber->getValidPlanningConfig() instanceof  PlanningConfig)) {
-            throw new \Exception($prefix . " bevat geen geldige planningconfig", E_ERROR);
-        }
         if ($roundNumber->getValidSportScoreConfigs()->count() === 0) {
             throw new \Exception($prefix . " bevat geen geldige sportscoreconfig", E_ERROR);
         }

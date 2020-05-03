@@ -38,7 +38,7 @@ class Field
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 3;
 
-    public function __construct(Competition $competition, $number)
+    public function __construct(Competition $competition, int $number)
     {
         $this->setCompetition($competition);
         $this->setNumber($number);
@@ -62,22 +62,13 @@ class Field
         $this->id = $id;
     }
 
-    /**
-     * @return int
-     */
-    public function getNumber()
+    public function getNumber(): int
     {
         return $this->number;
     }
 
-    /**
-     * @param int $number
-     */
-    public function setNumber($number)
+    public function setNumber(int $number)
     {
-        if (!is_int($number)) {
-            throw new \InvalidArgumentException("het veldnummer heeft een onjuiste waarde", E_ERROR);
-        }
         $this->number = $number;
     }
 
@@ -114,7 +105,7 @@ class Field
      */
     private function setCompetition(Competition $competition)
     {
-        if ($this->competition === null and $competition !== null and !$competition->getFields()->contains($this)) {
+        if ($this->competition === null and !$competition->getFields()->contains($this)) {
             $competition->getFields()->add($this) ;
         }
         $this->competition = $competition;

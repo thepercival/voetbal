@@ -75,9 +75,7 @@ class Single extends QualifyRule
     public function setToPlace(Place $toPlace)
     {
         $this->toPlace = $toPlace;
-        if ($toPlace !== null) {
-            $toPlace->setFromQualifyRule($this);
-        }
+        $toPlace->setFromQualifyRule($this);
     }
 
     public function getFromPlaceNumber(): int

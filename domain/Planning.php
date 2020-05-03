@@ -310,11 +310,11 @@ class Planning
             $games = array_merge($games, $poule->getGames()->toArray());
         }
         if ($order === GameBase::ORDER_BY_BATCH) {
-            uasort($games, function (Game $g1, Game  $g2) {
+            uasort($games, function (Game $g1, Game  $g2): int {
                 return $g1->getBatchNr() - $g2->getBatchNr();
             });
         } elseif ($order === GameBase::ORDER_BY_GAMENUMBER) {
-            uasort($games, function (Game $g1, Game $g2) {
+            uasort($games, function (Game $g1, Game $g2): int {
                 if ($g1->getRoundNr() !== $g2->getRoundNr()) {
                     return $g1->getRoundNr() - $g2->getRoundNr();
                 }

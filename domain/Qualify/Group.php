@@ -76,22 +76,13 @@ class Group
         $this->id = $id;
     }
 
-    /**
-     * @return int
-     */
-    public function getWinnersOrLosers()
+    public function getWinnersOrLosers(): int
     {
         return $this->winnersOrLosers;
     }
 
-    /**
-     * @param int $winnersOrLosers
-     */
-    public function setWinnersOrLosers($winnersOrLosers)
+    public function setWinnersOrLosers(int $winnersOrLosers)
     {
-        if (!is_int($winnersOrLosers)) {
-            throw new \InvalidArgumentException("winnaars-of-verliezers heeft een onjuiste waarde", E_ERROR);
-        }
         $this->winnersOrLosers = $winnersOrLosers;
     }
 
@@ -122,7 +113,7 @@ class Group
     protected function insertRoundAt(Round $round, int $insertAt)
     {
         $qualifyGroups = $round->getQualifyGroups($this->getWinnersOrLosers());
-        if ($round !== null and !$qualifyGroups->contains($this)) {
+        if (!$qualifyGroups->contains($this)) {
             $round->addQualifyGroup($this);
             // sort auto because of sort-config in db-yml
         }
@@ -135,7 +126,7 @@ class Group
     public function setRound(Round $round)
     {
         $qualifyGroups = $round->getQualifyGroups($this->getWinnersOrLosers());
-        if ($round !== null and !$qualifyGroups->contains($this)) {
+        if (!$qualifyGroups->contains($this)) {
             $round->addQualifyGroup($this);
         }
         $this->round = $round;

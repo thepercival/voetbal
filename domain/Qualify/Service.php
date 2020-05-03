@@ -57,9 +57,9 @@ class Service
     {
         $changedPlaces = [];
 
-        $setQualifiersForHorizontalPoule = function (HorizontalPoule $horizontalPoule) use ($filterPoule, &$changedPlaces) {
+        $setQualifiersForHorizontalPoule = function (HorizontalPoule $horizontalPoule) use ($filterPoule, &$changedPlaces): void {
             $multipleRule = $horizontalPoule->getQualifyRuleMultiple();
-            if ($multipleRule) {
+            if ($multipleRule !== null) {
                 $changedPlaces = array_merge($changedPlaces, $this->setQualifiersForMultipleRuleAndReserve($multipleRule));
             } else {
                 foreach ($horizontalPoule->getPlaces() as $place) {
@@ -117,7 +117,7 @@ class Service
             $rankedPlaceLocation = $this->reservationService->getFreeAndLeastAvailabe($toPouleNumber, $round, $rankedPlaceLocations);
             $toPlace->setCompetitor($this->rankingService->getCompetitor($rankedPlaceLocation));
             $changedPlaces[] = $toPlace;
-            $index = array_search($rankedPlaceLocation, $rankedPlaceLocations);
+            $index = array_search($rankedPlaceLocation, $rankedPlaceLocations, true);
             if ($index !== false) {
                 unset($rankedPlaceLocations[$index]);
             }

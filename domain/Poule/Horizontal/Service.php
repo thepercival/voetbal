@@ -78,7 +78,7 @@ class Service
         }
 
         foreach ($placesOrderedByPlaceNumber as $placeIt) {
-            $filteredHorizontalPoules = array_filter($horizontalPoules, function ($horizontalPoule) use ($placeIt,$winnersOrLosers) {
+            $filteredHorizontalPoules = array_filter($horizontalPoules, function ($horizontalPoule) use ($placeIt,$winnersOrLosers): bool {
                 foreach ($horizontalPoule->getPlaces() as $poulePlaceIt) {
                     $poulePlaceNrIt = $poulePlaceIt->getNumber();
                     if ($winnersOrLosers === QualifyGroup::LOSERS) {

@@ -23,7 +23,7 @@ class Service
         $sportScoreConfig->setDirection(SportScoreConfig::UPWARDS);
         $sportScoreConfig->setMaximum(0);
         $sportScoreConfig->setEnabled(true);
-        if ($sport->getCustomId() && $this->hasNext($sport->getCustomId())) {
+        if ($sport->getCustomId() !== null && $this->hasNext($sport->getCustomId())) {
             $subScoreConfig = new SportScoreConfig($sport, $roundNumber, $sportScoreConfig);
             $subScoreConfig->setDirection(SportScoreConfig::UPWARDS);
             $subScoreConfig->setMaximum(0);
@@ -54,7 +54,7 @@ class Service
         $newScoreConfig->setMaximum($sourceConfig->getMaximum());
         $newScoreConfig->setEnabled($sourceConfig->getEnabled());
         $previousSubScoreConfig = $sourceConfig->getNext();
-        if ($previousSubScoreConfig) {
+        if ($previousSubScoreConfig !== null) {
             $newSubScoreConfig = new SportScoreConfig($sport, $roundNumber, $newScoreConfig);
             $newSubScoreConfig->setDirection($previousSubScoreConfig->getDirection());
             $newSubScoreConfig->setMaximum($previousSubScoreConfig->getMaximum());

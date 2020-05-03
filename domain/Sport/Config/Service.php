@@ -38,7 +38,7 @@ class Service
         $config->setLosePointsExt($this->getDefaultLosePointsExt($sport));
         $config->setPointsCalculation(SportConfig::POINTS_CALC_GAMEPOINTS);
         $config->setNrOfGamePlaces(SportConfig::DEFAULT_NROFGAMEPLACES);
-        if ($structure) {
+        if ($structure !== null) {
             $this->addToStructure($config, $structure);
         }
         return $config;
@@ -101,11 +101,11 @@ class Service
 
         $sport = $config->getSport();
         $fields = $competition->getFields();
-        $sportFields = $fields->filter(function ($fieldIt) use ($sport) {
+        $sportFields = $fields->filter(function ($fieldIt) use ($sport): bool {
             return $fieldIt->getSport() === $sport;
         });
-        $sportFields->forAll(function ($fieldIt) use ($competition) {
-            $competition->getFields()->removeElement($fieldIt);
+        $sportFields->forAll(function ($fieldIt) use ($competition): bool {
+            return $competition->getFields()->removeElement($fieldIt);
         });
         $roundNumber = $structure->getFirstRoundNumber();
 
@@ -119,9 +119,9 @@ class Service
 //            });
 
             $scoreConfigs = $roundNumber->getSportScoreConfigs();
-            $scoreConfigs->filter(function ($scoreConfigIt) use ($sport) {
+            $scoreConfigs->filter(function ($scoreConfigIt) use ($sport): bool {
                 return $scoreConfigIt->getSport() === $sport;
-            })->forAll(function ($scoreConfigIt) use ($scoreConfigs) {
+            })->forAll(function ($scoreConfigIt) use ($scoreConfigs): bool {
                 return $scoreConfigs->removeElement($scoreConfigIt);
             });
 

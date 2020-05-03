@@ -79,7 +79,7 @@ class Structure
     public function setStructureNumbers()
     {
         $nrOfDropoutPlaces = 0;
-        $setRoundStructureNumbers = function (Round $round) use (&$setRoundStructureNumbers, &$nrOfDropoutPlaces) {
+        $setRoundStructureNumbers = function (Round $round) use (&$setRoundStructureNumbers, &$nrOfDropoutPlaces): void {
             foreach ($round->getQualifyGroups(QualifyGroup::WINNERS) as $qualifyGroup) {
                 $setRoundStructureNumbers($qualifyGroup->getChildRound());
             }

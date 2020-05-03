@@ -112,7 +112,7 @@ class Batch
 
     public function remove(Game $game)
     {
-        $index = array_search($game, $this->games);
+        $index = array_search($game, $this->games, true);
         if ($index !== false) {
             unset($this->games[$index]);
         }

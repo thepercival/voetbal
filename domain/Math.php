@@ -36,7 +36,7 @@ class Math
     public function getCommonDivisors(int $a, int $b): array
     {
         $gcd = function (int $x, int $y) use (&$gcd): int {
-            if (!$y) {
+            if ($y === 0) {
                 return $x;
             }
             return $gcd($y, $x % $y);

@@ -249,7 +249,7 @@ class Number
         }
 
         if ($order === GameBase::ORDER_BY_BATCH) {
-            uasort($games, function (Game $g1, Game $g2) {
+            uasort($games, function (Game $g1, Game $g2): int {
                 if ($g1->getBatchNr() === $g2->getBatchNr()) {
                     return $g1->getField()->getNumber() - $g2->getField()->getNumber();
                 }
@@ -384,7 +384,7 @@ class Number
 
     public function getSportScoreConfig(Sport $sport): ?SportScoreConfig
     {
-        $sportScoreConfigs = $this->sportScoreConfigs->filter(function (SportScoreConfig $sportScoreConfigIt) use ($sport) {
+        $sportScoreConfigs = $this->sportScoreConfigs->filter(function (SportScoreConfig $sportScoreConfigIt) use ($sport): bool {
             return $sportScoreConfigIt->isFirst() && $sportScoreConfigIt->getSport() === $sport;
         });
         if ($sportScoreConfigs->count() === 1) {
@@ -407,7 +407,7 @@ class Number
      */
     public function getValidSportScoreConfigs(): Collection
     {
-        return $this->getSportConfigs()->map(function ($sportConfig) {
+        return $this->getSportConfigs()->map(function ($sportConfig): SportScoreConfig {
             return $this->getValidSportScoreConfig($sportConfig->getSport());
         });
     }
@@ -437,7 +437,7 @@ class Number
      */
     public function getFirstSportScoreConfigs(): Collection
     {
-        return $this->getSportScoreConfigs()->filter(function (SportScoreConfig $config) {
+        return $this->getSportScoreConfigs()->filter(function (SportScoreConfig $config): bool {
             return $config->isFirst();
         });
     }

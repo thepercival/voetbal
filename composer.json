@@ -30,7 +30,8 @@
     "phpstan/phpstan-doctrine": "^0.12",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan-phpunit": "^0.12.8",
-    "friendsofphp/php-cs-fixer": "^2.16"
+    "friendsofphp/php-cs-fixer": "^2.16",
+    "phpstan/phpstan-strict-rules": "^0.12.2"
   },
   "autoload": {
     "psr-4": {

@@ -67,7 +67,7 @@ class Game extends SofaScoreHelper implements ExternalSourceGame
             return $gameRoundNumbers;
         }
         $nDayOfWeek = (int)(new \DateTimeImmutable())->format("w");
-        return array_filter($gameRoundNumbers, function (int $gameRoundNumber) use ($nDayOfWeek) {
+        return array_filter($gameRoundNumbers, function (int $gameRoundNumber) use ($nDayOfWeek): bool {
             return ($gameRoundNumber % 7) === $nDayOfWeek;
         });
     }
@@ -145,8 +145,8 @@ class Game extends SofaScoreHelper implements ExternalSourceGame
 
     protected function getPlaceFromPoule(Poule $poule, Competitor $competitor): ?Place
     {
-        $places = $poule->getPlaces()->filter(function (Place $place) use ($competitor) {
-            return $place->getCompetitor() && $place->getCompetitor()->getId() === $competitor->getId();
+        $places = $poule->getPlaces()->filter(function (Place $place) use ($competitor): bool {
+            return $place->getCompetitor() !== null && $place->getCompetitor()->getId() === $competitor->getId();
         });
         if ($places->count() !== 1) {
             return null;

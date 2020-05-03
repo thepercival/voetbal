@@ -94,7 +94,7 @@ class Seeker
                 $game = new Game($poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr(), $gcdGame->getNrOfHeadtohead());
                 $game->setBatchNr($gcdGame->getBatchNr());
 
-                if ($gcdGame->getReferee()) {
+                if ($gcdGame->getReferee() !== null ) {
                     $refereeNr = ($iteration * $gcdInput->getNrOfReferees()) + $gcdGame->getReferee()->getNumber();
                     $game->setReferee($planning->getReferee($refereeNr));
                 }
@@ -108,7 +108,7 @@ class Seeker
                         $e = 1;
                         $eee = 1212;
                     }
-                    $gamePlace = new Game\Place($game, $place, $gcdGamePlace->getHomeAway());
+                    $gamePlace = new Game\Place($game, $place, $gcdGamePlace->getHomeaway());
                 }
             }
         }
@@ -169,13 +169,13 @@ class Seeker
 
         /** $minIsMaxPlanning bestaat altijd, dit bepaalt eindsucces */
         if (
-                (!$planningMaxPlusOne && ($minIsMaxPlanning->getState() === PlanningBase::STATE_SUCCESS))
+                ($planningMaxPlusOne === null && ($minIsMaxPlanning->getState() === PlanningBase::STATE_SUCCESS))
             ||
-                ($planningMaxPlusOne && ($planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS))
+                ($planningMaxPlusOne !== null && ($planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS))
             ||
-                ($planningMaxPlusOne && ($planningMaxPlusOne->getState() !== PlanningBase::STATE_SUCCESS) && ($minIsMaxPlanning->getState() === PlanningBase::STATE_SUCCESS))
+                ($planningMaxPlusOne !== null && ($planningMaxPlusOne->getState() !== PlanningBase::STATE_SUCCESS) && ($minIsMaxPlanning->getState() === PlanningBase::STATE_SUCCESS))
         ) {
-            $planning = ($planningMaxPlusOne && $planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS) ? $planningMaxPlusOne : $minIsMaxPlanning;
+            $planning = ($planningMaxPlusOne !== null && $planningMaxPlusOne->getState() === PlanningBase::STATE_SUCCESS) ? $planningMaxPlusOne : $minIsMaxPlanning;
 
             $planningNextInARow =  $this->planningService->createNextInARowPlanning($planning);
             if ($planningNextInARow !== null) {
@@ -217,7 +217,7 @@ class Seeker
 
     protected function inputToString(Input $planningInput): string
     {
-        $sports = array_map(function (array $sportConfig) {
+        $sports = array_map(function (array $sportConfig): string {
             return '' . $sportConfig["nrOfFields"] ;
         }, $planningInput->getSportConfig());
         return 'id '.$planningInput->getId().' => structure [' . implode('|', $planningInput->getStructureConfig()) . ']'

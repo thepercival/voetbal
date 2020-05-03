@@ -33,7 +33,7 @@ class Repository
     public function __construct(EntityManager $em)
     {
         $this->em = $em;
-        $this->roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetaData(RoundNumber::class));
+        $this->roundNumberRepos = new RoundNumberRepository($this->em, $this->em->getClassMetadata(RoundNumber::class));
     }
 
     public function removeAndAdd(Competition $competition, StructureBase $newStructure, int $roundNumberValue = null): RoundNumber
@@ -55,7 +55,7 @@ class Repository
 
     public function add(StructureBase $structure, int $roundNumberValue = null): RoundNumber
     {
-        $roundNumber = $structure->getRoundNumber($roundNumberValue ? $roundNumberValue : 1);
+        $roundNumber = $structure->getRoundNumber($roundNumberValue !== null ? $roundNumberValue : 1);
         if ($roundNumber === null) {
             throw new \Exception("rondenummer " . $roundNumberValue . " kon niet gevonden worden", E_ERROR);
         }

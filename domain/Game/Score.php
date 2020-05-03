@@ -77,7 +77,7 @@ class Score
      */
     public function setGame(Game $game)
     {
-        if ($this->game === null and $game !== null and !$game->getScores()->contains($this)) {
+        if ($this->game === null and !$game->getScores()->contains($this)) {
             $game->getScores()->add($this) ;
         }
         $this->game = $game;

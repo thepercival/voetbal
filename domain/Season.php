@@ -8,23 +8,22 @@ use \Doctrine\Common\Collections\ArrayCollection;
 
 class Season implements Importable
 {
-    private $id;
-
+    /**
+     * @var int|string
+     */
+    protected $id;
     /**
      * @var string
      */
     private $name;
-
     /**
      * @var \DateTimeImmutable
      */
     private $startDateTime;
-
     /**
      * @var \DateTimeImmutable
      */
     private $endDateTime;
-
     /**
      * @var ArrayCollection
      */
@@ -42,17 +41,22 @@ class Season implements Importable
         $this->setPeriod($period);
     }
 
+    /**
+     * @return int|string
+     */
     public function getId()
     {
         return $this->id;
     }
 
-
+    /**
+     * @param int|string $id
+     * @return void
+     */
     public function setId($id)
     {
         $this->id = $id;
     }
-
     /**
      * @return string
      */

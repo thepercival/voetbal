@@ -20,7 +20,7 @@ class Place
     protected $id;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $name;
 
@@ -130,22 +130,13 @@ class Place
         return $this->getPoule()->getRound();
     }
 
-    /**
-     * @return int
-     */
-    public function getNumber()
+    public function getNumber(): int
     {
         return $this->number;
     }
 
-    /**
-     * @param int $number
-     */
-    public function setNumber($number)
+    public function setNumber(int $number)
     {
-        if (!is_int($number)) {
-            throw new \InvalidArgumentException("het nummer van de pouleplek heeft een onjuiste waarde", E_ERROR);
-        }
         $this->number = $number;
     }
 
@@ -165,18 +156,12 @@ class Place
         $this->penaltyPoints = $penaltyPoints;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): ?string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
-    public function setName($name)
+    public function setName(string $name = null)
     {
         if (is_string($name) and strlen($name) === 0) {
             $name = null;
@@ -226,7 +211,7 @@ class Place
 
     public function getToQualifyRule(int $winnersOrLosers)
     {
-        $filtered = array_filter($this->toQualifyRules, function ($qualifyRule) use ($winnersOrLosers) {
+        $filtered = array_filter($this->toQualifyRules, function ($qualifyRule) use ($winnersOrLosers): bool {
             return ($qualifyRule->getWinnersOrLosers() === $winnersOrLosers);
         });
         $toQualifyRule = reset($filtered);
@@ -237,11 +222,11 @@ class Place
     {
         $toQualifyRuleOld = $this->getToQualifyRule($winnersOrLosers);
         if ($toQualifyRuleOld !== null) {
-            if (($key = array_search($toQualifyRuleOld, $this->toQualifyRules)) !== false) {
+            if (($key = array_search($toQualifyRuleOld, $this->toQualifyRules, true)) !== false) {
                 unset($this->toQualifyRules[$key]);
             }
         }
-        if ($qualifyRule) {
+        if ($qualifyRule !== null) {
             $this->toQualifyRules[] = $qualifyRule;
         }
     }

@@ -3,13 +3,12 @@
 namespace Voetbal\Structure;
 
 use Voetbal\Structure;
-use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Round;
 use Voetbal\Poule\Horizontal\Creator as HorizontolPouleCreator;
 use Voetbal\Poule\Horizontal\Service as HorizontalPouleService;
 use Voetbal\Qualify\Rule\Service as QualifyRuleService;
 use Voetbal\Qualify\Group as QualifyGroup;
-use Voetbal\Structure\Service as StructureService;
+use Voetbal\Poule\Horizontal\Creator as HorizontalPoule;
 
 class PostCreateService
 {
@@ -47,7 +46,7 @@ class PostCreateService
         foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
             $horizontalPouleService->updateQualifyGroups(
                 array_slice($round->getHorizontalPoules($winnersOrLosers), 0),
-                array_map(function ($qualifyGroup) {
+                array_map(function ($qualifyGroup): HorizontalPoule {
                     return new HorizontolPouleCreator($qualifyGroup, $qualifyGroup->getChildRound()->getNrOfPlaces());
                 }, $round->getQualifyGroups($winnersOrLosers)->toArray())
             );

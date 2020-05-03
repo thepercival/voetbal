@@ -113,7 +113,7 @@ class Round
      */
     private function setNumber(Round\Number $number)
     {
-        if ($number !== null and !$number->getRounds()->contains($this)) {
+        if (!$number->getRounds()->contains($this)) {
             $number->getRounds()->add($this) ;
         }
         $this->number = $number;
@@ -140,7 +140,7 @@ class Round
      */
     public function setName($name)
     {
-        if (is_string($name) and strlen($name) === 0) {
+        if (strlen($name) === 0) {
             $name = null;
         }
 
@@ -170,7 +170,7 @@ class Round
         if ($winnersOrLosers === null) {
             return clone $this->qualifyGroups;
         }
-        return new ArrayCollection($this->qualifyGroups->filter(function ($qualifyGroup) use ($winnersOrLosers) {
+        return new ArrayCollection($this->qualifyGroups->filter(function ($qualifyGroup) use ($winnersOrLosers): bool {
             return $qualifyGroup->getWinnersOrLosers() === $winnersOrLosers;
         })->toArray());
     }
@@ -216,7 +216,7 @@ class Round
 
     public function getQualifyGroup(int $winnersOrLosers, int $qualifyGroupNumber): ?QualifyGroup
     {
-        $qualifyGroup = $this->getQualifyGroups($winnersOrLosers)->filter(function ($qualifyGroup) use ($qualifyGroupNumber) {
+        $qualifyGroup = $this->getQualifyGroups($winnersOrLosers)->filter(function ($qualifyGroup) use ($qualifyGroupNumber): bool {
             return $qualifyGroup->getNumber() === $qualifyGroupNumber;
         })->last();
         return $qualifyGroup === false ? null : $qualifyGroup;
@@ -249,7 +249,7 @@ class Round
     public function getChild(int $winnersOrLosers, int $qualifyGroupNumber): ?Round
     {
         $qualifyGroup = $this->getQualifyGroup($winnersOrLosers, $qualifyGroupNumber);
-        return $qualifyGroup ? $qualifyGroup->getChildRound() : null;
+        return $qualifyGroup !== null ? $qualifyGroup->getChildRound() : null;
     }
 
     /**
@@ -295,7 +295,7 @@ class Round
      */
     public function getParent(): ?Round
     {
-        return $this->getParentQualifyGroup() ? $this->getParentQualifyGroup()->getRound() : null;
+        return $this->getParentQualifyGroup() !== null ? $this->getParentQualifyGroup()->getRound() : null;
     }
 
     /**
@@ -327,7 +327,7 @@ class Round
 
     public function getHorizontalPoule(int $winnersOrLosers, int $number): ?HorizontalPoule
     {
-        $foundHorPoules = array_filter($this->getHorizontalPoules($winnersOrLosers), function ($horPoule) use ($number) {
+        $foundHorPoules = array_filter($this->getHorizontalPoules($winnersOrLosers), function ($horPoule) use ($number): bool {
             return $horPoule->getNumber() === $number;
         });
         $first = reset($foundHorPoules);

@@ -95,7 +95,7 @@ class Service
             foreach ([QualifyGroup::WINNERS, QualifyGroup::LOSERS] as $winnersOrLosers) {
                 foreach ($round->getHorizontalPoules($winnersOrLosers) as $horizontalPoule) {
                     /** @var HorizontalPoule $horizontalPoule */
-                    if ($horizontalPoule->getQualifyGroup() && $horizontalPoule->getQualifyGroup()->getNrOfToPlacesTooMuch() === 0) {
+                    if ($horizontalPoule->getQualifyGroup() !== null && $horizontalPoule->getQualifyGroup()->getNrOfToPlacesTooMuch() === 0) {
                         if ($nrOfDropouts > 0) {
                             continue;
                         }
@@ -125,9 +125,9 @@ class Service
     {
         $rankedPlaceLocations = $rankingService->getPlaceLocationsForHorizontalPoule($horizontalPoule);
         array_splice($rankedPlaceLocations, 0, $horizontalPoule->getNrOfQualifiers());
-        return array_map(function ($rankedPlaceLocation) use ($rankingService) {
+        return array_map(function ($rankedPlaceLocation) use ($rankingService): Item {
             $competitor = $rankingService->getCompetitor($rankedPlaceLocation);
-            $name = $competitor ? $competitor->getName() : 'onbekend';
+            $name = $competitor !== null ? $competitor->getName() : 'onbekend';
             return new Item($this->currentRank, $this->currentRank++, $name);
         }, $rankedPlaceLocations);
     }

@@ -60,7 +60,7 @@ class Queue
             return;
         }
 
-        if (!empty($this->qualifyRules)) {
+        if ($this->qualifyRules !== null && count($this->qualifyRules) > 0 ) {
             $lastItem = $this->qualifyRules[count($this->qualifyRules)-1];
             if ($lastItem->isMultiple()) {
                 return;

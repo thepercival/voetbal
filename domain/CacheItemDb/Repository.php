@@ -12,7 +12,7 @@ class Repository extends \Voetbal\Repository
 {
     public function getItem(string $name): ?string
     {
-        /** @var CacheItemDb $cacheItem */
+        /** @var CacheItemDb|null $cacheItem */
         $cacheItem = $this->findOneBy(["name" => $name]);
         if ($cacheItem !== null &&
             ($cacheItem->getExpireDateTime() === null || $cacheItem->getExpireDateTime() > (new \DateTimeImmutable()))
@@ -49,7 +49,7 @@ class Repository extends \Voetbal\Repository
     public function removeItem(string $name)
     {
         $cacheItem = $this->getItem($name);
-        if ($cacheItem) {
+        if ($cacheItem !== null) {
             $this->removeItem($cacheItem);
         }
     }

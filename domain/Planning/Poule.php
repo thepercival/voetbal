@@ -71,7 +71,7 @@ class Poule
      */
     public function getPlace($number): ?Place
     {
-        $places = $this->getPlaces()->filter(function ($place) use ($number) {
+        $places = $this->getPlaces()->filter(function ($place) use ($number): bool {
             return $place->getNumber() === $number;
         });
         if ($places->count() === 0) {

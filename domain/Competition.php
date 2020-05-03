@@ -218,7 +218,7 @@ class Competition implements Importable
      */
     public function getReferee(int $rank)
     {
-        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($rank) {
+        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($rank): bool {
             return $referee->getRank() === $rank;
         });
         return array_shift($referees);
@@ -229,7 +229,7 @@ class Competition implements Importable
      */
     public function getRefereeById($id)
     {
-        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($id) {
+        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($id): bool {
             return $referee->getId() === $id;
         });
         return array_shift($referees);
@@ -256,7 +256,7 @@ class Competition implements Importable
      */
     public function getField($number)
     {
-        $fields = array_filter($this->getFields()->toArray(), function ($field) use ($number) {
+        $fields = array_filter($this->getFields()->toArray(), function ($field) use ($number): bool {
             return $field->getNumber() === $number;
         });
         return array_shift($fields);
@@ -277,7 +277,7 @@ class Competition implements Importable
 
     public function getSportConfig(Sport $sport = null): ?SportConfig
     {
-        $foundConfigs = $this->sportConfigs->filter(function ($sportConfig) use ($sport) {
+        $foundConfigs = $this->sportConfigs->filter(function ($sportConfig) use ($sport): bool {
             return $sportConfig->getSport() === $sport;
         });
         $foundConfig = $foundConfigs->first();

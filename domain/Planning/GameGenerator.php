@@ -81,7 +81,7 @@ class GameGenerator
         foreach ($teams as $team) {
             $opponents = $this->getCombinationsWithOut($poule, $team);
             for ($nr = 1; $nr <= count($opponents); $nr++) {
-                $filteredGameRounds = array_filter($gameRoundsTmp, function ($gameRoundIt) use ($nr) {
+                $filteredGameRounds = array_filter($gameRoundsTmp, function ($gameRoundIt) use ($nr): bool {
                     return $nr === $gameRoundIt->getNumber();
                 });
                 $gameRound = reset($filteredGameRounds);
@@ -121,7 +121,7 @@ class GameGenerator
             }
         }
         if (count($gameRound->getCombinations()) === 0) {
-            $index = array_search($gameRound, $gameRounds);
+            $index = array_search($gameRound, $gameRounds, true);
             if ($index !== false) {
                 unset($gameRounds[$index]);
             }
@@ -140,7 +140,7 @@ class GameGenerator
         foreach ($games as $game) {
             $gameCombinationNumber = new PlaceCombinationNumber($game);
 
-            if (count(array_filter($combinationNumbers, function ($combinationNumberIt) use ($gameCombinationNumber) {
+            if (count(array_filter($combinationNumbers, function ($combinationNumberIt) use ($gameCombinationNumber): bool {
                 return $gameCombinationNumber->equals($combinationNumberIt);
             })) > 0) { // als wedstrijd al is geweest, dan wedstrijd niet opnemen
                 continue;
@@ -177,8 +177,8 @@ class GameGenerator
      */
     protected function getCombinationsWithOut(Poule $poule, array $team): array
     {
-        $opponents = array_filter($poule->getPlaces()->toArray(), function ($placeIt) use ($team) {
-            return count(array_filter($team, function ($place) use ($placeIt) {
+        $opponents = array_filter($poule->getPlaces()->toArray(), function ($placeIt) use ($team): bool {
+            return count(array_filter($team, function ($place) use ($placeIt): bool {
                 return $place === $placeIt ;
             })) === 0;
         });
@@ -227,7 +227,7 @@ class GameGenerator
         }
 
         // add a placeholder if the count is odd
-        if ($nrOfPlaces%2) {
+        if ( ($nrOfPlaces % 2) > 0 ) {
             $places[] = null;
             $nrOfPlaces++;
         }

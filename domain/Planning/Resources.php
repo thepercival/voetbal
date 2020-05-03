@@ -77,7 +77,6 @@ class Resources
 
     /**
      * @param Field $field
-     * @return mixed
      */
     public function unshiftField(Field $field)
     {
@@ -103,8 +102,8 @@ class Resources
 
     public function orderFields()
     {
-        uasort($this->fields, function (Field $fieldA, Field $fieldB) {
-            $this->sportTimes[$fieldA->getSport()->getNumber() ] > $this->sportTimes[$fieldB->getSport()->getNumber() ] ? -1 : 1;
+        uasort($this->fields, function (Field $fieldA, Field $fieldB): int {
+            return $this->sportTimes[$fieldA->getSport()->getNumber() ] > $this->sportTimes[$fieldB->getSport()->getNumber() ] ? -1 : 1;
         });
     }
 

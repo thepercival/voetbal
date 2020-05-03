@@ -35,7 +35,7 @@ class Referee
      */
     private $initials;
     /**
-     * @var string
+     * @var string|null
      */
     private $name;
     /**
@@ -143,9 +143,9 @@ class Referee
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      */
-    public function setName($name)
+    public function setName(string $name = null)
     {
         if ($name !== null && (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME)) {
             throw new \InvalidArgumentException(

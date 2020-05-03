@@ -40,7 +40,7 @@ abstract class RefereePlaces implements \IteratorAggregate
         if ($poule === null) {
             return count($this->refereePlaces);
         }
-        return count(array_filter($this->refereePlaces, function (Place $refereePlace) use ($poule) {
+        return count(array_filter($this->refereePlaces, function (Place $refereePlace) use ($poule): bool {
             return $refereePlace->getPoule() === $poule ;
         }));
     }

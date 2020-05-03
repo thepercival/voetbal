@@ -81,7 +81,7 @@ class Service
             },
             array_filter(
                 $this->getRankFunctions(),
-                function ($rankFunction) {
+                function ($rankFunction): bool {
                     return $rankFunction !== $this->rankFunctions[Service::BestSubUnitDifference]
                         && $rankFunction !== $this->rankFunctions[Service::MostSubUnitsScored];
                 }
@@ -112,7 +112,7 @@ class Service
     public function getPlaceLocationsForHorizontalPoule(HorizontalPoule $horizontalPoule): array
     {
         return array_map(
-            function ($rankingItem) {
+            function ($rankingItem): PlaceLocation {
                 return $rankingItem->getPlaceLocation();
             },
             $this->getItemsForHorizontalPoule($horizontalPoule, true)
@@ -164,7 +164,7 @@ class Service
     {
         $foundItems = array_filter(
             $rankingItems,
-            function ($rankingItemIt) use ($rank) {
+            function ($rankingItemIt) use ($rank): bool {
                 return $rankingItemIt->getUniqueRank() === $rank;
             }
         );
@@ -192,7 +192,7 @@ class Service
             $bestItems = $this->findBestItems($unrankedItems, $rankFunctions);
             $rank = $nrOfIterations + 1;
             foreach ($bestItems as $bestItem) {
-                array_splice($unrankedItems, array_search($bestItem, $unrankedItems), 1);
+                array_splice($unrankedItems, array_search($bestItem, $unrankedItems, true), 1);
                 $rankedItems[] = new RankedRoundItem($bestItem, ++$nrOfIterations, $rank);
             }
             // if (nrOfIterations > this.maxPlaces) {
@@ -341,7 +341,7 @@ class Service
             $unrankedItems = $getter->getUnrankedItems($places, $games);
             $rankedItems = array_filter(
                 $this->rankItems($unrankedItems, true),
-                function ($rankItem) {
+                function ($rankItem): bool {
                     return $rankItem->getRank() === 1;
                 }
             );
@@ -352,7 +352,7 @@ class Service
                 function ($rankedItem) use ($items) {
                     $foundItems = array_filter(
                         $items,
-                        function ($item) use ($rankedItem) {
+                        function ($item) use ($rankedItem): bool {
                             return $item->getPlaceLocation()->getPouleNr() === $rankedItem->getPlaceLocation(
                                 )->getPouleNr()
                                 && $item->getPlaceLocation()->getPlaceNr() === $rankedItem->getPlaceLocation(

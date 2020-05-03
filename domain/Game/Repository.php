@@ -88,14 +88,14 @@ class Repository extends \Voetbal\Repository
     }
 
 
-    public function findOneByExt( Competitor $homeCompetitor, Competitor $awayCompetitor, Period $period): ?GameBase
+    public function findOneByExt(Competitor $homeCompetitor, Competitor $awayCompetitor, Period $period): ?GameBase
     {
         $exprHome = $this->getEM()->getExpressionBuilder();
         $exprAway = $this->getEM()->getExpressionBuilder();
 
         $query = $this->createQueryBuilder('g')
-            ->where('g.startDateTime >= :start' )
-            ->andWhere('g.startDateTime <= :end' )
+            ->where('g.startDateTime >= :start')
+            ->andWhere('g.startDateTime <= :end')
             ->andWhere(
                 $exprHome->exists(
                     $this->getEM()->createQueryBuilder()
@@ -103,7 +103,7 @@ class Repository extends \Voetbal\Repository
                         ->from('Voetbal\Game\Place', 'gpphome')
                         ->join("gpphome.place", "pphome")
                         ->where('gpphome.game = g')
-                        ->andWhere('gpphome.homeaway = :home' )
+                        ->andWhere('gpphome.homeaway = :home')
                         ->andWhere('pphome.competitor = :homecompetitor')
                         ->getDQL()
                 )
@@ -128,7 +128,7 @@ class Repository extends \Voetbal\Repository
         $query = $query->setParameter('away', GameBase::AWAY);
         $query = $query->setParameter('awaycompetitor', $awayCompetitor);
         $games = $query->getQuery()->getResult();
-        if( count($games) === 0 ) {
+        if (count($games) === 0) {
             return null;
         }
         return reset($games);
