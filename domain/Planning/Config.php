@@ -61,7 +61,7 @@ class Config
     const DEFAULTEXTENSION = false;
     const DEFAULTENABLETIME = true;
     const TEAMUP_MIN = 4;
-    const TEAMUP_MAX = 9;
+    const TEAMUP_MAX = 6;
     const DEFAULTNROFHEADTOHEAD = 1;
 
     public function __construct(RoundNumber $roundNumber)
