@@ -73,6 +73,9 @@ class Service
     {
         $lastPlanning = $this->getMinIsMax($input, PlanningBase::STATE_FAILED + PlanningBase::STATE_TIMEOUT);
         $nrOfBatchGames = $lastPlanning !== null ? ($lastPlanning->getMaxNrOfBatchGames() - 1) : $input->getMaxNrOfBatchGames();
+        if( $nrOfBatchGames === 0 ) {
+            $nrOfBatchGames++;
+        }
         return new PlanningBase($input, new VoetbalRange($nrOfBatchGames, $nrOfBatchGames), $input->getMaxNrOfGamesInARow());
     }
 

@@ -12,21 +12,29 @@ use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning\Place\Combination as PlaceCombination;
 use Voetbal\Planning\Place\Combination\Number as PlaceCombinationNumber;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Math;
+use Voetbal\Sport\Service as SportService;
 
 class GameGenerator
 {
     /**
-     * @var SportPlanningConfigService
+     * @var SportService
      */
-    //protected $sportPlanningConfigService;
+    protected $sportService;
     /**
      * @var Input
      */
     protected $input;
+    /**
+     * @var Math
+     */
+    protected $math;
 
     public function __construct(Input $input)
     {
         $this->input = $input;
+        $this->math = new Math();
+        $this->sportService = new SportService();
     }
 
     public function create(PlanningBase $planning)
@@ -94,46 +102,22 @@ class GameGenerator
             }
         }
 
-        $games = $this->flattenGameRounds($gameRoundsTmp);
+        $placeCombinations = $this->flattenGameRounds($gameRoundsTmp);
 
         $totalNrOfCombinations = $this->getTotalNrOfCombinations($nrOfPlaces);
-        if ($totalNrOfCombinations !== count($games)) {
+        if ($totalNrOfCombinations !== count($placeCombinations)) {
             throw new \Exception('not correct permu', E_ERROR);
         }
 
-        $uniqueGames = $this->getUniqueGames($games);
-
-        $gameRounds = [];
-        $gameRound = new GameRound(1, []);
-        $gameRounds[] = $gameRound;
-        $nrOfGames = 0;
-        while (count($uniqueGames) > 0) {
-            $game = array_shift($uniqueGames);
-            if ($this->isPlaceInRoundGame($gameRound->getCombinations(), $game)) {
-                $uniqueGames[] = $game;
-                continue;
-            }
-            $gameRound->addCombination($game);
-            $nrOfGames++;
-            if (((count($gameRound->getCombinations()) * 4) + 4) > $nrOfPlaces) {
-                $gameRound = new GameRound($gameRound->getNumber() + 1, []);
-                $gameRounds[] = $gameRound;
-            }
-        }
-        if (count($gameRound->getCombinations()) === 0) {
-            $index = array_search($gameRound, $gameRounds, true);
-            if ($index !== false) {
-                unset($gameRounds[$index]);
-            }
-        }
-        return $gameRounds;
+        $uniquePlaceCombinations = $this->getUniquePlaceCombinations($placeCombinations);
+        return $this->createGameRoundsFromUniquePlaceCombinations($nrOfPlaces, $uniquePlaceCombinations);
     }
 
     /**
      * @param array | PlaceCombination[] $games
      * @return array | PlaceCombination[]
      */
-    protected function getUniqueGames(array $games): array
+    protected function getUniquePlaceCombinations(array $games): array
     {
         $combinationNumbers = [];
         $uniqueGames = [];
@@ -151,24 +135,50 @@ class GameGenerator
         return $uniqueGames;
     }
 
+    /**
+     * only be called when teamup is true
+     *
+     * @param array $uniqueCombinations|PlaceCombination[]
+     * @return array|GameRound[]
+     */
+    protected function createGameRoundsFromUniquePlaceCombinations( int $nrOfPlaces, array $uniqueCombinations ): array{
+        $gameRounds = [];
+        $gameRound = new GameRound(1, []);
+        $gameRounds[] = $gameRound;
+        $nrOfGames = 0;
+        $uniqueFiltered = [];
+        $sportConfigs = $this->input->getSportConfig();
+        $firstSportConfig = reset($sportConfigs);
+        $nrOfGamePlaces = $firstSportConfig["nrOfGamePlaces"];
+        $nrOfGamePlaces = $this->sportService->getNrOfGamePlaces($nrOfGamePlaces, true, $this->input->getSelfReferee());
+
+        while (count($uniqueCombinations) > 0 && count($uniqueFiltered) < count($uniqueCombinations) ) {
+            $game = array_shift($uniqueCombinations);
+            if ($this->isPlaceInRoundGame($gameRound->getCombinations(), $game)) {
+                $uniqueFiltered[] = $game;
+                continue;
+            }
+            $gameRound->addCombination($game);
+            $nrOfGames++;
+
+            if ( ($gameRound->getNrOfPlaces() + $nrOfGamePlaces) > $nrOfPlaces ) {
+                $gameRound = new GameRound($gameRound->getNumber() + 1, []);
+                $gameRounds[] = $gameRound;
+            }
+            $uniqueCombinations = array_merge( $uniqueCombinations, array_reverse( array_splice( $uniqueFiltered, 0 ) ) );
+        }
+        if (count($gameRound->getCombinations()) === 0) {
+            $index = array_search($gameRound, $gameRounds, true);
+            if ($index !== false) {
+                unset($gameRounds[$index]);
+            }
+        }
+        return $gameRounds;
+    }
+
     protected function getTotalNrOfCombinations(int $nrOfPlaces): int
     {
-        return $this->above($nrOfPlaces, 2) * $this->above($nrOfPlaces - 2, 2);
-    }
-
-    protected function above(int $top, int $bottom): int
-    {
-        $x = $this->faculty($top);
-        $y = $this->faculty($top - $bottom) * $this->faculty($bottom);
-        return  $x / $y;
-    }
-
-    protected function faculty(int $x): int
-    {
-        if ($x > 1) {
-            return $this->faculty($x - 1) * $x;
-        }
-        return 1;
+        return $this->math->above($nrOfPlaces, 2) * $this->math->above($nrOfPlaces - 2, 2);
     }
 
     /**

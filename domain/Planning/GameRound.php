@@ -51,4 +51,16 @@ class GameRound
         $this->combinations[] = $combination;
         return $combination;
     }
+
+    public function getNrOfPlaces(): int
+    {
+        return array_sum(
+            array_map(
+                function (PlaceCombination $placeCompbination): int {
+                    return $placeCompbination->count();
+                },
+                $this->combinations
+            )
+        );
+    }
 }

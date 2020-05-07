@@ -251,7 +251,11 @@ class Service
             $games
         ) === count($batch->getGames())) { // batchsuccess
             $nextBatch = $this->toNextBatch($batch, $resources, $games);
-//            $this->output->consoleBatch($batch, ' batch completed nr ' . $batch->getNumber() );
+//            if( $batch->getNumber() > 200 ) {
+//                $this->output->consoleBatch($batch, ' batch completed nr ' . $batch->getNumber() );
+//            }
+            // update planninginputs set state = 1 where state = 2;
+            // delete from plannings where inputId = 26178;
             if (count($gamesForBatch) === 0 && count($games) === 0) { // endsuccess
                 return true;
             }

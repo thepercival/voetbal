@@ -77,6 +77,11 @@ class Combination
         return array_merge($this->home, $this->away);
     }
 
+    public function count(): int
+    {
+        return count($this->home) + count($this->away);
+    }
+
     /**
      * @param Game $game
      * @param bool $reverseHomeAway
