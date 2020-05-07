@@ -177,7 +177,7 @@ class Service
     {
         $nrOfGames = $nrOfPoulePlaces - 1;
         if ($teamup === true) {
-            $nrOfGames = $this->getNrOfCombinations($nrOfPoulePlaces, true) - $this->getNrOfCombinations($nrOfPoulePlaces - 1, true);
+            $nrOfGames = $this->getNrOfGamesPerPlaceTeamup($nrOfPoulePlaces);
         }
         if ($selfReferee) {
             $nrOfPouleGames = $this->getNrOfGamesPerPoule($nrOfPoulePlaces, $teamup);
@@ -252,20 +252,19 @@ class Service
         if ($teamup === false) {
             return $this->math->above($nrOfPlaces, SportBase::TEMPDEFAULT);
         }
-        // const nrOfPlacesPerGame = Sport.TEMPDEFAULT * 2;
+        $nrOfCombinations = 0;
+        for( $nrOfPlacesIt = 4 ; $nrOfPlacesIt <= $nrOfPlaces ; $nrOfPlacesIt++ ) {
+            $nrOfCombinations += $this->getNrOfGamesPerPlaceTeamup( $nrOfPlacesIt );
+        }
+        return $nrOfCombinations;
+    }
 
-        // 4 = 3 of 6
-        // 5 = 4 of 10
-        // 6 = 15 of 5
-        if ($nrOfPlaces < 4) {
+    protected function getNrOfGamesPerPlaceTeamup(int $nrOfPlaces): int
+    {
+        if( $nrOfPlaces < 4 ) {
             return 0;
         }
-        if ($nrOfPlaces === 4) {
-            return 3; // aantal ronden = 3 perm = 1
-        }
-        if ($nrOfPlaces === 5) {
-            return 15; // perm = 5 ronden = 3
-        }
-        return 45; // perm = 45 ronden = 1
+        $tmp = $this->math->above($nrOfPlaces - 2, 4 - 2 ); // 4 - 2 == opponents
+        return ( $nrOfPlaces -1 ) * $tmp;
     }
 }
