@@ -223,6 +223,9 @@ class GameGenerator
         return false;
     }
 
+
+    // kijk voor een planning van 4 hoe deze gevuld wordt!
+    // STAP VOOR STAP ANALYSE!!
     /**
      * @param array | Place[] $places
      * @return array | GameRound[]
