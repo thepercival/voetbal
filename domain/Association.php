@@ -48,7 +48,7 @@ class Association implements Importable
 
     use ImportableTrait;
 
-    public function __construct($name)
+    public function __construct(string $name)
     {
         $this->setName($name);
         $this->children = new ArrayCollection();
@@ -73,14 +73,11 @@ class Association implements Importable
         $this->id = $id;
     }
 
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param string $name
-     */
     public function setName(string $name)
     {
         if (strlen($name) < static::MIN_LENGTH_NAME or strlen($name) > static::MAX_LENGTH_NAME) {
@@ -136,13 +133,15 @@ class Association implements Importable
             $this->parent->getChildren()->removeElement($this);
         }
         $this->parent = $parent;
-        if ($this->parent !== null) {
+        if ($this->parent !== null && $this->parent->getChildren() !== null) {
             $this->parent->getChildren()->add($this);
         }
     }
 
     /**
-     * @return ArrayCollection
+     * In case the object is not created with the constructor, children can be null
+     *
+     * @return ArrayCollection|null
      */
     public function getChildren()
     {
