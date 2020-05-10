@@ -100,8 +100,12 @@ class ApiHelper
 
     public function getCurrentDateAsString(): string
     {
-        ;
-        return (new DateTimeImmutable())->modify("+15 days")->format("Y-m-d");
+        return $this->getDateAsString((new DateTimeImmutable())->modify("+15 days") );
+    }
+
+    public function getDateAsString( DateTimeImmutable $date ): string
+    {
+        return $date->format("Y-m-d");
     }
 
     public function getSportsData(): stdClass
@@ -109,15 +113,49 @@ class ApiHelper
         return $this->getData("event/count/by-sports/json", ImportService::SPORT_CACHE_MINUTES);
     }
 
-    public function getCompetitionsData(Sport $sport, DateTimeImmutable $date = null): stdClass
+    /**
+     * @param Sport $sport
+     * @param array|DateTimeImmutable[] $dates = null
+     * @return stdClass
+     */
+    public function getCompetitionsData(Sport $sport, array $dates = null ): stdClass
     {
-        if ($date === null) {
-            $date = $this->getCurrentDateAsString();
+        if ($dates === null) {
+            $dates = $this->getDefaultDates();
         }
+        $datesData = new stdClass();
+        foreach( $dates as $date ) {
+            $dateApiData = $this->getData(
+                $sport->getName() . "//" . $this->getDateAsString($date) . "/json",
+                60 * 24
+            );
+
+            if( property_exists($datesData, "sportItem") === false ) {
+                $datesData->sportItem = $dateApiData->sportItem;
+            } else {
+                $datesData->sportItem->tournaments = array_merge( $datesData->sportItem->tournaments, $dateApiData->sportItem->tournaments );
+            }
+        }
+        return $datesData;
+    }
+
+    public function getCompetitionsDataHelper(Sport $sport, DateTimeImmutable $date): stdClass
+    {
         return $this->getData(
             $sport->getName() . "//" . $date . "/json",
             60 * 24
         );
+    }
+
+    /**
+     * @return array|DateTimeImmutable[]
+     */
+    protected function getDefaultDates(): array {
+        $today = (new DateTimeImmutable())->setTime(0, 0);
+        return [
+            $today,
+            $today->modify("+5 days")
+        ];
     }
 
     public function getCompetitionData(Competition $competition): stdClass

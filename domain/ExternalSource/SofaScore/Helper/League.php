@@ -18,6 +18,7 @@ use Voetbal\Import\Service as ImportService;
 use Voetbal\ExternalSource\SofaScore;
 
 use Voetbal\ExternalSource\League as ExternalSourceLeague;
+use Voetbal\Planning\Game;
 
 class League extends SofaScoreHelper implements ExternalSourceLeague
 {
@@ -62,6 +63,12 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
             return;
         }
         $this->setLeagues($this->getLeagueData());
+        uasort($this->leagues, function (LeagueBase $league1, LeagueBase $league2): int {
+            if( strcmp( $league1->getAssociation()->getName(), $league2->getAssociation()->getName() ) === 0 ) {
+                return strcmp( $league1->getName(), $league2->getName() );
+            }
+            return strcmp( $league1->getAssociation()->getName(), $league2->getAssociation()->getName() );
+        });
     }
 
     /**

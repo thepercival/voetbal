@@ -110,6 +110,13 @@ class Competition implements ImporterInterface
         if ($season  === null) {
             return null;
         }
+        $existingCompetition = $this->competitionRepos->findOneBy( [
+            "league" => $league, "season" => $season
+        ]);
+        if( $existingCompetition !== null ) {
+            return $existingCompetition;
+        }
+
         $competition = new CompetitionBase($league, $season);
         $competition->setStartDateTime($season->getStartDateTime());
 
