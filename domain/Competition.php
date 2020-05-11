@@ -299,7 +299,11 @@ class Competition implements Importable
         return $this->sportConfigs[0];
     }
 
-    public function getSportBySportId(int $sportId): ?Sport
+    /**
+     * @param int|string $sportId
+     * @return Sport|null
+     */
+    public function getSportBySportId($sportId): ?Sport
     {
         foreach ($this->getSportConfigs() as $sportConfig) {
             if ($sportConfig->getSport()->getId() === $sportId) {
