@@ -23,7 +23,7 @@ use Voetbal\Planning\Game;
 class League extends SofaScoreHelper implements ExternalSourceLeague
 {
     /**
-     * @var array|LeagueBase[]|null
+     * @var LeagueBase[]|null|array
      */
     protected $leagues;
 
@@ -62,7 +62,7 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
         if ($this->leagues !== null) {
             return;
         }
-        $this->setLeagues($this->getLeagueData());
+        $this->leagues = $this->getInitLeagues($this->getLeagueData());
         uasort($this->leagues, function (LeagueBase $league1, LeagueBase $league2): int {
             if( strcmp( $league1->getAssociation()->getName(), $league2->getAssociation()->getName() ) === 0 ) {
                 return strcmp( $league1->getName(), $league2->getName() );
@@ -90,13 +90,14 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
     }
 
     /**
-     * {"name":"Premier League 19\/20","slug":"premier-league-1920","year":"19\/20","id":23776}
+     * * {"name":"Premier League 19\/20","slug":"premier-league-1920","year":"19\/20","id":23776}
      *
      * @param array|stdClass[] $competitions
+     * @return array|LeagueBase[]
      */
-    protected function setLeagues(array $competitions)
+    protected function getInitLeagues(array $competitions): array
     {
-        $this->leagues = [];
+        $leagues = [];
         foreach ($competitions as $competition) {
             if ($competition->category === null) {
                 continue;
@@ -114,7 +115,8 @@ class League extends SofaScoreHelper implements ExternalSourceLeague
             }
             $league = new LeagueBase($association, $name);
             $league->setId($competition->tournament->uniqueId);
-            $this->leagues[$league->getId()] = $league;
+            $leagues[$league->getId()] = $league;
         }
+        return $leagues;
     }
 }

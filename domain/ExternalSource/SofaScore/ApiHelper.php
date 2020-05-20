@@ -139,14 +139,6 @@ class ApiHelper
         return $datesData;
     }
 
-    public function getCompetitionsDataHelper(Sport $sport, DateTimeImmutable $date): stdClass
-    {
-        return $this->getData(
-            $sport->getName() . "//" . $date . "/json",
-            60 * 24
-        );
-    }
-
     /**
      * @return array|DateTimeImmutable[]
      */

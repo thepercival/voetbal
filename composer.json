@@ -20,8 +20,6 @@
     "doctrine/orm": "^2.7",
     "jms/serializer": "^3.4",
     "monolog/monolog": "^2.0",
-    "slim/slim": "^4.3",
-    "slim/psr7": "^0.6.0",
     "guzzlehttp/guzzle": "^6.5"
   },
   "require-dev": {
