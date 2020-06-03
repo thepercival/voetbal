@@ -23,20 +23,20 @@ class Output
         return $this->logger;
     }
 
-    public function consoleBatch(Batch $batch, string $title)
+    public function outputBatch(Batch $batch, string $title)
     {
 //        if( $batch->getNumber() > 2 ) {
 //            return;
 //        }
         $this->logger->info('------batch ' . $batch->getNumber() . ' ' . $title . ' -------------');
-        $this->consoleBatchHelper($batch->getFirst());
+        $this->outputBatchHelper($batch->getFirst());
     }
 
-    protected function consoleBatchHelper(Batch $batch)
+    protected function outputBatchHelper(Batch $batch)
     {
-        $this->consoleGames($batch->getGames(), $batch);
+        $this->outputGames($batch->getGames(), $batch);
         if ($batch->hasNext()) {
-            $this->consoleBatchHelper($batch->getNext());
+            $this->outputBatchHelper($batch->getNext());
         }
     }
 
@@ -44,10 +44,10 @@ class Output
      * @param array|Game[] $games
      * @param Batch|null $batch
      */
-    public function consoleGames(array $games, Batch $batch = null)
+    public function outputGames(array $games, Batch $batch = null)
     {
         foreach ($games as $game) {
-            $this->consoleGame($game, $batch);
+            $this->outputGame($game, $batch);
         }
     }
 
@@ -62,7 +62,7 @@ class Output
         return true;
     }
 
-    public function consoleGame(Game $game, Batch $batch = null, string $prefix = null)
+    public function outputGame(Game $game, Batch $batch = null, string $prefix = null)
     {
         $useColors = $this->useColors();
         $refDescr = ($game->getRefereePlace() !== null ? $game->getRefereePlace()->getLocation() : ($game->getReferee(
@@ -75,31 +75,31 @@ class Output
         $fieldColor = $useColors ? $fieldNr : -1;
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
-            $this->consoleColor($batchColor, 'batch ' . $game->getBatchNr()) . " " .
-            // . '(' . $game->getRoundNumber(), 2 ) . consoleString( $game->getSubNumber(), 2 ) . ") "
+            $this->outputColor($batchColor, 'batch ' . $game->getBatchNr()) . " " .
+            // . '(' . $game->getRoundNumber(), 2 ) . outputString( $game->getSubNumber(), 2 ) . ") "
             'poule ' . $game->getPoule()->getNumber()
-            . ', ' . $this->consolePlaces($game, GameBase::HOME, $batch)
-            . ' vs ' . $this->consolePlaces($game, GameBase::AWAY, $batch)
-            . ' , ' . $this->consoleColor($refNumber, 'ref ' . $refDescr)
-            . ', ' . $this->consoleColor($fieldColor, 'field ' . $fieldNr)
+            . ', ' . $this->outputPlaces($game, GameBase::HOME, $batch)
+            . ' vs ' . $this->outputPlaces($game, GameBase::AWAY, $batch)
+            . ' , ' . $this->outputColor($refNumber, 'ref ' . $refDescr)
+            . ', ' . $this->outputColor($fieldColor, 'field ' . $fieldNr)
             . ', sport ' . ($field !== null ? $game->getField()->getSport()->getNumber() : -1)
         );
     }
 
-    protected function consolePlaces(Game $game, bool $homeAway, Batch $batch = null): string
+    protected function outputPlaces(Game $game, bool $homeAway, Batch $batch = null): string
     {
         $useColors = $this->useColors() && $game->getPoule()->getNumber() === 1;
         $placesAsArrayOfStrings = $game->getPlaces($homeAway)->map(
             function ($gamePlace) use ($useColors, $batch): string {
                 $colorNumber = $useColors ? $gamePlace->getPlace()->getNumber() : -1;
                 $gamesInARow = $batch !== null ? ('(' . $batch->getGamesInARow($gamePlace->getPlace()) . ')') : '';
-                return $this->consoleColor($colorNumber, $gamePlace->getPlace()->getLocation() . $gamesInARow);
+                return $this->outputColor($colorNumber, $gamePlace->getPlace()->getLocation() . $gamesInARow);
             }
         )->toArray();
         return implode(' & ', $placesAsArrayOfStrings);
     }
 
-    protected function consoleColor(int $number, string $content): string
+    protected function outputColor(int $number, string $content): string
     {
         $sColor = null;
         if ($number === 1) {
@@ -138,7 +138,7 @@ class Output
         return $coloredString . $content . "\033[0m";
     }
 
-    public function consoleString($value, int $minLength): string
+    public function outputString($value, int $minLength): string
     {
         $str = '' . $value;
         while (strlen($str) < $minLength) {
