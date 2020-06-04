@@ -45,6 +45,7 @@ final class Competition
         SeasonRepository $seasonRepos,
         Serializer $serializer
     ) {
+        // small test
         $this->service = $service;
         $this->repos = $repos;
         $this->leagueRepos = $leagueRepos;
