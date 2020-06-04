@@ -4,24 +4,51 @@
 namespace Voetbal\Planning;
 
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Voetbal\Game as GameBase;
+use Voetbal\Planning as PlanningBase;
 
 class Output
 {
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     private $logger;
 
-    public function __construct(Logger $logger)
+    public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
     }
 
-    public function getLogger(): Logger
+    public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
+
+    public function planningInputToString(Input $planningInput): string
+    {
+        $sports = array_map(function (array $sportConfig): string {
+            return '' . $sportConfig["nrOfFields"] ;
+        }, $planningInput->getSportConfig());
+        return 'id '.$planningInput->getId().' => structure [' . implode('|', $planningInput->getStructureConfig()) . ']'
+            . ', sports [' . implode(',', $sports) . ']'
+            . ', referees ' . $planningInput->getNrOfReferees()
+            . ', teamup ' . ($planningInput->getTeamup() ? '1' : '0')
+            . ', selfRef ' . ($planningInput->getSelfReferee() ? '1' : '0')
+            . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();
+    }
+
+    public function planningToString(PlanningBase $planning, bool $withInput): string
+    {
+        $output = 'batchGames ' . $planning->getNrOfBatchGames()->min . '->' . $planning->getNrOfBatchGames()->max
+            . ', gamesInARow ' . $planning->getMaxNrOfGamesInARow()
+            . ', timeout ' . $planning->getTimeoutSeconds();
+        if ($withInput) {
+            return $this->planningInputToString($planning->getInput()) . ', ' . $output;
+        }
+        return $output;
+    }
+
 
     public function outputBatch(Batch $batch, string $title)
     {
@@ -53,12 +80,15 @@ class Output
 
     protected function useColors(): bool
     {
-        /** @var \Monolog\Handler\StreamHandler $handler */
-        foreach ($this->logger->getHandlers() as $handler) {
-            if ($handler->getUrl() !== "php://stdout") {
-                return false;
+        if( $this->logger instanceof Logger) {
+            /** @var \Monolog\Handler\StreamHandler $handler */
+            foreach ($this->logger->getHandlers() as $handler) {
+                if ($handler->getUrl() !== "php://stdout") {
+                    return false;
+                }
             }
         }
+
         return true;
     }
 

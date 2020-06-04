@@ -3,13 +3,11 @@
 namespace Voetbal\Planning;
 
 use Psr\Log\LoggerInterface;
-use Voetbal\Game as GameBase;
+use Voetbal\Planning;
 use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Planning\Input\Repository as PlanningInputRepository;
 use Voetbal\Planning as PlanningBase;
-use Voetbal\Planning\Resource\RefereePlaceService;
-use Voetbal\Range as VoetbalRange;
 
 class Seeker
 {
@@ -33,10 +31,15 @@ class Seeker
      * @var Service
      */
     protected $planningService;
+    /**
+     * @var Output
+     */
+    protected $output;
 
     public function __construct(LoggerInterface $logger, PlanningInputRepository $inputRepos, PlanningRepository $planningRepos)
     {
         $this->logger = $logger;
+        $this->output = new Output($this->logger);
         $this->inputService = new PlanningInputService();
         $this->planningService = new Service();
         $this->inputRepos = $inputRepos;
@@ -46,7 +49,7 @@ class Seeker
     public function process(Input $input)
     {
         try {
-            $this->logger->info('processing input: ' . $this->inputToString($input) . " ..");
+            $this->logger->info('processing input: ' . $this->output->planningInputToString($input) . " ..");
 
             if ($this->inputService->hasGCD($input)) {
                 $this->logger->info('   gcd found ..');
@@ -194,11 +197,11 @@ class Seeker
     {
         // $planning->setState( Planning::STATE_PROCESSING );
         if ($timeout) {
-            $this->logger->info('   ' . $this->planningToString($planning, $timeout) . " timeout => " . $planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER);
+            $this->logger->info('   ' . $this->output->planningToString($planning, $timeout) . " timeout => " . $planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER);
             $planning->setTimeoutSeconds($planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER);
             $this->planningRepos->save($planning);
         }
-        $this->logger->info('   ' . $this->planningToString($planning, $timeout) . " trying .. ");
+        $this->logger->info('   ' . $this->output->planningToString($planning, $timeout) . " trying .. ");
 
         $planningService = new Service();
         $newState = $planningService->createGames($planning);
@@ -213,29 +216,5 @@ class Seeker
             ($planning->getState() === PlanningBase::STATE_TIMEOUT ? "timeout(".$planning->getTimeoutSeconds().")" : "success");
 
         $this->logger->info('   ' . '   ' .  " => " . $stateDescription);
-    }
-
-    protected function inputToString(Input $planningInput): string
-    {
-        $sports = array_map(function (array $sportConfig): string {
-            return '' . $sportConfig["nrOfFields"] ;
-        }, $planningInput->getSportConfig());
-        return 'id '.$planningInput->getId().' => structure [' . implode('|', $planningInput->getStructureConfig()) . ']'
-            . ', sports [' . implode(',', $sports) . ']'
-            . ', referees ' . $planningInput->getNrOfReferees()
-            . ', teamup ' . ($planningInput->getTeamup() ? '1' : '0')
-            . ', selfRef ' . ($planningInput->getSelfReferee() ? '1' : '0')
-            . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();
-    }
-
-    protected function planningToString(PlanningBase $planning, bool $withInput): string
-    {
-        $output = 'batchGames ' . $planning->getNrOfBatchGames()->min . '->' . $planning->getNrOfBatchGames()->max
-            . ', gamesInARow ' . $planning->getMaxNrOfGamesInARow()
-            . ', timeout ' . $planning->getTimeoutSeconds();
-        if ($withInput) {
-            return $this->inputToString($planning->getInput()) . ', ' . $output;
-        }
-        return $output;
     }
 }
