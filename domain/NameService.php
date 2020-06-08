@@ -193,7 +193,7 @@ class NameService
     protected function childRoundsHaveEqualDepth(Round $round): bool
     {
         if ($round->getQualifyGroups()->count() === 1) {
-            return false;
+            return true;
         }
 
         $depthAll = null;
@@ -254,6 +254,8 @@ class NameService
             return 'kwart';
         } elseif ($number === 8) {
             return 'achtste';
+        }  elseif ($number === 16) {
+            return 'zestiende';
         }
         return '?';
     }
