@@ -190,7 +190,7 @@ class Competitor implements Importable
      */
     public function setAssociation(Association $association)
     {
-        if (!$association->getCompetitors()->contains($this)) {
+        if ($association->getCompetitors() !== null and !$association->getCompetitors()->contains($this)) {
             $association->getCompetitors()->add($this) ;
         }
         $this->association = $association;

@@ -27,13 +27,21 @@
       "losePointsExt": 0.0,
       "nrOfGamePlaces": 2,
       "pointsCalculation": 0,
-      "sportId": 1
+      "sport": {
+        "name": "voetbal",
+        "team": true,
+        "customId": 11
+      }
     }],
   "fields": [
     {
-      "sportId": 1,
       "number": 1,
-      "name": "1"
+      "name": "1",
+      "sport": {
+        "name": "voetbal",
+        "team": true,
+        "customId": 11
+      }
     }
   ],
   "referees": [],

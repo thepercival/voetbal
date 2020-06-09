@@ -19,6 +19,7 @@
     "league/period": "^4.9",
     "doctrine/orm": "^2.7",
     "jms/serializer": "^3.4",
+    "symfony/yaml": "^5.0",
     "monolog/monolog": "^2.0",
     "guzzlehttp/guzzle": "^6.5"
   },
@@ -41,7 +42,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Voetbal\\Tests\\": "tests/cases"
+      "Voetbal\\Tests\\": "tests/cases",
+      "Voetbal\\TestHelper\\": "tests/helpers"
     },
     "psr-0": {
       "": "tests/"

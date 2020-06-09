@@ -8,32 +8,32 @@
 
 namespace Voetbal\Tests\Qualify;
 
-include_once __DIR__ . '/../../data/CompetitionCreator.php';
-include_once __DIR__ . '/../../helpers/SetScores.php';
-
+use Voetbal\TestHelper\CompetitionCreator;
+use Voetbal\TestHelper\GamesCreator;
+use Voetbal\TestHelper\SetScores;
+use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Qualify\ReservationService as QualifyReservationService;
 use Voetbal\Qualify\Group as QualifyGroup;
-use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Competitor;
 
 class ReservationServiceTest extends \PHPUnit\Framework\TestCase
 {
+    use CompetitionCreator, GamesCreator, SetScores, DefaultStructureOptions;
+
     public function testFreeAndReserve()
     {
-        $competition = createCompetition();
+        $competition = $this->createCompetition();
 
-        $structureService = new StructureService();
+        $structureService = new StructureService( $this->getDefaultStructureOptions() );
         $structure = $structureService->create($competition, 5);
         $rootRound = $structure->getRootRound();
-
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
         $structureService->addQualifier($rootRound, QualifyGroup::LOSERS);
 
-        $planningService = new PlanningService();
-        $planningService->create($rootRound->getNumber());
+        $this->createGames( $structure );
 
         $pouleOne = $rootRound->getPoule(1);
 
@@ -42,16 +42,16 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
             $pouleOne->getPlace($nr)->setCompetitor($competitor);
         }
 
-        setScoreSingle($pouleOne, 1, 2, 2, 1);
-        setScoreSingle($pouleOne, 1, 3, 3, 1);
-        setScoreSingle($pouleOne, 1, 4, 4, 1);
-        setScoreSingle($pouleOne, 1, 5, 5, 1);
-        setScoreSingle($pouleOne, 2, 3, 3, 2);
-        setScoreSingle($pouleOne, 2, 4, 4, 2);
-        setScoreSingle($pouleOne, 2, 5, 5, 2);
-        setScoreSingle($pouleOne, 3, 4, 4, 3);
-        setScoreSingle($pouleOne, 3, 5, 5, 3);
-        setScoreSingle($pouleOne, 4, 5, 5, 4);
+        $this->setScoreSingle($pouleOne, 1, 2, 2, 1);
+        $this->setScoreSingle($pouleOne, 1, 3, 3, 1);
+        $this->setScoreSingle($pouleOne, 1, 4, 4, 1);
+        $this->setScoreSingle($pouleOne, 1, 5, 5, 1);
+        $this->setScoreSingle($pouleOne, 2, 3, 3, 2);
+        $this->setScoreSingle($pouleOne, 2, 4, 4, 2);
+        $this->setScoreSingle($pouleOne, 2, 5, 5, 2);
+        $this->setScoreSingle($pouleOne, 3, 4, 4, 3);
+        $this->setScoreSingle($pouleOne, 3, 5, 5, 3);
+        $this->setScoreSingle($pouleOne, 4, 5, 5, 4);
 
         $qualifyService = new QualifyService($rootRound, RankingService::RULESSET_WC);
         $qualifyService->setQualifiers();
@@ -59,18 +59,17 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
         $winnersRound = $rootRound->getChild(QualifyGroup::WINNERS, 1);
         $resService = new QualifyReservationService($winnersRound);
 
-        $this->assertSame($resService->isFree(1, $pouleOne), true);
-
+        self::assertTrue($resService->isFree(1, $pouleOne));
 
         $resService->reserve(1, $pouleOne);
-        $this->assertSame($resService->isFree(1, $pouleOne), false);
+        self::assertFalse($resService->isFree(1, $pouleOne));
     }
 
     public function testFreeAndLeastAvailabe()
     {
-        $competition = createCompetition();
+        $competition = $this->createCompetition();
 
-        $structureService = new StructureService();
+        $structureService = new StructureService( $this->getDefaultStructureOptions() );
         $structure = $structureService->create($competition, 12, 4);
         $rootRound = $structure->getRootRound();
 
@@ -78,8 +77,7 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
 
         $structureService->addPoule($rootRound->getChild(QualifyGroup::WINNERS, 1));
 
-        $planningService = new PlanningService();
-        $planningService->create($rootRound->getNumber());
+        $this->createGames( $structure );
 
         $pouleOne = $rootRound->getPoule(1);
         for ($nr = 1; $nr <= $pouleOne->getPlaces()->count() ; $nr++) {
@@ -108,18 +106,18 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
             $pouleFour->getPlace($nr)->setCompetitor($competitor);
         }
 
-        setScoreSingle($pouleOne, 1, 2, 1, 2);
-        setScoreSingle($pouleOne, 1, 3, 1, 3);
-        setScoreSingle($pouleOne, 2, 3, 2, 3);
-        setScoreSingle($pouleTwo, 1, 2, 1, 2);
-        setScoreSingle($pouleTwo, 1, 3, 1, 3);
-        setScoreSingle($pouleTwo, 2, 3, 2, 4);
-        setScoreSingle($pouleThree, 1, 2, 1, 5);
-        setScoreSingle($pouleThree, 1, 3, 1, 3);
-        setScoreSingle($pouleThree, 2, 3, 2, 5);
-        setScoreSingle($pouleFour, 1, 2, 1, 2);
-        setScoreSingle($pouleFour, 1, 3, 1, 3);
-        setScoreSingle($pouleFour, 2, 3, 2, 3);
+        $this->setScoreSingle($pouleOne, 1, 2, 1, 2);
+        $this->setScoreSingle($pouleOne, 1, 3, 1, 3);
+        $this->setScoreSingle($pouleOne, 2, 3, 2, 3);
+        $this->setScoreSingle($pouleTwo, 1, 2, 1, 2);
+        $this->setScoreSingle($pouleTwo, 1, 3, 1, 3);
+        $this->setScoreSingle($pouleTwo, 2, 3, 2, 4);
+        $this->setScoreSingle($pouleThree, 1, 2, 1, 5);
+        $this->setScoreSingle($pouleThree, 1, 3, 1, 3);
+        $this->setScoreSingle($pouleThree, 2, 3, 2, 5);
+        $this->setScoreSingle($pouleFour, 1, 2, 1, 2);
+        $this->setScoreSingle($pouleFour, 1, 3, 1, 3);
+        $this->setScoreSingle($pouleFour, 2, 3, 2, 3);
 
         $qualifyService = new QualifyService($rootRound, RankingService::RULESSET_WC);
         $qualifyService->setQualifiers();
@@ -148,18 +146,18 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
 
         // none available
         $placeLocationOne = $resService->getFreeAndLeastAvailabe(1, $rootRound, $fromPlaceLocations);
-        $this->assertSame($placeLocationOne->getPouleNr(), $pouleOne->getNumber());
+        self::assertSame($placeLocationOne->getPouleNr(), $pouleOne->getNumber());
 
         // two available, three least available
         $placeLocationThree = $resService->getFreeAndLeastAvailabe(3, $rootRound, $fromPlaceLocations);
-        $this->assertSame($placeLocationThree->getPouleNr(), $pouleTwo->getNumber());
+        self::assertSame($placeLocationThree->getPouleNr(), $pouleTwo->getNumber());
     }
 
     public function testTwoRoundNumbersMultipleRuleNotPlayed333()
     {
-        $competition = createCompetition();
+        $competition = $this->createCompetition();
 
-        $structureService = new StructureService();
+        $structureService = new StructureService( $this->getDefaultStructureOptions() );
         $structure = $structureService->create($competition, 9);
         $rootRound = $structure->getRootRound();
 
@@ -167,8 +165,7 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
 
         $structureService->removePoule($rootRound->getChild(QualifyGroup::WINNERS, 1));
 
-        $planningService = new PlanningService();
-        $planningService->create($rootRound->getNumber());
+        $this->createGames( $structure );
 
         $pouleOne = $rootRound->getPoule(1);
         for ($nr = 1; $nr <= $pouleOne->getPlaces()->count() ; $nr++) {
@@ -190,21 +187,21 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
             $pouleThree->getPlace($nr)->setCompetitor($competitor);
         }
 
-        setScoreSingle($pouleOne, 1, 2, 1, 2);
-        setScoreSingle($pouleOne, 1, 3, 1, 3);
-        setScoreSingle($pouleOne, 2, 3, 2, 3);
-        setScoreSingle($pouleTwo, 1, 2, 1, 2);
-        setScoreSingle($pouleTwo, 1, 3, 1, 3);
-        setScoreSingle($pouleTwo, 2, 3, 2, 4);
-        setScoreSingle($pouleThree, 1, 2, 1, 5);
-        setScoreSingle($pouleThree, 1, 3, 1, 3);
-        // setScoreSingle(pouleThree, 2, 3, 2, 5);
+        $this->setScoreSingle($pouleOne, 1, 2, 1, 2);
+        $this->setScoreSingle($pouleOne, 1, 3, 1, 3);
+        $this->setScoreSingle($pouleOne, 2, 3, 2, 3);
+        $this->setScoreSingle($pouleTwo, 1, 2, 1, 2);
+        $this->setScoreSingle($pouleTwo, 1, 3, 1, 3);
+        $this->setScoreSingle($pouleTwo, 2, 3, 2, 4);
+        $this->setScoreSingle($pouleThree, 1, 2, 1, 5);
+        $this->setScoreSingle($pouleThree, 1, 3, 1, 3);
+        // $this->setScoreSingle(pouleThree, 2, 3, 2, 5);
 
         $qualifyService = new QualifyService($rootRound, RankingService::RULESSET_WC);
         $qualifyService->setQualifiers();
 
         $winnersPoule = $rootRound->getChild(QualifyGroup::WINNERS, 1)->getPoule(1);
 
-        $this->assertSame($winnersPoule->getPlace(4)->getCompetitor(), null);
+        self::assertSame($winnersPoule->getPlace(4)->getCompetitor(), null);
     }
 }
