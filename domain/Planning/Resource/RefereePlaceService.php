@@ -52,7 +52,6 @@ class RefereePlaceService
 
     public function __construct(PlanningBase $planning)
     {
-        // @TODO 1 homeaway bool->int 2 FOlkher 3 gamedebug
         $this->planning = $planning;
 
         $this->nrOfPlaces = $this->planning->getStructure()->getNrOfPlaces();

@@ -108,10 +108,6 @@ class Seeker
 
                 foreach ($gcdGame->getPlaces() as $gcdGamePlace) {
                     $place = $poule->getPlace($gcdGamePlace->getPlace()->getNumber());
-                    if ($place === null) {
-                        $e = 1;
-                        $eee = 1212;
-                    }
                     $gamePlace = new Game\Place($game, $place, $gcdGamePlace->getHomeaway());
                 }
             }
