@@ -62,7 +62,6 @@ class Round implements SubscribingHandlerInterface
                     continue;
                 }
                 $competitor = new Competitor($association, "dummy");
-                $competitor->setId($arrPlace["competitor"]["id"]);
                 $competitor->setName($arrPlace["competitor"]["name"]);
                 if (array_key_exists("registered", $arrPlace["competitor"])) {
                     $competitor->setRegistered($arrPlace["competitor"]["registered"]);
@@ -81,42 +80,4 @@ class Round implements SubscribingHandlerInterface
 
         return $round;
     }
-
-
-    //function postSerialize( Structure $structure, Competition $competition ) {
-//    deserializeFromJson( $structure->getRootRound(), $structure->getFirstRoundNumber(), $competition );
-//}
-//
-//    private function deserializeFromJson( Round $round, RoundNumber $roundNumber, Competition $competition, RoundNumber $previousRoundNumber = null ) {
-//        $refCl = new \ReflectionClass($round);
-//        $refClPropNumber = $refCl->getProperty("number");
-//        $refClPropNumber->setAccessible(true);
-//        $refClPropNumber->setValue($round, $roundNumber);
-//        $refClPropNumber->setAccessible(false);
-//        $roundNumber->setCompetition($competition);
-//        $roundNumber->getRounds()->add($round);
-//        $roundNumber->setPrevious( $previousRoundNumber );
-//        foreach( $round->getPoules() as $poule ) {
-//            $poule->setRound($round);
-//            foreach( $poule->getPlaces() as $poulePlace ) {
-//                $poulePlace->setPoule($poule);
-//            }
-//            if( $poule->getGames() === null ) {
-//                $poule->setGames([]);
-//            }
-//            foreach( $poule->getGames() as $game ) {
-//                foreach( $game->getPoulePlaces() as $gamePoulePlace ) {
-//                    $gamePoulePlace->setPoulePlace($poule->getPlace($gamePoulePlace->getPoulePlaceNr()));
-//                }
-//                $game->setPoule($poule);
-//                foreach ($game->getScores() as $gameScore) {
-//                    $gameScore->setGame($game);
-//                }
-//            }
-//        }
-//        foreach( $round->getChildren() as $childRound ) {
-//            $childRound->setParent($round);
-//            postSerializeHelper( $childRound, $roundNumber->getNext(), $competition, $roundNumber );
-//        }
-//    }
 }
