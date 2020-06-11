@@ -104,7 +104,7 @@ class ItemsGetter
         return $items;
     }
 
-    private function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game): float
+    public function getNrOfPoints(?GameScoreHomeAway $finalScore, bool $homeAway, Game $game): float
     {
         if ($finalScore === null) {
             return 0;

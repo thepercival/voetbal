@@ -9,6 +9,7 @@
 namespace Voetbal\Planning\Resource;
 
 use DateTimeImmutable;
+use Voetbal\Output\Planning\Batch as BatchOutput;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Game;
 use Voetbal\Planning\Place;
@@ -18,6 +19,7 @@ use Voetbal\Planning\Output;
 use Voetbal\Planning\Poule;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
+use VoetbalDebug\Base;
 
 class RefereePlaceService
 {
@@ -25,10 +27,6 @@ class RefereePlaceService
      * @var PlanningBase
      */
     private $planning;
-    /**
-     * @var Output
-     */
-    protected $output;
     /**
      * @var int
      */
@@ -45,20 +43,20 @@ class RefereePlaceService
      * @var array
      */
     private $canBeSamePoule;
+    /**
+     * @var BatchOutput
+     */
+    protected $batchOutput;
 
     protected const TIMEOUTSECONDS = 60;
 
     public function __construct(PlanningBase $planning)
     {
+        // @TODO 1 homeaway bool->int 2 FOlkher 3 gamedebug
         $this->planning = $planning;
 
         $this->nrOfPlaces = $this->planning->getStructure()->getNrOfPlaces();
         $this->autoRefill = $this->planning->getInput()->getTeamup();
-
-        $logger = new Logger('planning-refereeplaces-create');
-        $handler = new \Monolog\Handler\StreamHandler('php://stdout', Logger::INFO);
-        $logger->pushHandler($handler);
-        $this->output = new Output($logger);
     }
 
     protected function getInput(): Input
@@ -79,7 +77,9 @@ class RefereePlaceService
             $this->timeoutDateTime = $oCurrentDateTime->modify("+" . static::TIMEOUTSECONDS . " seconds");
             $refereePlaces = $this->getRefereePlaces($batch);
             if ($this->assignBatch($batch, $batch->getGames(), $refereePlaces) === false) {
-                $this->output->getLogger()->info("  impossible assigning selfref, try again with autorefill");
+                if( $this->batchOutput !== null ) {
+                    $this->batchOutput->outputString("  impossible assigning selfref, try again with autorefill");
+                }
                 if ($this->autoRefill === false) {
                     $this->autoRefill = true;
                     $this->assign($batch);
@@ -88,7 +88,9 @@ class RefereePlaceService
             };
             // $this->output->consoleBatch( $batch, "post assign selfref");
         } catch (TimeoutException $timeoutExc) {
-            $this->output->getLogger()->info("  timeout assigning selfref, try again with autorefill");
+            if( $this->batchOutput !== null ) {
+                $this->batchOutput->outputString("  timeout assigning selfref, try again with autorefill");
+            }
             $this->resetReferees($batch);
             if ($this->autoRefill === false) {
                 $this->autoRefill = true;
@@ -189,10 +191,12 @@ class RefereePlaceService
                 );
             }
             $nextBatch = $batch->getNext();
-//            if( $nextBatch->getNumber() === 3 ) {
-            //  $this->output->consoleBatch( $batch, "cdk batch ".$batch->getNumber()." completed");
-            //  $this->output->getLogger()->debug("cdk batch ".$batch->getNumber()." completed");
-//            }
+            if( $this->batchOutput !== null ) {
+                if( $nextBatch->getNumber() === 3 ) {
+                    $this->batchOutput->output( $batch, "cdk batch ".$batch->getNumber()." completed");
+                }
+            }
+
             return $this->assignBatch($nextBatch, $nextBatch->getGames(), $refereePlaces);
         }
 

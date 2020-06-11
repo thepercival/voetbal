@@ -157,7 +157,7 @@ class Association implements Importable
     }
 
     /**
-     * @return Competitor[] | ArrayCollection
+     * @return Competitor[] | ArrayCollection | null
      */
     public function getCompetitors()
     {

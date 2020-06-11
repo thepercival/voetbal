@@ -10,6 +10,7 @@ namespace Voetbal\Planning\Resource;
 
 use DateTimeImmutable;
 use Monolog\Handler\StreamHandler;
+use Psr\Log\LoggerInterface;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Game;
 use Voetbal\Planning\Game\Place as GamePlace;
@@ -24,7 +25,7 @@ use Voetbal\Planning\Sport\NrFields as SportNrFields;
 use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Planning\Batch;
-use Voetbal\Planning\Output;
+use Voetbal\Output\Planning\Batch as BatchOutput;
 use Voetbal\Game as GameBase;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
@@ -56,9 +57,9 @@ class Service
      */
     private $timeoutDateTime;
     /**
-     * @var Output
+     * @var BatchOutput
      */
-    protected $output;
+    protected $batchOutput;
 
     protected $debugIterations;
 
@@ -66,16 +67,15 @@ class Service
     {
         $this->planning = $planning;
         $this->nrOfPoules = $this->planning->getPoules()->count();
-
-        $logger = new Logger('planning-create');
-        $handler = new StreamHandler('php://stdout', Logger::INFO);
-        $logger->pushHandler($handler);
-        $this->output = new Output($logger);
     }
 
     protected function getInput(): Input
     {
         return $this->planning->getInput();
+    }
+
+    protected function setLogger( LoggerInterface $logger ) {
+        $this->batchOutput = new BatchOutput($logger);
     }
 
     protected function init()
@@ -175,8 +175,11 @@ class Service
             $refereeService = new RefereeService($this->planning);
             $refereeService->assign($firstBatch);
 
-//            $mem = $this->convert(memory_get_usage(true)); // 123 kb
-//            $this->output->consoleBatch($firstBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
+//            if( $this->batchOutput !== null ) {
+////            $mem = $this->convert(memory_get_usage(true)); // 123 kb
+////            $this->batchOutput->output($firstBatch, ' final (' . ($this->debugIterations) . ' : ' . $mem . ')');
+//            }
+
         } catch (TimeoutException $e) {
             return PlanningBase::STATE_TIMEOUT;
         }
@@ -205,7 +208,10 @@ class Service
      */
     protected function assignBatch(array $games, Resources $resources, Batch $batch): ?Batch
     {
-        // $this->output->consoleGames( $games ); die();
+//        if( $this->batchOutput !== null ) { // before assigned
+//            $this->batchOutput->outputGames( $games ); die();
+//        }
+
         if ($this->assignBatchHelper($games, $games, $resources, $batch, $this->planning->getMaxNrOfBatchGames())) {
             return $this->getActiveLeaf($batch->getLeaf());
         }
@@ -224,8 +230,8 @@ class Service
     }
 
     //// uasort( $games, function( Game $gameA, Game $gameB ) use ( $continueResources6 ) {
-    ////                $this->output->consoleGame( $gameA, null, 'gameA: ' );
-    ////                $this->output->consoleGame( $gameB, null, 'gameB: ' );
+    ////                $this->outputBatch->outputGames( $gameA, null, 'gameA: ' );
+    ////                $this->outputBatch->outputGames( $gameB, null, 'gameB: ' );
 //                $nrOfSportsToGoA = $continueResources6->getGameNrOfSportsToGo($gameA);
 //                $nrOfSportsToGoB = $continueResources6->getGameNrOfSportsToGo($gameB);
 //                return $nrOfSportsToGoA >= $nrOfSportsToGoB ? -1 : 1;
@@ -251,8 +257,9 @@ class Service
             $games
         ) === count($batch->getGames())) { // batchsuccess
             $nextBatch = $this->toNextBatch($batch, $resources, $games);
-//            if( $batch->getNumber() > 200 ) {
-//                $this->output->consoleBatch($batch, ' batch completed nr ' . $batch->getNumber() );
+
+//            if( $this->batchOutput !== null ) { // before assigned
+//                $this->batchOutput->output($batch, ' batch completed nr ' . $batch->getNumber() );
 //            }
             // update planninginputs set state = 1 where state = 2;
             // delete from plannings where inputId = 26178;

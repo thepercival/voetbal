@@ -102,6 +102,9 @@ class Service
                         break;
                     }
                     $dropoutsHorizontalPoule = $this->getDropoutsHorizontalPoule($horizontalPoule, $rankingService);
+                    while (($nrOfDropouts - count($dropoutsHorizontalPoule)) < 0) {
+                        array_pop($dropoutsHorizontalPoule );
+                    }
                     $dropouts = array_merge($dropouts, $dropoutsHorizontalPoule);
                     $nrOfDropouts -= count($dropoutsHorizontalPoule);
                     if ($nrOfDropouts === 0) {

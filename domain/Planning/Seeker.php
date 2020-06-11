@@ -4,10 +4,11 @@ namespace Voetbal\Planning;
 
 use Psr\Log\LoggerInterface;
 use Voetbal\Planning;
+use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Planning\Repository as PlanningRepository;
 use Voetbal\Planning\Input\Repository as PlanningInputRepository;
-use Voetbal\Planning as PlanningBase;
+use Voetbal\Output\Planning as PlanningOutput;
 
 class Seeker
 {
@@ -32,14 +33,14 @@ class Seeker
      */
     protected $planningService;
     /**
-     * @var Output
+     * @var PlanningOutput
      */
-    protected $output;
+    protected $planningOutput;
 
     public function __construct(LoggerInterface $logger, PlanningInputRepository $inputRepos, PlanningRepository $planningRepos)
     {
         $this->logger = $logger;
-        $this->output = new Output($this->logger);
+        $this->planningOutput = new PlanningOutput($this->logger);
         $this->inputService = new PlanningInputService();
         $this->planningService = new Service();
         $this->inputRepos = $inputRepos;
@@ -49,7 +50,7 @@ class Seeker
     public function process(Input $input)
     {
         try {
-            $this->logger->info('processing input: ' . $this->output->planningInputToString($input) . " ..");
+            $this->planningOutput->outputPlanningInput($input, 'processing input: ', " ..");
 
             if ($this->inputService->hasGCD($input)) {
                 $this->logger->info('   gcd found ..');
@@ -197,11 +198,11 @@ class Seeker
     {
         // $planning->setState( Planning::STATE_PROCESSING );
         if ($timeout) {
-            $this->logger->info('   ' . $this->output->planningToString($planning, $timeout) . " timeout => " . $planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER);
+            $this->planningOutput->output($planning, $timeout, '   ', " timeout => " . $planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER);
             $planning->setTimeoutSeconds($planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER);
             $this->planningRepos->save($planning);
         }
-        $this->logger->info('   ' . $this->output->planningToString($planning, $timeout) . " trying .. ");
+        $this->planningOutput->output($planning, $timeout, '   ', " trying .. ");
 
         $planningService = new Service();
         $newState = $planningService->createGames($planning);

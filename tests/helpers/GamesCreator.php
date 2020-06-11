@@ -18,6 +18,7 @@ trait GamesCreator {
 
     protected function createGames( Structure $structure )
     {
+        $this->removeGamesHelper( $structure->getFirstRoundNumber() );
         $this->createGamesHelper( $structure->getFirstRoundNumber() );
     }
 
@@ -37,6 +38,18 @@ trait GamesCreator {
 
         if( $roundNumber->hasNext() ) {
             $this->createGamesHelper( $roundNumber->getNext() );
+        }
+    }
+
+    private function removeGamesHelper( RoundNumber $roundNumber )
+    {
+        foreach( $roundNumber->getRounds() as $round ) {
+            foreach( $round->getPoules() as $poule ) {
+                $poule->getGames()->clear();
+            }
+        }
+        if( $roundNumber->hasNext() ) {
+            $this->removeGamesHelper( $roundNumber->getNext() );
         }
     }
 }

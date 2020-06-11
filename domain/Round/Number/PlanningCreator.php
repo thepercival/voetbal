@@ -76,6 +76,10 @@ class PlanningCreator
         $defaultPlanningInput = $inputService->get($roundNumber);
         $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
         $planningService = new PlanningService();
+//        $logger = new Logger('planning-create');
+//        $handler = new StreamHandler('php://stdout', Logger::INFO);
+//        $logger->pushHandler($handler);
+//        $planningService->setLogger($logger);
         $planning = $planningService->getBestPlanning($planningInput);
         if ($planning === null) {
             return;
