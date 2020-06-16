@@ -28,26 +28,20 @@ trait CompetitionCreator {
         $serializer = (new Serializer())->getSerializer();
         $competition = $serializer->deserialize($jsonEncoded, 'Voetbal\Competition', 'json');
 
-        $sportSer = $serializer->deserialize(json_encode($json["sports"][0]), 'Voetbal\Sport', 'json');
         foreach ($competition->getSportConfigs() as $sportConfig) {
             $refCl = new \ReflectionClass($sportConfig);
-            $refClPropSport = $refCl->getProperty("sport");
-
-            $refClPropSport->setAccessible(true);
-            $refClPropSport->setValue($sportConfig, $sportSer);
-            $refClPropSport->setAccessible(false);
-
             $refClPropSport = $refCl->getProperty("competition");
             $refClPropSport->setAccessible(true);
             $refClPropSport->setValue($sportConfig, $competition);
             $refClPropSport->setAccessible(false);
-        }
 
-        foreach ($competition->getFields() as $field) {
-            $foundSports = $competition->getSports()->filter(function ($sport) use ($field) {
-                return $field->getSport()->getName() === $sport->getName();
-            });
-            $field->setSport($foundSports->first());
+            foreach ($sportConfig->getFields() as $field) {
+                $refCl = new \ReflectionClass($field);
+                $refClPropSport = $refCl->getProperty("sportConfig");
+                $refClPropSport->setAccessible(true);
+                $refClPropSport->setValue($field, $sportConfig);
+                $refClPropSport->setAccessible(false);
+            }
         }
 
         return $competition;

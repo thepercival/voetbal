@@ -8,11 +8,13 @@
 
 namespace Voetbal;
 
+use Voetbal\Priority\Prioritizable;
+
 /**
  * Class Referee
  * @package Voetbal
  */
-class Referee
+class Referee implements Prioritizable
 {
     const MIN_LENGTH_INITIALS = 1;
     const MAX_LENGTH_INITIALS = 3;
@@ -21,7 +23,7 @@ class Referee
     const MIN_LENGTH_EMAIL = 6;
     const MAX_LENGTH_EMAIL = 100;
     const MAX_LENGTH_INFO = 200;
-    const DEFAULT_RANK = 0;
+    const DEFAULT_PRIORITY = 1;
     /**
      * @var int
      */
@@ -29,7 +31,7 @@ class Referee
     /**
      * @var int
      */
-    private $rank;
+    protected $priority;
     /**
      * @var string
      */
@@ -51,13 +53,13 @@ class Referee
      */
     private $competition;
 
-    public function __construct(Competition $competition, int $rank = null)
+    public function __construct(Competition $competition, int $priority = null)
     {
         $this->setCompetition($competition);
-        if ($rank === null || $rank === 0) {
-            $rank = $competition->getReferees()->count();
+        if ($priority < self::DEFAULT_PRIORITY) {
+            $priority = $competition->getReferees()->count();
         }
-        $this->setRank($rank);
+        $this->setPriority($priority);
     }
 
     /**
@@ -87,20 +89,14 @@ class Referee
         $this->id = $id;
     }
 
-    /**
-     * @return int
-     */
-    public function getRank(): int
+    public function getPriority(): int
     {
-        return $this->rank;
+        return $this->priority;
     }
 
-    /**
-     * @param int $rank
-     */
-    public function setRank(int $rank)
+    public function setPriority(int $priority)
     {
-        $this->rank = $rank;
+        $this->priority = $priority;
     }
 
     /**

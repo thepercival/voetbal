@@ -8,8 +8,11 @@
 
 namespace Voetbal\Sport;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Field;
 use Voetbal\Sport as SportBase;
 use Voetbal\Competition;
+use Voetbal\Sport\Config as SportConfig;
 
 class Config
 {
@@ -54,6 +57,10 @@ class Config
      * @var int
      */
     protected $nrOfGamePlaces;
+    /**
+     * @var ArrayCollection
+     */
+    protected $fields;
 
     const DEFAULT_WINPOINTS = 3;
     const DEFAULT_DRAWPOINTS = 1;
@@ -66,7 +73,8 @@ class Config
     {
         $this->sport = $sport;
         $this->competition = $competition;
-        $this->competition->setSportConfig($this);
+        $this->competition->getSportConfigs()->add($this);
+        $this->fields = new ArrayCollection();
     }
 
     /**
@@ -214,14 +222,41 @@ class Config
         return $this->competition;
     }
 
-    public function getNrOfFields(): int
+    /**
+     * @return ArrayCollection | Field[]
+     */
+    public function getFields()
     {
-        $nrOfFields = 0;
-        foreach ($this->getCompetition()->getFields() as $field) {
-            if ($field->getSport() === $this->getSport()) {
-                $nrOfFields++;
-            }
-        }
-        return $nrOfFields;
+        return $this->fields;
     }
+
+    /**
+     * @param ArrayCollection | Field[] $fields
+     */
+    public function setFields($fields)
+    {
+        $this->fields = $fields;
+    }
+
+    public function getField(int $rank): ?Field
+    {
+        $fields = array_filter(
+            $this->getFields()->toArray(),
+            function ($field) use ($rank): bool {
+                return $field->getRank() === $rank;
+            }
+        );
+        return count($fields) > 0 ? array_shift($fields) : null;
+    }
+
+//    public function getNrOfFields(): int
+//    {
+//        $nrOfFields = 0;
+//        foreach ($this->getCompetition()->getFields() as $field) {
+//            if ($field->getSport() === $this->getSport()) {
+//                $nrOfFields++;
+//            }
+//        }
+//        return $nrOfFields;
+//    }
 }

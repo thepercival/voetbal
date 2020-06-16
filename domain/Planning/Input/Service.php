@@ -199,7 +199,7 @@ class Service
         $sportConfigRet = [];
         /** @var \Voetbal\Sport\Config $sportConfig */
         foreach ($roundNumber->getSportConfigs() as $sportConfig) {
-            $nrOfFields = $sportConfig->getNrOfFields();
+            $nrOfFields = $sportConfig->getFields()->count();
             if ($nrOfFields > $maxNrOfFields) {
                 $nrOfFields = $maxNrOfFields;
             }

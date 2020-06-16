@@ -1,18 +1,22 @@
 -- PRE PRE PRE doctrine-update =============================================================
+alter table pouleplaces rename places;
 
+alter table gamepouleplaces rename gameplaces;
+
+alter table games rename column pouleplacerefereeid placerefereeid;
+
+ALTER TABLE games
+    CHANGE pouleplacerefereeid placerefereeid INT;
+
+ALTER TABLE gameplaces
+    CHANGE pouleplaceid placeid INT;
 
 -- POST POST POST doctrine-update ===========================================================
 
-delete  r.*
-from 	rounds r
-            join roundnumbers rn on rn.id = r.numberid
-            join competitions c on c.id = rn.competitionid
-            join leagues l on l.id = c.leagueid
-            join tournaments t on t.competitionid = c.id
-where 	not exists ( select * from games g join poules p on p.id = g.pouleid where p.roundid = r.id )
-and	    not exists( select * from qualifygroups where roundid = r.id );
-
-delete from qualifygroups where not exists ( select * from rounds where parentQualifyId = qualifygroups.id );
+update fields
+set sportConfigId = (select id
+                     from sportconfigs
+                     where competitionId = fields.CompetitionId and sportId = fields.sportid);
 
 -- CUSTOM IMPORT =============================
 -- mysqldump -u fctoernooi_a_dba -p fctoernooiacc planninginputs plannings planningsports planningfields planningpoules planningplaces planningreferees planninggames planninggameplaces > planninginputs.sql

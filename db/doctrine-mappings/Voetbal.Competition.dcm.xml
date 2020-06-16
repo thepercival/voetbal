@@ -37,15 +37,7 @@
         <cascade-remove/>
       </cascade>
       <order-by>
-        <order-by-field name="rank" direction="ASC" />
-      </order-by>
-    </one-to-many>
-    <one-to-many field="fields" target-entity="Voetbal\Field" mapped-by="competition" fetch="EXTRA_LAZY" >
-      <cascade>
-        <cascade-remove/>
-      </cascade>
-      <order-by>
-        <order-by-field name="number" direction="ASC" />
+        <order-by-field name="priority" direction="ASC"/>
       </order-by>
     </one-to-many>
     <one-to-many field="sportConfigs" target-entity="Voetbal\Sport\Config" mapped-by="competition" fetch="EXTRA_LAZY" >

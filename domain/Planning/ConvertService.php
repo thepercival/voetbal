@@ -114,7 +114,7 @@ class ConvertService
 
     protected function initFields(Competition $competition)
     {
-        $this->fields = $competition->getFields()->toArray();
+        $this->fields = $competition->getFields();
     }
 
     protected function initReferees(Competition $competition)

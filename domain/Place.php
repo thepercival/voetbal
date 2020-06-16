@@ -79,7 +79,6 @@ class Place
         $this->setPoule($poule);
         $this->setNumber($number);
         $this->setPenaltyPoints(0);
-        $this->locationId = $poule->getRound()->getNumberAsValue() . '.' . $poule->getNumber() . '.' . $number;
     }
 
     /**
@@ -259,6 +258,9 @@ class Place
      */
     public function getLocationId(): string
     {
+        if ($this->locationId === null) {
+            $this->locationId = $this->getPoule()->getStructureNumber() . '.' . $this->number;
+        }
         return $this->locationId;
     }
 }

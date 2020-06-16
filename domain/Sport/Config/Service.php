@@ -11,6 +11,7 @@ namespace Voetbal\Sport\Config;
 use Voetbal\Sport;
 use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Sport\Custom as SportCustom;
+use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 use Voetbal\Sport\ScoreConfig\Service as ScoreConfigService;
 use Voetbal\Competition;
 use Voetbal\Structure;
@@ -95,36 +96,21 @@ class Service
 
     public function remove(SportConfig $config, Structure $structure)
     {
-        $competition = $config->getCompetition();
-        $sportConfigs = $competition->getSportConfigs();
-        $sportConfigs->removeElement($config);
+        $config->getFields()->clear();
+        $config->getCompetition()->getSportConfigs()->removeElement($config);
 
-        $sport = $config->getSport();
-        $fields = $competition->getFields();
-        $sportFields = $fields->filter(function ($fieldIt) use ($sport): bool {
-            return $fieldIt->getSport() === $sport;
-        });
-        $sportFields->forAll(function ($fieldIt) use ($competition): bool {
-            return $competition->getFields()->removeElement($fieldIt);
-        });
         $roundNumber = $structure->getFirstRoundNumber();
-
         while ($roundNumber) {
-//            $planningConfigs = $roundNumber->getSportPlanningConfigs();
-//
-//            $planningConfigs->filter( function( $planningConfigIt ) use ( $sport ) {
-//                return $planningConfigIt->getSport() === $sport;
-//            })->forAll( function( $planningConfigIt ) use ( $planningConfigs ) {
-//                return $planningConfigs->removeElement($planningConfigIt);
-//            });
-
             $scoreConfigs = $roundNumber->getSportScoreConfigs();
-            $scoreConfigs->filter(function ($scoreConfigIt) use ($sport): bool {
-                return $scoreConfigIt->getSport() === $sport;
-            })->forAll(function ($scoreConfigIt) use ($scoreConfigs): bool {
-                return $scoreConfigs->removeElement($scoreConfigIt);
-            });
-
+            $scoreConfigs->filter(
+                function (SportScoreConfig $scoreConfigIt) use ($config): bool {
+                    return $scoreConfigIt->getSport() === $config->getSport();
+                }
+            )->forAll(
+                function (SportScoreConfig $scoreConfigIt) use ($scoreConfigs): bool {
+                    return $scoreConfigs->removeElement($scoreConfigIt);
+                }
+            );
             $roundNumber = $roundNumber->getNext();
         }
     }

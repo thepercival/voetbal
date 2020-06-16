@@ -50,11 +50,12 @@ class Repository extends \Voetbal\Repository
         $conn = $this->_em->getConnection();
         $conn->beginTransaction();
         try {
-            $competition = $sportConfig->getCompetition();
             $fieldRepos = new FieldRepository($this->_em, $this->_em->getClassMetadata(Field::class));
-            $fields = $competition->getFields()->filter(function ($field) use ($sportConfig): bool {
-                return $field->getSport() === $sportConfig->getSport();
-            });
+            $fields = $sportConfig->getFields()->filter(
+                function ($field) use ($sportConfig): bool {
+                    return $field->getSport() === $sportConfig->getSport();
+                }
+            );
             foreach ($fields as $field) {
                 $fieldRepos->remove($field);
             }

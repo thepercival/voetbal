@@ -19,7 +19,7 @@
     </many-to-one>
     <many-to-one field="refereePlace" target-entity="Voetbal\Place">
       <join-columns>
-        <join-column name="pouleplacerefereeid" referenced-column-name="id" nullable="true" on-delete="SET NULL"/>
+        <join-column name="placerefereeid" referenced-column-name="id" nullable="true" on-delete="SET NULL"/>
       </join-columns>
     </many-to-one>
     <many-to-one field="field" target-entity="Voetbal\Field">

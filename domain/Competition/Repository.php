@@ -19,15 +19,15 @@ class Repository extends \Voetbal\Repository
 
     public function customPersist(Competition $competition)
     {
-        foreach ($competition->getFields() as $field) {
-            $this->_em->persist($field);
-        }
         foreach ($competition->getReferees() as $referee) {
             $this->_em->persist($referee);
         }
 
         foreach ($competition->getSportConfigs() as $sportConfig) {
             $this->_em->persist($sportConfig);
+            foreach ($sportConfig->getFields() as $field) {
+                $this->_em->persist($field);
+            }
         }
 
         $this->_em->persist($competition);

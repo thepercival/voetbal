@@ -6,7 +6,7 @@ Voetbal\Referee:
   properties:
     id:
       type: integer
-    rank:
+    priority:
       type: integer
     initials:
       type: string

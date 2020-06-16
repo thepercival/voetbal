@@ -38,17 +38,17 @@ class Game implements Importable
      * @var ?Referee
      */
     protected $referee;
-    protected $refereeRank; // for serialization, not used
+    protected $refereePriority; // for serialization, not used
     /**
      * @var ?Place
      */
     protected $refereePlace;
-    protected $refereePlaceId; // for serialization, not used
+    protected $refereePlaceLocId; // for serialization, not used
     /**
      * @var ?Field
      */
     protected $field;
-    protected $fieldNr; // for serialization, not used
+    protected $fieldPriority; // for serialization, not used
     /**
      * @var int
      */
@@ -170,17 +170,17 @@ class Game implements Importable
     /**
      * @return int
      */
-    public function getRefereeRank()
+    public function getRefereePriority()
     {
-        return $this->referee !== null ? $this->referee->getRank() : $this->refereeRank;
+        return $this->referee !== null ? $this->referee->getPriority() : $this->refereePriority;
     }
 
     /**
-     * @param int $refereeRank
+     * @param int $refereePriority
      */
-    public function setRefereeRank(int $refereeRank = null)
+    public function setRefereePriority(int $refereePriority = null)
     {
-        $this->refereeRank = $refereeRank;
+        $this->refereePriority = $refereePriority;
     }
 
     /**
@@ -199,20 +199,14 @@ class Game implements Importable
         $this->refereePlace = $refereePlace;
     }
 
-    /**
-     * @return int
-     */
-    public function getRefereePlaceId()
+    public function getRefereePlaceLocId(): ?string
     {
-        return $this->refereePlace !== null ? $this->refereePlace->getId() : $this->refereePlaceId;
+        return $this->refereePlace !== null ? $this->refereePlace->getLocationId() : $this->refereePlaceLocId;
     }
 
-    /**
-     * @param int $refereePlaceId
-     */
-    public function setRefereePlaceId(int $refereePlaceId = null)
+    public function setRefereePlaceLocId(string $refereePlaceLocId = null)
     {
-        $this->refereePlaceId = $refereePlaceId;
+        $this->refereePlaceLocId = $refereePlaceLocId;
     }
 
     /**
@@ -234,17 +228,17 @@ class Game implements Importable
     /**
      * @return int
      */
-    public function getFieldNr()
+    public function getFieldPriority()
     {
-        return $this->field !== null ? $this->field->getNumber() : $this->fieldNr;
+        return $this->field !== null ? $this->field->getPriority() : $this->fieldPriority;
     }
 
     /**
-     * @param int $fieldNr
+     * @param int $fieldPriority
      */
-    public function setFieldNr(int $fieldNr = null)
+    public function setFieldPriority(int $fieldPriority = null)
     {
-        $this->fieldNr = $fieldNr;
+        $this->fieldPriority = $fieldPriority;
     }
 
     /**

@@ -29,7 +29,7 @@ class Referee
     {
         $this->planning = $planning;
         $this->number = $number;
-        $this->priority = RefereeBase::DEFAULT_RANK;
+        $this->priority = RefereeBase::DEFAULT_PRIORITY;
     }
 
     public function getPlanning(): PlanningBase

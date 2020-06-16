@@ -56,9 +56,9 @@ class Game extends VoetbalOutputBase
     }
 
     protected function getFieldAsString( Field $field ): string {
-        $fieldNr = $field->getNumber();
-        $fieldColor = $this->useColors() ? ($fieldNr % 10) : -1;
-        $retVal = 'field ' . ( $fieldNr < 10 ? ' ' : '') . $fieldNr;
+        $priority = $field->getPriority();
+        $fieldColor = $this->useColors() ? ($priority % 10) : -1;
+        $retVal = 'field ' . ($priority < 10 ? ' ' : '') . $priority;
         return $this->outputColor($fieldColor, $retVal);
     }
 
@@ -141,7 +141,7 @@ class Game extends VoetbalOutputBase
             if ( $game->getRefereePlace() !== null ) {
                 $refNr = $game->getRefereePlace()->getNumber();
             } else {
-                $refNr = $game->getReferee()->getRank();
+                $refNr = $game->getReferee()->getPriority();
             }
         }
 

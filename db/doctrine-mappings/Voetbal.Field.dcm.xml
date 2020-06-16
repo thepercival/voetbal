@@ -4,20 +4,23 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
-    <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
+    <field name="priority" column="priority" type="smallint" nullable="false" unique="false"/>
     <field name="name" column="name" type="string" length="3" nullable="true" unique="false"/>
-    <many-to-one field="competition" target-entity="Voetbal\Competition" inversed-by="fields">
-      <join-columns>
-        <join-column name="competitionid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
-      </join-columns>
-    </many-to-one>
-    <many-to-one field="sport" target-entity="Voetbal\Sport">
-      <join-columns>
-        <join-column name="sportid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
-      </join-columns>
-    </many-to-one>
-    <unique-constraints>
-      <unique-constraint columns="competitionid,number" name="main_nr_idx" />
-    </unique-constraints>
+      <many-to-one field="competitionDeprecated" target-entity="Voetbal\Competition">
+          <join-columns>
+              <join-column name="competitionid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+          </join-columns>
+      </many-to-one>
+      <many-to-one field="sportDeprecated" target-entity="Voetbal\Sport">
+          <join-columns>
+              <join-column name="sportid" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+          </join-columns>
+      </many-to-one>
+      <many-to-one field="sportConfig" target-entity="Voetbal\Sport\Config">
+          <join-columns>
+              <!-- @TODO nullable should be false -->
+              <join-column name="sportConfigId" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+          </join-columns>
+      </many-to-one>
   </entity>
 </doctrine-mapping>

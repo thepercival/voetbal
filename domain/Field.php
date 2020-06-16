@@ -8,11 +8,12 @@
 
 namespace Voetbal;
 
-/**
- * Class Field
- * @package Voetbal
- */
-class Field
+use Voetbal\Priority\Prioritizable;
+use Voetbal\Sport;
+use Voetbal\Sport\Config as SportConfig;
+use Voetbal\Competition;
+
+class Field implements Prioritizable
 {
     /**
      * @var int
@@ -25,23 +26,27 @@ class Field
     /**
      * @var int
      */
-    protected $number;
+    protected $priority;
     /**
-     * @var Competition
+     * @var SportConfig
      */
-    private $competition;
-    /**
-     * @var Sport
-     */
-    private $sport;
+    private $sportConfig;
+
+    private $competitionDeprecated;
+    private $sportDeprecated;
 
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 3;
 
-    public function __construct(Competition $competition, int $number)
+    public function __construct(SportConfig $sportConfig, int $priority = null)
     {
-        $this->setCompetition($competition);
-        $this->setNumber($number);
+        $this->sportConfig = $sportConfig;
+        $this->sportConfig->getFields()->add($this);
+
+        if ($priority === null || $priority === 0) {
+            $priority = count($this->getCompetition()->getFields());
+        }
+        $this->setPriority($priority);
     }
 
     /**
@@ -62,14 +67,14 @@ class Field
         $this->id = $id;
     }
 
-    public function getNumber(): int
+    public function getPriority(): int
     {
-        return $this->number;
+        return $this->priority;
     }
 
-    public function setNumber(int $number)
+    public function setPriority(int $priority)
     {
-        $this->number = $number;
+        $this->priority = $priority;
     }
 
     /**
@@ -92,38 +97,18 @@ class Field
         $this->name = $name;
     }
 
-    /**
-     * @return Competition
-     */
-    public function getCompetition()
+    public function getSportConfig(): SportConfig
     {
-        return $this->competition;
+        return $this->sportConfig;
     }
 
-    /**
-     * @param Competition $competition
-     */
-    private function setCompetition(Competition $competition)
+    public function getCompetition(): Competition
     {
-        if ($this->competition === null and !$competition->getFields()->contains($this)) {
-            $competition->getFields()->add($this) ;
-        }
-        $this->competition = $competition;
+        return $this->getSportConfig()->getCompetition();
     }
 
-    /**
-     * @return Sport
-     */
-    public function getSport()
+    public function getSport(): Sport
     {
-        return $this->sport;
-    }
-
-    /**
-     * @param Sport $sport
-     */
-    public function setSport(Sport $sport)
-    {
-        $this->sport = $sport;
+        return $this->getSportConfig()->getSport();
     }
 }

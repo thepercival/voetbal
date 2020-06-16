@@ -22,3 +22,5 @@ Voetbal\Sport\Config:
       type: integer
     sport:
       type: Voetbal\Sport
+    fields:
+      type: ArrayCollection<Voetbal\Field>

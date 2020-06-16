@@ -62,11 +62,6 @@ class Competition implements Importable
      */
     private $sportConfigs;
 
-    /**
-     * @var ArrayCollection
-     */
-    private $fields;
-
     const MIN_COMPETITORS = 3;
     const MAX_COMPETITORS = 40;
 
@@ -80,7 +75,6 @@ class Competition implements Importable
         $this->state = State::Created;
         $this->roundNumbers = new ArrayCollection();
         $this->referees = new ArrayCollection();
-        $this->fields = new ArrayCollection();
         $this->sportConfigs = new ArrayCollection();
     }
 
@@ -216,50 +210,26 @@ class Competition implements Importable
     /**
      * @return Referee
      */
-    public function getReferee(int $rank)
+    public function getReferee(int $priority)
     {
-        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($rank): bool {
-            return $referee->getRank() === $rank;
-        });
+        $referees = array_filter(
+            $this->getReferees()->toArray(),
+            function (Referee $referee) use ($priority): bool {
+                return $referee->getPriority() === $priority;
+            }
+        );
         return array_shift($referees);
     }
 
-    /**
-     * @return Referee
-     */
-    public function getRefereeById($id)
+    public function getField(int $priority): ?Field
     {
-        $referees = array_filter($this->getReferees()->toArray(), function ($referee) use ($id): bool {
-            return $referee->getId() === $id;
-        });
-        return array_shift($referees);
-    }
-
-    /**
-     * @return ArrayCollection | Field[]
-     */
-    public function getFields()
-    {
-        return $this->fields;
-    }
-
-    /**
-     * @param ArrayCollection | Field[] $fields
-     */
-    public function setFields($fields)
-    {
-        $this->fields = $fields;
-    }
-
-    /**
-     * @return Field
-     */
-    public function getField($number)
-    {
-        $fields = array_filter($this->getFields()->toArray(), function ($field) use ($number): bool {
-            return $field->getNumber() === $number;
-        });
-        return array_shift($fields);
+        foreach ($this->getSportConfigs() as $sportConfig) {
+            $field = $sportConfig->getField($priority);
+            if ($field !== null) {
+                return $field;
+            }
+        }
+        return null;
     }
 
     public function setSportConfigs(ArrayCollection $sportConfigs)
@@ -282,11 +252,6 @@ class Competition implements Importable
         });
         $foundConfig = $foundConfigs->first();
         return $foundConfig !== false ? $foundConfig : null;
-    }
-
-    public function setSportConfig(SportConfig $sportConfig)
-    {
-        $this->sportConfigs->add($sportConfig);
     }
 
     public function hasMultipleSportConfigs(): bool
@@ -318,8 +283,22 @@ class Competition implements Importable
      */
     public function getSports(): Collection
     {
-        return $this->sportConfigs->map(function ($sportConfig) {
-            return $sportConfig->getSport();
-        });
+        return $this->sportConfigs->map(
+            function ($sportConfig) {
+                return $sportConfig->getSport();
+            }
+        );
+    }
+
+    /**
+     * @return array|Field[]
+     */
+    public function getFields(): array
+    {
+        $fields = [];
+        foreach ($this->getSportConfigs() as $sportConfig) {
+            $fields = array_merge($fields, $sportConfig->getFields()->toArray());
+        }
+        return $fields;
     }
 }

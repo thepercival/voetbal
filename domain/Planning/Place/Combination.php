@@ -86,22 +86,14 @@ class Combination
      * @param Game $game
      * @param bool $reverseHomeAway
      */
-    public function createGamePlaces(Game $game, bool $reverseHomeAway/*, bool $reverseCombination*/)/*: array*/
+    public function createGamePlaces(Game $game, bool $reverseHomeAway)
     {
-        $home = array_map(function ($homeIt) use ($game,$reverseHomeAway): GamePlace {
-            return new GamePlace($game, $homeIt, $reverseHomeAway ? GameBase::AWAY : GameBase::HOME);
-        }, $this->getHome());
-        $away = array_map(function ($awayIt) use ($game,$reverseHomeAway): GamePlace {
-            return new GamePlace($game, $awayIt, $reverseHomeAway ? GameBase::HOME : GameBase::AWAY);
-        }, $this->getAway());
-
-//        $home = $this->getHome();
-//        $away = $this->getAway();
-//        if ($reverseHomeAway === true) {
-//            $home = array_reverse($home);
-//            $away = array_reverse($away);
-//        }
-//        return array_merge($home,$away);
+        foreach ($this->getHome() as $homeIt) {
+            new GamePlace($game, $homeIt, $reverseHomeAway ? GameBase::AWAY : GameBase::HOME);
+        };
+        foreach ($this->getAway() as $awayIt) {
+            new GamePlace($game, $awayIt, $reverseHomeAway ? GameBase::HOME : GameBase::AWAY);
+        }
     }
 
     public function hasOverlap(Combination $combination)
@@ -109,21 +101,4 @@ class Combination
         $number = new Combination\Number($this);
         return $number->hasOverlap(new Combination\Number($combination));
     }
-
-
-
-    /*isEven(): boolean {
-        const total = this.getTotal(this.get());
-        return ((total % 2) === 0);
-    }
-
-    getTotal(poulePlaces: PoulePlace[]): number {
-        let total = 0;
-        poulePlaces.forEach(poulePlace => { total += poulePlace.getNumber(); });
-        return total;
-    }
-
-    isHomeSmaller(): boolean {
-        return this.getTotal(this.getHome()) < this.getTotal(this.getAway());
-    }*/
 }

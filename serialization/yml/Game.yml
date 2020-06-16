@@ -6,12 +6,12 @@ Voetbal\Game:
   properties:
     id:
       type: integer
-    fieldNr:
+    fieldPriority:
       type: integer
-    refereeRank:
+    refereePriority:
       type: integer
-    refereePlaceId:
-      type: integer
+    refereePlaceLocId:
+      type: string
     batchNr:
       type: integer
       access_type: property # ??

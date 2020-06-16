@@ -4,8 +4,8 @@
     <id name="id" type="integer" column="id">
       <generator strategy="AUTO"/>
     </id>
+    <field name="priority" column="priority" type="smallint" nullable="true" unique="false"/>
     <field name="initials" column="initials" type="string" length="3" nullable="false" unique="false"/>
-    <field name="rank" column="rank" type="smallint" nullable="true" unique="false"/>
     <field name="name" column="name" type="string" length="30" nullable="true" unique="false"/>
     <field name="emailaddress" column="emailaddress" type="string" length="100" nullable="true" unique="false"/>
     <field name="info" column="info" type="string" length="200" nullable="true" unique="false"/>

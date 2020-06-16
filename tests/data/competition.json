@@ -10,14 +10,6 @@
     "startDateTime": "2018-12-17T11:33:15.710Z",
     "endDateTime": "2018-12-17T11:33:15.710Z"
   },
-  "sports": [
-    {
-      "id": 1,
-      "name": "voetbal",
-      "team": true,
-      "customId": 11
-    }
-  ],
   "sportConfigs": [
     {
       "winPoints": 3.0,
@@ -31,17 +23,17 @@
         "name": "voetbal",
         "team": true,
         "customId": 11
-      }
-    }],
-  "fields": [
-    {
-      "number": 1,
-      "name": "1",
-      "sport": {
-        "name": "voetbal",
-        "team": true,
-        "customId": 11
-      }
+      },
+      "fields": [
+        {
+          "priority": 1,
+          "name": "1"
+        },
+        {
+          "priority": 2,
+          "name": "2"
+        }
+      ]
     }
   ],
   "referees": [],
