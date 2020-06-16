@@ -3,7 +3,6 @@
 namespace Voetbal\Field;
 
 use Voetbal\Field;
-use Voetbal\Competition;
 
 /**
  * Class Repository
@@ -11,4 +10,8 @@ use Voetbal\Competition;
  */
 class Repository extends \Voetbal\Repository
 {
+    public function find($id, $lockMode = null, $lockVersion = null): ?Field
+    {
+        return $this->_em->find($this->_entityName, $id, $lockMode, $lockVersion);
+    }
 }

@@ -2,7 +2,6 @@
 
 namespace Voetbal\Referee;
 
-use Voetbal\Competition;
 use Voetbal\Referee;
 
 /**
@@ -11,4 +10,8 @@ use Voetbal\Referee;
  */
 class Repository extends \Voetbal\Repository
 {
+    public function find($id, $lockMode = null, $lockVersion = null): ?Referee
+    {
+        return $this->_em->find($this->_entityName, $id, $lockMode, $lockVersion);
+    }
 }

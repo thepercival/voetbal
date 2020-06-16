@@ -25,6 +25,9 @@
           <cascade>
               <cascade-remove/>
           </cascade>
+          <order-by>
+              <order-by-field name="priority" direction="ASC"/>
+          </order-by>
       </one-to-many>
   </entity>
 </doctrine-mapping>
