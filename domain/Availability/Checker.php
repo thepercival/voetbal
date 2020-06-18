@@ -7,6 +7,7 @@ use Voetbal\Competition;
 use Voetbal\Field;
 use Voetbal\Priority\Prioritizable;
 use Voetbal\Referee;
+use Voetbal\Sport\Config as SportConfig;
 
 class Checker
 {
@@ -59,14 +60,14 @@ class Checker
     }
 
     /**
-     * @param Competition $competition
+     * @param SportConfig $sportConfig
      * @param int $priority
      * @param Field|null $field
      * @throws Exception
      */
-    public function checkFieldPriority(Competition $competition, int $priority, Field $field = null)
+    public function checkFieldPriority(SportConfig $sportConfig, int $priority, Field $field = null)
     {
-        return $this->checkPriority($competition->getFields(), $priority, $field);
+        return $this->checkPriority($sportConfig->getFields()->toArray(), $priority, $field);
     }
 
     /**

@@ -238,12 +238,12 @@ class Config
         $this->fields = $fields;
     }
 
-    public function getField(int $rank): ?Field
+    public function getField(int $priority): ?Field
     {
         $fields = array_filter(
             $this->getFields()->toArray(),
-            function ($field) use ($rank): bool {
-                return $field->getRank() === $rank;
+            function (Field $field) use ($priority): bool {
+                return $field->getPriority() === $priority;
             }
         );
         return count($fields) > 0 ? array_shift($fields) : null;
