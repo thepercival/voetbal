@@ -22,7 +22,7 @@ trait PlanningCreator {
         $planningService = new PlanningService();
         $planning = $planningService->createNextMinIsMaxPlanning($planningInput);
         if( Planning::STATE_SUCCESS !== $planningService->createGames($planning) ) {
-            return null;
+            throw new \Exception("planning could not be created", E_ERROR);
         }
         return $planning;
     }

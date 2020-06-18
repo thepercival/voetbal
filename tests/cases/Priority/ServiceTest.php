@@ -20,24 +20,23 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $referee1 = new Referee($competition);
+        $referee2 = $competition->getReferee(2);
 
-        $referee3 = new Referee($competition, 3);
+        $referee4 = new Referee($competition, 4);
 
         $priorityService = new PriorityService($competition->getReferees()->toArray());
-        $changed = $priorityService->upgrade($referee3);
+        $changed = $priorityService->upgrade($referee4);
 
         self::assertCount(2, $changed);
-        self::assertSame($referee3, $changed[0]);
-        self::assertSame($referee1, $changed[1]);
+        self::assertSame($referee4, $changed[0]);
+        self::assertSame($referee2, $changed[1]);
     }
 
     public function testAlreadyHighest()
     {
         $competition = $this->createCompetition();
 
-        $referee1 = new Referee($competition);
-        $referee2 = new Referee($competition);
+        $referee1 = $competition->getReferee(1);
 
         $priorityService = new PriorityService($competition->getReferees()->toArray());
         $changed = $priorityService->upgrade($referee1);
@@ -49,8 +48,8 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $referee1 = new Referee($competition);
-        $referee2 = new Referee($competition);
+        $referee1 = $competition->getReferee(1);
+        $referee2 = $competition->getReferee(2);
 
         $priorityService = new PriorityService($competition->getReferees()->toArray());
         $changed = $priorityService->upgrade($referee2);

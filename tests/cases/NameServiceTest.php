@@ -334,7 +334,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $this->createGames($structure);
 
             $game = $firstPlace->getPoule()->getGames()->first();
-            self::assertSame($nameService->getRefereeName($game), '');
+            self::assertSame($nameService->getRefereeName($game), '111');
 
             $referee = new Referee($competition);
             $referee->setInitials('CDK');

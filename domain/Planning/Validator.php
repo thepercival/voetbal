@@ -34,10 +34,8 @@ class Validator
     {
         $getNrOfGameParticipations = function (Game $game, Place $place): int {
             $participations = 0;
-            /** @var Place[] $places */
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
-                return $gamePlace->getPlace();
-            });
+            /** @var array|Place[] $places */
+            $places = $this->getPlaces($game);
             foreach ($places as $placeIt) {
                 if ($placeIt === $place) {
                     $participations++;
@@ -73,9 +71,8 @@ class Validator
     {
         $nrOfGames = [];
         foreach ($poule->getGames() as $game) {
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
-                return $gamePlace->getPlace();
-            });
+            /** @var array|Place[] $places */
+            $places = $this->getPlaces($game);
             /** @var Place $place */
             foreach ($places as $place) {
                 if (array_key_exists($place->getLocation(), $nrOfGames) === false) {
@@ -83,9 +80,6 @@ class Validator
                 }
                 $nrOfGames[$place->getLocation()]++;
             }
-        }
-        if (count($nrOfGames) === 0) {
-            return true;
         }
         $value = reset($nrOfGames);
         foreach ($nrOfGames as $valueIt) {
@@ -96,12 +90,12 @@ class Validator
         return true;
     }
 
-    public function gamesInARow(): bool
+    public function checkGamesInARow(): bool
     {
         /** @var Poule $poule */
         foreach ($this->planning->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {
-                if ($this->checkGamesInARow($place, $this->planning->getGames(GameBase::ORDER_BY_BATCH)) === false) {
+                if ($this->checkGamesInARowForPlace($place) === false) {
                     return false;
                 }
             }
@@ -109,45 +103,58 @@ class Validator
         return true;
     }
 
-    protected function checkGamesInARow(Place $place, array $games): bool
+    protected function checkGamesInARowForPlace(Place $place): bool
     {
-        $batches = [];
-        /** @var Game $game */
-        foreach ($games as $game) {
-            if (array_key_exists($game->getBatchNr(), $batches) === false) {
-                $batches[$game->getBatchNr()] = false;
+        /**
+         * @param Place $place
+         * @return array
+         */
+        $getBatchParticipations = function (Place $place): array {
+            $games = $this->planning->getGames(GameBase::ORDER_BY_BATCH);
+            $batches = [];
+            /** @var Game $game */
+            foreach ($games as $game) {
+                if (array_key_exists($game->getBatchNr(), $batches) === false) {
+                    $batches[$game->getBatchNr()] = false;
+                }
+                if ($batches[$game->getBatchNr()] === true) {
+                    continue;
+                }
+                $batches[$game->getBatchNr()] = $game->isParticipating($place);
             }
-            if ($batches[$game->getBatchNr()] === true) {
-                continue;
+            return $batches;
+        };
+
+        $getMaxInARow = function (array $batchParticipations): int {
+            $maxNrOfGamesInRow = 0;
+            $currentMaxNrOfGamesInRow = 0;
+            foreach ($batchParticipations as $batchParticipation) {
+                if ($batchParticipation) {
+                    $currentMaxNrOfGamesInRow++;
+                    if ($currentMaxNrOfGamesInRow > $maxNrOfGamesInRow) {
+                        $maxNrOfGamesInRow = $currentMaxNrOfGamesInRow;
+                    }
+                } else {
+                    $currentMaxNrOfGamesInRow = 0;
+                }
             }
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
+            return $maxNrOfGamesInRow;
+        };
+
+        return $getMaxInARow($getBatchParticipations($place)) <= $this->planning->getMaxNrOfGamesInARow();
+    }
+
+    /**
+     * @param Game $game
+     * @return array|Place[]
+     */
+    protected function getPlaces(Game $game): array
+    {
+        return $game->getPlaces()->map(
+            function (GamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
-            })->toArray();
-            $some = false;
-            foreach ($places as $placeIt) {
-                if ($placeIt === $place) {
-                    $some = true;
-                    break;
-                }
             }
-            $batches[$game->getBatchNr()] = $some;
-        }
-        if ($this->planning->getMaxNrOfGamesInARow() < 0) {
-            return true;
-        }
-        $maxBatchNr = reset($games)->getBatchNr();
-        $nrOfGamesInRow = 0;
-        for ($i = 1; $i <= $maxBatchNr; $i++) {
-            if (array_key_exists($i, $batches) && $batches[$i]) {
-                $nrOfGamesInRow++;
-                if ($nrOfGamesInRow > $this->planning->getMaxNrOfGamesInARow()) {
-                    return false;
-                }
-            } else {
-                $nrOfGamesInRow = 0;
-            }
-        }
-        return true;
+        )->toArray();
     }
 
     public function validResourcesPerBatch(): bool
@@ -156,14 +163,11 @@ class Validator
         $batchesResources = [];
         foreach ($games as $game) {
             if (array_key_exists($game->getBatchNr(), $batchesResources) === false) {
-                $batchesResources[$game->getBatchNr()] = array( "fields" => [], "referees" => [], "places" => [] );
+                $batchesResources[$game->getBatchNr()] = array("fields" => [], "referees" => [], "places" => []);
             }
-            $batchResources = $batchesResources[$game->getBatchNr()];
+            $batchResources = &$batchesResources[$game->getBatchNr()];
             /** @var array|Place[] $places */
-            $places = $game->getPlaces()->map(function (GamePlace $gamePlace): Place {
-                return $gamePlace->getPlace();
-            });
-
+            $places = $this->getPlaces($game);
             if ($this->planning->getInput()->getSelfReferee()) {
                 if ($game->getRefereePlace() === null) {
                     return false;

@@ -8,17 +8,10 @@
 
 namespace Voetbal\Planning;
 
-use Doctrine\Common\Collections\Collection;
 use Voetbal\Game as GameBase;
 use Voetbal\Planning as PlanningBase;
-use Voetbal\Planning\Input as PlanningInput;
-use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\Range as VoetbalRange;
-use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Place;
 use Voetbal\Game;
-use Voetbal\Competition;
-use League\Period\Period;
 
 class Service
 {

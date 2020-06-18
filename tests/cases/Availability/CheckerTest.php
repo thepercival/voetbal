@@ -55,8 +55,10 @@ class CheckerTest extends \PHPUnit\Framework\TestCase
         $referee1 = $competition->getReferee(1);
         $referee1->setEmailaddress("email@email.email");
 
+
         $checker->checkRefereeEmailaddress( $competition, "email@email.email", $referee1);
-        $checker->checkRefereeEmailaddress( $competition, "nonexsiting@email.email");
+        $checker->checkRefereeEmailaddress($competition, "nonexsiting@email.email");
+        $checker->checkRefereeEmailaddress($competition, null);
 
         self::expectException(\Exception::class);
         $checker->checkRefereeEmailaddress( $competition, "email@email.email");
