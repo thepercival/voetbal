@@ -20,7 +20,7 @@ use Voetbal\Game;
 class Number
 {
     /**
-     * @var int
+     * @var int|null
      */
     protected $id;
     /**
@@ -65,19 +65,11 @@ class Number
         $this->hasPlanning = false;
     }
 
-    /**
-     * Get id
-     *
-     * @return int
-     */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    /**
-     * @param int $id
-     */
     public function setId(int $id)
     {
         $this->id = $id;

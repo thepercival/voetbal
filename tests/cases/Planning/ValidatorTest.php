@@ -10,6 +10,8 @@ use Voetbal\Structure\Service as StructureService;
 use Voetbal\Planning\Validator as PlanningValidator;
 use Voetbal\Planning\Game as PlanningGame;
 use Voetbal\Game;
+use Voetbal\Planning\Poule as PlanningPoule;
+use Exception;
 
 class ValidatorTest extends \PHPUnit\Framework\TestCase
 {
@@ -26,10 +28,13 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
+        foreach ($planning->getPoules() as $poule) {
+            $poule->getGames()->clear();
+        }
 
-        $planningValidator = new PlanningValidator($planning);
-
-        self::assertTrue($planningValidator->hasEnoughTotalNrOfGames());
+        $planningValidator = new PlanningValidator();
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testPlaceOneTimePerGame()
@@ -44,18 +49,20 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
-        $planningValidator = new PlanningValidator($planning);
-        self::assertTrue($planningValidator->placeOneTimePerGame());
+        $planningValidator = new PlanningValidator();
+        self::assertNull($planningValidator->validate($planning));
 
         /** @var PlanningGame $planningGame */
         $planningGame = $planning->getGames()[0];
         $firstHomePlace = $planningGame->getPlaces(Game::HOME)->first()->getPlace();
         $planningGame->setRefereePlace($firstHomePlace);
-        self::assertFalse($planningValidator->placeOneTimePerGame());
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
 
         $planningGame->emptyRefereePlace();
         $planningGame->getPlaces(Game::AWAY)->first()->setPlace($firstHomePlace);
-        self::assertFalse($planningValidator->placeOneTimePerGame());
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testAllPlacesSameNrOfGames()
@@ -70,13 +77,15 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
-        $planningValidator = new PlanningValidator($planning);
-        self::assertTrue($planningValidator->allPlacesSameNrOfGames());
+        $planningValidator = new PlanningValidator();
+        //self::expectException(Exception::class);
+        $planningValidator->validate($planning);
 
         $planningGames = $planning->getPoule(1)->getGames();
         $removed = $planningGames->first();
         $planningGames->removeElement($removed);
-        self::assertFalse($planningValidator->allPlacesSameNrOfGames());
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testGamesInARow()
@@ -91,11 +100,12 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
-        $planningValidator = new PlanningValidator($planning);
-        self::assertTrue($planningValidator->checkGamesInARow());
+        $planningValidator = new PlanningValidator();
+        $planningValidator->validate($planning);
 
         $planning->setMaxNrOfGamesInARow(3);
-        self::assertFalse($planningValidator->checkGamesInARow());
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testValidResourcesPerBatch()
@@ -110,8 +120,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
-        $planningValidator = new PlanningValidator($planning);
-        self::assertTrue($planningValidator->validResourcesPerBatch());
+        $planningValidator = new PlanningValidator();
+        self::assertNull($planningValidator->validate($planning));
     }
 
     public function testValidResourcesPerBatchNoRefereePlace()
@@ -129,13 +139,14 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $refereePlaceService = new RefereePlaceService($planning);
         $refereePlaceService->assign($planning->getFirstBatch());
 
-        $planningValidator = new PlanningValidator($planning);
-        self::assertTrue($planningValidator->validResourcesPerBatch());
+        $planningValidator = new PlanningValidator();
+        self::assertNull($planningValidator->validate($planning));
 
         /** @var PlanningGame $planningGame */
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $planningGame->emptyRefereePlace();
-        self::assertFalse($planningValidator->validResourcesPerBatch());
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testValidResourcesPerBatchMultiplePlaces()
@@ -143,7 +154,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $competition = $this->createCompetition();
 
         $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 5);
+        $structure = $structureService->create($competition, 2);
 
         $roundNumber = $structure->getFirstRoundNumber();
 
@@ -153,10 +164,12 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         /** @var PlanningGame $planningGame */
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $firstHomePlace = $planningGame->getPlaces(Game::HOME)->first()->getPlace();
+        // $firstAwayPlace = $planningGame->getPlaces(Game::AWAY)->first()->getPlace();
         $planningGame->getPlaces(Game::AWAY)->first()->setPlace($firstHomePlace);
 
-        $planningValidator = new PlanningValidator($planning);
-        self::assertFalse($planningValidator->validResourcesPerBatch());
+        $planningValidator = new PlanningValidator();
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testValidResourcesPerBatchMultipleFields()
@@ -175,8 +188,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $newFieldNr = $planningGame->getField()->getNumber() === 1 ? 2 : 1;
         $planningGame->setField($planning->getField($newFieldNr));
-        $planningValidator = new PlanningValidator($planning);
-        self::assertFalse($planningValidator->validResourcesPerBatch());
+        $planningValidator = new PlanningValidator();
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testValidResourcesPerBatchNoReferee()
@@ -195,8 +209,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $planningGame->emptyReferee();
 
-        $planningValidator = new PlanningValidator($planning);
-        self::assertFalse($planningValidator->validResourcesPerBatch());
+        $planningValidator = new PlanningValidator();
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 
     public function testValidResourcesPerBatchMultipleReferees()
@@ -215,7 +230,8 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $newRefereeNr = $planningGame->getReferee()->getNumber() === 1 ? 2 : 1;
         $planningGame->setReferee($planning->getReferee($newRefereeNr));
-        $planningValidator = new PlanningValidator($planning);
-        self::assertFalse($planningValidator->validResourcesPerBatch());
+        $planningValidator = new PlanningValidator();
+        self::expectException(Exception::class);
+        $planningValidator->validate($planning);
     }
 }

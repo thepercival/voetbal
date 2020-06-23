@@ -47,11 +47,11 @@ class Repository extends \Voetbal\Repository
 
     public function findOneByLeagueAndDate(League $league, \DateTimeImmutable $date)
     {
-        $query = $this->createQueryBuilder('cs')
-            ->join("cs.season", "s")
+        $query = $this->createQueryBuilder('c')
+            ->join("c.season", "s")
             ->where('s.startDateTime <= :date')
             ->andWhere('s.endDateTime >= :date')
-            ->andWhere('cs.league = :league');
+            ->andWhere('c.league = :league');
 
 //        if ( $studentnummer !== null ){
 //            $query = $query->andWhere('s.studentnummer = :studentnummer');
@@ -68,4 +68,19 @@ class Repository extends \Voetbal\Repository
         $result = reset($results);
         return $result;
     }
+
+    public function findNrWithoutPlanning()
+    {
+        $queryBuilder = $this->getEM()->createQueryBuilder()
+            ->select('count(c.id)')
+            ->distinct()
+            ->from('Voetbal\Round\Number', 'rn')
+            ->join("rn.competition", "c")
+            ->where('rn.hasPlanning = false');
+
+        // echo $queryBuilder->getQuery()->getSQL();
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
 }

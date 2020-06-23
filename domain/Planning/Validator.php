@@ -9,6 +9,7 @@
 
 namespace Voetbal\Planning;
 
+use Exception;
 use Voetbal\Game as GameBase;
 use Voetbal\Planning\Game\Place as GamePlace;
 use Voetbal\Planning as PlanningBase;
@@ -20,51 +21,33 @@ class Validator
      */
     protected $planning;
 
-    public function __construct(PlanningBase $planning)
+    public function __construct()
+    {
+    }
+
+    public function validate(PlanningBase $planning)
     {
         $this->planning = $planning;
+        $this->validateEnoughTotalNrOfGames();
+        $this->validateAllPlacesSameNrOfGames();
+        $this->validateGamesInARow();
+        $this->validateResourcesPerBatch();
     }
 
-    public function hasEnoughTotalNrOfGames(): bool
+    protected function validateEnoughTotalNrOfGames()
     {
-        return count($this->planning->getGames()) > 0;
-    }
-
-    public function placeOneTimePerGame(): bool
-    {
-        $getNrOfGameParticipations = function (Game $game, Place $place): int {
-            $participations = 0;
-            /** @var array|Place[] $places */
-            $places = $this->getPlaces($game);
-            foreach ($places as $placeIt) {
-                if ($placeIt === $place) {
-                    $participations++;
-                }
-            }
-            if ($game->getRefereePlace() !== null && $game->getRefereePlace() === $place) {
-                $participations++;
-            }
-            return $participations;
-        };
-
-        foreach ($this->planning->getPlaces() as $place) {
-            foreach ($this->planning->getGames() as $game) {
-                if ($getNrOfGameParticipations($game, $place) > 1) {
-                    return false;
-                }
-            }
+        if (count($this->planning->getGames()) === 0) {
+            throw new Exception("the planning has not enough games", E_ERROR);
         }
-        return true;
     }
 
-    public function allPlacesSameNrOfGames(): bool
+    protected function validateAllPlacesSameNrOfGames()
     {
         foreach ($this->planning->getPoules() as $poule) {
             if ($this->allPlacesInPouleSameNrOfGames($poule) === false) {
-                return false;
+                throw new Exception("not all places within poule have same number of games", E_ERROR);
             }
         }
-        return true;
     }
 
     protected function allPlacesInPouleSameNrOfGames(Poule $poule): bool
@@ -90,17 +73,16 @@ class Validator
         return true;
     }
 
-    public function checkGamesInARow(): bool
+    protected function validateGamesInARow()
     {
         /** @var Poule $poule */
         foreach ($this->planning->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {
                 if ($this->checkGamesInARowForPlace($place) === false) {
-                    return false;
+                    throw new Exception("more than allowed nrofmaxgamesinarow", E_ERROR);
                 }
             }
         }
-        return true;
     }
 
     protected function checkGamesInARowForPlace(Place $place): bool
@@ -157,7 +139,14 @@ class Validator
         )->toArray();
     }
 
-    public function validResourcesPerBatch(): bool
+    protected function validateResourcesPerBatch()
+    {
+        if ($this->validateResourcesPerBatchHelper() !== true) {
+            throw new Exception("more resources per batch than allowed", E_ERROR);
+        }
+    }
+
+    protected function validateResourcesPerBatchHelper(): bool
     {
         $games = $this->planning->getGames(GameBase::ORDER_BY_BATCH);
         $batchesResources = [];

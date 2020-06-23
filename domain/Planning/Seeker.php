@@ -65,17 +65,27 @@ class Seeker
             }
             $this->processHelper($input);
         } catch (\Exception $e) {
-            $this->logger->error('   ' . '   ' .  " => " . $e->getMessage());
+            $this->logger->error('   ' . '   ' . " => " . $e->getMessage());
         }
     }
 
     protected function processByGCD(Input $input, Input $gcdInput)
     {
-        // haal gcd op vanuit $input
+        $gcdPlanning = $this->planningService->getBestPlanning($gcdInput);
+        $planning = $this->createPlanningFromGcd($input, $gcdPlanning);
+
+        $this->planningRepos->save($planning);
+
+        $input->setState(Input::STATE_ALL_PLANNINGS_TRIED);
+        $this->inputRepos->save($input);
+        $this->logger->info('   update state => STATE_ALL_PLANNINGS_TRIED');
+    }
+
+    // to seperate class
+    public function createPlanningFromGcd(Input $input, PlanningBase $gcdPlanning): PlanningBase
+    {
         $gcd = $this->inputService->getGCD($input);
 
-        // maak planning
-        $gcdPlanning = $this->planningService->getBestPlanning($gcdInput);
         $planning = new PlanningBase($input, $gcdPlanning->getNrOfBatchGames(), $gcdPlanning->getMaxNrOfGamesInARow());
 
         // 5, 4 => (2) => 5, 5, 4, 4
@@ -91,15 +101,18 @@ class Seeker
             return ((($gcdPouleNr - 1) * $gcd) + $gcdIteration);
         };
 
+        $gcdInput = $gcdPlanning->getInput();
+
         foreach ($gcdPlanning->getGames() as $gcdGame) {
-            for ($iteration = 0 ; $iteration < $gcd ; $iteration++) {
+            for ($iteration = 0; $iteration < $gcd; $iteration++) {
                 $newPouleNr = $getNewPouleNr($iteration + 1, $gcdGame->getPoule()->getNumber());
                 $poule = $planning->getPoule($newPouleNr);
                 $game = new Game($poule, $gcdGame->getRoundNr(), $gcdGame->getSubNr(), $gcdGame->getNrOfHeadtohead());
                 $game->setBatchNr($gcdGame->getBatchNr());
 
-                if ($gcdGame->getReferee() !== null ) {
-                    $refereeNr = ($iteration * $gcdInput->getNrOfReferees()) + $gcdGame->getReferee()->getNumber();
+                if ($gcdGame->getReferee() !== null) {
+                    $refereeNr = ((($gcd - $iteration) * $gcdInput->getNrOfReferees()) + 1) - $gcdGame->getReferee(
+                        )->getNumber();
                     $game->setReferee($planning->getReferee($refereeNr));
                 }
                 // @TODO use also startindex as with poulenr when doing multiple sports
@@ -116,11 +129,7 @@ class Seeker
         // $this->logger->info( '   ' . $this->planningToString( $planning, $timeout ) . " timeout => " . $planning->getTimeoutSeconds() * PlanningBase::TIMEOUT_MULTIPLIER  );
         $planning->setState($gcdPlanning->getState());
         $planning->setTimeoutSeconds(-1);
-        $this->planningRepos->save($planning);
-
-        $input->setState(Input::STATE_ALL_PLANNINGS_TRIED);
-        $this->inputRepos->save($input);
-        $this->logger->info('   update state => STATE_ALL_PLANNINGS_TRIED');
+        return $planning;
     }
 
     public function processTimeout(PlanningBase $planning)

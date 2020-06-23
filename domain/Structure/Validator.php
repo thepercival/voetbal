@@ -8,8 +8,10 @@
 
 namespace Voetbal\Structure;
 
+use Doctrine\Common\Collections\Collection;
+use Exception;
 use Voetbal\NameService;
-use Voetbal\Planning\Config as PlanningConfig;
+use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule;
 use Voetbal\Round;
 use Voetbal\Association;
@@ -24,63 +26,66 @@ use Voetbal\Structure;
 class Validator
 {
     /**
-     * @var Repository
-     */
-    protected $structureRepos;
-    /**
      * @var NameService
      */
     protected $nameService;
 
-    public function __construct(
-        Repository $structureRepos
-    ) {
-        $this->structureRepos = $structureRepos;
+    public function __construct()
+    {
         $this->nameService = new NameService();
     }
 
-    public function checkValidity(Competition $competition)
+    public function checkValidity(Competition $competition, Structure $structure = null)
     {
-        $prefix = "de structuur(competition-id:".$competition->getId().")";
+        $prefix = "de structuur(competition-id:" . $competition->getId() . ")";
 
-        $structure = $this->structureRepos->getStructure($competition);
         if (!($structure instanceof Structure)) {
             throw new \Exception($prefix . " heeft geen rondenummers", E_ERROR);
         }
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
-        $rootRound = null;
-        if ($firstRoundNumber->getRounds()->count() === 1) {
-            $rootRound = $firstRoundNumber->getRounds()->first();
-        }
-        if (!($rootRound instanceof Round)) {
-            throw new \Exception($prefix . " heeft geen ronden", E_ERROR);
-        }
 
         $association = $competition->getLeague()->getAssociation();
-        $this->checkRoundNumberValidity($firstRoundNumber, $association);
+        $this->checkRoundNumberValidity($firstRoundNumber, $competition, $association);
         foreach ($firstRoundNumber->getRounds() as $round) {
             $this->checkRoundValidity($round);
         }
     }
 
-    public function checkRoundNumberValidity(RoundNumber $roundNumber, Association $association)
-    {
-        $prefix = "rondenummer " . $roundNumber->getNumber() . " (".$roundNumber->getId().")";
+    public function checkRoundNumberValidity(
+        RoundNumber $roundNumber,
+        Competition $competition,
+        Association $association
+    ) {
+        $prefix = "rondenummer " . $roundNumber->getNumber() . $this->getIdOutput($roundNumber->getId());
         if ($roundNumber->getRounds()->count() === 0) {
-            throw new \Exception($prefix . " bevat geen ronden", E_ERROR);
+            throw new Exception($prefix . " bevat geen ronden", E_ERROR);
         }
-        if ($roundNumber->getValidSportScoreConfigs()->count() === 0) {
-            throw new \Exception($prefix . " bevat geen geldige sportscoreconfig", E_ERROR);
+
+        foreach ($competition->getSportConfigs() as $sportConfig) {
+            if ($roundNumber->isFirst()) {
+                if ($roundNumber->getSportScoreConfig($sportConfig->getSport()) === null) {
+                    throw new Exception($prefix . " bevat geen geldige sportscoreconfig", E_ERROR);
+                }
+            }
         }
+
         foreach ($roundNumber->getCompetitors() as $competitor) {
             if ($competitor->getAssociation() !== $association) {
-                throw new \Exception("deelnemerid " . $competitor->getId() . " heeft een andere bond", E_ERROR);
+                throw new Exception(
+                    "deelnemer " . $this->getIdOutput($competitor->getId()) . " heeft een andere bond",
+                    E_ERROR
+                );
             }
         }
         if ($roundNumber->hasNext()) {
-            $this->checkRoundNumberValidity($roundNumber->getNext(), $association);
+            $this->checkRoundNumberValidity($roundNumber->getNext(), $competition, $association);
         }
+    }
+
+    protected function getIdOutput($id = null): string
+    {
+        return $id !== null ? " (" . $id . ")" : '';
     }
 
     /**
@@ -89,19 +94,67 @@ class Validator
     public function checkRoundValidity(Round $round)
     {
         if ($round->getPoules()->count() === 0) {
-            throw new \Exception("ronde-id " . $round->getId() . " bevat geen poules", E_ERROR);
+            throw new Exception("ronde " . $this->getIdOutput($round->getId()) . " bevat geen poules", E_ERROR);
         }
 
+        $this->checkPoulesNumberGap($round->getPoules());
         foreach ($round->getPoules() as $poule) {
             $this->checkPouleValidity($poule);
         }
+        $this->checkRoundNrOfPlaces($round);
 
         if (!$round->getNumber()->hasNext() && $round->getQualifyGroups()->count() > 0) {
-            throw new \Exception("ronde-id " . $round->getId() . " heeft geen volgende ronde, maar wel kwalificatiegroepen", E_ERROR);
+            throw new Exception(
+                "ronde " . $this->getIdOutput(
+                    $round->getId()
+                ) . " heeft geen volgende ronde, maar wel kwalificatiegroepen", E_ERROR
+            );
         }
 
+        $this->checkQualifyGroupsNumberGap($round->getQualifyGroups(QualifyGroup::WINNERS));
+        $this->checkQualifyGroupsNumberGap($round->getQualifyGroups(QualifyGroup::LOSERS));
         foreach ($round->getQualifyGroups() as $qualifyGroup) {
             $this->checkRoundValidity($qualifyGroup->getChildRound());
+        }
+    }
+
+    public function checkPoulesNumberGap(Collection $poules)
+    {
+        $startNumber = 1;
+        foreach ($poules as $poule) {
+            if ($poule->getNumber() !== $startNumber++) {
+                throw new Exception("het nummer van de poule is onjuist", E_ERROR);
+            }
+        }
+    }
+
+    public function checkQualifyGroupsNumberGap(Collection $qualifyGroups)
+    {
+        $startNumber = 1;
+        foreach ($qualifyGroups as $qualifyGroup) {
+            if ($qualifyGroup->getNumber() !== $startNumber++) {
+                throw new Exception("het nummer van de kwalificatiegroep is onjuist", E_ERROR);
+            }
+        }
+    }
+
+    protected function checkRoundNrOfPlaces(Round $round)
+    {
+        $minNrOfPlaces = null;
+        $maxNrOfPlaces = null;
+        foreach ($round->getPoules() as $poule) {
+            if ($minNrOfPlaces === null || $poule->getPlaces()->count() < $minNrOfPlaces) {
+                $minNrOfPlaces = $poule->getPlaces()->count();
+            }
+            if ($maxNrOfPlaces === null || $poule->getPlaces()->count() > $maxNrOfPlaces) {
+                $maxNrOfPlaces = $poule->getPlaces()->count();
+            }
+        }
+        if ($maxNrOfPlaces - $minNrOfPlaces > 1) {
+            throw new Exception(
+                "bij ronde " . $this->getIdOutput($round->getId()) . " zijn er poules met meer dan 1 plaats verschil",
+                E_ERROR
+            );
         }
     }
 
@@ -111,32 +164,23 @@ class Validator
      */
     public function checkPouleValidity(Poule $poule)
     {
-        $prefix = "poule-id " . $poule->getId() . "(".$this->nameService->getPouleName($poule, false).", rondenummer: ".$poule->getRound()->getNumberAsValue()." )";
+        $this->checkPlacesNumberGap($poule->getPlaces());
         if ($poule->getPlaces()->count() === 0) {
-            throw new \Exception($prefix . " bevat geen plekken", E_ERROR);
-        }
-
-        if ($poule->getGames()->count() === 0) {
-            throw new \Exception($prefix . " bevat geen wedstrijden", E_ERROR);
+            $prefix = "poule " . $this->getIdOutput($poule->getId()) . "(" . $this->nameService->getPouleName(
+                    $poule,
+                    false
+                ) . ", rondenummer: " . $poule->getRound()->getNumberAsValue() . " )";
+            throw new Exception($prefix . " bevat geen plekken", E_ERROR);
         }
     }
 
-
-    /*public function remove(Structure $structure, int $roundNumberValue = null )
+    public function checkPlacesNumberGap(Collection $places)
     {
-        $conn = $this->em->getConnection();
-        $conn->beginTransaction();
-        try {
-            $roundNumber = $structure->getRoundNumber( $roundNumberValue ? $roundNumberValue : 1);
-            if( $roundNumber === null ) {
-                throw new \Exception("rondenummer " . $roundNumberValue . " kon niet gevonden worden", E_ERROR);
+        $startNumber = 1;
+        foreach ($places as $place) {
+            if ($place->getNumber() !== $startNumber++) {
+                throw new Exception("het nummer van de plek in de poule is onjuist", E_ERROR);
             }
-            $this->em->remove($roundNumber);
-            $this->em->flush();
-            $conn->commit();
-        } catch (\Exception $e) {
-            $conn->rollBack();
-            throw $e;
         }
-    }*/
+    }
 }

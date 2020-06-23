@@ -33,9 +33,21 @@ class PlanningCreator
         if ($roundNumber->hasPrevious() && $this->allRoundNumbersHavePlanning($roundNumber->getPrevious()) === false) {
             return;
         }
-        $this->removeRoundNumber($roundNumber);
-        $this->createInputRecursive($roundNumber);
-        $this->createRecursive($roundNumber, $blockedPeriod);
+        $em = $this->inputRepos->getEM();
+        $conn = $em->getConnection();
+        $conn->beginTransaction();
+        try {
+            $this->removeRoundNumber($roundNumber);
+            $this->createInputRecursive($roundNumber);
+            $this->createRecursive($roundNumber, $blockedPeriod);
+
+            $em->flush();
+            $conn->commit();
+            return $roundNumber;
+        } catch (\Exception $e) {
+            $conn->rollBack();
+            throw $e;
+        }
     }
 
     protected function allRoundNumbersHavePlanning(RoundNumber $roundNumber): bool
