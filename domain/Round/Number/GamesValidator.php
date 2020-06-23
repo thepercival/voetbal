@@ -14,9 +14,7 @@ use Voetbal\Game;
 use Voetbal\Game\Place as GamePlace;
 use Voetbal\Place;
 use Voetbal\Poule;
-use Voetbal\Field;
-use Voetbal\Priority\Prioritizable;
-use Voetbal\Referee;
+use Voetbal\Structure;
 use Voetbal\Round\Number as RoundNumber;
 
 class GamesValidator
@@ -33,6 +31,15 @@ class GamesValidator
 
     public function __construct()
     {
+    }
+
+    public function validateStructure(Structure $structure, int $nrOfReferees)
+    {
+        $roundNumber = $structure->getFirstRoundNumber();
+        while ($roundNumber !== null) {
+            $this->validate($roundNumber, $nrOfReferees);
+            $roundNumber = $roundNumber->getNext();
+        }
     }
 
     public function validate(RoundNumber $roundNumber, int $nrOfReferees)

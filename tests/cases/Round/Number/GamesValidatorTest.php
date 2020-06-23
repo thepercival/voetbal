@@ -217,10 +217,8 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
 
         $this->createGames($structure);
 
-        $firstRoundNumber = $structure->getFirstRoundNumber();
-
         $gamesValidator = new GamesValidator();
         $nrOfReferees = $competition->getReferees()->count();
-        self::assertNull($gamesValidator->validate($firstRoundNumber, $nrOfReferees));
+        self::assertNull($gamesValidator->validateStructure($structure, $nrOfReferees));
     }
 }
