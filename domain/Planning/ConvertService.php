@@ -60,9 +60,6 @@ class ConvertService
         $this->createBatchGames($firstBatch, $planningConfig, $gameStartDateTime);
     }
 
-    // zorg dat vanaf ronde 2 de wedstrijden op volgorde van qualifypoule worden ingedeeld
-    // dit kan natuurlijk alleen met poules van dezelfde poulegrootte!!!
-
     protected function createBatchGames(Batch $batch, Config $planningConfig, \DateTimeImmutable $gameStartDateTime)
     {
         /** @var PlanningGame $planningGame */

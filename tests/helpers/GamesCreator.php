@@ -26,17 +26,18 @@ trait GamesCreator {
     {
         // make trait to do job below!!
         $planningInputService = new PlanningInputService();
-        $planningInput = $planningInputService->get( $roundNumber );
+        $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
+        $planningInput = $planningInputService->get($roundNumber, $nrOfReferees);
         $planningService = new PlanningService();
         $minIsMaxPlanning = $planningService->createNextMinIsMaxPlanning($planningInput);
-        $state = $planningService->createGames( $minIsMaxPlanning );
-        if( $state !== Planning::STATE_SUCCESS ) {
+        $state = $planningService->createGames($minIsMaxPlanning);
+        if ($state !== Planning::STATE_SUCCESS) {
             //throw assertuib
         }
-        $convertService = new Planning\ConvertService( new Planning\ScheduleService());
-        $convertService->createGames($roundNumber, $minIsMaxPlanning );
+        $convertService = new Planning\ConvertService(new Planning\ScheduleService());
+        $convertService->createGames($roundNumber, $minIsMaxPlanning);
 
-        if( $roundNumber->hasNext() ) {
+        if ($roundNumber->hasNext()) {
             $this->createGamesHelper( $roundNumber->getNext() );
         }
     }

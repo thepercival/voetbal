@@ -72,7 +72,8 @@ class PlanningCreator
     protected function createInputRecursive(RoundNumber $roundNumber)
     {
         $inputService = new PlanningInputService();
-        $defaultPlanningInput = $inputService->get($roundNumber);
+        $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
+        $defaultPlanningInput = $inputService->get($roundNumber, $nrOfReferees);
         $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
         if ($planningInput === null) {
             $planningInput = $this->inputRepos->save($defaultPlanningInput);
@@ -85,7 +86,8 @@ class PlanningCreator
     protected function createRecursive(RoundNumber $roundNumber, Period $blockedPeriod = null)
     {
         $inputService = new PlanningInputService();
-        $defaultPlanningInput = $inputService->get($roundNumber);
+        $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
+        $defaultPlanningInput = $inputService->get($roundNumber, $nrOfReferees);
         $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
         $planningService = new PlanningService();
 //        $logger = new Logger('planning-create');

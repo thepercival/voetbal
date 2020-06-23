@@ -13,7 +13,7 @@ use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Planning\Sport\NrFields as SportNrFields;
 use Voetbal\Sport\Service as SportService;
-use Voetbal\Poule;
+use Voetbal\Structure\Validator as StructureValidator;
 use Voetbal\Math as VoetbalMath;
 
 class Service
@@ -22,13 +22,12 @@ class Service
     {
     }
 
-    public function get(RoundNumber $roundNumber): PlanningInput
+    public function get(RoundNumber $roundNumber, int $nrOfReferees): PlanningInput
     {
         $config = $roundNumber->getValidPlanningConfig();
         $planningConfigService = new PlanningConfigService();
         $teamup = $config->getTeamup() ? $planningConfigService->isTeamupAvailable($roundNumber) : $config->getTeamup();
 
-        $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
         $selfReferee = $config->getSelfReferee() ? $planningConfigService->canSelfRefereeBeAvailable(
             $teamup,
             $roundNumber->getNrOfPlaces()

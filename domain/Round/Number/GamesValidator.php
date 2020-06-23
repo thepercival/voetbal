@@ -7,46 +7,54 @@
  * Time: 9:44
  */
 
-namespace Voetbal\Planning;
+namespace Voetbal\Round\Number;
 
 use Exception;
-use Voetbal\Game as GameBase;
-use Voetbal\Planning\Game\Place as GamePlace;
-use Voetbal\Planning as PlanningBase;
-use Voetbal\Planning\Field as PlanningField;
-use Voetbal\Planning\Referee as PlanningReferee;
+use Voetbal\Game;
+use Voetbal\Game\Place as GamePlace;
+use Voetbal\Place;
+use Voetbal\Poule;
+use Voetbal\Field;
+use Voetbal\Priority\Prioritizable;
+use Voetbal\Referee;
+use Voetbal\Round\Number as RoundNumber;
 
-class Validator
+class GamesValidator
 {
     /**
-     * @var PlanningBase
+     * @var RoundNumber
      */
-    protected $planning;
+    protected $roundNumber;
+
+    /**
+     * @var array | Game[]
+     */
+    protected $games;
 
     public function __construct()
     {
     }
 
-    public function validate(PlanningBase $planning)
+    public function validate(RoundNumber $roundNumber, int $nrOfReferees)
     {
-        $this->planning = $planning;
+        $this->roundNumber = $roundNumber;
+        $this->games = $this->roundNumber->getGames(Game::ORDER_BY_BATCH);
         $this->validateEnoughTotalNrOfGames();
         $this->validateAllPlacesSameNrOfGames();
-        $this->validateGamesInARow();
         $this->validateResourcesPerBatch();
-        $this->validateNrOfGamesPerRefereeAndField();
+        $this->validateNrOfGamesPerRefereeAndField($nrOfReferees);
     }
 
     protected function validateEnoughTotalNrOfGames()
     {
-        if (count($this->planning->getGames()) === 0) {
+        if (count($this->games) === 0) {
             throw new Exception("the planning has not enough games", E_ERROR);
         }
     }
 
     protected function validateAllPlacesSameNrOfGames()
     {
-        foreach ($this->planning->getPoules() as $poule) {
+        foreach ($this->roundNumber->getPoules() as $poule) {
             if ($this->allPlacesInPouleSameNrOfGames($poule) === false) {
                 throw new Exception("not all places within poule have same number of games", E_ERROR);
             }
@@ -61,10 +69,10 @@ class Validator
             $places = $this->getPlaces($game);
             /** @var Place $place */
             foreach ($places as $place) {
-                if (array_key_exists($place->getLocation(), $nrOfGames) === false) {
-                    $nrOfGames[$place->getLocation()] = 0;
+                if (array_key_exists($place->getLocationId(), $nrOfGames) === false) {
+                    $nrOfGames[$place->getLocationId()] = 0;
                 }
-                $nrOfGames[$place->getLocation()]++;
+                $nrOfGames[$place->getLocationId()]++;
             }
         }
         $value = reset($nrOfGames);
@@ -74,59 +82,6 @@ class Validator
             }
         }
         return true;
-    }
-
-    protected function validateGamesInARow()
-    {
-        /** @var Poule $poule */
-        foreach ($this->planning->getPoules() as $poule) {
-            foreach ($poule->getPlaces() as $place) {
-                if ($this->checkGamesInARowForPlace($place) === false) {
-                    throw new Exception("more than allowed nrofmaxgamesinarow", E_ERROR);
-                }
-            }
-        }
-    }
-
-    protected function checkGamesInARowForPlace(Place $place): bool
-    {
-        /**
-         * @param Place $place
-         * @return array
-         */
-        $getBatchParticipations = function (Place $place): array {
-            $games = $this->planning->getGames(GameBase::ORDER_BY_BATCH);
-            $batches = [];
-            /** @var Game $game */
-            foreach ($games as $game) {
-                if (array_key_exists($game->getBatchNr(), $batches) === false) {
-                    $batches[$game->getBatchNr()] = false;
-                }
-                if ($batches[$game->getBatchNr()] === true) {
-                    continue;
-                }
-                $batches[$game->getBatchNr()] = $game->isParticipating($place);
-            }
-            return $batches;
-        };
-
-        $getMaxInARow = function (array $batchParticipations): int {
-            $maxNrOfGamesInRow = 0;
-            $currentMaxNrOfGamesInRow = 0;
-            foreach ($batchParticipations as $batchParticipation) {
-                if ($batchParticipation) {
-                    $currentMaxNrOfGamesInRow++;
-                    if ($currentMaxNrOfGamesInRow > $maxNrOfGamesInRow) {
-                        $maxNrOfGamesInRow = $currentMaxNrOfGamesInRow;
-                    }
-                } else {
-                    $currentMaxNrOfGamesInRow = 0;
-                }
-            }
-            return $maxNrOfGamesInRow;
-        };
-
-        return $getMaxInARow($getBatchParticipations($place)) <= $this->planning->getMaxNrOfGamesInARow();
     }
 
     /**
@@ -151,19 +106,15 @@ class Validator
 
     protected function validateResourcesPerBatchHelper(): bool
     {
-        $games = $this->planning->getGames(GameBase::ORDER_BY_BATCH);
         $batchesResources = [];
-        foreach ($games as $game) {
+        foreach ($this->games as $game) {
             if (array_key_exists($game->getBatchNr(), $batchesResources) === false) {
                 $batchesResources[$game->getBatchNr()] = array("fields" => [], "referees" => [], "places" => []);
             }
             $batchResources = &$batchesResources[$game->getBatchNr()];
             /** @var array|Place[] $places */
             $places = $this->getPlaces($game);
-            if ($this->planning->getInput()->getSelfReferee()) {
-                if ($game->getRefereePlace() === null) {
-                    return false;
-                }
+            if ($game->getRefereePlace() !== null) {
                 $places[] = $game->getRefereePlace();
             }
             foreach ($places as $placeIt) {
@@ -175,14 +126,12 @@ class Validator
 
             /** @var bool|int|string $search */
             $search = array_search($game->getField(), $batchResources["fields"], true);
-            if ( $search !== false ) {
+            if ($search !== false) {
                 return false;
             }
             $batchResources["fields"][] = $game->getField();
-            if ($this->planning->getInput()->getNrOfReferees() > 0) {
-                if ($game->getReferee() === null) {
-                    return false;
-                }
+
+            if ($game->getReferee() !== null) {
                 /** @var bool|int|string $search */
                 $search = array_search($game->getReferee(), $batchResources["referees"], true);
                 if ($search !== false) {
@@ -194,32 +143,42 @@ class Validator
         return true;
     }
 
-    protected function validateNrOfGamesPerRefereeAndField()
+    protected function validateNrOfGamesPerRefereeAndField(int $nrOfReferees)
     {
-        $games = $this->planning->getGames(GameBase::ORDER_BY_BATCH);
-
         $fields = [];
-        /** @var PlanningField $field */
-        foreach ($this->planning->getFields() as $field) {
-            $fields[$field->getNumber()] = 0;
-        }
         $referees = [];
-        /** @var PlanningReferee $referee */
-        foreach ($this->planning->getReferees() as $referee) {
-            $referees[$referee->getNumber()] = 0;
-        }
 
-        foreach ($games as $game) {
-            $fields[$game->getField()->getNumber()]++;
-            if ($this->planning->getInput()->getNrOfReferees() > 0) {
-                $referees[$game->getReferee()->getNumber()]++;
+        foreach ($this->games as $game) {
+            $field = $game->getField();
+            if (array_key_exists($field->getPriority(), $fields) === false) {
+                $fields[$field->getPriority()] = 0;
             }
+            $fields[$game->getField()->getPriority()]++;
+
+            $referee = $game->getReferee();
+            if ($referee === null) {
+                continue;
+            }
+            if (array_key_exists($referee->getPriority(), $referees) === false) {
+                $referees[$referee->getPriority()] = 0;
+            }
+            $referees[$game->getReferee()->getPriority()]++;
         }
 
         $this->validateNrOfGamesRange($fields);
         $this->validateNrOfGamesRange($referees);
+        if ($nrOfReferees > 0 and count($referees) === 0) {
+            throw new Exception("no referees have been assigned", E_ERROR);
+        }
+        if ($nrOfReferees > count($referees)) {
+            throw new Exception("not all referees have been assigned", E_ERROR);
+        }
     }
 
+    /**
+     * @param array $items
+     * @throws Exception
+     */
     protected function validateNrOfGamesRange(array $items)
     {
         $minNrOfGames = null;

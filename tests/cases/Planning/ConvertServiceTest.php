@@ -2,6 +2,9 @@
 
 namespace Voetbal\Tests\Planning;
 
+use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Qualify\Group as QualifyGroup;
+use Voetbal\Round\Number\GamesValidator;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
@@ -13,24 +16,80 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
 {
     use CompetitionCreator, DefaultStructureOptions, PlanningCreator;
 
-    public function testNrOfGames()
+    public function testValid()
     {
         $competition = $this->createCompetition();
 
         $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 4);
+        $structure = $structureService->create($competition, 4, 2);
 
-        $roundNumber = $structure->getFirstRoundNumber();
+        $firstRoundNumber = $structure->getFirstRoundNumber();
 
         $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
+        $planning = $this->createPlanning($firstRoundNumber, $options);
 
         $planningConvertService = new PlanningConvertService(new ScheduleService());
 
-        $planningConvertService->createGames($roundNumber, $planning);
+        $planningConvertService->createGames($firstRoundNumber, $planning);
 
-        $nrOfRoundNumberGames = count($roundNumber->getGames());
-        $nrOfPlanningGames = count($planning->getGames());
-        self::assertSame($nrOfRoundNumberGames, $nrOfPlanningGames);
+        $gamesValidator = new GamesValidator();
+        $nrOfReferees = $competition->getReferees()->count();
+        self::assertNull($gamesValidator->validate($firstRoundNumber, $nrOfReferees));
+    }
+
+    public function testWithRefereePlaces()
+    {
+        $competition = $this->createCompetition();
+        $competition->getReferees()->clear();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 4);
+
+        $firstRoundNumber = $structure->getFirstRoundNumber();
+
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(true);
+        $options = [];
+        $planning = $this->createPlanning($firstRoundNumber, $options);
+        $refereePlaceService = new RefereePlaceService($planning);
+        $refereePlaceService->assign($planning->getFirstBatch());
+
+        $planningConvertService = new PlanningConvertService(new ScheduleService());
+
+        $planningConvertService->createGames($firstRoundNumber, $planning);
+
+        $gamesValidator = new GamesValidator();
+        $nrOfReferees = $competition->getReferees()->count();
+        self::assertNull($gamesValidator->validate($firstRoundNumber, $nrOfReferees));
+    }
+
+    public function testDifferentPouleSizes()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 11,);
+
+        $rootRound = $structure->getRootRound();
+        $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 7);
+
+        $firstRoundNumber = $structure->getFirstRoundNumber();
+        $secondRoundNumber = $firstRoundNumber->getNext();
+
+        $options = [];
+        $firstRoundPlanning = $this->createPlanning($firstRoundNumber, $options);
+        $refereePlaceService = new RefereePlaceService($firstRoundPlanning);
+        $refereePlaceService->assign($firstRoundPlanning->getFirstBatch());
+
+        $secondRoundPlanning = $this->createPlanning($secondRoundNumber, $options);
+        $refereePlaceService = new RefereePlaceService($secondRoundPlanning);
+        $refereePlaceService->assign($secondRoundPlanning->getFirstBatch());
+
+        $planningConvertService = new PlanningConvertService(new ScheduleService());
+        $planningConvertService->createGames($firstRoundNumber, $firstRoundPlanning);
+        $planningConvertService->createGames($secondRoundNumber, $secondRoundPlanning);
+
+        $gamesValidator = new GamesValidator();
+        $nrOfReferees = $competition->getReferees()->count();
+        self::assertNull($gamesValidator->validate($secondRoundNumber, $nrOfReferees));
     }
 }

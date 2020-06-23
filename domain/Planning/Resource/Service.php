@@ -10,7 +10,9 @@ namespace Voetbal\Planning\Resource;
 
 use DateTimeImmutable;
 use Monolog\Handler\StreamHandler;
+use Monolog\Processor\UidProcessor;
 use Psr\Log\LoggerInterface;
+
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Game;
 use Voetbal\Planning\Game\Place as GamePlace;
@@ -26,6 +28,7 @@ use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Planning\Batch;
 use Voetbal\Output\Planning\Batch as BatchOutput;
+use Voetbal\Output\Planning as PlanningOutput;
 use Voetbal\Game as GameBase;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
@@ -67,6 +70,16 @@ class Service
     {
         $this->planning = $planning;
         $this->nrOfPoules = $this->planning->getPoules()->count();
+
+//        $logger = new Logger('eded');
+//        $processor = new UidProcessor();
+//        $logger->pushProcessor($processor);
+//        $path = 'php://stdout';
+//        $handler = new StreamHandler($path);
+//        $logger->pushHandler($handler);
+//        $this->batchOutput = new BatchOutput($logger);
+//        $outputPlanning = new PlanningOutput();
+//        $outputPlanning->output($planning, true );
     }
 
     protected function getInput(): Input

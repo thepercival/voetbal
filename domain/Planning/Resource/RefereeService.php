@@ -14,10 +14,7 @@ use Voetbal\Planning\Batch;
 
 class RefereeService
 {
-    /**
-     * @var PlanningBase
-     */
-    private $planning;
+    private PlanningBase $planning;
 
     public function __construct(PlanningBase $planning)
     {
@@ -37,7 +34,7 @@ class RefereeService
     public function assign(Batch $batch)
     {
         if ($this->refereesEnabled() === false) {
-            return false;
+            return;
         }
         $this->assignBatch($batch->getLeaf(), $this->planning->getReferees()->toArray());
     }
