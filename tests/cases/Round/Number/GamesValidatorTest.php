@@ -4,6 +4,8 @@ namespace Voetbal\Tests\Round\Number;
 
 use \Exception;
 use Voetbal\Game;
+use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Poule;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\GamesCreator;
@@ -25,6 +27,27 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
         // $this->createGames( $structure );
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
+
+        $gamesValidator = new GamesValidator();
+        self::expectException(Exception::class);
+        $nrOfReferees = $competition->getReferees()->count();
+        $gamesValidator->validate($firstRoundNumber, $nrOfReferees);
+    }
+
+    public function testGameWithoutField()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 5);
+
+        $this->createGames($structure);
+
+        $firstRoundNumber = $structure->getFirstRoundNumber();
+
+        $firstPoule = $firstRoundNumber->getRounds()->first()->getPoule(1);
+        $firstGame = $firstPoule->getGames()->first();
+        $firstGame->setField(null);
 
         $gamesValidator = new GamesValidator();
         self::expectException(Exception::class);
@@ -120,38 +143,6 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
         $gamesValidator->validate($firstRoundNumber, $nrOfReferees);
     }
 
-    public function testNrOfGamesPerRefereeAndField()
-    {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 5);
-
-        $this->createGames($structure);
-
-        $firstRoundNumber = $structure->getFirstRoundNumber();
-
-        $firstPoule = $firstRoundNumber->getRounds()->first()->getPoule(1);
-
-//        $outputGame = new \Voetbal\Output\Game();
-//        $games = $firstRoundNumber->getGames(Game::ORDER_BY_BATCH);
-//        foreach( $games as $gameIt ) {
-//            $outputGame->output( $gameIt );
-//        }
-
-        /** @var Game $game */
-        foreach ($firstPoule->getGames() as $game) {
-            if ($game->getReferee()->getPriority() === 1) {
-                $game->setReferee(null);
-            }
-        }
-
-        $gamesValidator = new GamesValidator();
-        self::expectException(Exception::class);
-        $nrOfReferees = $competition->getReferees()->count();
-        $gamesValidator->validate($firstRoundNumber, $nrOfReferees);
-    }
-
     public function testNrOfGamesPerRefereeAndFieldNoRefereesAssigned()
     {
         $competition = $this->createCompetition();
@@ -201,6 +192,37 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
                 $game->setReferee(null);
             }
         }
+
+        $gamesValidator = new GamesValidator();
+        self::expectException(Exception::class);
+        $nrOfReferees = $competition->getReferees()->count();
+        $gamesValidator->validate($firstRoundNumber, $nrOfReferees);
+    }
+
+    public function testNrOfGamesRangeRefereePlace()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 5);
+
+        $firstRoundNumber = $structure->getFirstRoundNumber();
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(true);
+
+        $this->createGames($structure);
+
+//        $outputGame = new \Voetbal\Output\Game();
+//        $games = $firstRoundNumber->getGames(Game::ORDER_BY_BATCH);
+//        foreach( $games as $gameIt ) {
+//            $outputGame->output( $gameIt );
+//        }
+
+        /** @var Poule $firstPoule */
+        $firstPoule = $firstRoundNumber->getRounds()->first()->getPoule(1);
+
+        /** @var Game $game */
+        $game = $firstPoule->getGames()->first();
+        $game->setRefereePlace($firstPoule->getPlace(3));
 
         $gamesValidator = new GamesValidator();
         self::expectException(Exception::class);

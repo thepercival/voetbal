@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Voetbal\Structure;
 
+use \Exception;
 use Voetbal\Competition;
 use Voetbal\Structure;
 use Voetbal\Round\Number as RoundNumber;
@@ -97,7 +98,7 @@ class Copier
     ): Round {
         $round = new Round($roundNumber, $parentQualifyGroup);
         foreach ($poules as $poule) {
-            $this->copyPoule($round, $poule->getNumber(), $poule->getPlaces()->toArray());
+            $this->copyPoule($round, $poule->getNumber(), $poule->getPlaces()->toArray(), $parentQualifyGroup === null);
         }
         return $round;
     }
@@ -106,13 +107,15 @@ class Copier
      * @param Round $round
      * @param int $number
      * @param array|Place[] $places
+     * @param bool $withCompetitors
+     * @throws Exception
      */
-    protected function copyPoule(Round $round, int $number, array $places)
+    protected function copyPoule(Round $round, int $number, array $places, bool $withCompetitors)
     {
         $poule = new Poule($round, $number);
         foreach ($places as $place) {
             $newPlace = new Place($poule, $place->getNumber());
-            if ($place->getCompetitor() === null) {
+            if ($place->getCompetitor() === null || !$withCompetitors) {
                 continue;
             }
             $competitor = $this->getCompetitor($place->getCompetitor());
@@ -128,7 +131,7 @@ class Copier
             }
         );
         if ($foundSports->count() !== 1) {
-            throw new \Exception("Er kon geen overeenkomende sport worden gevonden", E_ERROR);
+            throw new Exception("Er kon geen overeenkomende sport worden gevonden", E_ERROR);
         }
         return $foundSports->first();
     }
@@ -142,7 +145,7 @@ class Copier
             }
         );
         if (count($foundCompetitors) !== 1) {
-            throw new \Exception("Er kon geen overeenkomende deelnemer worden gevonden", E_ERROR);
+            throw new Exception("Er kon geen overeenkomende deelnemer worden gevonden", E_ERROR);
         }
         return reset($foundCompetitors);
     }

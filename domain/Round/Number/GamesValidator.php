@@ -45,8 +45,9 @@ class GamesValidator
     public function validate(RoundNumber $roundNumber, int $nrOfReferees)
     {
         $this->roundNumber = $roundNumber;
-        $this->games = $this->roundNumber->getGames(Game::ORDER_BY_BATCH);
+        $this->games = $this->roundNumber->getGames(); // no order
         $this->validateEnoughTotalNrOfGames();
+        $this->validateFields();
         $this->validateAllPlacesSameNrOfGames();
         $this->validateResourcesPerBatch();
         $this->validateNrOfGamesPerRefereeAndField($nrOfReferees);
@@ -56,6 +57,16 @@ class GamesValidator
     {
         if (count($this->games) === 0) {
             throw new Exception("the planning has not enough games", E_ERROR);
+        }
+    }
+
+
+    protected function validateFields()
+    {
+        foreach ($this->games as $game) {
+            if ($game->getField() === null) {
+                throw new Exception("there is at least one game without a field", E_ERROR);
+            }
         }
     }
 
@@ -154,6 +165,7 @@ class GamesValidator
     {
         $fields = [];
         $referees = [];
+        $refereePlaces = [];
 
         foreach ($this->games as $game) {
             $field = $game->getField();
@@ -162,8 +174,16 @@ class GamesValidator
             }
             $fields[$game->getField()->getPriority()]++;
 
+            $refereePlace = $game->getRefereePlace();
+            if ($refereePlace !== null) {
+                if (array_key_exists($refereePlace->getLocationId(), $refereePlaces) === false) {
+                    $refereePlaces[$refereePlace->getLocationId()] = 0;
+                }
+                $refereePlaces[$refereePlace->getLocationId()]++;
+            }
+
             $referee = $game->getReferee();
-            if ($referee === null) {
+            if ($refereePlace !== null || $referee === null) {
                 continue;
             }
             if (array_key_exists($referee->getPriority(), $referees) === false) {
@@ -172,21 +192,20 @@ class GamesValidator
             $referees[$game->getReferee()->getPriority()]++;
         }
 
-        $this->validateNrOfGamesRange($fields);
-        $this->validateNrOfGamesRange($referees);
-        if ($nrOfReferees > 0 and count($referees) === 0) {
+        $this->validateNrOfGamesRange($fields, "fields");
+        $this->validateNrOfGamesRange($refereePlaces, "refereePlaces");
+        $this->validateNrOfGamesRange($referees, "referees");
+        if (count($refereePlaces) === 0 && $nrOfReferees > 0 and count($referees) === 0) {
             throw new Exception("no referees have been assigned", E_ERROR);
-        }
-        if ($nrOfReferees > count($referees)) {
-            throw new Exception("not all referees have been assigned", E_ERROR);
         }
     }
 
     /**
      * @param array $items
+     * @param string $suffix
      * @throws Exception
      */
-    protected function validateNrOfGamesRange(array $items)
+    protected function validateNrOfGamesRange(array $items, string $suffix)
     {
         $minNrOfGames = null;
         $maxNrOfGames = null;
@@ -199,7 +218,7 @@ class GamesValidator
             }
         }
         if ($maxNrOfGames - $minNrOfGames > 1) {
-            throw new Exception("two much difference in number of games", E_ERROR);
+            throw new Exception("two much difference in number of games for " . $suffix, E_ERROR);
         }
     }
 }

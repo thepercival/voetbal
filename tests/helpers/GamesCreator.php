@@ -8,6 +8,7 @@
 
 namespace Voetbal\TestHelper;
 
+use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\Structure;
 use Voetbal\Planning;
 use Voetbal\Round\Number as RoundNumber;
@@ -18,7 +19,7 @@ trait GamesCreator {
 
     protected function createGames( Structure $structure )
     {
-        $this->removeGamesHelper( $structure->getFirstRoundNumber() );
+        $this->removeGamesHelper($structure->getFirstRoundNumber() );
         $this->createGamesHelper( $structure->getFirstRoundNumber() );
     }
 
@@ -34,18 +35,24 @@ trait GamesCreator {
         if ($state !== Planning::STATE_SUCCESS) {
             //throw assertuib
         }
+
+        if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
+            $refereePlaceService = new RefereePlaceService($minIsMaxPlanning);
+            $refereePlaceService->assign($minIsMaxPlanning->getFirstBatch());
+        }
+
         $convertService = new Planning\ConvertService(new Planning\ScheduleService());
         $convertService->createGames($roundNumber, $minIsMaxPlanning);
 
         if ($roundNumber->hasNext()) {
-            $this->createGamesHelper( $roundNumber->getNext() );
+            $this->createGamesHelper($roundNumber->getNext());
         }
     }
 
     private function removeGamesHelper( RoundNumber $roundNumber )
     {
-        foreach( $roundNumber->getRounds() as $round ) {
-            foreach( $round->getPoules() as $poule ) {
+        foreach($roundNumber->getRounds() as $round ) {
+            foreach($round->getPoules() as $poule ) {
                 $poule->getGames()->clear();
             }
         }
