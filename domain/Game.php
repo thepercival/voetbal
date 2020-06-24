@@ -8,6 +8,7 @@
 
 namespace Voetbal;
 
+use DateTimeImmutable;
 use \Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
@@ -31,16 +32,16 @@ class Game implements Importable
      */
     protected $batchNr;
     /**
-     * @var \DateTimeImmutable
+     * @var DateTimeImmutable
      */
     private $startDateTime;
     /**
-     * @var ?Referee
+     * @var Referee
      */
     protected $referee;
     protected $refereePriority; // for serialization, not used
     /**
-     * @var ?Place
+     * @var Place
      */
     protected $refereePlace;
     protected $refereePlaceLocId; // for serialization, not used
@@ -183,17 +184,11 @@ class Game implements Importable
         $this->refereePriority = $refereePriority;
     }
 
-    /**
-     * @return ?Place
-     */
     public function getRefereePlace(): ?Place
     {
         return $this->refereePlace;
     }
 
-    /**
-     * @param Place $refereePlace
-     */
     public function setRefereePlace(Place $refereePlace = null)
     {
         $this->refereePlace = $refereePlace;

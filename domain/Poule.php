@@ -44,7 +44,7 @@ class Poule
     /**
      * @var int
      */
-    protected $structureNumber;
+    protected $structureNumber = 0;
 
     const MAX_LENGTH_NAME = 10;
 
