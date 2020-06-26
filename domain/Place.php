@@ -8,6 +8,7 @@
 
 namespace Voetbal;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Qualify\Rule as QualifyRule;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
@@ -262,5 +263,17 @@ class Place
             $this->locationId = $this->getPoule()->getStructureNumber() . '.' . $this->number;
         }
         return $this->locationId;
+    }
+
+    /**
+     * @return ArrayCollection|Game[]
+     */
+    public function getGames(): ArrayCollection
+    {
+        return $this->getPoule()->getGames()->filter(
+            function (Game $game): bool {
+                return $game->isParticipating($this);
+            }
+        );
     }
 }

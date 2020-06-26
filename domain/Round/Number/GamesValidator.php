@@ -218,7 +218,7 @@ class GamesValidator
             }
         }
         if ($maxNrOfGames - $minNrOfGames > 1) {
-            throw new Exception("two much difference in number of games for " . $suffix, E_ERROR);
+            throw new Exception("too much difference in number of games for " . $suffix, E_ERROR);
         }
     }
 }

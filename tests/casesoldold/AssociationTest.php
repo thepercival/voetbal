@@ -33,14 +33,14 @@ class AssociationTest extends \PHPUnit\Framework\TestCase
     public function testCreateNameCharactersTwo()
     {
         $association = new Association("KNVB");
-        $this->assertEquals("KNVB", $association->getName());
+        $this->assertSame("KNVB", $association->getName());
     }
 
     public function testCreateDescriptionMin()
     {
         $association = new Association("KNVB");
         $association->setDescription("");
-        $this->assertEquals(null, $association->getDescription());
+        $this->assertNull($association->getDescription());
     }
 
     public function testCreateDescriptionMax()
@@ -68,7 +68,7 @@ class AssociationTest extends \PHPUnit\Framework\TestCase
         $parent = new Association("parent");
         $child = new Association("child");
         $child->setParent($parent);
-        $this->assertEquals(1, $parent->getChildren()->count());
+        $this->assertCount(1, $parent->getChildren());
     }
 
     /*public function testParentChildReplaceParent()

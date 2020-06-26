@@ -15,6 +15,7 @@ use Voetbal\Planning\Game\Place as GamePlace;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Field as PlanningField;
 use Voetbal\Planning\Referee as PlanningReferee;
+use Voetbal\Planning\Place as PlanningPlace;
 
 class Validator
 {
@@ -208,19 +209,27 @@ class Validator
         foreach ($this->planning->getReferees() as $referee) {
             $referees[$referee->getNumber()] = 0;
         }
+        $refereePlaces = [];
+        /** @var PlanningPlace $place */
+        foreach ($this->planning->getPlaces() as $place) {
+            $refereePlaces[$place->getLocation()] = 0;
+        }
 
         foreach ($games as $game) {
             $fields[$game->getField()->getNumber()]++;
-            if ($this->planning->getInput()->getNrOfReferees() > 0) {
+            if ($this->planning->getInput()->getSelfReferee()) {
+                $refereePlaces[$game->getRefereePlace()->getLocation()]++;
+            } else {
                 $referees[$game->getReferee()->getNumber()]++;
             }
         }
 
-        $this->validateNrOfGamesRange($fields);
-        $this->validateNrOfGamesRange($referees);
+        $this->validateNrOfGamesRange($fields, "fields");
+        $this->validateNrOfGamesRange($refereePlaces, "refereePlaces");
+        $this->validateNrOfGamesRange($referees, "referees");
     }
 
-    protected function validateNrOfGamesRange(array $items)
+    protected function validateNrOfGamesRange(array $items, string $suffix)
     {
         $minNrOfGames = null;
         $maxNrOfGames = null;
@@ -233,7 +242,7 @@ class Validator
             }
         }
         if ($maxNrOfGames - $minNrOfGames > 1) {
-            throw new Exception("two much difference in number of games", E_ERROR);
+            throw new Exception("two much difference in number of games for " . $suffix, E_ERROR);
         }
     }
 }

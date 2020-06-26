@@ -67,7 +67,10 @@ class Service
                         continue;
                     }
                     $singleRule = $place->getToQualifyRule($horizontalPoule->getWinnersOrLosers());
-                    $changedPlaces[] = $this->setQualifierForSingleRuleAndReserve($singleRule);
+                    $changedPlace = $this->setQualifierForSingleRuleAndReserve($singleRule);;
+                    if ($changedPlace !== null) {
+                        $changedPlaces[] = $changedPlace;
+                    }
                 }
             }
         };
@@ -80,15 +83,20 @@ class Service
         return $changedPlaces;
     }
 
-    protected function setQualifierForSingleRuleAndReserve(QualifyRuleSingle $ruleSingle): Place
+    protected function setQualifierForSingleRuleAndReserve(QualifyRuleSingle $ruleSingle): ?Place
     {
         $fromPlace = $ruleSingle->getFromPlace();
         $poule = $fromPlace->getPoule();
         $rank = $fromPlace->getNumber();
-        $competitor = $this->getQualifiedCompetitor($poule, $rank);
-        $ruleSingle->getToPlace()->setCompetitor($competitor);
         $this->reservationService->reserve($ruleSingle->getToPlace()->getPoule()->getNumber(), $poule);
-        return $ruleSingle->getToPlace();
+
+        $competitor = $this->getQualifiedCompetitor($poule, $rank);
+        $toPlace = $ruleSingle->getToPlace();
+        if ($toPlace->getCompetitor() === $competitor) {
+            return null;
+        }
+        $toPlace->setCompetitor($competitor);
+        return $toPlace;
     }
 
     /**

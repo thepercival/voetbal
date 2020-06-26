@@ -27,6 +27,22 @@ class Checker
         }
     }
 
+    public function checkFieldName(Competition $competition, string $name, Field $fieldToCheck = null)
+    {
+        $nonUniqueFields = array_filter(
+            $competition->getFields(),
+            function (Field $fieldIt) use ($name, $fieldToCheck): bool {
+                return $fieldIt->getName() === $name && $fieldToCheck !== $fieldIt;
+            }
+        );
+        if (count($nonUniqueFields) > 0) {
+            throw new Exception(
+                "het veld met de naam " . $name . " bestaat al",
+                E_ERROR
+            );
+        }
+    }
+
     public function checkRefereeEmailaddress(
         Competition $competition,
         string $emailaddress = null,

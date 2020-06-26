@@ -74,10 +74,26 @@ class CheckerTest extends \PHPUnit\Framework\TestCase
 
         $referee1 = $competition->getReferee(1);
 
-        $checker->checkRefereeInitials( $competition, "111", $referee1);
-        $checker->checkRefereeInitials( $competition, "333");
+        $checker->checkRefereeInitials($competition, "111", $referee1);
+        $checker->checkRefereeInitials($competition, "333");
 
         self::expectException(\Exception::class);
-        $checker->checkRefereeInitials( $competition, "111");
+        $checker->checkRefereeInitials($competition, "111");
+    }
+
+    public function testFieldInitials()
+    {
+        $checker = new AvailabilityChecker();
+
+        /** @var Competition $competition */
+        $competition = $this->createCompetition();
+
+        $field1 = $competition->getField(1);
+
+        $checker->checkFieldName($competition, "1", $field1);
+        $checker->checkFieldName($competition, "3");
+
+        self::expectException(\Exception::class);
+        $checker->checkFieldName($competition, "1");
     }
 }

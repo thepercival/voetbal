@@ -32,9 +32,6 @@ class Field implements Prioritizable
      */
     private $sportConfig;
 
-    private $competitionDeprecated;
-    private $sportDeprecated;
-
     const MIN_LENGTH_NAME = 1;
     const MAX_LENGTH_NAME = 3;
 

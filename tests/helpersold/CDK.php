@@ -56,7 +56,7 @@ function checkPlanning(
     $planningService->create($firstRoundNumber);
 //    $games = $planningService->getGamesForRoundNumber($firstRoundNumber, Game::ORDER_RESOURCEBATCH);
 //    consoleGames($games); echo PHP_EOL;
-//    $this->assertEquals( count($games), $assertConfig->nrOfGames, 'het aantal wedstrijd voor de hele ronde komt niet overeen' );
+//    $this->assertSame( count($games), $assertConfig->nrOfGames, 'het aantal wedstrijd voor de hele ronde komt niet overeen' );
 //    $this->assertValidResourcesPerBatch($games);
 //    foreach( $firstRoundNumber->getPlaces() as $place ) {
 //        $this->assertValidGamesParticipations($place, $games, $assertConfig->nrOfPlaceGames);
