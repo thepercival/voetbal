@@ -22,8 +22,11 @@ class Batch extends VoetbalOutputBase
         parent::__construct( $logger );
     }
 
-    public function output(BatchBase $batch, string $title)
+    public function output(BatchBase $batch, string $title = null)
     {
+        if ($title === null) {
+            $title = '';
+        }
 //        if( $batch->getNumber() > 2 ) {
 //            return;
 //        }

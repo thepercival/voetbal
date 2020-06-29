@@ -44,6 +44,10 @@ class RefereePlaceService
      */
     private $canBeSamePoule;
     /**
+     * @var bool
+     */
+    private $poulesEquallySized;
+    /**
      * @var BatchOutput
      */
     protected $batchOutput;
@@ -76,9 +80,9 @@ class RefereePlaceService
             $this->timeoutDateTime = $oCurrentDateTime->modify("+" . static::TIMEOUTSECONDS . " seconds");
             $refereePlaces = $this->getRefereePlaces($batch);
             if ($this->assignBatch($batch, $batch->getGames(), $refereePlaces) === false) {
-                if( $this->batchOutput !== null ) {
-                    $this->batchOutput->outputString("  impossible assigning selfref, try again with autorefill");
-                }
+//                if( $this->batchOutput !== null ) {
+//                    $this->batchOutput->outputString("  impossible assigning selfref, try again with autorefill");
+//                }
                 if ($this->autoRefill === false) {
                     $this->autoRefill = true;
                     $this->assign($batch);
@@ -87,9 +91,9 @@ class RefereePlaceService
             };
             // $this->output->consoleBatch( $batch, "post assign selfref");
         } catch (TimeoutException $timeoutExc) {
-            if( $this->batchOutput !== null ) {
-                $this->batchOutput->outputString("  timeout assigning selfref, try again with autorefill");
-            }
+//            if( $this->batchOutput !== null ) {
+//                $this->batchOutput->outputString("  timeout assigning selfref, try again with autorefill");
+//            }
             $this->resetReferees($batch);
             if ($this->autoRefill === false) {
                 $this->autoRefill = true;
@@ -181,6 +185,9 @@ class RefereePlaceService
     {
         if (count($batchGames) === 0) { // batchsuccess
             if ($batch->hasNext() === false) { // endsuccess
+                if ($this->arePoulesEquallySized() && !$this->equallyAssigned($batch)) {
+                    return false;
+                }
                 return true;
             }
             if ((new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
@@ -190,11 +197,11 @@ class RefereePlaceService
                 );
             }
             $nextBatch = $batch->getNext();
-            if( $this->batchOutput !== null ) {
-                if( $nextBatch->getNumber() === 3 ) {
-                    $this->batchOutput->output( $batch, "cdk batch ".$batch->getNumber()." completed");
-                }
-            }
+//            if( $this->batchOutput !== null ) {
+//                if( $nextBatch->getNumber() === 3 ) {
+//                    $this->batchOutput->output( $batch, "cdk batch ".$batch->getNumber()." completed");
+//                }
+//            }
 
             return $this->assignBatch($nextBatch, $nextBatch->getGames(), $refereePlaces);
         }
@@ -219,6 +226,50 @@ class RefereePlaceService
         return false;
     }
 
+    protected function equallyAssigned(Batch $lastBatch): bool
+    {
+        $refereePlaces = [];
+        /** @var Place $place */
+        foreach ($this->planning->getPlaces() as $place) {
+            $refereePlaces[$place->getLocation()] = 0;
+        }
+
+        $countAssignments = function (Batch $batch) use ($refereePlaces, &$countAssignments): void {
+            foreach ($batch->getPlacesAsReferees() as $location => $place) {
+                $refereePlaces[$location]++;
+            }
+            if ($batch->hasPrevious()) {
+                $countAssignments($batch->getPrevious());
+            }
+        };
+
+        $countAssignments($lastBatch);
+        return $this->validateEvenlyAssigned($refereePlaces);
+    }
+
+    protected function arePoulesEquallySized(): bool
+    {
+        if ($this->poulesEquallySized === null) {
+            $this->poulesEquallySized = ($this->planning->getPlaces()->count() % $this->planning->getPoules()->count(
+                    )) === 0;
+        }
+        return $this->poulesEquallySized;
+    }
+
+    protected function validateEvenlyAssigned(array $items): bool
+    {
+        $minNrOfGames = null;
+        $maxNrOfGames = null;
+        foreach ($items as $nr => $nrOfGames) {
+            if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
+                $minNrOfGames = $nrOfGames;
+            }
+            if ($maxNrOfGames === null || $nrOfGames > $maxNrOfGames) {
+                $maxNrOfGames = $nrOfGames;
+            }
+        }
+        return ($maxNrOfGames - $minNrOfGames <= 1);
+    }
 
     private function isRefereePlaceAssignable(Batch $batch, Game $game, Place $refereePlace): bool
     {

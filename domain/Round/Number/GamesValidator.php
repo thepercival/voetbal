@@ -50,7 +50,7 @@ class GamesValidator
         $this->validateFields();
         $this->validateAllPlacesSameNrOfGames();
         $this->validateResourcesPerBatch();
-        $this->validateNrOfGamesPerRefereeAndField($nrOfReferees);
+        $this->validateEquallyAssigned($nrOfReferees);
     }
 
     protected function validateEnoughTotalNrOfGames()
@@ -161,7 +161,7 @@ class GamesValidator
         return true;
     }
 
-    protected function validateNrOfGamesPerRefereeAndField(int $nrOfReferees)
+    protected function validateEquallyAssigned(int $nrOfReferees)
     {
         $fields = [];
         $referees = [];
@@ -176,10 +176,14 @@ class GamesValidator
 
             $refereePlace = $game->getRefereePlace();
             if ($refereePlace !== null) {
-                if (array_key_exists($refereePlace->getLocationId(), $refereePlaces) === false) {
-                    $refereePlaces[$refereePlace->getLocationId()] = 0;
+                $pouleNr = $refereePlace->getPoule()->getStructureNumber();
+                if (array_key_exists($pouleNr, $refereePlaces) === false) {
+                    $refereePlaces[$pouleNr] = [];
                 }
-                $refereePlaces[$refereePlace->getLocationId()]++;
+                if (array_key_exists($refereePlace->getLocationId(), $refereePlaces[$pouleNr]) === false) {
+                    $refereePlaces[$pouleNr][$refereePlace->getLocationId()] = 0;
+                }
+                $refereePlaces[$pouleNr][$refereePlace->getLocationId()]++;
             }
 
             $referee = $game->getReferee();
@@ -193,11 +197,27 @@ class GamesValidator
         }
 
         $this->validateNrOfGamesRange($fields, "fields");
-        $this->validateNrOfGamesRange($refereePlaces, "refereePlaces");
         $this->validateNrOfGamesRange($referees, "referees");
         if (count($refereePlaces) === 0 && $nrOfReferees > 0 and count($referees) === 0) {
             throw new Exception("no referees have been assigned", E_ERROR);
         }
+
+        if ($this->arePoulesEquallySized()) {
+            $refereePlacesMerged = [];
+            foreach ($refereePlaces as $refereePlacesPerPoule) {
+                $refereePlacesMerged = array_merge($refereePlacesMerged, $refereePlacesPerPoule);
+            }
+            $this->validateNrOfGamesRange($refereePlacesMerged, "refereePlaces");
+        } else {
+            foreach ($refereePlaces as $refereePlacesPerPoule) {
+                $this->validateNrOfGamesRange($refereePlacesPerPoule, "refereePlaces");
+            }
+        }
+    }
+
+    protected function arePoulesEquallySized(): bool
+    {
+        return ($this->roundNumber->getNrOfPlaces() % count($this->roundNumber->getPoules())) === 0;
     }
 
     /**

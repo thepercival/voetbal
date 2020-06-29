@@ -376,6 +376,30 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planningValidator->validate($planning);
     }
 
+    public function testValidResourcesPerRefereePlaceDifferentPouleSizes()
+    {
+        $competition = $this->createCompetition();
+
+        // remove field
+        $competition->getFirstSportConfig()->getFields()->removeElement(
+            $competition->getFirstSportConfig()->getFields()->first()
+        );
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 9, 2);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $roundNumber->getPlanningConfig()->setSelfReferee(true);
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+        $refereePlaceService = new RefereePlaceService($planning);
+        $refereePlaceService->assign($planning->getFirstBatch());
+
+        $planningValidator = new PlanningValidator();
+        self::assertNull($planningValidator->validate($planning));
+    }
+
     protected function replaceRefereePlace(
         Batch $batch,
         PlanningPlace $fromPlace,
@@ -399,13 +423,4 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             $this->replaceRefereePlace($batch->getNext(), $fromPlace, $toPlace, $amount);
         }
     }
-
-//    protected function batchHasPlace( Batch $batch, PlanningPlace $place): bool {
-//        foreach( $batch->getGames() as $game ) {
-//            if( $game->getRefereePl() === $place ) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
 }

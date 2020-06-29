@@ -67,15 +67,13 @@ class ConvertService
             $poule = $this->getPoule($planningGame->getPoule());
             $game = new GameBase($poule, $planningGame->getBatchNr(), $gameStartDateTime);
             $game->setField($this->getField($planningGame->getField()));
-            if ($planningGame->getReferee() !== null) {
-                $game->setReferee($this->getReferee($planningGame->getReferee()));
-            }
-            if ($planningGame->getRefereePlace() !== null) {
-                $game->setRefereePlace($this->getPlace($planningGame->getRefereePlace()));
-            }
+            $game->setReferee($this->getReferee($planningGame->getReferee()));
+            $game->setRefereePlace($this->getPlace($planningGame->getRefereePlace()));
             /** @var PlanningGamePlace $planningGamePlace */
             foreach ($planningGame->getPlaces() as $planningGamePlace) {
-                new GamePlace($game, $this->getPlace($planningGamePlace->getPlace()), $planningGamePlace->getHomeaway());
+                new GamePlace(
+                    $game, $this->getPlace($planningGamePlace->getPlace()), $planningGamePlace->getHomeaway()
+                );
             }
         }
         if ($batch->hasNext()) {
@@ -129,13 +127,19 @@ class ConvertService
         return $this->fields[ $field->getNumber() - 1 ];
     }
 
-    protected function getReferee(PlanningReferee $referee): Referee
+    protected function getReferee(PlanningReferee $referee = null): ?Referee
     {
-        return $this->referees[ $referee->getNumber() - 1 ];
+        if ($referee === null) {
+            return null;
+        }
+        return $this->referees[$referee->getNumber() - 1];
     }
 
-    protected function getPlace(PlanningPlace $planningPlace): Place
+    protected function getPlace(PlanningPlace $planningPlace = null): ?Place
     {
+        if ($planningPlace === null) {
+            return null;
+        }
         $poule = $this->getPoule($planningPlace->getPoule());
         return $poule->getPlace($planningPlace->getNumber());
     }

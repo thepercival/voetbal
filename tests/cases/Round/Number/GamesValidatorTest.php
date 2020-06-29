@@ -230,6 +230,29 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
         $gamesValidator->validate($firstRoundNumber, $nrOfReferees);
     }
 
+    public function testNrOfGamesRangeRefereePlaceDifferentPouleSizes()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 9, 2);
+
+        $firstRoundNumber = $structure->getFirstRoundNumber();
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(true);
+
+        $this->createGames($structure);
+
+//        $outputGame = new \Voetbal\Output\Game();
+//        $games = $firstRoundNumber->getGames(Game::ORDER_BY_BATCH);
+//        foreach( $games as $gameIt ) {
+//            $outputGame->output( $gameIt );
+//        }
+
+        $gamesValidator = new GamesValidator();
+        $nrOfReferees = $competition->getReferees()->count();
+        self::assertNull($gamesValidator->validate($firstRoundNumber, $nrOfReferees));
+    }
+
     public function testValid()
     {
         $competition = $this->createCompetition();

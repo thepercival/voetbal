@@ -153,6 +153,14 @@ class Batch
         $this->placesAsReferee[$placeReferee->getLocation()] = $placeReferee;
     }
 
+    /**
+     * @return array|Place[]
+     */
+    public function getPlacesAsReferees(): array
+    {
+        return $this->placesAsReferee;
+    }
+
     public function removeAsReferee(Place $placeReferee)
     {
         unset($this->placesAsReferee[$placeReferee->getLocation()]);
