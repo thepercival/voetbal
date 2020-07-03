@@ -124,10 +124,20 @@ class GameAssignments
         }
     }
 
-    protected function twoPoulesAndNotEquallySized(): bool
+    protected function shouldValidatePerPoule(): bool
     {
-        return $this->planning->getPoules()->count() === 2
-            && ($this->planning->getPlaces()->count() % $this->planning->getPoules()->count()) !== 0;
+        $nrOfPoules = $this->planning->getPoules()->count();
+        if (($this->planning->getPlaces()->count() % $nrOfPoules) === 0) {
+            return false;
+        }
+        if ($nrOfPoules === 2) {
+            return true;
+        }
+        $input = $this->planning->getInput();
+        if ($nrOfPoules > 2 && $input->getTeamup() && $input->getSelfReferee()) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -136,7 +146,7 @@ class GameAssignments
     public function getRefereePlaceUnequals(): array
     {
         $unequals = [];
-        if ($this->twoPoulesAndNotEquallySized()) {
+        if ($this->shouldValidatePerPoule()) {
             $refereePlacesPerPoule = $this->getRefereePlacesPerPoule();
             foreach ($refereePlacesPerPoule as $pouleNr => $refereePlaces) {
                 $unequal = $this->getMaxUnequal($refereePlaces);

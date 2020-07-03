@@ -28,81 +28,48 @@ class PlanningCreator
         $this->planningRepos = $planningRepos;
     }
 
-    public function create(RoundNumber $roundNumber, Period $blockedPeriod = null)
+    public function addFrom(RoundNumber $roundNumber, Period $blockedPeriod = null)
     {
-        if ($roundNumber->hasPrevious() && $this->allRoundNumbersHavePlanning($roundNumber->getPrevious()) === false) {
+        if (!$this->allPreviousRoundNumbersHavePlanning($roundNumber)) {
             return;
         }
-        $em = $this->inputRepos->getEM();
-        $conn = $em->getConnection();
-        $conn->beginTransaction();
-        try {
-            $this->removeRoundNumber($roundNumber);
-            $this->createInputRecursive($roundNumber);
-            $this->createRecursive($roundNumber, $blockedPeriod);
-
-            $em->flush();
-            $conn->commit();
-            return $roundNumber;
-        } catch (\Exception $e) {
-            $conn->rollBack();
-            throw $e;
-        }
+        $this->createFrom($roundNumber, $blockedPeriod);
     }
 
-    protected function allRoundNumbersHavePlanning(RoundNumber $roundNumber): bool
+    protected function allPreviousRoundNumbersHavePlanning(RoundNumber $roundNumber): bool
     {
-        if ($roundNumber->getHasPlanning() === false) {
-            return false;
-        }
         if ($roundNumber->hasPrevious() === false) {
             return true;
         }
-        return $this->allRoundNumbersHavePlanning($roundNumber->getPrevious());
+        $previous = $roundNumber->getPrevious();
+        if ($previous->getHasPlanning() === false) {
+            return false;
+        }
+        return $this->allPreviousRoundNumbersHavePlanning($previous);
     }
 
-    public function removeRoundNumber(RoundNumber $roundNumber)
+    protected function createFrom(RoundNumber $roundNumber, Period $blockedPeriod = null)
     {
-        $this->planningRepos->removeRoundNumber($roundNumber);
-        if ($roundNumber->hasNext()) {
-            $this->removeRoundNumber($roundNumber->getNext());
+        $scheduler = new ScheduleService($blockedPeriod);
+        if ($roundNumber->getHasPlanning()) { // reschedule
+            $scheduler->rescheduleGames($roundNumber);
+        } else {
+            $inputService = new PlanningInputService();
+            $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
+            $defaultPlanningInput = $inputService->get($roundNumber, $nrOfReferees);
+            $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
+            $planningService = new PlanningService();
+            $planning = $planningService->getBestPlanning($planningInput);
+            if ($planning === null) {
+                return;
+            }
+            $convertService = new ConvertService($scheduler);
+            $convertService->createGames($roundNumber, $planning);
         }
-    }
 
-    protected function createInputRecursive(RoundNumber $roundNumber)
-    {
-        $inputService = new PlanningInputService();
-        $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
-        $defaultPlanningInput = $inputService->get($roundNumber, $nrOfReferees);
-        $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
-        if ($planningInput === null) {
-            $planningInput = $this->inputRepos->save($defaultPlanningInput);
-        }
-        if ($roundNumber->hasNext()) {
-            $this->createInputRecursive($roundNumber->getNext());
-        }
-    }
-
-    protected function createRecursive(RoundNumber $roundNumber, Period $blockedPeriod = null)
-    {
-        $inputService = new PlanningInputService();
-        $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
-        $defaultPlanningInput = $inputService->get($roundNumber, $nrOfReferees);
-        $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
-        $planningService = new PlanningService();
-//        $logger = new Logger('planning-create');
-//        $handler = new StreamHandler('php://stdout', Logger::INFO);
-//        $logger->pushHandler($handler);
-//        $planningService->setLogger($logger);
-        $planning = $planningService->getBestPlanning($planningInput);
-        if ($planning === null) {
-            return;
-        }
-        $convertService = new ConvertService(new ScheduleService($blockedPeriod));
-        $convertService->createGames($roundNumber, $planning);
         $this->planningRepos->saveRoundNumber($roundNumber, true);
         if ($roundNumber->hasNext()) {
-            $this->createRecursive($roundNumber->getNext(), $blockedPeriod);
+            $this->createFrom($roundNumber->getNext(), $blockedPeriod);
         }
     }
 }

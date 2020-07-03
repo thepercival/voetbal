@@ -132,6 +132,7 @@ class Repository extends \Voetbal\Repository
         }
         if ($hasPlanning !== null) {
             $roundNumber->setHasPlanning($hasPlanning);
+            $this->_em->persist($roundNumber);
         }
 
         $this->_em->flush();

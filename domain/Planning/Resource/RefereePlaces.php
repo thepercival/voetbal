@@ -113,17 +113,19 @@ abstract class RefereePlaces implements \IteratorAggregate
         $nrOfGamePlaces = 0;
         while ($nrOfGamePlaces < $this->nrOfPlaces && count($games) > 0) {
             $game = array_shift($games);
-            $places = $game->getPlaces()->map(function ($gamePlace) {
-                return $gamePlace->getPlace();
-            });
+            $placesFromGame = $game->getPlaces()->map(
+                function ($gamePlace) {
+                    return $gamePlace->getPlace();
+                }
+            );
             $nrOfGamePlaces++;
-            foreach ($places as $place) {
-                if (!array_key_exists($place->getLocation(), $refereePlaces)) {
+            foreach ($placesFromGame as $placeFromGame) {
+                if (!array_key_exists($placeFromGame->getLocation(), $refereePlaces)) {
                     continue;
                 }
                 if ($nrOfGamePlaces < $this->nrOfPlaces) {
-                    unset($refereePlaces[$place->getLocation()]);
-                    array_unshift($refereePlacesPlaying, $place);
+                    unset($refereePlaces[$placeFromGame->getLocation()]);
+                    array_unshift($refereePlacesPlaying, $placeFromGame);
                 }
             }
         }

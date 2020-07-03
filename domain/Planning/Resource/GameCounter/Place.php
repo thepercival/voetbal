@@ -12,9 +12,9 @@ class Place extends GameCounter
      */
     private $place;
 
-    public function __construct(PlanningPlace $place)
+    public function __construct(PlanningPlace $place, int $nrOfGames = 0)
     {
-        parent::__construct($place);
+        parent::__construct($place, $nrOfGames);
         $this->place = $place;
     }
 

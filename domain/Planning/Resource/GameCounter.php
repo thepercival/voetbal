@@ -15,10 +15,10 @@ class GameCounter
      */
     protected $nrOfGames;
 
-    public function __construct(PlanningResource $resource)
+    public function __construct(PlanningResource $resource, int $nrOfGames = 0)
     {
         $this->resource = $resource;
-        $this->nrOfGames = 0;
+        $this->nrOfGames = $nrOfGames;
     }
 
     public function getResource(): PlanningResource
