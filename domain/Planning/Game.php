@@ -152,9 +152,11 @@ class Game
             return $this->places;
         }
         return new ArrayCollection(
-            $this->places->filter(function ($gamePlace) use ($homeaway): bool {
-                return $gamePlace->getHomeaway() === $homeaway;
-            })->toArray()
+            $this->places->filter(
+                function (GamePlace $gamePlace) use ($homeaway): bool {
+                    return $gamePlace->getHomeaway() === $homeaway;
+                }
+            )->toArray()
         );
     }
 

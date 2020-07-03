@@ -16,10 +16,11 @@ use Voetbal\Planning\Place;
 use Voetbal\Planning\Input;
 use Voetbal\Planning\Batch;
 use Voetbal\Planning\Output;
-use Voetbal\Planning\Poule;
+use Voetbal\Planning\Resource\GameCounter\Unequal as UnequalGameCounter;
+use Voetbal\Planning\Resource\GameCounter\Place as PlaceGameCounter;
+use Voetbal\Planning\Validator\GameAssignments as GameAssignmentValidator;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
-use VoetbalDebug\Base;
 
 class RefereePlaceService
 {
@@ -32,14 +33,6 @@ class RefereePlaceService
      */
     protected $nrOfPlaces;
     /**
-     * @var bool
-     */
-    protected $autoRefill;
-    /**
-     * @var DateTimeImmutable
-     */
-    private $timeoutDateTime;
-    /**
      * @var array
      */
     private $canBeSamePoule;
@@ -48,18 +41,24 @@ class RefereePlaceService
      */
     private $poulesEquallySized;
     /**
+     * @var int
+     */
+    protected $strategy;
+    /**
      * @var BatchOutput
      */
     protected $batchOutput;
 
     protected const TIMEOUTSECONDS = 60;
 
+    protected const STRATEGY_RECURSIVE = 1;
+    protected const STRATEGY_AUTOREFILL_AND_REPLACE = 2;
+    protected const STRATEGY_AUTOREFILL = 3;
+
     public function __construct(PlanningBase $planning)
     {
         $this->planning = $planning;
-
         $this->nrOfPlaces = $this->planning->getStructure()->getNrOfPlaces();
-        $this->autoRefill = $this->planning->getInput()->getTeamup();
     }
 
     protected function getInput(): Input
@@ -67,41 +66,40 @@ class RefereePlaceService
         return $this->planning->getInput();
     }
 
-    public function assign(Batch $batch)
+    public function assign(Batch $batch): bool
     {
         if ($this->getInput()->getSelfReferee() === false) {
-            return;
+            return true;
         }
+        $this->initSamePoule($batch);
 
-        try {
-            // $this->output->consoleBatch( $batch, "pre assign selfref");
-            $this->initSamePoule($batch);
-            $oCurrentDateTime = new DateTimeImmutable();
-            $this->timeoutDateTime = $oCurrentDateTime->modify("+" . static::TIMEOUTSECONDS . " seconds");
-            $refereePlaces = $this->getRefereePlaces($batch);
-            if ($this->assignBatch($batch, $batch->getGames(), $refereePlaces) === false) {
-//                if( $this->batchOutput !== null ) {
-//                    $this->batchOutput->outputString("  impossible assigning selfref, try again with autorefill");
-//                }
-                if ($this->autoRefill === false) {
-                    $this->autoRefill = true;
-                    $this->assign($batch);
-                    return;
-                };
-            };
-            // $this->output->consoleBatch( $batch, "post assign selfref");
-        } catch (TimeoutException $timeoutExc) {
-//            if( $this->batchOutput !== null ) {
-//                $this->batchOutput->outputString("  timeout assigning selfref, try again with autorefill");
-//            }
-            $this->resetReferees($batch);
-            if ($this->autoRefill === false) {
-                $this->autoRefill = true;
-                $this->assign($batch);
-                return;
-            };
-            throw new \Exception('not all refereeplaces(autorefill=1) could be assigned', E_ERROR);
+        // $strategy = $this->planning->getInput()->getTeamup() ? self::STRATEGY_AUTOREFILL_AND_REPLACE : self::STRATEGY_RECURSIVE;
+        $this->strategy = self::STRATEGY_RECURSIVE;
+        if ($this->assignHelper($batch, self::STRATEGY_RECURSIVE)) {
+            return true;
         }
+        $this->resetReferees($batch);
+        $this->strategy = self::STRATEGY_AUTOREFILL_AND_REPLACE;
+        if ($this->assignHelper($batch, self::STRATEGY_AUTOREFILL_AND_REPLACE)) {
+            return true;
+        }
+        $this->resetReferees($batch);
+        $this->strategy = self::STRATEGY_AUTOREFILL;
+        $this->assignHelper($batch, self::STRATEGY_AUTOREFILL);
+        return false;
+    }
+
+    public function assignHelper(Batch $batch, int $strategy): bool
+    {
+        $timeoutDateTime = (new DateTimeImmutable())->modify("+" . static::TIMEOUTSECONDS . " seconds");
+        $refereePlaces = $this->getRefereePlaces($batch, $strategy);
+        try {
+            if ($this->assignBatch($batch, $batch->getGames(), $refereePlaces, $timeoutDateTime)) {
+                return true;
+            };
+        } catch (TimeoutException $timeoutExc) {
+        }
+        return false;
     }
 
     protected function resetReferees(Batch $batch)
@@ -115,7 +113,7 @@ class RefereePlaceService
         }
     }
 
-    protected function getRefereePlaces(Batch $batch): RefereePlaces
+    protected function getRefereePlaces(Batch $batch, int $strategy): RefereePlaces
     {
         $refereePlaces = null;
         $poules = $this->planning->getPoules()->toArray();
@@ -125,7 +123,8 @@ class RefereePlaceService
         } else {
             $refereePlaces = new RefereePlaces\MultiplePoules($poules);
         }
-        $refereePlaces->setAutoRefill($this->autoRefill);
+        $autoRefill = $strategy === self::STRATEGY_AUTOREFILL_AND_REPLACE || $strategy === self::STRATEGY_AUTOREFILL;
+        $refereePlaces->setAutoRefill($autoRefill);
         $refereePlaces->fill($batch);
         return $refereePlaces;
     }
@@ -181,16 +180,17 @@ class RefereePlaceService
         $helper($batch);
     }
 
-    protected function assignBatch(Batch $batch, array $batchGames, RefereePlaces $refereePlaces): bool
-    {
+    protected function assignBatch(
+        Batch $batch,
+        array $batchGames,
+        RefereePlaces $refereePlaces,
+        DateTimeImmutable $timeoutDateTime
+    ): bool {
         if (count($batchGames) === 0) { // batchsuccess
             if ($batch->hasNext() === false) { // endsuccess
-                if ($this->arePoulesEquallySized() && !$this->equallyAssigned($batch)) {
-                    return false;
-                }
-                return true;
+                return $this->equallyAssign();
             }
-            if ((new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
+            if ((new DateTimeImmutable()) > $timeoutDateTime) { // @FREDDY
                 throw new TimeoutException(
                     "exceeded maximum duration of " . static::TIMEOUTSECONDS . " seconds",
                     E_ERROR
@@ -203,7 +203,7 @@ class RefereePlaceService
 //                }
 //            }
 
-            return $this->assignBatch($nextBatch, $nextBatch->getGames(), $refereePlaces);
+            return $this->assignBatch($nextBatch, $nextBatch->getGames(), $refereePlaces, $timeoutDateTime);
         }
 
         $game = array_shift($batchGames);
@@ -216,7 +216,7 @@ class RefereePlaceService
                     $games = array_merge($batchGames, $nextGames);
                     $refereePlacesAssign->refill($refereePlace->getPoule(), $games);
                 }
-                if ($this->assignBatch($batch, $batchGames, $refereePlacesAssign)) {
+                if ($this->assignBatch($batch, $batchGames, $refereePlacesAssign, $timeoutDateTime)) {
                     return true;
                 }
                 $game->emptyRefereePlace();
@@ -226,49 +226,71 @@ class RefereePlaceService
         return false;
     }
 
-    protected function equallyAssigned(Batch $lastBatch): bool
+    protected function equallyAssign(): bool
     {
-        $refereePlaces = [];
-        /** @var Place $place */
-        foreach ($this->planning->getPlaces() as $place) {
-            $refereePlaces[$place->getLocation()] = 0;
+        if ($this->strategy === self::STRATEGY_AUTOREFILL) {
+            return true;
         }
+//        if( $this->strategy === self::STRATEGY_AUTOREFILL_AND_REPLACE ) {
+//            $er = 2;
+//        }
+        $gameAssignmentValidator = new GameAssignmentValidator($this->planning);
+        /** @var array|UnequalGameCounter[] $unequals */
+        $unequals = $gameAssignmentValidator->getRefereePlaceUnequals();
+        if (count($unequals) === 0) {
+            return true;
+        }
+        if (count($unequals) > 1) {
+            return false;
+        }
+        /** @var UnequalGameCounter $unequal */
+        $unequal = reset($unequals);
+        $minGameCounters = $unequal->getMinGameCounters();
+        $maxGameCounters = $unequal->getMaxGameCounters();
 
-        $countAssignments = function (Batch $batch) use ($refereePlaces, &$countAssignments): void {
-            foreach ($batch->getPlacesAsReferees() as $location => $place) {
-                $refereePlaces[$location]++;
+        if (count($maxGameCounters) !== 1) {
+            return false;
+        }
+        /** @var PlaceGameCounter $replacedGameCounter */
+        foreach ($maxGameCounters as $replacedGameCounter) {
+            /** @var PlaceGameCounter $replaceByGameCounter */
+            foreach ($minGameCounters as $replaceByGameCounter) {
+//                echo PHP_EOL . "replacing " . $oldLocation . "with " . $newLocation;
+//                $planningOutput = new \Voetbal\Output\Planning();
+//                $planningOutput->outputWithTotals($this->planning, true );
+                if ($this->replaceRefereePlace(
+                    $this->planning->getFirstBatch(),
+                    $replacedGameCounter->getPlace(),
+                    $replaceByGameCounter->getPlace(),
+                )) {
+//                    $planningOutput->outputWithTotals($this->planning, true );
+                    return true;
+                }
+//                $planningOutput->outputWithTotals($this->planning, true );
             }
-            if ($batch->hasPrevious()) {
-                $countAssignments($batch->getPrevious());
-            }
-        };
-
-        $countAssignments($lastBatch);
-        return $this->validateEvenlyAssigned($refereePlaces);
+        }
+        return false;
     }
 
-    protected function arePoulesEquallySized(): bool
-    {
-        if ($this->poulesEquallySized === null) {
-            $this->poulesEquallySized = ($this->planning->getPlaces()->count() % $this->planning->getPoules()->count(
-                    )) === 0;
-        }
-        return $this->poulesEquallySized;
-    }
-
-    protected function validateEvenlyAssigned(array $items): bool
-    {
-        $minNrOfGames = null;
-        $maxNrOfGames = null;
-        foreach ($items as $nr => $nrOfGames) {
-            if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
-                $minNrOfGames = $nrOfGames;
+    protected function replaceRefereePlace(
+        Batch $batch,
+        Place $replacedPlace,
+        Place $replaceWithPlace
+    ): bool {
+        /** @var Game $game */
+        foreach ($batch->getGames() as $game) {
+            if ($game->getRefereePlace() !== $replacedPlace ||
+                $batch->isParticipating($replaceWithPlace) || $batch->isParticipatingAsReferee($replaceWithPlace)
+            ) {
+                continue;
             }
-            if ($maxNrOfGames === null || $nrOfGames > $maxNrOfGames) {
-                $maxNrOfGames = $nrOfGames;
-            }
+            $game->setRefereePlace($replaceWithPlace);
+            return true;
         }
-        return ($maxNrOfGames - $minNrOfGames <= 1);
+        if ($batch->hasNext()) {
+            return $this->replaceRefereePlace($batch->getNext(), $replacedPlace, $replaceWithPlace);
+        }
+        return false;
     }
 
     private function isRefereePlaceAssignable(Batch $batch, Game $game, Place $refereePlace): bool

@@ -9,6 +9,7 @@
 namespace Voetbal\TestHelper;
 
 use Voetbal\Planning;
+use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Input\Service as PlanningInputService;
@@ -24,6 +25,10 @@ trait PlanningCreator {
         $planning = $planningService->createNextMinIsMaxPlanning($planningInput);
         if (Planning::STATE_SUCCESS !== $planningService->createGames($planning)) {
             throw new \Exception("planning could not be created", E_ERROR);
+        }
+        if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
+            $refereePlaceService = new RefereePlaceService($planning);
+            $refereePlaceService->assign($planning->getFirstBatch());
         }
         return $planning;
     }

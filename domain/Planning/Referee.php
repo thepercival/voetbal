@@ -6,7 +6,7 @@ use \Doctrine\Common\Collections\ArrayCollection;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Referee as RefereeBase;
 
-class Referee
+class Referee implements Resource
 {
     /**
      * @var int
@@ -37,17 +37,11 @@ class Referee
         return $this->planning;
     }
 
-    /**
-     * @return int
-     */
     public function getNumber(): int
     {
         return $this->number;
     }
 
-    /**
-     * @return int
-     */
     public function getPriority(): int
     {
         return $this->priority;

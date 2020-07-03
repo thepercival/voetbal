@@ -14,7 +14,7 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
 use JMS\Serializer\Handler\HandlerRegistry;
-use JMS\Serializer\Serializer as JMSSerializer;
+use JMS\Serializer\SerializerInterface as JMSSerializer;
 
 use Voetbal\SerializationHandler\Round as RoundSerializationHandler;
 use Voetbal\SerializationHandler\Qualify\Group as QualifyGroupSerializationHandler;
@@ -25,30 +25,36 @@ use Voetbal\SerializationHandler\Structure as StructureSerializationHandler;
 class Serializer {
     public function getSerializer(): JMSSerializer
     {
-        $apiVersion = 2;
+        $apiVersion = "2";
 
         $serializerBuilder = SerializerBuilder::create()->setDebug(true);
 
         $serializerBuilder->setPropertyNamingStrategy(new SerializedNameAnnotationStrategy(new IdenticalPropertyNamingStrategy()));
 
-        $serializerBuilder->setSerializationContextFactory(function () use ($apiVersion) {
-            return SerializationContext::create()
-                ->setGroups(array('Default'))
-                ->setVersion($apiVersion);
-        });
-        $serializerBuilder->setDeserializationContextFactory(function () use ($apiVersion) {
-            return DeserializationContext::create()
-                ->setGroups(array('Default'))
-                ->setVersion($apiVersion);
-        });
+        $serializerBuilder->setSerializationContextFactory(
+            function () use ($apiVersion): SerializationContext {
+                return SerializationContext::create()
+                    ->setGroups(array('Default'))
+                    ->setVersion($apiVersion);
+            }
+        );
+        $serializerBuilder->setDeserializationContextFactory(
+            function () use ($apiVersion): DeserializationContext {
+                return DeserializationContext::create()
+                    ->setGroups(array('Default'))
+                    ->setVersion($apiVersion);
+            }
+        );
         $serializerBuilder->addMetadataDir(__DIR__.'/../../serialization/yml', 'Voetbal');
 
-        $serializerBuilder->configureHandlers(function (HandlerRegistry $registry) {
-            $registry->registerSubscribingHandler(new StructureSerializationHandler());
-            $registry->registerSubscribingHandler(new RoundNumberSerializationHandler());
-            $registry->registerSubscribingHandler(new RoundSerializationHandler());
-            // $registry->registerSubscribingHandler(new QualifyGroupSerializationHandler());
-        });
+        $serializerBuilder->configureHandlers(
+            function (HandlerRegistry $registry): void {
+                $registry->registerSubscribingHandler(new StructureSerializationHandler());
+                $registry->registerSubscribingHandler(new RoundNumberSerializationHandler());
+                $registry->registerSubscribingHandler(new RoundSerializationHandler());
+                // $registry->registerSubscribingHandler(new QualifyGroupSerializationHandler());
+            }
+        );
 
         $serializerBuilder->addDefaultHandlers();
 

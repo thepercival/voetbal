@@ -2,7 +2,7 @@
 
 namespace Voetbal\Planning;
 
-class Field
+class Field implements Resource
 {
     /**
      * @var int
@@ -24,17 +24,11 @@ class Field
         $sport->getFields()->add($this);
     }
 
-    /**
-     * @return int
-     */
     public function getNumber(): int
     {
         return $this->number;
     }
 
-    /**
-     * @return Sport
-     */
     public function getSport(): Sport
     {
         return $this->sport;

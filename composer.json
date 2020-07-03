@@ -54,7 +54,7 @@
     "test": [
       "vendor/bin/phpunit --configuration tests/phpunit.xml tests/cases/"
     ],
-    "stan": "vendor/bin/phpstan analyse --level=5 domain tests/cases/",
+    "stan": "vendor/bin/phpstan analyse --level=5 domain tests/cases/ tests/helpers/",
     "cs-fix": "php-cs-fixer fix .",
     "copy-fct": [
       "rm -rf ../fctoernooi-api/vendor/thepercival/voetbal",

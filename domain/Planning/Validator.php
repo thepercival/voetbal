@@ -17,6 +17,11 @@ use Voetbal\Planning\Field as PlanningField;
 use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Planning\Place as PlanningPlace;
 use Voetbal\Planning\Poule as PlanningPoule;
+use Voetbal\Planning\Validator\GameAssignments;
+
+use Voetbal\Planning\Exception\UnequalAssignedFields as UnequalAssignedFieldsException;
+use Voetbal\Planning\Exception\UnequalAssignedReferees as UnequalAssignedRefereesException;
+use Voetbal\Planning\Exception\UnequalAssignedRefereePlaces as UnequalAssignedRefereePlacesException;
 
 class Validator
 {
@@ -25,41 +30,113 @@ class Validator
      */
     protected $planning;
 
+    public const NOT_VALIDATED = -1;
+    public const VALID = 0;
+    public const NO_GAMES = 1;
+    public const EMPTY_PLACE = 2;
+    public const EMPTY_FIELD = 4;
+    public const EMPTY_REFEREE = 8;
+    public const EMPTY_REFEREEPLACE = 16;
+    public const UNEQUAL_GAME_HOME_AWAY = 32;
+    public const NOT_EQUALLY_ASSIGNED_PLACES = 64;
+    public const TOO_MANY_GAMES_IN_A_ROW = 128;
+    public const MULTIPLE_ASSIGNED_FIELDS_IN_BATCH = 256;
+    public const MULTIPLE_ASSIGNED_REFEREES_IN_BATCH = 512;
+    public const MULTIPLE_ASSIGNED_PLACES_IN_BATCH = 1024;
+    public const UNEQUALLY_ASSIGNED_FIELDS = 2048;
+    public const UNEQUALLY_ASSIGNED_REFEREES = 4096;
+    public const UNEQUALLY_ASSIGNED_REFEREEPLACES = 8192;
+
+    public const ALL_INVALID = 16383;
+
     public function __construct()
     {
     }
 
-    public function validate(PlanningBase $planning)
+    public function validate(PlanningBase $planning): int
     {
+        $validity = self::VALID;
         $this->planning = $planning;
-        $this->validateEnoughTotalNrOfGames();
-        $this->validateAllPlacesSameNrOfGames();
-        $this->validateGamesInARow();
-        $this->validateResourcesPerBatch();
-        $this->validateEquallyAssigned();
+        $validity += $this->validateGamesAndGamePlaces();
+        $validity += $this->validateGamesInARow();
+        $validity += $this->validateResourcesPerBatch();
+        $validity += $this->validateEquallyAssigned();
+        return $validity;
     }
 
-    protected function validateEnoughTotalNrOfGames()
+    /**
+     * @param int $validity
+     * @return array|string[]
+     */
+    public function getValidityDescriptions(int $validity): array
     {
-        if (count($this->planning->getGames()) === 0) {
-            throw new Exception("the planning has not enough games", E_ERROR);
+        $invalidations = [];
+        if (($validity & self::NO_GAMES) === self::NO_GAMES) {
+            $invalidations[] = "the planning has not enough games";
         }
+        if (($validity & self::UNEQUAL_GAME_HOME_AWAY) === self::UNEQUAL_GAME_HOME_AWAY) {
+            $invalidations[] = "the planning has a game with an unequal number of home- & awayplaces";
+        }
+        if (($validity & self::EMPTY_PLACE) === self::EMPTY_PLACE) {
+            $invalidations[] = "the planning has a game with an empty place";
+        }
+        if (($validity & self::EMPTY_FIELD) === self::EMPTY_FIELD) {
+            $invalidations[] = "the planning has a game with no field";
+        }
+        if (($validity & self::EMPTY_REFEREE) === self::EMPTY_REFEREE) {
+            $invalidations[] = "the planning has a game with no referee";
+        }
+        if (($validity & self::EMPTY_REFEREEPLACE) === self::EMPTY_REFEREEPLACE) {
+            $invalidations[] = "the planning has a game with no refereeplace";
+        }
+        if (($validity & self::NOT_EQUALLY_ASSIGNED_PLACES) === self::NOT_EQUALLY_ASSIGNED_PLACES) {
+            $invalidations[] = "not all places within poule have same number of games";
+        }
+        if (($validity & self::TOO_MANY_GAMES_IN_A_ROW) === self::TOO_MANY_GAMES_IN_A_ROW) {
+            $invalidations[] = "more than allowed numberr of games in a row";
+        }
+        if (($validity & self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH) === self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH) {
+            $invalidations[] = "multiple assigned fields in batch";
+        }
+        if (($validity & self::MULTIPLE_ASSIGNED_REFEREES_IN_BATCH) === self::MULTIPLE_ASSIGNED_REFEREES_IN_BATCH) {
+            $invalidations[] = "multiple assigned referees in batch";
+        }
+        if (($validity & self::MULTIPLE_ASSIGNED_PLACES_IN_BATCH) === self::MULTIPLE_ASSIGNED_PLACES_IN_BATCH) {
+            $invalidations[] = "multiple assigned places in batch";
+        }
+        if ((($validity & self::UNEQUALLY_ASSIGNED_FIELDS) === self::UNEQUALLY_ASSIGNED_FIELDS
+                || ($validity & self::UNEQUALLY_ASSIGNED_REFEREES) === self::UNEQUALLY_ASSIGNED_REFEREES
+                || ($validity & self::UNEQUALLY_ASSIGNED_REFEREEPLACES) === self::UNEQUALLY_ASSIGNED_REFEREEPLACES)
+            && $this->planning !== null) {
+            $invalidations[] = $this->getUnqualAssignedDescription($this->planning);
+        }
+        return $invalidations;
     }
 
-    protected function validateAllPlacesSameNrOfGames()
+    protected function validateGamesAndGamePlaces(): int
     {
         foreach ($this->planning->getPoules() as $poule) {
-            if ($this->allPlacesInPouleSameNrOfGames($poule) === false) {
-                throw new Exception("not all places within poule have same number of games", E_ERROR);
+            if (count($poule->getGames()) === 0) {
+                return self::NO_GAMES;
+            }
+            $validity = $this->allPlacesInPouleSameNrOfGames($poule);
+            if ($validity !== self::VALID) {
+                return $validity;
             }
         }
+        return self::VALID;
     }
 
-    protected function allPlacesInPouleSameNrOfGames(Poule $poule): bool
+    protected function allPlacesInPouleSameNrOfGames(Poule $poule): int
     {
         $nrOfGames = [];
         foreach ($poule->getGames() as $game) {
             /** @var array|Place[] $places */
+            $homePlaces = $this->getPlaces($game, GameBase::HOME);
+            $awayPlaces = $this->getPlaces($game, GameBase::AWAY);
+            if (count($homePlaces) === 0 || count($awayPlaces) === 0) {
+                return self::EMPTY_PLACE;
+            }
             $places = $this->getPlaces($game);
             /** @var Place $place */
             foreach ($places as $place) {
@@ -68,26 +145,46 @@ class Validator
                 }
                 $nrOfGames[$place->getLocation()]++;
             }
+            if ($game->getField() === null) {
+                return self::EMPTY_FIELD;
+            }
+            if ($this->planning->getInput()->getSelfReferee()) {
+                if ($game->getRefereePlace() === null) {
+                    return self::EMPTY_REFEREEPLACE;
+                }
+            } else {
+                if ($this->planning->getInput()->getNrOfReferees() > 0) {
+                    if ($game->getReferee() === null) {
+                        return self::EMPTY_REFEREE;
+                    }
+                }
+            }
+            if (count($this->getPlaces($game, GameBase::HOME))
+                !== count($this->getPlaces($game, GameBase::AWAY))) {
+                return self::UNEQUAL_GAME_HOME_AWAY;
+            }
         }
         $value = reset($nrOfGames);
         foreach ($nrOfGames as $valueIt) {
             if ($value !== $valueIt) {
-                return false;
+                return self::NOT_EQUALLY_ASSIGNED_PLACES;
             }
         }
-        return true;
+
+        return self::VALID;
     }
 
-    protected function validateGamesInARow()
+    protected function validateGamesInARow(): int
     {
         /** @var Poule $poule */
         foreach ($this->planning->getPoules() as $poule) {
             foreach ($poule->getPlaces() as $place) {
                 if ($this->checkGamesInARowForPlace($place) === false) {
-                    throw new Exception("more than allowed nrofmaxgamesinarow", E_ERROR);
+                    return self::TOO_MANY_GAMES_IN_A_ROW;
                 }
             }
         }
+        return self::VALID;
     }
 
     protected function checkGamesInARowForPlace(Place $place): bool
@@ -133,25 +230,19 @@ class Validator
 
     /**
      * @param Game $game
+     * @param bool $homeAway
      * @return array|Place[]
      */
-    protected function getPlaces(Game $game): array
+    protected function getPlaces(Game $game, bool $homeAway = null): array
     {
-        return $game->getPlaces()->map(
+        return $game->getPlaces($homeAway)->map(
             function (GamePlace $gamePlace): Place {
                 return $gamePlace->getPlace();
             }
         )->toArray();
     }
 
-    protected function validateResourcesPerBatch()
-    {
-        if ($this->validateResourcesPerBatchHelper() !== true) {
-            throw new Exception("more resources per batch than allowed", E_ERROR);
-        }
-    }
-
-    protected function validateResourcesPerBatchHelper(): bool
+    protected function validateResourcesPerBatch(): int
     {
         $games = $this->planning->getGames(GameBase::ORDER_BY_BATCH);
         $batchesResources = [];
@@ -163,14 +254,11 @@ class Validator
             /** @var array|Place[] $places */
             $places = $this->getPlaces($game);
             if ($this->planning->getInput()->getSelfReferee()) {
-                if ($game->getRefereePlace() === null) {
-                    return false;
-                }
                 $places[] = $game->getRefereePlace();
             }
             foreach ($places as $placeIt) {
                 if (array_search($placeIt, $batchResources["places"], true) !== false) {
-                    return false;
+                    return self::MULTIPLE_ASSIGNED_PLACES_IN_BATCH;
                 }
                 $batchResources["places"][] = $placeIt;
             }
@@ -178,95 +266,46 @@ class Validator
             /** @var bool|int|string $search */
             $search = array_search($game->getField(), $batchResources["fields"], true);
             if ( $search !== false ) {
-                return false;
+                return self::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH;
             }
             $batchResources["fields"][] = $game->getField();
             if ($this->planning->getInput()->getNrOfReferees() > 0) {
-                if ($game->getReferee() === null) {
-                    return false;
-                }
                 /** @var bool|int|string $search */
                 $search = array_search($game->getReferee(), $batchResources["referees"], true);
                 if ($search !== false) {
-                    return false;
+                    return self::MULTIPLE_ASSIGNED_REFEREES_IN_BATCH;
                 }
                 $batchResources["referees"][] = $game->getReferee();
             }
         }
-        return true;
+        return self::VALID;
     }
 
     protected function validateEquallyAssigned()
     {
-        $games = $this->planning->getGames(GameBase::ORDER_BY_BATCH);
-
-        $fields = [];
-        /** @var PlanningField $field */
-        foreach ($this->planning->getFields() as $field) {
-            $fields[$field->getNumber()] = 0;
+        try {
+            $assignmentValidator = new GameAssignments($this->planning);
+            $assignmentValidator->validate();
+        } catch (UnequalAssignedFieldsException $e) {
+            return self::UNEQUALLY_ASSIGNED_FIELDS;
+        } catch (UnequalAssignedRefereesException $e) {
+            return self::UNEQUALLY_ASSIGNED_REFEREES;
+        } catch (UnequalAssignedRefereePlacesException $e) {
+            return self::UNEQUALLY_ASSIGNED_REFEREEPLACES;
         }
-        $referees = [];
-        /** @var PlanningReferee $referee */
-        foreach ($this->planning->getReferees() as $referee) {
-            $referees[$referee->getNumber()] = 0;
-        }
-        $refereePlaces = [];
-        /** @var PlanningPoule $poule */
-        foreach ($this->planning->getPoules() as $poule) {
-            $refereePlaces[$poule->getNumber()] = [];
-            /** @var PlanningPlace $place */
-            foreach ($poule->getPlaces() as $place) {
-                $refereePlaces[$poule->getNumber()][$place->getLocation()] = 0;
-            }
-        }
-
-        foreach ($games as $game) {
-            $fields[$game->getField()->getNumber()]++;
-            if ($this->planning->getInput()->getSelfReferee()) {
-                $placeIt = $game->getRefereePlace();
-                $refereePlaces[$placeIt->getPoule()->getNumber()][$placeIt->getLocation()]++;
-            } else {
-                if ($game->getReferee() !== null) {
-                    $referees[$game->getReferee()->getNumber()]++;
-                }
-            }
-        }
-
-        $this->validateNrOfGamesRange($fields, "fields");
-        $this->validateNrOfGamesRange($referees, "referees");
-
-        if ($this->arePoulesEquallySized()) {
-            $refereePlacesMerged = [];
-            foreach ($refereePlaces as $refereePlacesPerPoule) {
-                $refereePlacesMerged = array_merge($refereePlacesMerged, $refereePlacesPerPoule);
-            }
-            $this->validateNrOfGamesRange($refereePlacesMerged, "refereePlaces");
-        } else {
-            foreach ($refereePlaces as $refereePlacesPerPoule) {
-                $this->validateNrOfGamesRange($refereePlacesPerPoule, "refereePlaces");
-            }
-        }
+        return self::VALID;
     }
 
-    protected function arePoulesEquallySized(): bool
+    protected function getUnqualAssignedDescription(PlanningBase $planning): string
     {
-        return ($this->planning->getPlaces()->count() % $this->planning->getPoules()->count()) === 0;
-    }
-
-    protected function validateNrOfGamesRange(array $items, string $suffix)
-    {
-        $minNrOfGames = null;
-        $maxNrOfGames = null;
-        foreach ($items as $nr => $nrOfGames) {
-            if ($minNrOfGames === null || $nrOfGames < $minNrOfGames) {
-                $minNrOfGames = $nrOfGames;
-            }
-            if ($maxNrOfGames === null || $nrOfGames > $maxNrOfGames) {
-                $maxNrOfGames = $nrOfGames;
-            }
-        }
-        if ($maxNrOfGames - $minNrOfGames > 1) {
-            throw new Exception("two much difference in number of games for " . $suffix, E_ERROR);
-        }
+        try {
+            $assignmentValidator = new GameAssignments($planning);
+            $assignmentValidator->validate();
+        } catch (UnequalAssignedFieldsException | UnequalAssignedRefereesException | UnequalAssignedRefereePlacesException $e) {
+            return $e->getMessage();
+        }/* catch( Exception $e ) {
+            return 'unknown exception: ' . $e->getMessage();
+        }*/
+        return 'no exception';
     }
 }

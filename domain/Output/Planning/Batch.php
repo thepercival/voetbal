@@ -22,7 +22,7 @@ class Batch extends VoetbalOutputBase
         parent::__construct( $logger );
     }
 
-    public function output(BatchBase $batch, string $title = null)
+    public function output(BatchBase $batch, string $title = null, int $max = null)
     {
         if ($title === null) {
             $title = '';
@@ -31,14 +31,18 @@ class Batch extends VoetbalOutputBase
 //            return;
 //        }
         $this->logger->info('------batch ' . $batch->getNumber() . ' ' . $title . ' -------------');
-        $this->outputHelper($batch->getFirst());
+        $this->outputHelper($batch->getFirst(), $max);
     }
 
-    protected function outputHelper(BatchBase $batch)
+    protected function outputHelper(BatchBase $batch, int $max = null)
     {
+        if ($max !== null && $batch->getNumber() > $max) {
+            return;
+        }
+
         $this->outputGames($batch->getGames(), $batch);
         if ($batch->hasNext()) {
-            $this->outputHelper($batch->getNext());
+            $this->outputHelper($batch->getNext(), $max);
         }
     }
 

@@ -4,7 +4,7 @@ namespace Voetbal\Planning;
 
 use Voetbal\Planning\Sport\Counter as SportCounter;
 
-class Place
+class Place implements Resource
 {
     /**
      * @var int

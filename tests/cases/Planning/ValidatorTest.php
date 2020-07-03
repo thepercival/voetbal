@@ -11,6 +11,7 @@ use Voetbal\Planning\Resource\RefereePlaceService;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
+use Voetbal\TestHelper\PlanningReplacer;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Planning\Validator as PlanningValidator;
 use Voetbal\Planning\Game;
@@ -23,116 +24,66 @@ use Exception;
 
 class ValidatorTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions, PlanningCreator;
+    use CompetitionCreator, DefaultStructureOptions, PlanningCreator, PlanningReplacer;
 
     public function testHasEnoughTotalNrOfGames()
     {
         $competition = $this->createCompetition();
 
         $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 5);
+        $structure = $structureService->create($competition, 6, 2);
 
         $roundNumber = $structure->getFirstRoundNumber();
 
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
-        foreach ($planning->getPoules() as $poule) {
-            $poule->getGames()->clear();
-        }
+        $planning->getPoule(2)->getGames()->clear();
 
         $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::NO_GAMES, $validity & PlanningValidator::NO_GAMES);
     }
 
-//    public function testPlaceOneTimePerGame()
-//    {
-//        $competition = $this->createCompetition();
-//
-//        $structureService = new StructureService($this->getDefaultStructureOptions());
-//        $structure = $structureService->create($competition, 5);
-//
-//        $roundNumber = $structure->getFirstRoundNumber();
-//
-//        $options = [];
-//        $planning = $this->createPlanning($roundNumber, $options);
-//
-//        $planningValidator = new PlanningValidator();
-//        self::assertNull($planningValidator->validate($planning));
-//
-//        /** @var PlanningGame $planningGame */
-//        $planningGame = $planning->getGames()[0];
-//        $firstHomePlace = $planningGame->getPlaces(Game::HOME)->first()->getPlace();
-//        $planningGame->setRefereePlace($firstHomePlace);
-//        self::expectException(Exception::class);
-//        $planningValidator->validate($planning);
-//
-//        $planningGame->emptyRefereePlace();
-//        $planningGame->getPlaces(Game::AWAY)->first()->setPlace($firstHomePlace);
-//        self::expectException(Exception::class);
-//        $planningValidator->validate($planning);
-//    }
-
-    public function testAllPlacesSameNrOfGames()
+    public function testHasEmptyGamePlace()
     {
         $competition = $this->createCompetition();
 
         $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 5);
+        $structure = $structureService->create($competition, 5, 1);
 
         $roundNumber = $structure->getFirstRoundNumber();
 
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
+        $firstGame = $planning->getPoule(1)->getGames()->first();
+        $firstGame->getPlaces()->clear();
 
         $planningValidator = new PlanningValidator();
-        //self::expectException(Exception::class);
-        $planningValidator->validate($planning);
-
-        $planningGames = $planning->getPoule(1)->getGames();
-        $removed = $planningGames->first();
-        $planningGames->removeElement($removed);
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::EMPTY_PLACE, $validity & PlanningValidator::EMPTY_PLACE);
     }
 
-    public function testGamesInARow()
+    public function testHasEmptyGameField()
     {
         $competition = $this->createCompetition();
 
         $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 5);
+        $structure = $structureService->create($competition, 5, 1);
 
         $roundNumber = $structure->getFirstRoundNumber();
 
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
+        /** @var Game $firstGame */
+        $firstGame = $planning->getPoule(1)->getGames()->first();
+        $firstGame->emptyField();
 
         $planningValidator = new PlanningValidator();
-        $planningValidator->validate($planning);
-
-        $planning->setMaxNrOfGamesInARow(3);
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::EMPTY_FIELD, $validity & PlanningValidator::EMPTY_FIELD);
     }
 
-    public function testValidResourcesPerBatch()
-    {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
-
-        $planningValidator = new PlanningValidator();
-        self::assertNull($planningValidator->validate($planning));
-    }
-
-    public function testValidResourcesPerBatchNoRefereePlace()
+    public function testHasEmptyGameRefereePlace()
     {
         $competition = $this->createCompetition();
 
@@ -148,60 +99,20 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $refereePlaceService->assign($planning->getFirstBatch());
 
         $planningValidator = new PlanningValidator();
-        self::assertNull($planningValidator->validate($planning));
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
 
         /** @var Game $planningGame */
         $planningGame = $planning->getPoule(1)->getGames()->first();
         $planningGame->emptyRefereePlace();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::EMPTY_REFEREEPLACE,
+            $validity & PlanningValidator::EMPTY_REFEREEPLACE
+        );
     }
 
-    public function testValidResourcesPerBatchMultiplePlaces()
-    {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 2);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
-
-        /** @var Game $planningGame */
-        $planningGame = $planning->getPoule(1)->getGames()->first();
-        $firstHomePlace = $planningGame->getPlaces(GameBase::HOME)->first()->getPlace();
-        // $firstAwayPlace = $planningGame->getPlaces(Game::AWAY)->first()->getPlace();
-        $planningGame->getPlaces(GameBase::AWAY)->first()->setPlace($firstHomePlace);
-
-        $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
-    }
-
-    public function testValidResourcesPerBatchMultipleFields()
-    {
-        $competition = $this->createCompetition();
-
-        $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 5);
-
-        $roundNumber = $structure->getFirstRoundNumber();
-
-        $options = [];
-        $planning = $this->createPlanning($roundNumber, $options);
-
-        /** @var Game $planningGame */
-        $planningGame = $planning->getPoule(1)->getGames()->first();
-        $newFieldNr = $planningGame->getField()->getNumber() === 1 ? 2 : 1;
-        $planningGame->setField($planning->getField($newFieldNr));
-        $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
-    }
-
-    public function testValidResourcesPerBatchNoReferee()
+    public function testEmptyGameReferee()
     {
         $competition = $this->createCompetition();
 
@@ -218,11 +129,113 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planningGame->emptyReferee();
 
         $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::EMPTY_REFEREE, $validity & PlanningValidator::EMPTY_REFEREE);
     }
 
-    public function testValidResourcesPerBatchMultipleReferees()
+    public function testAllPlacesSameNrOfGames()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 5);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
+
+        $planningGames = $planning->getPoule(1)->getGames();
+        $removed = $planningGames->first();
+        $planningGames->removeElement($removed);
+        self::assertSame(PlanningValidator::NOT_EQUALLY_ASSIGNED_PLACES, $planningValidator->validate($planning));
+    }
+
+    public function testGamesInARow()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 5);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
+
+        $planning->setMaxNrOfGamesInARow(3);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::TOO_MANY_GAMES_IN_A_ROW,
+            $validity & PlanningValidator::TOO_MANY_GAMES_IN_A_ROW
+        );
+    }
+
+    public function testBatchMultiplePlaces()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 2);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+
+        /** @var Game $planningGame */
+        $planningGame = $planning->getPoule(1)->getGames()->first();
+        $firstHomeGamePlace = $planningGame->getPlaces(GameBase::HOME)->first();
+        // $firstHomePlace = $firstHomeGamePlace->getPlace();
+        // $firstAwayPlace = $planningGame->getPlaces(Game::AWAY)->first()->getPlace();
+        $planningGame->getPlaces()->add($firstHomeGamePlace);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::UNEQUAL_GAME_HOME_AWAY,
+            $validity & PlanningValidator::UNEQUAL_GAME_HOME_AWAY
+        );
+    }
+
+    public function testBatchMultipleFields()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 5);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+
+        /** @var Game $planningGame */
+        $planningGame = $planning->getPoule(1)->getGames()->first();
+        $newFieldNr = $planningGame->getField()->getNumber() === 1 ? 2 : 1;
+        $planningGame->setField($planning->getField($newFieldNr));
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH,
+            PlanningValidator::MULTIPLE_ASSIGNED_FIELDS_IN_BATCH & $validity
+        );
+    }
+
+
+    public function testBatchMultipleReferees()
     {
         $competition = $this->createCompetition();
 
@@ -239,8 +252,28 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $newRefereeNr = $planningGame->getReferee()->getNumber() === 1 ? 2 : 1;
         $planningGame->setReferee($planning->getReferee($newRefereeNr));
         $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::MULTIPLE_ASSIGNED_REFEREES_IN_BATCH,
+            PlanningValidator::MULTIPLE_ASSIGNED_REFEREES_IN_BATCH & $validity
+        );
+    }
+
+    public function testValidResourcesPerBatch()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 5);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
     }
 
     public function testValidateNrOfGamesPerField()
@@ -262,14 +295,12 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $newFieldNr = $planningGame->getField()->getNumber() === 3 ? 1 : 3;
         $planningGame->setField($planning->getField($newFieldNr));
 
-//        $planningOutput = new PlanningOutput();
-//        $planningOutput->output($planning, true);
-//        $batchOutput = new PlanningBatchOutput();
-//        $batchOutput->output($planning->getFirstBatch(),'');
-
         $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::UNEQUALLY_ASSIGNED_FIELDS,
+            $validity & PlanningValidator::UNEQUALLY_ASSIGNED_FIELDS
+        );
     }
 
     public function testValidResourcesPerReferee()
@@ -288,19 +319,18 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
-//        $batchOutput = new PlanningBatchOutput();
-//        $batchOutput->output($planning->getFirstBatch(),'');
 
         $this->replaceReferee($planning->getFirstBatch(), $planning->getReferee(1), $planning->getReferee(2), 2);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
-//        $batchOutput = new PlanningBatchOutput();
-//        $batchOutput->output($planning->getFirstBatch(),'');
 
         $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::UNEQUALLY_ASSIGNED_REFEREES,
+            $validity & PlanningValidator::UNEQUALLY_ASSIGNED_REFEREES
+        );
     }
 
     protected function replaceReferee(
@@ -357,8 +387,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
-//        $batchOutput = new PlanningBatchOutput();
-//        $batchOutput->output($planning->getFirstBatch(),'');
 
         $this->replaceRefereePlace(
             $planning->getFirstBatch(),
@@ -368,12 +396,13 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
-//        $batchOutput = new PlanningBatchOutput();
-//        $batchOutput->output($planning->getFirstBatch(),'');
 
         $planningValidator = new PlanningValidator();
-        self::expectException(Exception::class);
-        $planningValidator->validate($planning);
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::UNEQUALLY_ASSIGNED_REFEREEPLACES,
+            $validity & PlanningValidator::UNEQUALLY_ASSIGNED_REFEREEPLACES
+        );
     }
 
     public function testValidResourcesPerRefereePlaceDifferentPouleSizes()
@@ -397,30 +426,39 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $refereePlaceService->assign($planning->getFirstBatch());
 
         $planningValidator = new PlanningValidator();
-        self::assertNull($planningValidator->validate($planning));
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(PlanningValidator::VALID, $validity);
     }
 
-    protected function replaceRefereePlace(
-        Batch $batch,
-        PlanningPlace $fromPlace,
-        PlanningPlace $toPlace,
-        int $amount = 1
-    ) {
-        $amountReplaced = 0;
-        /** @var Game $game */
-        foreach ($batch->getGames() as $game) {
-            if ($game->getRefereePlace() !== $fromPlace ||
-                $batch->isParticipating($toPlace) || $batch->isParticipatingAsReferee($toPlace)
-            ) {
-                continue;
-            }
-            $game->setRefereePlace($toPlace);
-            if (++$amountReplaced === $amount) {
-                return;
-            }
-        }
-        if ($batch->hasNext()) {
-            $this->replaceRefereePlace($batch->getNext(), $fromPlace, $toPlace, $amount);
-        }
+    public function testValidityDescriptions()
+    {
+        $competition = $this->createCompetition();
+        new Referee($competition);
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 9, 2);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
+        self::assertCount(12, $descriptions);
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
+        $this->replaceReferee($planning->getFirstBatch(), $planning->getReferee(3), $planning->getReferee(1));
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
+        self::assertCount(12, $descriptions);
     }
 }

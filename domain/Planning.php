@@ -23,7 +23,8 @@ use Voetbal\Planning\Sport as PlanningSport;
 use Voetbal\Planning\Referee;
 use Voetbal\Planning\Poule;
 use Voetbal\Planning\Sport;
-use Voetbal\Planning\Structure;
+use Voetbal\Planning\Place;
+use Voetbal\Planning\Validator\GameAssignments;
 use Voetbal\Range as VoetbalRange;
 
 class Planning
@@ -57,6 +58,10 @@ class Planning
      */
     protected $state;
     /**
+     * @var int
+     */
+    protected $validity = -1;
+    /**
      * @var PlanningInput
      */
     protected $input;
@@ -77,7 +82,7 @@ class Planning
     const STATE_TIMEOUT = 2;
     const STATE_SUCCESS = 4;
     const STATE_UPDATING_SELFREFEE = 8;
-    const STATE_PROCESSING = 8;
+    const STATE_PROCESSING = 16;
 
     const TIMEOUT_MULTIPLIER = 6;
     const DEFAULT_TIMEOUTSECONDS = 5;
@@ -176,6 +181,16 @@ class Planning
     public function setState(int $state)
     {
         $this->state = $state;
+    }
+
+    public function getValidity(): int
+    {
+        return $this->validity;
+    }
+
+    public function setValidity(int $validity)
+    {
+        $this->validity = $validity;
     }
 
     public function getInput(): PlanningInput
@@ -336,5 +351,12 @@ class Planning
             }
         }
         return $places;
+    }
+
+    public function getPlace(string $location): Place
+    {
+        $pouleNr = (int)substr($location, 0, strpos($location, "."));
+        $placeNr = (int)substr($location, strpos($location, ".") + 1);
+        return $this->getPoule($pouleNr)->getPlace($placeNr);
     }
 }
