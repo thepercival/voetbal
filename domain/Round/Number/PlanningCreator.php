@@ -10,6 +10,7 @@ use Voetbal\Planning\Input\Repository as PlanningInputRepository;
 use Voetbal\Planning\ScheduleService;
 use Voetbal\Round\Number as RoundNumber;
 use League\Period\Period;
+use Voetbal\Planning\Service\Create as CreatePlanningService;
 
 class PlanningCreator
 {
@@ -28,15 +29,26 @@ class PlanningCreator
         $this->planningRepos = $planningRepos;
     }
 
-    public function addFrom(RoundNumber $roundNumber, Period $blockedPeriod = null)
+    public function removeFrom(RoundNumber $roundNumber)
     {
+        $this->planningRepos->removeRoundNumber($roundNumber);
+        if ($roundNumber->hasNext()) {
+            $this->removeFrom($roundNumber->getNext());
+        }
+    }
+
+    public function addFrom(
+        CreatePlanningService $createPlanningService,
+        RoundNumber $roundNumber,
+        Period $blockedPeriod = null
+    ) {
         if (!$this->allPreviousRoundNumbersHavePlanning($roundNumber)) {
             return;
         }
-        $this->createFrom($roundNumber, $blockedPeriod);
+        $this->createFrom($createPlanningService, $roundNumber, $blockedPeriod);
     }
 
-    protected function allPreviousRoundNumbersHavePlanning(RoundNumber $roundNumber): bool
+    public function allPreviousRoundNumbersHavePlanning(RoundNumber $roundNumber): bool
     {
         if ($roundNumber->hasPrevious() === false) {
             return true;
@@ -48,8 +60,11 @@ class PlanningCreator
         return $this->allPreviousRoundNumbersHavePlanning($previous);
     }
 
-    protected function createFrom(RoundNumber $roundNumber, Period $blockedPeriod = null)
-    {
+    protected function createFrom(
+        CreatePlanningService $createPlanningService,
+        RoundNumber $roundNumber,
+        Period $blockedPeriod = null
+    ) {
         $scheduler = new ScheduleService($blockedPeriod);
         if ($roundNumber->getHasPlanning()) { // reschedule
             $scheduler->rescheduleGames($roundNumber);
@@ -58,18 +73,29 @@ class PlanningCreator
             $nrOfReferees = $roundNumber->getCompetition()->getReferees()->count();
             $defaultPlanningInput = $inputService->get($roundNumber, $nrOfReferees);
             $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
+            if ($planningInput === null) {
+                $this->inputRepos->save($defaultPlanningInput);
+                return $createPlanningService->sendCreatePlannings(
+                    $defaultPlanningInput,
+                    $roundNumber->getCompetition(),
+                    $roundNumber->getNumber()
+                );
+            }
             $planningService = new PlanningService();
             $planning = $planningService->getBestPlanning($planningInput);
             if ($planning === null) {
-                return;
+                return $createPlanningService->sendCreatePlannings(
+                    $planningInput,
+                    $roundNumber->getCompetition(),
+                    $roundNumber->getNumber()
+                );
             }
             $convertService = new ConvertService($scheduler);
             $convertService->createGames($roundNumber, $planning);
         }
-
         $this->planningRepos->saveRoundNumber($roundNumber, true);
         if ($roundNumber->hasNext()) {
-            $this->createFrom($roundNumber->getNext(), $blockedPeriod);
+            $this->createFrom($createPlanningService, $roundNumber->getNext(), $blockedPeriod);
         }
     }
 }

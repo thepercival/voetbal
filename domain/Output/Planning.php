@@ -68,8 +68,8 @@ class Planning extends VoetbalOutputBase
 
     public function outputPlanningInput(PlanningInput $planningInput, string $prefix = null, string $suffix = null): void
     {
-        $output = $this->getPlanningInputAsString( $planningInput, $prefix, $suffix );
-        $this->logger->info( $prefix . $output . $suffix );
+        $output = $this->getPlanningInputAsString($planningInput, $prefix, $suffix);
+        $this->logger->info($output);
     }
 
     protected function getPlanningInputAsString(PlanningInput $planningInput, string $prefix = null, string $suffix = null): string
