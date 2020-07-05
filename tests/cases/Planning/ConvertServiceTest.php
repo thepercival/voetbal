@@ -2,7 +2,7 @@
 
 namespace Voetbal\Tests\Planning;
 
-use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Round\Number\GamesValidator;
 use Voetbal\TestHelper\CompetitionCreator;
@@ -51,7 +51,7 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($firstRoundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->getFirstBatch());
+        $refereePlaceService->assign($planning->createFirstBatch());
 
         $planningConvertService = new PlanningConvertService(new ScheduleService());
 
@@ -78,11 +78,11 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $firstRoundPlanning = $this->createPlanning($firstRoundNumber, $options);
         $refereePlaceService = new RefereePlaceService($firstRoundPlanning);
-        $refereePlaceService->assign($firstRoundPlanning->getFirstBatch());
+        $refereePlaceService->assign($firstRoundPlanning->createFirstBatch());
 
         $secondRoundPlanning = $this->createPlanning($secondRoundNumber, $options);
         $refereePlaceService = new RefereePlaceService($secondRoundPlanning);
-        $refereePlaceService->assign($secondRoundPlanning->getFirstBatch());
+        $refereePlaceService->assign($secondRoundPlanning->createFirstBatch());
 
         $planningConvertService = new PlanningConvertService(new ScheduleService());
         $planningConvertService->createGames($firstRoundNumber, $firstRoundPlanning);

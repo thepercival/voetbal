@@ -87,7 +87,6 @@ class Repository extends \Voetbal\Repository
         return  $query;
     }
 
-
     public function findOneByExt(Competitor $homeCompetitor, Competitor $awayCompetitor, Period $period): ?GameBase
     {
         $exprHome = $this->getEM()->getExpressionBuilder();

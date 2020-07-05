@@ -301,7 +301,7 @@ class Planning
         return null;
     }
 
-    public function getFirstBatch(): Batch
+    public function createFirstBatch(): Batch
     {
         $games = $this->getGames(GameBase::ORDER_BY_BATCH);
         $batch = new Batch();

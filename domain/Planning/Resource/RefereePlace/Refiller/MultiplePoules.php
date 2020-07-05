@@ -1,13 +1,12 @@
 <?php
 
-namespace Voetbal\Planning\Resource\RefereePlaces;
+namespace Voetbal\Planning\Resource\RefereePlace\Refiller;
 
 use Voetbal\Planning\Batch;
-use Voetbal\Planning\Place;
+use Voetbal\Planning\Resource\RefereePlace\Refiller;
 use Voetbal\Planning\Poule;
-use Voetbal\Planning\Resource\RefereePlaces;
 
-class MultiplePoules extends RefereePlaces
+class MultiplePoules extends Refiller
 {
     public function __construct(array $poules)
     {

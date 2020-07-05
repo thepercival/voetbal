@@ -8,7 +8,7 @@
 
 namespace Voetbal\TestHelper;
 
-use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\Structure;
 use Voetbal\Planning;
 use Voetbal\Round\Number as RoundNumber;
@@ -38,7 +38,7 @@ trait GamesCreator {
 
         if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
             $refereePlaceService = new RefereePlaceService($minIsMaxPlanning);
-            $refereePlaceService->assign($minIsMaxPlanning->getFirstBatch());
+            $refereePlaceService->assign($minIsMaxPlanning->createFirstBatch());
         }
 
         $convertService = new Planning\ConvertService(new Planning\ScheduleService());

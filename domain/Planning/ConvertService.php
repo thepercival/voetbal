@@ -9,7 +9,7 @@
 namespace Voetbal\Planning;
 
 use Voetbal\Game as GameBase;
-use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Planning\Resource\Service;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Game;
@@ -54,7 +54,7 @@ class ConvertService
     public function createGames(RoundNumber $roundNumber, PlanningBase $planning)
     {
         $this->initResources($roundNumber);
-        $firstBatch = $planning->getFirstBatch();
+        $firstBatch = $planning->createFirstBatch();
         $gameStartDateTime = $this->scheduleService->getRoundNumberStartDateTime($roundNumber);
         $planningConfig = $roundNumber->getValidPlanningConfig();
         $this->createBatchGames($firstBatch, $planningConfig, $gameStartDateTime);

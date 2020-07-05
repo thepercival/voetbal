@@ -7,7 +7,7 @@ use Voetbal\Output\Planning\Batch as PlanningBatchOutput;
 use Voetbal\Planning\Batch;
 use Voetbal\Field;
 use Voetbal\Planning;
-use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
@@ -96,7 +96,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->getFirstBatch());
+        $refereePlaceService->assign($planning->createFirstBatch());
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -320,7 +320,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
 
-        $this->replaceReferee($planning->getFirstBatch(), $planning->getReferee(1), $planning->getReferee(2), 2);
+        $this->replaceReferee($planning->createFirstBatch(), $planning->getReferee(1), $planning->getReferee(2), 2);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
@@ -383,13 +383,13 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->getFirstBatch());
+        $refereePlaceService->assign($planning->createFirstBatch());
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->output($planning, true);
 
         $this->replaceRefereePlace(
-            $planning->getFirstBatch(),
+            $planning->createFirstBatch(),
             $planning->getPoule(1)->getPlace(1),
             $planning->getPoule(1)->getPlace(2)
         );
@@ -423,7 +423,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
-        $refereePlaceService->assign($planning->getFirstBatch());
+        $refereePlaceService->assign($planning->createFirstBatch());
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -451,7 +451,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
 
-        $this->replaceReferee($planning->getFirstBatch(), $planning->getReferee(3), $planning->getReferee(1));
+        $this->replaceReferee($planning->createFirstBatch(), $planning->getReferee(3), $planning->getReferee(1));
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);

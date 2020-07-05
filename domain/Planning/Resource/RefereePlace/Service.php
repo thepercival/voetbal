@@ -6,7 +6,7 @@
  * Time: 11:55
  */
 
-namespace Voetbal\Planning\Resource;
+namespace Voetbal\Planning\Resource\RefereePlace;
 
 use DateTimeImmutable;
 use Voetbal\Output\Planning\Batch as BatchOutput;
@@ -21,7 +21,7 @@ use Voetbal\Planning\Validator\GameAssignments as GameAssignmentValidator;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
 
-class RefereePlaceService
+class Service
 {
     /**
      * @var PlanningBase
@@ -35,6 +35,10 @@ class RefereePlaceService
      * @var array
      */
     private $canBeSamePoule;
+    /**
+     * @var Replacer
+     */
+    private $replacer;
 
     protected const TIMEOUTSECONDS = 60;
 
@@ -42,6 +46,7 @@ class RefereePlaceService
     {
         $this->planning = $planning;
         $this->nrOfPlaces = $this->planning->getStructure()->getNrOfPlaces();
+        $this->replacer = new Replacer();
     }
 
     protected function getInput(): Input
@@ -156,7 +161,7 @@ class RefereePlaceService
     ): bool {
         if (count($batchGames) === 0) { // batchsuccess
             if ($batch->hasNext() === false) { // endsuccess
-                return $this->equallyAssign();
+                return $this->equallyAssign($batch);
             }
             if ((new DateTimeImmutable()) > $timeoutDateTime) { // @FREDDY
                 throw new TimeoutException(
@@ -184,63 +189,9 @@ class RefereePlaceService
         return false;
     }
 
-    protected function equallyAssign(): bool
+    protected function equallyAssign(Batch $batch): bool
     {
-        $gameAssignmentValidator = new GameAssignmentValidator($this->planning);
-        /** @var array|UnequalGameCounter[] $unequals */
-        $unequals = $gameAssignmentValidator->getRefereePlaceUnequals();
-        if (count($unequals) === 0) {
-            return true;
-        }
-        if (count($unequals) > 1) {
-            return false;
-        }
-        /** @var UnequalGameCounter $unequal */
-        $unequal = reset($unequals);
-        if ($unequal->getDifference() > 2) {
-            return false;
-        }
-        $minGameCounters = $unequal->getMinGameCounters();
-        $maxGameCounters = $unequal->getMaxGameCounters();
-
-        if (count($minGameCounters) !== 1 && count($maxGameCounters) !== 1) {
-            return false;
-        }
-        /** @var PlaceGameCounter $replacedGameCounter */
-        foreach ($maxGameCounters as $replacedGameCounter) {
-            /** @var PlaceGameCounter $replaceByGameCounter */
-            foreach ($minGameCounters as $replaceByGameCounter) {
-                if ($this->replaceRefereePlace(
-                    $this->planning->getFirstBatch(),
-                    $replacedGameCounter->getPlace(),
-                    $replaceByGameCounter->getPlace(),
-                )) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    protected function replaceRefereePlace(
-        Batch $batch,
-        Place $replacedPlace,
-        Place $replaceWithPlace
-    ): bool {
-        /** @var Game $game */
-        foreach ($batch->getGames() as $game) {
-            if ($game->getRefereePlace() !== $replacedPlace ||
-                $batch->isParticipating($replaceWithPlace) || $batch->isParticipatingAsReferee($replaceWithPlace)
-            ) {
-                continue;
-            }
-            $game->setRefereePlace($replaceWithPlace);
-            return true;
-        }
-        if ($batch->hasNext()) {
-            return $this->replaceRefereePlace($batch->getNext(), $replacedPlace, $replaceWithPlace);
-        }
-        return false;
+        return $this->replacer->replaceUnequals($this->planning, $batch->getFirst());
     }
 
     private function isRefereePlaceAssignable(Batch $batch, Game $game, Place $refereePlace): bool

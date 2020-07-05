@@ -4,7 +4,7 @@ namespace Voetbal\Tests\Round\Number;
 
 use \Exception;
 use Voetbal\Game;
-use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Planning\Resource\Service;
 use Voetbal\Poule;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\DefaultStructureOptions;

@@ -13,46 +13,13 @@ use Voetbal\Planning\Place as PlanningPlace;
 use Voetbal\Planning\Game as PlanningGame;
 use Voetbal\Planning\Field as PlanningField;
 use Voetbal\Planning\Referee as PlanningReferee;
+use Voetbal\Planning\Resource\RefereePlace\Replacer as RefereePlaceReplacer;
 
 trait PlanningReplacer
 {
-    protected function replaceRefereePlace(
-        Batch $batch,
-        PlanningPlace $replacedPlace,
-        PlanningPlace $replacedByPlace,
-        int $amount = 1
-    ): bool {
-        return $this->replaceRefereePlaceHelper($batch->getNext(), $replacedPlace, $replacedByPlace, 0, $amount);
-    }
-
-    protected function replaceRefereePlaceHelper(
-        Batch $batch,
-        PlanningPlace $fromPlace,
-        PlanningPlace $toPlace,
-        int $amountReplaced,
-        int $maxAmount
-    ): bool {
-        $batchHasToPlace = $batch->isParticipating($toPlace) || $batch->isParticipatingAsReferee($toPlace);
-        /** @var PlanningGame $game */
-        foreach ($batch->getGames() as $game) {
-            if ($game->getRefereePlace() !== $fromPlace || $batchHasToPlace) {
-                continue;
-            }
-            $game->setRefereePlace($toPlace);
-            if (++$amountReplaced === $maxAmount) {
-                return true;
-            }
-        }
-        if ($batch->hasNext()) {
-            return $this->replaceRefereePlaceHelper(
-                $batch->getNext(),
-                $fromPlace,
-                $toPlace,
-                $amountReplaced,
-                $maxAmount
-            );
-        }
-        return false;
+    protected function replaceRefereePlace(Batch $firstBatch, PlanningPlace $replaced, PlanningPlace $replacement)
+    {
+        (new RefereePlaceReplacer())->replace($firstBatch, $replaced, $replacement);
     }
 
     protected function replaceField(

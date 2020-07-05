@@ -7,5 +7,5 @@ use Voetbal\Planning\Input;
 
 interface Create
 {
-    public function sendCreatePlannings(Input $input, Competition $competition, int $startRoundNumber);
+    public function sendCreatePlannings(Input $input, Competition $competition = null, int $startRoundNumber = null);
 }

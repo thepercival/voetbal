@@ -1,6 +1,6 @@
 <?php
 
-namespace Voetbal\Planning\Resource;
+namespace Voetbal\Planning\Resource\RefereePlace;
 
 use Voetbal\Planning\Batch;
 use Voetbal\Planning\Game;
@@ -8,7 +8,7 @@ use Voetbal\Planning\Place;
 use Voetbal\Planning\Poule;
 use Voetbal\Planning\Referee;
 
-abstract class RefereePlaces implements \IteratorAggregate
+abstract class Refiller // implements \IteratorAggregate
 {
     /**
      * @var array|Poule[]

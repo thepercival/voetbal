@@ -58,7 +58,7 @@ class Planning extends VoetbalOutputBase
         $this->logger->info($prefix . $output . $suffix);
         if ($withGames) {
             $batchOutput = new Planning\Batch($this->logger);
-            $batchOutput->output($planning->getFirstBatch());
+            $batchOutput->output($planning->createFirstBatch());
         }
         if ($withTotals) {
             $assignmentValidator = new GameAssignments($planning);

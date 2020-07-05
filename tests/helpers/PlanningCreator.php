@@ -9,7 +9,7 @@
 namespace Voetbal\TestHelper;
 
 use Voetbal\Planning;
-use Voetbal\Planning\Resource\RefereePlaceService;
+use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Input\Service as PlanningInputService;
@@ -28,7 +28,7 @@ trait PlanningCreator {
         }
         if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
             $refereePlaceService = new RefereePlaceService($planning);
-            $refereePlaceService->assign($planning->getFirstBatch());
+            $refereePlaceService->assign($planning->createFirstBatch());
         }
         return $planning;
     }

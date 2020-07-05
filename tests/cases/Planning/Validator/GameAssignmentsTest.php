@@ -107,7 +107,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $firstPoule = $planning->getPoule(1);
         $replacedPlace = $firstPoule->getPlace(5);
         $replacedByPlace = $firstPoule->getPlace(1);
-        $this->replaceRefereePlace($planning->getFirstBatch(), $replacedPlace, $replacedByPlace);
+        $this->replaceRefereePlace($planning->createFirstBatch(), $replacedPlace, $replacedByPlace);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -149,7 +149,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $secondPoule = $planning->getPoule(2);
         $replacedPlace = $secondPoule->getPlace(3);
         $replacedByPlace = $secondPoule->getPlace(4);
-        $this->replaceRefereePlace($planning->getFirstBatch(), $replacedPlace, $replacedByPlace);
+        $this->replaceRefereePlace($planning->createFirstBatch(), $replacedPlace, $replacedByPlace);
 
         $validator = new GameAssignmentValidator($planning);
         $unequals = $validator->getRefereePlaceUnequals();
@@ -172,7 +172,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $planningGames = $planning->getPoule(1)->getGames();
         $replacedField = $planning->getField(2);
         $replacedByField = $planning->getField(1);
-        $this->replaceField($planning->getFirstBatch(), $replacedField, $replacedByField);
+        $this->replaceField($planning->createFirstBatch(), $replacedField, $replacedByField);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -197,7 +197,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $planningGames = $planning->getPoule(1)->getGames();
         $replacedReferee = $planning->getReferee(2);
         $replacedByReferee = $planning->getReferee(1);
-        $this->replaceReferee($planning->getFirstBatch(), $replacedReferee, $replacedByReferee);
+        $this->replaceReferee($planning->createFirstBatch(), $replacedReferee, $replacedByReferee);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -222,7 +222,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $firstPoule = $planning->getPoule(1);
         $replacedPlace = $firstPoule->getPlace(5);
         $replacedByPlace = $firstPoule->getPlace(1);
-        $this->replaceRefereePlace($planning->getFirstBatch(), $replacedPlace, $replacedByPlace);
+        $this->replaceRefereePlace($planning->createFirstBatch(), $replacedPlace, $replacedByPlace);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
