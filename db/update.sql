@@ -9,7 +9,7 @@ where selfReferee = 1
 update plannings
 set validity = -1;
 
--- php bin/console.php app:create-default-planning-input --placesRange=2-10 --sendCreatePlanningMessage=true
+-- php bin/console.php app:create-default-planning-input --placesRange=2-20 --sendCreatePlanningMessage=true
 
 -- CUSTOM IMPORT =============================
 -- mysqldump -u fctoernooi_a_dba -p fctoernooiacc planninginputs plannings planningsports planningfields planningpoules planningplaces planningreferees planninggames planninggameplaces > planninginputs.sql
