@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Range as VoetbalRange;
+use Voetbal\Sport\Config\Service as SportConfigService;
 use Voetbal\Sport\Service as SportService;
 
 class Input
@@ -37,7 +38,7 @@ class Input
      */
     protected $teamup;
     /**
-     * @var bool
+     * @var int
      */
     protected $selfReferee;
     /**
@@ -62,12 +63,16 @@ class Input
     public const STATE_UPDATING_BESTPLANNING_SELFREFEE = 4;
     public const STATE_ALL_PLANNINGS_TRIED = 8;
 
+    public const SELFREFEREE_DISABLED = 0;
+    public const SELFREFEREE_OTHERPOULES = 1;
+    public const SELFREFEREE_SAMEPOULE = 2;
+
     public function __construct(
         array $structureConfig,
         array $sportConfig,
         int $nrOfReferees,
         bool $teamup,
-        bool $selfReferee,
+        int $selfReferee,
         int $nrOfHeadtohead
     ) {
         $this->structureConfig = $structureConfig;
@@ -151,9 +156,14 @@ class Input
         return $this->teamup;
     }
 
-    public function getSelfReferee(): bool
+    public function getSelfReferee(): int
     {
         return $this->selfReferee;
+    }
+
+    public function selfRefereeEnabled(): bool
+    {
+        return $this->selfReferee !== self::SELFREFEREE_DISABLED;
     }
 
     public function getState(): int
@@ -174,7 +184,7 @@ class Input
         }
 
         if ((Resources::REFEREES & $resources) === Resources::REFEREES || $resources === null) {
-            if ($this->getSelfReferee() === false && $this->getNrOfReferees() > 0
+            if (!$this->selfRefereeEnabled() && $this->getNrOfReferees() > 0
                 && ($this->getNrOfReferees() < $maxNrOfBatchGames || $maxNrOfBatchGames === null)) {
                 $maxNrOfBatchGames = $this->getNrOfReferees();
             }
@@ -197,7 +207,7 @@ class Input
      */
     protected function getNrOfGamesSimultaneously(): int
     {
-        $sportService = new SportService();
+        $sportConfigService = new SportConfigService();
 
         // default sort, sportconfig shoud not be altered
 //        uasort( $sports, function ( $sportA, $sportB ) {
@@ -219,8 +229,11 @@ class Input
         $nrOfGamesSimultaneously = 0;
         while ($nrOfPlaces > 0 && count($fieldsNrOfGamePlaces) > 0) {
             $nrOfGamePlaces = array_shift($fieldsNrOfGamePlaces);
-            $nrOfPlaces -= $sportService->getNrOfGamePlaces($nrOfGamePlaces, $this->teamup, $this->selfReferee);
-            ;
+            $nrOfPlaces -= $sportConfigService->getNrOfGamePlaces(
+                $nrOfGamePlaces,
+                $this->teamup,
+                $this->selfRefereeEnabled()
+            );
             if ($nrOfPlaces >= 0) {
                 $nrOfGamesSimultaneously++;
             }
@@ -266,7 +279,7 @@ class Input
             . ', sports [' . implode(',', $sports) . ']'
             . ', referees ' . $planningInput->getNrOfReferees()
             . ', teamup ' . ($planningInput->getTeamup() ? '1' : '0')
-            . ', selfRef ' . ($planningInput->getSelfReferee() ? '1' : '0')
+            . ', selfRef ' . $planningInput->getSelfReferee()
             . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();
     }
 

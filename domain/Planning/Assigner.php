@@ -8,11 +8,11 @@
 
 namespace Voetbal\Planning;
 
-use Voetbal\Game as GameBase;
+use Voetbal\Game;
+use Voetbal\Planning;
 use Voetbal\Planning\Resource\Service;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning as PlanningBase;
-use Voetbal\Game;
 use Voetbal\Planning\Game as PlanningGame;
 use Voetbal\Game\Place as GamePlace;
 use Voetbal\Planning\Game\Place as PlanningGamePlace;
@@ -27,7 +27,7 @@ use Voetbal\Planning\Referee as PlanningReferee;
 use Voetbal\Competition;
 use League\Period\Period;
 
-class ConvertService
+class Assigner
 {
     /**
      * @var array|Poule[]
@@ -36,11 +36,11 @@ class ConvertService
     /**
      * @var array|Field[]
      */
-    protected $fields;
+    protected $fieldMap;
     /**
      * @var array|Referee[]
      */
-    protected $referees;
+    protected $refereeMap;
     /**
      * @var ScheduleService
      */
@@ -53,7 +53,7 @@ class ConvertService
 
     public function createGames(RoundNumber $roundNumber, PlanningBase $planning)
     {
-        $this->initResources($roundNumber);
+        $this->initResources($roundNumber, $planning);
         $firstBatch = $planning->createFirstBatch();
         $gameStartDateTime = $this->scheduleService->getRoundNumberStartDateTime($roundNumber);
         $planningConfig = $roundNumber->getValidPlanningConfig();
@@ -65,7 +65,7 @@ class ConvertService
         /** @var PlanningGame $planningGame */
         foreach ($batch->getGames() as $planningGame) {
             $poule = $this->getPoule($planningGame->getPoule());
-            $game = new GameBase($poule, $planningGame->getBatchNr(), $gameStartDateTime);
+            $game = new Game($poule, $planningGame->getBatchNr(), $gameStartDateTime);
             $game->setField($this->getField($planningGame->getField()));
             $game->setReferee($this->getReferee($planningGame->getReferee()));
             $game->setRefereePlace($this->getPlace($planningGame->getRefereePlace()));
@@ -82,11 +82,10 @@ class ConvertService
         }
     }
 
-    protected function initResources(RoundNumber $roundNumber)
+    protected function initResources(RoundNumber $roundNumber, Planning $planning)
     {
         $this->initPoules($roundNumber);
-        $this->initFields($roundNumber->getCompetition());
-        $this->initReferees($roundNumber->getCompetition());
+        $this->initFieldsAndReferees($roundNumber, $planning);
     }
 
     protected function initPoules(RoundNumber $roundNumber)
@@ -97,34 +96,70 @@ class ConvertService
                 return $pouleA->getPlaces()->count() >= $pouleB->getPlaces()->count() ? -1 : 1;
             });
         } else {
-            uasort($poules, function (Poule $pouleA, Poule $pouleB) {
-                if ($pouleA->getPlaces()->count() === $pouleB->getPlaces()->count()) {
-                    return $pouleA->getStructureNumber() >= $pouleB->getStructureNumber() ? -1 : 1;
+            uasort(
+                $poules,
+                function (Poule $pouleA, Poule $pouleB) {
+                    if ($pouleA->getPlaces()->count() === $pouleB->getPlaces()->count()) {
+                        return $pouleA->getStructureNumber() >= $pouleB->getStructureNumber() ? -1 : 1;
+                    }
+                    return $pouleA->getPlaces()->count() >= $pouleB->getPlaces()->count() ? -1 : 1;
                 }
-                return $pouleA->getPlaces()->count() >= $pouleB->getPlaces()->count() ? -1 : 1;
-            });
+            );
         }
         $this->poules = array_values($poules);
     }
 
-    protected function initFields(Competition $competition)
+
+    protected function initFieldsAndReferees(RoundNumber $roundNumber, Planning $planning)
     {
-        $this->fields = $competition->getFields();
+        $games = $planning->getGames(Game::ORDER_BY_BATCH);
+        if (!$roundNumber->isFirst()) {
+            $games = array_reverse($games);
+        }
+        $this->initFields($games, $roundNumber->getCompetition()->getFields());
+        $this->initReferees($games, $roundNumber->getCompetition()->getReferees()->toArray());
     }
 
-    protected function initReferees(Competition $competition)
+    protected function initFields(array $games, array $fields)
     {
-        $this->referees = $competition->getReferees()->toArray();
+        $this->fieldMap = [];
+        foreach ($games as $game) {
+            $this->fieldMap[$game->getField()->getNumber()] = array_pop($fields);
+            if (count($fields) === 0) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * @param array|PlanningGame[] $games
+     * @param array|Referee[] $referees
+     */
+    protected function initReferees(array $games, array $referees)
+    {
+        $this->refereeMap = [];
+        if (count($referees) === 0) {
+            return;
+        }
+        foreach ($games as $game) {
+            if ($game->getReferee() === null) {
+                return;
+            }
+            $this->refereeMap[$game->getReferee()->getNumber()] = array_pop($referees);
+            if (count($referees) === 0) {
+                break;
+            }
+        }
     }
 
     protected function getPoule(PlanningPoule $poule): Poule
     {
-        return $this->poules[ $poule->getNumber() - 1 ];
+        return $this->poules[$poule->getNumber() - 1];
     }
 
     protected function getField(PlanningField $field): Field
     {
-        return $this->fields[ $field->getNumber() - 1 ];
+        return $this->fieldMap[$field->getNumber()];
     }
 
     protected function getReferee(PlanningReferee $referee = null): ?Referee
@@ -132,7 +167,7 @@ class ConvertService
         if ($referee === null) {
             return null;
         }
-        return $this->referees[$referee->getNumber() - 1];
+        return $this->refereeMap[$referee->getNumber()];
     }
 
     protected function getPlace(PlanningPlace $planningPlace = null): ?Place

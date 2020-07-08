@@ -50,7 +50,7 @@ class Config
      */
     protected $teamup;
     /**
-     * @var bool
+     * @var int
      */
     protected $selfReferee;
     /**
@@ -187,14 +187,19 @@ class Config
         $this->teamup = $teamup;
     }
 
-    public function getSelfReferee(): bool
+    public function getSelfReferee(): int
     {
         return $this->selfReferee;
     }
 
-    public function setSelfReferee(bool $selfReferee)
+    public function setSelfReferee(int $selfReferee)
     {
         $this->selfReferee = $selfReferee;
+    }
+
+    public function selfRefereeEnabled(): bool
+    {
+        return $this->selfReferee !== Input::SELFREFEREE_DISABLED;
     }
 
     public function getNrOfHeadtohead(): int

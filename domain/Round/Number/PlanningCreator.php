@@ -2,7 +2,7 @@
 
 namespace Voetbal\Round\Number;
 
-use Voetbal\Planning\ConvertService;
+use Voetbal\Planning\Assigner;
 use Voetbal\Planning\Input\Service as PlanningInputService;
 use Voetbal\Planning\Service as PlanningService;
 use Voetbal\Planning\Repository as PlanningRepository;
@@ -11,6 +11,7 @@ use Voetbal\Planning\ScheduleService;
 use Voetbal\Round\Number as RoundNumber;
 use League\Period\Period;
 use Voetbal\Planning\Service\Create as CreatePlanningService;
+use Psr\Log\LoggerInterface;
 
 class PlanningCreator
 {
@@ -22,11 +23,19 @@ class PlanningCreator
      * @var PlanningRepository
      */
     protected $planningRepos;
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
-    public function __construct(PlanningInputRepository $inputRepos, PlanningRepository $planningRepos)
-    {
+    public function __construct(
+        PlanningInputRepository $inputRepos,
+        PlanningRepository $planningRepos,
+        LoggerInterface $logger = null
+    ) {
         $this->inputRepos = $inputRepos;
         $this->planningRepos = $planningRepos;
+        $this->logger = $logger;
     }
 
     public function removeFrom(RoundNumber $roundNumber)
@@ -75,22 +84,25 @@ class PlanningCreator
             $planningInput = $this->inputRepos->getFromInput($defaultPlanningInput);
             if ($planningInput === null) {
                 $this->inputRepos->save($defaultPlanningInput);
-                return $createPlanningService->sendCreatePlannings(
+                if ($this->logger !== null) {
+                    $this->logger->info("DEBUG: send message for roundnumber " . $roundNumber->getNumber());
+                }
+                $createPlanningService->sendCreatePlannings(
                     $defaultPlanningInput,
                     $roundNumber->getCompetition(),
                     $roundNumber->getNumber()
                 );
+                return;
             }
             $planningService = new PlanningService();
             $planning = $planningService->getBestPlanning($planningInput);
             if ($planning === null) {
-                return $createPlanningService->sendCreatePlannings(
-                    $planningInput,
-                    $roundNumber->getCompetition(),
-                    $roundNumber->getNumber()
-                );
+                if ($this->logger !== null) {
+                    $this->logger->info("DEBUG: no best planning found");
+                }
+                return;
             }
-            $convertService = new ConvertService($scheduler);
+            $convertService = new Assigner($scheduler);
             $convertService->createGames($roundNumber, $planning);
         }
         $this->planningRepos->saveRoundNumber($roundNumber, true);

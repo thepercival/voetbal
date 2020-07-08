@@ -46,8 +46,9 @@ class Validator
     public const UNEQUALLY_ASSIGNED_FIELDS = 2048;
     public const UNEQUALLY_ASSIGNED_REFEREES = 4096;
     public const UNEQUALLY_ASSIGNED_REFEREEPLACES = 8192;
+    public const INVALID_ASSIGNED_REFEREEPLACE = 16384;
 
-    public const ALL_INVALID = 16383;
+    public const ALL_INVALID = 32767;
 
     public function __construct()
     {
@@ -148,9 +149,14 @@ class Validator
             if ($game->getField() === null) {
                 return self::EMPTY_FIELD;
             }
-            if ($this->planning->getInput()->getSelfReferee()) {
+            if ($this->planning->getInput()->selfRefereeEnabled()) {
                 if ($game->getRefereePlace() === null) {
                     return self::EMPTY_REFEREEPLACE;
+                } else {
+                    if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE
+                        && $game->getRefereePlace()->getPoule() !== $game->getPoule()) {
+                        return self::INVALID_ASSIGNED_REFEREEPLACE;
+                    }
                 }
             } else {
                 if ($this->planning->getInput()->getNrOfReferees() > 0) {
@@ -253,7 +259,7 @@ class Validator
             $batchResources = &$batchesResources[$game->getBatchNr()];
             /** @var array|Place[] $places */
             $places = $this->getPlaces($game);
-            if ($this->planning->getInput()->getSelfReferee()) {
+            if ($this->planning->getInput()->selfRefereeEnabled()) {
                 $places[] = $game->getRefereePlace();
             }
             foreach ($places as $placeIt) {

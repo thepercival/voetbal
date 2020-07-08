@@ -3,6 +3,7 @@
 namespace Voetbal\Tests\Planning\Validator;
 
 use \Exception;
+use Voetbal\Planning\Input;
 use Voetbal\Planning\Resource\GameCounter;
 use Voetbal\Planning\Validator\GameAssignments as GameAssignmentValidator;
 use Voetbal\Referee;
@@ -74,7 +75,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
@@ -100,7 +101,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
@@ -142,7 +143,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 9, 2);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
@@ -215,7 +216,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
@@ -240,7 +241,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 

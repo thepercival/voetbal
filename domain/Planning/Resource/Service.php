@@ -28,7 +28,7 @@ use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Planning\Batch;
 use Voetbal\Output\Planning\Batch as BatchOutput;
-use Voetbal\Output\Planning as PlanningOutput;
+use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Game as GameBase;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
@@ -118,7 +118,12 @@ class Service
         $sportCounters = [];
         foreach ($this->planning->getPoules() as $poule) {
             $pouleNrOfPlaces = $poule->getPlaces()->count();
-            $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace($pouleNrOfPlaces, $teamup, false, $nrOfHeadtohead);
+            $nrOfGamesToGo = $sportService->getNrOfGamesPerPlace(
+                $pouleNrOfPlaces,
+                $teamup,
+                PlanningInput::SELFREFEREE_DISABLED,
+                $nrOfHeadtohead
+            );
 
             // $sportsNrFieldsGames = $sportService->getPlanningMinNrOfGames($sportsNrFields, $pouleNrOfPlaces, $teamup, $selfReferee, $nrOfHeadtohead );
             // hier moet de $sportsNrFieldsGames puur berekent worden op basis van aantal sporten

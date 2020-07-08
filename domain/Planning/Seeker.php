@@ -193,9 +193,12 @@ class Seeker
             }
         }
 
-        $input->setState($input->getSelfReferee() ? Input::STATE_UPDATING_BESTPLANNING_SELFREFEE: Input::STATE_ALL_PLANNINGS_TRIED);
+        $input->setState(
+            $input->selfRefereeEnabled(
+            ) ? Input::STATE_UPDATING_BESTPLANNING_SELFREFEE : Input::STATE_ALL_PLANNINGS_TRIED
+        );
         $this->inputRepos->save($input);
-        $info = $input->getSelfReferee() ? 'STATE_UPDATING_BESTPLANNING_SELFREFEE':  'STATE_ALL_PLANNINGS_TRIED';
+        $info = $input->selfRefereeEnabled() ? 'STATE_UPDATING_BESTPLANNING_SELFREFEE' : 'STATE_ALL_PLANNINGS_TRIED';
         $this->logger->info('   update state => ' . $info);
     }
 

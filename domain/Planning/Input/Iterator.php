@@ -14,7 +14,9 @@ use Voetbal\Range as VoetbalRange;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Sport;
 use Voetbal\Structure\Service as StructureService;
+use Voetbal\Sport\Config\Service as SportConfigService;
 use Voetbal\Structure\Options as StructureOptions;
+
 
 class Iterator
 {
@@ -51,6 +53,10 @@ class Iterator
      */
     protected $planningConfigService;
     /**
+     * @var SportConfigService
+     */
+    protected $sportConfigService;
+    /**
      * @var int
      */
     protected $nrOfPlaces;
@@ -79,7 +85,7 @@ class Iterator
      */
     protected $teamup;
     /**
-     * @var bool
+     * @var int
      */
     protected $selfReferee;
 
@@ -87,6 +93,10 @@ class Iterator
      * @var bool
      */
     protected $incremented;
+    /**
+     * @var int
+     */
+    protected $nrOfGamesPlaces;
 
     public function __construct(
         StructureOptions $options,
@@ -104,6 +114,9 @@ class Iterator
 
         $this->structureService = new StructureService($options);
         $this->planningConfigService = new PlanningConfigService();
+        $this->sportConfigService = new SportConfigService();
+        // @TODO SHOULD BE IN ITERATION
+        $this->nrOfGamesPlaces = Sport::TEMPDEFAULT;
 
         $this->incremented = false;
         $this->init();
@@ -189,7 +202,7 @@ class Iterator
 
     protected function initSelfReferee()
     {
-        $this->selfReferee = false;
+        $this->selfReferee = PlanningInput::SELFREFEREE_DISABLED;
     }
 
 
@@ -251,17 +264,28 @@ class Iterator
 
     protected function incrementSelfReferee(): bool
     {
-        if ($this->nrOfReferees > 0 || $this->selfReferee === true) {
+        if ($this->nrOfReferees > 0 || $this->selfReferee === PlanningInput::SELFREFEREE_SAMEPOULE) {
             return $this->incrementTeamup();
         }
+
+        $nrOfGamePlaces = $this->sportConfigService->getNrOfGamePlaces($this->nrOfGamesPlaces, $this->teamup, false);
         $selfRefereeIsAvailable = $this->planningConfigService->canSelfRefereeBeAvailable(
-            $this->teamup,
-            $this->nrOfPlaces
+            $this->nrOfPoules,
+            $this->nrOfPlaces,
+            $nrOfGamePlaces
         );
         if ($selfRefereeIsAvailable === false) {
             return $this->incrementTeamup();
         }
-        $this->selfReferee = true;
+        if ($this->selfReferee === PlanningInput::SELFREFEREE_DISABLED) {
+            if ($this->planningConfigService->canSelfRefereeOtherPoulesBeAvailable($this->nrOfPoules)) {
+                $this->selfReferee = PlanningInput::SELFREFEREE_OTHERPOULES;
+            } else {
+                $this->selfReferee = PlanningInput::SELFREFEREE_SAMEPOULE;
+            }
+        } else {
+            $this->selfReferee = PlanningInput::SELFREFEREE_SAMEPOULE;
+        }
         return true;
     }
 

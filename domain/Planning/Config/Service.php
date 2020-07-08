@@ -9,8 +9,8 @@
 namespace Voetbal\Planning\Config;
 
 use Voetbal\Planning\Config as PlanningConfig;
+use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Round\Number as RoundNumber;
-use Voetbal\Sport\PlanningConfig as SportPlanningConfig;
 
 class Service
 {
@@ -27,7 +27,7 @@ class Service
         $config->setMinutesBetweenGames($this->getDefaultMinutesBetweenGames());
         $config->setMinutesAfter($this->getDefaultMinutesAfter());
         $config->setTeamup(false);
-        $config->setSelfReferee(false);
+        $config->setSelfReferee(PlanningInput::SELFREFEREE_DISABLED);
         $config->setNrOfHeadtohead(PlanningConfig::DEFAULTNROFHEADTOHEAD);
         return $config;
     }
@@ -71,26 +71,24 @@ class Service
         return 5;
     }
 
-    public function isTeamupAvailable(RoundNumber $roundNumber)
+    public function isTeamupAvailable(RoundNumber $roundNumber): bool
     {
         $sportConfigs = $roundNumber->getSportConfigs();
-        if ($sportConfigs->count() > 1) {
-            return false;
-        }
         foreach ($sportConfigs as $sportConfig) {
             if ($sportConfig->getSport()->getTeam()) {
                 return false;
             }
         }
         foreach ($roundNumber->getPoules() as $poule) {
-            if ($poule->getPlaces()->count() < PlanningConfig::TEAMUP_MIN || $poule->getPlaces()->count() > PlanningConfig::TEAMUP_MAX) {
+            if ($poule->getPlaces()->count() < PlanningConfig::TEAMUP_MIN || $poule->getPlaces()->count(
+                ) > PlanningConfig::TEAMUP_MAX) {
                 return false;
             }
         }
         return true;
     }
 
-    public function canTeamupBeAvailable(array $structureConfig, array $sportConfig)
+    public function canTeamupBeAvailable(array $structureConfig, array $sportConfig): bool
     {
         if (count($sportConfig) > 1) {
             return false;
@@ -103,8 +101,19 @@ class Service
         return true;
     }
 
-    public function canSelfRefereeBeAvailable(bool $teamup, int $nrOfPlaces)
+    public function canSelfRefereeBeAvailable(int $nrOfPoules, int $nrOfPlaces, int $nrOfGamePlaces): bool
     {
-        return $nrOfPlaces > ($teamup ? 4 : 2);
+        return $this->canSelfRefereeSamePouleBeAvailable($nrOfPoules, $nrOfPlaces, $nrOfGamePlaces)
+            || $this->canSelfRefereeOtherPoulesBeAvailable($nrOfPoules);
+    }
+
+    public function canSelfRefereeOtherPoulesBeAvailable(int $nrOfPoules): bool
+    {
+        return $nrOfPoules > 1;
+    }
+
+    public function canSelfRefereeSamePouleBeAvailable(int $nrOfPoules, int $nrOfPlaces, int $nrOfGamePlaces): bool
+    {
+        return floor($nrOfPoules / $nrOfPlaces) >= ($nrOfGamePlaces + 1);
     }
 }

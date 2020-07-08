@@ -14,6 +14,7 @@ use Voetbal\Planning\Place;
 use Voetbal\Planning\Poule;
 use Voetbal\Planning\Referee;
 use Voetbal\Planning\Resource\GameCounter;
+use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Resource\GameCounter\Place as PlaceGameCounter;
 use Voetbal\Planning\Resource\GameCounter\Unequal as UnequalGameCounter;
 
@@ -56,7 +57,7 @@ class GameAssignments
             $this->fields[(string)$field->getNumber()] = new GameCounter($field);
         }
 
-        if ($this->planning->getInput()->getSelfReferee()) {
+        if ($this->planning->getInput()->selfRefereeEnabled()) {
             /** @var Place $place */
             foreach ($this->planning->getPlaces() as $place) {
                 $gameCounter = new PlaceGameCounter($place);
@@ -74,7 +75,7 @@ class GameAssignments
             if ($game->getField() !== null) {
                 $this->fields[(string)$game->getField()->getNumber()]->increase();
             }
-            if ($this->planning->getInput()->getSelfReferee()) {
+            if ($this->planning->getInput()->selfRefereeEnabled()) {
                 if ($game->getRefereePlace() !== null) {
                     $this->refereePlaces[$game->getRefereePlace()->getLocation()]->increase();
                 }
@@ -127,6 +128,9 @@ class GameAssignments
     protected function shouldValidatePerPoule(): bool
     {
         $nrOfPoules = $this->planning->getPoules()->count();
+        if ($this->planning->getInput()->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE) {
+            return true;
+        }
         if (($this->planning->getPlaces()->count() % $nrOfPoules) === 0) {
             return false;
         }
@@ -134,7 +138,7 @@ class GameAssignments
             return true;
         }
         $input = $this->planning->getInput();
-        if ($nrOfPoules > 2 && $input->getTeamup() && $input->getSelfReferee()) {
+        if ($nrOfPoules > 2 && $input->getTeamup() && $input->selfRefereeEnabled()) {
             return true;
         }
         return false;

@@ -2,6 +2,7 @@
 
 namespace Voetbal\Tests\Planning;
 
+use Voetbal\Planning\Input;
 use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Round\Number\GamesValidator;
@@ -9,7 +10,7 @@ use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
 use Voetbal\Structure\Service as StructureService;
-use Voetbal\Planning\ConvertService as PlanningConvertService;
+use Voetbal\Planning\Assigner as PlanningConvertService;
 use Voetbal\Planning\ScheduleService;
 
 class ConvertServiceTest extends \PHPUnit\Framework\TestCase
@@ -47,7 +48,7 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
 
-        $firstRoundNumber->getPlanningConfig()->setSelfReferee(true);
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($firstRoundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);

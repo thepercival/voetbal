@@ -7,6 +7,7 @@ use Voetbal\Output\Planning\Batch as PlanningBatchOutput;
 use Voetbal\Planning\Batch;
 use Voetbal\Field;
 use Voetbal\Planning;
+use Voetbal\Planning\Input;
 use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\DefaultStructureOptions;
@@ -92,7 +93,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $roundNumber = $structure->getFirstRoundNumber();
 
-        $roundNumber->getPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
@@ -365,6 +366,46 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         return false;
     }
 
+    public function testInvalidAssignedRefereePlaceSamePoule()
+    {
+        $competition = $this->createCompetition();
+
+        // remove field
+        $competition->getFirstSportConfig()->getFields()->removeElement(
+            $competition->getFirstSportConfig()->getFields()->first()
+        );
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 6, 2);
+
+        $roundNumber = $structure->getFirstRoundNumber();
+
+        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
+        $options = [];
+        $planning = $this->createPlanning($roundNumber, $options);
+        $refereePlaceService = new RefereePlaceService($planning);
+        $refereePlaceService->assign($planning->createFirstBatch());
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
+        $this->replaceRefereePlace(
+            $planning->createFirstBatch(),
+            $planning->getPoule(1)->getPlace(1),
+            $planning->getPoule(2)->getPlace(1)
+        );
+
+//        $planningOutput = new PlanningOutput();
+//        $planningOutput->outputWithGames($planning, true);
+
+        $planningValidator = new PlanningValidator();
+        $validity = $planningValidator->validate($planning);
+        self::assertSame(
+            PlanningValidator::INVALID_ASSIGNED_REFEREEPLACE,
+            $validity & PlanningValidator::INVALID_ASSIGNED_REFEREEPLACE
+        );
+    }
+
     public function testValidResourcesPerRefereePlace()
     {
         $competition = $this->createCompetition();
@@ -379,23 +420,23 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $roundNumber = $structure->getFirstRoundNumber();
 
-        $roundNumber->getPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
         $refereePlaceService->assign($planning->createFirstBatch());
 
 //        $planningOutput = new PlanningOutput();
-//        $planningOutput->output($planning, true);
+//        $planningOutput->outputWithGames($planning, true);
 
         $this->replaceRefereePlace(
             $planning->createFirstBatch(),
             $planning->getPoule(1)->getPlace(1),
-            $planning->getPoule(1)->getPlace(2)
+            $planning->getPoule(1)->getPlace(4)
         );
 
 //        $planningOutput = new PlanningOutput();
-//        $planningOutput->output($planning, true);
+//        $planningOutput->outputWithGames($planning, true);
 
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
@@ -419,7 +460,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $roundNumber = $structure->getFirstRoundNumber();
 
-        $roundNumber->getPlanningConfig()->setSelfReferee(true);
+        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);

@@ -26,7 +26,7 @@ trait PlanningCreator {
         if (Planning::STATE_SUCCESS !== $planningService->createGames($planning)) {
             throw new \Exception("planning could not be created", E_ERROR);
         }
-        if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
+        if ($roundNumber->getValidPlanningConfig()->selfRefereeEnabled()) {
             $refereePlaceService = new RefereePlaceService($planning);
             $refereePlaceService->assign($planning->createFirstBatch());
         }

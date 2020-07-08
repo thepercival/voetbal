@@ -56,7 +56,7 @@ class Service
 
     public function assign(Batch $batch): bool
     {
-        if ($this->getInput()->getSelfReferee() === false) {
+        if (!$this->getInput()->selfRefereeEnabled()) {
             return true;
         }
         $this->initSamePoule($batch);
@@ -198,6 +198,9 @@ class Service
     {
         if ($batch->isParticipating($refereePlace) || $batch->isParticipatingAsReferee($refereePlace)) {
             return false;
+        }
+        if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE) {
+            return $refereePlace->getPoule() === $game->getPoule();
         }
         if (array_key_exists($batch->getNumber(), $this->canBeSamePoule)
             && $this->canBeSamePoule[$batch->getNumber()] === $refereePlace->getPoule()) {

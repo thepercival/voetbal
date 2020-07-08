@@ -8,11 +8,14 @@
 
 namespace Voetbal\Planning\Input;
 
+use Voetbal\Planning\Config;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Planning\Sport\NrFields as SportNrFields;
 use Voetbal\Sport\Service as SportService;
+use Voetbal\Sport\Config\Service as SportConfigService;
+use Voetbal\Sport\Config as SportConfig;
 use Voetbal\Structure\Validator as StructureValidator;
 use Voetbal\Math as VoetbalMath;
 
@@ -28,14 +31,12 @@ class Service
         $planningConfigService = new PlanningConfigService();
         $teamup = $config->getTeamup() ? $planningConfigService->isTeamupAvailable($roundNumber) : $config->getTeamup();
 
-        $selfReferee = $config->getSelfReferee() ? $planningConfigService->canSelfRefereeBeAvailable(
-            $teamup,
-            $roundNumber->getNrOfPlaces()
-        ) : $config->getSelfReferee();
-
-        if ($selfReferee) {
-            $nrOfReferees = 0;
-        }
+        $selfReferee = $selfReferee = $this->getSelfReferee(
+            $config,
+            $roundNumber->getSportConfigs(),
+            $roundNumber->getNrOfPlaces(),
+            count($roundNumber->getPoules())
+        );
         /*
                 pas hier gcd toe op poules/aantaldeelnemers(structureconfig), aantal scheidsrechters en aantal velden/sport(sportconfig)
                 zorg dat deze functie ook kan worden toegepast vanuit fctoernooi->create_default_planning_input
@@ -63,9 +64,34 @@ class Service
         );
     }
 
+    protected function getSelfReferee(Config $config, array $sportConfigs, int $nrOfPoules, int $nrOfPlaces): int
+    {
+        $sportConfigService = new SportConfigService();
+        $maxNrOfGamePlaces = $sportConfigService->getMaxNrOfGamePlaces($sportConfigs, $config->getTeamup(), false);
+
+        $planningConfigService = new PlanningConfigService();
+
+        $otherPoulesAvailable = $planningConfigService->canSelfRefereeOtherPoulesBeAvailable($nrOfPoules);
+        $samePouleAvailable = $planningConfigService->canSelfRefereeSamePouleBeAvailable(
+            $nrOfPoules,
+            $nrOfPlaces,
+            $maxNrOfGamePlaces
+        );
+        if (!$otherPoulesAvailable && !$samePouleAvailable) {
+            return PlanningInput::SELFREFEREE_DISABLED;
+        }
+        if ($config->getSelfReferee() === PlanningInput::SELFREFEREE_OTHERPOULES && !$otherPoulesAvailable) {
+            return PlanningInput::SELFREFEREE_SAMEPOULE;
+        }
+        if ($config->getSelfReferee() === PlanningInput::SELFREFEREE_SAMEPOULE && !$samePouleAvailable) {
+            return PlanningInput::SELFREFEREE_OTHERPOULES;
+        }
+        return $config->getSelfReferee();
+    }
+
     public function hasGCD(PlanningInput $input): bool
     {
-        if ($input->getSelfReferee()) {
+        if ($input->selfRefereeEnabled()) {
             return false;
         }
         $gcd = $this->getGCDRaw($input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees());
@@ -196,7 +222,7 @@ class Service
         $maxNrOfFields = $this->getMaxNrOfFields($roundNumber, $nrOfHeadtohead, $teamup);
 
         $sportConfigRet = [];
-        /** @var \Voetbal\Sport\Config $sportConfig */
+        /** @var SportConfig $sportConfig */
         foreach ($roundNumber->getSportConfigs() as $sportConfig) {
             $nrOfFields = $sportConfig->getFields()->count();
             if ($nrOfFields > $maxNrOfFields) {

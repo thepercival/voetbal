@@ -14,6 +14,7 @@ use Voetbal\Sport\Custom as SportCustom;
 use Voetbal\Sport\ScoreConfig as SportScoreConfig;
 use Voetbal\Sport\ScoreConfig\Service as ScoreConfigService;
 use Voetbal\Competition;
+use Voetbal\Sport\Service as SportService;
 use Voetbal\Structure;
 
 class Service
@@ -139,5 +140,35 @@ class Service
             || $sportConfigA->getPointsCalculation() !== $sportConfigB->getPointsCalculation()
             || $sportConfigA->getNrOfGamePlaces() !== $sportConfigB->getNrOfGamePlaces()
         );
+    }
+
+    /**
+     * @param array|SportConfig[] $sportConfigs
+     * @param bool $teamup
+     * @param bool $selfReferee
+     * @return int
+     */
+    public function getMaxNrOfGamePlaces(array $sportConfigs, bool $teamup, bool $selfReferee): int
+    {
+        $maxNrOfGamePlaces = 0;
+        /** @var SportConfig $sportConfig */
+        foreach ($sportConfigs as $sportConfig) {
+            $nrOfGamePlaces = $this->getNrOfGamePlaces($sportConfig->getNrOfGamePlaces(), $teamup, $selfReferee);
+            if ($nrOfGamePlaces > $maxNrOfGamePlaces) {
+                $maxNrOfGamePlaces = $nrOfGamePlaces;
+            }
+        }
+        return $maxNrOfGamePlaces;
+    }
+
+    public function getNrOfGamePlaces(int $nrOfGamePlaces, bool $teamup, bool $selfReferee): int
+    {
+        if ($teamup) {
+            $nrOfGamePlaces *= 2;
+        }
+        if ($selfReferee) {
+            $nrOfGamePlaces++;
+        }
+        return $nrOfGamePlaces;
     }
 }

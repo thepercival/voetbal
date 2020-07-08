@@ -4,6 +4,7 @@ namespace Voetbal\Tests\Round\Number;
 
 use \Exception;
 use Voetbal\Game;
+use Voetbal\Planning\Input;
 use Voetbal\Planning\Resource\Service;
 use Voetbal\Poule;
 use Voetbal\TestHelper\CompetitionCreator;
@@ -207,7 +208,7 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
-        $firstRoundNumber->getPlanningConfig()->setSelfReferee(true);
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
 
         $this->createGames($structure);
 
@@ -238,7 +239,7 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 9, 2);
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
-        $firstRoundNumber->getPlanningConfig()->setSelfReferee(true);
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
 
         $this->createGames($structure);
 

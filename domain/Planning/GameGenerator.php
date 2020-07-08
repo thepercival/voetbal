@@ -13,14 +13,14 @@ use Voetbal\Planning\Place\Combination as PlaceCombination;
 use Voetbal\Planning\Place\Combination\Number as PlaceCombinationNumber;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Math;
-use Voetbal\Sport\Service as SportService;
+use Voetbal\Sport\Config\Service as SportConfigService;
 
 class GameGenerator
 {
     /**
-     * @var SportService
+     * @var SportConfigService
      */
-    protected $sportService;
+    protected $sportConfigService;
     /**
      * @var Input
      */
@@ -34,7 +34,7 @@ class GameGenerator
     {
         $this->input = $input;
         $this->math = new Math();
-        $this->sportService = new SportService();
+        $this->sportConfigService = new SportConfigService();
     }
 
     public function create(PlanningBase $planning)
@@ -148,9 +148,11 @@ class GameGenerator
         $nrOfGames = 0;
         $uniqueFiltered = [];
         $sportConfigs = $this->input->getSportConfig();
-        $firstSportConfig = reset($sportConfigs);
-        $nrOfGamePlaces = $firstSportConfig["nrOfGamePlaces"];
-        $nrOfGamePlaces = $this->sportService->getNrOfGamePlaces($nrOfGamePlaces, true, $this->input->getSelfReferee());
+        $nrOfGamePlaces = $this->sportConfigService->getMaxNrOfGamePlaces(
+            $sportConfigs,
+            true,
+            $this->input->selfRefereeEnabled()
+        );
 
         while (count($uniqueCombinations) > 0 && count($uniqueFiltered) < count($uniqueCombinations) ) {
             $game = array_shift($uniqueCombinations);

@@ -9,8 +9,8 @@
 namespace Voetbal\Planning\Input;
 
 use Voetbal\Planning;
-use Voetbal\Planning\Validator as PlanningValidator;
 use Voetbal\Planning as PlanningBase;
+use Voetbal\Planning\Validator as PlanningValidator;
 use Voetbal\Planning\Input as PlanningInput;
 
 /**
@@ -23,7 +23,7 @@ class Repository extends \Voetbal\Repository
         array $sportConfig,
         int $nrOfReferees,
         bool $teamup,
-        bool $selfReferee,
+        int $selfReferee,
         int $nrOfHeadtohead
     ): ?PlanningInput {
         $query = $this->createQueryBuilder('pi')
@@ -135,21 +135,21 @@ class Repository extends \Voetbal\Repository
     public function findWithObsoletePlannings(): array
     {
         $exprNot = $this->getEM()->getExpressionBuilder();
-        $exprInvalidStates = $this->getEM()->getExpressionBuilder();
-        $exprNotValidated = $this->getEM()->getExpressionBuilder();
+        $exprUnfinished = $this->getEM()->getExpressionBuilder();
 
-        $states = PlanningBase::STATE_TIMEOUT + PlanningBase::STATE_UPDATING_SELFREFEE + PlanningBase::STATE_PROCESSING;
+        $unfinishedStates = PlanningBase::STATE_TIMEOUT + PlanningBase::STATE_UPDATING_SELFREFEE + PlanningBase::STATE_PROCESSING;
+        $finishedStates = PlanningBase::STATE_SUCCESS + PlanningBase::STATE_FAILED;
 
         $query = $this->createQueryBuilder('pi')
             ->where('pi.state = :inputState')
             ->andWhere(
                 $exprNot->not(
-                    $exprInvalidStates->exists(
+                    $exprUnfinished->exists(
                         $this->getEM()->createQueryBuilder()
                             ->select('p1.id')
                             ->from('Voetbal\Planning', 'p1')
                             ->where('p1.input = pi')
-                            ->andWhere('BIT_AND(p1.state, :states) > 0')
+                            ->andWhere('BIT_AND(p1.state, :unfinishedStates) > 0')
                             ->getDQL()
                     )
                 )
@@ -159,13 +159,13 @@ class Repository extends \Voetbal\Repository
                     ->select('count(p2.id)')
                     ->from('Voetbal\Planning', 'p2')
                     ->where('p2.input = pi')
-                    ->andWhere('p2.state = :planningState')
+                    ->andWhere('BIT_AND(p2.state, :finishedStates) > 0')
                     ->getDQL()
                 . ") > 1"
             )
             ->setParameter('inputState', PlanningInput::STATE_ALL_PLANNINGS_TRIED)
-            ->setParameter('states', $states)
-            ->setParameter('planningState', Planning::STATE_SUCCESS);
+            ->setParameter('unfinishedStates', $unfinishedStates)
+            ->setParameter('finishedStates', $finishedStates);
         $inputs = $query->getQuery()->getResult();
 
         return $inputs;

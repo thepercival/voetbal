@@ -36,12 +36,12 @@ trait GamesCreator {
             //throw assertuib
         }
 
-        if ($roundNumber->getValidPlanningConfig()->getSelfReferee()) {
+        if ($roundNumber->getValidPlanningConfig()->selfRefereeEnabled()) {
             $refereePlaceService = new RefereePlaceService($minIsMaxPlanning);
             $refereePlaceService->assign($minIsMaxPlanning->createFirstBatch());
         }
 
-        $convertService = new Planning\ConvertService(new Planning\ScheduleService());
+        $convertService = new Planning\Assigner(new Planning\ScheduleService());
         $convertService->createGames($roundNumber, $minIsMaxPlanning);
 
         if ($roundNumber->hasNext()) {

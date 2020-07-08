@@ -86,7 +86,7 @@ class Planning extends VoetbalOutputBase
             . ', sports [' . implode(',', $sports) . ']'
             . ', referees ' . $planningInput->getNrOfReferees()
             . ', teamup ' . ($planningInput->getTeamup() ? '1' : '0')
-            . ', selfRef ' . ($planningInput->getSelfReferee() ? '1' : '0')
+            . ', selfRef ' . $planningInput->getSelfReferee()
             . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();
         return $prefix . $output . $suffix;
     }

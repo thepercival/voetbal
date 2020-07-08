@@ -326,6 +326,9 @@ class Planning
         }
         if ($order === GameBase::ORDER_BY_BATCH) {
             uasort($games, function (Game $g1, Game  $g2): int {
+                if ($g1->getBatchNr() === $g2->getBatchNr()) {
+                    return $g1->getField()->getNumber() - $g2->getField()->getNumber();
+                }
                 return $g1->getBatchNr() - $g2->getBatchNr();
             });
         } elseif ($order === GameBase::ORDER_BY_GAMENUMBER) {

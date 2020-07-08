@@ -20,6 +20,6 @@ Voetbal\Planning\Config:
     teamup:
       type: boolean
     selfReferee:
-      type: boolean
+      type: integer
     nrOfHeadtohead:
       type: integer

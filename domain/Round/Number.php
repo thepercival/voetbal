@@ -212,11 +212,11 @@ class Number
     }
 
     /**
-     * @return ArrayCollection|PersistentCollection|SportConfig[]
+     * @return array|SportConfig[]
      */
     public function getSportConfigs()
     {
-        return $this->getCompetition()->getSportConfigs();
+        return $this->getCompetition()->getSportConfigs()->toArray();
     }
 
     public function getSportConfig(Sport $sport): SportConfig
@@ -395,13 +395,16 @@ class Number
     }
 
     /**
-     * @return Collection|SportScoreConfig[]
+     * @return array|SportScoreConfig[]
      */
-    public function getValidSportScoreConfigs(): Collection
+    public function getValidSportScoreConfigs(): array
     {
-        return $this->getSportConfigs()->map(function ($sportConfig): SportScoreConfig {
-            return $this->getValidSportScoreConfig($sportConfig->getSport());
-        });
+        return array_map(
+            function ($sportConfig): SportScoreConfig {
+                return $this->getValidSportScoreConfig($sportConfig->getSport());
+            },
+            $this->getSportConfigs()
+        );
     }
 
     public function setSportScoreConfig(SportScoreConfig $sportScoreConfig)
