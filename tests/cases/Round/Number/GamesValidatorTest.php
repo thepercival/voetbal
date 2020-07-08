@@ -208,7 +208,7 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
-        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
 
         $this->createGames($structure);
 

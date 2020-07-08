@@ -56,13 +56,24 @@ class Validator
 
     public function validate(PlanningBase $planning): int
     {
-        $validity = self::VALID;
         $this->planning = $planning;
-        $validity += $this->validateGamesAndGamePlaces();
-        $validity += $this->validateGamesInARow();
-        $validity += $this->validateResourcesPerBatch();
-        $validity += $this->validateEquallyAssigned();
-        return $validity;
+        $validity = $this->validateGamesAndGamePlaces();
+        if (self::VALID !== $validity) {
+            return $validity;
+        }
+        $validity = $this->validateGamesInARow();
+        if (self::VALID !== $validity) {
+            return $validity;
+        }
+        $validity = $this->validateResourcesPerBatch();
+        if (self::VALID !== $validity) {
+            return $validity;
+        }
+        $validity = $this->validateEquallyAssigned();
+        if (self::VALID !== $validity) {
+            return $validity;
+        }
+        return self::VALID;
     }
 
     /**
@@ -155,6 +166,10 @@ class Validator
                 } else {
                     if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE
                         && $game->getRefereePlace()->getPoule() !== $game->getPoule()) {
+                        return self::INVALID_ASSIGNED_REFEREEPLACE;
+                    }
+                    if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_OTHERPOULES
+                        && $game->getRefereePlace()->getPoule() === $game->getPoule()) {
                         return self::INVALID_ASSIGNED_REFEREEPLACE;
                     }
                 }

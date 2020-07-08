@@ -284,6 +284,14 @@ class Iterator
                 $this->selfReferee = PlanningInput::SELFREFEREE_SAMEPOULE;
             }
         } else {
+            $selfRefereeSamePouleAvailable = $this->planningConfigService->canSelfRefereeSamePouleBeAvailable(
+                $this->nrOfPoules,
+                $this->nrOfPlaces,
+                $nrOfGamePlaces
+            );
+            if (!$selfRefereeSamePouleAvailable) {
+                return $this->incrementTeamup();
+            }
             $this->selfReferee = PlanningInput::SELFREFEREE_SAMEPOULE;
         }
         return true;

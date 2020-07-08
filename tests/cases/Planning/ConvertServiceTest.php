@@ -48,7 +48,7 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
 
-        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $options = [];
         $planning = $this->createPlanning($firstRoundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
@@ -68,12 +68,13 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
         $competition = $this->createCompetition();
 
         $structureService = new StructureService($this->getDefaultStructureOptions());
-        $structure = $structureService->create($competition, 11,);
+        $structure = $structureService->create($competition, 11);
 
         $rootRound = $structure->getRootRound();
         $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 7);
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $secondRoundNumber = $firstRoundNumber->getNext();
 
         $options = [];

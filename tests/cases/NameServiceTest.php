@@ -323,8 +323,8 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
 
         // basics
         {
-            $structureService = new StructureService( $this->getDefaultStructureOptions() );
-            $structure = $structureService->create($competition, 3, 1);
+            $structureService = new StructureService($this->getDefaultStructureOptions());
+            $structure = $structureService->create($competition, 3);
             $rootRound = $structure->getRootRound();
 
             $firstPlace = $rootRound->getFirstPlace(QualifyGroup::WINNERS);
@@ -334,7 +334,7 @@ class NameServiceTest extends \PHPUnit\Framework\TestCase
             $this->createGames($structure);
 
             $game = $firstPlace->getPoule()->getGames()->first();
-            self::assertSame($nameService->getRefereeName($game), '111');
+            self::assertSame($nameService->getRefereeName($game), '222');
 
             $referee = new Referee($competition);
             $referee->setInitials('CDK');

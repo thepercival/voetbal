@@ -75,7 +75,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
@@ -101,7 +101,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
@@ -216,7 +216,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 
@@ -241,7 +241,7 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $structure = $structureService->create($competition, 5);
 
         $roundNumber = $structure->getFirstRoundNumber();
-        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $roundNumber->getValidPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
 

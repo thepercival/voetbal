@@ -114,6 +114,6 @@ class Service
 
     public function canSelfRefereeSamePouleBeAvailable(int $nrOfPoules, int $nrOfPlaces, int $nrOfGamePlaces): bool
     {
-        return floor($nrOfPoules / $nrOfPlaces) >= ($nrOfGamePlaces + 1);
+        return floor($nrOfPlaces / $nrOfPoules) >= ($nrOfGamePlaces + 1);
     }
 }

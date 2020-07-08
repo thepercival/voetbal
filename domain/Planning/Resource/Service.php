@@ -16,6 +16,7 @@ use Psr\Log\LoggerInterface;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Planning\Game;
 use Voetbal\Planning\Game\Place as GamePlace;
+use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Place;
 use Voetbal\Planning\Field;
 use Voetbal\Planning\Sport;
@@ -28,7 +29,7 @@ use Voetbal\Planning\Sport\NrFieldsGames as SportNrFieldsGames;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Planning\Batch;
 use Voetbal\Output\Planning\Batch as BatchOutput;
-use Voetbal\Planning\Input as PlanningInput;
+use Voetbal\Planning\Batch\RefereePlacePredicter;
 use Voetbal\Game as GameBase;
 use Voetbal\Planning\TimeoutException;
 use Monolog\Logger;
@@ -60,6 +61,11 @@ class Service
      */
     private $timeoutDateTime;
     /**
+     * @var RefereePlacePredicter
+     */
+    private $refereePlacePredicter;
+
+    /**
      * @var BatchOutput
      */
     protected $batchOutput;
@@ -70,6 +76,7 @@ class Service
     {
         $this->planning = $planning;
         $this->nrOfPoules = $this->planning->getPoules()->count();
+        $this->refereePlacePredicter = new RefereePlacePredicter($this->planning->getPoules());
 
 //        $logger = new Logger('eded');
 //        $processor = new UidProcessor();
@@ -87,7 +94,8 @@ class Service
         return $this->planning->getInput();
     }
 
-    protected function setLogger( LoggerInterface $logger ) {
+    protected function setLogger(LoggerInterface $logger)
+    {
         $this->batchOutput = new BatchOutput($logger);
     }
 
@@ -204,19 +212,6 @@ class Service
         return PlanningBase::STATE_SUCCESS;
     }
 
-    protected function getGamesByH2h(array $orderedGames): array
-    {
-        $h2hgames = [];
-        foreach ($orderedGames as $game) {
-            $nrOfHeadtohead = $game->getNrOfHeadtohead();
-            if (array_key_exists($nrOfHeadtohead, $h2hgames) === false) {
-                $h2hgames[$nrOfHeadtohead] = [];
-            }
-            $h2hgames[$nrOfHeadtohead][] = $game;
-        }
-        return $h2hgames;
-    }
-
     /**
      * @param array $games
      * @param Resources $resources
@@ -270,10 +265,12 @@ class Service
         Batch $batch,
         int $maxNrOfBatchGames,
         int $nrOfGamesTried = 0
-    ): bool {
-        if (count($batch->getGames()) === $maxNrOfBatchGames || (count($gamesForBatch) === 0) && count(
-            $games
-        ) === count($batch->getGames())) { // batchsuccess
+    ): bool
+    {
+        if ((count($batch->getGames()) === $maxNrOfBatchGames
+                || (count($gamesForBatch) === 0) && count($games) === count($batch->getGames()))
+            && $this->refereePlacesCanBeAssigned($batch)
+        ) { // batchsuccess
             $nextBatch = $this->toNextBatch($batch, $resources, $games);
 
 //            if( $this->batchOutput !== null ) { // before assigned
@@ -296,7 +293,9 @@ class Service
             return $this->assignBatchHelper($games, $gamesForBatchTmp, $resources, $nextBatch, $maxNrOfBatchGames, 0);
         }
         if ((new DateTimeImmutable()) > $this->timeoutDateTime) { // @FREDDY
-            throw new TimeoutException("exceeded maximum duration of ".$this->planning->getTimeoutSeconds()." seconds", E_ERROR);
+            throw new TimeoutException(
+                "exceeded maximum duration of " . $this->planning->getTimeoutSeconds() . " seconds", E_ERROR
+            );
         }
         if ($nrOfGamesTried === count($gamesForBatch)) {
             return false;
@@ -504,5 +503,10 @@ class Service
             },
             $game->getPlaces()->toArray()
         );
+    }
+
+    protected function refereePlacesCanBeAssigned(Batch $batch)
+    {
+        return $this->refereePlacePredicter->canStillAssign($batch, $this->getInput()->getSelfReferee());
     }
 }

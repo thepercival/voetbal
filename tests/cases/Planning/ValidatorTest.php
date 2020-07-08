@@ -93,7 +93,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $roundNumber = $structure->getFirstRoundNumber();
 
-        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);
@@ -420,7 +420,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $roundNumber = $structure->getFirstRoundNumber();
 
-        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+        $roundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_SAMEPOULE);
         $options = [];
         $planning = $this->createPlanning($roundNumber, $options);
         $refereePlaceService = new RefereePlaceService($planning);

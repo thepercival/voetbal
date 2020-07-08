@@ -34,7 +34,7 @@ class Service
     /**
      * @var array
      */
-    private $canBeSamePoule;
+    // private $canBeSamePoule;
     /**
      * @var Replacer
      */
@@ -59,8 +59,6 @@ class Service
         if (!$this->getInput()->selfRefereeEnabled()) {
             return true;
         }
-        $this->initSamePoule($batch);
-
         if ($this->assignHelper($batch)) {
             return true;
         }
@@ -94,56 +92,56 @@ class Service
         return $refereePlaces;
     }
 
-    protected function initSamePoule(Batch $batch)
-    {
-        $this->canBeSamePoule = [];
-        $poules = $this->planning->getStructure()->getPoules();
-        if ($poules->count() > 2) {
-            return;
-        }
-        if ($poules->count() === 1) {
-            $poule = $this->planning->getPoule(1);
-            $onePouleHelper = function (Batch $batch) use (&$onePouleHelper, $poule): void {
-                $this->canBeSamePoule[$batch->getNumber()] = $poule;
-                if ($batch->hasNext()) {
-                    $onePouleHelper($batch->getNext());
-                }
-            };
-            $onePouleHelper($batch);
-            return;
-        }
-
-        $pouleOne = $this->planning->getPoule(1);
-        $pouleTwo = $this->planning->getPoule(2);
-
-        $helper = function (Batch $batch) use (&$helper, $pouleOne, $pouleTwo): void {
-            $pouleOneNrOfPlaces = $pouleOne->getPlaces()->count();
-            $pouleTwoNrOfPlaces = $pouleTwo->getPlaces()->count();
-            $pouleOneNrOfPlacesGames = 0;
-            $pouleTwoNrOfPlacesGames = 0;
-            foreach ($batch->getGames() as $game) {
-                if ($game->getPoule() === $pouleOne) {
-                    $pouleOneNrOfPlacesGames++;
-                }
-                if ($game->getPoule() === $pouleTwo) {
-                    $pouleTwoNrOfPlacesGames++;
-                }
-            }
-
-            $pouleOneNrOfRefsAvailable = ($pouleOneNrOfPlaces - ($pouleOneNrOfPlacesGames * 2));
-            if ($pouleTwoNrOfPlacesGames > $pouleOneNrOfRefsAvailable) {
-                $this->canBeSamePoule[$batch->getNumber()] = $pouleTwo;
-            }
-            $pouleTwoNrOfRefsAvailable = ($pouleTwoNrOfPlaces - ($pouleTwoNrOfPlacesGames * 2));
-            if ($pouleOneNrOfPlacesGames > $pouleTwoNrOfRefsAvailable) {
-                $this->canBeSamePoule[$batch->getNumber()] = $pouleOne;
-            }
-            if ($batch->hasNext()) {
-                $helper($batch->getNext());
-            }
-        };
-        $helper($batch);
-    }
+//    protected function initSamePoule(Batch $batch)
+//    {
+//        $this->canBeSamePoule = [];
+//        $poules = $this->planning->getStructure()->getPoules();
+//        if ($poules->count() > 2) {
+//            return;
+//        }
+//        if ($poules->count() === 1) {
+//            $poule = $this->planning->getPoule(1);
+//            $onePouleHelper = function (Batch $batch) use (&$onePouleHelper, $poule): void {
+//                $this->canBeSamePoule[$batch->getNumber()] = $poule;
+//                if ($batch->hasNext()) {
+//                    $onePouleHelper($batch->getNext());
+//                }
+//            };
+//            $onePouleHelper($batch);
+//            return;
+//        }
+//
+//        $pouleOne = $this->planning->getPoule(1);
+//        $pouleTwo = $this->planning->getPoule(2);
+//
+//        $helper = function (Batch $batch) use (&$helper, $pouleOne, $pouleTwo): void {
+//            $pouleOneNrOfPlaces = $pouleOne->getPlaces()->count();
+//            $pouleTwoNrOfPlaces = $pouleTwo->getPlaces()->count();
+//            $pouleOneNrOfPlacesGames = 0;
+//            $pouleTwoNrOfPlacesGames = 0;
+//            foreach ($batch->getGames() as $game) {
+//                if ($game->getPoule() === $pouleOne) {
+//                    $pouleOneNrOfPlacesGames++;
+//                }
+//                if ($game->getPoule() === $pouleTwo) {
+//                    $pouleTwoNrOfPlacesGames++;
+//                }
+//            }
+//
+//            $pouleOneNrOfRefsAvailable = ($pouleOneNrOfPlaces - ($pouleOneNrOfPlacesGames * 2));
+//            if ($pouleTwoNrOfPlacesGames > $pouleOneNrOfRefsAvailable) {
+//                $this->canBeSamePoule[$batch->getNumber()] = $pouleTwo;
+//            }
+//            $pouleTwoNrOfRefsAvailable = ($pouleTwoNrOfPlaces - ($pouleTwoNrOfPlacesGames * 2));
+//            if ($pouleOneNrOfPlacesGames > $pouleTwoNrOfRefsAvailable) {
+//                $this->canBeSamePoule[$batch->getNumber()] = $pouleOne;
+//            }
+//            if ($batch->hasNext()) {
+//                $helper($batch->getNext());
+//            }
+//        };
+//        $helper($batch);
+//    }
 
     /**
      * @param Batch $batch
@@ -202,10 +200,10 @@ class Service
         if ($this->planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE) {
             return $refereePlace->getPoule() === $game->getPoule();
         }
-        if (array_key_exists($batch->getNumber(), $this->canBeSamePoule)
-            && $this->canBeSamePoule[$batch->getNumber()] === $refereePlace->getPoule()) {
-            return true;
-        }
+//        if (array_key_exists($batch->getNumber(), $this->canBeSamePoule)
+//            && $this->canBeSamePoule[$batch->getNumber()] === $refereePlace->getPoule()) {
+//            return true;
+//        }
         return $refereePlace->getPoule() !== $game->getPoule();
     }
 

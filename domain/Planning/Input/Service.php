@@ -64,7 +64,7 @@ class Service
         );
     }
 
-    protected function getSelfReferee(Config $config, array $sportConfigs, int $nrOfPoules, int $nrOfPlaces): int
+    protected function getSelfReferee(Config $config, array $sportConfigs, int $nrOfPlaces, int $nrOfPoules): int
     {
         $sportConfigService = new SportConfigService();
         $maxNrOfGamePlaces = $sportConfigService->getMaxNrOfGamePlaces($sportConfigs, $config->getTeamup(), false);
