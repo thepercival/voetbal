@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\PersistentCollection;
 use Voetbal\Planning as PlanningBase;
 use Voetbal\Range as VoetbalRange;
+use Voetbal\Sport\Config\Base as SportConfigBase;
 use Voetbal\Sport\Config\Service as SportConfigService;
 use Voetbal\Sport\Service as SportService;
 
@@ -118,13 +119,25 @@ class Input
     }
 
     /**
-     * $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ], ];
+     * $sportConfig = [ [ "nrOfFields" => 3, "nrOfGamePlaces" => 2 ] ];
      *
      * @return array
      */
     public function getSportConfig(): array
     {
         return $this->sportConfig;
+    }
+
+    /**
+     * @return array|SportConfigBase[]
+     */
+    public function getSportConfigs(): array
+    {
+        $sportConfigs = [];
+        foreach ($this->getSportConfig() as $sportConfig) {
+            $sportConfigs[] = new SportConfigBase($sportConfig["nrOfFields"], $sportConfig["nrOfGamePlaces"]);
+        }
+        return $sportConfigs;
     }
 
     public function hasMultipleSports(): bool

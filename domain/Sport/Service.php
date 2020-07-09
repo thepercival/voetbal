@@ -86,45 +86,45 @@ class Service
      * @param int $nrOfHeadtohead
      * @return array
      */
-    public function getPlanningMinNrOfGames(
-        array $sportsNrFields,
-        int $pouleNrOfPlaces,
-        bool $teamup,
-        int $selfReferee,
-        int $nrOfHeadtohead
-    ): array {
-        $fieldDivisors = $this->getFieldsCommonDivisors($sportsNrFields);
-
-        // kijk als veelvouden van het aantal-keer-sporten-per-deelnemer verkleind gebruikt kunnen worden
-        // door te kijken als er nog aan het aantal poulewedstrijden wordt gekomen
-        $nrOfPouleGames = $this->getNrOfPouleGames($pouleNrOfPlaces, $teamup, $nrOfHeadtohead);
-        $bestSportsNrFieldsGames = $this->convertSportsNrFields($sportsNrFields);
-        foreach ($fieldDivisors as $fieldDivisor) {
-            $sportsNrFieldsGames = $this->modifySportsNrFieldsGames($bestSportsNrFieldsGames, $fieldDivisor);
-            $nrOfPouleGamesBySports = $this->getNrOfPouleGamesBySports(
-                $pouleNrOfPlaces,
-                $sportsNrFieldsGames,
-                $teamup,
-                $selfReferee
-            );
-            if ($nrOfPouleGamesBySports < $nrOfPouleGames) {
-                break;
-            }
-            $bestSportsNrFieldsGames = $sportsNrFieldsGames;
-        }
-
-        // zolang het aantal-keer-sporten-per-deelnemer minder blijft dan het aantal poulewedstrijden
-        // wordt het aantal-keer-sporten-per-deelnemer vergroot met 2x
-        $newNrOfGames = 2;
-        $sportsNrFieldsGames = $this->convertSportsNrFields($sportsNrFields);
-        $newSportsNrFieldsGames = $this->modifySportsNrFieldsGames($sportsNrFieldsGames, 1 / $newNrOfGames);
-        while ($this->getNrOfPouleGamesBySports($pouleNrOfPlaces, $newSportsNrFieldsGames, $teamup, $selfReferee) <= $nrOfPouleGames) {
-            $bestSportsNrFieldsGames = $newSportsNrFieldsGames;
-            $newSportsNrFieldsGames = $this->modifySportsNrFieldsGames($sportsNrFieldsGames, 1 / ++$newNrOfGames);
-        }
-
-        return $bestSportsNrFieldsGames;
-    }
+//    public function getPlanningMinNrOfGames(
+//        array $sportsNrFields,
+//        int $pouleNrOfPlaces,
+//        bool $teamup,
+//        int $selfReferee,
+//        int $nrOfHeadtohead
+//    ): array {
+//        $fieldDivisors = $this->getFieldsCommonDivisors($sportsNrFields);
+//
+//        // kijk als veelvouden van het aantal-keer-sporten-per-deelnemer verkleind gebruikt kunnen worden
+//        // door te kijken als er nog aan het aantal poulewedstrijden wordt gekomen
+//        $nrOfPouleGames = $this->getNrOfPouleGames($pouleNrOfPlaces, $teamup, $nrOfHeadtohead);
+//        $bestSportsNrFieldsGames = $this->convertSportsNrFields($sportsNrFields);
+//        foreach ($fieldDivisors as $fieldDivisor) {
+//            $sportsNrFieldsGames = $this->modifySportsNrFieldsGames($bestSportsNrFieldsGames, $fieldDivisor);
+//            $nrOfPouleGamesBySports = $this->getNrOfPouleGamesBySports(
+//                $pouleNrOfPlaces,
+//                $sportsNrFieldsGames,
+//                $teamup,
+//                $selfReferee
+//            );
+//            if ($nrOfPouleGamesBySports < $nrOfPouleGames) {
+//                break;
+//            }
+//            $bestSportsNrFieldsGames = $sportsNrFieldsGames;
+//        }
+//
+//        // zolang het aantal-keer-sporten-per-deelnemer minder blijft dan het aantal poulewedstrijden
+//        // wordt het aantal-keer-sporten-per-deelnemer vergroot met 2x
+//        $newNrOfGames = 2;
+//        $sportsNrFieldsGames = $this->convertSportsNrFields($sportsNrFields);
+//        $newSportsNrFieldsGames = $this->modifySportsNrFieldsGames($sportsNrFieldsGames, 1 / $newNrOfGames);
+//        while ($this->getNrOfPouleGamesBySports($pouleNrOfPlaces, $newSportsNrFieldsGames, $teamup, $selfReferee) <= $nrOfPouleGames) {
+//            $bestSportsNrFieldsGames = $newSportsNrFieldsGames;
+//            $newSportsNrFieldsGames = $this->modifySportsNrFieldsGames($sportsNrFieldsGames, 1 / ++$newNrOfGames);
+//        }
+//
+//        return $bestSportsNrFieldsGames;
+//    }
 
     /**
      * @param array|SportNrFields[] $sportsNrFields
@@ -133,8 +133,9 @@ class Service
     protected function getFieldsCommonDivisors(array $sportsNrFields): array
     {
         /** @var array|int[] $nrOfFieldsPerSport */
-        $nrOfFieldsPerSport = array_map(function (SportNrFields $sportNrFields): int {
-            return $sportNrFields->getNrOfFields();
+        $nrOfFieldsPerSport = array_map(
+            function (SportNrFields $sportNrFields): int {
+                return $sportNrFields->getNrOfFields();
         }, $sportsNrFields);
 
         if (count($nrOfFieldsPerSport) === 1) {
@@ -199,20 +200,6 @@ class Service
         }
         return $nrOfGames * $nrOfHeadtohead;
     }
-
-    public function getMaxNrOfGamePlaces(array $sportConfigs, bool $teamup, bool $selfReferee): int
-    {
-        $maxNrOfGamePlaces = 0;
-        /** @var array $sportConfig */
-        foreach ($sportConfigs as $sportConfig) {
-            $nrOfGamePlaces = $this->getNrOfGamePlaces($sportConfig["nrOfGamePlaces"], $teamup, $selfReferee);
-            if ($nrOfGamePlaces > $maxNrOfGamePlaces) {
-                $maxNrOfGamePlaces = $nrOfGamePlaces;
-            }
-        }
-        return $maxNrOfGamePlaces;
-    }
-
 
 //    public function getNrOfCombinationsExt(RoundNumber $roundNumber): int {
 //        $nrOfGames = 0;

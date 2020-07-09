@@ -16,6 +16,7 @@ use Voetbal\Sport\ScoreConfig\Service as ScoreConfigService;
 use Voetbal\Competition;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Structure;
+use Voetbal\Sport\Config\Base as SportConfigBase;
 
 class Service
 {
@@ -143,7 +144,7 @@ class Service
     }
 
     /**
-     * @param array|SportConfig[] $sportConfigs
+     * @param array|SportConfigBase[] $sportConfigs
      * @param bool $teamup
      * @param bool $selfReferee
      * @return int
@@ -151,7 +152,7 @@ class Service
     public function getMaxNrOfGamePlaces(array $sportConfigs, bool $teamup, bool $selfReferee): int
     {
         $maxNrOfGamePlaces = 0;
-        /** @var SportConfig $sportConfig */
+        /** @var SportConfigBase $sportConfig */
         foreach ($sportConfigs as $sportConfig) {
             $nrOfGamePlaces = $this->getNrOfGamePlaces($sportConfig->getNrOfGamePlaces(), $teamup, $selfReferee);
             if ($nrOfGamePlaces > $maxNrOfGamePlaces) {

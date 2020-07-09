@@ -16,7 +16,6 @@ use Voetbal\Sport\Config as SportConfig;
 
 class Config
 {
-
     /**
      * @var SportBase
      */
@@ -191,7 +190,7 @@ class Config
         $this->pointsCalculation = $pointsCalculation;
     }
 
-    public function getNrOfGamePlaces(): ?int
+    public function getNrOfGamePlaces(): int
     {
         return $this->nrOfGamePlaces;
     }
@@ -249,14 +248,8 @@ class Config
         return count($fields) > 0 ? array_shift($fields) : null;
     }
 
-//    public function getNrOfFields(): int
-//    {
-//        $nrOfFields = 0;
-//        foreach ($this->getCompetition()->getFields() as $field) {
-//            if ($field->getSport() === $this->getSport()) {
-//                $nrOfFields++;
-//            }
-//        }
-//        return $nrOfFields;
-//    }
+    public function getBase(): Config\Base
+    {
+        return new Config\Base($this->fields->count(), $this->nrOfGamePlaces);
+    }
 }

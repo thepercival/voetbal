@@ -16,7 +16,7 @@ use Voetbal\Planning\Sport\NrFields as SportNrFields;
 use Voetbal\Sport\Service as SportService;
 use Voetbal\Sport\Config\Service as SportConfigService;
 use Voetbal\Sport\Config as SportConfig;
-use Voetbal\Structure\Validator as StructureValidator;
+use Voetbal\Sport\Config\Base as SportConfigBase;
 use Voetbal\Math as VoetbalMath;
 
 class Service
@@ -31,9 +31,15 @@ class Service
         $planningConfigService = new PlanningConfigService();
         $teamup = $config->getTeamup() ? $planningConfigService->isTeamupAvailable($roundNumber) : $config->getTeamup();
 
+        $sportConfigBases = array_map(
+            function (SportConfig $sportConfig): SportConfigBase {
+                return $sportConfig->getBase();
+            },
+            $roundNumber->getSportConfigs()
+        );
         $selfReferee = $selfReferee = $this->getSelfReferee(
             $config,
-            $roundNumber->getSportConfigs(),
+            $sportConfigBases,
             $roundNumber->getNrOfPlaces(),
             count($roundNumber->getPoules())
         );
@@ -64,6 +70,13 @@ class Service
         );
     }
 
+    /**
+     * @param Config $config
+     * @param array|SportConfigBase[] $sportConfigs
+     * @param int $nrOfPlaces
+     * @param int $nrOfPoules
+     * @return int
+     */
     protected function getSelfReferee(Config $config, array $sportConfigs, int $nrOfPlaces, int $nrOfPoules): int
     {
         $sportConfigService = new SportConfigService();
@@ -94,13 +107,13 @@ class Service
         if ($input->selfRefereeEnabled()) {
             return false;
         }
-        $gcd = $this->getGCDRaw($input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees());
+        $gcd = $this->getGCDRaw($input->getStructureConfig(), $input->getSportConfigs(), $input->getNrOfReferees());
         return $gcd > 1;
     }
 
     public function getGCDInput(PlanningInput $input): PlanningInput
     {
-        $gcd = $this->getGCDRaw($input->getStructureConfig(), $input->getSportConfig(), $input->getNrOfReferees());
+        $gcd = $this->getGCDRaw($input->getStructureConfig(), $input->getSportConfigs(), $input->getNrOfReferees());
         list($structureConfig, $sportConfig, $nrOfReferees) = $this->modifyByGCD(
             $gcd,
             $input->getStructureConfig(),
@@ -162,16 +175,22 @@ class Service
     {
         return $this->getGCDRaw(
             $input->getStructureConfig(),
-            $input->getSportConfig(),
+            $input->getSportConfigs(),
             $input->getNrOfReferees()
         );
     }
 
-    protected function getGCDRaw(array $structureConfig, array $sportConfig, int $nrOfReferees): int
+    /**
+     * @param array|int[] $structureConfig
+     * @param array|SportConfigBase[] $sportConfigs
+     * @param int $nrOfReferees
+     * @return int
+     */
+    protected function getGCDRaw(array $structureConfig, array $sportConfigs, int $nrOfReferees): int
     {
         $math = new VoetbalMath();
         $gcdStructure = $math->getGreatestCommonDivisor($this->getNrOfPoulesByNrOfPlaces($structureConfig));
-        $gcdSports = $sportConfig[0]["nrOfFields"];
+        $gcdSports = $sportConfigs[0]->getNrOfFields();
 
 //        $gcds = [$gcdStructure, $gcdSports];
 //        if ($nrOfReferees > 0) {
