@@ -79,9 +79,10 @@ class Repository extends \Voetbal\Repository
 //and		exists( select * from plannings p where p.inputId = pi.Id and p.validity < 0 )
     /**
      * @param int $limit
+     * @param array|int[] $structureConfig
      * @return array|PlanningInput[]
      */
-    public function findNotValidated(int $limit): array
+    public function findNotValidated(int $limit, array $structureConfig = null): array
     {
         $exprNot = $this->getEM()->getExpressionBuilder();
         $exprInvalidStates = $this->getEM()->getExpressionBuilder();
@@ -117,8 +118,13 @@ class Repository extends \Voetbal\Repository
             ->setParameter('inputState', PlanningInput::STATE_ALL_PLANNINGS_TRIED)
             ->setParameter('states', $states)
             ->setParameter('notvalidated', PlanningValidator::NOT_VALIDATED);
-        $inputs = $query->getQuery()->getResult();
 
+        if ($structureConfig !== null) {
+            $query = $query
+                ->andWhere('pi.structureConfig = :structureConfig')
+                ->setParameter('structureConfig', json_encode($structureConfig));
+        }
+        $inputs = $query->getQuery()->getResult();
         return $inputs;
     }
 

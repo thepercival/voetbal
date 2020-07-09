@@ -200,36 +200,17 @@ class Service
         return $nrOfGames * $nrOfHeadtohead;
     }
 
-    /**
-     * @param int $pouleNrOfPlaces
-     * @param array|SportNrFieldsGames[] $sportsNrFieldsGames
-     * @param bool $teamup
-     * @param int $selfReferee
-     * @return int
-     */
-    public function getNrOfPouleGamesBySports(
-        int $pouleNrOfPlaces,
-        array $sportsNrFieldsGames,
-        bool $teamup,
-        int $selfReferee
-    ): int {
-        // multiple sports
-        $nrOfPouleGames = 0;
-        $sportConfigService = new SportConfigService();
-        // let totalNrOfGamePlaces = 0;
-        /** @var SportNrFieldsGames $sportNrFieldsGames */
-        foreach ($sportsNrFieldsGames as $sportNrFieldsGames) {
-            $minNrOfGames = $sportNrFieldsGames->getNrOfGames();
-            $nrOfGamePlaces = $sportConfigService->getNrOfGamePlaces(
-                $sportNrFieldsGames->getNrOfGamePlaces(),
-                $teamup,
-                false
-            );
-            // $nrOfPouleGames += ceil(($pouleNrOfPlaces / $nrOfGamePlaces) * $minNrOfGames);
-            $nrOfPouleGames += ($pouleNrOfPlaces / $nrOfGamePlaces) * $minNrOfGames;
+    public function getMaxNrOfGamePlaces(array $sportConfigs, bool $teamup, bool $selfReferee): int
+    {
+        $maxNrOfGamePlaces = 0;
+        /** @var array $sportConfig */
+        foreach ($sportConfigs as $sportConfig) {
+            $nrOfGamePlaces = $this->getNrOfGamePlaces($sportConfig["nrOfGamePlaces"], $teamup, $selfReferee);
+            if ($nrOfGamePlaces > $maxNrOfGamePlaces) {
+                $maxNrOfGamePlaces = $nrOfGamePlaces;
+            }
         }
-        return (int)ceil($nrOfPouleGames);
-        // return (int)$nrOfPouleGames;
+        return $maxNrOfGamePlaces;
     }
 
 

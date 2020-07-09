@@ -37,6 +37,7 @@ class Game extends VoetbalOutputBase
 
         $this->logger->info(
             ($prefix !== null ? $prefix : '') .
+            $game->getStartDateTime()->format("Y-m-d H:i") . " " .
             $this->getBatchNrAsString($game->getBatchNr()) . " " .
             'poule ' . $game->getPoule()->getNumber()
             . ', ' . $this->getPlacesAsString($game, GameBase::HOME)
