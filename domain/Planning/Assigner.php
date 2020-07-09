@@ -124,7 +124,10 @@ class Assigner
     {
         $this->fieldMap = [];
         foreach ($games as $game) {
-            $this->fieldMap[$game->getField()->getNumber()] = array_pop($fields);
+            if (array_key_exists($game->getField()->getNumber(), $this->fieldMap)) {
+                continue;
+            }
+            $this->fieldMap[$game->getField()->getNumber()] = array_shift($fields);
             if (count($fields) === 0) {
                 break;
             }
@@ -145,7 +148,10 @@ class Assigner
             if ($game->getReferee() === null) {
                 return;
             }
-            $this->refereeMap[$game->getReferee()->getNumber()] = array_pop($referees);
+            if (array_key_exists($game->getReferee()->getNumber(), $this->refereeMap)) {
+                continue;
+            }
+            $this->refereeMap[$game->getReferee()->getNumber()] = array_shift($referees);
             if (count($referees) === 0) {
                 break;
             }
