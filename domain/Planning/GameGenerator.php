@@ -147,9 +147,8 @@ class GameGenerator
         $gameRounds[] = $gameRound;
         $nrOfGames = 0;
         $uniqueFiltered = [];
-        $sportConfigs = $this->input->getSportConfig();
         $nrOfGamePlaces = $this->sportConfigService->getMaxNrOfGamePlaces(
-            $sportConfigs,
+            $this->input->getSportConfigs(),
             true,
             $this->input->selfRefereeEnabled()
         );
