@@ -222,6 +222,9 @@ class Planning
         return null;
     }
 
+    /**
+     * @param array|int[] $structureConfig
+     */
     protected function initPoules(array $structureConfig)
     {
         $this->poules = new ArrayCollection();

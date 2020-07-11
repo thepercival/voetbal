@@ -283,19 +283,6 @@ class Input
         //            }
     }
 
-    protected function inputToString(Input $planningInput): string
-    {
-        $sports = array_map(function (array $sportConfig): string {
-            return '' . $sportConfig["nrOfFields"] ;
-        }, $planningInput->getSportConfig());
-        return 'structure [' . implode('|', $planningInput->getStructureConfig()) . ']'
-            . ', sports [' . implode(',', $sports) . ']'
-            . ', referees ' . $planningInput->getNrOfReferees()
-            . ', teamup ' . ($planningInput->getTeamup() ? '1' : '0')
-            . ', selfRef ' . $planningInput->getSelfReferee()
-            . ', nrOfH2h ' . $planningInput->getNrOfHeadtohead();
-    }
-
     // should be known when creating input
 //    public function getFieldsUsable( RoundNumber $roundNumber, Input $inputPlanning ): array {
 //        $maxNrOfFieldsUsable = $inputPlanning->getMaxNrOfFieldsUsable();

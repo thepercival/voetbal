@@ -148,6 +148,13 @@ class Service
         );
     }
 
+    /**
+     * @param float $gcd
+     * @param array|int[] $structureConfig
+     * @param array|array[] $sportConfig
+     * @param int $nrOfReferees
+     * @return array
+     */
     public function modifyByGCD(float $gcd, array $structureConfig, array $sportConfig, int $nrOfReferees)
     {
         $nrOfPoulesByNrOfPlaces = $this->getNrOfPoulesByNrOfPlaces($structureConfig);
@@ -200,7 +207,7 @@ class Service
     }
 
     /**
-     * @param array $structureConfig
+     * @param array|int[] $structureConfig
      * @return array
      */
     protected function getNrOfPoulesByNrOfPlaces(array $structureConfig): array

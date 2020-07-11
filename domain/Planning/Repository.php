@@ -138,7 +138,7 @@ class Repository extends \Voetbal\Repository
         $this->_em->flush();
     }
 
-    public function getTimeout(): ?PlanningBase
+    public function getTimeout(array $structureConfig = null): ?PlanningBase
     {
         $query = $this->createQueryBuilder('p')
             ->join("p.input", "pi")
@@ -147,8 +147,12 @@ class Repository extends \Voetbal\Repository
             ->andWhere('pi.state = :pistate')
             ->orderBy('p.timeoutSeconds', 'ASC')
             ->addOrderBy('pi.teamup', 'ASC')
-            ->addOrderBy('p.id', 'ASC')
-        ;
+            ->addOrderBy('p.id', 'ASC');
+        if ($structureConfig !== null) {
+            $query = $query
+                ->andWhere('pi.structureConfig = :structureConfig')
+                ->setParameter('structureConfig', json_encode($structureConfig));
+        }
 
         $query = $query->setParameter('state', PlanningBase::STATE_TIMEOUT);
         $query = $query->setParameter('pistate', Input::STATE_ALL_PLANNINGS_TRIED);
