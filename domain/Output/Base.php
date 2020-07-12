@@ -30,14 +30,13 @@ abstract class Base
     protected function useColors(): bool
     {
         if( $this->logger instanceof Logger) {
-            /** @var \Monolog\Handler\StreamHandler $handler */
             foreach ($this->logger->getHandlers() as $handler) {
-                if ($handler->getUrl() !== "php://stdout") {
+                if (!($handler instanceof \Monolog\Handler\StreamHandler)
+                    || $handler->getUrl() !== "php://stdout") {
                     return false;
                 }
             }
         }
-
         return true;
     }
 
