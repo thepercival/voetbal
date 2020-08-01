@@ -122,6 +122,10 @@ class Validator
             && $this->planning !== null) {
             $invalidations[] = $this->getUnqualAssignedDescription($this->planning);
         }
+        if (($validity & self::INVALID_ASSIGNED_REFEREEPLACE) === self::INVALID_ASSIGNED_REFEREEPLACE) {
+            $invalidations[] = "refereeplace should (not) be referee in same poule";
+        }
+
         return $invalidations;
     }
 

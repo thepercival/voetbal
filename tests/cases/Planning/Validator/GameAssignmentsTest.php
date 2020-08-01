@@ -108,7 +108,12 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $firstPoule = $planning->getPoule(1);
         $replacedPlace = $firstPoule->getPlace(5);
         $replacedByPlace = $firstPoule->getPlace(1);
-        $this->replaceRefereePlace($planning->createFirstBatch(), $replacedPlace, $replacedByPlace);
+        $this->replaceRefereePlace(
+            $planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE,
+            $planning->createFirstBatch(),
+            $replacedPlace,
+            $replacedByPlace
+        );
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -150,7 +155,12 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $secondPoule = $planning->getPoule(2);
         $replacedPlace = $secondPoule->getPlace(3);
         $replacedByPlace = $secondPoule->getPlace(4);
-        $this->replaceRefereePlace($planning->createFirstBatch(), $replacedPlace, $replacedByPlace);
+        $this->replaceRefereePlace(
+            $planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE,
+            $planning->createFirstBatch(),
+            $replacedPlace,
+            $replacedByPlace
+        );
 
         $validator = new GameAssignmentValidator($planning);
         $unequals = $validator->getRefereePlaceUnequals();
@@ -223,7 +233,12 @@ class GameAssignmentsTest extends \PHPUnit\Framework\TestCase
         $firstPoule = $planning->getPoule(1);
         $replacedPlace = $firstPoule->getPlace(5);
         $replacedByPlace = $firstPoule->getPlace(1);
-        $this->replaceRefereePlace($planning->createFirstBatch(), $replacedPlace, $replacedByPlace);
+        $this->replaceRefereePlace(
+            $planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE,
+            $planning->createFirstBatch(),
+            $replacedPlace,
+            $replacedByPlace
+        );
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);

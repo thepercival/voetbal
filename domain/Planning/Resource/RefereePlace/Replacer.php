@@ -15,13 +15,16 @@ use Voetbal\Planning\Validator\GameAssignments as GameAssignmentValidator;
 
 class Replacer
 {
+    protected bool $samePoule;
+
     /**
      * @var array | Replace[]
      */
     protected array $revertableReplaces;
 
-    public function __construct()
+    public function __construct(bool $samePoule)
     {
+        $this->samePoule = $samePoule;
         $this->revertableReplaces = [];
     }
 
@@ -92,6 +95,10 @@ class Replacer
         /** @var PlanningGame $game */
         foreach ($batch->getGames() as $game) {
             if ($game->getRefereePlace() !== $replaced || $batchHasReplacement) {
+                continue;
+            }
+            if (($game->getPoule() === $replacement->getPoule() && !$this->samePoule)
+                || ($game->getPoule() !== $replacement->getPoule() && $this->samePoule)) {
                 continue;
             }
             $replace = new Replace($game, $replacement);

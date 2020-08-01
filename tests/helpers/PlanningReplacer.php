@@ -17,9 +17,13 @@ use Voetbal\Planning\Resource\RefereePlace\Replacer as RefereePlaceReplacer;
 
 trait PlanningReplacer
 {
-    protected function replaceRefereePlace(Batch $firstBatch, PlanningPlace $replaced, PlanningPlace $replacement)
-    {
-        (new RefereePlaceReplacer())->replace($firstBatch, $replaced, $replacement);
+    protected function replaceRefereePlace(
+        bool $samePoule,
+        Batch $firstBatch,
+        PlanningPlace $replaced,
+        PlanningPlace $replacement
+    ) {
+        (new RefereePlaceReplacer($samePoule))->replace($firstBatch, $replaced, $replacement);
     }
 
     protected function replaceField(

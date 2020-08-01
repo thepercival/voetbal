@@ -37,12 +37,13 @@ class Service
             },
             $roundNumber->getSportConfigs()
         );
-        $selfReferee = $selfReferee = $this->getSelfReferee(
+        $selfReferee = $this->getSelfReferee(
             $config,
             $sportConfigBases,
             $roundNumber->getNrOfPlaces(),
             count($roundNumber->getPoules())
         );
+        $nrOfReferees = $selfReferee === PlanningInput::SELFREFEREE_DISABLED ? $nrOfReferees : 0;
         /*
                 pas hier gcd toe op poules/aantaldeelnemers(structureconfig), aantal scheidsrechters en aantal velden/sport(sportconfig)
                 zorg dat deze functie ook kan worden toegepast vanuit fctoernooi->create_default_planning_input

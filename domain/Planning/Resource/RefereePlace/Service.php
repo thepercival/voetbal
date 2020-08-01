@@ -46,7 +46,7 @@ class Service
     {
         $this->planning = $planning;
         $this->nrOfPlaces = $this->planning->getStructure()->getNrOfPlaces();
-        $this->replacer = new Replacer();
+        $this->replacer = new Replacer($planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE);
     }
 
     protected function getInput(): Input

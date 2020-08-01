@@ -82,7 +82,7 @@ class Repository extends \Voetbal\Repository
      * @param array|int[] $structureConfig
      * @return array|PlanningInput[]
      */
-    public function findNotValidated(int $limit, array $structureConfig = null): array
+    public function findNotValidated(int $limit, array $structureConfig = null, int $selfReferee = null): array
     {
         $exprNot = $this->getEM()->getExpressionBuilder();
         $exprInvalidStates = $this->getEM()->getExpressionBuilder();
@@ -124,6 +124,12 @@ class Repository extends \Voetbal\Repository
                 ->andWhere('pi.structureConfig = :structureConfig')
                 ->setParameter('structureConfig', json_encode($structureConfig));
         }
+        if ($selfReferee !== null) {
+            $query = $query
+                ->andWhere('pi.selfReferee = :selfReferee')
+                ->setParameter('selfReferee', $selfReferee);
+        }
+
         $inputs = $query->getQuery()->getResult();
         return $inputs;
     }

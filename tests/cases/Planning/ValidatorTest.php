@@ -390,6 +390,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 //        $planningOutput->outputWithGames($planning, true);
 
         $this->replaceRefereePlace(
+            $planning->getInput()->getSelfReferee() !== Input::SELFREFEREE_SAMEPOULE,
             $planning->createFirstBatch(),
             $planning->getPoule(1)->getPlace(1),
             $planning->getPoule(2)->getPlace(1)
@@ -430,6 +431,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 //        $planningOutput->outputWithGames($planning, true);
 
         $this->replaceRefereePlace(
+            $planning->getInput()->getSelfReferee() === Input::SELFREFEREE_SAMEPOULE,
             $planning->createFirstBatch(),
             $planning->getPoule(1)->getPlace(1),
             $planning->getPoule(1)->getPlace(4)
@@ -487,7 +489,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
-        self::assertCount(12, $descriptions);
+        self::assertCount(13, $descriptions);
 
 //        $planningOutput = new PlanningOutput();
 //        $planningOutput->outputWithGames($planning, true);
@@ -500,6 +502,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $planningValidator = new PlanningValidator();
         $validity = $planningValidator->validate($planning);
         $descriptions = $planningValidator->getValidityDescriptions(PlanningValidator::ALL_INVALID);
-        self::assertCount(12, $descriptions);
+        self::assertCount(13, $descriptions);
     }
 }

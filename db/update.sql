@@ -1,4 +1,8 @@
 -- PRE PRE PRE doctrine-update =============================================================
+select *
+from planninginputs
+where selfReferee > 0
+  and nrOfReferees > 0;
 
 -- POST POST POST doctrine-update ===========================================================
 
