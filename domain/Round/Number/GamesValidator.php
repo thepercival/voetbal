@@ -10,6 +10,7 @@
 namespace Voetbal\Round\Number;
 
 use Exception;
+use League\Period\Period;
 use Voetbal\Game;
 use Voetbal\Game\Place as GamePlace;
 use Voetbal\Place;
@@ -23,6 +24,10 @@ class GamesValidator
      * @var RoundNumber
      */
     protected $roundNumber;
+    /**
+     * @var Period
+     */
+    protected $blockedPeriod;
 
     /**
      * @var array | Game[]
@@ -31,6 +36,11 @@ class GamesValidator
 
     public function __construct()
     {
+    }
+
+    public function setBlockedPeriod(Period $period)
+    {
+        $this->blockedPeriod = $period;
     }
 
     public function validateStructure(Structure $structure, int $nrOfReferees)
@@ -48,9 +58,13 @@ class GamesValidator
         $this->games = $this->roundNumber->getGames(); // no order
         $this->validateEnoughTotalNrOfGames();
         $this->validateFields();
+        if ($this->blockedPeriod !== null) {
+            $this->validateGameNotInBlockedPeriod();
+        }
         $this->validateAllPlacesSameNrOfGames();
         $this->validateResourcesPerBatch();
         $this->validateEquallyAssigned($nrOfReferees);
+        $this->validatePriorityOfFieldsAndReferees();
     }
 
     protected function validateEnoughTotalNrOfGames()
@@ -66,6 +80,20 @@ class GamesValidator
         foreach ($this->games as $game) {
             if ($game->getField() === null) {
                 throw new Exception("there is at least one game without a field", E_ERROR);
+            }
+        }
+    }
+
+    protected function validateGameNotInBlockedPeriod()
+    {
+        $maxNrOfMinutesPerGame = $this->roundNumber->getValidPlanningConfig()->getMaxNrOfMinutesPerGame();
+        foreach ($this->games as $game) {
+            $gamePeriod = new Period(
+                $game->getStartDateTime(),
+                $game->getStartDateTime()->modify("+" . $maxNrOfMinutesPerGame . " minutes")
+            );
+            if ($gamePeriod->overlaps($this->blockedPeriod)) {
+                throw new Exception("a game is during a blocked period", E_ERROR);
             }
         }
     }
@@ -240,5 +268,44 @@ class GamesValidator
         if ($maxNrOfGames - $minNrOfGames > 1) {
             throw new Exception("too much difference in number of games for " . $suffix, E_ERROR);
         }
+    }
+
+    protected function validatePriorityOfFieldsAndReferees()
+    {
+        $orderedGames = $this->roundNumber->getGames(Game::ORDER_BY_BATCH);
+        $gamesFirstBatch = $this->getGamesForBatch($orderedGames);
+        $pointInTime = new \DateTimeImmutable("2020-08-03"); // @TODO CDK DEPRECATED
+        $priority = 1;
+        foreach ($gamesFirstBatch as $game) {
+            if ($game->getStartDateTime() < $pointInTime) {
+                continue;
+            }
+            if ($game->getField()->getPriority() !== $priority) {
+                throw new Exception("fields are not prioritized", E_ERROR);
+            }
+            if ($game->getReferee() !== null && $game->getReferee()->getPriority() !== $priority) {
+                throw new Exception("referees are not prioritized", E_ERROR);
+            }
+            $priority++;
+        }
+    }
+
+    /**
+     * @param array|Game[] $orderedGames
+     * @return array|Game[]
+     */
+    protected function getGamesForBatch(array $orderedGames): array
+    {
+        $gamesOrderedByRoundNumber = $this->roundNumber->isFirst() ? $orderedGames : array_reverse($orderedGames);
+
+        $game = array_shift($gamesOrderedByRoundNumber);
+        $gamesBatch = [];
+        $batchNr = null;
+        while ($game !== null && ($game->getBatchNr() === $batchNr || $batchNr === null)) {
+            $gamesBatch[] = $game;
+            $batchNr = $game->getBatchNr();
+            $game = array_shift($gamesOrderedByRoundNumber);
+        }
+        return $gamesBatch;
     }
 }

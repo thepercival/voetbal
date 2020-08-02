@@ -8,6 +8,7 @@
 
 namespace Voetbal\TestHelper;
 
+use League\Period\Period;
 use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\Structure;
 use Voetbal\Planning;
@@ -17,13 +18,13 @@ use Voetbal\Planning\Service as PlanningService;
 
 trait GamesCreator {
 
-    protected function createGames( Structure $structure )
+    protected function createGames(Structure $structure, Period $blockedPeriod = null)
     {
-        $this->removeGamesHelper($structure->getFirstRoundNumber() );
-        $this->createGamesHelper( $structure->getFirstRoundNumber() );
+        $this->removeGamesHelper($structure->getFirstRoundNumber());
+        $this->createGamesHelper($structure->getFirstRoundNumber(), $blockedPeriod);
     }
 
-    private function createGamesHelper( RoundNumber $roundNumber )
+    private function createGamesHelper(RoundNumber $roundNumber, Period $blockedPeriod = null)
     {
         // make trait to do job below!!
         $planningInputService = new PlanningInputService();
@@ -41,7 +42,7 @@ trait GamesCreator {
             $refereePlaceService->assign($minIsMaxPlanning->createFirstBatch());
         }
 
-        $convertService = new Planning\Assigner(new Planning\ScheduleService());
+        $convertService = new Planning\Assigner(new Planning\ScheduleService($blockedPeriod));
         $convertService->createGames($roundNumber, $minIsMaxPlanning);
 
         if ($roundNumber->hasNext()) {

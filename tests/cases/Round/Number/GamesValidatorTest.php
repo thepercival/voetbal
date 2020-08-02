@@ -3,6 +3,7 @@
 namespace Voetbal\Tests\Round\Number;
 
 use \Exception;
+use League\Period\Period;
 use Voetbal\Game;
 use Voetbal\Planning\Input;
 use Voetbal\Planning\Resource\Service;
@@ -252,6 +253,39 @@ class GamesValidatorTest extends \PHPUnit\Framework\TestCase
         $gamesValidator = new GamesValidator();
         $nrOfReferees = $competition->getReferees()->count();
         self::assertNull($gamesValidator->validate($firstRoundNumber, $nrOfReferees));
+    }
+
+    public function testGameInBreak()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structure = $structureService->create($competition, 9, 2);
+
+        $firstRoundNumber = $structure->getFirstRoundNumber();
+        $firstRoundNumber->getPlanningConfig()->setSelfReferee(Input::SELFREFEREE_OTHERPOULES);
+
+        // 2 pak vervolgend een wedstrijd en laatr deze in de pauze zijn
+        // 3 en laat de validator de boel opsporen!
+        $start = $competition->getStartDateTime()->modify("+30 minutes");
+        $blockedPeriod = new Period($start, $start->modify("+30 minutes"));
+        $this->createGames($structure, $blockedPeriod);
+
+        /** @var Game[] $games */
+        $games = $firstRoundNumber->getGames(Game::ORDER_BY_BATCH);
+        $game = reset($games);
+        $game->setStartDateTime($start->modify("+10 minutes"));
+//        $outputGame = new \Voetbal\Output\Game();
+//        $games = $firstRoundNumber->getGames(Game::ORDER_BY_BATCH);
+//        foreach( $games as $gameIt ) {
+//            $outputGame->output( $gameIt );
+//        }
+
+        $gamesValidator = new GamesValidator();
+        $gamesValidator->setBlockedPeriod($blockedPeriod);
+        self::expectException(Exception::class);
+        $nrOfReferees = $competition->getReferees()->count();
+        $gamesValidator->validate($firstRoundNumber, $nrOfReferees);
     }
 
     public function testValid()

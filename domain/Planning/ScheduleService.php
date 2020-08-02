@@ -61,13 +61,13 @@ class ScheduleService
         }
         $previousRoundLastStartDateTime = $roundNumber->getPrevious()->getLastStartDateTime();
         $previousPlanningConfig = $roundNumber->getPrevious()->getValidPlanningConfig();
-        $minutes = $previousPlanningConfig->getMaximalNrOfMinutesPerGame() + $previousPlanningConfig->getMinutesAfter();
+        $minutes = $previousPlanningConfig->getMaxNrOfMinutesPerGame() + $previousPlanningConfig->getMinutesAfter();
         return $this->addMinutes($previousRoundLastStartDateTime, $minutes, $previousPlanningConfig);
     }
 
     public function getNextGameStartDateTime(Config $planningConfig, \DateTimeImmutable $gameStartDateTime): \DateTimeImmutable
     {
-        $minutes = $planningConfig->getMaximalNrOfMinutesPerGame() + $planningConfig->getMinutesBetweenGames();
+        $minutes = $planningConfig->getMaxNrOfMinutesPerGame() + $planningConfig->getMinutesBetweenGames();
         return $this->addMinutes($gameStartDateTime, $minutes, $planningConfig);
     }
 
@@ -75,7 +75,7 @@ class ScheduleService
     {
         $newStartDateTime = $dateTime->modify("+" . $minutes . " minutes");
         if ($this->blockedPeriod !== null) {
-            $newEndDateTime = $newStartDateTime->modify("+" . $planningConfig->getMaximalNrOfMinutesPerGame() . " minutes");
+            $newEndDateTime = $newStartDateTime->modify("+" . $planningConfig->getMaxNrOfMinutesPerGame() . " minutes");
             if ($newStartDateTime < $this->blockedPeriod->getEndDate() && $newEndDateTime > $this->blockedPeriod->getStartDate()) {
                 $newStartDateTime = clone $this->blockedPeriod->getEndDate();
             }
