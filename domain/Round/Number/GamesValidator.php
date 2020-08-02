@@ -25,7 +25,7 @@ class GamesValidator
      */
     protected $roundNumber;
     /**
-     * @var Period
+     * @var Period|null
      */
     protected $blockedPeriod;
 
@@ -38,7 +38,7 @@ class GamesValidator
     {
     }
 
-    public function setBlockedPeriod(Period $period)
+    public function setBlockedPeriod(Period $period = null)
     {
         $this->blockedPeriod = $period;
     }

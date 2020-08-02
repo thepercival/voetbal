@@ -140,7 +140,7 @@ class Config
         $this->minutesAfter = $minutesAfter;
     }
 
-    public function getMaximalNrOfMinutesPerGame(): int
+    public function getMaxNrOfMinutesPerGame(): int
     {
         return $this->getMinutesPerGame() + $this->getMinutesPerGameExt();
     }
