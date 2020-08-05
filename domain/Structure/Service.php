@@ -15,6 +15,7 @@ use Voetbal\Range;
 use Voetbal\Structure as StructureBase;
 use Voetbal\Competition;
 use Voetbal\Place;
+use Voetbal\Place\Range as PlaceRange;
 use Voetbal\Poule;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Poule\Horizontal\Creator as HorizontolPouleCreator;
@@ -32,15 +33,18 @@ class Service
      */
     private $planningConfigService;
     /**
-     * @var Options
+     * @var array|PlaceRange[]
      */
-    private $options;
+    private $placeRanges;
 
     public const DEFAULTNROFPLACES = 5;
 
-    public function __construct(Options $options)
+    /**
+     * @param array|PlaceRange[] $placeRanges
+     */
+    public function __construct(array $placeRanges)
     {
-        $this->options = $options;
+        $this->placeRanges = $placeRanges;
         $this->planningConfigService = new PlanningConfigService();
     }
 
@@ -498,44 +502,37 @@ class Service
 
     protected function checkRanges(int $nrOfPlaces, int $nrOfPoules = null)
     {
-        if ($nrOfPlaces < $this->options->getPlaceRange()->min) {
-            throw new \Exception(
-                'er moeten minimaal ' . $this->options->getPlaceRange()->min . ' deelnemers zijn',
-                E_ERROR
-            );
-        }
-        if ($nrOfPlaces > $this->options->getPlaceRange()->max) {
-            throw new \Exception(
-                'er mogen maximaal ' . $this->options->getPlaceRange()->max . ' deelnemers zijn',
-                E_ERROR
-            );
-        }
-        if ($nrOfPoules === null) {
+        if (count($this->placeRanges) === 0) {
             return;
         }
-        if ($nrOfPoules < $this->options->getPouleRange()->min) {
-            throw new \Exception(
-                'er moeten minimaal ' . $this->options->getPouleRange()->min . ' poules zijn',
-                E_ERROR
-            );
+
+        foreach ($this->placeRanges as $placeRange) {
+            if ($nrOfPlaces >= $placeRange->min && $nrOfPlaces <= $placeRange->max) {
+                if ($nrOfPoules === null) {
+                    return;
+                }
+                $flooredNrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules, true);
+                if ($flooredNrOfPlacesPerPoule < $placeRange->getPlacesPerPouleRange()->min) {
+                    throw new \Exception(
+                        'er moeten minimaal ' . $placeRange->getPlacesPerPouleRange(
+                        )->min . ' deelnemers per poule zijn',
+                        E_ERROR
+                    );
+                }
+                $ceiledNrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules, false);
+                if ($ceiledNrOfPlacesPerPoule > $placeRange->getPlacesPerPouleRange()->max) {
+                    throw new \Exception(
+                        'er mogen maximaal ' . $placeRange->getPlacesPerPouleRange(
+                        )->max . ' deelnemers per poule zijn',
+                        E_ERROR
+                    );
+                }
+                return;
+            }
         }
-        if ($nrOfPoules > $this->options->getPouleRange()->max) {
-            throw new \Exception('er mogen maximaal ' . $this->options->getPouleRange()->max . ' poules zijn', E_ERROR);
-        }
-        $flooredNrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules, true);
-        if ($flooredNrOfPlacesPerPoule < $this->options->getPlacesPerPouleRange()->min) {
-            throw new \Exception(
-                'er moeten minimaal ' . $this->options->getPlacesPerPouleRange()->min . ' deelnemers per poule zijn',
-                E_ERROR
-            );
-        }
-        $ceiledNrOfPlacesPerPoule = $this->getNrOfPlacesPerPoule($nrOfPlaces, $nrOfPoules, false);
-        if ($ceiledNrOfPlacesPerPoule > $this->options->getPlacesPerPouleRange()->max) {
-            throw new \Exception(
-                'er mogen maximaal ' . $this->options->getPlacesPerPouleRange()->max . ' deelnemers per poule zijn',
-                E_ERROR
-            );
-        }
+        throw new \Exception(
+            'het aantal deelnemers is kleiner dan het minimum of groter dan het maximum', E_ERROR
+        );
     }
 
     public function getDefaultNrOfPoules(int $nrOfPlaces): int

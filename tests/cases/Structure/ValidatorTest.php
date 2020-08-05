@@ -11,14 +11,13 @@ use Voetbal\Round;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Structure;
 use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Structure\Validator as StructureValidator;
 use Voetbal\TestHelper\GamesCreator;
 
 class ValidatorTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions, GamesCreator;
+    use CompetitionCreator, GamesCreator;
 
     public function testNoStructure()
     {
@@ -34,7 +33,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        // $structureService = new StructureService($this->getDefaultStructureOptions());
+        // $structureService = new StructureService([]);
 
         $firstRoundNumber = new RoundNumber($competition);
         $rootRound = new Round($firstRoundNumber);
@@ -50,7 +49,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 4);
 
@@ -65,7 +64,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 4);
 
@@ -86,7 +85,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 4);
 
@@ -104,7 +103,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 4);
 
@@ -122,7 +121,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 6, 2);
 
@@ -144,7 +143,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 6, 2);
         $firstRoundNumber = $structure->getFirstRoundNumber();
@@ -164,7 +163,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 6, 2);
 
@@ -183,7 +182,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 6, 2);
 
@@ -202,7 +201,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 6, 2);
 
@@ -225,7 +224,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
 
         $structure = $structureService->create($competition, 6, 2);
 

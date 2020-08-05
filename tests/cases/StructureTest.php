@@ -10,17 +10,16 @@ namespace Voetbal\Tests;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\GamesCreator;
 
 class StructureTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions;
+    use CompetitionCreator;
 
     public function testBasics()
     {
         $competition = $this->createCompetition();
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 16, 4);
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $rootRound = $structure->getRootRound();
@@ -42,7 +41,7 @@ class StructureTest extends \PHPUnit\Framework\TestCase
     public function testSetStructureNumbers()
     {
         $competition = $this->createCompetition();
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 16, 4);
         $firstRoundNumber = $structure->getFirstRoundNumber();
         $rootRound = $structure->getRootRound();

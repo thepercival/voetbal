@@ -6,7 +6,7 @@ namespace Voetbal\Tests\Planning\Input;
 use Voetbal\Planning\Input\Iterator as PlanningInputIterator;
 use Voetbal\Range as VoetbalRange;
 use Voetbal\Output\Planning as PlanningOutput;
-use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\Structure\Range as StructureOptions;
 
 class IteratorTest extends \PHPUnit\Framework\TestCase
 {

@@ -11,19 +11,24 @@ namespace Voetbal\Planning\Input;
 use Voetbal\Planning\Input as PlanningInput;
 use Voetbal\Planning\Resources;
 use Voetbal\Range as VoetbalRange;
+use Voetbal\Place\Range as PlaceRange;
 use Voetbal\Planning\Config\Service as PlanningConfigService;
 use Voetbal\Sport;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Sport\Config\Service as SportConfigService;
-use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\Structure\Range as StructureOptions;
 
 
 class Iterator
 {
     /**
-     * @var StructureOptions
+     * @var PlaceRange
      */
-    protected $structureRanges;
+    protected $rangePlaces;
+    /**
+     * @var VoetbalRange
+     */
+    protected $rangePoules;
     /**
      * @var VoetbalRange
      */
@@ -99,20 +104,22 @@ class Iterator
     protected $nrOfGamesPlaces;
 
     public function __construct(
-        StructureOptions $options,
+        PlaceRange $rangePlaces,
+        PlaceRange $rangePoules,
         VoetbalRange $rangeNrOfSports,
         VoetbalRange $rangeNrOfFields,
         VoetbalRange $rangeNrOfReferees,
         VoetbalRange $rangeNrOfHeadtohead
     ) {
-        $this->structureRanges = $options;
+        $this->rangePlaces = $rangePlaces;
+        $this->rangePoules = $rangePoules;
         $this->rangeNrOfSports = $rangeNrOfSports;
         $this->rangeNrOfFields = $rangeNrOfFields;
         $this->rangeNrOfReferees = $rangeNrOfReferees;
         $this->rangeNrOfHeadtohead = $rangeNrOfHeadtohead;
         $this->maxFieldsMultipleSports = 6;
 
-        $this->structureService = new StructureService($options);
+        $this->structureService = new StructureService([$rangePlaces]);
         $this->planningConfigService = new PlanningConfigService();
         $this->sportConfigService = new SportConfigService();
         // @TODO SHOULD BE IN ITERATION
@@ -143,19 +150,19 @@ class Iterator
 
     protected function initNrOfPlaces()
     {
-        $this->nrOfPlaces = $this->structureRanges->getPlaceRange()->max;
+        $this->nrOfPlaces = $this->rangePlaces->max;
         $this->initNrOfPoules();
     }
 
     protected function initNrOfPoules()
     {
-        $this->nrOfPoules = $this->structureRanges->getPouleRange()->min;
+        $this->nrOfPoules = $this->rangePoules->min;
         $nrOfPlacesPerPoule = $this->structureService->getNrOfPlacesPerPoule(
             $this->nrOfPlaces,
             $this->nrOfPoules,
             true
         );
-        while ($nrOfPlacesPerPoule > $this->structureRanges->getPlacesPerPouleRange()->max) {
+        while ($nrOfPlacesPerPoule > $this->rangePlaces->getPlacesPerPouleRange()->max) {
             $this->nrOfPoules++;
             $nrOfPlacesPerPoule = $this->structureService->getNrOfPlacesPerPoule(
                 $this->nrOfPlaces,
@@ -363,7 +370,7 @@ class Iterator
 
     protected function incrementNrOfPoules(): bool
     {
-        if ($this->nrOfPoules === $this->structureRanges->getPouleRange()->max) {
+        if ($this->nrOfPoules === $this->rangePoules->max) {
             return $this->incrementNrOfPlaces();
         }
         $nrOfPlacesPerPoule = $this->structureService->getNrOfPlacesPerPoule(
@@ -371,7 +378,7 @@ class Iterator
             $this->nrOfPoules + 1,
             true
         );
-        if ($nrOfPlacesPerPoule < $this->structureRanges->getPlacesPerPouleRange()->min) {
+        if ($nrOfPlacesPerPoule < $this->rangePlaces->getPlacesPerPouleRange()->min) {
             return $this->incrementNrOfPlaces();
         }
 
@@ -382,7 +389,7 @@ class Iterator
 
     protected function incrementNrOfPlaces(): bool
     {
-        if ($this->nrOfPlaces === $this->structureRanges->getPlaceRange()->min) {
+        if ($this->nrOfPlaces === $this->rangePlaces->min) {
             return false;
         }
         $this->nrOfPlaces--;

@@ -11,7 +11,7 @@ namespace Voetbal\ExternalSource;
 use Voetbal\ExternalSource as ExternalSourceBase;
 use Voetbal\ExternalSource\Implementation as ExternalSourceImplementation;
 use Voetbal\CacheItemDb\Repository as CacheItemDbRepository;
-use Voetbal\Structure\Options as StructureOptions;
+use Voetbal\Structure\Range as StructureOptions;
 use Psr\Log\LoggerInterface;
 
 use Voetbal\Sport;

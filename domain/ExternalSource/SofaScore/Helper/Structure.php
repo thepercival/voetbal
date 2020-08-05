@@ -8,18 +8,14 @@
 
 namespace Voetbal\ExternalSource\SofaScore\Helper;
 
-use stdClass;
 use Voetbal\ExternalSource\SofaScore\Helper as SofaScoreHelper;
 use Voetbal\ExternalSource\SofaScore\ApiHelper as SofaScoreApiHelper;
 use Voetbal\Competition;
 use Psr\Log\LoggerInterface;
-use Voetbal\Import\Service as ImportService;
 use Voetbal\ExternalSource\SofaScore;
-use Voetbal\Range as VoetbalRange;
 use Voetbal\Structure as StructureBase;
 use Voetbal\ExternalSource\Structure as ExternalSourceStructure;
 use Voetbal\Structure\Service as StructureService;
-use Voetbal\Structure\Options as StructureOptions;
 
 class Structure extends SofaScoreHelper implements ExternalSourceStructure
 {
@@ -38,12 +34,7 @@ class Structure extends SofaScoreHelper implements ExternalSourceStructure
             $apiHelper,
             $logger
         );
-        $options = new StructureOptions(
-            new VoetbalRange(1, 64), // pouleRange
-            new VoetbalRange(1, 128), // placeRange
-            new VoetbalRange(1, 40) // placesPerPouleRange
-        );
-        $this->structureService = new StructureService($options);
+        $this->structureService = new StructureService([]);
     }
 
     public function getStructure(Competition $competition): ?StructureBase

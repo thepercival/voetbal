@@ -11,7 +11,6 @@ use Voetbal\Planning;
 use Voetbal\Planning\Input;
 use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
 use Voetbal\TestHelper\PlanningReplacer;
 use Voetbal\Structure\Service as StructureService;
@@ -26,13 +25,13 @@ use Exception;
 
 class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions, PlanningCreator, PlanningReplacer;
+    use CompetitionCreator, PlanningCreator, PlanningReplacer;
 
     public function testSamePouleEnoughRefereePlaces()
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
 
         $roundNumber = $structure->getFirstRoundNumber();
@@ -49,7 +48,7 @@ class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 2);
 
         $roundNumber = $structure->getFirstRoundNumber();
@@ -66,7 +65,7 @@ class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $roundNumber = $structure->getFirstRoundNumber();
@@ -83,7 +82,7 @@ class RefereePlacePredicterTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4, 2);
 
         $roundNumber = $structure->getFirstRoundNumber();

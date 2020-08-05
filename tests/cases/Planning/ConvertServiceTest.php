@@ -7,7 +7,6 @@ use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Round\Number\GamesValidator;
 use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Planning\Assigner as PlanningConvertService;
@@ -15,13 +14,13 @@ use Voetbal\Planning\ScheduleService;
 
 class ConvertServiceTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions, PlanningCreator;
+    use CompetitionCreator, PlanningCreator;
 
     public function testValid()
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4, 2);
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
@@ -43,7 +42,7 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
         $competition = $this->createCompetition();
         $competition->getReferees()->clear();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4);
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
@@ -67,7 +66,7 @@ class ConvertServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 11);
 
         $rootRound = $structure->getRootRound();

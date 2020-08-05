@@ -11,7 +11,6 @@ namespace Voetbal\Tests\Ranking;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\GamesCreator;
 use Voetbal\TestHelper\SetScores;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Ranking\Service as RankingService;
@@ -21,13 +20,13 @@ use Voetbal\Competitor;
 
 class ServiceTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, GamesCreator, SetScores, DefaultStructureOptions;
+    use CompetitionCreator, GamesCreator, SetScores;
 
     public function testRuleDescriptions()
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
         $rootRound = $structure->getRootRound();
 
@@ -49,7 +48,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
         $rootRound = $structure->getRootRound();
 
@@ -78,7 +77,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
         $rootRound = $structure->getRootRound();
 
@@ -107,7 +106,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
         $rootRound = $structure->getRootRound();
 
@@ -137,7 +136,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6);
         $rootRound = $structure->getRootRound();
 
@@ -172,7 +171,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6);
         $rootRound = $structure->getRootRound();
 
@@ -202,7 +201,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
         $rootRound = $structure->getRootRound();
 
@@ -226,7 +225,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4);
         $rootRound = $structure->getRootRound();
 
@@ -258,7 +257,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
         $rootRound = $structure->getRootRound();
 
@@ -282,7 +281,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4);
         $rootRound = $structure->getRootRound();
 
@@ -309,7 +308,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4);
         $rootRound = $structure->getRootRound();
 
@@ -336,7 +335,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
         $rootRound = $structure->getRootRound();
 
@@ -360,7 +359,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4);
         $rootRound = $structure->getRootRound();
 
@@ -386,7 +385,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 4);
         $rootRound = $structure->getRootRound();
 

@@ -11,7 +11,6 @@ namespace Voetbal\Tests\Qualify;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\GamesCreator;
 use Voetbal\TestHelper\SetScores;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\Ranking\Service as RankingService;
@@ -20,13 +19,13 @@ use Voetbal\Competitor;
 
 class ServiceTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, GamesCreator, SetScores, DefaultStructureOptions;
+    use CompetitionCreator, GamesCreator, SetScores;
 
     public function test2RoundNumbers5()
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService( $this->getDefaultStructureOptions() );
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 5);
         $rootRound = $structure->getRootRound();
 
@@ -76,7 +75,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService( $this->getDefaultStructureOptions() );
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6);
         $rootRound = $structure->getRootRound();
 
@@ -126,7 +125,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService( $this->getDefaultStructureOptions() );
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 9);
         $rootRound = $structure->getRootRound();
 
@@ -201,7 +200,7 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService( $this->getDefaultStructureOptions() );
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 9);
         $rootRound = $structure->getRootRound();
 

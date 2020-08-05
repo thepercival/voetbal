@@ -15,7 +15,6 @@ use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\Planning\ScheduleService;
 use Voetbal\Qualify\Group;
 use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
 use Voetbal\TestHelper\PlanningReplacer;
 use Voetbal\Structure\Service as StructureService;
@@ -30,13 +29,13 @@ use Exception;
 
 class ScheduleServiceTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions, PlanningCreator, PlanningReplacer;
+    use CompetitionCreator, PlanningCreator, PlanningReplacer;
 
     public function testValidDateTimes()
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $structureService->addQualifiers($structure->getRootRound(), Group::WINNERS, 2);
@@ -69,7 +68,7 @@ class ScheduleServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $structureService->addQualifiers($structure->getRootRound(), Group::WINNERS, 2);
@@ -105,7 +104,7 @@ class ScheduleServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $structureService->addQualifiers($structure->getRootRound(), Group::WINNERS, 2);
@@ -143,7 +142,7 @@ class ScheduleServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $structureService->addQualifiers($structure->getRootRound(), Group::WINNERS, 2);
@@ -181,7 +180,7 @@ class ScheduleServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $structureService->addQualifiers($structure->getRootRound(), Group::WINNERS, 2);
@@ -219,7 +218,7 @@ class ScheduleServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $structureService->addQualifiers($structure->getRootRound(), Group::WINNERS, 2);
@@ -257,7 +256,7 @@ class ScheduleServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 6, 2);
 
         $structureService->addQualifiers($structure->getRootRound(), Group::WINNERS, 2);

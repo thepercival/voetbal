@@ -10,7 +10,6 @@ use Voetbal\Planning;
 use Voetbal\Planning\Input;
 use Voetbal\Planning\Resource\RefereePlace\Service as RefereePlaceService;
 use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
 use Voetbal\TestHelper\PlanningReplacer;
 use Voetbal\Structure\Service as StructureService;
@@ -25,7 +24,7 @@ use Exception;
 
 class TimeoutExceptionTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions, PlanningCreator, PlanningReplacer;
+    use CompetitionCreator, PlanningCreator, PlanningReplacer;
 
     public function testThrow()
     {

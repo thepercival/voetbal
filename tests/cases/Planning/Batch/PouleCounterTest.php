@@ -8,19 +8,18 @@ use Voetbal\Planning\Batch\RefereePlacePredicter;
 use Voetbal\Planning\Input;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\TestHelper\CompetitionCreator;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\TestHelper\PlanningCreator;
 use Voetbal\TestHelper\PlanningReplacer;
 
 class PouleCounterTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, DefaultStructureOptions, PlanningCreator, PlanningReplacer;
+    use CompetitionCreator, PlanningCreator, PlanningReplacer;
 
     public function testCalculations()
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService($this->getDefaultStructureOptions());
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 3);
 
         $roundNumber = $structure->getFirstRoundNumber();

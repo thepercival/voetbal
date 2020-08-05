@@ -11,7 +11,6 @@ namespace Voetbal\Tests\Qualify;
 use Voetbal\TestHelper\CompetitionCreator;
 use Voetbal\TestHelper\GamesCreator;
 use Voetbal\TestHelper\SetScores;
-use Voetbal\TestHelper\DefaultStructureOptions;
 use Voetbal\Structure\Service as StructureService;
 use Voetbal\Qualify\Service as QualifyService;
 use Voetbal\Ranking\Service as RankingService;
@@ -21,13 +20,13 @@ use Voetbal\Competitor;
 
 class ReservationServiceTest extends \PHPUnit\Framework\TestCase
 {
-    use CompetitionCreator, GamesCreator, SetScores, DefaultStructureOptions;
+    use CompetitionCreator, GamesCreator, SetScores;
 
     public function testFreeAndReserve()
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService( $this->getDefaultStructureOptions() );
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 5);
         $rootRound = $structure->getRootRound();
         $structureService->addQualifier($rootRound, QualifyGroup::WINNERS);
@@ -69,7 +68,7 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService( $this->getDefaultStructureOptions() );
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 12, 4);
         $rootRound = $structure->getRootRound();
 
@@ -157,7 +156,7 @@ class ReservationServiceTest extends \PHPUnit\Framework\TestCase
     {
         $competition = $this->createCompetition();
 
-        $structureService = new StructureService( $this->getDefaultStructureOptions() );
+        $structureService = new StructureService([]);
         $structure = $structureService->create($competition, 9);
         $rootRound = $structure->getRootRound();
 
