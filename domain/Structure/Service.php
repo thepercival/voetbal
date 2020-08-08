@@ -188,14 +188,17 @@ class Service
 
     public function addQualifier(Round $round, int $winnersOrLosers)
     {
-        if ($round->getNrOfPlacesChildren() >= $round->getNrOfPlaces()) {
+        $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
+        $placesToAdd = ($nrOfPlaces === 0 ? 2 : 1);
+
+        if (($round->getNrOfPlacesChildren() + $placesToAdd) > $round->getNrOfPlaces()) {
             throw new \Exception(
                 'er mogen maximaal ' . $round->getNrOfPlacesChildren() . ' deelnemers naar de volgende ronde',
                 E_ERROR
             );
         }
-        $nrOfPlaces = $round->getNrOfPlacesChildren($winnersOrLosers);
-        $newNrOfPlaces = $nrOfPlaces + ($nrOfPlaces === 0 ? 2 : 1);
+
+        $newNrOfPlaces = $nrOfPlaces + $placesToAdd;
         $this->updateQualifyGroups($round, $winnersOrLosers, $newNrOfPlaces);
 
         $qualifyRuleService = new QualifyRuleService($round);

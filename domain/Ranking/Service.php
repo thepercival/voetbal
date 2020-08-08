@@ -190,6 +190,12 @@ class Service
         $nrOfIterations = 0;
         while (count($unrankedItems) > 0) {
             $bestItems = $this->findBestItems($unrankedItems, $rankFunctions);
+            uasort( $bestItems, function (UnrankedRoundItem $unrankedA, UnrankedRoundItem $unrankedB): int {
+                if ($unrankedA->getPlaceLocation()->getPouleNr() === $unrankedB->getPlaceLocation()->getPouleNr()) {
+                    return $unrankedA->getPlaceLocation()->getPlaceNr() - $unrankedB->getPlaceLocation()->getPlaceNr();
+                }
+                return $unrankedA->getPlaceLocation()->getPouleNr() - $unrankedB->getPlaceLocation()->getPouleNr();
+            });
             $rank = $nrOfIterations + 1;
             foreach ($bestItems as $bestItem) {
                 array_splice($unrankedItems, array_search($bestItem, $unrankedItems, true), 1);

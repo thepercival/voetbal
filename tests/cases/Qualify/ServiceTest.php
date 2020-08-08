@@ -248,4 +248,53 @@ class ServiceTest extends \PHPUnit\Framework\TestCase
 
         self::assertSame($winnersPoule->getPlace(4)->getCompetitor(), null);
     }
+
+    /**
+     * When second place is multiple and both second places are ranked completely equal
+     */
+    public function testSameWinnersLosers()
+    {
+        $competition = $this->createCompetition();
+
+        $structureService = new StructureService([]);
+        $structure = $structureService->create($competition, 6,2);
+        $rootRound = $structure->getRootRound();
+
+        $structureService->addQualifiers($rootRound, QualifyGroup::WINNERS, 3);
+        $structureService->addQualifiers($rootRound, QualifyGroup::LOSERS, 3);
+
+        $this->createGames($structure);
+
+        $pouleOne = $rootRound->getPoule(1);
+
+        for ($nr = 1; $nr <= $pouleOne->getPlaces()->count(); $nr++) {
+            $competitor = new Competitor($competition->getLeague()->getAssociation(), $pouleOne->getNumber() . '.' . $nr);
+            $pouleOne->getPlace($nr)->setCompetitor($competitor);
+        }
+        $pouleTwo = $rootRound->getPoule(2);
+        for ($nr = 1; $nr <= $pouleTwo->getPlaces()->count(); $nr++) {
+            $competitor = new Competitor($competition->getLeague()->getAssociation(), $pouleTwo->getNumber() . '.' . $nr);
+            $pouleTwo->getPlace($nr)->setCompetitor($competitor);
+        }
+
+        $this->setScoreSingle($pouleOne, 1, 2, 1, 0);
+        $this->setScoreSingle($pouleOne, 3, 1, 0, 1);
+        $this->setScoreSingle($pouleOne, 2, 3, 1, 0);
+        $this->setScoreSingle($pouleTwo, 1, 2, 1, 0);
+        $this->setScoreSingle($pouleTwo, 3, 1, 0, 1);
+        $this->setScoreSingle($pouleTwo, 2, 3, 1, 0);
+
+        $qualifyService = new QualifyService($rootRound, RankingService::RULESSET_WC);
+        $qualifyService->setQualifiers();
+
+        $winnersPoule = $rootRound->getChild(QualifyGroup::WINNERS, 1)->getPoule(1);
+
+        self::assertNotSame($winnersPoule->getPlace(3)->getCompetitor(), null);
+        self::assertSame('1.2', $winnersPoule->getPlace(3)->getCompetitor()->getName());
+
+        $loserssPoule = $rootRound->getChild(QualifyGroup::LOSERS, 1)->getPoule(1);
+        self::assertNotSame($loserssPoule->getPlace(1)->getCompetitor(), null);
+        self::assertSame('2.2', $loserssPoule->getPlace(1)->getCompetitor()->getName());
+    }
+
 }
