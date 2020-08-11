@@ -8,7 +8,6 @@
 
 namespace Voetbal\Ranking;
 
-use Voetbal\Competitor;
 use Voetbal\Game;
 use Voetbal\Place\Location as PlaceLocation;
 use Voetbal\Poule;
@@ -112,8 +111,22 @@ class Service
     public function getPlaceLocationsForHorizontalPoule(HorizontalPoule $horizontalPoule): array
     {
         return array_map(
-            function ($rankingItem): PlaceLocation {
+            function (RankedRoundItem $rankingItem): PlaceLocation {
                 return $rankingItem->getPlaceLocation();
+            },
+            $this->getItemsForHorizontalPoule($horizontalPoule, true)
+        );
+    }
+
+    /**
+     * @param HorizontalPoule $horizontalPoule
+     * @return array | Place[]
+     */
+    public function getPlacesForHorizontalPoule(HorizontalPoule $horizontalPoule): array
+    {
+        return array_map(
+            function (RankedRoundItem $rankingItem): Place {
+                return $rankingItem->getPlace();
             },
             $this->getItemsForHorizontalPoule($horizontalPoule, true)
         );
@@ -171,13 +184,6 @@ class Service
         return reset($foundItems);
     }
 
-    public function getCompetitor(PlaceLocation $placeLocation): ?Competitor
-    {
-        return $this->round->getPoule($placeLocation->getPouleNr())->getPlace(
-            $placeLocation->getPlaceNr()
-        )->getCompetitor();
-    }
-
     /**
      * @param array | UnrankedRoundItem[] $unrankedItems
      * @param bool $againstEachOther
@@ -220,8 +226,8 @@ class Service
 
         foreach ($rankFunctions as $rankFunction) {
             if ($rankFunction === $this->rankFunctions[Service::BestAgainstEachOther] && count($orgItems) === count(
-                $bestItems
-            )) {
+                    $bestItems
+                )) {
                 continue;
             }
             $bestItems = $rankFunction($bestItems);

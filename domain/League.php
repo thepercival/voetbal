@@ -9,9 +9,8 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Import\Idable as Importable;
 
-class League implements Importable
+class League implements Identifiable
 {
     /**
      * @var int|string
@@ -38,8 +37,6 @@ class League implements Importable
     const MAX_LENGTH_NAME = 60;
     const MAX_LENGTH_ABBREVIATION = 7;
     const MAX_LENGTH_SPORT = 30;
-
-    use ImportableTrait;
 
     public function __construct(Association $association, $name, $abbreviation = null)
     {

@@ -279,19 +279,6 @@ class Number
         return $nrOfPlaces;
     }
 
-    /**
-     * @return array | Competitor[]
-     */
-    public function getCompetitors(): array
-    {
-        $competitors = [];
-        /** @var Round $round */
-        foreach ($this->getRounds() as $round) {
-            $competitors = array_merge($competitors, $round->getCompetitors());
-        }
-        return $competitors;
-    }
-
     public function getPlanningConfig(): ?PlanningConfig
     {
         return $this->planningConfig;

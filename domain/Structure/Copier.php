@@ -22,15 +22,10 @@ class Copier
      * @var Competition
      */
     protected $competition;
-    /**
-     * @var array | Competitor[]
-     */
-    protected $competitors;
 
-    public function __construct(Competition $competition, array $competitors)
+    public function __construct(Competition $competition)
     {
         $this->competition = $competition;
-        $this->competitors = $competitors;
     }
 
     public function copy(Structure $structure): Structure
@@ -98,7 +93,7 @@ class Copier
     ): Round {
         $round = new Round($roundNumber, $parentQualifyGroup);
         foreach ($poules as $poule) {
-            $this->copyPoule($round, $poule->getNumber(), $poule->getPlaces()->toArray(), $parentQualifyGroup === null);
+            $this->copyPoule($round, $poule->getNumber(), $poule->getPlaces()->toArray());
         }
         return $round;
     }
@@ -107,19 +102,13 @@ class Copier
      * @param Round $round
      * @param int $number
      * @param array|Place[] $places
-     * @param bool $withCompetitors
      * @throws Exception
      */
-    protected function copyPoule(Round $round, int $number, array $places, bool $withCompetitors)
+    protected function copyPoule(Round $round, int $number, array $places)
     {
         $poule = new Poule($round, $number);
         foreach ($places as $place) {
-            $newPlace = new Place($poule, $place->getNumber());
-            if ($place->getCompetitor() === null || !$withCompetitors) {
-                continue;
-            }
-            $competitor = $this->getCompetitor($place->getCompetitor());
-            $newPlace->setCompetitor($competitor);
+            new Place($poule, $place->getNumber());
         }
     }
 
@@ -134,19 +123,5 @@ class Copier
             throw new Exception("Er kon geen overeenkomende sport worden gevonden", E_ERROR);
         }
         return $foundSports->first();
-    }
-
-    protected function getCompetitor(Competitor $competitor): Competitor
-    {
-        $foundCompetitors = array_filter(
-            $this->competitors,
-            function ($competitorIt) use ($competitor): bool {
-                return $competitorIt->getName() === $competitor->getName();
-            }
-        );
-        if (count($foundCompetitors) !== 1) {
-            throw new Exception("Er kon geen overeenkomende deelnemer worden gevonden", E_ERROR);
-        }
-        return reset($foundCompetitors);
     }
 }

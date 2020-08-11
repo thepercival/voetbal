@@ -9,9 +9,8 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\ArrayCollection;
-use Voetbal\Import\Idable as Importable;
 
-class Association implements Importable
+class Association implements Identifiable
 {
     /**
      * @var int|string
@@ -38,22 +37,20 @@ class Association implements Importable
      */
     protected $leagues;
     /**
-     * @var Competitor[] | ArrayCollection
+     * @var Team[] | ArrayCollection
      */
-    protected $competitors;
+    protected $teams;
 
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 30;
     const MAX_LENGTH_DESCRIPTION = 50;
-
-    use ImportableTrait;
 
     public function __construct(string $name)
     {
         $this->setName($name);
         $this->children = new ArrayCollection();
         $this->leagues = new ArrayCollection();
-        $this->competitors = new ArrayCollection();
+        $this->teams = new ArrayCollection();
     }
 
     /**
@@ -157,10 +154,10 @@ class Association implements Importable
     }
 
     /**
-     * @return Competitor[] | ArrayCollection | null
+     * @return Team[] | ArrayCollection | null
      */
-    public function getCompetitors()
+    public function getTeams()
     {
-        return $this->competitors;
+        return $this->teams;
     }
 }

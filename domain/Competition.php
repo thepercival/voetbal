@@ -13,9 +13,8 @@ use \Doctrine\Common\Collections\Collection;
 use \Doctrine\ORM\PersistentCollection;
 use Voetbal\Ranking\Service as RankingService;
 use Voetbal\Sport\Config as SportConfig;
-use Voetbal\Import\Idable as Importable;
 
-class Competition implements Importable
+class Competition implements Identifiable
 {
     /**
      * @var int|string
@@ -64,8 +63,6 @@ class Competition implements Importable
 
     const MIN_COMPETITORS = 3;
     const MAX_COMPETITORS = 40;
-
-    use ImportableTrait;
 
     public function __construct(League $league, Season $season)
     {

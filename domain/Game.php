@@ -15,9 +15,8 @@ use Doctrine\Common\Collections\Collection;
 use Voetbal\Game\Score;
 use Voetbal\Game\Place as GamePlace;
 use Voetbal\Sport\Config as SportConfig;
-use Voetbal\Import\Idable as Importable;
 
-class Game implements Importable
+class Game implements Identifiable
 {
     /**
      * @var int|string
@@ -76,8 +75,6 @@ class Game implements Importable
 
     public const ORDER_BY_BATCH = 1;
     public const ORDER_BY_GAMENUMBER = 2;
-
-    use ImportableTrait;
 
     public function __construct(Poule $poule, int $batchNr, \DateTimeImmutable $startDateTime)
     {

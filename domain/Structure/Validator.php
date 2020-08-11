@@ -19,10 +19,6 @@ use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Competition;
 use Voetbal\Structure;
 
-/**
- * Repository
- *
- */
 class Validator
 {
     /**
@@ -45,8 +41,7 @@ class Validator
 
         $firstRoundNumber = $structure->getFirstRoundNumber();
 
-        $association = $competition->getLeague()->getAssociation();
-        $this->checkRoundNumberValidity($firstRoundNumber, $competition, $association);
+        $this->checkRoundNumberValidity($firstRoundNumber, $competition);
         foreach ($firstRoundNumber->getRounds() as $round) {
             $this->checkRoundValidity($round);
         }
@@ -54,8 +49,7 @@ class Validator
 
     public function checkRoundNumberValidity(
         RoundNumber $roundNumber,
-        Competition $competition,
-        Association $association
+        Competition $competition
     ) {
         $prefix = "rondenummer " . $roundNumber->getNumber() . $this->getIdOutput($roundNumber->getId());
         if ($roundNumber->getRounds()->count() === 0) {
@@ -69,17 +63,8 @@ class Validator
                 }
             }
         }
-
-        foreach ($roundNumber->getCompetitors() as $competitor) {
-            if ($competitor->getAssociation() !== $association) {
-                throw new Exception(
-                    "deelnemer " . $this->getIdOutput($competitor->getId()) . " heeft een andere bond",
-                    E_ERROR
-                );
-            }
-        }
         if ($roundNumber->hasNext()) {
-            $this->checkRoundNumberValidity($roundNumber->getNext(), $competition, $association);
+            $this->checkRoundNumberValidity($roundNumber->getNext(), $competition);
         }
     }
 

@@ -9,66 +9,59 @@
 namespace Voetbal;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Voetbal\Place\Location;
 use Voetbal\Qualify\Rule as QualifyRule;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 
-class Place
+class Place implements Place\Location
 {
     /**
      * @var int
      */
     protected $id;
-
     /**
      * @var string|null
      */
     protected $name;
-
     /**
      * @var int
      */
     protected $number;
-
     /**
      * @var string
      */
     protected $locationId;
-
     /**
      * @var int
      */
     protected $penaltyPoints;
-
     /**
      * @var Poule
      */
     protected $poule;
-
-    /**
-     * @var Competitor
-     */
-    protected $competitor;
-
     /**
      * @var Qualify\Rule
      */
     protected $fromQualifyRule;
-
     /**
      * @var Qualify\Rule[] | array
      */
     protected $toQualifyRules = array();
-
     /**
      * @var HorizontalPoule
      */
     protected $horizontalPouleWinners;
-
     /**
      * @var HorizontalPoule
      */
     protected $horizontalPouleLosers;
+    /**
+     * @var Place | null
+     */
+    protected $qualifiedPlace;
+
+    protected $competitorDep;
 
     const MAX_LENGTH_NAME = 10;
 
@@ -140,6 +133,16 @@ class Place
         $this->number = $number;
     }
 
+    public function getPouleNr(): int
+    {
+        return $this->getPoule()->getNumber();
+    }
+
+    public function getPlaceNr(): int
+    {
+        return $this->getNumber();
+    }
+
     /**
      * @return int
      */
@@ -176,22 +179,6 @@ class Place
         }
 
         $this->name = $name;
-    }
-
-    /**
-     * @return ?Competitor
-     */
-    public function getCompetitor(): ?Competitor
-    {
-        return $this->competitor;
-    }
-
-    /**
-     * @param Competitor $competitor
-     */
-    public function setCompetitor(Competitor $competitor = null)
-    {
-        $this->competitor = $competitor;
     }
 
     public function getFromQualifyRule(): ?QualifyRule
@@ -249,11 +236,6 @@ class Place
         }
     }
 
-    public function getLocation(): Place\Location
-    {
-        return new Place\Location($this->getPoule()->getNumber(), $this->getNumber());
-    }
-
     /**
      * within roundnumber
      */
@@ -275,5 +257,20 @@ class Place
                 return $game->isParticipating($this);
             }
         );
+    }
+
+    public function getQualifiedPlace(): ?Place {
+        return $this->qualifiedPlace;
+    }
+
+    public function setQualifiedPlace(Place $place = null): void {
+        $this->qualifiedPlace = $place;
+    }
+
+    public function getStartLocation(): Location {
+        if( $this->qualifiedPlace === null ) {
+            return $this;
+        }
+        return $this->qualifiedPlace->getStartLocation();
     }
 }

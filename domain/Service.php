@@ -45,8 +45,6 @@ class Service
     {
         if ($classname === Association::class) {
             return new Association\Service();
-        } elseif ($classname === Competitor::class) {
-            return new Competitor\Service();
         } elseif ($classname === Competition::class) {
             return new Competition\Service();
         } elseif ($classname === Game::class) {

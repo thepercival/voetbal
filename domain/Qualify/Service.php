@@ -7,19 +7,12 @@ use Voetbal\Qualify\ReservationService as QualifyReservationService;
 use Voetbal\Poule;
 use Voetbal\Place;
 use Voetbal\Round;
-use Voetbal\Competitor;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\State;
 use Voetbal\Qualify\Rule\Single as QualifyRuleSingle;
 use Voetbal\Qualify\Rule\Multiple as QualifyRuleMultiple;
 use Voetbal\Qualify\Group as QualifyGroup;
 
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 20-4-18
- * Time: 10:29
- */
 class Service
 {
     /**
@@ -90,12 +83,12 @@ class Service
         $rank = $fromPlace->getNumber();
         $this->reservationService->reserve($ruleSingle->getToPlace()->getPoule()->getNumber(), $poule);
 
-        $competitor = $this->getQualifiedCompetitor($poule, $rank);
+        $qualifiedPlace = $this->getQualifiedPlace($poule, $rank);
         $toPlace = $ruleSingle->getToPlace();
-        if ($toPlace->getCompetitor() === $competitor) {
+        if ($toPlace->getQualifiedPlace() === $qualifiedPlace) {
             return null;
         }
-        $toPlace->setCompetitor($competitor);
+        $toPlace->setQualifiedPlace($qualifiedPlace);
         return $toPlace;
     }
 
@@ -109,7 +102,7 @@ class Service
         $toPlaces = $ruleMultiple->getToPlaces();
         if (!$this->isRoundFinished()) {
             foreach ($toPlaces as $toPlace) {
-                $toPlace->setCompetitor(null);
+                $toPlace->setQualifiedPlace(null);
                 $changedPlaces[] = $toPlace;
             }
             return $changedPlaces;
@@ -123,7 +116,7 @@ class Service
         foreach ($toPlaces as $toPlace) {
             $toPouleNumber = $toPlace->getPoule()->getNumber();
             $rankedPlaceLocation = $this->reservationService->getFreeAndLeastAvailabe($toPouleNumber, $round, $rankedPlaceLocations);
-            $toPlace->setCompetitor($this->rankingService->getCompetitor($rankedPlaceLocation));
+            $toPlace->setQualifiedPlace($round->getPlace($rankedPlaceLocation));
             $changedPlaces[] = $toPlace;
             $index = array_search($rankedPlaceLocation, $rankedPlaceLocations, true);
             if ($index !== false) {
@@ -133,15 +126,14 @@ class Service
         return $changedPlaces;
     }
 
-    protected function getQualifiedCompetitor(Poule $poule, int $rank): ?Competitor
+    protected function getQualifiedPlace(Poule $poule, int $rank): ?Place
     {
         if (!$this->isPouleFinished($poule)) {
             return null;
         }
         $pouleRankingItems = $this->rankingService->getItemsForPoule($poule);
         $rankingItem = $this->rankingService->getItemByRank($pouleRankingItems, $rank);
-        $place = $poule->getPlace($rankingItem->getPlaceLocation()->getPlaceNr());
-        return $place->getCompetitor();
+        return $poule->getPlace($rankingItem->getPlaceLocation()->getPlaceNr());
     }
 
     protected function isRoundFinished(): bool

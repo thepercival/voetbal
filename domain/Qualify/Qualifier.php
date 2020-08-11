@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 20-4-18
- * Time: 10:33
- */
 
 namespace Voetbal\Qualify;
 
 use Voetbal\Place;
-use Voetbal\Competitor;
+use Voetbal\Competitor as Competitor;
 
 class Qualifier
 {

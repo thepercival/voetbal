@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Voetbal\Output;
 
 use Psr\Log\LoggerInterface;
@@ -9,6 +8,7 @@ use Voetbal\Game as GameBase;
 use Voetbal\NameService;
 use Voetbal\Place;
 use Voetbal\Output\Base as VoetbalOutputBase;
+use Voetbal\Place\Location\Map as PlaceLocationMap;
 use Voetbal\Ranking\ItemsGetter;
 use Voetbal\Sport\ScoreConfig\Service as SportScoreConfigService;
 use Voetbal\State;
@@ -20,14 +20,19 @@ class Game extends VoetbalOutputBase
      */
     protected $nameService;
     /**
+     * @var PlaceLocationMap|null
+     */
+    protected $placeLocationMap;
+    /**
      * @var SportScoreConfigService
      */
     private $sportScoreConfigService;
 
-    public function __construct(LoggerInterface $logger = null)
+    public function __construct(PlaceLocationMap $placeLocationMap, LoggerInterface $logger = null)
     {
         parent::__construct($logger);
         $this->nameService = new NameService();
+        $this->placeLocationMap = $placeLocationMap;
         $this->sportScoreConfigService = new SportScoreConfigService();
     }
 
@@ -76,8 +81,11 @@ class Game extends VoetbalOutputBase
     protected function getPlaceAsString(Place $place): string
     {
         $retVal = $this->nameService->getPlaceFromName( $place, false, false );
-        if( $place->getCompetitor() !== null ) {
-            $retVal .= ' ' . $place->getCompetitor()->getName();
+        if( $this->placeLocationMap !== null ) {
+            $competitor = $this->placeLocationMap->getCompetitor( $place->getStartLocation() );
+            if( $competitor !== null ) {
+                $retVal .= ' ' . $competitor->getName();
+            }
         }
         while( strlen( $retVal ) < 10 ) {
             $retVal .=  ' ';

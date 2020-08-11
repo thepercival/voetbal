@@ -1,12 +1,8 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 6-6-19
- * Time: 7:55
- */
 
 namespace Voetbal\Ranking\End;
+
+use Voetbal\Place\Location as PlaceLocation;
 
 class Item
 {
@@ -19,21 +15,15 @@ class Item
      */
     private $rank;
     /**
-     * @var string
+     * @var PlaceLocation|null
      */
-    private $name;
+    private $placeLocation;
 
-    /**
-     * EndRankingItem constructor.
-     * @param int $uniqueRank
-     * @param int $rank
-     * @param string $name
-     */
-    public function __construct(int $uniqueRank, int $rank, string $name)
+    public function __construct(int $uniqueRank, int $rank, PlaceLocation $placeLocation = null)
     {
         $this->uniqueRank = $uniqueRank;
         $this->rank = $rank;
-        $this->name = $name;
+        $this->placeLocation = $placeLocation;
     }
 
     public function getUniqueRank(): int
@@ -46,8 +36,8 @@ class Item
         return $this->rank;
     }
 
-    public function getName(): string
+    public function getPlaceLocation(): ?PlaceLocation
     {
-        return $this->name;
+        return $this->placeLocation;
     }
 }

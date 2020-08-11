@@ -1,15 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: coen
- * Date: 6-6-19
- * Time: 7:57
- */
 
 namespace Voetbal\Ranking\End;
 
 use Voetbal\State;
-use Voetbal\Place\Location as PlaceLocation;
+use Voetbal\Place;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Qualify\Group as QualifyGroup;
 use Voetbal\Round;
@@ -77,7 +71,7 @@ class Service
         $items = [];
         $nrOfDropouts = $round->getNrOfPlaces() - $round->getNrOfPlacesChildren();
         for ($i = 0; $i < $nrOfDropouts; $i++) {
-            $items[] = new Item($this->currentRank, $this->currentRank++, 'nog onbekend');
+            $items[] = new Item($this->currentRank, $this->currentRank++, null);
         }
         return $items;
     }
@@ -126,12 +120,10 @@ class Service
      */
     protected function getDropoutsHorizontalPoule(HorizontalPoule $horizontalPoule, RankingService $rankingService): array
     {
-        $rankedPlaceLocations = $rankingService->getPlaceLocationsForHorizontalPoule($horizontalPoule);
-        array_splice($rankedPlaceLocations, 0, $horizontalPoule->getNrOfQualifiers());
-        return array_map(function ($rankedPlaceLocation) use ($rankingService): Item {
-            $competitor = $rankingService->getCompetitor($rankedPlaceLocation);
-            $name = $competitor !== null ? $competitor->getName() : 'onbekend';
-            return new Item($this->currentRank, $this->currentRank++, $name);
-        }, $rankedPlaceLocations);
+        $rankedPlaces = $rankingService->getPlacesForHorizontalPoule($horizontalPoule);
+        array_splice($rankedPlaces, 0, $horizontalPoule->getNrOfQualifiers());
+        return array_map(function (Place $rankedPlace): Item {
+            return new Item($this->currentRank, $this->currentRank++, $rankedPlace->getStartLocation() );
+        }, $rankedPlaces);
     }
 }

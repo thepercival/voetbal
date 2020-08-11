@@ -421,19 +421,6 @@ class Round
         return $winnersOrLosers === Round::WINNERS ? Round::LOSERS : Round::WINNERS;
     }
 
-    /**
-     * @return array | Competitor[]
-     */
-    public function getCompetitors(): array
-    {
-        $competitors = [];
-        /** @var Poule $poule */
-        foreach ($this->getPoules() as $poule) {
-            $competitors = array_merge($competitors, $poule->getCompetitors());
-        }
-        return $competitors;
-    }
-
     public function getNrOfPlaces(): int
     {
         $nrOfPlaces = 0;

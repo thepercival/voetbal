@@ -5,20 +5,25 @@
       <generator strategy="AUTO"/>
     </id>
     <field name="name" column="name" type="string" length="10" nullable="true" unique="false"/>
-    <field name="number" column="number" type="smallint" nullable="false" unique="false"/>
+    <field name="number" column="number" type="smallint" nullable="true" unique="false"/>
+    <field name="competitorDep" column="competitorid" type="integer" nullable="true" unique="false"/>
     <field name="penaltyPoints" column="penaltyPoints" type="smallint" nullable="false" unique="false">
       <options>
         <option name="default">0</option>
       </options>
     </field>
+    <one-to-one field="qualifiedPlace" target-entity="Voetbal\Place" fetch="EAGER">
+      <!--      <cascade>-->
+      <!--        <cascade-persist/>-->
+      <!--        <cascade-remove/>-->
+      <!--      </cascade>-->
+      <join-columns>
+        <join-column name="qualifiedPlaceId" referenced-column-name="id" nullable="true" on-delete="CASCADE"/>
+      </join-columns>
+    </one-to-one>
     <many-to-one field="poule" target-entity="Voetbal\Poule" inversed-by="places">
       <join-columns>
         <join-column name="pouleid" referenced-column-name="id" nullable="false" on-delete="CASCADE"/>
-      </join-columns>
-    </many-to-one>
-    <many-to-one field="competitor" target-entity="Voetbal\Competitor">
-      <join-columns>
-        <join-column name="competitorid" referenced-column-name="id" nullable="true" on-delete="RESTRICT"/>
       </join-columns>
     </many-to-one>
   </entity>

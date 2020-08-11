@@ -3,10 +3,9 @@
 namespace Voetbal;
 
 use League\Period\Period;
-use Voetbal\Import\Idable as Importable;
 use \Doctrine\Common\Collections\ArrayCollection;
 
-class Season implements Importable
+class Season implements Identifiable
 {
     /**
      * @var int|string
@@ -31,8 +30,6 @@ class Season implements Importable
 
     const MIN_LENGTH_NAME = 2;
     const MAX_LENGTH_NAME = 9;
-
-    use ImportableTrait;
 
     public function __construct($name, Period $period)
     {

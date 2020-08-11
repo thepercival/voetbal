@@ -224,16 +224,4 @@ class Poule
         }
         return State::Created;
     }
-
-    public function getCompetitors(): array
-    {
-        $competitors = [];
-        foreach ($this->getPlaces() as $place) {
-            $competitor = $place->getCompetitor();
-            if ($competitor !== null) {
-                $competitors[] = $competitor;
-            }
-        }
-        return $competitors;
-    }
 }

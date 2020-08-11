@@ -105,7 +105,7 @@ class Iterator
 
     public function __construct(
         PlaceRange $rangePlaces,
-        PlaceRange $rangePoules,
+        VoetbalRange $rangePoules,
         VoetbalRange $rangeNrOfSports,
         VoetbalRange $rangeNrOfFields,
         VoetbalRange $rangeNrOfReferees,

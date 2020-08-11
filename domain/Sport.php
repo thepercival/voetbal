@@ -8,9 +8,7 @@
 
 namespace Voetbal;
 
-use Voetbal\Import\Idable as Importable;
-
-class Sport implements Importable
+class Sport implements Identifiable
 {
     const TEMPDEFAULT = 2;
     const MIN_LENGTH_NAME = 3;

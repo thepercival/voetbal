@@ -9,6 +9,7 @@
 namespace Voetbal;
 
 use \Doctrine\Common\Collections\Collection;
+use Voetbal\Place\Location\Map as PlaceLocationMap;
 use Voetbal\Poule\Horizontal as HorizontalPoule;
 use Voetbal\Round\Number as RoundNumber;
 use Voetbal\Qualify\Group as QualifyGroup;
@@ -20,6 +21,16 @@ use function DeepCopy\deep_copy;
 
 class NameService
 {
+    /**
+     * @var PlaceLocationMap|null
+     */
+    protected $placeLocationMap;
+
+    public function __construct(PlaceLocationMap $placeLocationMap = null)
+    {
+        $this->placeLocationMap = $placeLocationMap;
+    }
+
     public function getWinnersLosersDescription(int $winnersOrLosers, bool $multiple = false): string
     {
         $description = $winnersOrLosers === QualifyGroup::WINNERS ? 'winnaar' : ($winnersOrLosers === QualifyGroup::LOSERS ? 'verliezer' : '');
@@ -73,11 +84,14 @@ class NameService
         return $pouleName;
     }
 
-
     public function getPlaceName(Place $place, $competitorName = false, $longName = false): string
     {
-        if ($competitorName === true && $place->getCompetitor() !== null) {
-            return $place->getCompetitor()->getName();
+        $competitorName = $competitorName && $this->placeLocationMap !== null;
+        if ($competitorName === true) {
+            $competitor = $this->placeLocationMap->getCompetitor( $place->getStartLocation() );
+            if( $competitor !== null ) {
+                return $competitor->getName();
+            }
         }
         if ($longName === true) {
             return $this->getPouleName($place->getPoule(), true) . ' nr. ' . $place->getNumber();
@@ -88,8 +102,12 @@ class NameService
 
     public function getPlaceFromName(Place $place, bool $competitorName, bool $longName = false): string
     {
-        if ($competitorName === true && $place->getCompetitor() !== null) {
-            return $place->getCompetitor()->getName();
+        $competitorName = $competitorName && $this->placeLocationMap !== null;
+        if ($competitorName === true ) {
+            $competitor = $this->placeLocationMap->getCompetitor( $place->getStartLocation() );
+            if( $competitor !== null ) {
+                return $competitor->getName();
+            }
         }
 
         $parentQualifyGroup = $place->getRound()->getParentQualifyGroup();
@@ -102,9 +120,9 @@ class NameService
             if ($longName) {
                 /**
                  * @param QualifyRuleMultiple $multipleRule
-                 * @return mixed
+                 * @return HorizontalPoule
                  */
-                $getHorizontalPoule = function ($multipleRule) {
+                $getHorizontalPoule = function ($multipleRule): HorizontalPoule {
                     return $multipleRule->getFromHorizontalPoule();
                 };
                 return $this->getHorizontalPouleName($getHorizontalPoule($fromQualifyRule));
@@ -113,9 +131,9 @@ class NameService
         }
         /**
          * @param QualifyRuleSingle $singleRule
-         * @return mixed
+         * @return Place
          */
-        $getFromPlace = function ($singleRule) {
+        $getFromPlace = function ($singleRule): Place {
             return $singleRule->getFromPlace();
         };
         $fromPlace = $getFromPlace($fromQualifyRule);

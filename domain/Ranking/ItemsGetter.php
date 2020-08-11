@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: cdunnink
- * Date: 6-6-2019
- * Time: 10:40
- */
 
 namespace Voetbal\Ranking;
 
@@ -56,7 +50,7 @@ class ItemsGetter
         /** @var UnrankedRoundItem[]|array $items */
         $items = array_map(
             function ($place): UnrankedRoundItem {
-                return new UnrankedRoundItem($this->round, $place->getLocation(), $place->getPenaltyPoints());
+                return new UnrankedRoundItem($this->round, $place, $place->getPenaltyPoints());
             },
             $places
         );
@@ -83,11 +77,9 @@ class ItemsGetter
                 foreach ($game->getPlaces($homeAway) as $gamePlace) {
                     $foundItems = array_filter(
                         $items,
-                        function ($item) use ($gamePlace): bool {
-                            return $item->getPlaceLocation()->getPlaceNr() === $gamePlace->getPlace()->getLocation(
-                                )->getPlaceNr()
-                                && $item->getPlaceLocation()->getPouleNr() === $gamePlace->getPlace()->getLocation(
-                                )->getPouleNr();
+                        function (UnrankedRoundItem $item) use ($gamePlace): bool {
+                            return $item->getPlaceLocation()->getPlaceNr() === $gamePlace->getPlace()->getPlaceNr()
+                                && $item->getPlaceLocation()->getPouleNr() === $gamePlace->getPlace()->getPouleNr();
                         }
                     );
                     /** @var UnrankedRoundItem $item */
